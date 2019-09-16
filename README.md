@@ -1,26 +1,32 @@
-# quoridorn-mark2
+# Quoridorn-mark2
+TRPGオンラインセッションツール「Quoridorn」のリポジトリです。<br>
 
-## Project setup
+See [公式サイト](http://quoridorn.com)
+
+Quoridorn Ver.2.0.0以降のリポジトリです。<br>
+開発を始めて約１年が経過し、行き当たりばったりのコーディングの積み重ねでソースが汚いので、オーバーホールも兼ねています。<br>
+
+## git cloneしたら最初にやること
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### ローカルサーバで動かすには
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### ビルドするには
 ```
 npm run build
 ```
 
-### Run your tests
+### テストはないです
 ```
 npm run test
 ```
 
-### Lints and fixes files
+### Lintチェック
 ```
 npm run lint
 ```
