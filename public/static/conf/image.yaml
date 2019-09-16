@@ -1,0 +1,453 @@
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "マップ"
+  # データ
+  data: "./static/img/map/background-default.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "マップ"
+  # データ
+  data: "./static/img/map/field001.gif"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnBlack.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnBlue.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnGreen.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnLightBlue.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnOrange.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnPink.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnPurple.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnRed.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnWhite.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "キャラクター"
+  # データ
+  data: "./static/img/character/pawnYellow.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_001.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_008.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_011.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_012.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_027.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_038.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_047.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "フロアタイル"
+  # データ
+  data: "./static/img/floorTiles/floorTile_059.jpg"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/glass_angry.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/glass_normal.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/glass_smile.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/sports_angry.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/sports_normal.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "./static/img/stand/sports_smile.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+
+
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wink.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 30 # X座標(通常)
+    - 16 # Y座標(通常)
+    - 142 # X座標(反転時)
+    - 16 # Y座標(反転時)
+    - 20 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_stick.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 177 # X座標(通常)
+    - 0 # Y座標(通常)
+    - 0 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wing_right_1.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 40 # X座標(通常)
+    - 83 # Y座標(通常)
+    - 160 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 0 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wing_right_2.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 40 # X座標(通常)
+    - 83 # Y座標(通常)
+    - 160 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+
+
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_leg_left.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 197 # X座標(通常)
+    - 64 # Y座標(通常)
+    - 23 # X座標(反転時)
+    - 64 # Y座標(反転時)
+    - 0 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_leg_right.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 96 # X座標(通常)
+    - 92 # Y座標(通常)
+    - 127 # X座標(反転時)
+    - 92 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_sweat_1.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 0 # X座標(通常)
+    - 0 # Y座標(通常)
+    - 180 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 0 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_sweat_2.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 0 # X座標(通常)
+    - 0 # Y座標(通常)
+    - 190 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_tie.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 134 # X座標(通常)
+    - 61 # Y座標(通常)
+    - 82 # X座標(反転時)
+    - 61 # Y座標(反転時)
+    - 0 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_wing_left.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 166 # X座標(通常)
+    - 19 # Y座標(通常)
+    - 55 # X座標(反転時)
+    - 19 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_wing_right.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 21 # X座標(通常)
+    - 61 # Y座標(通常)
+    - 173 # X座標(反転時)
+    - 61 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+
+
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach.png"
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_stick.png"
+  imageArgList:
+    - 1 # 画像処理方法(0: 重ねる, 1:置換)
+    - 179 # X座標(通常)
+    - 0 # Y座標(通常)
+    - 0 # X座標(反転時)
+    - 0 # Y座標(反転時)
+    - 20 # 表示時間(開始%) 0~100
+    - 70 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_wing_right.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 108 # X座標(通常)
+    - 81 # Y座標(通常)
+    - 91 # X座標(反転時)
+    - 81 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_glad_1.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 40 # X座標(通常)
+    - 1 # Y座標(通常)
+    - 64 # X座標(反転時)
+    - 1 # Y座標(反転時)
+    - 0 # 表示時間(開始%) 0~100
+    - 50 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_glad_2.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 43 # X座標(通常)
+    - 1 # Y座標(通常)
+    - 54 # X座標(反転時)
+    - 1 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#
+- # タグ
+  tag: "立ち絵差分"
+  # データ
+  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_mouth.png"
+  imageArgList:
+    - 0 # 画像処理方法(0: 重ねる, 1:置換)
+    - 149 # X座標(通常)
+    - 55 # Y座標(通常)
+    - 82 # X座標(反転時)
+    - 55 # Y座標(反転時)
+    - 50 # 表示時間(開始%) 0~100
+    - 100 # 表示時間(終了%) 0~100
+  # パスワード
+  password: ""
+#=========#=========#=========#=========#=========#=========#

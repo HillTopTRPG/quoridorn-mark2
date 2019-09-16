@@ -1,0 +1,12 @@
+# SkyWayのAPIキーを指定してください
+# skywayKey: "********-****-****-****-************"
+skywayKey: "fdaf9bd9-81be-4606-ba41-3d3061fc2155"
+
+# 接続方式を以下から選んで指定してください
+# "Mesh": 公式サーバー向け。SkyWayの無料利用枠をあまり消費しない代わりに少人数（10名未満）でないと重くなる
+# "SFU": 個人サーバー向け。SkyWayの無料利用枠を急速に消費する代わりに大人数での通信が可能。
+type: "Mesh"
+
+# bcdice-apiの向き先
+# 末尾のスラッシュは無くしてください
+bcdiceServer: "https://www.taruki.com/bcdice-api"

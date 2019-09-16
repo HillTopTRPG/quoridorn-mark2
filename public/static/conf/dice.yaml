@@ -1,0 +1,149 @@
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+4:
+- # タイプ
+  type: orange
+  # 選択肢の文言
+  label: オレンジ
+  # 出目
+  pips:
+    1: ./static/img/dice/4/orange/dice_orange_4_1.png
+    2: ./static/img/dice/4/orange/dice_orange_4_2.png
+    3: ./static/img/dice/4/orange/dice_orange_4_3.png
+    4: ./static/img/dice/4/orange/dice_orange_4_4.png
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+6:
+- # タイプ
+  type: white
+  # 選択肢の文言
+  label: 白
+  # 出目
+  pips:
+    0: ./static/img/dice/6/white/dice_white_6_0.png
+    1: ./static/img/dice/6/white/dice_white_6_1.png
+    2: ./static/img/dice/6/white/dice_white_6_2.png
+    3: ./static/img/dice/6/white/dice_white_6_3.png
+    4: ./static/img/dice/6/white/dice_white_6_4.png
+    5: ./static/img/dice/6/white/dice_white_6_5.png
+    6: ./static/img/dice/6/white/dice_white_6_6.png
+- # タイプ
+  type: black
+  # 選択肢の文言
+  label: 黒
+  # 出目
+  pips:
+    0: ./static/img/dice/6/black/dice_black_6_0.png
+    1: ./static/img/dice/6/black/dice_black_6_1.png
+    2: ./static/img/dice/6/black/dice_black_6_2.png
+    3: ./static/img/dice/6/black/dice_black_6_3.png
+    4: ./static/img/dice/6/black/dice_black_6_4.png
+    5: ./static/img/dice/6/black/dice_black_6_5.png
+    6: ./static/img/dice/6/black/dice_black_6_6.png
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+8:
+- # タイプ
+  type: green
+  # 選択肢の文言
+  label: 緑
+  # 出目
+  pips:
+    1: ./static/img/dice/8/green/dice_green_8_1.png
+    2: ./static/img/dice/8/green/dice_green_8_2.png
+    3: ./static/img/dice/8/green/dice_green_8_3.png
+    4: ./static/img/dice/8/green/dice_green_8_4.png
+    5: ./static/img/dice/8/green/dice_green_8_5.png
+    6: ./static/img/dice/8/green/dice_green_8_6.png
+    7: ./static/img/dice/8/green/dice_green_8_7.png
+    8: ./static/img/dice/8/green/dice_green_8_8.png
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+10:
+- # タイプ
+  type: blue
+  # 選択肢の文言
+  label: 青
+  # 出目
+  pips:
+    1: ./static/img/dice/10/blue/dice_blue_10_1.png
+    2: ./static/img/dice/10/blue/dice_blue_10_2.png
+    3: ./static/img/dice/10/blue/dice_blue_10_3.png
+    4: ./static/img/dice/10/blue/dice_blue_10_4.png
+    5: ./static/img/dice/10/blue/dice_blue_10_5.png
+    6: ./static/img/dice/10/blue/dice_blue_10_6.png
+    7: ./static/img/dice/10/blue/dice_blue_10_7.png
+    8: ./static/img/dice/10/blue/dice_blue_10_8.png
+    9: ./static/img/dice/10/blue/dice_blue_10_9.png
+    10: ./static/img/dice/10/blue/dice_blue_10_10.png
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+12:
+- # タイプ
+  type: purple
+  # 選択肢の文言
+  label: 紫
+  # 出目
+  pips:
+    1: ./static/img/dice/12/purple/dice_purple_12_1.png
+    2: ./static/img/dice/12/purple/dice_purple_12_2.png
+    3: ./static/img/dice/12/purple/dice_purple_12_3.png
+    4: ./static/img/dice/12/purple/dice_purple_12_4.png
+    5: ./static/img/dice/12/purple/dice_purple_12_5.png
+    6: ./static/img/dice/12/purple/dice_purple_12_6.png
+    7: ./static/img/dice/12/purple/dice_purple_12_7.png
+    8: ./static/img/dice/12/purple/dice_purple_12_8.png
+    9: ./static/img/dice/12/purple/dice_purple_12_9.png
+    10: ./static/img/dice/12/purple/dice_purple_12_10.png
+    11: ./static/img/dice/12/purple/dice_purple_12_11.png
+    12: ./static/img/dice/12/purple/dice_purple_12_12.png
+#=========#=========#=========#=========#=========#=========#
+  # 面の数
+20:
+- # タイプ
+  type: yellow
+  # 選択肢の文言
+  label: 黄
+  # 出目
+  pips:
+    0: ./static/img/dice/20/yellow/dice_yellow_20_0.png
+    1: ./static/img/dice/20/yellow/dice_yellow_20_1.png
+    2: ./static/img/dice/20/yellow/dice_yellow_20_2.png
+    3: ./static/img/dice/20/yellow/dice_yellow_20_3.png
+    4: ./static/img/dice/20/yellow/dice_yellow_20_4.png
+    5: ./static/img/dice/20/yellow/dice_yellow_20_5.png
+    6: ./static/img/dice/20/yellow/dice_yellow_20_6.png
+    7: ./static/img/dice/20/yellow/dice_yellow_20_7.png
+    8: ./static/img/dice/20/yellow/dice_yellow_20_8.png
+    9: ./static/img/dice/20/yellow/dice_yellow_20_9.png
+    10: ./static/img/dice/20/yellow/dice_yellow_20_10.png
+    11: ./static/img/dice/20/yellow/dice_yellow_20_11.png
+    12: ./static/img/dice/20/yellow/dice_yellow_20_12.png
+    13: ./static/img/dice/20/yellow/dice_yellow_20_13.png
+    14: ./static/img/dice/20/yellow/dice_yellow_20_14.png
+    15: ./static/img/dice/20/yellow/dice_yellow_20_15.png
+    16: ./static/img/dice/20/yellow/dice_yellow_20_16.png
+    17: ./static/img/dice/20/yellow/dice_yellow_20_17.png
+    18: ./static/img/dice/20/yellow/dice_yellow_20_18.png
+    19: ./static/img/dice/20/yellow/dice_yellow_20_19.png
+    20: ./static/img/dice/20/yellow/dice_yellow_20_20.png
+#=========#=========#=========#=========#=========#=========#
+# 面の数
+100:
+- # タイプ
+  type: red
+  # 選択肢の文言
+  label: 赤
+  # 出目
+  pips:
+    10: ./static/img/dice/100/red/dice_red_100_10.png
+    20: ./static/img/dice/100/red/dice_red_100_20.png
+    30: ./static/img/dice/100/red/dice_red_100_30.png
+    40: ./static/img/dice/100/red/dice_red_100_40.png
+    50: ./static/img/dice/100/red/dice_red_100_50.png
+    60: ./static/img/dice/100/red/dice_red_100_60.png
+    70: ./static/img/dice/100/red/dice_red_100_70.png
+    80: ./static/img/dice/100/red/dice_red_100_80.png
+    90: ./static/img/dice/100/red/dice_red_100_90.png
+    100: ./static/img/dice/100/red/dice_red_100_100.png
+#=========#=========#=========#=========#=========#=========#

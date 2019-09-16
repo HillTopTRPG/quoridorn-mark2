@@ -27,9 +27,12 @@
       >
         <map-board />
       </div>
+
+      <!--
       <label>
         <base-input type="button" value="ccc" @click.left="clickButton3" />
       </label>
+      -->
 
       <map-mask
         v-for="obj in getMapObjectList({ kind: 'mapMask', place: 'field' })"

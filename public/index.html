@@ -1,17 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>quoridorn-mark2</title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but quoridorn-mark2 doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<html>
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-137840605-5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-137840605-5');
+  </script>
+  <meta charset="utf-8">
+  <meta http-equiv="Expires" content="86400">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Quoridorn - TRPGオンラインセッションツール</title>
+  <meta name="description" content="TRPGオンラインセッションツールの一種「Quoridorn（コリドーン）」です。">
+  <meta name="author" content="@HillTop_TRPG at Twitter">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/map/background-default.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/map/field001.gif" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/favicon.ico" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/conf/bgm.yaml" as="fetch">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/conf/connect.yaml" as="fetch">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/conf/deck.yaml" as="fetch">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/conf/image.yaml" as="fetch">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnBlack.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnBlue.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnGreen.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnLightBlue.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnOrange.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnPink.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnPurple.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnRed.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnWhite.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/character/pawnYellow.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_001.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_008.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_011.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_012.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_027.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_038.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_047.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/floorTiles/floorTile_059.jpg" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/4/orange/dice_orange_4_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/4/orange/dice_orange_4_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/4/orange/dice_orange_4_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/4/orange/dice_orange_4_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_0.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/black/dice_black_6_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_0.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/6/white/dice_white_6_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_7.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/8/green/dice_green_8_8.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_7.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_8.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_9.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/10/blue/dice_blue_10_10.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_7.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_8.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_9.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_10.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_11.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/12/purple/dice_purple_12_12.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_0.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_1.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_2.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_3.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_4.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_5.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_6.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_7.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_8.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_9.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_10.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_11.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_12.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_13.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_14.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_15.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_16.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_17.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_18.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_19.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/20/yellow/dice_yellow_20_20.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_10.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_20.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_30.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_40.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_50.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_60.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_70.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_80.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_90.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/dice/100/red/dice_red_100_100.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/glass_angry.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/glass_normal.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/glass_smile.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/sports_angry.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/sports_smile.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/yukari.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/yukari__face_114_65.png" as="image">
+  <link rel="preload prefetch" href="<%= BASE_URL %>static/img/stand/yukari__mouth_147_122.png" as="image">
+  <link rel="stylesheet" href="static/icomoon/style.css">
+  <link rel="shortcut icon" href="static/favicon.ico">
+  <style type="text/css">
+    #YoutubePlayerContainer {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      z-index: -1;
+    }
+    #YoutubePlayerContainer > * {
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    #YoutubePlayerContainer > * > * {
+      width: 213px;
+      height: 120px;
+      transform-origin: right bottom;
+      transition: all 0.2s ease-in;
+    }
+    #YoutubePlayerContainer > *:hover > * {
+      width: 426px;
+      height: 240px;
+    }
+    #YoutubePlayerContainer .unUse {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+</body>
 </html>
