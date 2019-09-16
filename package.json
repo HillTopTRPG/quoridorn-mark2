@@ -3,21 +3,29 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "serve": "vue-cli-service serve --open",
+    "build": "vue-cli-service build && npm run build-chat-log",
+    "create-zip": "scripts/create-zip.sh",
+    "build-chat-log": "scripts/build-chat-log.sh",
+    "lint": "vue-cli-service lint",
+    "set-skyway-key": "scripts/set-skyway-key.sh"
   },
   "dependencies": {
     "@types/mathjs": "^6.0.2",
     "core-js": "^2.6.5",
+    "crypto-js": "^3.1.9-1",
+    "jszip": "^3.2.2",
     "mathjs": "^6.2.1",
+    "moment": "^2.24.0",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-mixin-decorator": "^1.2.0",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3",
+    "vuedraggable": "^2.23.0",
     "vuex": "^3.0.1",
-    "vuex-class": "^0.3.2"
+    "vuex-class": "^0.3.2",
+    "yaml-loader": "^0.5.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",
