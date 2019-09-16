@@ -187,14 +187,14 @@
 - # タグ
   tag: "立ち絵"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal.png"
+  data: "http://quoridorn.com/img/mascot/normal/mascot_normal.png"
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wink.png"
+  data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wink.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 30 # X座標(通常)
@@ -209,7 +209,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_stick.png"
+  data: "http://quoridorn.com/img/mascot/normal/mascot_normal_stick.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 177 # X座標(通常)
@@ -224,7 +224,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wing_right_1.png"
+  data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_1.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 40 # X座標(通常)
@@ -239,7 +239,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/normal/mascot_normal_wing_right_2.png"
+  data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_2.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 40 # X座標(通常)
@@ -257,14 +257,14 @@
 - # タグ
   tag: "立ち絵"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle.png"
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_leg_left.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_left.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 197 # X座標(通常)
@@ -279,7 +279,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_leg_right.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_right.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 96 # X座標(通常)
@@ -294,7 +294,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_sweat_1.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_1.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 0 # X座標(通常)
@@ -309,7 +309,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_sweat_2.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_2.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 0 # X座標(通常)
@@ -324,7 +324,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_tie.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_tie.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 134 # X座標(通常)
@@ -339,7 +339,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_wing_left.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_left.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 166 # X座標(通常)
@@ -354,7 +354,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/struggle/mascot_struggle_wing_right.png"
+  data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_right.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 21 # X座標(通常)
@@ -372,14 +372,14 @@
 - # タグ
   tag: "立ち絵"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach.png"
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_stick.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach_stick.png"
   imageArgList:
     - 1 # 画像処理方法(0: 重ねる, 1:置換)
     - 179 # X座標(通常)
@@ -394,7 +394,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_wing_right.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach_wing_right.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 108 # X座標(通常)
@@ -409,7 +409,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_glad_1.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach_glad_1.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 40 # X座標(通常)
@@ -424,7 +424,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_glad_2.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach_glad_2.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 43 # X座標(通常)
@@ -439,7 +439,7 @@
 - # タグ
   tag: "立ち絵差分"
   # データ
-  data: "http://mihikari.sakura.ne.jp/quoridorn/official/img/mascot/teach/mascot_teach_mouth.png"
+  data: "http://quoridorn.com/img/mascot/teach/mascot_teach_mouth.png"
   imageArgList:
     - 0 # 画像処理方法(0: 重ねる, 1:置換)
     - 149 # X座標(通常)

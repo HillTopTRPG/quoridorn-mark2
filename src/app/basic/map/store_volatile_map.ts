@@ -86,6 +86,28 @@ export default {
       state.move.dragging.x = value.x;
       state.move.dragging.y = value.y;
     },
+    setMouseLocateSet: (
+      state: State,
+      {
+        locateOnScreen,
+        locateOnCanvas,
+        locateOnTable,
+        grid
+      }: {
+        locateOnScreen: LocationPoint;
+        locateOnCanvas: LocationPoint;
+        locateOnTable: LocationPoint;
+        grid: Matrix;
+      }
+    ) => {
+      state.mouse.onScreen.x = locateOnScreen.x;
+      state.mouse.onScreen.y = locateOnScreen.y;
+      state.mouse.onCanvas.x = locateOnCanvas.x;
+      state.mouse.onCanvas.y = locateOnCanvas.y;
+      state.mouse.onTable.x = locateOnTable.x;
+      state.mouse.onTable.y = locateOnTable.y;
+      state.grid = grid;
+    },
     setMouseOnScreenLocate: (state: State, value: LocationPoint) => {
       state.mouse.onScreen.x = value.x;
       state.mouse.onScreen.y = value.y;

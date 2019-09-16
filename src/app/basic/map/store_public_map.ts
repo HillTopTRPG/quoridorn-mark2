@@ -91,7 +91,7 @@ export default {
       rootGetters: any
     ): string | null => {
       const imageObj = rootGetters.imageList.filter(
-        (image: any) => image.key === getters.currentMap.imageKey
+        (image: any) => image.key === getters.currentMapObj.imageKey
       )[0];
       return imageObj ? imageObj.data : null;
     },

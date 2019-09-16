@@ -112,6 +112,7 @@ import { qLog, fileToBase64, parseColor } from "@/app/core/Utility";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Action, Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
+import { Task } from "@/app/store/EventQueue";
 
 @Component({
   components: {
@@ -149,9 +150,11 @@ export default class GameTable extends AddressCalcMixin {
   @Mutation("setMouseOnScreenLocate") private setMouseOnScreenLocate: any;
   @Mutation("setMouseOnCanvasLocate") private setMouseOnCanvasLocate: any;
   @Mutation("setMouseOnTableLocate") private setMouseOnTableLocate: any;
+  @Mutation("setMouseLocateSet") private setMouseLocateSet: any;
   @Mutation("setMapGrid") private setMapGrid: any;
   @Mutation("setIsWheeling") private setIsWheeling: any;
-  // @Mutation("addTaskListener") private addTaskListener: any;
+  @Mutation("addTaskListener") private addTaskListener: any;
+  @Mutation("removeTaskListener") private removeTaskListener: any;
   // @Getter("isFitGrid") private isFitGrid: any;
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Getter("getBackgroundImage") private getBackgroundImage!: string | null;
@@ -182,16 +185,39 @@ export default class GameTable extends AddressCalcMixin {
   @Getter("mouseLocate") private mouseLocate!: LocationPoint;
   @Getter("mouseOnTableLocate") private mouseOnTableLocate!: LocationPoint;
 
+  private wheelTimer: number | null = null;
+
   private mounted(): void {
     document.addEventListener("mousemove", this.mouseMove);
     document.addEventListener("touchmove", this.touchMove);
-    //
-    // this.addTaskListener({
-    //   type: "mouse-move-finished",
-    //   processor: async (task: Task<LocationPoint>): Promise<string | void> => {
-    //     return "status01";
-    //   }
-    // });
+
+    this.addTaskListener({
+      type: "action-wheel-finished",
+      processor: async (task: Task<number>): Promise<string | void> => {
+        const changeValue = 100;
+        const value: number = task!.value as number;
+        const add = value > 0 ? changeValue : -changeValue;
+        const mapWheel = this.mapWheel + add;
+        if (mapWheel < -2400 || mapWheel > 800) {
+          return;
+        }
+        this.setMapWheel(mapWheel);
+
+        this.setIsWheeling(true);
+        if (this.wheelTimer !== null) {
+          window.clearTimeout(this.wheelTimer);
+        }
+        this.wheelTimer = window.setTimeout(() => {
+          this.setIsWheeling(false);
+          this.wheelTimer = null;
+        }, 600);
+      }
+    });
+  }
+
+  private beforeDestroy() {
+    window.console.log("beforeDestroy");
+    this.removeTaskListener("action-wheel-finished");
   }
 
   private globalEnter() {
@@ -373,19 +399,10 @@ export default class GameTable extends AddressCalcMixin {
       pageY,
       this.currentAngle
     );
-    const mapObj: any = {
-      grid: {
-        c: canvasAddress.grid.column,
-        r: canvasAddress.grid.row
-      }
-    };
     if (this.isMapMouseDownRight && !this.isMapDraggingRight) {
       this.setIsMapDraggingRight(true);
     }
-    this.setMouseOnScreenLocate(canvasAddress.locateOnScreen);
-    this.setMouseOnCanvasLocate(canvasAddress.locateOnCanvas);
-    this.setMouseOnTableLocate(canvasAddress.locateOnTable);
-    this.setMapGrid(canvasAddress.grid);
+    this.setMouseLocateSet(canvasAddress);
   }
 
   // private drop(this: any, event: any): void {

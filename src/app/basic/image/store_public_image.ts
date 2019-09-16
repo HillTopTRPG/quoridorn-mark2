@@ -1,69 +1,115 @@
+import { loadYaml } from "@/app/core/File";
+import { getFileNameArgList } from "@/app/core/Utility";
+
 export interface ImageTagInfo extends SyncObj {}
 
 export interface ImageInfo extends SyncObj {
   tag: string;
   data: string;
-  imageArgList: number[];
+  imageArgList: (number | string)[];
   password: string;
 }
 
-type State = {
+interface State extends SyncObjList<ImageInfo> {
+  tags: SyncObjList<ImageTagInfo>;
+}
+
+const state: State = {
+  /** 画像のタグ */
   tags: {
-    list: SyncObjList<ImageTagInfo>[];
-  };
+    list: [
+      {
+        key: "imgTag-0",
+        name: "(全て)",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      },
+      {
+        key: "imgTag-1",
+        name: "マップ",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      },
+      {
+        key: "imgTag-2",
+        name: "キャラクター",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      },
+      {
+        key: "imgTag-3",
+        name: "フロアタイル",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      },
+      {
+        key: "imgTag-4",
+        name: "立ち絵",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      },
+      {
+        key: "imgTag-5",
+        name: "立ち絵差分",
+        processTime: 20010203000000,
+        owner: "Quoridorn"
+      }
+    ],
+    nextKey: 6
+  },
+
+  /** 画像のプリセットデータ */
+  list: [],
+  nextKey: 0
 };
 
 export default {
   /** 画像 */
-  state: {
-    /** 画像のタグ */
-    tags: {
-      list: [
-        {
-          key: "imgTag-0",
-          name: "(全て)",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        },
-        {
-          key: "imgTag-1",
-          name: "マップ",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        },
-        {
-          key: "imgTag-2",
-          name: "キャラクター",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        },
-        {
-          key: "imgTag-3",
-          name: "フロアタイル",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        },
-        {
-          key: "imgTag-4",
-          name: "立ち絵",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        },
-        {
-          key: "imgTag-5",
-          name: "立ち絵差分",
-          processTime: 20010203000000,
-          owner: "Quoridorn"
-        }
-      ],
-      nextKey: 6
-    },
-
-    /** 画像のプリセットデータ */
-    list: [],
-    nextKey: 0
-  },
+  state,
   actions: {
+    /** ========================================================================
+     * プリセット画像を読み込む
+     */
+    presetImageLoad: async ({
+      state,
+      getters
+    }: {
+      state: State;
+      getters: any;
+    }) => {
+      const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
+        "./static/conf/image.yaml"
+      );
+      imageList.forEach((image: ImageInfo, index: number) => {
+        image.key = `image-${index}`;
+        image.name = image.data.replace(/.*\//, "");
+        image.processTime = 20010203000000;
+        image.owner = "Quoridorn";
+
+        if (!image.imageArgList || !image.imageArgList.length) {
+          const imageArgList = getFileNameArgList(image.name);
+          if (imageArgList.length) image.imageArgList = imageArgList;
+        }
+
+        const regExp = new RegExp("[ 　]+", "g");
+        const tagStrList = image.tag.split(regExp);
+        tagStrList.forEach((tagStr: string) => {
+          const imageTag: ImageTagInfo = getters.imageTagList.filter(
+            (imageTag: any) => imageTag.name === tagStr
+          )[0];
+          if (!imageTag) {
+            const nextNum = ++state.tags.nextKey;
+            getters.imageTagList.push({
+              key: `imgTag-${nextNum}`,
+              name: image.tag,
+              processTime: 20010203000000,
+              owner: "Quoridorn"
+            });
+          }
+        });
+      });
+      state.list = imageList;
+    },
     /** ========================================================================
      * 画像のタブの構成を変更する
      */
@@ -147,8 +193,8 @@ export default {
     }
   },
   getters: {
-    imageTagList: (state: any) => state.tags.list,
-    imageList: (state: any) => state.list,
+    imageTagList: (state: any): ImageTagInfo[] => state.tags.list,
+    imageList: (state: any): ImageInfo[] => state.list,
     imageListTagStringList: (state: any, getter: any): string[] => {
       const resultList: string[] = [];
       const regExp = new RegExp("[ 　]+", "g");

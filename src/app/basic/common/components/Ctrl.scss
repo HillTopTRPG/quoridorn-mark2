@@ -1,0 +1,178 @@
+@import "../../../../assets/common.scss";
+
+$disabledOpacity: 0.5;
+
+$border-normal: linear-gradient(to bottom, #b5b8ba 0%, #5e6061 100%);
+$border-hover: linear-gradient(to bottom, #008efd 0%, #005eba 100%);
+
+$background-area-normal-background: linear-gradient(
+  to bottom,
+  rgb(255, 255, 255) 0%,
+  rgb(240, 240, 240) 40%,
+  rgb(225, 225, 225) 100%
+);
+
+$background-area-hover-background: linear-gradient(
+  to bottom,
+  rgb(255, 255, 255) 0%,
+  rgb(250, 250, 250) 40%,
+  rgb(245, 245, 245) 100%
+);
+
+$background-area-active-background: linear-gradient(
+  to bottom,
+  #ddf3fe 0%,
+  #bee5fe 40%,
+  #9dd9fe 100%
+);
+
+@mixin ctrl-base() {
+  @include inline-flex-box(column, flex-start, center);
+  flex-shrink: 0;
+  overflow: visible;
+  position: relative;
+  padding: 0;
+  border-radius: 5px;
+  height: 1.8em;
+  background: $border-normal;
+
+  &[disabled="disabled"] {
+    opacity: $disabledOpacity;
+  }
+
+  &:not([disabled="disabled"]) {
+    &:hover {
+      background: $border-hover;
+    }
+
+    &:active .background-area　{
+      background: $background-area-active-background;
+    }
+
+    &:hover:not(:active) .background-area {
+      background: $background-area-hover-background;
+    }
+  }
+
+  .background-area {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    left: 1px;
+    right: 1px;
+    border-radius: 4px;
+    z-index: 1;
+    background: $background-area-normal-background;
+  }
+}
+
+@mixin ctrl-button() {
+  @include ctrl-base();
+
+  cursor: pointer;
+
+  &[disabled="disabled"] {
+    cursor: default;
+  }
+
+  .front-area {
+    @include inline-flex-box(row, center, center);
+    position: relative;
+    z-index: 2;
+    padding: 0 0.5em;
+    height: 100%;
+  }
+
+  input {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent none;
+    border: none;
+    border-radius: 5px;
+    z-index: 3;
+    opacity: 0;
+
+    &:focus ~ .background-area {
+      outline-offset: 0;
+      outline: -webkit-focus-ring-color auto 5px;
+    }
+
+    &:active ~ .background-area {
+      background: $background-area-active-background;
+    }
+  }
+}
+
+@mixin ctrl-select() {
+  @include ctrl-base();
+
+  /* 三角形 */
+  &:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    bottom: 0;
+    transform: translateY(-50%);
+    right: 8px;
+    width: 0;
+    height: 0;
+    padding: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid black;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* 仕切り線 */
+  &:after {
+    content: "";
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    right: 20px;
+    width: 1px;
+    border-left: 1px solid rgba(0, 0, 0, 0.2);
+    z-index: 2;
+  }
+
+  /* hover状態の仕切り線 */
+  &:not([disabled="disabled"]) {
+    &:hover:after {
+      border-left-color: #008efd;
+    }
+  }
+
+  select {
+    @include inline-flex-box(row, flex-start, center);
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    position: relative;
+    text-indent: 0.01px;
+    text-overflow: ellipsis;
+    border: none;
+    background: transparent none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0 calc(22px + 0.5em) 0 0.5em;
+    cursor: pointer;
+
+    &[disabled="disabled"] {
+      cursor: default;
+    }
+
+    &::-ms-expand {
+      display: none;
+    }
+  }
+}

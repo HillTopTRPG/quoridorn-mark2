@@ -28,51 +28,40 @@ export default class App extends Vue {
   @Getter("taskQueue") private taskQueue: any;
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Mutation("setIsWheeling") private setIsWheeling: any;
+  @Action("presetImageLoad") private presetImageLoad: any;
 
   private wheelTimer: number | null = null;
 
-  private created() {
+  private async created() {
     window.console.log("created");
-
-    // this.addTaskListener({
-    //   type: "sample-unapproved",
-    //   processor: async (task: Task<string>): Promise<string> => {
-    //     window.console.log("sample-unapproved", task);
-    //     return "status01";
-    //   }
-    // });
-    //
-    // this.addTaskListener({
-    //   type: "sample-status03",
-    //   processor: async (task: Task<string>): Promise<string> => {
-    //     window.console.log("sample-status03", task);
-    //     return "finished";
-    //   }
-    // });
-    //
-    // this.addTaskListener({
-    //   type: "sample-finished",
-    //   processor: async (task: Task<string>): Promise<string | void> => {
-    //     // processorRemover();
-    //     window.console.log("sample-finished", task);
-    //     if (task.resolve) {
-    //       task.resolve(task);
-    //     }
-    //   }
-    // });
+    await this.presetImageLoad();
+    window.console.log("画像ロード終わり");
   }
 
-  private onWheel(this: any, event: any) {
-    const gameTable: GameTable = this.$refs.gameTable as GameTable;
-    gameTable.onWheel(event.wheelDelta);
-    this.setIsWheeling(true);
-    if (this.wheelTimer !== null) {
-      window.clearTimeout(this.wheelTimer);
-    }
-    this.wheelTimer = window.setTimeout(() => {
-      this.setIsWheeling(false);
-      this.wheelTimer = null;
-    }, 600);
+  private async mounted() {
+    window.console.log("mounted");
+    await this.resistTask({
+      type: "system-initialize",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      statusList: ["presetLoad", "accessRoom", "finished"]
+    });
+  }
+
+  /**
+   * ホイールイベント
+   * @param event
+   */
+  private async onWheel(this: any, event: any) {
+    await this.resistTask({
+      type: "action-wheel",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      value: event.wheelDelta,
+      statusList: ["finished"]
+    });
   }
 
   @Watch("mapBackgroundColor", { immediate: true })

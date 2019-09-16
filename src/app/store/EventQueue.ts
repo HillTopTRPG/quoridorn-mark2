@@ -6,7 +6,7 @@ interface TaskInput<T> {
   isPrivate: boolean;
   isExclusion: boolean;
   to?: string[];
-  value: T;
+  value?: T | void;
   statusList: StatusList;
 }
 
@@ -26,7 +26,7 @@ interface TaskListenerInput<T> {
 
 // type Status = "unapproved" | "processing";
 
-type StatusList = ["unapproved", "processing", ...string[]];
+type StatusList = string[];
 
 export interface Task<T> extends TaskInput<T> {
   key: string;
@@ -70,12 +70,16 @@ function addTaskListener<T>(
   }
 }
 
+function removeTaskListener(state: TaskQueue, type: string): void {
+  delete state.taskListener[type];
+}
+
 function resistTask<T>(
   { state }: { state: TaskQueue },
   {
     type,
     owner,
-    isPrivate = false,
+    isPrivate = true,
     isExclusion = false,
     to = [],
     value,
@@ -97,7 +101,7 @@ function resistTask<T>(
       value,
       key,
       statusList,
-      status: !isPrivate ? "unapproved" : "processing",
+      status: statusList[0],
       resolve: (task: Task<T>) => {
         resolve(task);
         task.resolve = () => {};
@@ -152,11 +156,13 @@ function resistTask<T>(
           const useStatusList: string[] = nextStatusList.filter(
             (status: string | void) => status
           ) as string[];
-          nextStatusIndex = Math.max(
-            ...useStatusList.map((nextStatus: string) =>
-              statusList.findIndex((status: string) => status === nextStatus)
-            )
-          );
+          if (useStatusList.length) {
+            nextStatusIndex = Math.max(
+              ...useStatusList.map((nextStatus: string) =>
+                statusList.findIndex((status: string) => status === nextStatus)
+              )
+            );
+          }
         }
       }
 
@@ -170,6 +176,7 @@ function resistTask<T>(
 
       // 最終ステータスに到達するまでステータスを進めながら呼び出していく
       const nextStatus: string = statusList[nextStatusIndex];
+      // window.console.log(nextStatus);
       if (nextStatus) {
         task.status = nextStatus;
         await process();
@@ -187,7 +194,8 @@ export default {
     resistTask
   },
   mutations: {
-    addTaskListener
+    addTaskListener,
+    removeTaskListener
   },
   getters: {
     // nextKey: (state: TaskQueue): number => state.nextKey,
