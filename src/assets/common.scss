@@ -1,0 +1,39 @@
+@mixin flex-box(
+  $direction: row,
+  $horizontal: normal,
+  $vertical: normal,
+  $wrap: nowrap
+) {
+  display: flex;
+  flex-direction: $direction;
+  justify-content: if($direction == row, $horizontal, $vertical);
+  align-items: if($direction == row, $vertical, $horizontal);
+  flex-wrap: $wrap;
+}
+
+@mixin inline-flex-box(
+  $direction: row,
+  $horizontal: flex-start,
+  $vertical: flex-start,
+  $wrap: nowrap
+) {
+  display: inline-flex;
+  flex-direction: $direction;
+  justify-content: if($direction == row, $horizontal, $vertical);
+  align-items: if($direction == row, $vertical, $horizontal);
+  flex-wrap: $wrap;
+}
+
+.v-box {
+  @include flex-box(column, stretch, flex-start);
+  position: relative;
+}
+
+.h-box {
+  @include flex-box(row, flex-start, stretch);
+  position: relative;
+}
+
+.flex-max {
+  flex: 1;
+}

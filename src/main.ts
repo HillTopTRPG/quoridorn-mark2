@@ -1,12 +1,15 @@
 import Vue from "vue";
-import App from "./App.vue";
 import router from "./router";
-import store from "./store";
+import MainVue from "./MainVue.vue";
+import store from "@/app/store/store";
+import ImageDirective from "@/app/basic/common/directive/Image";
 
 Vue.config.productionTip = false;
+Vue.use(ImageDirective);
 
-new Vue({
+const app = new Vue({
   router,
   store,
-  render: h => h(App)
-}).$mount("#app");
+  render: h => h(MainVue)
+});
+app.$mount("#app");
