@@ -77,7 +77,7 @@ import WindowFrameKnob from "./WindowFrameKnob.vue";
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Mutation } from "vuex-class";
 
-// const windowInfo = require("./window.yaml");
+const windowInfo = require("./window.yaml");
 
 @Component({
   components: { WindowFrameKnob }
@@ -149,7 +149,7 @@ export default class TestWindow extends Vue {
 
   private mounted(): void {
     window.console.log("----------");
-    // window.console.log(windowInfo);
+    window.console.log(windowInfo);
     window.console.log("----------");
 
     const _ = this;
