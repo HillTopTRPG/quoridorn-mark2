@@ -1,7 +1,7 @@
-export interface State extends LocationPoint {
+export interface State extends Point {
   drag: {
-    from: LocationPoint;
-    move: LocationPoint;
+    from: Point;
+    move: Point;
   };
 }
 
@@ -17,12 +17,12 @@ const state: State = {
 export default {
   state,
   mutations: {
-    setMouseLocate: (state: State, value: LocationPoint) => {
+    setMouseLocate: (state: State, value: Point) => {
       state.x = value.x;
       state.y = value.y;
     }
   },
   getters: {
-    mouseLocate: (state: State): LocationPoint => ({ x: state.x, y: state.y })
+    mouseLocate: (state: State): Point => ({ x: state.x, y: state.y })
   }
 };

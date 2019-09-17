@@ -4,6 +4,7 @@ import AddressCalcMixin from "./AddressCalcMixin.vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
 import { Mixin } from "vue-mixin-decorator";
+import { arrangeAngle } from "@/app/core/Coordinate";
 
 @Mixin
 export default class PieceMixin extends AddressCalcMixin {
@@ -65,7 +66,7 @@ export default class PieceMixin extends AddressCalcMixin {
     });
   }
 
-  protected leftUp(this: any): void {
+  protected leftUp(): void {
     if (this.storeObj.isLock || this.isRolling) {
       this.$emit("leftUp");
       return;
@@ -119,7 +120,7 @@ export default class PieceMixin extends AddressCalcMixin {
     });
   }
 
-  protected rollStart(this: any) {
+  protected rollStart() {
     const angle = this.getAngle(this.mouseOnTable);
     this.setProperty({
       property: `map.rollObj`,
@@ -132,12 +133,12 @@ export default class PieceMixin extends AddressCalcMixin {
     this.changeListObj({
       key: this.objKey,
       angle: {
-        dragStart: this.arrangeAngle(angle - this.angle.total)
+        dragStart: arrangeAngle(angle - this.angle.total)
       }
     });
   }
 
-  protected rollEnd(this: any, event: any) {
+  protected rollEnd(event: any) {
     // window.console.log(`rollEnd`, event.pageX, event.pageY)
     const mapObj: any = {
       rollObj: {
@@ -146,13 +147,11 @@ export default class PieceMixin extends AddressCalcMixin {
     };
     if (event.button === 2) mapObj.isOverEvent = true;
     this.setProperty({ property: `map`, value: mapObj, logOff: true });
-    const planeAngle = this.arrangeAngle(
-      this.angle.dragging + this.angle.total
-    );
+    const planeAngle = arrangeAngle(this.angle.dragging + this.angle.total);
     this.changeListObj({
       key: this.objKey,
       angle: {
-        total: this.arrangeAngle(Math.round(planeAngle / 30) * 30),
+        total: arrangeAngle(Math.round(planeAngle / 30) * 30),
         dragging: 0
       }
     });
@@ -209,13 +208,13 @@ export default class PieceMixin extends AddressCalcMixin {
    * @param mouseOnTable
    */
   @Watch("mouseOnTable", { deep: true })
-  private onChangeMouseOnTable(this: any, mouseOnTable: any) {
+  private onChangeMouseOnTable(mouseOnTable: any) {
     // window.console.log(`piece:${this.storeObj.name}, isDraggingLeft:${this.storeObj.isDraggingLeft}, isRolling:${this.isRolling}`)
     if (this.isRolling) {
       if (!this.isThisRolling) return;
       const angle = this.getAngle(mouseOnTable);
-      const dragging = this.arrangeAngle(
-        this.arrangeAngle(angle - this.angle.dragStart) - this.angle.total
+      const dragging = arrangeAngle(
+        arrangeAngle(angle - this.angle.dragStart) - this.angle.total
       );
       this.setProperty({
         property: `public.${this.type}.list.${this.storeIndex}.angle.dragging`,
@@ -267,7 +266,7 @@ export default class PieceMixin extends AddressCalcMixin {
   }
 
   protected get currentAngle() {
-    return this.arrangeAngle(this.angle.total + this.angle.dragging);
+    return arrangeAngle(this.angle.total + this.angle.dragging);
   }
 
   protected get style() {
@@ -277,7 +276,7 @@ export default class PieceMixin extends AddressCalcMixin {
       left: `${rectObj.left}px`,
       width: `${rectObj.width}px`,
       height: `${rectObj.height}px`,
-      transform: `rotateZ(${this.arrangeAngle(
+      transform: `rotateZ(${arrangeAngle(
         Math.round(this.currentAngle / 30) * 30
       )}deg)`
     };

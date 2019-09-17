@@ -1,7 +1,7 @@
 export type VolatileMapMoveInfo = {
-  from: LocationPoint;
-  total: LocationPoint;
-  dragging: LocationPoint;
+  from: Point;
+  total: Point;
+  dragging: Point;
 };
 
 export type VolatileMapAngleInfo = {
@@ -12,9 +12,9 @@ export type VolatileMapAngleInfo = {
 export type State = {
   grid: Matrix;
   mouse: {
-    onScreen: LocationPoint;
-    onTable: LocationPoint;
-    onCanvas: LocationPoint;
+    onScreen: Point;
+    onTable: Point;
+    onCanvas: Point;
   };
   isDraggingLeft: boolean;
   isMouseDownRight: boolean;
@@ -30,7 +30,7 @@ export type State = {
 };
 
 const state: State = {
-  grid: { c: 0, r: 0 },
+  grid: { column: 0, row: 0 },
   mouse: {
     onScreen: { x: 0, y: 0 },
     onTable: { x: 0, y: 0 },
@@ -74,15 +74,15 @@ export default {
     setIsMapDraggingRight: (state: State, value: boolean) => {
       state.isDraggingRight = value;
     },
-    setMapMoveFromLocate: (state: State, value: LocationPoint) => {
+    setMapMoveFromLocate: (state: State, value: Point) => {
       state.move.from.x = value.x;
       state.move.from.y = value.y;
     },
-    setMapMoveTotalLocate: (state: State, value: LocationPoint) => {
+    setMapMoveTotalLocate: (state: State, value: Point) => {
       state.move.total.x = value.x;
       state.move.total.y = value.y;
     },
-    setMapMoveDraggingLocate: (state: State, value: LocationPoint) => {
+    setMapMoveDraggingLocate: (state: State, value: Point) => {
       state.move.dragging.x = value.x;
       state.move.dragging.y = value.y;
     },
@@ -94,9 +94,9 @@ export default {
         locateOnTable,
         grid
       }: {
-        locateOnScreen: LocationPoint;
-        locateOnCanvas: LocationPoint;
-        locateOnTable: LocationPoint;
+        locateOnScreen: Point;
+        locateOnCanvas: Point;
+        locateOnTable: Point;
         grid: Matrix;
       }
     ) => {
@@ -108,15 +108,15 @@ export default {
       state.mouse.onTable.y = locateOnTable.y;
       state.grid = grid;
     },
-    setMouseOnScreenLocate: (state: State, value: LocationPoint) => {
+    setMouseOnScreenLocate: (state: State, value: Point) => {
       state.mouse.onScreen.x = value.x;
       state.mouse.onScreen.y = value.y;
     },
-    setMouseOnCanvasLocate: (state: State, value: LocationPoint) => {
+    setMouseOnCanvasLocate: (state: State, value: Point) => {
       state.mouse.onCanvas.x = value.x;
       state.mouse.onCanvas.y = value.y;
     },
-    setMouseOnTableLocate: (state: State, value: LocationPoint) => {
+    setMouseOnTableLocate: (state: State, value: Point) => {
       state.mouse.onTable.x = value.x;
       state.mouse.onTable.y = value.y;
     },
@@ -152,12 +152,12 @@ export default {
     isMapMoving: (state: State): boolean => state.isMoving,
     isMapOverEvent: (state: State): boolean => state.isOverEvent,
     mapMoveObj: (state: State): string => state.moveObj,
-    mapMoveFromLocate: (state: State): LocationPoint => state.move.from,
-    mapMoveTotalLocate: (state: State): LocationPoint => state.move.total,
-    mapMoveDraggingLocate: (state: State): LocationPoint => state.move.dragging,
-    mouseOnScreenLocate: (state: State): LocationPoint => state.mouse.onScreen,
-    mouseOnCanvasLocate: (state: State): LocationPoint => state.mouse.onCanvas,
-    mouseOnTableLocate: (state: State): LocationPoint => state.mouse.onTable,
+    mapMoveFromLocate: (state: State): Point => state.move.from,
+    mapMoveTotalLocate: (state: State): Point => state.move.total,
+    mapMoveDraggingLocate: (state: State): Point => state.move.dragging,
+    mouseOnScreenLocate: (state: State): Point => state.mouse.onScreen,
+    mouseOnCanvasLocate: (state: State): Point => state.mouse.onCanvas,
+    mouseOnTableLocate: (state: State): Point => state.mouse.onTable,
     mapGrid: (state: State): Matrix => state.grid,
     isMapWheeling: (state: State): boolean => state.isWheeling
   }

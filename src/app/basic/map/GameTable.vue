@@ -113,6 +113,7 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import { Action, Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
 import { Task } from "@/app/store/EventQueue";
+import { arrangeAngle } from "@/app/core/Coordinate";
 
 @Component({
   components: {
@@ -173,17 +174,17 @@ export default class GameTable extends AddressCalcMixin {
   @Getter("isMapDraggingLeft") private isMapDraggingLeft!: boolean;
   @Getter("isMapDraggingRight") private isMapDraggingRight!: boolean;
   @Getter("isMapOverEvent") private isMapOverEvent!: boolean;
-  @Getter("mapMoveFromLocate") private mapMoveFromLocate!: LocationPoint;
-  @Getter("mapMoveTotalLocate") private mapMoveTotalLocate!: LocationPoint;
+  @Getter("mapMoveFromLocate") private mapMoveFromLocate!: Point;
+  @Getter("mapMoveTotalLocate") private mapMoveTotalLocate!: Point;
   @Getter("mapMoveDraggingLocate")
-  private mapMoveDraggingLocate!: LocationPoint;
+  private mapMoveDraggingLocate!: Point;
   @Getter("mapAngleVolatile") private mapAngleVolatile!: any;
   @Getter("isModal") private isModal!: boolean;
   @Getter("getMapObjectList") private getMapObjectList!: any;
   // @Getter("propertyList") private propertyList: any;
   // @Getter("getObj") private getObj: any;
-  @Getter("mouseLocate") private mouseLocate!: LocationPoint;
-  @Getter("mouseOnTableLocate") private mouseOnTableLocate!: LocationPoint;
+  @Getter("mouseLocate") private mouseLocate!: Point;
+  @Getter("mouseOnScreenLocate") private mouseOnScreenLocate!: Point;
 
   private wheelTimer: number | null = null;
 
@@ -198,9 +199,7 @@ export default class GameTable extends AddressCalcMixin {
         const value: number = task!.value as number;
         const add = value > 0 ? changeValue : -changeValue;
         const mapWheel = this.mapWheel + add;
-        if (mapWheel < -2400 || mapWheel > 800) {
-          return;
-        }
+        if (mapWheel < -2400 || mapWheel > 800) return;
         this.setMapWheel(mapWheel);
 
         this.setIsWheeling(true);
@@ -317,7 +316,7 @@ export default class GameTable extends AddressCalcMixin {
 
     // マップを動かしている場合
     const zoom = (1000 - this.mapWheel) / 1000;
-    const total: LocationPoint = {
+    const total: Point = {
       x: this.mapMoveTotalLocate.x + this.mapMoveDraggingLocate.x * zoom,
       y: this.mapMoveTotalLocate.y + this.mapMoveDraggingLocate.y * zoom
     };
@@ -344,7 +343,7 @@ export default class GameTable extends AddressCalcMixin {
 
     let isRoll = false;
     if (this.isMapDraggingRight) {
-      const nextAngle = this.arrangeAngle(
+      const nextAngle = arrangeAngle(
         this.mapAngle + Math.round(this.mapAngleVolatile.dragging / 15) * 15
       );
       if (this.mapAngle !== nextAngle) isRoll = true;
@@ -389,20 +388,21 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   private setMouseLocateOnPage(pageX: number, pageY: number): void {
+    // プレーンなモニター上の座標を記録
     this.setMouseLocate({
       x: pageX,
       y: pageY
     });
 
-    const canvasAddress = this.calcCanvasAddress(
-      pageX,
-      pageY,
-      this.currentAngle
+    // 拡大縮小を考慮して、元の大きさのときの座標を記録
+    this.setMouseLocateSet(
+      this.calcCanvasAddress(pageX, pageY, this.currentAngle)
     );
+
+    // 右ドラッグを検知
     if (this.isMapMouseDownRight && !this.isMapDraggingRight) {
       this.setIsMapDraggingRight(true);
     }
-    this.setMouseLocateSet(canvasAddress);
   }
 
   // private drop(this: any, event: any): void {
@@ -690,7 +690,7 @@ export default class GameTable extends AddressCalcMixin {
   // }
 
   private get currentAngle(): number {
-    return this.arrangeAngle(this.mapAngle + this.mapAngleVolatile.dragging);
+    return arrangeAngle(this.mapAngle + this.mapAngleVolatile.dragging);
   }
 
   private get sizeW(this: any): number {
@@ -792,9 +792,7 @@ export default class GameTable extends AddressCalcMixin {
         mouseLocate.y,
         this.currentAngle
       ).angle;
-      let angleDiff = this.arrangeAngle(
-        angle - this.mapAngleVolatile.dragStart
-      );
+      let angleDiff = arrangeAngle(angle - this.mapAngleVolatile.dragStart);
       this.setMapAngleDragging(angleDiff);
     }
   }

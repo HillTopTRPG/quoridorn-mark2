@@ -16,8 +16,23 @@ const store = new Vuex.Store({
     public: store_public
   },
   state: {},
+  actions: {
+    windowOpen: () => {},
+    setProperty: () => {},
+    doResetWindowLocate: () => {},
+    exportStart: () => {},
+    addListObj: () => {},
+    saveChatLogHtml: () => {},
+    reverseProperty: () => {}
+  },
   mutations: {},
-  actions: {}
+  getters: {
+    roomName: () => "test room",
+    peerId: () => "test peer",
+    members: () => [],
+    isRoomJoined: () => false,
+    isWindowOpen: () => () => false
+  }
 });
 
 export default store;

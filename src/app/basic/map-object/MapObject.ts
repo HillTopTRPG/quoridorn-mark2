@@ -9,7 +9,7 @@ abstract class DataStore {
   abstract setData(args: SetDataOrderArg): void;
 }
 
-export interface MapObject extends SyncObj, LocationPoint {
+export interface MapObject extends SyncObj, Point {
   text: string;
   kind: string;
   columns: number;
@@ -22,9 +22,9 @@ export interface MapObject extends SyncObj, LocationPoint {
   useImageIndex: number;
   currentImageTag: string;
   move: {
-    from: LocationPoint;
-    dragging: LocationPoint;
-    gridOffset: LocationPoint;
+    from: Point;
+    dragging: Point;
+    gridOffset: Point;
   };
   angle: {
     total: number;

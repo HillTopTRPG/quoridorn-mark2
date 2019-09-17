@@ -1,11 +1,11 @@
 <template>
   <div
     :class="name"
-    @mousedown.left.prevent="event => resize(event, name, true)"
-    @mouseup.left.prevent="event => resize(event, name, false)"
-    @touchstart.prevent="event => resize(event, name, true, true)"
-    @touchend.prevent="event => resize(event, name, false, true)"
-    @touchcancel.prevent="event => resize(event, name, false, true)"
+    @mousedown.left.stop="event => resize(event, name, true)"
+    @mouseup.left.stop="event => resize(event, name, false)"
+    @touchstart.stop="event => resize(event, name, true, true)"
+    @touchend.stop="event => resize(event, name, false, true)"
+    @touchcancel.stop="event => resize(event, name, false, true)"
     @contextmenu.prevent
   ></div>
 </template>

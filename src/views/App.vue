@@ -2,6 +2,14 @@
   <div id="app" @wheel.passive="onWheel">
     <game-table ref="gameTable" />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
+    <Menu />
+    <test-window
+      titleText="Test Window"
+      displayProperty="sample"
+      align="center"
+      baseSize="300, 400"
+      message="あーどうもどうも"
+    />
     <!--
     <img alt="Vue logo" src="../assets/logo.png" />
     -->
@@ -14,9 +22,13 @@ import BaseInput from "@/app/basic/common/components/BaseInput.vue";
 import { Action, Getter, Mutation } from "vuex-class";
 import { Task } from "@/app/store/EventQueue";
 import GameTable from "@/app/basic/map/GameTable.vue";
+import Menu from "@/app/basic/menu/Menu.vue";
+import TestWindow from "@/app/basic/common/components/window/TestWindow.vue";
 
 @Component({
   components: {
+    TestWindow,
+    Menu,
     GameTable,
     BaseInput
   }
@@ -40,13 +52,13 @@ export default class App extends Vue {
 
   private async mounted() {
     window.console.log("mounted");
-    await this.resistTask({
-      type: "system-initialize",
-      owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      statusList: ["presetLoad", "accessRoom", "finished"]
-    });
+    // await this.resistTask({
+    //   type: "system-initialize",
+    //   owner: "Quoridorn",
+    //   isPrivate: true,
+    //   isExclusion: false,
+    //   statusList: ["presetLoad", "accessRoom", "finished"]
+    // });
   }
 
   /**

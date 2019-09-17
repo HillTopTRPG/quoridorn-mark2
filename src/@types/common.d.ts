@@ -9,14 +9,21 @@ declare module "crypto-js";
 declare module "js-yaml";
 declare function parseInt(s: string, radix?: number): number;
 
-type LocationPoint = {
+type Point = {
   x: number;
   y: number;
 };
 
+type Size = {
+  width: number;
+  height: number;
+};
+
+type Rectangle = Point & Size;
+
 type Matrix = {
-  c: number;
-  r: number;
+  column: number;
+  row: number;
 };
 
 type SyncObj = {
