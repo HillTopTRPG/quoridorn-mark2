@@ -1,3 +1,5 @@
+import { Point } from "@/@types/address";
+
 type SetDataOrderArg = {
   key: string;
   value: any;

@@ -1,3 +1,5 @@
+import { Matrix, Point } from "@/@types/address";
+
 export type VolatileMapMoveInfo = {
   from: Point;
   total: Point;

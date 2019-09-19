@@ -1,3 +1,5 @@
+import { Point } from "@/@types/address";
+
 export interface State extends Point {
   drag: {
     from: Point;

@@ -1,0 +1,9 @@
+game-table:
+  - emitName: item-01-emit
+    text: item-01
+  - isViewCompare:
+      type: single
+      lhs: 4
+      rhs: 4
+  - emitName: item-02-emit
+    text: item-02

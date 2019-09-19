@@ -1,3 +1,5 @@
+import { Point, Rectangle } from "@/@types/address";
+
 export function arrangeAngle(angle: number): number {
   if (angle > 180) angle -= 360;
   if (angle < -180) angle += 360;

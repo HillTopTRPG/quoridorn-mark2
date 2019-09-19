@@ -2,7 +2,6 @@
   <div id="gameTableContainer" :style="mapBoardFrameStyle">
     <div
       :style="gameTableStyle"
-      @contextmenu.prevent.stop
       @dragover.prevent
       @drop.prevent="drop"
       dropzone="move"
@@ -12,15 +11,16 @@
       @keydown.229.stop
       @keyup.229.stop
     >
-      <div :style="gridPaperStyle" @contextmenu.prevent></div>
+      <div :style="gridPaperStyle"></div>
 
       <div
         id="mapBoardFrame"
-        @contextmenu.prevent.stop
+        @contextmenu.prevent
         @mousedown.left.stop="leftDown"
-        @mousedown.right.stop="rightDown"
+        @mousedown.right.prevent.stop="rightDown"
         @mouseup.left.stop="leftUp"
-        @mouseup.right.stop="rightUp"
+        @click.right.prevent.stop
+        @mouseup.right.prevent.stop="rightUp"
         @touchcancel.stop="leftUp"
         @touchend.stop="leftUp"
         @touchstart.stop="leftDown"
@@ -108,12 +108,16 @@ import DiceSymbol from "@/app/basic/map-object/dice-symbol/DiceSymbol.vue";
 import FloorTile from "@/app/basic/map-object/floor-tile/FloorTile.vue";
 import BaseInput from "@/app/basic/common/components/BaseInput.vue";
 
-import { qLog, fileToBase64, parseColor } from "@/app/core/Utility";
-import { Component, Mixins } from "vue-mixin-decorator";
-import { Action, Getter, Mutation } from "vuex-class";
+import { parseColor } from "@/app/core/Utility";
+import { Component } from "vue-mixin-decorator";
+import { Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
-import { Task } from "@/app/store/EventQueue";
 import { arrangeAngle } from "@/app/core/Coordinate";
+import { Point } from "@/@types/address";
+import { Task } from "@/@types/task";
+import TaskManager from "@/app/core/TaskManager";
+import Logging from "@/app/basic/common/decorator/Logging";
+import { ContextTaskInfo } from "@/@types/context";
 
 @Component({
   components: {
@@ -154,8 +158,6 @@ export default class GameTable extends AddressCalcMixin {
   @Mutation("setMouseLocateSet") private setMouseLocateSet: any;
   @Mutation("setMapGrid") private setMapGrid: any;
   @Mutation("setIsWheeling") private setIsWheeling: any;
-  @Mutation("addTaskListener") private addTaskListener: any;
-  @Mutation("removeTaskListener") private removeTaskListener: any;
   // @Getter("isFitGrid") private isFitGrid: any;
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Getter("getBackgroundImage") private getBackgroundImage!: string | null;
@@ -188,35 +190,43 @@ export default class GameTable extends AddressCalcMixin {
 
   private wheelTimer: number | null = null;
 
+  constructor() {
+    super();
+    TaskManager.instance.addTaskListener(
+      "action-wheel-finished",
+      this.actionWheelFinished
+    );
+  }
+
   private mounted(): void {
     document.addEventListener("mousemove", this.mouseMove);
     document.addEventListener("touchmove", this.touchMove);
+  }
 
-    this.addTaskListener({
-      type: "action-wheel-finished",
-      processor: async (task: Task<number>): Promise<string | void> => {
-        const changeValue = 100;
-        const value: number = task!.value as number;
-        const add = value > 0 ? changeValue : -changeValue;
-        const mapWheel = this.mapWheel + add;
-        if (mapWheel < -2400 || mapWheel > 800) return;
-        this.setMapWheel(mapWheel);
+  @Logging()
+  private async actionWheelFinished(
+    task: Task<number>
+  ): Promise<string | void> {
+    const changeValue = 100;
+    const value: number = task!.value as number;
+    const add = value > 0 ? changeValue : -changeValue;
+    const mapWheel = this.mapWheel + add;
+    if (mapWheel < -2400 || mapWheel > 800) return;
+    this.setMapWheel(mapWheel);
 
-        this.setIsWheeling(true);
-        if (this.wheelTimer !== null) {
-          window.clearTimeout(this.wheelTimer);
-        }
-        this.wheelTimer = window.setTimeout(() => {
-          this.setIsWheeling(false);
-          this.wheelTimer = null;
-        }, 600);
-      }
-    });
+    this.setIsWheeling(true);
+    if (this.wheelTimer !== null) {
+      window.clearTimeout(this.wheelTimer);
+    }
+    this.wheelTimer = window.setTimeout(() => {
+      this.setIsWheeling(false);
+      this.wheelTimer = null;
+    }, 600);
   }
 
   private beforeDestroy() {
     window.console.log("beforeDestroy");
-    this.removeTaskListener("action-wheel-finished");
+    TaskManager.instance.removeTaskListener("action-wheel-finished");
   }
 
   private globalEnter() {
@@ -361,6 +371,23 @@ export default class GameTable extends AddressCalcMixin {
           x: pageX,
           y: pageY
         };
+
+        setTimeout(async () => {
+          await TaskManager.instance.resistTask<ContextTaskInfo>({
+            type: "open-context",
+            owner: "Quoridorn",
+            isPrivate: true,
+            isExclusion: false,
+            value: {
+              type: "game-table",
+              target: null,
+              x: pageX,
+              y: pageY
+            },
+            statusList: ["finished"]
+          });
+        });
+
         // this.setProperty({
         //   property: `private.display.gameTableContext`,
         //   value: obj,
@@ -374,6 +401,7 @@ export default class GameTable extends AddressCalcMixin {
     } else {
       this.setIsMapOverEvent(false);
     }
+    event.preventDefault();
   }
 
   private mouseMove(event: any): void {
@@ -713,7 +741,7 @@ export default class GameTable extends AddressCalcMixin {
     return result;
   }
 
-  private get gameTableStyle(this: any): any {
+  private get gameTableStyle(): any {
     // const translateZ = this.mapWheel;
     const zoom = (1000 - this.mapWheel) / 1000;
     const totalLeftX =

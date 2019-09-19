@@ -275,7 +275,7 @@ export default class StandImageComponent extends Vue {
       waitTime = this.animationLength * 1000 - lastTime + nextTime;
     }
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
+    this.timer = window.setTimeout(() => {
       this.paint();
     }, waitTime);
   }

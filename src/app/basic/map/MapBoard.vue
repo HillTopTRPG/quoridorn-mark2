@@ -9,7 +9,6 @@
     @keyup.enter.stop
     @keydown.229.stop
     @keyup.229.stop
-    @contextmenu.prevent
   >
   </canvas>
 </template>
@@ -36,6 +35,10 @@ export default class MapBoard extends Vue {
 
   private mounted(): void {
     this.paint();
+  }
+
+  private openContext() {
+    window.console.log("open context2222");
   }
 
   private paint(this: any): void {
@@ -191,6 +194,7 @@ canvas {
   border: none;
   box-sizing: border-box;
   background-size: 100% 100%;
+  pointer-events: none;
 }
 
 .isReverse {

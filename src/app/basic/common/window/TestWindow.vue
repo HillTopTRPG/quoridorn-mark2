@@ -516,7 +516,7 @@ export default class TestWindow extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../../assets/common.scss";
+@import "../../../../assets/common";
 
 .window {
   position: fixed;

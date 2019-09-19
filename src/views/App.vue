@@ -3,6 +3,7 @@
     <game-table ref="gameTable" />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
     <Menu />
+    <context />
     <test-window
       titleText="Test Window"
       displayProperty="sample"
@@ -20,13 +21,16 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import BaseInput from "@/app/basic/common/components/BaseInput.vue";
 import { Action, Getter, Mutation } from "vuex-class";
-import { Task } from "@/app/store/EventQueue";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
-import TestWindow from "@/app/basic/common/components/window/TestWindow.vue";
+import TestWindow from "@/app/basic/common/window/TestWindow.vue";
+import TaskManager from "@/app/core/TaskManager";
+import Context from "@/app/basic/common/context/Context.vue";
+import { nekostore_test_client } from "@/app/core/nekostore_test";
 
 @Component({
   components: {
+    Context,
     TestWindow,
     Menu,
     GameTable,
@@ -34,31 +38,20 @@ import TestWindow from "@/app/basic/common/components/window/TestWindow.vue";
   }
 })
 export default class App extends Vue {
-  @Action("resistTask") private resistTask: any;
-  @Mutation("addTaskListener") private addTaskListener: any;
   @Getter("mapBackgroundColor") private mapBackgroundColor: any;
-  @Getter("taskQueue") private taskQueue: any;
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Mutation("setIsWheeling") private setIsWheeling: any;
   @Action("presetImageLoad") private presetImageLoad: any;
 
-  private wheelTimer: number | null = null;
-
-  private async created() {
-    window.console.log("created");
-    await this.presetImageLoad();
-    window.console.log("画像ロード終わり");
+  constructor() {
+    super();
   }
 
-  private async mounted() {
-    window.console.log("mounted");
-    // await this.resistTask({
-    //   type: "system-initialize",
-    //   owner: "Quoridorn",
-    //   isPrivate: true,
-    //   isExclusion: false,
-    //   statusList: ["presetLoad", "accessRoom", "finished"]
-    // });
+  /**
+   * ライフサイクル
+   */
+  public async created() {
+    await this.presetImageLoad();
   }
 
   /**
@@ -66,7 +59,7 @@ export default class App extends Vue {
    * @param event
    */
   private async onWheel(this: any, event: any) {
-    await this.resistTask({
+    await TaskManager.instance.resistTask({
       type: "action-wheel",
       owner: "Quoridorn",
       isPrivate: true,
@@ -80,32 +73,6 @@ export default class App extends Vue {
   private onChangeMapBackgroundColor(mapBackgroundColor: string): void {
     document.body.style.backgroundColor = mapBackgroundColor;
   }
-
-  // private async clickButton1() {
-  //   window.console.log("【click button1】");
-  //
-  //   const result = await this.resistTask({
-  //     type: "sample",
-  //     owner: "HillTop",
-  //     isPrivate: false,
-  //     isExclusion: false,
-  //     value: "this is test",
-  //     statusList: [
-  //       "unapproved",
-  //       "processing",
-  //       "status01",
-  //       "status02",
-  //       "status03",
-  //       "finished"
-  //     ]
-  //   });
-  //   window.console.log("【end of button1】", result);
-  // }
-  //
-  // private clickButton2() {
-  //   window.console.log("click button2");
-  //   window.console.log(this.taskQueue);
-  // }
 }
 </script>
 
