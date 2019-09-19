@@ -47,7 +47,7 @@ type Item = {
 export default class Context extends Vue {
   @Getter("getObj") private getObj!: (key: string) => any;
   private type: string | null = null;
-  private target: string | null = null;
+  private target: string | null | undefined = null;
   private x: number | null = null;
   private y: number | null = null;
 
