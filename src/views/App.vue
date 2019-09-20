@@ -45,6 +45,7 @@ export default class App extends Vue {
 
   constructor() {
     super();
+    // nekostore_test_client();
   }
 
   /**

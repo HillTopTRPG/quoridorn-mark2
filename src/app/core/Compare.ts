@@ -1,20 +1,31 @@
-import { CompareInfo, Operand, SimpleCompareInfo } from "@/@types/compare";
+import {
+  CompareInfo,
+  MultiCompareInfo,
+  Operand,
+  SimpleCompareInfo
+} from "@/@types/compare";
 import { ApplicationError } from "@/app/core/ApplicationError";
-import App from "@/views/App.vue";
 
-function getOperand(
+/**
+ * オペランドの値を取得する
+ * @param o オペランド
+ * @param target 値を取得するオブジェクトが持つターゲット
+ * @param getObj storeからオブジェクトを取得できる関数
+ */
+function getOperandValue(
   o: Operand,
   target: string | null | undefined,
   getObj: (key: string) => any
 ): any {
   if (typeof o === "object") {
-    const getProperty = (key: string) => {
+    const getProperty = (key: string, prop: string) => {
       const syncObj: any = getObj(key);
-      return syncObj ? syncObj[o.property!] : undefined;
+      return syncObj ? syncObj[prop] : undefined;
     };
-    if (o.refType === "sync-obj-exist") return !!getObj(o.key!);
-    if (o.refType === "sync-obj-property") return getProperty(o.key!);
-    if (o.refType === "store-property") return getObj(o.property!);
+    if (o.refType === "sync-obj-exist") return !!getObj(o.key);
+    if (o.refType === "sync-obj-property")
+      return getProperty(o.key, o.property);
+    if (o.refType === "store-property") return getObj(o.property);
     if (o.refType === "attendant-key-exist") return !!target;
     if (o.refType === "attendant-key-obj-exist") {
       if (!target) throw new ApplicationError("Invalid target non exist.");
@@ -22,32 +33,40 @@ function getOperand(
     }
     if (o.refType === "attendant-key-obj-property") {
       if (!target) throw new ApplicationError("Invalid target non exist.");
-      return getProperty(target);
+      return getProperty(target, o.property);
     }
-    throw new ApplicationError(`Un supported refType='${o.refType}'`);
+    throw new ApplicationError(`Un supported refType='${(<any>o).refType}'`);
   }
   return o;
 }
 
+/**
+ * 比較情報を基に比較を行い、その結果を返却する
+ * @param comp 比較情報
+ * @param target 比較オブジェクトから指定された対象
+ * @param getObj storeからオブジェクトを取得できる関数
+ */
 export function judgeCompare(
   comp: CompareInfo | null | undefined,
   target: string | null | undefined,
   getObj: (key: string) => any
 ): boolean {
   if (!comp) return true;
-  if (comp.type === "multiple") {
-    const r: boolean[] = comp.list.map((c: SimpleCompareInfo) => {
-      const lhs: any = getOperand(c.lhs, target, getObj);
-      const rhs: any = getOperand(c.rhs, target, getObj);
+  if ((<MultiCompareInfo>comp).list && (<MultiCompareInfo>comp).list) {
+    const mComp: MultiCompareInfo = comp as MultiCompareInfo;
+    const r: boolean[] = mComp.list.map((c: SimpleCompareInfo) => {
+      const lhs: any = getOperandValue(c.lhs, target, getObj);
+      const rhs: any = getOperandValue(c.rhs, target, getObj);
       return c.isNot ? lhs !== rhs : lhs === rhs;
     });
     const trueCount: number = r.filter((r: boolean) => r).length;
-    return comp.operator === "and" ? trueCount === r.length : trueCount > 0;
+    return mComp.operator === "and" ? trueCount === r.length : trueCount > 0;
   }
-  if (comp.type === "single") {
-    const lhs: any = getOperand(comp.lhs, target, getObj);
-    const rhs: any = getOperand(comp.rhs, target, getObj);
-    return comp.isNot ? lhs !== rhs : lhs === rhs;
+  if ((<SimpleCompareInfo>comp).lhs && (<SimpleCompareInfo>comp).rhs) {
+    const sComp: SimpleCompareInfo = comp as SimpleCompareInfo;
+    const lhs: any = getOperandValue(sComp.lhs, target, getObj);
+    const rhs: any = getOperandValue(sComp.rhs, target, getObj);
+    return sComp.isNot ? lhs !== rhs : lhs === rhs;
   }
   throw new ApplicationError("Invalid comp info type");
 }

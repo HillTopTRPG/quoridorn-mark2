@@ -1,33 +1,22 @@
-type OperandRefType =
-  | "sync-obj-exist"
-  | "sync-obj-property"
-  | "store-property"
-  | "attendant-key-exist"
-  | "attendant-key-obj-exist"
-  | "attendant-key-obj-property";
-
-type CompOperator = "and" | "or";
-
 export type Operand =
-  | {
-      refType: OperandRefType;
-      property?: string;
-      key?: string;
-    }
+  | { refType: "sync-obj-exist"; key: string }
+  | { refType: "sync-obj-property"; key: string; property: string }
+  | { refType: "store-property"; property: string }
+  | { refType: "attendant-key-exist" }
+  | { refType: "attendant-key-obj-exist" }
+  | { refType: "attendant-key-obj-property"; property: string }
   | string
   | number
   | boolean;
 
 export type SimpleCompareInfo = {
-  type: "single";
   lhs: Operand;
   rhs: Operand;
   isNot?: boolean;
 };
 
 export type MultiCompareInfo = {
-  type: "multiple";
-  operator: CompOperator;
+  operator: "and" | "or";
   list: SimpleCompareInfo[];
 };
 
