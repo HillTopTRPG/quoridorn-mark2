@@ -96,7 +96,7 @@ export default class TaskManager {
 
       const process = async () => {
         const eventName: string = `${type}-${task.status}`;
-        window.console.log("+++ call event-status +++", eventName);
+        // window.console.log("+++ call event-status +++", eventName);
 
         // 登録された処理の呼び出し
         const processList: TaskProcess<T>[] | undefined = this.taskListener[

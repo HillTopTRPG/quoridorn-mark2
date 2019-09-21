@@ -4,7 +4,7 @@ interface TaskInput<T> {
   isPrivate: boolean;
   isExclusion: boolean;
   to?: string[];
-  value?: T | null;
+  value: T | null;
   statusList: StatusList;
 }
 

@@ -31,7 +31,7 @@ import {
   ContextTextItem
 } from "@/@types/context";
 import { Task } from "@/@types/task";
-import Logging from "@/app/basic/common/decorator/Logging";
+import Logging from "@/app/core/logger/Logging";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "@/app/core/Compare";
 
@@ -78,7 +78,7 @@ export default class Context extends Vue {
     this.type = null;
   }
 
-  @Logging()
+  @Logging
   private async openContextFinished(
     task: Task<ContextTaskInfo>
   ): Promise<string | void> {

@@ -116,9 +116,12 @@ import { arrangeAngle } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task } from "@/@types/task";
 import TaskManager from "@/app/core/task/TaskManager";
-import Logging from "@/app/basic/common/decorator/Logging";
+import Logging from "@/app/core/logger/Logging";
 import { ContextTaskInfo } from "@/@types/context";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskProcessor, {
+  TaskProcessorSimple
+} from "@/app/core/task/TaskProcessor";
+import EventProcessor from "@/app/core/event/EventProcessor";
 
 @Component({
   components: {
@@ -131,7 +134,6 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
     BaseInput
   }
 })
-@TaskProcessor("action-wheel-finished")
 export default class GameTable extends AddressCalcMixin {
   // @Action("addListObj") private addListObj: any;
   // @Action("windowOpen") private windowOpen: any;
@@ -192,12 +194,20 @@ export default class GameTable extends AddressCalcMixin {
 
   private wheelTimer: number | null = null;
 
-  private mounted(): void {
-    document.addEventListener("mousemove", this.mouseMove);
-    document.addEventListener("touchmove", this.touchMove);
-  }
+  // private mounted() {
+  //   TaskManager.instance.addTaskListener(
+  //     "action-wheel-finished",
+  //     this.actionWheelFinished
+  //   );
+  // }
+  //
+  // private beforeDestroyed() {
+  //   TaskManager.instance.removeTaskListener("action-wheel-finished");
+  // }
 
-  @Logging()
+  @TaskProcessor("action-wheel-finished")
+  @Logging
+  // @TaskProcessorSimplea
   private async actionWheelFinished(
     task: Task<number>
   ): Promise<string | void> {
@@ -393,10 +403,14 @@ export default class GameTable extends AddressCalcMixin {
     event.preventDefault();
   }
 
+  @EventProcessor("mousemove")
+  @Logging
   private mouseMove(event: any): void {
     this.setMouseLocateOnPage(event.pageX, event.pageY);
   }
 
+  @EventProcessor("touchmove")
+  @Logging
   private touchMove(event: any): void {
     this.setMouseLocateOnPage(
       event.changedTouches[0].pageX,
