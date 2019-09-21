@@ -8,21 +8,14 @@ interface TaskInput<T> {
   statusList: StatusList;
 }
 
-type TaskProcessor<T> = (
+type TaskProcess<T> = (
   task: Task<T>,
   processorRemover: () => void
 ) => Promise<string | void>;
 
 type TaskListenerContainer = {
-  [P in string]: TaskProcessor<any>[];
+  [P in string]: TaskProcess<any>[];
 };
-
-interface TaskListenerInput<T> {
-  type: string;
-  processor: TaskProcessor<T>;
-}
-
-// type Status = "unapproved" | "processing";
 
 type StatusList = string[];
 
@@ -36,12 +29,6 @@ export interface Task<T> extends TaskInput<T> {
     end: number;
   };
 }
-
-type TaskQueue = {
-  queue: Task<any>[];
-  nextKey: number;
-  taskListener: TaskListenerContainer;
-};
 
 type TaskPromiseExecutor<T> = (
   resolve: (task: Task<T>) => void,

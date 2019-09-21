@@ -2,7 +2,7 @@ import {
   Task,
   TaskInput,
   TaskListenerContainer,
-  TaskProcessor,
+  TaskProcess,
   TaskPromiseExecutor
 } from "@/@types/task";
 
@@ -24,16 +24,14 @@ export default class TaskManager {
   /**
    * タスクリスナーを追加する
    * @param type
-   * @param processor
+   * @param process
    */
-  public addTaskListener<T>(type: string, processor: TaskProcessor<T>): void {
-    let processorList: TaskProcessor<any>[] | undefined = this.taskListener[
-      type
-    ];
-    if (!processorList) {
-      this.taskListener[type] = processorList = [];
+  public addTaskListener<T>(type: string, process: TaskProcess<T>): void {
+    let processList: TaskProcess<any>[] | undefined = this.taskListener[type];
+    if (!processList) {
+      this.taskListener[type] = processList = [];
     }
-    processorList.push(processor);
+    processList.push(process);
   }
 
   /**
@@ -101,25 +99,25 @@ export default class TaskManager {
         window.console.log("+++ call event-status +++", eventName);
 
         // 登録された処理の呼び出し
-        const processorList: TaskProcessor<T>[] | undefined = this.taskListener[
+        const processList: TaskProcess<T>[] | undefined = this.taskListener[
           eventName
         ];
         let nextStatusIndex: number = -1;
-        if (processorList) {
-          const processorRemover = (taskProcessor: TaskProcessor<T>) => () => {
-            const index: number = processorList.findIndex(
-              (processor: TaskProcessor<T>) => processor === taskProcessor
+        if (processList) {
+          const processRemover = (taskProcess: TaskProcess<T>) => () => {
+            const index: number = processList.findIndex(
+              (process: TaskProcess<T>) => process === taskProcess
             );
-            processorList.splice(index, 1);
+            processList.splice(index, 1);
           };
-          const processList: Promise<string | void>[] = processorList!.map(
-            (taskProcessor: TaskProcessor<T>) =>
-              taskProcessor(task, processorRemover(taskProcessor))
+          const promiseList: Promise<string | void>[] = processList!.map(
+            (taskProcess: TaskProcess<T>) =>
+              taskProcess(task, processRemover(taskProcess))
           );
 
           // 登録された処理を全部非同期実行して、次のステータスを受け取る
           const nextStatusList: (string | void)[] | void = await Promise.all(
-            processList
+            promiseList
           ).catch((reason: any) => {
             if (task.reject) {
               task.reject(reason);

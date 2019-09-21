@@ -24,7 +24,7 @@ import { Action, Getter, Mutation } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TestWindow from "@/app/basic/common/window/TestWindow.vue";
-import TaskManager from "@/app/core/TaskManager";
+import TaskManager from "@/app/core/task/TaskManager";
 import Context from "@/app/basic/common/context/Context.vue";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
 

@@ -1,4 +1,4 @@
-import TaskManager from "@/app/core/TaskManager";
+import TaskManager from "@/app/core/task/TaskManager";
 const changeCase = require("change-case");
 
 export default function Logging() {

@@ -4,7 +4,7 @@ import {
   Operand,
   SimpleCompareInfo
 } from "@/@types/compare";
-import { ApplicationError } from "@/app/core/ApplicationError";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 /**
  * オペランドの値を取得する

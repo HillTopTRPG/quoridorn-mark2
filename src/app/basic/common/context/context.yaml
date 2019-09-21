@@ -6,4 +6,7 @@ game-table:
       rhs: 5
   - emitName: item-02-emit
     text: item-02
+    children:
+      - emitName: item-02-01-emit
+      - text: item-02-01
 

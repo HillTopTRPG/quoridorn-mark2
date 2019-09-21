@@ -115,9 +115,10 @@ import { Watch } from "vue-property-decorator";
 import { arrangeAngle } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task } from "@/@types/task";
-import TaskManager from "@/app/core/TaskManager";
+import TaskManager from "@/app/core/task/TaskManager";
 import Logging from "@/app/basic/common/decorator/Logging";
 import { ContextTaskInfo } from "@/@types/context";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
 
 @Component({
   components: {
@@ -130,6 +131,7 @@ import { ContextTaskInfo } from "@/@types/context";
     BaseInput
   }
 })
+@TaskProcessor("action-wheel-finished")
 export default class GameTable extends AddressCalcMixin {
   // @Action("addListObj") private addListObj: any;
   // @Action("windowOpen") private windowOpen: any;
@@ -190,14 +192,6 @@ export default class GameTable extends AddressCalcMixin {
 
   private wheelTimer: number | null = null;
 
-  constructor() {
-    super();
-    TaskManager.instance.addTaskListener(
-      "action-wheel-finished",
-      this.actionWheelFinished
-    );
-  }
-
   private mounted(): void {
     document.addEventListener("mousemove", this.mouseMove);
     document.addEventListener("touchmove", this.touchMove);
@@ -222,11 +216,6 @@ export default class GameTable extends AddressCalcMixin {
       this.setIsWheeling(false);
       this.wheelTimer = null;
     }, 600);
-  }
-
-  private beforeDestroy() {
-    window.console.log("beforeDestroy");
-    TaskManager.instance.removeTaskListener("action-wheel-finished");
   }
 
   private globalEnter() {

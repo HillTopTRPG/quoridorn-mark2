@@ -23,15 +23,15 @@
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
 import { Vue } from "vue-property-decorator";
-import TaskManager from "@/app/core/TaskManager";
+import TaskManager from "@/app/core/task/TaskManager";
 import {
   ContextDeclareInfo,
   ContextItemDeclareInfo,
-  ContextTaskInfo
+  ContextTaskInfo,
+  ContextTextItem
 } from "@/@types/context";
 import { Task } from "@/@types/task";
 import Logging from "@/app/basic/common/decorator/Logging";
-import { SimpleCompareInfo } from "@/@types/compare";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "@/app/core/Compare";
 
@@ -87,26 +87,37 @@ export default class Context extends Vue {
     this.x = task.value!.x;
     this.y = task.value!.y;
 
+    // 表示項目をリセット
     this.itemList.length = 0;
 
     const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type];
     if (!itemInfoList) return;
     itemInfoList.forEach((item: ContextItemDeclareInfo | null) => {
+      // 要素がnullだったら区切り線
       if (!item) {
         this.itemList.push({ type: "hr" });
         return;
       }
+
+      // 項目を表示するかどうかの判定
       if (!judgeCompare(item.isViewCompare, this.target, this.getObj)) return;
-      if (!item.text) {
+
+      // 項目の判定と追加
+      const contextTextItem: ContextTextItem = item as ContextTextItem;
+
+      // テキスト項目の追加
+      if (contextTextItem.emitName && contextTextItem.text) {
         this.itemList.push({
-          type: "hr"
+          type: "item",
+          emitName: contextTextItem.emitName || "default",
+          text: contextTextItem.text || "default"
         });
         return;
       }
+
+      // 区切り線を追加
       this.itemList.push({
-        type: "item",
-        text: item.text || "default",
-        emitName: item.emitName || "default"
+        type: "hr"
       });
     });
   }
