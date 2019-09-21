@@ -14,7 +14,6 @@ const mounted: GenerateProcessInfo = {
     eventName?: any,
     target?: any
   ) => {
-    window.console.log(`mounted addEventListener='${eventName}'`);
     if (!eventName) return;
     if (!target) target = document;
     EventManager.instance.addListener(target!, eventName, func);
@@ -29,7 +28,6 @@ const beforeDestroy: GenerateProcessInfo = {
     eventName?: any,
     target?: any
   ) => {
-    window.console.log(`beforeDestroy removeEventListener='${eventName}'`);
     if (!eventName) return;
     if (!target) target = document;
     EventManager.instance.removeListener(eventName);

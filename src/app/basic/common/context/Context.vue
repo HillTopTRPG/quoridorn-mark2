@@ -23,7 +23,6 @@
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
 import { Vue } from "vue-property-decorator";
-import TaskManager from "@/app/core/task/TaskManager";
 import {
   ContextDeclareInfo,
   ContextItemDeclareInfo,
@@ -34,6 +33,8 @@ import { Task } from "@/@types/task";
 import Logging from "@/app/core/logger/Logging";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "@/app/core/Compare";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskManager from "@/app/core/task/TaskManager";
 
 const contextInfo: ContextDeclareInfo = require("./context.yaml");
 
@@ -53,15 +54,6 @@ export default class Context extends Vue {
 
   private itemList: Item[] = [];
 
-  constructor() {
-    super();
-
-    TaskManager.instance.addTaskListener<ContextTaskInfo>(
-      "open-context-finished",
-      this.openContextFinished
-    );
-  }
-
   private get contextStyle() {
     return {
       top: (this.y || 0) - 5 + "px",
@@ -69,16 +61,25 @@ export default class Context extends Vue {
     };
   }
 
-  private emitEvent(emitName: string) {
-    window.console.log(emitName);
-    this.$emit(emitName);
+  // @Logging
+  private async emitEvent(emitName: string) {
+    this.hide();
+    await TaskManager.instance.resistTask({
+      type: emitName,
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      value: null,
+      statusList: ["finished"]
+    });
   }
 
   private hide() {
     this.type = null;
   }
 
-  @Logging
+  @TaskProcessor("open-context-finished")
+  // @Logging
   private async openContextFinished(
     task: Task<ContextTaskInfo>
   ): Promise<string | void> {
@@ -140,6 +141,7 @@ export default class Context extends Vue {
     min-width: 50px;
     font-size: 14px;
     padding: 0 5px;
+    line-height: 1.8em;
 
     &:not(.disabled):hover {
       background-color: lightblue;

@@ -1,12 +1,12 @@
 game-table:
-  - emitName: item-01-emit
-    text: item-01
+  - emitName: item01-emit
+    text: item01
   - isViewCompare:
       lhs: 4
       rhs: 5
-  - emitName: item-02-emit
-    text: item-02
+  - emitName: item02-emit
+    text: item02
     children:
-      - emitName: item-02-01-emit
-      - text: item-02-01
+      - emitName: item02-item01-emit
+      - text: item02-item01
 

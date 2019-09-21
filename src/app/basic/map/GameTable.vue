@@ -118,7 +118,9 @@ import { Task } from "@/@types/task";
 import TaskManager from "@/app/core/task/TaskManager";
 import Logging from "@/app/core/logger/Logging";
 import { ContextTaskInfo } from "@/@types/context";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskProcessor, {
+  TaskProcessorSimple
+} from "@/app/core/task/TaskProcessor";
 import EventProcessor from "@/app/core/event/EventProcessor";
 
 @Component({
@@ -193,7 +195,7 @@ export default class GameTable extends AddressCalcMixin {
   private wheelTimer: number | null = null;
 
   @TaskProcessor("action-wheel-finished")
-  @Logging
+  // @Logging
   private async actionWheelFinished(
     task: Task<number>
   ): Promise<string | void> {
@@ -212,6 +214,12 @@ export default class GameTable extends AddressCalcMixin {
       this.setIsWheeling(false);
       this.wheelTimer = null;
     }, 600);
+  }
+
+  @TaskProcessorSimple
+  @Logging
+  private item01EmitFinished() {
+    window.console.log("ちゃんと拾えた");
   }
 
   private globalEnter() {
@@ -390,13 +398,11 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   @EventProcessor("mousemove")
-  @Logging
   private mouseMove(event: any): void {
     this.setMouseLocateOnPage(event.pageX, event.pageY);
   }
 
   @EventProcessor("touchmove")
-  @Logging
   private touchMove(event: any): void {
     this.setMouseLocateOnPage(
       event.changedTouches[0].pageX,
