@@ -1,9 +1,4 @@
-import {
-  CompareInfo,
-  MultiCompareInfo,
-  Operand,
-  SimpleCompareInfo
-} from "@/@types/compare";
+import { Operand, CompareInfo, SimpleCompareInfo } from "@/@types/compare";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 /**
@@ -52,21 +47,25 @@ export function judgeCompare(
   getObj: (key: string) => any
 ): boolean {
   if (!comp) return true;
-  if ((<MultiCompareInfo>comp).list && (<MultiCompareInfo>comp).list) {
-    const mComp: MultiCompareInfo = comp as MultiCompareInfo;
-    const r: boolean[] = mComp.list.map((c: SimpleCompareInfo) => {
-      const lhs: any = getOperandValue(c.lhs, target, getObj);
-      const rhs: any = getOperandValue(c.rhs, target, getObj);
-      return c.isNot ? lhs !== rhs : lhs === rhs;
-    });
+
+  // 判定メソッド
+  const judgement = (c: SimpleCompareInfo): boolean => {
+    const lhs: any = getOperandValue(c.lhs, target, getObj);
+    const rhs: any = getOperandValue(c.rhs, target, getObj);
+    return c.isNot ? lhs !== rhs : lhs === rhs;
+  };
+
+  // MultiCompareInfo の場合
+  if ("operator" in comp && "list" in comp.list) {
+    const mComp = comp;
+    const r: boolean[] = mComp.list.map(c => judgement(c));
     const trueCount: number = r.filter((r: boolean) => r).length;
     return mComp.operator === "and" ? trueCount === r.length : trueCount > 0;
   }
-  if ((<SimpleCompareInfo>comp).lhs && (<SimpleCompareInfo>comp).rhs) {
-    const sComp: SimpleCompareInfo = comp as SimpleCompareInfo;
-    const lhs: any = getOperandValue(sComp.lhs, target, getObj);
-    const rhs: any = getOperandValue(sComp.rhs, target, getObj);
-    return sComp.isNot ? lhs !== rhs : lhs === rhs;
-  }
+
+  // SingleCompareInfo の場合
+  if ("lhs" in comp && "rhs" in comp) return judgement(comp);
+
+  // どっちでもない場合はエラー
   throw new ApplicationError("Invalid comp info type");
 }

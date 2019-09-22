@@ -1,14 +1,14 @@
 <template>
   <div
     :style="windowStyle"
-    :id="displayProperty"
+    :id="`window-${windowInfo.key}`"
     @mousedown.stop
     @mouseup.stop="event => mouseUp(event, 1)"
-    @touchcancel.stop="event => mouseUp(event, 2)"
+    @touchstart.stop="event => mouseUp(event, 1)"
     @touchend.stop="event => mouseUp(event, 3)"
-    @touchstart.stop="deckHoverKey(displayProperty)"
+    @touchcancel.stop="event => mouseUp(event, 2)"
     class="window"
-    :class="{ isSmall: isSmall }"
+    :class="{ isSmall: windowInfo.isMinimized }"
   >
     <!-- タイトルバー -->
     <div
@@ -23,12 +23,12 @@
     >
       <!-- タイトル文言 -->
       <div class="title-message-area">
-        <span>{{ titleText }}</span>
-        <span class="message" v-if="message">{{ message }}</span>
+        <span>{{ windowInfo.title }}</span>
+        <span class="message" v-if="message">{{ windowInfo.message }}</span>
       </div>
 
       <!-- 閉じるボタン -->
-      <span class="title-icon-area" v-if="!isBanClose">
+      <span class="title-icon-area" v-if="windowInfo.declare.closable">
         <i
           class="icon-cross window-close"
           @click.left.stop="closeWindow"
@@ -52,22 +52,16 @@
     </div>
 
     <!-- サイズ変更つまみ -->
-    <window-frame-knob name="corner-left-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob
-      name="corner-left-bottom"
-      @resize="resize"
-      v-if="!isFix"
-    />
-    <window-frame-knob name="corner-right-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob
-      name="corner-right-bottom"
-      @resize="resize"
-      v-if="!isFix"
-    />
-    <window-frame-knob name="side-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-left" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-right" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-bottom" @resize="resize" v-if="!isFix" />
+    <template v-if="windowInfo.declare.resizable">
+      <window-frame-knob name="corner-left-top" @resize="resize" />
+      <window-frame-knob name="corner-left-bottom" @resize="resize" />
+      <window-frame-knob name="corner-right-top" @resize="resize" />
+      <window-frame-knob name="corner-right-bottom" @resize="resize" />
+      <window-frame-knob name="side-top" @resize="resize" />
+      <window-frame-knob name="side-left" @resize="resize" />
+      <window-frame-knob name="side-right" @resize="resize" />
+      <window-frame-knob name="side-bottom" @resize="resize" />
+    </template>
   </div>
 </template>
 
@@ -75,9 +69,9 @@
 import WindowFrameKnob from "./WindowFrameKnob.vue";
 
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { Mutation } from "vuex-class";
-
-const windowInfo = require("./window.yaml");
+import { Getter, Mutation } from "vuex-class";
+import { WindowInfo } from "@/@types/window";
+import { Point } from "@/@types/address";
 
 @Component({
   components: { WindowFrameKnob }
@@ -86,33 +80,10 @@ export default class TestWindow extends Vue {
   @Mutation("setIsMapOverEvent") private setIsMapOverEvent: any;
   @Mutation("setMapMoveObj") private setMapMoveObj: any;
   @Mutation("setIsMapMoving") private setIsMapMoving: any;
+  @Getter("mouseLocate") private mouseLocate!: Point;
 
-  @Prop({ type: String, required: true })
-  private titleText!: string;
-
-  @Prop({ type: String, required: true })
-  private displayProperty!: string;
-
-  @Prop({ type: String, required: true })
-  private align!: string;
-
-  @Prop({ type: String })
-  private baseSize!: string | null;
-
-  @Prop({ type: String })
-  private fixSize!: string | null;
-
-  @Prop({ type: Boolean, default: false })
-  private isBanClose!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private fontSizeBar!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private standImageSizeChooser!: boolean;
-
-  @Prop({ type: String })
-  private message!: string | null;
+  @Prop({ type: Object, required: true })
+  private windowInfo!: WindowInfo;
 
   private moveMode: string = "";
   private mouse: any = {
@@ -133,8 +104,6 @@ export default class TestWindow extends Vue {
     draggingY: 0
   };
 
-  private isSmall: boolean = false;
-
   private fontSize: number = 12;
   private standImageSize: string = "192*256";
   private standImageWidth: number = 192;
@@ -148,27 +117,23 @@ export default class TestWindow extends Vue {
   }
 
   private mounted(): void {
-    window.console.log("----------");
-    window.console.log(windowInfo);
-    window.console.log("----------");
-
     const _ = this;
     document.addEventListener("mousemove", event => {
       _.mouse.x = event.pageX;
       _.mouse.y = event.pageY;
-      _.reflesh();
+      _.refresh();
     });
     document.addEventListener("touchmove", event => {
       _.mouse.x = event.changedTouches[0].pageX;
       _.mouse.y = event.changedTouches[0].pageY;
-      _.reflesh();
+      _.refresh();
     });
     this.addEventForIFrame();
   }
 
   private closeWindow(this: any): void {
     window.console.log(`close window`);
-    this.isSmall = !this.isSmall;
+    this.windowInfo.isMinimized = !this.windowInfo.isMinimized;
   }
 
   private mouseUp(event: any, num: number): void {
@@ -244,7 +209,7 @@ export default class TestWindow extends Vue {
     this.moveMode = flg ? direct : "";
   }
 
-  private reflesh(this: any): void {
+  private refresh(this: any): void {
     switch (this.moveMode) {
       case "side-top":
       case "side-bottom":
@@ -275,7 +240,7 @@ export default class TestWindow extends Vue {
       this.mouse.saveY = isTouch
         ? event.changedTouches[0]["pageY"]
         : event.pageY;
-      this.setMapMoveObj(this.displayProperty);
+      this.setMapMoveObj(`window-${this.windowInfo.key}`);
       this.setIsMapMoving(true);
     } else {
       this.setIsMapMoving(false);

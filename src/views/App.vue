@@ -1,16 +1,9 @@
 <template>
-  <div id="app" @wheel.passive="onWheel">
+  <div id="app">
     <game-table ref="gameTable" />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
     <Menu />
     <context />
-    <test-window
-      titleText="Test Window"
-      displayProperty="sample"
-      align="center"
-      baseSize="300, 400"
-      message="あーどうもどうも"
-    />
     <!--
     <img alt="Vue logo" src="../assets/logo.png" />
     -->
@@ -23,15 +16,15 @@ import BaseInput from "@/app/basic/common/components/BaseInput.vue";
 import { Action, Getter, Mutation } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
-import TestWindow from "@/app/basic/common/window/TestWindow.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import Context from "@/app/basic/common/context/Context.vue";
+import EventProcessor from "@/app/core/event/EventProcessor";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
+import { WindowTaskInfo } from "@/@types/window";
 
 @Component({
   components: {
     Context,
-    TestWindow,
     Menu,
     GameTable,
     BaseInput
@@ -56,10 +49,28 @@ export default class App extends Vue {
   }
 
   /**
+   * ライフサイクル
+   */
+  public async mounted() {
+    await TaskManager.instance.resistTask<WindowTaskInfo>({
+      type: "open-window",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      value: {
+        type: "test-window",
+        declare: null
+      },
+      statusList: ["finished"]
+    });
+  }
+
+  /**
    * ホイールイベント
    * @param event
    */
-  private async onWheel(this: any, event: any) {
+  @EventProcessor("wheel")
+  private async onWheel(event: any) {
     await TaskManager.instance.resistTask({
       type: "action-wheel",
       owner: "Quoridorn",

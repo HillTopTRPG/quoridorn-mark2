@@ -6,30 +6,41 @@ export type WindowTableDeclareInfo = {
   readonly initColumnWidthList: number[];
 };
 
-export type WindowDeclareContentsInfo = {
+export type WindowDeclareInfo = {
   readonly parentTypeList: string[];
+  readonly title: string;
+  readonly message: string;
+  readonly position: Point | Anchor;
+  readonly size?: Size;
   readonly minSize?: Size;
   readonly maxSize?: Size;
-  readonly fixSize?: Size;
-  readonly defaultPosition: Point | Anchor;
-  readonly tableDeclareInfoList: WindowTableDeclareInfo[];
+  readonly closable: boolean;
+  readonly fontSizePickable: boolean;
+  readonly resizable: boolean;
+  readonly tableInfoList: WindowTableDeclareInfo[];
 };
 
-export type WindowDeclareInfo = {
-  [type in string]: WindowDeclareContentsInfo;
+export type WindowDeclareContentsInfo = {
+  [type in string]: WindowDeclareInfo;
 };
 
 export type WindowTableInfo = {
   selectLineKey: string | null;
   hoverLineIndex: number | null;
   operateDividerIndex: number | null;
+  columnWidthList: number[];
 };
 
-export interface WindowInfo extends Rectangle {
+export interface WindowTaskInfo {
   readonly type: string;
-  readonly declare: WindowDeclareContentsInfo;
-  readonly key: string;
-  readonly parentKey: string;
+  readonly declare: WindowDeclareInfo;
+  readonly parentKey?: string;
+}
+
+export interface WindowInfo extends Rectangle, WindowTaskInfo {
+  readonly key: number;
+  readonly title: string;
+  message: string;
   order: number;
   isLocked: boolean;
   isMinimized: boolean;

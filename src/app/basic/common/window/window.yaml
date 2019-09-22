@@ -1,4 +1,0 @@
-test-window:
-  min-width: 100px
-  min-height: 120px
-  init-locale: center
