@@ -2,9 +2,15 @@ import {
   Task,
   TaskInput,
   TaskListenerContainer,
+  TaskListenerParameterContainer,
   TaskProcess,
   TaskPromiseExecutor
 } from "@/@types/task";
+
+export type MouseMoveParam = {
+  key: string;
+  type: string;
+};
 
 export default class TaskManager {
   // シングルトン
@@ -19,6 +25,8 @@ export default class TaskManager {
 
   private readonly taskQueue: Task<any>[] = [];
   private readonly taskListener: TaskListenerContainer = {};
+  private readonly taskParam: TaskListenerParameterContainer = {};
+  private readonly taskLastValue: { [type: string]: any } = {};
   private nextKey: number = 0;
 
   /**
@@ -43,47 +51,56 @@ export default class TaskManager {
   }
 
   /**
-   * タスクを登録する
+   * タスクパラメータを設定する
    * @param type
-   * @param owner
-   * @param isPrivate
-   * @param isExclusion
-   * @param to
-   * @param value
-   * @param statusList
+   * @param param
    */
-  public resistTask<T>({
-    type,
-    owner,
-    isPrivate = true,
-    isExclusion = false,
-    to = [],
-    value,
-    statusList = ["unapproved", "processing", "finished"]
-  }: TaskInput<T>): Promise<Task<T>> {
+  public setTaskParam<T>(type: string, param: T): void {
+    this.taskParam[type] = param as any;
+  }
+
+  /**
+   * タスクの最後の値を取得する（タスク登録時にオプションを指定しないとundefinedになる）
+   * @param type
+   */
+  public getLastValue<T>(type: string): T {
+    return this.taskLastValue[type] as T;
+  }
+
+  /**
+   * タスクを登録する
+   * @param taskInput タスク情報
+   */
+  public resistTask<T>(taskInput: TaskInput<T>): Promise<Task<T>> {
     const key: string = `task-${this.nextKey++}`;
+    if (taskInput.isLastValueCapture) {
+      this.taskLastValue[taskInput.type] = JSON.parse(
+        JSON.stringify(taskInput.value)
+      );
+    }
+
+    // ちゃんと処理されないタスクを感知する
+    const timeoutID = window.setTimeout(() => {
+      window.console.error(`🐧💢${taskInput.type}`);
+    }, 300);
 
     const promiseExecutor: TaskPromiseExecutor<T> = async (
       resolve: (task: Task<T>) => void,
       reject: (reason?: any) => void
     ) => {
       const task: Task<T> = {
+        ...taskInput,
         key,
-        type,
-        owner,
-        to,
-        isPrivate,
-        isExclusion,
-        value,
-        statusList,
-        status: statusList[0],
+        status: taskInput.statusList[0],
         resolve: (task: Task<T>) => {
           resolve(task);
+          clearTimeout(timeoutID);
           task.resolve = () => {};
           task.reject = () => {};
         },
         reject: (reason?: any) => {
           reject(reason);
+          clearTimeout(timeoutID);
           task.resolve = () => {};
           task.reject = () => {};
         },
@@ -93,81 +110,110 @@ export default class TaskManager {
         }
       };
       this.taskQueue.push(task);
-
-      const process = async () => {
-        const eventName: string = `${type}-${task.status}`;
-        window.console.log(`🔥TASK🔥${eventName}`);
-
-        // 登録された処理の呼び出し
-        const processList: TaskProcess<T>[] | undefined = this.taskListener[
-          eventName
-        ];
-        let nextStatusIndex: number = -1;
-        if (processList) {
-          const processRemover = (taskProcess: TaskProcess<T>) => () => {
-            const index: number = processList.findIndex(
-              (process: TaskProcess<T>) => process === taskProcess
-            );
-            processList.splice(index, 1);
-          };
-          const promiseList: Promise<string | void>[] = processList!.map(
-            (taskProcess: TaskProcess<T>) =>
-              taskProcess(task, processRemover(taskProcess))
-          );
-
-          // 登録された処理を全部非同期実行して、次のステータスを受け取る
-          const nextStatusList: (string | void)[] | void = await Promise.all(
-            promiseList
-          ).catch((reason: any) => {
-            if (task.reject) {
-              task.reject(reason);
-              task.reject = null;
-              task.resolve = null;
-              task.status = "rejected";
-            }
-          });
-
-          // 受け取った次のステータスの中で最も進んでいるものを採用
-          if (nextStatusList && nextStatusList.length) {
-            const useStatusList: string[] = nextStatusList.filter(
-              (status: string | void) => status
-            ) as string[];
-            if (useStatusList.length) {
-              nextStatusIndex = Math.max(
-                ...useStatusList.map((nextStatus: string) =>
-                  statusList.findIndex(
-                    (status: string) => status === nextStatus
-                  )
-                )
-              );
-            }
-          }
-        }
-
-        // 処理が登録されてなかったら、次のステータスを採用
-        if (nextStatusIndex === -1) {
-          const currentIndex: number = statusList.findIndex(
-            (status: string) => status === task.status
-          );
-          nextStatusIndex = currentIndex + 1;
-        }
-
-        // 最終ステータスに到達するまでステータスを進めながら呼び出していく
-        const nextStatus: string = statusList[nextStatusIndex];
-        // window.console.log(nextStatus);
-        if (nextStatus) {
-          task.status = nextStatus;
-          await process();
-        } else {
-          // 最終ステータスの処理が終わったらキューから削除する
-          const index: number = this.taskQueue.findIndex(
-            (task: Task<T>) => task.key === key
-          );
-          this.taskQueue.splice(index, 1);
-        }
-      };
-      await process();
+      await this.process(task);
     };
     return new Promise(promiseExecutor);
+  }
+
+  private dequeTask(key: string) {
+    this.taskQueue.splice(this.taskQueue.findIndex(t => t.key === key), 1);
+  }
+
+  private async process<T>(task: Task<T>) {
+    const nextStatusIndex: number = await this.callProcess(task);
+    if (!task.resolve || !task.reject) {
+      this.dequeTask(task.key);
+      return;
+    }
+
+    let nextStatus: string;
+
+    // 処理が登録されてなかったら、次のステータスを採用
+    if (nextStatusIndex === -1) {
+      const currentIndex: number = task.statusList.findIndex(
+        (status: string) => status === task.status
+      );
+      nextStatus = task.statusList[currentIndex + 1];
+
+      // 最終ステータスの処理が実施されなかった場合はここでresolve
+      if (!nextStatus && task.resolve) task.resolve(task);
+    } else {
+      nextStatus = task.statusList[nextStatusIndex];
+    }
+
+    // 最終ステータスに到達するまでステータスを進めながら呼び出していく
+    if (nextStatus) {
+      task.status = nextStatus;
+      await this.process(task);
+    } else {
+      // 最終ステータスの処理が終わったらキューから削除する
+      this.dequeTask(task.key);
+    }
+  }
+
+  private async callProcess<T>(task: Task<T>): Promise<number> {
+    const eventName: string = `${task.type}-${task.status}`;
+    let logText: string = `🐧💣${eventName}`;
+    let nextStatusIndex: number = -1;
+
+    // 登録された処理の呼び出し
+    const param: any = this.taskParam[eventName];
+    if (task.isIgniteWithParam && !param) {
+      // パラメータ必須タスクでパラメータがないため実施しない
+      window.console.log(`${logText}🏷️🈚`);
+      return nextStatusIndex;
+    }
+    const processList: TaskProcess<T>[] | undefined = this.taskListener[
+      eventName
+    ];
+    if (!processList || !processList.length) {
+      // 登録された処理がない
+      window.console.log(`${logText}🈳`);
+      return nextStatusIndex;
+    }
+
+    window.console.log(
+      `${logText}💥`,
+      task.value,
+      "🏷️" + (param ? "" : "️🈚"),
+      param || ""
+    );
+    const processRemover = (taskProcess: TaskProcess<T>) => () => {
+      const index: number = processList.findIndex(
+        (process: TaskProcess<T>) => process === taskProcess
+      );
+      processList.splice(index, 1);
+    };
+    const promiseList: Promise<string | void>[] = processList.map(
+      (taskProcess: TaskProcess<T>) =>
+        taskProcess(task, param, processRemover(taskProcess))
+    );
+
+    // 登録された処理を全部非同期実行して、次のステータスを受け取る
+    const nextStatusList: (string | void)[] | void = await Promise.all(
+      promiseList
+    ).catch((reason: any) => {
+      if (task.reject) {
+        task.reject(reason);
+        task.reject = null;
+        task.resolve = null;
+        task.status = "rejected";
+      }
+    });
+
+    // 受け取った次のステータスの中で最も進んでいるものを採用
+    if (nextStatusList && nextStatusList.length) {
+      const useStatusList: string[] = nextStatusList.filter(
+        (status: string | void) => status
+      ) as string[];
+      if (useStatusList.length) {
+        nextStatusIndex = Math.max(
+          ...useStatusList.map((nextStatus: string) =>
+            task.statusList.findIndex((status: string) => status === nextStatus)
+          )
+        );
+      }
+    }
+    return nextStatusIndex;
   }
 }

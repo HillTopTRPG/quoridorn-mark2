@@ -2,6 +2,7 @@
   <div id="app">
     <game-table ref="gameTable" />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
+    <window-area />
     <Menu />
     <context />
     <!--
@@ -21,9 +22,13 @@ import Context from "@/app/basic/common/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
 import { WindowTaskInfo } from "@/@types/window";
+import WindowArea from "@/app/basic/common/window/WindowArea.vue";
+import WindowManager from "@/app/core/window/WindowManager";
+import { Point } from "@/@types/address";
 
 @Component({
   components: {
+    WindowArea,
     Context,
     Menu,
     GameTable,
@@ -52,17 +57,7 @@ export default class App extends Vue {
    * ライフサイクル
    */
   public async mounted() {
-    await TaskManager.instance.resistTask<WindowTaskInfo>({
-      type: "open-window",
-      owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      value: {
-        type: "test-window",
-        declare: null
-      },
-      statusList: ["finished"]
-    });
+    WindowManager.instance.resistWindowOpenTask("test-window");
   }
 
   /**
@@ -76,9 +71,74 @@ export default class App extends Vue {
       owner: "Quoridorn",
       isPrivate: true,
       isExclusion: false,
-      value: event.wheelDelta,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
+      value: event.wheelDelta > 0,
       statusList: ["finished"]
     });
+  }
+
+  /**
+   * マウス移動イベント
+   * @param event
+   */
+  @EventProcessor("mousemove")
+  private mouseMove(event: any): void {
+    App.setMouseLocateOnPage(event.pageX, event.pageY);
+  }
+
+  /**
+   * タッチ移動イベント
+   * @param event
+   */
+  @EventProcessor("touchmove")
+  private touchMove(event: any): void {
+    App.setMouseLocateOnPage(
+      event.changedTouches[0].pageX,
+      event.changedTouches[0].pageY
+    );
+  }
+
+  private static async setMouseLocateOnPage(
+    pageX: number,
+    pageY: number
+  ): Promise<void> {
+    TaskManager.instance.resistTask<Point>({
+      type: "mouse-move",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      isIgniteWithParam: true,
+      isLastValueCapture: true,
+      value: {
+        x: pageX,
+        y: pageY
+      },
+      statusList: ["finished"]
+    });
+  }
+
+  /**
+   * マウスボタン離上イベント
+   * @param event
+   */
+  @EventProcessor("mouseup")
+  private async mouseUp(event: MouseEvent): Promise<void> {
+    if (event.button === 0 || event.button === 2) {
+      await TaskManager.instance.resistTask<Point>({
+        type: event.button === 0 ? "mouse-left-up" : "mouse-right-up",
+        owner: "Quoridorn",
+        isPrivate: true,
+        isExclusion: false,
+        isIgniteWithParam: false,
+        isLastValueCapture: true,
+        value: {
+          x: event.pageX,
+          y: event.pageY
+        },
+        statusList: ["finished"]
+      });
+    }
   }
 
   @Watch("mapBackgroundColor", { immediate: true })

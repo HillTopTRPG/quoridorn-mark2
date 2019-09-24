@@ -69,6 +69,8 @@ export default class Context extends Vue {
       owner: "Quoridorn",
       isPrivate: true,
       isExclusion: false,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
       value: null,
       statusList: ["finished"]
     });
@@ -79,7 +81,7 @@ export default class Context extends Vue {
   }
 
   @TaskProcessor("open-context-finished")
-  // @Logging
+  @Logging
   private async openContextFinished(
     task: Task<ContextTaskInfo>
   ): Promise<string | void> {
@@ -91,6 +93,7 @@ export default class Context extends Vue {
     // 表示項目をリセット
     this.itemList.length = 0;
 
+    // 定義を元に要素を構築していく
     const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type];
     if (!itemInfoList) return;
     itemInfoList.forEach((item: ContextItemDeclareInfo | null) => {
@@ -121,6 +124,9 @@ export default class Context extends Vue {
         type: "hr"
       });
     });
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 }
 </script>

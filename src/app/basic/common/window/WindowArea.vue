@@ -1,8 +1,8 @@
 <template>
   <div id="window-area">
     <component
-      v-for="windowInfo in windowInfoContainer"
-      :key="windowInfo.key"
+      v-for="(windowInfo, key) in windowInfoContainer"
+      :key="key"
       :is="windowInfo.type"
       :windowInfo="windowInfo"
     />
@@ -41,7 +41,7 @@ export default class WindowArea extends Vue {
       })
     );
 
-    this.windowInfoContainer[this.key] = {
+    Vue.set(this.windowInfoContainer, this.key, {
       key: this.key,
       type: windowTaskInfo.type,
       declare: windowTaskInfo.declare,
@@ -56,8 +56,13 @@ export default class WindowArea extends Vue {
       isLocked: false,
       isMinimized: false,
       tableInfoList
-    };
+    });
     this.key++;
+
+    window.console.log(this.windowInfoContainer);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
   @TaskProcessor("close-window-finished")
@@ -66,12 +71,15 @@ export default class WindowArea extends Vue {
     if (!task.value) return;
     const windowInfo: WindowInfo = task.value;
     delete this.windowInfoContainer[windowInfo.key];
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.window-area {
+#window-area {
   position: relative;
 }
 </style>

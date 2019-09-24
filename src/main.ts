@@ -3,7 +3,7 @@ import router from "./router";
 import MainVue from "./MainVue.vue";
 import store from "@/app/store/store";
 import ImageDirective from "@/app/basic/common/directive/Image";
-const windowInfo: any = require("./window.yaml");
+const windowInfo: any = require("./app/core/window/window.yaml");
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);

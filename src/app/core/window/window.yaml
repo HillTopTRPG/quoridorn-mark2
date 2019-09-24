@@ -1,0 +1,54 @@
+"test-window":
+  parentTypeList: []
+  title: テスト画面
+  message: ""
+  position: center
+  size:
+    width: 300
+    height: 200
+  minSize:
+    width: 250
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+"add-character":
+  parentTypeList: []
+  title: テスト画面2
+  message: ""
+  position: center
+  size:
+    width: 300
+    height: 200
+  minSize:
+    width: 250
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+"edit-character":
+  parentTypeList: []
+  title: テスト画面3
+  message: ""
+  position: center
+  size:
+    width: 300
+    height: 200
+  minSize:
+    width: 250
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []

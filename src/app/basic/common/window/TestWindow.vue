@@ -1,30 +1,26 @@
 <template>
   <div
-    :style="windowStyle"
-    :id="`window-${windowInfo.key}`"
-    @mousedown.stop
-    @mouseup.stop="event => mouseUp(event, 1)"
-    @touchstart.stop="event => mouseUp(event, 1)"
-    @touchend.stop="event => mouseUp(event, 3)"
-    @touchcancel.stop="event => mouseUp(event, 2)"
+    :id="key"
     class="window"
     :class="{ isSmall: windowInfo.isMinimized }"
+    :style="windowStyle"
+    @mousedown.left.stop
+    @touchstart.stop
   >
     <!-- タイトルバー -->
     <div
       class="window-title"
-      :class="{ fix: isFix }"
-      @mousedown.left.stop="event => move(event, true)"
-      @mouseup.left.stop="event => move(event, false)"
-      @touchstart.stop="event => move(event, true, true)"
-      @touchend.stop="event => move(event, false, true)"
-      @touchcancel.stop="event => move(event, false, true)"
+      :class="{ fix: !windowInfo.declare.resizable }"
+      @mousedown.left.stop="leftDown()"
+      @touchstart.stop="leftDown()"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
       <div class="title-message-area">
         <span>{{ windowInfo.title }}</span>
-        <span class="message" v-if="message">{{ windowInfo.message }}</span>
+        <span class="message" v-if="windowInfo.message">{{
+          windowInfo.message
+        }}</span>
       </div>
 
       <!-- 閉じるボタン -->
@@ -53,61 +49,170 @@
 
     <!-- サイズ変更つまみ -->
     <template v-if="windowInfo.declare.resizable">
-      <window-frame-knob name="corner-left-top" @resize="resize" />
-      <window-frame-knob name="corner-left-bottom" @resize="resize" />
-      <window-frame-knob name="corner-right-top" @resize="resize" />
-      <window-frame-knob name="corner-right-bottom" @resize="resize" />
-      <window-frame-knob name="side-top" @resize="resize" />
-      <window-frame-knob name="side-left" @resize="resize" />
-      <window-frame-knob name="side-right" @resize="resize" />
-      <window-frame-knob name="side-bottom" @resize="resize" />
+      <resize-knob side="left-top" @leftDown="leftDown" />
+      <resize-knob side="left-bottom" @leftDown="leftDown" />
+      <resize-knob side="right-top" @leftDown="leftDown" />
+      <resize-knob side="right-bottom" @leftDown="leftDown" />
+      <resize-knob side="top" @leftDown="leftDown" />
+      <resize-knob side="left" @leftDown="leftDown" />
+      <resize-knob side="right" @leftDown="leftDown" />
+      <resize-knob side="bottom" @leftDown="leftDown" />
     </template>
   </div>
 </template>
 
 <script lang="ts">
-import WindowFrameKnob from "./WindowFrameKnob.vue";
-
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter, Mutation } from "vuex-class";
 import { WindowInfo } from "@/@types/window";
-import { Point } from "@/@types/address";
+import { Anchor, Point, Rectangle, Size } from "@/@types/address";
+import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task } from "@/@types/task";
+import { createPoint, createRectangle } from "@/app/core/Coordinate";
 
 @Component({
-  components: { WindowFrameKnob }
+  components: { ResizeKnob }
 })
 export default class TestWindow extends Vue {
   @Mutation("setIsMapOverEvent") private setIsMapOverEvent: any;
-  @Mutation("setMapMoveObj") private setMapMoveObj: any;
-  @Mutation("setIsMapMoving") private setIsMapMoving: any;
-  @Getter("mouseLocate") private mouseLocate!: Point;
 
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo;
 
-  private moveMode: string = "";
-  private mouse: any = {
-    x: 0,
-    y: 0,
-    saveX: 0,
-    saveY: 0
-  };
-
-  public windowFactor: any = {
-    l: 0, // left
-    r: 0, // right
-    t: 0, // top
-    b: 0, // bottom
-    w: 0, // width
-    h: 0, // height
-    draggingX: 0,
-    draggingY: 0
-  };
+  private dragFrom: Point = createPoint(0, 0);
+  private diff: Rectangle = createRectangle(0, 0, 0, 0);
 
   private fontSize: number = 12;
   private standImageSize: string = "192*256";
   private standImageWidth: number = 192;
   private standImageHeight: number = 256;
+
+  private get key(): string {
+    return `window-${this.windowInfo.key}`;
+  }
+
+  private leftDown(side?: string): void {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
+      key: this.key,
+      type: side || ""
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-left-up-finished",
+      {
+        key: this.key,
+        type: side || ""
+      }
+    );
+    this.dragFrom = TaskManager.instance.getLastValue<Point>("mouse-move");
+  }
+
+  @TaskProcessor("mouse-left-up-finished")
+  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+    this.windowInfo.x += this.diff.x;
+    this.windowInfo.y += this.diff.y;
+    this.windowInfo.width += this.diff.width;
+    this.windowInfo.height += this.diff.height;
+
+    this.diff.x = 0;
+    this.diff.y = 0;
+    this.diff.width = 0;
+    this.diff.height = 0;
+
+    TaskManager.instance.setTaskParam("mouse-move-finished", null);
+    TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  @TaskProcessor("mouse-move-finished")
+  private async mouseMoveFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param.key !== this.key) return;
+    const point = task.value!;
+
+    // 移動
+    if (!param.type) {
+      this.diff.x = point.x - this.dragFrom.x;
+      this.diff.y = point.y - this.dragFrom.y;
+      this.diff.width = 0;
+      this.diff.height = 0;
+
+      // 登録したタスクに完了通知
+      if (task.resolve) task.resolve(task);
+      return;
+    }
+
+    // サイズ変更不可なら処理終了
+    if (!this.windowInfo.declare.resizable) {
+      // 登録したタスクに完了通知
+      if (task.resolve) task.resolve(task);
+      return;
+    }
+
+    this.diff.x = 0;
+    this.diff.y = 0;
+    this.diff.width = 0;
+    this.diff.height = 0;
+    if (param.type.indexOf("left") > -1) {
+      this.diff.width = this.dragFrom.x - point.x;
+      this.diff.x = -this.diff.width;
+    }
+    if (param.type.indexOf("right") > -1) {
+      this.diff.width = point.x - this.dragFrom.x;
+    }
+    if (param.type.indexOf("top") > -1) {
+      this.diff.height = this.dragFrom.y - point.y;
+      this.diff.y = -this.diff.height;
+    }
+    if (param.type.indexOf("bottom") > -1) {
+      this.diff.height = point.y - this.dragFrom.y;
+    }
+
+    const simulationSize: Size = {
+      width: this.windowInfo.width + this.diff.width,
+      height: this.windowInfo.height + this.diff.height
+    };
+    const correctSize: Size = {
+      width: 0,
+      height: 0
+    };
+    const minSize = this.windowInfo.declare.minSize;
+    if (minSize) {
+      if (simulationSize.width < minSize.width)
+        correctSize.width = minSize.width - simulationSize.width;
+      if (simulationSize.height < minSize.height)
+        correctSize.height = minSize.height - simulationSize.height;
+    }
+    const maxSize = this.windowInfo.declare.maxSize;
+    if (maxSize) {
+      if (simulationSize.width > maxSize.width)
+        correctSize.width = maxSize.width - simulationSize.width;
+      if (simulationSize.height > maxSize.height)
+        correctSize.height = maxSize.height - simulationSize.height;
+    }
+
+    if (param.type.indexOf("left") > -1) this.diff.x -= correctSize.width;
+    if (param.type.indexOf("top") > -1) this.diff.y -= correctSize.height;
+    this.diff.width += correctSize.width;
+    this.diff.height += correctSize.height;
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  private get windowStyle(): any {
+    return {
+      left: `${this.windowInfo.x + this.diff.x}px`,
+      top: `${this.windowInfo.y + this.diff.y}px`,
+      width: `${this.windowInfo.width + this.diff.width}px`,
+      height: `${this.windowInfo.height + this.diff.height}px`
+    };
+  }
 
   @Watch("standImageSize", { immediate: true })
   private onChangeStandImageSize(standImageSize: string) {
@@ -116,144 +221,25 @@ export default class TestWindow extends Vue {
     this.standImageHeight = parseInt(split[1]);
   }
 
-  private mounted(): void {
-    const _ = this;
-    document.addEventListener("mousemove", event => {
-      _.mouse.x = event.pageX;
-      _.mouse.y = event.pageY;
-      _.refresh();
-    });
-    document.addEventListener("touchmove", event => {
-      _.mouse.x = event.changedTouches[0].pageX;
-      _.mouse.y = event.changedTouches[0].pageY;
-      _.refresh();
-    });
-    this.addEventForIFrame();
-  }
-
   private closeWindow(this: any): void {
     window.console.log(`close window`);
     this.windowInfo.isMinimized = !this.windowInfo.isMinimized;
   }
 
-  private mouseUp(event: any, num: number): void {
-    const evtObj = {
-      clientX: event.pageX,
-      clientY: event.pageY,
-      button: event.button
+  private standImageStyle(standImage: any, index: number): any {
+    const locate = standImage.locate;
+    const mpx: number = (this.standImageWidth * (locate - 1)) / 12;
+    return {
+      width: `${this.standImageWidth}px`,
+      height: `${this.standImageHeight}px`,
+      left: `calc((100% - ${this.standImageWidth}px) * ${locate - 1} / 11)`,
+      zIndex: index + 2
     };
-    if (event.button === 2) {
-      this.setIsMapOverEvent(true);
-    }
-    const gameTableElm = document.getElementById("mapBoardFrame");
-    const evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(
-      "mouseup",
-      true,
-      true,
-      window,
-      1,
-      event.screenX,
-      event.screenY,
-      event.clientX,
-      event.clientY,
-      event.ctrlKey,
-      event.altKey,
-      event.shiftKey,
-      event.metaKey,
-      event.buttons,
-      gameTableElm
-    );
-    // gameTableElm!.dispatchEvent(new MouseEvent("mouseUp", evtObj));
-    gameTableElm!.dispatchEvent(evt);
   }
 
-  private resize(
-    this: any,
-    event: any,
-    direct: string,
-    flg: boolean,
-    isTouch: boolean
-  ): void {
-    if (flg) {
-      this.mouse.saveX = isTouch
-        ? event.changedTouches[0]["pageX"]
-        : event.pageX;
-      this.mouse.saveY = isTouch
-        ? event.changedTouches[0]["pageY"]
-        : event.pageY;
-    } else {
-      const moveMode = this.moveMode;
-      const winFac = this.windowFactor;
-      // window.console.log(this.moveMode, winFac.x, winFac.y, winFac.w, winFac.h, winFac.draggingX, winFac.draggingY)
-      if (moveMode.indexOf("right") >= 0) {
-        winFac.r -= winFac.draggingX;
-        winFac.w += winFac.draggingX;
-      }
-      if (moveMode.indexOf("left") >= 0) {
-        winFac.l += winFac.draggingX;
-        winFac.w -= winFac.draggingX;
-      }
-      if (moveMode.indexOf("top") >= 0) {
-        winFac.t += winFac.draggingY;
-        winFac.h -= winFac.draggingY;
-      }
-      if (moveMode.indexOf("bottom") >= 0) {
-        winFac.b -= winFac.draggingY;
-        winFac.h += winFac.draggingY;
-      }
-      winFac.draggingX = 0;
-      winFac.draggingY = 0;
-      this.mouseUp(event, 4);
-    }
-    this.moveMode = flg ? direct : "";
-  }
-
-  private refresh(this: any): void {
-    switch (this.moveMode) {
-      case "side-top":
-      case "side-bottom":
-      case "corner-left-top":
-      case "corner-left-bottom":
-      case "corner-right-top":
-      case "corner-right-bottom":
-      case "move":
-        this.windowFactor.draggingY = this.mouse.y - this.mouse.saveY;
-    }
-    switch (this.moveMode) {
-      case "side-left":
-      case "side-right":
-      case "corner-left-top":
-      case "corner-left-bottom":
-      case "corner-right-top":
-      case "corner-right-bottom":
-      case "move":
-        this.windowFactor.draggingX = this.mouse.x - this.mouse.saveX;
-    }
-  }
-
-  private move(event: any, isStart: boolean, isTouch: boolean): void {
-    if (isStart) {
-      this.mouse.saveX = isTouch
-        ? event.changedTouches[0]["pageX"]
-        : event.pageX;
-      this.mouse.saveY = isTouch
-        ? event.changedTouches[0]["pageY"]
-        : event.pageY;
-      this.setMapMoveObj(`window-${this.windowInfo.key}`);
-      this.setIsMapMoving(true);
-    } else {
-      this.setIsMapMoving(false);
-      this.windowFactor.r -= this.windowFactor.draggingX;
-      this.windowFactor.t += this.windowFactor.draggingY;
-      this.windowFactor.l += this.windowFactor.draggingX;
-      this.windowFactor.b -= this.windowFactor.draggingY;
-      this.windowFactor.draggingX = 0;
-      this.windowFactor.draggingY = 0;
-      this.mouseUp(event, 5);
-    }
-    this.moveMode = isStart ? "move" : "";
-  }
+  @Emit("windowStyle")
+  @Watch("windowStyle")
+  private onChangeWindowStyle(windowStyle: any) {}
 
   private addEventForIFrame(this: any): void {
     const elms: HTMLCollection = document.getElementsByTagName("iFrame");
@@ -361,121 +347,6 @@ export default class TestWindow extends Vue {
         iFrameElm.onclick = clickListener;
       }
     });
-  }
-
-  private standImageStyle(standImage: any, index: number): any {
-    const locate = standImage.locate;
-    const mpx: number = (this.standImageWidth * (locate - 1)) / 12;
-    return {
-      width: `${this.standImageWidth}px`,
-      height: `${this.standImageHeight}px`,
-      left: `calc((100% - ${this.standImageWidth}px) * ${locate - 1} / 11)`,
-      zIndex: index + 2
-    };
-  }
-  private get isFix(this: any): boolean {
-    return this.fixSize !== undefined;
-  }
-  private get fixW(this: any): number {
-    return !this.isFix ? -1 : parseInt(this.fixSize.split(",")[0].trim(), 10);
-  }
-  private get fixH(this: any): number {
-    return !this.isFix ? -1 : parseInt(this.fixSize.split(",")[1].trim(), 10);
-  }
-  private get base(this: any): any {
-    if (!this.baseSize) {
-      return { w: 0, h: 0 };
-    }
-    return {
-      w: parseInt(this.baseSize.split(",")[0].trim(), 10),
-      h: parseInt(this.baseSize.split(",")[1].trim(), 10)
-    };
-  }
-
-  @Emit("windowStyle")
-  @Watch("windowStyle")
-  private onChangeWindowStyle(windowStyle: any) {}
-
-  private get windowStyle(this: any): any {
-    const moveMode = this.moveMode;
-    const winFac = this.windowFactor;
-
-    let left = winFac.l;
-    let bottom = winFac.b;
-    let right = winFac.r;
-    let top = winFac.t;
-    let height = winFac.h;
-    let width = winFac.w;
-
-    if (moveMode.indexOf("top") >= 0 || moveMode === "move") {
-      top += winFac.draggingY;
-      if (moveMode.indexOf("top") >= 0) {
-        height -= winFac.draggingY;
-      }
-    }
-
-    if (moveMode.indexOf("bottom") >= 0 || moveMode === "move") {
-      bottom -= winFac.draggingY;
-      if (moveMode.indexOf("bottom") >= 0) {
-        height += winFac.draggingY;
-      }
-    }
-
-    if (moveMode.indexOf("right") >= 0 || moveMode === "move") {
-      right -= winFac.draggingX;
-      if (moveMode.indexOf("right") >= 0) {
-        width += winFac.draggingX;
-      }
-    }
-
-    if (moveMode.indexOf("left") >= 0 || moveMode === "move") {
-      left += winFac.draggingX;
-      if (moveMode.indexOf("left") >= 0) {
-        width -= winFac.draggingX;
-      }
-    }
-
-    const obj: any = {
-      left: this.align.indexOf("left") >= 0 ? left + "px" : undefined,
-      right: this.align.indexOf("right") >= 0 ? right + "px" : undefined,
-      top: this.align.indexOf("top") >= 0 ? top + 37 + "px" : undefined,
-      bottom: this.align.indexOf("bottom") >= 0 ? bottom + "px" : undefined
-    };
-    if (
-      this.align.indexOf("left") < 0 &&
-      this.align.indexOf("right") < 0 &&
-      this.align.indexOf("top") < 0 &&
-      this.align.indexOf("bottom") < 0
-    ) {
-      if (this.isFix) {
-        // obj.left = `calc((100% - ${this.fixW}px) / 2 + ${left}px)`
-        obj.left = `calc(50% - ${this.fixW / 2 - left}px)`;
-        obj.top = `calc(50% - ${this.fixH / 2 - top}px)`;
-      } else {
-        obj.left =
-          this.base.w > 0
-            ? `calc(50% - ${this.base.w / 2 - left}px)`
-            : `calc(${-this.base.w / 2 + left}px)`;
-        obj.top =
-          this.base.h > 0
-            ? `calc(50% - ${this.base.h / 2 - top}px)`
-            : `calc(${-this.base.h / 2 + top}px)`;
-      }
-    }
-    if (this.isFix) {
-      obj.width = this.fixW + "px";
-      obj.height = this.fixH + "px";
-    } else {
-      obj.width =
-        this.base.w > 0
-          ? `${this.base.w + width}px`
-          : `calc(100% - ${-this.base.w - width + 10}px)`;
-      obj.height =
-        this.base.h > 0
-          ? `${this.base.h + height}px`
-          : `calc(100% - ${-this.base.h - height - 10}px)`;
-    }
-    return obj;
   }
 }
 </script>
@@ -619,84 +490,84 @@ export default class TestWindow extends Vue {
   }
 }
 
-.side-left,
-.side-right,
-.side-top,
-.side-bottom,
-.corner-left-top,
-.corner-left-bottom,
-.corner-right-top,
-.corner-right-bottom {
+.knob-left,
+.knob-right,
+.knob-top,
+.knob-bottom,
+.knob-left-top,
+.knob-left-bottom,
+.knob-right-top,
+.knob-right-bottom {
   position: absolute;
   z-index: 90;
 }
 
-.side-left,
-.side-right {
+.knob-left,
+.knob-right {
   top: 8px;
   width: 10px;
   height: calc(100% - 12px);
 }
 
-.side-top,
-.side-bottom {
+.knob-top,
+.knob-bottom {
   left: 8px;
   height: 10px;
   width: calc(100% - 12px);
 }
 
-.corner-left-top,
-.corner-left-bottom,
-.corner-right-top,
-.corner-right-bottom {
+.knob-left-top,
+.knob-left-bottom,
+.knob-right-top,
+.knob-right-bottom {
   width: 10px;
   height: 10px;
 }
 
-.side-left,
-.corner-left-top,
-.corner-left-bottom {
+.knob-left,
+.knob-left-top,
+.knob-left-bottom {
   left: -4px;
 }
-.side-right,
-.corner-right-top,
-.corner-right-bottom {
+.knob-right,
+.knob-right-top,
+.knob-right-bottom {
   right: -4px;
 }
-.side-top,
-.corner-left-top,
-.corner-right-top {
+.knob-top,
+.knob-left-top,
+.knob-right-top {
   top: -4px;
 }
-.side-bottom,
-.corner-left-bottom,
-.corner-right-bottom {
+.knob-bottom,
+.knob-left-bottom,
+.knob-right-bottom {
   bottom: -4px;
 }
 
-.side-left {
+.knob-left {
   cursor: w-resize;
 }
-.side-right {
+.knob-right {
   cursor: e-resize;
 }
-.side-top {
+.knob-top {
   cursor: n-resize;
 }
-.side-bottom {
+.knob-bottom {
   cursor: s-resize;
 }
-.corner-left-top {
+.knob-left-top {
   cursor: nw-resize;
 }
-.corner-left-bottom {
+.knob-left-bottom {
   cursor: sw-resize;
 }
-.corner-right-top {
+.knob-right-top {
   cursor: ne-resize;
   border-radius: 0 8px 0 0;
 }
-.corner-right-bottom {
+.knob-right-bottom {
   cursor: se-resize;
 }
 

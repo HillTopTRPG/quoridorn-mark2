@@ -1,5 +1,22 @@
 import { Point, Rectangle } from "@/@types/address";
 
+export function createPoint(x: number, y: number): Point {
+  return { x, y };
+}
+
+export function createRectangle(
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): Rectangle {
+  return {
+    ...createPoint(x, y),
+    width,
+    height
+  };
+}
+
 export function arrangeAngle(angle: number): number {
   if (angle > 180) angle -= 360;
   if (angle < -180) angle += 360;

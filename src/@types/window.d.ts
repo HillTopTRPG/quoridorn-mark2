@@ -11,7 +11,7 @@ export type WindowDeclareInfo = {
   readonly title: string;
   readonly message: string;
   readonly position: Point | Anchor;
-  readonly size?: Size;
+  readonly size: Size;
   readonly minSize?: Size;
   readonly maxSize?: Size;
   readonly closable: boolean;

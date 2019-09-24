@@ -1,5 +1,5 @@
 <template>
-  <div id="gameTableContainer" :style="mapBoardFrameStyle">
+  <div id="gameTableContainer">
     <div
       :style="gameTableStyle"
       @dragover.prevent
@@ -18,13 +18,15 @@
         @contextmenu.prevent
         @mousedown.left.stop="leftDown"
         @mousedown.right.prevent.stop="rightDown"
-        @mouseup.left.stop="leftUp"
         @click.right.prevent.stop
-        @mouseup.right.prevent.stop="rightUp"
-        @touchcancel.stop="leftUp"
-        @touchend.stop="leftUp"
         @touchstart.stop="leftDown"
       >
+        <!--
+        @mouseup.left.stop="leftUp"
+        @touchcancel.stop="leftUp"
+        @touchend.stop="leftUp"
+        @mouseup.right.prevent.stop="rightUp"
+        -->
         <map-board />
       </div>
 
@@ -38,11 +40,6 @@
         v-for="obj in getMapObjectList({ kind: 'mapMask', place: 'field' })"
         :key="obj.key"
         :objKey="obj.key"
-        @drag="dragging"
-        @leftDown="leftDown"
-        @leftUp="leftUp"
-        @rightDown="rightDown"
-        @rightUp="rightUp"
         type="mapMask"
       />
 
@@ -50,11 +47,6 @@
         v-for="obj in getMapObjectList({ kind: 'character', place: 'field' })"
         :key="obj.key"
         :objKey="obj.key"
-        @drag="dragging"
-        @leftDown="leftDown"
-        @leftUp="leftUp"
-        @rightDown="rightDown"
-        @rightUp="rightUp"
         type="character"
       />
 
@@ -62,11 +54,6 @@
         v-for="obj in getMapObjectList({ kind: 'chit', place: 'field' })"
         :key="obj.key"
         :objKey="obj.key"
-        @drag="dragging"
-        @leftDown="leftDown"
-        @leftUp="leftUp"
-        @rightDown="rightDown"
-        @rightUp="rightUp"
         type="chit"
       />
 
@@ -74,11 +61,6 @@
         v-for="obj in getMapObjectList({ kind: 'floorTile', place: 'field' })"
         :key="obj.key"
         :objKey="obj.key"
-        @drag="dragging"
-        @leftDown="leftDown"
-        @leftUp="leftUp"
-        @rightDown="rightDown"
-        @rightUp="rightUp"
         type="floorTile"
       />
 
@@ -86,11 +68,6 @@
         v-for="obj in getMapObjectList({ kind: 'diceSymbol' })"
         :key="obj.key"
         :objKey="obj.key"
-        @drag="dragging"
-        @leftDown="leftDown"
-        @leftUp="leftUp"
-        @rightDown="rightDown"
-        @rightUp="rightUp"
         type="diceSymbol"
       />
     </div>
@@ -112,16 +89,15 @@ import { parseColor } from "@/app/core/Utility";
 import { Component } from "vue-mixin-decorator";
 import { Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
-import { arrangeAngle } from "@/app/core/Coordinate";
+import { arrangeAngle, createPoint } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task } from "@/@types/task";
-import TaskManager from "@/app/core/task/TaskManager";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import Logging from "@/app/core/logger/Logging";
 import { ContextTaskInfo } from "@/@types/context";
 import TaskProcessor, {
   TaskProcessorSimple
 } from "@/app/core/task/TaskProcessor";
-import EventProcessor from "@/app/core/event/EventProcessor";
 
 @Component({
   components: {
@@ -193,18 +169,24 @@ export default class GameTable extends AddressCalcMixin {
   @Getter("mouseOnScreenLocate") private mouseOnScreenLocate!: Point;
 
   private wheelTimer: number | null = null;
+  private wheel: number = 0;
+
+  @Watch("wheel")
+  private onChangeWheel(wheel: number, oldValue: number) {
+    if (wheel < -2400 || wheel > 800) {
+      this.wheel = oldValue;
+      return;
+    }
+    document.documentElement.style.setProperty("--wheel", `${wheel}px`);
+  }
 
   @TaskProcessor("action-wheel-finished")
   // @Logging
   private async actionWheelFinished(
-    task: Task<number>
+    task: Task<boolean>
   ): Promise<string | void> {
-    const changeValue = 100;
-    const value: number = task!.value as number;
-    const add = value > 0 ? changeValue : -changeValue;
-    const mapWheel = this.mapWheel + add;
-    if (mapWheel < -2400 || mapWheel > 800) return;
-    this.setMapWheel(mapWheel);
+    this.wheel += 100 * (task!.value || false ? 1 : -1);
+    // this.setMapWheel(wheel);
 
     this.setIsWheeling(true);
     if (this.wheelTimer !== null) {
@@ -214,12 +196,18 @@ export default class GameTable extends AddressCalcMixin {
       this.setIsWheeling(false);
       this.wheelTimer = null;
     }, 600);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
   @TaskProcessorSimple
   @Logging
-  private item01EmitFinished() {
+  private async item01EmitFinished(task: Task<number>): Promise<string | void> {
     window.console.log("ちゃんと拾えた");
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
   private globalEnter() {
@@ -231,201 +219,218 @@ export default class GameTable extends AddressCalcMixin {
     // });
   }
 
-  private clickButton3() {
-    window.console.log("clickButton3", this.isMapWheeling);
-    this.setIsWheeling(!this.isMapWheeling);
-  }
-
-  private dragging(): void {
-    window.console.log(`★★★★ dragging ★★★★`);
-  }
-
-  public onWheel(this: any, delta: number): void {
-    const changeValue = 100;
-    const add = delta > 0 ? changeValue : -changeValue;
-    const mapWheel = this.mapWheel + add;
-    if (mapWheel < -2400 || mapWheel > 800) {
-      return;
-    }
-    this.setMapWheel(mapWheel);
-  }
-
-  private leftDown(this: any): void {
-    this.setMapMoveFromLocate(this.mouseLocate);
-    this.setIsMapDraggingLeft(true);
-  }
-
-  private leftUp(event: any): void {
-    const dispatchMouseUpEvent = (elm: HTMLElement) => {
-      const evt = document.createEvent("MouseEvents");
-      evt.initMouseEvent(
-        "mouseup",
-        true,
-        true,
-        window,
-        1,
-        event ? event.screenX : 0,
-        event ? event.screenY : 0,
-        event ? event.clientX : 0,
-        event ? event.clientY : 0,
-        event ? event.ctrlKey : false,
-        event ? event.altKey : false,
-        event ? event.shiftKey : false,
-        event ? event.metaKey : false,
-        event ? event.buttons : 0,
-        elm
-      );
-      elm!.dispatchEvent(evt);
+  /**
+   * マウス左ボタン押下
+   */
+  private leftDown(event: MouseEvent): void {
+    const mouse = {
+      x: event.pageX,
+      y: event.pageY
     };
+    const calcResult = this.calcCoordinate(mouse, this.currentAngle);
+    this.dragFrom = calcResult.planeLocateScreen;
+    this.mouseDown("left");
+  }
 
-    if (this.isMapRolling) {
-      // マップ上のオブジェクトを回転中の場合
-      this.setIsMapRolling(false);
-
-      const targetCharacterElm: HTMLElement = document.getElementById(
-        this.mapRollObj
-      ) as HTMLElement;
-
-      (Array.from(
-        targetCharacterElm.getElementsByClassName("roll-knob")
-      ) as HTMLElement[]).forEach((elm: HTMLElement) =>
-        dispatchMouseUpEvent(elm)
-      );
-      return;
-    }
-
-    if (this.isMapMoving) {
-      // マップ場のオブジェクトを移動中の場合
-      this.setIsMapMoving(false);
-
-      const targetObjElm: HTMLElement = document.getElementById(
-        this.mapMoveObj
-      ) as HTMLElement;
-
-      if (/\./.test(this.mapMoveObj)) {
-        // WindowFrameの場合
-        (Array.from(
-          targetObjElm.getElementsByClassName("window-title")
-        ) as HTMLElement[]).forEach((elm: HTMLElement) =>
-          dispatchMouseUpEvent(elm)
-        );
-      } else {
-        // マップオブジェクトの場合
-        dispatchMouseUpEvent(targetObjElm);
-      }
-
-      return;
-    }
-
-    // マップを動かしている場合
-    const zoom = (1000 - this.mapWheel) / 1000;
-    const total: Point = {
-      x: this.mapMoveTotalLocate.x + this.mapMoveDraggingLocate.x * zoom,
-      y: this.mapMoveTotalLocate.y + this.mapMoveDraggingLocate.y * zoom
+  /**
+   * マウス右ボタン押下
+   */
+  private rightDown(event: MouseEvent): void {
+    const mouse = {
+      x: event.pageX,
+      y: event.pageY
     };
-    this.setMapMoveTotalLocate(total);
-    this.setMapMoveDraggingLocate({
-      x: 0,
-      y: 0
+    const calcResult = this.calcCoordinate(mouse, this.currentAngle);
+    this.dragFrom = calcResult.planeLocateScreen;
+    this.rotateFrom = calcResult.angle;
+    this.mouseDown("right");
+  }
+
+  private mouseDown(button: string) {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
+      key: "game-table",
+      type: `button-${button}`
     });
-    this.setIsMapDraggingLeft(false);
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      `mouse-${button}-up-finished`,
+      {
+        key: "game-table",
+        type: `${button}-click`
+      }
+    );
   }
 
-  private rightDown(this: any): void {
-    const dragStart = this.calcCoordinate(
-      this.mouseLocate.x,
-      this.mouseLocate.y,
-      this.currentAngle
-    ).angle;
-    this.setMapAngleDragStart(dragStart);
-    this.setIsMapMouseDownRight(true);
-  }
+  private dragFrom: Point = createPoint(0, 0);
 
-  private rightUp(event: any): void {
-    this.setIsMapMouseDownRight(false);
+  private pointDiff: Point = createPoint(0, 0);
+  private point: Point = createPoint(0, 0);
+  private isMove: boolean = false;
 
-    let isRoll = false;
-    if (this.isMapDraggingRight) {
-      const nextAngle = arrangeAngle(
-        this.mapAngle + Math.round(this.mapAngleVolatile.dragging / 15) * 15
-      );
-      if (this.mapAngle !== nextAngle) isRoll = true;
-      this.setMapAngleDragging(0);
-      this.setIsMapDraggingRight(false);
-      this.setMapAngle(nextAngle);
+  private rotateFrom: number = 0;
+  private rotateDiff: number = 0;
+  private rotate: number = 0;
+  private isRotate: boolean = false;
+
+  @TaskProcessor("mouse-move-finished")
+  private async mouseMoveFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param.key !== "game-table") return;
+    const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
+    const point = calcResult.planeLocateScreen;
+
+    // タスクのパラメータ情報「type」をクリックからドラッグに変更
+    const button = param.type!.split("-")[1];
+    const type = `${button}-drag`;
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      `mouse-${button}-up-finished`,
+      {
+        key: "game-table",
+        type
+      }
+    );
+
+    if (button === "left") {
+      this.isMove = true;
+      this.pointDiff.x = point.x - this.dragFrom.x;
+      this.pointDiff.y = point.y - this.dragFrom.y;
     }
-    let pageX = event.pageX;
-    let pageY = event.pageY;
+    if (button === "right") {
+      this.isRotate = true;
+      this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
+    }
 
-    if (!this.isMapOverEvent) {
-      if (!isRoll) {
-        // 右ドラッグが解除されたのが子画面上でなく、調整後に回転していない場合のみ右コンテキストメニューを表示する
-        const obj = {
-          x: pageX,
-          y: pageY
-        };
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
 
-        setTimeout(async () => {
-          await TaskManager.instance.resistTask<ContextTaskInfo>({
-            type: "open-context",
-            owner: "Quoridorn",
-            isPrivate: true,
-            isExclusion: false,
-            value: {
-              type: "game-table",
-              target: null,
-              x: pageX,
-              y: pageY
-            },
-            statusList: ["finished"]
-          });
+  private get currentAngle(): number {
+    return arrangeAngle(this.rotate + this.rotateDiff);
+  }
+
+  @TaskProcessor("mouse-left-up-finished")
+  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+    this.point.x += this.pointDiff.x;
+    this.point.y += this.pointDiff.y;
+    this.pointDiff.x = 0;
+    this.pointDiff.y = 0;
+    this.isMove = false;
+
+    TaskManager.instance.setTaskParam("mouse-move-finished", null);
+    TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  @TaskProcessor("mouse-right-up-finished")
+  private async mouseRightUpFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    const point: Point = task.value!;
+
+    const eventType = param ? param.type!.split("-")[1] : "";
+    if (eventType === "click") {
+      // 右クリックメニュー表示
+      setTimeout(async () => {
+        await TaskManager.instance.resistTask<ContextTaskInfo>({
+          type: "open-context",
+          owner: "Quoridorn",
+          isPrivate: true,
+          isExclusion: false,
+          isIgniteWithParam: false,
+          isLastValueCapture: false,
+          value: {
+            type: "game-table",
+            target: null,
+            x: point.x,
+            y: point.y
+          },
+          statusList: ["finished"]
         });
-
-        // this.setProperty({
-        //   property: `private.display.gameTableContext`,
-        //   value: obj,
-        //   logOff: true
-        // });
-        // setTimeout(() => {
-        //   this.windowOpen(`private.display.gameTableContext`);
-        // });
-        // qLog(`  [methods] open context => gameTableContext`);
-      }
+      });
     } else {
-      this.setIsMapOverEvent(false);
+      // マップ回転
+      this.rotate = arrangeAngle(this.rotate + this.rotateDiff);
+      this.rotateDiff = 0;
     }
-    event.preventDefault();
+
+    this.isRotate = false;
+    TaskManager.instance.setTaskParam("mouse-move-finished", null);
+    TaskManager.instance.setTaskParam("mouse-right-up-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
-  @EventProcessor("mousemove")
-  private mouseMove(event: any): void {
-    this.setMouseLocateOnPage(event.pageX, event.pageY);
+  private get sizeW(this: any): number {
+    return (this.mapColumns + this.mapMarginGridSize * 2) * this.mapGridSize;
   }
 
-  @EventProcessor("touchmove")
-  private touchMove(event: any): void {
-    this.setMouseLocateOnPage(
-      event.changedTouches[0].pageX,
-      event.changedTouches[0].pageY
-    );
+  private get sizeH(this: any): number {
+    return (this.mapRows + this.mapMarginGridSize * 2) * this.mapGridSize;
   }
 
-  private setMouseLocateOnPage(pageX: number, pageY: number): void {
-    // プレーンなモニター上の座標を記録
-    this.setMouseLocate({
-      x: pageX,
-      y: pageY
-    });
+  private get gameTableStyle(): any {
+    // const translateZ = this.mapWheel;
+    const zoom = (1000 - this.wheel) / 1000;
+    const totalLeftX = (this.point.x + this.pointDiff.x) * zoom;
+    const totalLeftY = (this.point.y + this.pointDiff.y) * zoom;
+    let rotateZ = this.currentAngle;
 
-    // 拡大縮小を考慮して、元の大きさのときの座標を記録
-    this.setMouseLocateSet(
-      this.calcCanvasAddress(pageX, pageY, this.currentAngle)
-    );
-
-    // 右ドラッグを検知
-    if (this.isMapMouseDownRight && !this.isMapDraggingRight) {
-      this.setIsMapDraggingRight(true);
+    const transformList: string[] = [];
+    transformList.push(`translateY(${totalLeftY}px)`);
+    transformList.push(`translateX(${totalLeftX}px)`);
+    transformList.push(`rotateY(0deg)`);
+    transformList.push(`rotateX(0deg)`);
+    transformList.push(`rotateZ(${rotateZ}deg)`);
+    const result: any = {
+      width: this.sizeW + "px",
+      height: this.sizeH + "px",
+      borderWidth: this.mapBorderWidth + "px",
+      transform: transformList.join(" ")
+    };
+    if (this.isMapUseImage) {
+      result.backgroundImage = `url(${this.getBackgroundImage})`;
     }
+    if (this.isModal) {
+      result.filter = "blur(3px)";
+    }
+    return result;
+  }
+
+  private get gridPaperStyle(): any {
+    const maskColorObj = parseColor(this.mapMarginMaskColor);
+    maskColorObj.a = this.mapMarginMaskAlpha;
+    const marginMaskColorStr = maskColorObj.getRGBA();
+    const result: any = {
+      width: this.sizeW + "px",
+      height: this.sizeH + "px",
+      "background-color": marginMaskColorStr
+    };
+    if (this.isMapUseGridColor) {
+      const colorObj = parseColor(this.mapMarginGridColor);
+      colorObj.a = 0.3;
+      const marginGridColor3 = colorObj.getRGBA();
+      colorObj.a = 0.1;
+      const marginGridColor1 = colorObj.getRGBA();
+      result["background-image"] =
+        `linear-gradient(0deg, transparent -2px,` +
+        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
+        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
+        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
+        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
+        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent),` +
+        `linear-gradient(270deg, transparent -2px,` +
+        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
+        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
+        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
+        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
+        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent)`;
+    }
+    return result;
   }
 
   // private drop(this: any, event: any): void {
@@ -711,114 +716,6 @@ export default class GameTable extends AddressCalcMixin {
   //     this.importStart({ zipFiles: zipFiles, isRoomCreate: false });
   //   }
   // }
-
-  private get currentAngle(): number {
-    return arrangeAngle(this.mapAngle + this.mapAngleVolatile.dragging);
-  }
-
-  private get sizeW(this: any): number {
-    return (this.mapColumns + this.mapMarginGridSize * 2) * this.mapGridSize;
-  }
-
-  private get sizeH(this: any): number {
-    return (this.mapRows + this.mapMarginGridSize * 2) * this.mapGridSize;
-  }
-
-  private get mapBoardFrameStyle() {
-    const translateZ = this.mapWheel;
-    const transformList: string[] = [];
-    transformList.push(`translateZ(${translateZ}px)`);
-    transformList.push(`rotateY(0deg)`);
-    transformList.push(`rotateX(0deg)`);
-    const result: any = {
-      transform: transformList.join(" ")
-    };
-    return result;
-  }
-
-  private get gameTableStyle(): any {
-    // const translateZ = this.mapWheel;
-    const zoom = (1000 - this.mapWheel) / 1000;
-    const totalLeftX =
-      this.mapMoveTotalLocate.x + this.mapMoveDraggingLocate.x * zoom;
-    const totalLeftY =
-      this.mapMoveTotalLocate.y + this.mapMoveDraggingLocate.y * zoom;
-    let rotateZ = this.currentAngle;
-
-    const transformList: string[] = [];
-    // transformList.push(`translateZ(${translateZ}px)`);
-    transformList.push(`translateY(${totalLeftY}px)`);
-    transformList.push(`translateX(${totalLeftX}px)`);
-    transformList.push(`rotateY(0deg)`);
-    transformList.push(`rotateX(0deg)`);
-    transformList.push(`rotateZ(${rotateZ}deg)`);
-    const result: any = {
-      // transformOrigin: `${this.mouseLocate.y}px ${this.mouseLocate.x}px`,
-      // transformOrigin: `top left`,
-      width: this.sizeW + "px",
-      height: this.sizeH + "px",
-      borderWidth: this.mapBorderWidth + "px",
-      transform: transformList.join(" ")
-    };
-    if (this.isMapUseImage) {
-      result.backgroundImage = `url(${this.getBackgroundImage})`;
-    }
-    if (this.isModal) {
-      result.filter = "blur(3px)";
-    }
-    return result;
-  }
-
-  private get gridPaperStyle(): any {
-    const maskColorObj = parseColor(this.mapMarginMaskColor);
-    maskColorObj.a = this.mapMarginMaskAlpha;
-    const marginMaskColorStr = maskColorObj.getRGBA();
-    const result: any = {
-      width: this.sizeW + "px",
-      height: this.sizeH + "px",
-      "background-color": marginMaskColorStr
-    };
-    if (this.isMapUseGridColor) {
-      const colorObj = parseColor(this.mapMarginGridColor);
-      colorObj.a = 0.3;
-      const marginGridColor3 = colorObj.getRGBA();
-      colorObj.a = 0.1;
-      const marginGridColor1 = colorObj.getRGBA();
-      result["background-image"] =
-        `linear-gradient(0deg, transparent -2px,` +
-        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
-        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
-        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
-        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
-        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent),` +
-        `linear-gradient(270deg, transparent -2px,` +
-        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
-        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
-        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
-        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
-        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent)`;
-    }
-    return result;
-  }
-
-  @Watch("mouseLocate", { deep: true })
-  private onChangeMouseLocate(mouseLocate: any) {
-    if (this.isMapDraggingLeft) {
-      this.setMapMoveDraggingLocate({
-        x: mouseLocate.x - this.mapMoveFromLocate.x,
-        y: mouseLocate.y - this.mapMoveFromLocate.y
-      });
-    }
-    if (this.isMapDraggingRight) {
-      const angle = this.calcCoordinate(
-        mouseLocate.x,
-        mouseLocate.y,
-        this.currentAngle
-      ).angle;
-      let angleDiff = arrangeAngle(angle - this.mapAngleVolatile.dragStart);
-      this.setMapAngleDragging(angleDiff);
-    }
-  }
 }
 </script>
 
@@ -829,6 +726,7 @@ export default class GameTable extends AddressCalcMixin {
   top: 0;
   right: 0;
   bottom: 0;
+  transform: translateZ(var(--wheel, 0)) rotateY(0deg) rotateX(0deg);
 }
 
 #gameTable {
