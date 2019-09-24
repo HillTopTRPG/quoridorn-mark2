@@ -1,36 +1,30 @@
 <template>
   <div
-    :style="windowStyle"
-    :id="displayProperty"
-    @mousedown.stop="
-      windowActive({ property: displayProperty, isClose: false })
-    "
-    @mouseup.stop="event => mouseUp(event, 1)"
-    @touchcancel.stop="event => mouseUp(event, 2)"
-    @touchend.stop="event => mouseUp(event, 3)"
-    @touchstart.stop="deckHoverKey(displayProperty)"
+    :id="key"
     class="window"
-    v-if="isDisplay"
+    :class="{ minimized: windowInfo.isMinimized }"
+    :style="windowStyle"
+    @mousedown.left.stop="activeWindow()"
+    @touchstart.stop="activeWindow()"
   >
     <!-- タイトルバー -->
     <div
       class="window-title"
-      :class="{ fix: isFix }"
-      @mousedown.left="event => move(event, true)"
-      @mouseup.left="event => move(event, false)"
-      @touchstart="event => move(event, true, true)"
-      @touchend="event => move(event, false, true)"
-      @touchcancel="event => move(event, false, true)"
+      :class="{ fix: !windowInfo.declare.resizable }"
+      @mousedown.left.stop="leftDown()"
+      @touchstart.stop="leftDown()"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
-      <div>
-        <span>{{ titleText }}</span>
-        <span class="message" v-if="message">{{ message }}</span>
+      <div class="title-message-area">
+        <span>{{ windowInfo.title }}</span>
+        <span class="message" v-if="windowInfo.message">{{
+          windowInfo.message
+        }}</span>
       </div>
 
       <!-- 文字サイズ変更 -->
-      <label v-if="fontSizeBar" class="fontSizeSlider">
+      <label v-if="windowInfo.declare.fontSizePickable" class="fontSizeSlider">
         文字サイズ{{ fontSize }}px
         <input
           type="range"
@@ -39,7 +33,6 @@
           v-model="fontSize"
           :tabindex="0"
           @mousedown.stop
-          @mouseup.stop
           @keydown.enter.stop
           @keyup.enter.stop
           @keydown.229.stop
@@ -47,19 +40,21 @@
         />
       </label>
 
-      <!-- 文字サイズ変更 -->
-      <label v-if="standImageSizeChooser" class="fontSizeSlider">
-        立ち絵サイズ
-        <ctrl-select
-          v-model="standImageSize"
-          :optionInfoList="standImageSizeOptionInfoList"
-          @mousedown.stop
-          @mouseup.stop
-        />
-      </label>
+      <!-- 最小化 -->
+      <span class="title-icon-area" v-if="windowInfo.declare.closable">
+        <i
+          class="icon-minus window-minimize"
+          @click.left.stop="minimizeWindow"
+          @keydown.space.stop="minimizeWindow"
+          @keydown.enter.stop="minimizeWindow"
+          @keydown.229.stop
+          @keyup.229.stop
+          :tabindex="0"
+        ></i>
+      </span>
 
-      <!-- 閉じるボタン -->
-      <span v-if="!isBanClose" @contextmenu.prevent>
+      <!-- 閉じる -->
+      <span class="title-icon-area" v-if="windowInfo.declare.closable">
         <i
           class="icon-cross window-close"
           @click.left.stop="closeWindow"
@@ -78,110 +73,189 @@
     </div>
 
     <!-- サイズ変更つまみ -->
-    <window-frame-knob name="corner-left-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob
-      name="corner-left-bottom"
-      @resize="resize"
-      v-if="!isFix"
-    />
-    <window-frame-knob name="corner-right-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob
-      name="corner-right-bottom"
-      @resize="resize"
-      v-if="!isFix"
-    />
-    <window-frame-knob name="side-top" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-left" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-right" @resize="resize" v-if="!isFix" />
-    <window-frame-knob name="side-bottom" @resize="resize" v-if="!isFix" />
-
-    <!-- 立ち絵 -->
-    <template v-if="isViewStandImage">
-      <stand-image-component
-        class="standImage"
-        v-for="(standImage, index) in standImageList"
-        :key="index"
-        :standImage="standImage.standImage"
-        :drawDiff="true"
-        @click="clickStandImage(standImage.standImage, index)"
-        :style="standImageStyle(standImage.standImage, index)"
-        :width="standImageWidth"
-        :height="standImageHeight"
-        @contextmenu.prevent
-      />
+    <template v-if="windowInfo.declare.resizable && !windowInfo.isMinimized">
+      <resize-knob side="left-top" @leftDown="leftDown" />
+      <resize-knob side="left-bottom" @leftDown="leftDown" />
+      <resize-knob side="right-top" @leftDown="leftDown" />
+      <resize-knob side="right-bottom" @leftDown="leftDown" />
+      <resize-knob side="top" @leftDown="leftDown" />
+      <resize-knob side="left" @leftDown="leftDown" />
+      <resize-knob side="right" @leftDown="leftDown" />
+      <resize-knob side="bottom" @leftDown="leftDown" />
     </template>
   </div>
 </template>
 
 <script lang="ts">
-import StandImageComponent from "@/components/parts/StandImageComponent.vue";
-
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { Action, Getter } from "vuex-class";
-import WindowFrameKnob from "@/components/WindowFrameKnob.vue";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
+import { WindowInfo } from "@/@types/window";
+import { Point, Rectangle, Size } from "@/@types/address";
+import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task } from "@/@types/task";
+import { createPoint, createRectangle } from "@/app/core/Coordinate";
 
 @Component({
-  components: { CtrlSelect, WindowFrameKnob, StandImageComponent }
+  components: { ResizeKnob }
 })
 export default class WindowFrame extends Vue {
-  @Action("windowClose") private windowClose: any;
-  @Action("setProperty") private setProperty: any;
-  @Action("windowActive") private windowActive: any;
-  @Getter("getStateValue") private getStateValue: any;
-  @Getter("isModal") private isModal: any;
-  @Getter("isViewStandImage") private isViewStandImage: any;
+  @Prop({ type: Object, required: true })
+  private windowInfo!: WindowInfo;
 
-  @Prop({ type: String, required: true })
-  private titleText!: string;
-
-  @Prop({ type: String, required: true })
-  private displayProperty!: string;
-
-  @Prop({ type: String, required: true })
-  private align!: string;
-
-  @Prop({ type: String })
-  private baseSize!: string | null;
-
-  @Prop({ type: String })
-  private fixSize!: string | null;
-
-  @Prop({ type: Boolean, default: false })
-  private isBanClose!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private fontSizeBar!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private standImageSizeChooser!: boolean;
-
-  @Prop({ type: String })
-  private message!: string | null;
-
-  private moveMode: string = "";
-  private mouse: any = {
-    x: 0,
-    y: 0,
-    saveX: 0,
-    saveY: 0
-  };
-
-  public windowFactor: any = {
-    l: 0, // left
-    r: 0, // right
-    t: 0, // top
-    b: 0, // bottom
-    w: 0, // width
-    h: 0, // height
-    draggingX: 0,
-    draggingY: 0
-  };
+  private dragFrom: Point = createPoint(0, 0);
+  private diff: Rectangle = createRectangle(0, 0, 0, 0);
 
   private fontSize: number = 12;
   private standImageSize: string = "192*256";
   private standImageWidth: number = 192;
   private standImageHeight: number = 256;
+
+  private mounted() {
+    this.addEventForIFrame();
+  }
+
+  private get key(): string {
+    return `window-${this.windowInfo.key}`;
+  }
+
+  private leftDown(side?: string): void {
+    if (this.windowInfo.isMinimized) return;
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
+      key: this.key,
+      type: side || ""
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-left-up-finished",
+      {
+        key: this.key,
+        type: side || ""
+      }
+    );
+    this.dragFrom = TaskManager.instance.getLastValue<Point>("mouse-move");
+    this.activeWindow();
+  }
+
+  private async activeWindow() {
+    await TaskManager.instance.resistTask({
+      type: "active-window",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
+      value: this.key,
+      statusList: ["finished"]
+    });
+  }
+
+  @TaskProcessor("mouse-left-up-finished")
+  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+    this.windowInfo.x += this.diff.x;
+    this.windowInfo.y += this.diff.y;
+    this.windowInfo.width += this.diff.width;
+    this.windowInfo.height += this.diff.height;
+
+    this.diff.x = 0;
+    this.diff.y = 0;
+    this.diff.width = 0;
+    this.diff.height = 0;
+
+    TaskManager.instance.setTaskParam("mouse-move-finished", null);
+    TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  @TaskProcessor("mouse-move-finished")
+  private async mouseMoveFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param.key !== this.key) return;
+    const point = task.value!;
+
+    // 移動
+    if (!param.type) {
+      this.diff.x = point.x - this.dragFrom.x;
+      this.diff.y = point.y - this.dragFrom.y;
+      this.diff.width = 0;
+      this.diff.height = 0;
+
+      // 登録したタスクに完了通知
+      if (task.resolve) task.resolve(task);
+      return;
+    }
+
+    // サイズ変更不可なら処理終了
+    if (!this.windowInfo.declare.resizable) {
+      // 登録したタスクに完了通知
+      if (task.resolve) task.resolve(task);
+      return;
+    }
+
+    this.diff.x = 0;
+    this.diff.y = 0;
+    this.diff.width = 0;
+    this.diff.height = 0;
+    if (param.type.indexOf("left") > -1) {
+      this.diff.width = this.dragFrom.x - point.x;
+      this.diff.x = -this.diff.width;
+    }
+    if (param.type.indexOf("right") > -1) {
+      this.diff.width = point.x - this.dragFrom.x;
+    }
+    if (param.type.indexOf("top") > -1) {
+      this.diff.height = this.dragFrom.y - point.y;
+      this.diff.y = -this.diff.height;
+    }
+    if (param.type.indexOf("bottom") > -1) {
+      this.diff.height = point.y - this.dragFrom.y;
+    }
+
+    const simulationSize: Size = {
+      width: this.windowInfo.width + this.diff.width,
+      height: this.windowInfo.height + this.diff.height
+    };
+    const correctSize: Size = {
+      width: 0,
+      height: 0
+    };
+    const minSize = this.windowInfo.declare.minSize;
+    if (minSize) {
+      if (simulationSize.width < minSize.width)
+        correctSize.width = minSize.width - simulationSize.width;
+      if (simulationSize.height < minSize.height)
+        correctSize.height = minSize.height - simulationSize.height;
+    }
+    const maxSize = this.windowInfo.declare.maxSize;
+    if (maxSize) {
+      if (simulationSize.width > maxSize.width)
+        correctSize.width = maxSize.width - simulationSize.width;
+      if (simulationSize.height > maxSize.height)
+        correctSize.height = maxSize.height - simulationSize.height;
+    }
+
+    if (param.type.indexOf("left") > -1) this.diff.x -= correctSize.width;
+    if (param.type.indexOf("top") > -1) this.diff.y -= correctSize.height;
+    this.diff.width += correctSize.width;
+    this.diff.height += correctSize.height;
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  private get windowStyle(): any {
+    return {
+      left: `${this.windowInfo.x + this.diff.x}px`,
+      top: `${this.windowInfo.y + this.diff.y}px`,
+      width: `${this.windowInfo.width + this.diff.width}px`,
+      height: `${this.windowInfo.height + this.diff.height}px`,
+      fontSize: this.fontSize,
+      zIndex: this.windowInfo.order
+    };
+  }
 
   @Watch("standImageSize", { immediate: true })
   private onChangeStandImageSize(standImageSize: string) {
@@ -190,280 +264,48 @@ export default class WindowFrame extends Vue {
     this.standImageHeight = parseInt(split[1]);
   }
 
-  private mounted(): void {
-    const _ = this;
-    document.addEventListener("mousemove", event => {
-      _.mouse.x = event.pageX;
-      _.mouse.y = event.pageY;
-      _.reflesh();
-    });
-    document.addEventListener("touchmove", event => {
-      _.mouse.x = event.changedTouches[0].pageX;
-      _.mouse.y = event.changedTouches[0].pageY;
-      _.reflesh();
-    });
-    this.addEventForIFrame();
-  }
-
-  private closeWindow(this: any): void {
-    // window.console.log(`  [methods] closeWindow(click [x]button)`)
-    this.windowClose(this.displayProperty);
-    this.$emit("cancel");
-  }
-
-  private mouseUp(event: any, num: number): void {
-    const evtObj = {
-      clientX: event.pageX,
-      clientY: event.pageY,
-      button: event.button
-    };
-    if (event.button === 2) {
-      this.setProperty({
-        property: `map.isOverEvent`,
-        value: true,
-        logOff: true
-      });
-    }
-    const gameTableElm = document.getElementById("mapBoardFrame");
-    const evt = document.createEvent("MouseEvents");
-    evt.initMouseEvent(
-      "mouseup",
-      true,
-      true,
-      window,
-      1,
-      event.screenX,
-      event.screenY,
-      event.clientX,
-      event.clientY,
-      event.ctrlKey,
-      event.altKey,
-      event.shiftKey,
-      event.metaKey,
-      event.buttons,
-      gameTableElm
-    );
-    // gameTableElm!.dispatchEvent(new MouseEvent("mouseUp", evtObj));
-    gameTableElm!.dispatchEvent(evt);
-  }
-
-  private resize(
-    this: any,
-    event: any,
-    direct: string,
-    flg: boolean,
-    isTouch: boolean
-  ): void {
-    if (flg) {
-      this.mouse.saveX = isTouch
-        ? event.changedTouches[0]["pageX"]
-        : event.pageX;
-      this.mouse.saveY = isTouch
-        ? event.changedTouches[0]["pageY"]
-        : event.pageY;
-    } else {
-      const moveMode = this.moveMode;
-      const winFac = this.windowFactor;
-      // window.console.log(this.moveMode, winFac.x, winFac.y, winFac.w, winFac.h, winFac.draggingX, winFac.draggingY)
-      if (moveMode.indexOf("right") >= 0) {
-        winFac.r -= winFac.draggingX;
-        winFac.w += winFac.draggingX;
-      }
-      if (moveMode.indexOf("left") >= 0) {
-        winFac.l += winFac.draggingX;
-        winFac.w -= winFac.draggingX;
-      }
-      if (moveMode.indexOf("top") >= 0) {
-        winFac.t += winFac.draggingY;
-        winFac.h -= winFac.draggingY;
-      }
-      if (moveMode.indexOf("bottom") >= 0) {
-        winFac.b -= winFac.draggingY;
-        winFac.h += winFac.draggingY;
-      }
-      winFac.draggingX = 0;
-      winFac.draggingY = 0;
-      this.mouseUp(event, 4);
-    }
-    this.moveMode = flg ? direct : "";
-  }
-
-  private reflesh(this: any): void {
-    switch (this.moveMode) {
-      case "side-top":
-      case "side-bottom":
-      case "corner-left-top":
-      case "corner-left-bottom":
-      case "corner-right-top":
-      case "corner-right-bottom":
-      case "move":
-        this.windowFactor.draggingY = this.mouse.y - this.mouse.saveY;
-    }
-    switch (this.moveMode) {
-      case "side-left":
-      case "side-right":
-      case "corner-left-top":
-      case "corner-left-bottom":
-      case "corner-right-top":
-      case "corner-right-bottom":
-      case "move":
-        this.windowFactor.draggingX = this.mouse.x - this.mouse.saveX;
-    }
-  }
-
-  private move(
-    this: any,
-    event: any,
-    isStart: boolean,
-    isTouch: boolean
-  ): void {
-    if (isStart) {
-      this.mouse.saveX = isTouch
-        ? event.changedTouches[0]["pageX"]
-        : event.pageX;
-      this.mouse.saveY = isTouch
-        ? event.changedTouches[0]["pageY"]
-        : event.pageY;
-      this.setProperty({
-        property: `map.moveObj`,
-        value: {
-          key: this.displayProperty,
-          isMoving: true
-        },
-        logOff: true
-      });
-    } else {
-      this.setProperty({
-        property: `map.moveObj.isMoving`,
-        value: false,
-        logOff: true
-      });
-      this.windowFactor.r -= this.windowFactor.draggingX;
-      this.windowFactor.t += this.windowFactor.draggingY;
-      this.windowFactor.l += this.windowFactor.draggingX;
-      this.windowFactor.b -= this.windowFactor.draggingY;
-      this.windowFactor.draggingX = 0;
-      this.windowFactor.draggingY = 0;
-      this.mouseUp(event, 5);
-    }
-    this.moveMode = isStart ? "move" : "";
-  }
-
-  private addEventForIFrame(this: any): void {
-    const elms: HTMLCollection = document.getElementsByTagName("iFrame");
-    Array.prototype.slice.call(elms).forEach((iFrameElm: HTMLIFrameElement) => {
-      // マウス移動
-      const mouseMoveListener = (event: any) => {
-        const iFrameRect = iFrameElm.getBoundingClientRect();
-        const evtObj = {
-          clientX: event.pageX + iFrameRect.left,
-          clientY: event.pageY + iFrameRect.top
-        };
-        document.dispatchEvent(new MouseEvent("mousemove", evtObj));
-      };
-      // タッチ移動
-      const touchMoveListener = (event: any) => {
-        const iFrameRect = iFrameElm.getBoundingClientRect();
-        const evtObj: any = {
-          changedTouches: [
-            {
-              clientX: event.changedTouches[0]["pageX"] + iFrameRect.left,
-              clientY: event.changedTouches[0]["pageY"] + iFrameRect.top
-            }
-          ]
-        };
-        document.dispatchEvent(new MouseEvent("touchmove", evtObj));
-      };
-      // クリック
-      const clickListener = (event: any) => {
-        const iFrameRect = iFrameElm.getBoundingClientRect();
-        const evtObj = {
-          clientX: event.pageX + iFrameRect.left,
-          clientY: event.pageY + iFrameRect.top,
-          button: event.button
-        };
-        document
-          .getElementById("mapBoardFrame")!
-          .dispatchEvent(new MouseEvent("click", evtObj));
-      };
-      // マウス離す
-      const _ = this;
-      const mouseUpListener = (event: any) => {
-        const iFrameRect = iFrameElm.getBoundingClientRect();
-        const evtObj = {
-          clientX: event.pageX + iFrameRect.left,
-          clientY: event.pageY + iFrameRect.top,
-          button: event.button
-        };
-        if (event.button === 2) {
-          _.setProperty({
-            property: `map.isOverEvent`,
-            value: true,
-            logOff: true
-          });
-        }
-        document
-          .getElementById("mapBoardFrame")!
-          .dispatchEvent(new MouseEvent("mouseUp", evtObj));
-      };
-      // コンテキストメニュー防止
-      const contextMenuListener = () => {
-        return false;
-      };
-      if (!iFrameElm.onload) {
-        try {
-          iFrameElm.onload = () => {
-            try {
-              const bodyElm: HTMLDocument = iFrameElm.contentWindow!.document;
-              if (!bodyElm.onmousemove) {
-                bodyElm.onmousemove = mouseMoveListener;
-              }
-              if (!bodyElm.ontouchmove) {
-                bodyElm.ontouchmove = touchMoveListener;
-              }
-              if (!bodyElm.onmouseup) {
-                bodyElm.onmouseup = mouseUpListener;
-              }
-              if (!bodyElm.oncontextmenu) {
-                bodyElm.oncontextmenu = contextMenuListener;
-              }
-              if (!bodyElm.onclick) {
-                bodyElm.onclick = clickListener;
-              }
-              /*
-                const aElms = bodyElm.getElementsByTagName('a')
-                for (const aElm of aElms) {
-                  if (!aElm.onmousemove) { aElm.onmousemove = mouseMoveListener }
-                  if (!aElm.ontouchmove) { aElm.ontouchmove = touchMoveListener }
-                  if (!aElm.oncontextmenu) { aElm.oncontextmenu = contextMenuListener }
-                  if (!aElm.onclick) { aElm.onclick = clickListener }
-                }
-                */
-            } catch (error) {
-              /* Nothing */
-            }
-          };
-        } catch (error) {
-          /* Nothing */
-        }
-      }
-      if (!iFrameElm.onmousemove) {
-        iFrameElm.onmousemove = mouseMoveListener;
-      }
-      if (!iFrameElm.ontouchmove) {
-        iFrameElm.ontouchmove = touchMoveListener;
-      }
-      if (!iFrameElm.onmouseup) {
-        iFrameElm.onmouseup = mouseUpListener;
-      }
-      if (!iFrameElm.onclick) {
-        iFrameElm.onclick = clickListener;
-      }
+  private async closeWindow(): Promise<void> {
+    window.console.log(`close window`);
+    await TaskManager.instance.resistTask({
+      type: "close-window",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
+      value: this.key,
+      statusList: ["finished"]
     });
   }
 
-  private clickStandImage(standImage: any, index: number): void {
-    this.standImageList.splice(index, 1);
+  private async minimizeWindow(): Promise<void> {
+    window.console.log(`minimize window`);
+    // this.windowInfo.isMinimized = true;
+    await TaskManager.instance.resistTask({
+      type: "minimize-window",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
+      value: this.key,
+      statusList: ["finished"]
+    });
+  }
+
+  private async normalizeWindow(): Promise<void> {
+    window.console.log(`normalize window`);
+    // this.windowInfo.isMinimized = false;
+    await TaskManager.instance.resistTask({
+      type: "normalize-window",
+      owner: "Quoridorn",
+      isPrivate: true,
+      isExclusion: false,
+      isIgniteWithParam: false,
+      isLastValueCapture: false,
+      value: this.key,
+      statusList: ["finished"]
+    });
   }
 
   private standImageStyle(standImage: any, index: number): any {
@@ -477,183 +319,70 @@ export default class WindowFrame extends Vue {
     };
   }
 
-  @Watch("command", { deep: true })
-  private onChangeCommand(this: any, command: any) {
-    if (!command) {
-      return;
-    }
-    if (command.command === "open" || command.command === "reset") {
-      this.windowFactor.l = 0;
-      this.windowFactor.r = 0;
-      this.windowFactor.t = 0;
-      this.windowFactor.b = 0;
-      this.windowFactor.w = 0;
-      this.windowFactor.h = 0;
-    }
-    if (command.command === "open") {
-      setTimeout(this.addEventForIFrame, 0);
-    }
-    this.setProperty({
-      property: `${this.displayProperty}.command`,
-      value: null,
-      logOff: true
+  private addEventForIFrame(): void {
+    const elms: HTMLCollection = document.getElementsByTagName("iFrame");
+    Array.prototype.slice.call(elms).forEach((iFrameElm: HTMLIFrameElement) => {
+      const dispatch = (event: MouseEvent, type: string) => {
+        const iFrameRect = iFrameElm.getBoundingClientRect();
+        const evtObj = {
+          clientX: event.pageX + iFrameRect.left,
+          clientY: event.pageY + iFrameRect.top,
+          button: event.button
+        };
+        document.dispatchEvent(new MouseEvent(type, evtObj));
+      };
+      // マウス移動
+      const mouseMoveListener = (event: MouseEvent) => {
+        dispatch(event, "mousemove");
+      };
+      // タッチ移動
+      const touchMoveListener = (event: TouchEvent) => {
+        const iFrameRect = iFrameElm.getBoundingClientRect();
+        const evtObj: any = {
+          changedTouches: [
+            {
+              clientX: event.changedTouches[0]["pageX"] + iFrameRect.left,
+              clientY: event.changedTouches[0]["pageY"] + iFrameRect.top
+            }
+          ]
+        };
+        document.dispatchEvent(new TouchEvent("touchmove", evtObj));
+      };
+      // クリック
+      const clickListener = (event: MouseEvent) => {
+        dispatch(event, "click");
+      };
+      // マウス離す
+      const mouseUpListener = (event: MouseEvent) => {
+        dispatch(event, "mouseUp");
+      };
+      const setListener = (elm: GlobalEventHandlers) => {
+        if (!elm) return;
+        if (!elm.onmousemove) elm.onmousemove = mouseMoveListener;
+        if (!elm.ontouchmove) elm.ontouchmove = touchMoveListener;
+        if (!elm.onmouseup) elm.onmouseup = mouseUpListener;
+        if (!elm.onclick) elm.onclick = clickListener;
+      };
+      if (!iFrameElm.onload) {
+        iFrameElm.onload = () => {
+          try {
+            const bodyElm = iFrameElm.contentWindow!.document;
+            setListener(bodyElm);
+            // コンテキストメニュー防止
+            if (!bodyElm.oncontextmenu) bodyElm.oncontextmenu = () => false;
+          } catch (error) {
+            /* nothing */
+          }
+        };
+      }
+      setListener(iFrameElm);
     });
-    setTimeout(() => this.$emit(command.command, command.payload), 0);
-  }
-
-  private get isDisplay(this: any): string {
-    return !this.displayProperty
-      ? ""
-      : this.getStateValue(this.displayProperty).isDisplay;
-  }
-
-  private get command(this: any): string {
-    return !this.displayProperty
-      ? ""
-      : this.getStateValue(this.displayProperty).command;
-  }
-  private get zIndex(this: any): any {
-    return this.getStateValue(this.displayProperty).zIndex;
-  }
-  private get standImageList(this: any): any[] {
-    return this.getStateValue(this.displayProperty).standImageList || [];
-  }
-  private get isFix(this: any): boolean {
-    return this.fixSize !== undefined;
-  }
-  private get fixW(this: any): number {
-    return !this.isFix ? -1 : parseInt(this.fixSize.split(",")[0].trim(), 10);
-  }
-  private get fixH(this: any): number {
-    return !this.isFix ? -1 : parseInt(this.fixSize.split(",")[1].trim(), 10);
-  }
-  private get base(this: any): any {
-    if (!this.baseSize) {
-      return { w: 0, h: 0 };
-    }
-    return {
-      w: parseInt(this.baseSize.split(",")[0].trim(), 10),
-      h: parseInt(this.baseSize.split(",")[1].trim(), 10)
-    };
-  }
-
-  private get standImageSizeOptionInfoList(): any[] {
-    const resultList: any[] = [];
-    resultList.push({
-      key: 0,
-      value: "192*256",
-      text: "192*256",
-      disabled: false
-    });
-    resultList.push({
-      key: 1,
-      value: "300*400",
-      text: "300*400",
-      disabled: false
-    });
-    resultList.push({
-      key: 2,
-      value: "450*600",
-      text: "450*600",
-      disabled: false
-    });
-    return resultList;
-  }
-
-  @Emit("windowStyle")
-  @Watch("windowStyle")
-  private onChangeWindowStyle(windowStyle: any) {}
-
-  private get windowStyle(this: any): any {
-    const moveMode = this.moveMode;
-    const winFac = this.windowFactor;
-
-    let left = winFac.l;
-    let bottom = winFac.b;
-    let right = winFac.r;
-    let top = winFac.t;
-    let height = winFac.h;
-    let width = winFac.w;
-
-    if (moveMode.indexOf("top") >= 0 || moveMode === "move") {
-      top += winFac.draggingY;
-      if (moveMode.indexOf("top") >= 0) {
-        height -= winFac.draggingY;
-      }
-    }
-
-    if (moveMode.indexOf("bottom") >= 0 || moveMode === "move") {
-      bottom -= winFac.draggingY;
-      if (moveMode.indexOf("bottom") >= 0) {
-        height += winFac.draggingY;
-      }
-    }
-
-    if (moveMode.indexOf("right") >= 0 || moveMode === "move") {
-      right -= winFac.draggingX;
-      if (moveMode.indexOf("right") >= 0) {
-        width += winFac.draggingX;
-      }
-    }
-
-    if (moveMode.indexOf("left") >= 0 || moveMode === "move") {
-      left += winFac.draggingX;
-      if (moveMode.indexOf("left") >= 0) {
-        width -= winFac.draggingX;
-      }
-    }
-
-    const obj: any = {
-      left: this.align.indexOf("left") >= 0 ? left + "px" : undefined,
-      right: this.align.indexOf("right") >= 0 ? right + "px" : undefined,
-      top: this.align.indexOf("top") >= 0 ? top + 37 + "px" : undefined,
-      bottom: this.align.indexOf("bottom") >= 0 ? bottom + "px" : undefined,
-      "z-index": this.zIndex
-    };
-    if (
-      this.align.indexOf("left") < 0 &&
-      this.align.indexOf("right") < 0 &&
-      this.align.indexOf("top") < 0 &&
-      this.align.indexOf("bottom") < 0
-    ) {
-      if (this.isFix) {
-        // obj.left = `calc((100% - ${this.fixW}px) / 2 + ${left}px)`
-        obj.left = `calc(50% - ${this.fixW / 2 - left}px)`;
-        obj.top = `calc(50% - ${this.fixH / 2 - top}px)`;
-      } else {
-        obj.left =
-          this.base.w > 0
-            ? `calc(50% - ${this.base.w / 2 - left}px)`
-            : `calc(${-this.base.w / 2 + left}px)`;
-        obj.top =
-          this.base.h > 0
-            ? `calc(50% - ${this.base.h / 2 - top}px)`
-            : `calc(${-this.base.h / 2 + top}px)`;
-      }
-    }
-    if (this.isFix) {
-      obj.width = this.fixW + "px";
-      obj.height = this.fixH + "px";
-    } else {
-      obj.width =
-        this.base.w > 0
-          ? `${this.base.w + width}px`
-          : `calc(100% - ${-this.base.w - width + 10}px)`;
-      obj.height =
-        this.base.h > 0
-          ? `${this.base.h + height}px`
-          : `calc(100% - ${-this.base.h - height - 10}px)`;
-    }
-    if (this.isModal && this.zIndex <= 99999) {
-      obj.filter = "blur(3px)";
-    }
-    return obj;
   }
 }
 </script>
 
 <style scoped lang="scss">
-@import "./common.scss";
+@import "../../../../assets/common";
 
 .window {
   position: fixed;
@@ -666,6 +395,21 @@ export default class WindowFrame extends Vue {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
   border: solid gray 1px;
   box-sizing: border-box;
+
+  &.minimized {
+    background-color: red;
+    width: 200px !important;
+    top: calc(100% - 30px) !important;
+    left: calc(0% - 0px) !important;
+    transition-property: width, top, left;
+    transition-delay: 0ms;
+    transition-timing-function: linear;
+    transition-duration: 200ms;
+
+    .window-title {
+      cursor: default;
+    }
+  }
 }
 .window img,
 .window button {
@@ -715,6 +459,11 @@ export default class WindowFrame extends Vue {
     }
   }
 
+  .title-message-area {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+  }
+
   .fontSizeSlider {
     @include flex-box(row, center, center);
     font-size: 10px;
@@ -722,7 +471,6 @@ export default class WindowFrame extends Vue {
 
     input[type="range"] {
       -webkit-appearance: none;
-      appearance: none;
       background-image: linear-gradient(
         to bottom,
         rgb(160, 166, 162) 0%,
@@ -737,7 +485,6 @@ export default class WindowFrame extends Vue {
 
       &::-webkit-slider-thumb {
         -webkit-appearance: none;
-        appearance: none;
         cursor: pointer;
         position: relative;
         width: 1em;
@@ -775,84 +522,84 @@ export default class WindowFrame extends Vue {
   }
 }
 
-.side-left,
-.side-right,
-.side-top,
-.side-bottom,
-.corner-left-top,
-.corner-left-bottom,
-.corner-right-top,
-.corner-right-bottom {
+.knob-left,
+.knob-right,
+.knob-top,
+.knob-bottom,
+.knob-left-top,
+.knob-left-bottom,
+.knob-right-top,
+.knob-right-bottom {
   position: absolute;
   z-index: 90;
 }
 
-.side-left,
-.side-right {
+.knob-left,
+.knob-right {
   top: 8px;
   width: 10px;
   height: calc(100% - 12px);
 }
 
-.side-top,
-.side-bottom {
+.knob-top,
+.knob-bottom {
   left: 8px;
   height: 10px;
   width: calc(100% - 12px);
 }
 
-.corner-left-top,
-.corner-left-bottom,
-.corner-right-top,
-.corner-right-bottom {
+.knob-left-top,
+.knob-left-bottom,
+.knob-right-top,
+.knob-right-bottom {
   width: 10px;
   height: 10px;
 }
 
-.side-left,
-.corner-left-top,
-.corner-left-bottom {
+.knob-left,
+.knob-left-top,
+.knob-left-bottom {
   left: -4px;
 }
-.side-right,
-.corner-right-top,
-.corner-right-bottom {
+.knob-right,
+.knob-right-top,
+.knob-right-bottom {
   right: -4px;
 }
-.side-top,
-.corner-left-top,
-.corner-right-top {
+.knob-top,
+.knob-left-top,
+.knob-right-top {
   top: -4px;
 }
-.side-bottom,
-.corner-left-bottom,
-.corner-right-bottom {
+.knob-bottom,
+.knob-left-bottom,
+.knob-right-bottom {
   bottom: -4px;
 }
 
-.side-left {
+.knob-left {
   cursor: w-resize;
 }
-.side-right {
+.knob-right {
   cursor: e-resize;
 }
-.side-top {
+.knob-top {
   cursor: n-resize;
 }
-.side-bottom {
+.knob-bottom {
   cursor: s-resize;
 }
-.corner-left-top {
+.knob-left-top {
   cursor: nw-resize;
 }
-.corner-left-bottom {
+.knob-left-bottom {
   cursor: sw-resize;
 }
-.corner-right-top {
+.knob-right-top {
   cursor: ne-resize;
   border-radius: 0 8px 0 0;
 }
-.corner-right-bottom {
+.knob-right-bottom {
   cursor: se-resize;
 }
 

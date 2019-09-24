@@ -26,7 +26,7 @@ export default function TaskProcessorClass<
           return;
         }
         // タスク名に対応する関数を登録
-        TaskManager.instance.addTaskListener(taskName, process.bind(this));
+        // TaskManager.instance.addTaskListener(taskName, process.bind(this), "");
       });
       // 元のメソッドがあれば呼ぶ
       if (original) original();

@@ -57,7 +57,8 @@ export default class App extends Vue {
    * ライフサイクル
    */
   public async mounted() {
-    WindowManager.instance.resistWindowOpenTask("test-window");
+    await WindowManager.instance.resistWindowOpenTask("test-window");
+    await WindowManager.instance.resistWindowOpenTask("test-window");
   }
 
   /**

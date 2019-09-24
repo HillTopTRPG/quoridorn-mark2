@@ -10,25 +10,27 @@ const changeCase = require("change-case");
 
 const mounted: GenerateProcessInfo = {
   method: "mounted",
-  generator: (
+  generator: function(
+    this: any,
     methodName: string,
     func: TaskProcess<any>,
     taskName?: string
-  ) => {
+  ) {
     if (!taskName) taskName = changeCase.paramCase(methodName);
-    TaskManager.instance.addTaskListener(taskName!, func);
+    TaskManager.instance.addTaskListener(taskName!, func, this.key);
   }
 };
 
 const beforeDestroy: GenerateProcessInfo = {
   method: "beforeDestroy",
-  generator: (
+  generator: function(
+    this: any,
     methodName: string,
     func: TaskProcess<any>,
     taskName?: string
-  ) => {
+  ) {
     if (!taskName) taskName = changeCase.paramCase(methodName);
-    TaskManager.instance.removeTaskListener(taskName!);
+    TaskManager.instance.removeTaskListener(taskName!, this.key);
   }
 };
 

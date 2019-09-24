@@ -4,16 +4,16 @@
   message: ""
   position: center
   size:
-    width: 300
+    width: 350
     height: 200
   minSize:
-    width: 250
+    width: 300
     height: 150
   maxSize:
     width: 500
     height: 450
   closable: true
-  fontSizePickable: false
+  fontSizePickable: true
   resizable: true
   tableInfoList: []
 "add-character":

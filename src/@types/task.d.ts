@@ -17,7 +17,9 @@ type TaskProcess<T> = (
 ) => Promise<string | void>;
 
 type TaskListenerContainer = {
-  [P in string]: TaskProcess<any>[];
+  [type in string]: {
+    [key in string]: TaskProcess<any>[];
+  };
 };
 
 type TaskListenerParameterContainer = {

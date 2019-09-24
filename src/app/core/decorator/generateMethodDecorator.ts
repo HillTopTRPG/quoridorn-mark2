@@ -26,7 +26,11 @@ export const generateMethodDecorator = (
     if (p.method) {
       const original = target[methodName];
       target[methodName] = function(...a: any[]) {
-        p.generator(propertyKey.toString(), method.bind(this), ...args);
+        p.generator.bind(this)(
+          propertyKey.toString(),
+          method.bind(this),
+          ...args
+        );
         if (original) return original.bind(this, ...a)();
       };
     } else {

@@ -33,11 +33,20 @@ export default class TaskManager {
    * タスクリスナーを追加する
    * @param type
    * @param process
+   * @param key
    */
-  public addTaskListener<T>(type: string, process: TaskProcess<T>): void {
-    let processList: TaskProcess<any>[] | undefined = this.taskListener[type];
+  public addTaskListener<T>(
+    type: string,
+    process: TaskProcess<T>,
+    key: string
+  ): void {
+    let processContainer = this.taskListener[type];
+    if (!processContainer) {
+      this.taskListener[type] = processContainer = {};
+    }
+    let processList = processContainer[key];
     if (!processList) {
-      this.taskListener[type] = processList = [];
+      processContainer[key] = processList = [];
     }
     processList.push(process);
   }
@@ -45,9 +54,17 @@ export default class TaskManager {
   /**
    * タスクリスナーを削除する
    * @param type
+   * @param key
    */
-  public removeTaskListener(type: string): void {
-    delete this.taskListener[type];
+  public removeTaskListener(type: string, key?: string): void {
+    if (!key) {
+      delete this.taskListener[type];
+      return;
+    }
+
+    if (this.taskListener[type]) {
+      delete this.taskListener[type][key];
+    }
   }
 
   /**
@@ -163,9 +180,13 @@ export default class TaskManager {
       window.console.log(`${logText}🏷️🈚`);
       return nextStatusIndex;
     }
-    const processList: TaskProcess<T>[] | undefined = this.taskListener[
-      eventName
-    ];
+    const processContainer: {
+      [key in string]: TaskProcess<any>[];
+    } = this.taskListener[eventName];
+    const reducer = (a: TaskProcess<T>[], c: TaskProcess<T>[]) => a.concat(c);
+    const processList: TaskProcess<T>[] = processContainer
+      ? Object.values(processContainer).reduce(reducer)
+      : [];
     if (!processList || !processList.length) {
       // 登録された処理がない
       window.console.log(`${logText}🈳`);
