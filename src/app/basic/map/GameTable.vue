@@ -116,30 +116,8 @@ export default class GameTable extends AddressCalcMixin {
   // @Action("setProperty") private setProperty: any;
   // @Action("windowClose") private windowClose: any;
   // @Action("importStart") private importStart: any;
-  @Mutation("setMapAngle") private setMapAngle: any;
-  @Mutation("setMouseLocate") private setMouseLocate: any;
-  @Mutation("setMapAngleDragging") private setMapAngleDragging: any;
-  @Mutation("setMapAngleDragStart") private setMapAngleDragStart: any;
-  @Mutation("setIsMapDraggingLeft") private setIsMapDraggingLeft: any;
-  @Mutation("setIsMapDraggingRight") private setIsMapDraggingRight: any;
-  @Mutation("setMapWheel") private setMapWheel: any;
-  @Mutation("setMapMoveFromLocate") private setMapMoveFromLocate: any;
-  @Mutation("setMapMoveTotalLocate") private setMapMoveTotalLocate: any;
-  @Mutation("setMapMoveDraggingLocate") private setMapMoveDraggingLocate: any;
-  @Mutation("setIsMapRolling") private setIsMapRolling: any;
-  @Mutation("setMapRollObj") private setMapRollObj: any;
-  @Mutation("setIsMapMoving") private setIsMapMoving: any;
-  @Mutation("setMapMoveObj") private setMapMoveObj: any;
-  @Mutation("setIsMapMouseDownRight") private setIsMapMouseDownRight: any;
-  @Mutation("setIsMapOverEvent") private setIsMapOverEvent: any;
-  @Mutation("setMouseOnScreenLocate") private setMouseOnScreenLocate: any;
-  @Mutation("setMouseOnCanvasLocate") private setMouseOnCanvasLocate: any;
-  @Mutation("setMouseOnTableLocate") private setMouseOnTableLocate: any;
-  @Mutation("setMouseLocateSet") private setMouseLocateSet: any;
-  @Mutation("setMapGrid") private setMapGrid: any;
   @Mutation("setIsWheeling") private setIsWheeling: any;
   // @Getter("isFitGrid") private isFitGrid: any;
-  @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Getter("getBackgroundImage") private getBackgroundImage!: string | null;
   @Getter("mapMarginGridColor") private mapMarginGridColor!: string;
   @Getter("mapMarginMaskColor") private mapMarginMaskColor!: string;
@@ -147,26 +125,10 @@ export default class GameTable extends AddressCalcMixin {
   @Getter("isMapUseGridColor") private isMapUseGridColor!: boolean;
   @Getter("isMapUseImage") private isMapUseImage!: boolean;
   // @Getter("playerKey") private playerKey: any;
-  @Getter("mapAngle") private mapAngle!: number;
-  @Getter("isMapRolling") private isMapRolling!: boolean;
-  @Getter("mapRollObj") private mapRollObj!: string;
-  @Getter("isMapMoving") private isMapMoving!: boolean;
-  @Getter("mapMoveObj") private mapMoveObj!: string;
-  @Getter("isMapMouseDownRight") private isMapMouseDownRight!: boolean;
-  @Getter("isMapDraggingLeft") private isMapDraggingLeft!: boolean;
-  @Getter("isMapDraggingRight") private isMapDraggingRight!: boolean;
-  @Getter("isMapOverEvent") private isMapOverEvent!: boolean;
-  @Getter("mapMoveFromLocate") private mapMoveFromLocate!: Point;
-  @Getter("mapMoveTotalLocate") private mapMoveTotalLocate!: Point;
-  @Getter("mapMoveDraggingLocate")
-  private mapMoveDraggingLocate!: Point;
-  @Getter("mapAngleVolatile") private mapAngleVolatile!: any;
   @Getter("isModal") private isModal!: boolean;
   @Getter("getMapObjectList") private getMapObjectList!: any;
   // @Getter("propertyList") private propertyList: any;
   // @Getter("getObj") private getObj: any;
-  @Getter("mouseLocate") private mouseLocate!: Point;
-  @Getter("mouseOnScreenLocate") private mouseOnScreenLocate!: Point;
 
   private wheelTimer: number | null = null;
   private wheel: number = 0;
@@ -186,7 +148,6 @@ export default class GameTable extends AddressCalcMixin {
     task: Task<boolean>
   ): Promise<string | void> {
     this.wheel += 100 * (task!.value || false ? 1 : -1);
-    // this.setMapWheel(wheel);
 
     this.setIsWheeling(true);
     if (this.wheelTimer !== null) {

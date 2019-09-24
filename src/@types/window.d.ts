@@ -44,5 +44,7 @@ export interface WindowInfo extends Rectangle, WindowTaskInfo {
   order: number;
   isLocked: boolean;
   isMinimized: boolean;
+  minimizeIndex: number;
+  isMinimizeAnimationEnd: boolean;
   readonly tableInfoList: WindowTableInfo[];
 }

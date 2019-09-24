@@ -38,7 +38,6 @@ import { Point } from "@/@types/address";
 export default class App extends Vue {
   @Getter("mapBackgroundColor") private mapBackgroundColor: any;
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
-  @Mutation("setIsWheeling") private setIsWheeling: any;
   @Action("presetImageLoad") private presetImageLoad: any;
 
   constructor() {
@@ -157,6 +156,7 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  font-size: 14px;
 }
 
 /* サイズ調整（コンテンツを比率を変えずに内側にフィット） */
@@ -183,7 +183,7 @@ hr {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
-  font-size: 16px;
+  font-size: 14px;
   width: 100%;
   height: 100%;
   perspective: 1000px;

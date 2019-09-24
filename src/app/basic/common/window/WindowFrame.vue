@@ -1,18 +1,17 @@
 <template>
   <div
     :id="key"
-    class="window"
     :class="{ minimized: windowInfo.isMinimized }"
-    :style="windowStyle"
     @mousedown.left.stop="activeWindow()"
     @touchstart.stop="activeWindow()"
+    ref="window"
   >
     <!-- タイトルバー -->
     <div
       class="window-title"
       :class="{ fix: !windowInfo.declare.resizable }"
-      @mousedown.left.stop="leftDown()"
-      @touchstart.stop="leftDown()"
+      @mousedown.left.stop="leftDown($event)"
+      @touchstart.stop="leftDown($event)"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
@@ -24,7 +23,11 @@
       </div>
 
       <!-- 文字サイズ変更 -->
-      <label v-if="windowInfo.declare.fontSizePickable" class="fontSizeSlider">
+      <label
+        v-if="windowInfo.declare.fontSizePickable && !windowInfo.isMinimized"
+        class="fontSizeSlider"
+        @click.prevent
+      >
         文字サイズ{{ fontSize }}px
         <input
           type="range"
@@ -41,12 +44,25 @@
       </label>
 
       <!-- 最小化 -->
-      <span class="title-icon-area" v-if="windowInfo.declare.closable">
+      <span class="title-icon-area" v-if="!windowInfo.isMinimized">
         <i
           class="icon-minus window-minimize"
           @click.left.stop="minimizeWindow"
           @keydown.space.stop="minimizeWindow"
           @keydown.enter.stop="minimizeWindow"
+          @keydown.229.stop
+          @keyup.229.stop
+          :tabindex="0"
+        ></i>
+      </span>
+
+      <!-- 通常化 -->
+      <span class="title-icon-area" v-if="windowInfo.isMinimized">
+        <i
+          class="icon-arrow-up-right window-normalize"
+          @click.left.stop="normalizeWindow"
+          @keydown.space.stop="normalizeWindow"
+          @keydown.enter.stop="normalizeWindow"
           @keydown.229.stop
           @keyup.229.stop
           :tabindex="0"
@@ -65,6 +81,10 @@
           :tabindex="0"
         ></i>
       </span>
+    </div>
+
+    <div class="window-title-balloon" v-if="windowInfo.isMinimizeAnimationEnd">
+      {{ windowInfo.title }}
     </div>
 
     <!-- コンテンツ -->
@@ -110,16 +130,18 @@ export default class WindowFrame extends Vue {
   private standImageSize: string = "192*256";
   private standImageWidth: number = 192;
   private standImageHeight: number = 256;
+  private isMounted: boolean = false;
 
   private mounted() {
     this.addEventForIFrame();
+    this.isMounted = true;
   }
 
   private get key(): string {
     return `window-${this.windowInfo.key}`;
   }
 
-  private leftDown(side?: string): void {
+  private leftDown(event: MouseEvent, side?: string): void {
     if (this.windowInfo.isMinimized) return;
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
       key: this.key,
@@ -132,11 +154,12 @@ export default class WindowFrame extends Vue {
         type: side || ""
       }
     );
-    this.dragFrom = TaskManager.instance.getLastValue<Point>("mouse-move");
+    this.dragFrom = createPoint(event.pageX, event.pageY);
     this.activeWindow();
   }
 
   private async activeWindow() {
+    if (this.windowInfo.isMinimized) return;
     await TaskManager.instance.resistTask({
       type: "active-window",
       owner: "Quoridorn",
@@ -246,15 +269,8 @@ export default class WindowFrame extends Vue {
     if (task.resolve) task.resolve(task);
   }
 
-  private get windowStyle(): any {
-    return {
-      left: `${this.windowInfo.x + this.diff.x}px`,
-      top: `${this.windowInfo.y + this.diff.y}px`,
-      width: `${this.windowInfo.width + this.diff.width}px`,
-      height: `${this.windowInfo.height + this.diff.height}px`,
-      fontSize: this.fontSize,
-      zIndex: this.windowInfo.order
-    };
+  private get windowElm(): HTMLDivElement {
+    return this.$refs.window as HTMLDivElement;
   }
 
   @Watch("standImageSize", { immediate: true })
@@ -265,7 +281,6 @@ export default class WindowFrame extends Vue {
   }
 
   private async closeWindow(): Promise<void> {
-    window.console.log(`close window`);
     await TaskManager.instance.resistTask({
       type: "close-window",
       owner: "Quoridorn",
@@ -279,8 +294,6 @@ export default class WindowFrame extends Vue {
   }
 
   private async minimizeWindow(): Promise<void> {
-    window.console.log(`minimize window`);
-    // this.windowInfo.isMinimized = true;
     await TaskManager.instance.resistTask({
       type: "minimize-window",
       owner: "Quoridorn",
@@ -294,8 +307,6 @@ export default class WindowFrame extends Vue {
   }
 
   private async normalizeWindow(): Promise<void> {
-    window.console.log(`normalize window`);
-    // this.windowInfo.isMinimized = false;
     await TaskManager.instance.resistTask({
       type: "normalize-window",
       owner: "Quoridorn",
@@ -306,6 +317,7 @@ export default class WindowFrame extends Vue {
       value: this.key,
       statusList: ["finished"]
     });
+    this.activeWindow();
   }
 
   private standImageStyle(standImage: any, index: number): any {
@@ -378,13 +390,76 @@ export default class WindowFrame extends Vue {
       setListener(iFrameElm);
     });
   }
+
+  @Watch("isMounted")
+  @Watch("diff.x")
+  @Watch("windowInfo.x")
+  private onChangeWindowX() {
+    if (!this.isMounted) return;
+    const x = this.windowInfo.x + this.diff.x;
+    this.windowElm.style.setProperty("--windowX", `${x}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("diff.y")
+  @Watch("windowInfo.y")
+  private onChangeWindowY() {
+    if (!this.isMounted) return;
+    const y = this.windowInfo.y + this.diff.y;
+    this.windowElm.style.setProperty("--windowY", `${y}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("diff.width")
+  @Watch("windowInfo.width")
+  private onChangeWindowWidth() {
+    if (!this.isMounted) return;
+    const width = this.windowInfo.width + this.diff.width;
+    this.windowElm.style.setProperty("--windowWidth", `${width}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("diff.height")
+  @Watch("windowInfo.height")
+  private onChangeWindowHeight() {
+    if (!this.isMounted) return;
+    const height = this.windowInfo.height + this.diff.height;
+    this.windowElm.style.setProperty("--windowHeight", `${height}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("fontSize")
+  private onChangeFontSize() {
+    if (!this.isMounted) return;
+    this.windowElm.style.setProperty("--windowFontSize", `${this.fontSize}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("windowInfo.order")
+  private onChangeOrder() {
+    if (!this.isMounted) return;
+    this.windowElm.style.setProperty(
+      "--windowOrder",
+      this.windowInfo.order.toString()
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("windowInfo.minimizeIndex")
+  private onChangeMinimizeIndex() {
+    if (!this.isMounted) return;
+    this.windowElm.style.setProperty(
+      "--windowMinimizeIndex",
+      this.windowInfo.minimizeIndex.toString()
+    );
+  }
 }
 </script>
 
 <style scoped lang="scss">
 @import "../../../../assets/common";
 
-.window {
+*[id^="window-"] {
   position: fixed;
   display: block;
   padding: 29px 8px 8px 8px;
@@ -395,25 +470,62 @@ export default class WindowFrame extends Vue {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
   border: solid gray 1px;
   box-sizing: border-box;
+  left: var(--windowX);
+  top: var(--windowY);
+  width: var(--windowWidth);
+  height: var(--windowHeight);
+  font-size: var(--windowFontSize);
+  z-index: var(--windowOrder);
 
   &.minimized {
-    background-color: red;
-    width: 200px !important;
-    top: calc(100% - 30px) !important;
-    left: calc(0% - 0px) !important;
-    transition-property: width, top, left;
+    width: 100px !important;
+    height: 1.5rem !important;
+    top: calc(100% - 1.5rem) !important;
+    left: calc(
+      100% - 100px * (var(--windowMinimizeLength) - var(--windowMinimizeIndex))
+    ) !important;
+    transition-property: width, height, top, left;
     transition-delay: 0ms;
     transition-timing-function: linear;
     transition-duration: 200ms;
 
     .window-title {
       cursor: default;
+      background-color: red;
+
+      &:hover + .window-title-balloon {
+        visibility: visible;
+      }
+    }
+
+    ._contents {
+      visibility: hidden;
     }
   }
+
+  img,
+  button {
+    white-space: nowrap;
+  }
 }
-.window img,
-.window button {
-  white-space: nowrap;
+
+.window-title-balloon {
+  visibility: hidden;
+  display: block;
+  position: absolute;
+  top: calc(-1.5em - 1px);
+  right: 0.5em;
+  padding: 0 0.5em;
+  min-width: 5em;
+  text-align: left;
+  background-color: white;
+  border-color: gray;
+  border-style: solid;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-top-width: 1px;
+  border-bottom: 0;
+  font-size: 1rem;
 }
 
 ._contents {
@@ -504,7 +616,7 @@ export default class WindowFrame extends Vue {
     }
   }
 
-  .window-close {
+  .title-icon-area i {
     display: block;
     padding: 3px;
     font-size: 8px;
@@ -520,87 +632,6 @@ export default class WindowFrame extends Vue {
       color: black;
     }
   }
-}
-
-.knob-left,
-.knob-right,
-.knob-top,
-.knob-bottom,
-.knob-left-top,
-.knob-left-bottom,
-.knob-right-top,
-.knob-right-bottom {
-  position: absolute;
-  z-index: 90;
-}
-
-.knob-left,
-.knob-right {
-  top: 8px;
-  width: 10px;
-  height: calc(100% - 12px);
-}
-
-.knob-top,
-.knob-bottom {
-  left: 8px;
-  height: 10px;
-  width: calc(100% - 12px);
-}
-
-.knob-left-top,
-.knob-left-bottom,
-.knob-right-top,
-.knob-right-bottom {
-  width: 10px;
-  height: 10px;
-}
-
-.knob-left,
-.knob-left-top,
-.knob-left-bottom {
-  left: -4px;
-}
-.knob-right,
-.knob-right-top,
-.knob-right-bottom {
-  right: -4px;
-}
-.knob-top,
-.knob-left-top,
-.knob-right-top {
-  top: -4px;
-}
-.knob-bottom,
-.knob-left-bottom,
-.knob-right-bottom {
-  bottom: -4px;
-}
-
-.knob-left {
-  cursor: w-resize;
-}
-.knob-right {
-  cursor: e-resize;
-}
-.knob-top {
-  cursor: n-resize;
-}
-.knob-bottom {
-  cursor: s-resize;
-}
-.knob-left-top {
-  cursor: nw-resize;
-}
-.knob-left-bottom {
-  cursor: sw-resize;
-}
-.knob-right-top {
-  cursor: ne-resize;
-  border-radius: 0 8px 0 0;
-}
-.knob-right-bottom {
-  cursor: se-resize;
 }
 
 .standImage {
