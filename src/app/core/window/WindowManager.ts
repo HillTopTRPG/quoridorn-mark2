@@ -21,18 +21,13 @@ export default class WindowManager {
   private windowDeclareInfoContainer = windowDeclareInfo;
 
   public async resistWindowOpenTask(type: string) {
-    await TaskManager.instance.resistTask<WindowTaskInfo>({
+    await TaskManager.instance.ignition<WindowTaskInfo>({
       type: "open-window",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
       value: {
         type: type,
         declare: this.getWindowDeclareInfo(type)
-      },
-      statusList: ["finished"]
+      }
     });
   }
 

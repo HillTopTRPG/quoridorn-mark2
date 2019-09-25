@@ -160,15 +160,10 @@ export default class WindowFrame extends Vue {
 
   private async activeWindow() {
     if (this.windowInfo.isMinimized) return;
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: "active-window",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: this.key,
-      statusList: ["finished"]
+      value: this.key
     });
   }
 
@@ -281,41 +276,26 @@ export default class WindowFrame extends Vue {
   }
 
   private async closeWindow(): Promise<void> {
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: "close-window",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: this.key,
-      statusList: ["finished"]
+      value: this.key
     });
   }
 
   private async minimizeWindow(): Promise<void> {
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: "minimize-window",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: this.key,
-      statusList: ["finished"]
+      value: this.key
     });
   }
 
   private async normalizeWindow(): Promise<void> {
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: "normalize-window",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: this.key,
-      statusList: ["finished"]
+      value: this.key
     });
     this.activeWindow();
   }

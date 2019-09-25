@@ -1,13 +1,21 @@
-interface TaskInput<T> {
-  type: string;
-  owner: string;
+interface TaskDeclare {
   isPrivate: boolean;
   isExclusion: boolean;
   isIgniteWithParam: boolean;
   isLastValueCapture: boolean;
+  statusList: StatusList;
+}
+
+export interface TaskDeclareJson {
+  types: string[];
+  taskAttribute: TaskDeclare;
+}
+
+interface TaskInput<T> {
+  type: string;
+  owner: string;
   to?: string[];
   value: T | null;
-  statusList: StatusList;
 }
 
 type TaskProcess<T> = (
@@ -28,15 +36,11 @@ type TaskListenerParameterContainer = {
 
 type StatusList = string[];
 
-export interface Task<T> extends TaskInput<T> {
+export interface Task<T> extends TaskDeclare, TaskInput<T> {
   readonly key: string;
   status: string;
   resolve: null | ((task: Task<T>) => void);
   reject: null | ((reason?: any) => void);
-  time: {
-    start: number;
-    end: number;
-  };
 }
 
 type TaskPromiseExecutor<T> = (

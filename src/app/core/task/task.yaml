@@ -1,0 +1,36 @@
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    statusList:
+      - finished
+  types:
+    - action-wheel
+    - open-window
+    - open-context
+    - active-window
+    - close-window
+    - minimize-window
+    - normalize-window
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: true
+    isLastValueCapture: true
+    statusList:
+      - finished
+  types:
+    - mouse-move
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: true
+    statusList:
+      - finished
+  types:
+    - mouse-left-up
+    - mouse-right-up

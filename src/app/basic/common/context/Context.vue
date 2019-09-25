@@ -64,15 +64,10 @@ export default class Context extends Vue {
   // @Logging
   private async emitEvent(emitName: string) {
     this.hide();
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: emitName,
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: null,
-      statusList: ["finished"]
+      value: null
     });
   }
 

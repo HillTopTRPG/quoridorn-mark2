@@ -1,11 +1,15 @@
 import {
   Task,
+  TaskDeclareJson,
   TaskInput,
   TaskListenerContainer,
   TaskListenerParameterContainer,
   TaskProcess,
   TaskPromiseExecutor
 } from "@/@types/task";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
+
+const taskDeclareJsonList: TaskDeclareJson[] = require("./task.yaml");
 
 export type MouseMoveParam = {
   key: string;
@@ -28,6 +32,7 @@ export default class TaskManager {
   private readonly taskParam: TaskListenerParameterContainer = {};
   private readonly taskLastValue: { [type: string]: any } = {};
   private nextKey: number = 0;
+  private readonly taskDeclareJsonList = taskDeclareJsonList;
 
   /**
    * タスクリスナーを追加する
@@ -85,12 +90,19 @@ export default class TaskManager {
   }
 
   /**
-   * タスクを登録する
+   * タスク実行
    * @param taskInput タスク情報
    */
-  public resistTask<T>(taskInput: TaskInput<T>): Promise<Task<T>> {
+  public ignition<T>(taskInput: TaskInput<T>): Promise<Task<T>> {
     const key: string = `task-${this.nextKey++}`;
-    if (taskInput.isLastValueCapture) {
+    const taskDeclareJson = this.taskDeclareJsonList.filter(
+      tdj => tdj.types.findIndex(t => t === taskInput.type) > -1
+    )[0];
+    if (!taskDeclareJson) {
+      throw new ApplicationError(`No such declare. task='${taskInput.type}'`);
+    }
+    const taskDeclare = taskDeclareJson.taskAttribute;
+    if (taskDeclare.isLastValueCapture) {
       this.taskLastValue[taskInput.type] = JSON.parse(
         JSON.stringify(taskInput.value)
       );
@@ -107,8 +119,9 @@ export default class TaskManager {
     ) => {
       const task: Task<T> = {
         ...taskInput,
+        ...taskDeclare,
         key,
-        status: taskInput.statusList[0],
+        status: taskDeclare.statusList[0],
         resolve: (task: Task<T>) => {
           resolve(task);
           clearTimeout(timeoutID);
@@ -120,10 +133,6 @@ export default class TaskManager {
           clearTimeout(timeoutID);
           task.resolve = () => {};
           task.reject = () => {};
-        },
-        time: {
-          start: 0,
-          end: 0
         }
       };
       this.taskQueue.push(task);

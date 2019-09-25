@@ -279,20 +279,15 @@ export default class GameTable extends AddressCalcMixin {
     if (eventType === "click") {
       // 右クリックメニュー表示
       setTimeout(async () => {
-        await TaskManager.instance.resistTask<ContextTaskInfo>({
+        await TaskManager.instance.ignition<ContextTaskInfo>({
           type: "open-context",
           owner: "Quoridorn",
-          isPrivate: true,
-          isExclusion: false,
-          isIgniteWithParam: false,
-          isLastValueCapture: false,
           value: {
             type: "game-table",
             target: null,
             x: point.x,
             y: point.y
-          },
-          statusList: ["finished"]
+          }
         });
       });
     } else {

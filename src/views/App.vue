@@ -11,14 +11,13 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import BaseInput from "@/app/basic/common/components/BaseInput.vue";
-import { Action, Getter, Mutation } from "vuex-class";
+import { Action, Getter } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import Context from "@/app/basic/common/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
-import { WindowTaskInfo } from "@/@types/window";
 import WindowArea from "@/app/basic/common/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
@@ -64,15 +63,10 @@ export default class App extends Vue {
    */
   @EventProcessor("wheel")
   private async onWheel(event: any) {
-    await TaskManager.instance.resistTask({
+    await TaskManager.instance.ignition({
       type: "action-wheel",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: false,
-      isLastValueCapture: false,
-      value: event.wheelDelta > 0,
-      statusList: ["finished"]
+      value: event.wheelDelta > 0
     });
   }
 
@@ -110,15 +104,10 @@ export default class App extends Vue {
 
   private async setMouseLocateOnPage(mouse: Point): Promise<void> {
     if (mouse.x === this.mouse.x && mouse.y === this.mouse.y) return;
-    TaskManager.instance.resistTask<Point>({
+    TaskManager.instance.ignition<Point>({
       type: "mouse-move",
       owner: "Quoridorn",
-      isPrivate: true,
-      isExclusion: false,
-      isIgniteWithParam: true,
-      isLastValueCapture: true,
-      value: mouse,
-      statusList: ["finished"]
+      value: mouse
     });
   }
 
@@ -129,18 +118,13 @@ export default class App extends Vue {
   @EventProcessor("mouseup")
   private async mouseUp(event: MouseEvent): Promise<void> {
     if (event.button === 0 || event.button === 2) {
-      await TaskManager.instance.resistTask<Point>({
+      await TaskManager.instance.ignition<Point>({
         type: event.button === 0 ? "mouse-left-up" : "mouse-right-up",
         owner: "Quoridorn",
-        isPrivate: true,
-        isExclusion: false,
-        isIgniteWithParam: false,
-        isLastValueCapture: true,
         value: {
           x: event.pageX,
           y: event.pageY
-        },
-        statusList: ["finished"]
+        }
       });
     }
   }
