@@ -89,7 +89,7 @@
 
     <!-- コンテンツ -->
     <div class="_contents" :style="{ fontSize: fontSize + 'px' }" @wheel.stop>
-      <slot />
+      <component :is="windowInfo.type" :keys="windowInfo.key" />
     </div>
 
     <!-- サイズ変更つまみ -->
@@ -138,7 +138,7 @@ export default class WindowFrame extends Vue {
   }
 
   private get key(): string {
-    return `window-${this.windowInfo.key}`;
+    return this.windowInfo.key;
   }
 
   private leftDown(event: MouseEvent, side?: string): void {

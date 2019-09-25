@@ -1,9 +1,8 @@
 <template>
   <div id="window-area">
-    <component
+    <window-frame
       v-for="(windowInfo, key) in windowInfoContainer"
       :key="key"
-      :is="windowInfo.type"
       :windowInfo="windowInfo"
     />
   </div>
@@ -17,9 +16,10 @@ import { Task } from "@/@types/task";
 import { WindowInfo, WindowTableInfo, WindowTaskInfo } from "@/@types/window";
 import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
 import { Anchor, Point } from "@/@types/address";
+import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
 
 @Component({
-  components: { TestWindow }
+  components: { WindowFrame, TestWindow }
 })
 export default class WindowArea extends Vue {
   private windowInfoContainer: WindowInfo[] = [];
@@ -48,7 +48,7 @@ export default class WindowArea extends Vue {
     this.arrangePoint(point, position);
 
     this.windowInfoContainer.push({
-      key: this.key,
+      key: `window-${this.key}`,
       title: windowTaskInfo.declare.title,
       message: windowTaskInfo.declare.message,
       ...windowTaskInfo,
@@ -70,7 +70,7 @@ export default class WindowArea extends Vue {
   private arrangePoint(
     point: Point,
     position: Point | Anchor,
-    uncheckKey?: number
+    uncheckKey?: string
   ) {
     this.windowInfoContainer.forEach(info => {
       if (uncheckKey !== undefined && info.key === uncheckKey) return;
@@ -183,8 +183,7 @@ export default class WindowArea extends Vue {
 
   private getWindowInfoIndex(windowKey: string | null): number {
     if (!windowKey) return -1;
-    const key: number = parseInt(windowKey.split("-")[1], 10);
-    return this.windowInfoContainer.findIndex(info => info.key === key);
+    return this.windowInfoContainer.findIndex(info => info.key === windowKey);
   }
 }
 </script>

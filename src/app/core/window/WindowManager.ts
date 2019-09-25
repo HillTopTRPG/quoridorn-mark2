@@ -20,18 +20,14 @@ export default class WindowManager {
 
   private windowDeclareInfoContainer = windowDeclareInfo;
 
-  public async resistWindowOpenTask(type: string) {
+  public async open(type: string) {
     await TaskManager.instance.ignition<WindowTaskInfo>({
       type: "open-window",
       owner: "Quoridorn",
       value: {
         type: type,
-        declare: this.getWindowDeclareInfo(type)
+        declare: this.windowDeclareInfoContainer[type]
       }
     });
-  }
-
-  public getWindowDeclareInfo(type: string): WindowDeclareInfo {
-    return this.windowDeclareInfoContainer[type];
   }
 }

@@ -1,26 +1,24 @@
 <template>
-  <window-frame :windowInfo="windowInfo">
+  <div>
     <div>Hello world.</div>
     <ctrl-button @click="clickButton">増殖</ctrl-button>
-  </window-frame>
+  </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { WindowInfo } from "@/@types/window";
-import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
 import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 
 @Component({
-  components: { CtrlButton, WindowFrame }
+  components: { CtrlButton }
 })
 export default class TestWindow extends Vue {
-  @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo;
+  @Prop({ type: String, required: true })
+  private keys!: string;
 
   private clickButton() {
-    WindowManager.instance.resistWindowOpenTask("test-window");
+    WindowManager.instance.open("test-window");
   }
 }
 </script>

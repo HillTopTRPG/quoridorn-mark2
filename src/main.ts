@@ -1,4 +1,4 @@
-import Vue, { PluginObject } from "vue";
+import Vue from "vue";
 import router from "./router";
 import MainVue from "./MainVue.vue";
 import store from "@/app/store/store";
@@ -30,8 +30,8 @@ Object.keys(windowInfo)
   );
   moduleList.forEach((module: any) => {
     Vue.use({
-      install(Vue: any, options: any) {
-        Vue.component("TestWindow", module.default);
+      install(Vue: any) {
+        Vue.component(module.default.name, module.default);
       }
     });
   });

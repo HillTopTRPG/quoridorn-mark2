@@ -38,7 +38,7 @@ export interface WindowTaskInfo {
 }
 
 export interface WindowInfo extends Rectangle, WindowTaskInfo {
-  readonly key: number;
+  readonly key: string;
   readonly title: string;
   message: string;
   order: number;
