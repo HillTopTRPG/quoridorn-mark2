@@ -88,9 +88,13 @@
     </div>
 
     <!-- コンテンツ -->
-    <div class="_contents" :style="{ fontSize: fontSize + 'px' }" @wheel.stop>
-      <component :is="windowInfo.type" :keys="windowInfo.key" />
-    </div>
+    <component
+      :is="windowInfo.type"
+      :windowKey="windowInfo.key"
+      class="_contents"
+      :style="{ fontSize: fontSize + 'px' }"
+      @wheel.stop
+    />
 
     <!-- サイズ変更つまみ -->
     <template v-if="windowInfo.declare.resizable && !windowInfo.isMinimized">
