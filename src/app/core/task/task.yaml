@@ -7,13 +7,12 @@
     statusList:
       - finished
   types:
-    - action-wheel
     - context-open
+    - window-open
     - window-active
-    - window-close
     - window-minimize
     - window-normalize
-    - window-move-end
+    - window-close
 
 - taskAttribute:
     isPrivate: true
@@ -24,19 +23,9 @@
     statusList:
       - finished
   types:
+    - action-wheel
     - window-moving
-
-- taskAttribute:
-    isPrivate: true
-    isExclusion: false
-    isIgniteWithParam: false
-    isLastValueCapture: false
-    isTest: true
-    statusList:
-      - resist
-      - finished
-  types:
-    - window-open
+    - window-move-end
 
 - taskAttribute:
     isPrivate: true
@@ -54,7 +43,7 @@
     isExclusion: false
     isIgniteWithParam: false
     isLastValueCapture: true
-    isTest: true
+    isTest: false
     statusList:
       - finished
   types:

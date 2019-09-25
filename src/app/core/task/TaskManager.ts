@@ -189,7 +189,9 @@ export default class TaskManager {
     const param: any = this.taskParam[eventName];
     if (task.isIgniteWithParam && !param) {
       // パラメータ必須タスクでパラメータがないため実施しない
-      window.console.log(`${logText}🏷️🈚`);
+      if (task.isTest) {
+        window.console.log(`${logText}🏷️🈚`);
+      }
       return nextStatusIndex;
     }
     const processContainer: {
@@ -201,7 +203,9 @@ export default class TaskManager {
       : [];
     if (!processList || !processList.length) {
       // 登録された処理がない
-      window.console.log(`${logText}🈳`);
+      if (task.isTest) {
+        window.console.log(`${logText}🈳`);
+      }
       return nextStatusIndex;
     }
 
