@@ -3,34 +3,60 @@
     isExclusion: false
     isIgniteWithParam: false
     isLastValueCapture: false
+    isTest: true
     statusList:
       - finished
   types:
     - action-wheel
-    - open-window
-    - open-context
-    - active-window
-    - close-window
-    - minimize-window
-    - normalize-window
+    - context-open
+    - window-active
+    - window-close
+    - window-minimize
+    - window-normalize
+    - window-move-end
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    isTest: false
+    statusList:
+      - finished
+  types:
+    - window-moving
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    isTest: true
+    statusList:
+      - resist
+      - finished
+  types:
+    - window-open
 
 - taskAttribute:
     isPrivate: true
     isExclusion: false
     isIgniteWithParam: true
     isLastValueCapture: true
+    isTest: false
     statusList:
       - finished
   types:
-    - mouse-move
+    - mouse-moving
 
 - taskAttribute:
     isPrivate: true
     isExclusion: false
     isIgniteWithParam: false
     isLastValueCapture: true
+    isTest: true
     statusList:
       - finished
   types:
-    - mouse-left-up
-    - mouse-right-up
+    - mouse-move-end-left
+    - mouse-move-end-right

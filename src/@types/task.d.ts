@@ -3,6 +3,7 @@ interface TaskDeclare {
   isExclusion: boolean;
   isIgniteWithParam: boolean;
   isLastValueCapture: boolean;
+  isTest: boolean;
   statusList: StatusList;
 }
 

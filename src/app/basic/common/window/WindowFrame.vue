@@ -137,7 +137,7 @@ export default class WindowFrame extends Vue {
   private isMounted: boolean = false;
 
   private mounted() {
-    // this.addEventForIFrame();
+    this.addEventForIFrame();
     this.isMounted = true;
   }
 
@@ -147,12 +147,12 @@ export default class WindowFrame extends Vue {
 
   private leftDown(event: MouseEvent, side?: string): void {
     if (this.windowInfo.isMinimized) return;
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
       type: side || ""
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
-      "mouse-left-up-finished",
+      "mouse-move-end-left-finished",
       {
         key: this.key,
         type: side || ""
@@ -165,14 +165,19 @@ export default class WindowFrame extends Vue {
   private async activeWindow() {
     if (this.windowInfo.isMinimized) return;
     await TaskManager.instance.ignition({
-      type: "active-window",
+      type: "window-active",
       owner: "Quoridorn",
       value: this.key
     });
   }
 
-  @TaskProcessor("mouse-left-up-finished")
-  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+  @TaskProcessor("mouse-move-end-left-finished")
+  private async mouseLeftUpFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    const point = task.value!;
+
     this.windowInfo.x += this.diff.x;
     this.windowInfo.y += this.diff.y;
     this.windowInfo.width += this.diff.width;
@@ -183,14 +188,24 @@ export default class WindowFrame extends Vue {
     this.diff.width = 0;
     this.diff.height = 0;
 
-    TaskManager.instance.setTaskParam("mouse-move-finished", null);
-    TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);
+
+    // 移動
+    if (param.key === this.key && !param.type) {
+      // 画面の移動を発火
+      await TaskManager.instance.ignition<Point>({
+        type: "window-move-end",
+        owner: "Quoridorn",
+        value: point
+      });
+    }
   }
 
-  @TaskProcessor("mouse-move-finished")
+  @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
@@ -207,6 +222,12 @@ export default class WindowFrame extends Vue {
 
       // 登録したタスクに完了通知
       if (task.resolve) task.resolve(task);
+
+      await TaskManager.instance.ignition<Point>({
+        type: "window-moving",
+        owner: "Quoridorn",
+        value: point
+      });
       return;
     }
 
@@ -281,7 +302,7 @@ export default class WindowFrame extends Vue {
 
   private async closeWindow(): Promise<void> {
     await TaskManager.instance.ignition({
-      type: "close-window",
+      type: "window-close",
       owner: "Quoridorn",
       value: this.key
     });
@@ -289,7 +310,7 @@ export default class WindowFrame extends Vue {
 
   private async minimizeWindow(): Promise<void> {
     await TaskManager.instance.ignition({
-      type: "minimize-window",
+      type: "window-minimize",
       owner: "Quoridorn",
       value: this.key
     });
@@ -297,7 +318,7 @@ export default class WindowFrame extends Vue {
 
   private async normalizeWindow(): Promise<void> {
     await TaskManager.instance.ignition({
-      type: "normalize-window",
+      type: "window-normalize",
       owner: "Quoridorn",
       value: this.key
     });

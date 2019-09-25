@@ -75,7 +75,7 @@ export default class Context extends Vue {
     this.type = null;
   }
 
-  @TaskProcessor("open-context-finished")
+  @TaskProcessor("context-open-finished")
   @Logging
   private async openContextFinished(
     task: Task<ContextTaskInfo>

@@ -2,6 +2,7 @@
   <div id="app">
     <game-table ref="gameTable" />
     <Menu />
+    <right-pane />
     <window-area />
     <context />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
@@ -22,9 +23,11 @@ import WindowArea from "@/app/basic/common/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
 import { createPoint } from "@/app/core/Coordinate";
+import RightPane from "@/app/basic/common/pane/RightPane.vue";
 
 @Component({
   components: {
+    RightPane,
     WindowArea,
     Context,
     Menu,
@@ -105,7 +108,7 @@ export default class App extends Vue {
   private async setMouseLocateOnPage(mouse: Point): Promise<void> {
     if (mouse.x === this.mouse.x && mouse.y === this.mouse.y) return;
     TaskManager.instance.ignition<Point>({
-      type: "mouse-move",
+      type: "mouse-moving",
       owner: "Quoridorn",
       value: mouse
     });
@@ -119,7 +122,8 @@ export default class App extends Vue {
   private async mouseUp(event: MouseEvent): Promise<void> {
     if (event.button === 0 || event.button === 2) {
       await TaskManager.instance.ignition<Point>({
-        type: event.button === 0 ? "mouse-left-up" : "mouse-right-up",
+        type:
+          event.button === 0 ? "mouse-move-end-left" : "mouse-move-end-right",
         owner: "Quoridorn",
         value: {
           x: event.pageX,
@@ -171,7 +175,6 @@ hr {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
-  font-size: 14px;
   width: 100%;
   height: 100%;
   perspective: 1000px;

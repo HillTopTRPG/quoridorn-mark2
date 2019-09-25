@@ -102,6 +102,9 @@ export default class TaskManager {
       throw new ApplicationError(`No such declare. task='${taskInput.type}'`);
     }
     const taskDeclare = taskDeclareJson.taskAttribute;
+    if (!taskDeclare) {
+      throw new ApplicationError(`Illegal task.yaml. task='${taskInput.type}'`);
+    }
     if (taskDeclare.isLastValueCapture) {
       this.taskLastValue[taskInput.type] = JSON.parse(
         JSON.stringify(taskInput.value)
@@ -202,12 +205,14 @@ export default class TaskManager {
       return nextStatusIndex;
     }
 
-    // window.console.warn(
-    //   `${logText}💥`,
-    //   task.value,
-    //   "🏷️" + (param ? "" : "️🈚"),
-    //   param || ""
-    // );
+    if (task.isTest) {
+      window.console.warn(
+        `${logText}💥`,
+        task.value,
+        "🏷️" + (param ? "" : "️🈚"),
+        param || ""
+      );
+    }
     const processRemover = (taskProcess: TaskProcess<T>) => () => {
       const index: number = processList.findIndex(
         (process: TaskProcess<T>) => process === taskProcess

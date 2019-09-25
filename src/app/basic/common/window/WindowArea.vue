@@ -1,7 +1,7 @@
 <template>
   <div id="window-area">
     <window-frame
-      v-for="(windowInfo, key) in windowInfoContainer"
+      v-for="(windowInfo, key) in windowInfoList"
       :key="key"
       :windowInfo="windowInfo"
     />
@@ -17,83 +17,19 @@ import { WindowInfo, WindowTableInfo, WindowTaskInfo } from "@/@types/window";
 import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
 import { Anchor, Point } from "@/@types/address";
 import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
+import WindowManager from "@/app/core/window/WindowManager";
+import Logging from "@/app/core/logger/Logging";
 
 @Component({
   components: { WindowFrame, TestWindow }
 })
 export default class WindowArea extends Vue {
-  private windowInfoContainer: WindowInfo[] = [];
-  private key: number = 0;
-  private readonly arrangeDistance = 24;
+  private windowInfoList: WindowInfo[] = WindowManager.instance.windowInfoList;
 
-  @TaskProcessor("open-window-finished")
-  private async openWindow(task: Task<WindowTaskInfo>): Promise<string | void> {
-    if (!task.value) return;
-    const windowTaskInfo: WindowTaskInfo = task.value;
-
-    const tableInfoList: WindowTableInfo[] = windowTaskInfo.declare.tableInfoList.map(
-      tableInfo => ({
-        selectLineKey: null,
-        hoverLineIndex: null,
-        operateDividerIndex: null,
-        columnWidthList: tableInfo.initColumnWidthList.concat()
-      })
-    );
-
-    const menuHeight = 30;
-    const windowSize = windowTaskInfo.declare.size;
-    const position = windowTaskInfo.declare.position;
-    const point = calcWindowPosition(position, windowSize, menuHeight);
-
-    this.arrangePoint(point, position);
-
-    this.windowInfoContainer.push({
-      key: `window-${this.key}`,
-      title: windowTaskInfo.declare.title,
-      message: windowTaskInfo.declare.message,
-      ...windowTaskInfo,
-      ...point,
-      ...windowSize,
-      order: this.windowInfoContainer.length,
-      isLocked: false,
-      isMinimized: false,
-      minimizeIndex: 0,
-      isMinimizeAnimationEnd: false,
-      tableInfoList
-    });
-    this.key++;
-
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
-  }
-
-  private arrangePoint(
-    point: Point,
-    position: Point | Anchor,
-    uncheckKey?: string
-  ) {
-    this.windowInfoContainer.forEach(info => {
-      if (uncheckKey !== undefined && info.key === uncheckKey) return;
-      if (info.isMinimized) return;
-      if (info.x !== point.x || info.y !== point.y) return;
-      const arrange: Point = createPoint(
-        this.arrangeDistance,
-        this.arrangeDistance
-      );
-      if (typeof position === "string") {
-        if (position.toString().indexOf("right") > -1) arrange.x *= -1;
-        if (position.toString().indexOf("bottom") > -1) arrange.y *= -1;
-      }
-      point.x += arrange.x;
-      point.y += arrange.y;
-      this.arrangePoint(point, position, uncheckKey);
-    });
-  }
-
-  @TaskProcessor("close-window-finished")
+  @TaskProcessor("window-close-finished")
   private async closeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
-    this.windowInfoContainer.splice(index, 1);
+    this.windowInfoList.splice(index, 1);
 
     this.arrangeOrder();
     this.arrangeMinimizeIndex();
@@ -102,10 +38,10 @@ export default class WindowArea extends Vue {
     if (task.resolve) task.resolve(task);
   }
 
-  @TaskProcessor("minimize-window-finished")
+  @TaskProcessor("window-minimize-finished")
   private async minimizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
-    const windowInfo = this.windowInfoContainer[index];
+    const windowInfo = this.windowInfoList[index];
     windowInfo.isMinimized = true;
     windowInfo.isMinimizeAnimationEnd = false;
     window.setTimeout(() => {
@@ -118,10 +54,10 @@ export default class WindowArea extends Vue {
     if (task.resolve) task.resolve(task);
   }
 
-  @TaskProcessor("normalize-window-finished")
+  @TaskProcessor("window-normalize-finished")
   private async normalizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
-    const windowInfo = this.windowInfoContainer[index];
+    const windowInfo = this.windowInfoList[index];
     windowInfo.isMinimized = false;
     windowInfo.isMinimizeAnimationEnd = false;
 
@@ -131,25 +67,21 @@ export default class WindowArea extends Vue {
     if (task.resolve) task.resolve(task);
   }
 
-  @TaskProcessor("active-window-finished")
+  @TaskProcessor("window-active-finished")
   private async activeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
-    const windowInfo = this.windowInfoContainer[index];
-    windowInfo.order = this.windowInfoContainer.length;
+    const windowInfo = this.windowInfoList[index];
+    windowInfo.order = this.windowInfoList.length;
 
     this.arrangeOrder();
-
-    const point = createPoint(windowInfo.x, windowInfo.y);
-    this.arrangePoint(point, windowInfo.declare.position, windowInfo.key);
-    windowInfo.x = point.x;
-    windowInfo.y = point.y;
+    WindowManager.instance.arrangePoint(windowInfo.key);
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);
   }
 
   private arrangeOrder() {
-    this.windowInfoContainer
+    this.windowInfoList
       .concat()
       .sort((w1, w2) => {
         if (w1.order < w2.order) return -1;
@@ -162,7 +94,7 @@ export default class WindowArea extends Vue {
   }
 
   private arrangeMinimizeIndex() {
-    this.windowInfoContainer
+    this.windowInfoList
       .filter(info => info.isMinimized)
       .sort((w1, w2) => {
         if (w1.order < w2.order) return -1;
@@ -175,15 +107,13 @@ export default class WindowArea extends Vue {
 
     document.documentElement.style.setProperty(
       "--windowMinimizeLength",
-      this.windowInfoContainer
-        .filter(info => info.isMinimized)
-        .length.toString()
+      this.windowInfoList.filter(info => info.isMinimized).length.toString()
     );
   }
 
   private getWindowInfoIndex(windowKey: string | null): number {
     if (!windowKey) return -1;
-    return this.windowInfoContainer.findIndex(info => info.key === windowKey);
+    return this.windowInfoList.findIndex(info => info.key === windowKey);
   }
 }
 </script>

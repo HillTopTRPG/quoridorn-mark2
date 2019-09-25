@@ -195,7 +195,7 @@ export default class GameTable extends AddressCalcMixin {
   private mouseDown(button: string) {
     this.pointDiff.x = 0;
     this.pointDiff.y = 0;
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: "game-table",
       type: `button-${button}`
     });
@@ -217,7 +217,7 @@ export default class GameTable extends AddressCalcMixin {
   private rotateDiff: number = 0;
   private rotate: number = 0;
 
-  @TaskProcessor("mouse-move-finished")
+  @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
@@ -254,21 +254,21 @@ export default class GameTable extends AddressCalcMixin {
     return arrangeAngle(this.rotate + this.rotateDiff);
   }
 
-  @TaskProcessor("mouse-left-up-finished")
+  @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
     this.point.x += this.pointDiff.x;
     this.point.y += this.pointDiff.y;
     this.pointDiff.x = 0;
     this.pointDiff.y = 0;
 
-    TaskManager.instance.setTaskParam("mouse-move-finished", null);
-    TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);
   }
 
-  @TaskProcessor("mouse-right-up-finished")
+  @TaskProcessor("mouse-move-end-right-finished")
   private async mouseRightUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
@@ -280,7 +280,7 @@ export default class GameTable extends AddressCalcMixin {
       // 右クリックメニュー表示
       setTimeout(async () => {
         await TaskManager.instance.ignition<ContextTaskInfo>({
-          type: "open-context",
+          type: "context-open",
           owner: "Quoridorn",
           value: {
             type: "game-table",
@@ -296,8 +296,8 @@ export default class GameTable extends AddressCalcMixin {
       this.rotateDiff = 0;
     }
 
-    TaskManager.instance.setTaskParam("mouse-move-finished", null);
-    TaskManager.instance.setTaskParam("mouse-right-up-finished", null);
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-right-finished", null);
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);

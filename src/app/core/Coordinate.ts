@@ -20,6 +20,13 @@ export function createRectangle(
   };
 }
 
+export function isContain(r: Rectangle, p: Point) {
+  if (p.x < r.x) return false;
+  if (p.x > r.x + r.width) return false;
+  if (p.y < r.y) return false;
+  return p.y <= r.y + r.height;
+}
+
 export function ps(p: Point): string {
   return `(${Math.floor(p.x)}, ${Math.floor(p.y)})`;
 }
