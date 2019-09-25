@@ -133,7 +133,7 @@ export default class WindowFrame extends Vue {
   private isMounted: boolean = false;
 
   private mounted() {
-    this.addEventForIFrame();
+    // this.addEventForIFrame();
     this.isMounted = true;
   }
 

@@ -16,17 +16,10 @@
       <div
         id="mapBoardFrame"
         @contextmenu.prevent
-        @mousedown.left.stop="leftDown"
-        @mousedown.right.prevent.stop="rightDown"
-        @click.right.prevent.stop
-        @touchstart.stop="leftDown"
+        @mousedown.left="leftDown"
+        @mousedown.right="rightDown"
+        @touchstart="leftDown"
       >
-        <!--
-        @mouseup.left.stop="leftUp"
-        @touchcancel.stop="leftUp"
-        @touchend.stop="leftUp"
-        @mouseup.right.prevent.stop="rightUp"
-        -->
         <map-board />
       </div>
 
@@ -89,7 +82,7 @@ import { parseColor } from "@/app/core/Utility";
 import { Component } from "vue-mixin-decorator";
 import { Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
-import { arrangeAngle, createPoint } from "@/app/core/Coordinate";
+import { arrangeAngle, createPoint, ps } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task } from "@/@types/task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -184,12 +177,7 @@ export default class GameTable extends AddressCalcMixin {
    * マウス左ボタン押下
    */
   private leftDown(event: MouseEvent): void {
-    const mouse = {
-      x: event.pageX,
-      y: event.pageY
-    };
-    const calcResult = this.calcCoordinate(mouse, this.currentAngle);
-    this.dragFrom = calcResult.planeLocateScreen;
+    this.dragFrom = createPoint(event.pageX, event.pageY);
     this.mouseDown("left");
   }
 
@@ -197,17 +185,16 @@ export default class GameTable extends AddressCalcMixin {
    * マウス右ボタン押下
    */
   private rightDown(event: MouseEvent): void {
-    const mouse = {
-      x: event.pageX,
-      y: event.pageY
-    };
+    const mouse = createPoint(event.pageX, event.pageY);
     const calcResult = this.calcCoordinate(mouse, this.currentAngle);
-    this.dragFrom = calcResult.planeLocateScreen;
+    this.dragFrom = mouse;
     this.rotateFrom = calcResult.angle;
     this.mouseDown("right");
   }
 
   private mouseDown(button: string) {
+    this.pointDiff.x = 0;
+    this.pointDiff.y = 0;
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-move-finished", {
       key: "game-table",
       type: `button-${button}`
@@ -225,12 +212,10 @@ export default class GameTable extends AddressCalcMixin {
 
   private pointDiff: Point = createPoint(0, 0);
   private point: Point = createPoint(0, 0);
-  private isMove: boolean = false;
 
   private rotateFrom: number = 0;
   private rotateDiff: number = 0;
   private rotate: number = 0;
-  private isRotate: boolean = false;
 
   @TaskProcessor("mouse-move-finished")
   private async mouseMoveFinished(
@@ -239,7 +224,7 @@ export default class GameTable extends AddressCalcMixin {
   ): Promise<string | void> {
     if (param.key !== "game-table") return;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
-    const point = calcResult.planeLocateScreen;
+    const point = task.value!;
 
     // タスクのパラメータ情報「type」をクリックからドラッグに変更
     const button = param.type!.split("-")[1];
@@ -253,12 +238,11 @@ export default class GameTable extends AddressCalcMixin {
     );
 
     if (button === "left") {
-      this.isMove = true;
-      this.pointDiff.x = point.x - this.dragFrom.x;
-      this.pointDiff.y = point.y - this.dragFrom.y;
+      const zoom = (1000 - this.wheel) / 1000;
+      this.pointDiff.x = (point.x - this.dragFrom.x) * zoom;
+      this.pointDiff.y = (point.y - this.dragFrom.y) * zoom;
     }
     if (button === "right") {
-      this.isRotate = true;
       this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
     }
 
@@ -276,7 +260,6 @@ export default class GameTable extends AddressCalcMixin {
     this.point.y += this.pointDiff.y;
     this.pointDiff.x = 0;
     this.pointDiff.y = 0;
-    this.isMove = false;
 
     TaskManager.instance.setTaskParam("mouse-move-finished", null);
     TaskManager.instance.setTaskParam("mouse-left-up-finished", null);
@@ -318,7 +301,6 @@ export default class GameTable extends AddressCalcMixin {
       this.rotateDiff = 0;
     }
 
-    this.isRotate = false;
     TaskManager.instance.setTaskParam("mouse-move-finished", null);
     TaskManager.instance.setTaskParam("mouse-right-up-finished", null);
 
@@ -336,9 +318,8 @@ export default class GameTable extends AddressCalcMixin {
 
   private get gameTableStyle(): any {
     // const translateZ = this.mapWheel;
-    const zoom = (1000 - this.wheel) / 1000;
-    const totalLeftX = (this.point.x + this.pointDiff.x) * zoom;
-    const totalLeftY = (this.point.y + this.pointDiff.y) * zoom;
+    const totalLeftX = this.point.x + this.pointDiff.x;
+    const totalLeftY = this.point.y + this.pointDiff.y;
     let rotateZ = this.currentAngle;
 
     const transformList: string[] = [];
@@ -348,6 +329,8 @@ export default class GameTable extends AddressCalcMixin {
     transformList.push(`rotateX(0deg)`);
     transformList.push(`rotateZ(${rotateZ}deg)`);
     const result: any = {
+      // left: `${totalLeftX}px`,
+      // top: `${totalLeftY}px`,
       width: this.sizeW + "px",
       height: this.sizeH + "px",
       borderWidth: this.mapBorderWidth + "px",
@@ -405,6 +388,7 @@ export default class GameTable extends AddressCalcMixin {
   //     event.pageX,
   //     event.pageY,
   //     this.currentAngle,
+  //     this.wheel
   //     offsetX,
   //     offsetY
   //   );
@@ -688,6 +672,7 @@ export default class GameTable extends AddressCalcMixin {
   right: 0;
   bottom: 0;
   transform: translateZ(var(--wheel, 0)) rotateY(0deg) rotateX(0deg);
+  z-index: 8;
 }
 
 #gameTable {

@@ -193,12 +193,12 @@ export default class TaskManager {
       return nextStatusIndex;
     }
 
-    window.console.log(
-      `${logText}💥`,
-      task.value,
-      "🏷️" + (param ? "" : "️🈚"),
-      param || ""
-    );
+    // window.console.warn(
+    //   `${logText}💥`,
+    //   task.value,
+    //   "🏷️" + (param ? "" : "️🈚"),
+    //   param || ""
+    // );
     const processRemover = (taskProcess: TaskProcess<T>) => () => {
       const index: number = processList.findIndex(
         (process: TaskProcess<T>) => process === taskProcess

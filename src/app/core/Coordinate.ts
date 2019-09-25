@@ -20,6 +20,10 @@ export function createRectangle(
   };
 }
 
+export function ps(p: Point): string {
+  return `(${Math.floor(p.x)}, ${Math.floor(p.y)})`;
+}
+
 export function getWindowSize(): Size {
   return createSize(window.innerWidth, window.innerHeight);
 }

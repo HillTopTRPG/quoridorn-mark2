@@ -1,13 +1,10 @@
 <template>
   <div id="app">
     <game-table ref="gameTable" />
-    <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
-    <window-area />
     <Menu />
+    <window-area />
     <context />
-    <!--
-    <img alt="Vue logo" src="../assets/logo.png" />
-    -->
+    <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
   </div>
 </template>
 
@@ -25,6 +22,7 @@ import { WindowTaskInfo } from "@/@types/window";
 import WindowArea from "@/app/basic/common/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
+import { createPoint } from "@/app/core/Coordinate";
 
 @Component({
   components: {
@@ -78,13 +76,25 @@ export default class App extends Vue {
     });
   }
 
+  private mouse: Point = createPoint(0, 0);
+
+  /**
+   * マウス移動イベント
+   * @param event
+   */
+  @EventProcessor("mousedown")
+  private mouseDown(event: MouseEvent): void {
+    this.mouse.x = event.pageX;
+    this.mouse.y = event.pageY;
+  }
+
   /**
    * マウス移動イベント
    * @param event
    */
   @EventProcessor("mousemove")
   private mouseMove(event: any): void {
-    App.setMouseLocateOnPage(event.pageX, event.pageY);
+    this.setMouseLocateOnPage(createPoint(event.pageX, event.pageY));
   }
 
   /**
@@ -93,16 +103,13 @@ export default class App extends Vue {
    */
   @EventProcessor("touchmove")
   private touchMove(event: any): void {
-    App.setMouseLocateOnPage(
-      event.changedTouches[0].pageX,
-      event.changedTouches[0].pageY
+    this.setMouseLocateOnPage(
+      createPoint(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
     );
   }
 
-  private static async setMouseLocateOnPage(
-    pageX: number,
-    pageY: number
-  ): Promise<void> {
+  private async setMouseLocateOnPage(mouse: Point): Promise<void> {
+    if (mouse.x === this.mouse.x && mouse.y === this.mouse.y) return;
     TaskManager.instance.resistTask<Point>({
       type: "mouse-move",
       owner: "Quoridorn",
@@ -110,10 +117,7 @@ export default class App extends Vue {
       isExclusion: false,
       isIgniteWithParam: true,
       isLastValueCapture: true,
-      value: {
-        x: pageX,
-        y: pageY
-      },
+      value: mouse,
       statusList: ["finished"]
     });
   }
@@ -222,6 +226,7 @@ hr {
   right: 0;
   bottom: 0;
   transition: all 0.3s linear;
+  z-index: 12;
 
   &.hide {
     opacity: 0;

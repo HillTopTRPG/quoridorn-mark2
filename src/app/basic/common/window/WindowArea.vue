@@ -181,7 +181,7 @@ export default class WindowArea extends Vue {
     );
   }
 
-  private getWindowInfoIndex(windowKey: string): number {
+  private getWindowInfoIndex(windowKey: string | null): number {
     if (!windowKey) return -1;
     const key: number = parseInt(windowKey.split("-")[1], 10);
     return this.windowInfoContainer.findIndex(info => info.key === key);
@@ -192,5 +192,6 @@ export default class WindowArea extends Vue {
 <style scoped lang="scss">
 #window-area {
   position: relative;
+  z-index: 10;
 }
 </style>

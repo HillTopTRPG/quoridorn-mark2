@@ -134,7 +134,7 @@ export default class Context extends Vue {
 <style lang="scss">
 .context {
   position: fixed;
-  z-index: 90;
+  z-index: 11;
   padding: 0;
   min-width: 50px;
   background-color: white;
@@ -148,6 +148,7 @@ export default class Context extends Vue {
     font-size: 14px;
     padding: 0 5px;
     line-height: 1.8em;
+    cursor: pointer;
 
     &:not(.disabled):hover {
       background-color: lightblue;

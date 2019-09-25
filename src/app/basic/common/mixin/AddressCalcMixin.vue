@@ -6,7 +6,8 @@ import {
   arrangeAngle,
   calcAngle,
   calcCenter,
-  calcDistance
+  calcDistance,
+  createPoint
 } from "@/app/core/Coordinate";
 import { Matrix, Point, Rectangle } from "@/@types/address";
 
@@ -40,8 +41,6 @@ export default class AddressCalcMixin extends Vue {
    * @returns {{angle: number, planeLocateScreen: {x: *, y: *}, planeLocateCanvas: {x: *, y: *}, planeLocateTable: {x: *, y: *}}}
    */
   protected calcCoordinate(mouse: Point, oldAngle: number): Coordinates {
-    // スクロール倍率を考慮
-    const zoom = (1000 - this.mapWheel) / 1000.0;
     // canvas上のマス座標を計算する
     const canvasRectangle: Rectangle = document
       .getElementById("map-canvas")!
@@ -51,7 +50,7 @@ export default class AddressCalcMixin extends Vue {
     // 中心点と指定された座標とを結ぶ線の角度を求める
     const angle: number = calcAngle(mouse, canvasCenter);
     // 中心点と指定された座標とを結ぶ線の長さを求める
-    const distance: number = calcDistance(mouse, canvasCenter) * zoom;
+    const distance: number = calcDistance(mouse, canvasCenter);
     // マップ回転前の角度を求める
     const angleBefore: number = arrangeAngle(angle - oldAngle);
     const planeLocateScreen: Point = {
@@ -86,10 +85,7 @@ export default class AddressCalcMixin extends Vue {
     offsetY: number = 0
   ): any {
     const coordinateObj: Coordinates = this.calcCoordinate(
-      {
-        x: screenX,
-        y: screenY
-      },
+      createPoint(screenX, screenY),
       oldAngle
     );
 
@@ -127,10 +123,7 @@ export default class AddressCalcMixin extends Vue {
   ): Matrix {
     // 回転やズームの前のスクリーン座標がどこになるかを計算し、そこをベースにマップ上の座標を算出する
     let planeLocateCanvas: Point = this.calcCoordinate(
-      {
-        x: screenX,
-        y: screenY
-      },
+      createPoint(screenX, screenY),
       oldAngle
     ).planeLocateCanvas;
 

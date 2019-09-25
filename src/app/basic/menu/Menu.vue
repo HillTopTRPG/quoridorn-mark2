@@ -574,7 +574,7 @@ export default class Menu extends Vue {
   border-bottom: solid gray 1px;
   padding: 0.5em 1em;
   font-size: 10px;
-  z-index: 99998;
+  z-index: 9;
 
   > *:not(:first-child) {
     margin-left: 1em;

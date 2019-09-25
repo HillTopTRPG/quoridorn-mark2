@@ -29,9 +29,9 @@ export default class EventManager {
   public addListener(target: any, type: string, listener: Function) {
     target.addEventListener(type, listener);
     this.events[this.key] = {
-      target: target,
-      type: type,
-      listener: listener
+      target,
+      type,
+      listener
     };
     return this.key++;
   }
