@@ -20,8 +20,14 @@ export type WindowDeclareInfo = {
   readonly tableInfoList: WindowTableDeclareInfo[];
 };
 
-export type WindowDeclareContentsInfo = {
-  [type in string]: WindowDeclareInfo;
+export type WindowMoveInfo = {
+  mouse: Point;
+  windowKey: string;
+};
+
+export type WindowOpenInfo = {
+  type: string;
+  arg: any;
 };
 
 export type WindowTableInfo = {

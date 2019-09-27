@@ -1,21 +1,28 @@
 <template>
-  <div id="right-pane" ref="pane">
-    <!-- コンテンツ
-    <component
-      :is="windowInfo.type"
-      :windowKey="windowInfo.key"
-      class="_contents"
-      :style="{ fontSize: fontSize + 'px' }"
+  <div id="right-pane" ref="pane" :class="{ minimized: isMinimized }">
+    <!-- コンテンツ -->
+    <pane-frame
+      v-for="(windowInfo, key) in windowInfoList"
+      :key="key"
+      :windowInfo="windowInfo"
       @wheel.stop
     />
-    -->
-    <resize-knob side="left" @leftDown="leftDown" />
+
+    <div class="pane-knob" @click="onClickPaneKnob(!isMinimized)">
+      <span
+        :class="{
+          'icon-arrow-right': !isMinimized,
+          'icon-arrow-left': isMinimized
+        }"
+      ></span>
+    </div>
+    <resize-knob v-if="!isMinimized" side="left" @leftDown="leftDown" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { WindowInfo } from "@/@types/window";
+import { WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { Point, Rectangle } from "@/@types/address";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -23,9 +30,11 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import { createRectangle, createSize, isContain } from "@/app/core/Coordinate";
 import { getCssPxNum } from "@/app/core/Css";
+import WindowManager from "@/app/core/window/WindowManager";
+import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
 
 @Component({
-  components: { ResizeKnob }
+  components: { PaneFrame, ResizeKnob }
 })
 export default class RightPane extends Vue {
   private windowInfoList: WindowInfo[] = [];
@@ -36,26 +45,47 @@ export default class RightPane extends Vue {
   private fontSize: number = 12;
   private isMounted: boolean = false;
 
-  private top: number = 2;
   private width: number = 100;
-  private bottom: number = 50;
 
   private mounted() {
     this.isMounted = true;
   }
 
   @TaskProcessor("window-moving-finished")
-  private async onWindowMoving(task: Task<Point>): Promise<string | void> {
+  private async onWindowMoving(
+    task: Task<WindowMoveInfo>
+  ): Promise<string | void> {
     const panePointRectangle = this.getPaneRectangle();
-    if (isContain(panePointRectangle, task.value!)) {
-      window.console.log("含まれてます！！");
+    if (isContain(panePointRectangle, task.value!.mouse)) {
+      const key = task.value!.windowKey;
+      window.console.log("含まれてます！！", key);
+      const index = this.windowInfoList.findIndex(info => info.key === key);
+      // 既に追加されていたら処理しない
+      if (index > -1) return;
+
+      this.windowInfoList.push(WindowManager.instance.getWindowInfo(key));
+      this.hoverWindowKey = key;
+
+      let arrangeWidth: number;
+      arrangeWidth = Math.max(this.width, this.minWidth);
+      arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
+      this.diffX = this.width - arrangeWidth;
+    } else {
+      if (this.hoverWindowKey) {
+        const index = this.windowInfoList.findIndex(
+          info => info.key === this.hoverWindowKey
+        );
+        this.windowInfoList.splice(index, 1);
+        this.hoverWindowKey = null;
+        this.diffX = 0;
+      }
     }
   }
 
   private getPaneRectangle(): Rectangle {
-    const top = getCssPxNum("--right-pane-top", this.appElm);
+    const top = getCssPxNum("--menu-bar-height", this.appElm);
     const width = getCssPxNum("--right-pane-width", this.appElm);
-    const bottom = getCssPxNum("--right-pane-bottom", this.appElm);
+    const bottom = getCssPxNum("--window-title-height", this.appElm);
     const windowSize = createSize(window.innerWidth, window.innerHeight);
     return createRectangle(
       windowSize.width - width,
@@ -65,8 +95,15 @@ export default class RightPane extends Vue {
     );
   }
 
+  private isMinimized: boolean = false;
+  private hoverWindowKey: string | null = null;
+
+  private onClickPaneKnob(flg: boolean) {
+    this.isMinimized = flg;
+  }
+
   private get minWidth() {
-    if (!this.windowInfoList.length) return 20;
+    if (!this.windowInfoList.length) return 50;
     return Math.min(
       ...this.windowInfoList.map(info =>
         info.declare.minSize ? info.declare.minSize.width : 0
@@ -75,10 +112,10 @@ export default class RightPane extends Vue {
   }
 
   private get maxWidth() {
-    if (!this.windowInfoList.length) return 1000;
+    if (!this.windowInfoList.length) return 50;
     return Math.max(
       ...this.windowInfoList.map(info =>
-        info.declare.minSize ? info.declare.minSize.width : 1000
+        info.declare.maxSize ? info.declare.maxSize.width : 1000
       )
     );
   }
@@ -103,6 +140,7 @@ export default class RightPane extends Vue {
     this.width -= this.diffX;
 
     this.diffX = 0;
+    this.hoverWindowKey = null;
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -131,18 +169,11 @@ export default class RightPane extends Vue {
   }
 
   private get appElm(): HTMLDivElement {
-    return document.querySelector("#app");
+    return document.querySelector("#app") as HTMLDivElement;
   }
 
   private get paneElm(): HTMLDivElement {
     return this.$refs.pane as HTMLDivElement;
-  }
-
-  @Watch("isMounted")
-  @Watch("top")
-  private onChangeTop() {
-    if (!this.isMounted) return;
-    this.appElm.style.setProperty("--right-pane-top", `${this.top}em`);
   }
 
   @Watch("isMounted")
@@ -152,13 +183,6 @@ export default class RightPane extends Vue {
     if (!this.isMounted) return;
     const width = this.width - this.diffX;
     this.appElm.style.setProperty("--right-pane-width", `${width}px`);
-  }
-
-  @Watch("isMounted")
-  @Watch("bottom")
-  private onChangeWindowHeight() {
-    if (!this.isMounted) return;
-    this.appElm.style.setProperty("--right-pane-bottom", `${this.bottom}px`);
   }
 
   @Watch("isMounted")
@@ -175,21 +199,62 @@ export default class RightPane extends Vue {
 
 #right-pane {
   position: fixed;
-  display: block;
-  padding: 8px 8px 8px 8px;
+  padding: 0;
   overflow: visible;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--theme-color);
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
   border: solid gray 1px;
+  border-top-width: 0;
   border-right-width: 0;
   box-sizing: border-box;
-  /*left: var(--x);*/
-  top: var(--right-pane-top);
+  top: var(--menu-bar-height);
   width: var(--right-pane-width);
-  bottom: var(--right-pane-bottom);
+  bottom: var(--window-title-height);
   right: 0;
-  /*font-size: var(--fontSize);*/
+  font-size: var(--fontSize);
   z-index: 10;
+
+  &.minimized {
+    right: calc(var(--right-pane-width) * -1);
+  }
+
+  .pane-knob {
+    position: absolute;
+    @include flex-box(row, center, center);
+    height: 100px;
+    width: 20px;
+    top: 5px;
+    right: 100%;
+    border-style: solid;
+    border-width: 1px;
+    border-color: inherit;
+    background-color: inherit;
+    background-image: linear-gradient(
+      -45deg,
+      transparent 25%,
+      var(--theme-color-accent) 25%,
+      var(--theme-color-accent) 50%,
+      transparent 50%,
+      transparent 75%,
+      var(--theme-color-accent) 75%,
+      var(--theme-color-accent)
+    );
+    background-size: 20px 20px;
+    background-attachment: local;
+    box-sizing: border-box;
+    vertical-align: middle;
+    cursor: pointer;
+    z-index: 2;
+    font-size: 14px;
+
+    .icon-arrow-left {
+      justify-self: flex-start;
+    }
+
+    .icon-arrow-right {
+      justify-self: flex-end;
+    }
+  }
 }
 
 ._contents {

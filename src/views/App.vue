@@ -24,6 +24,7 @@ import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
 import { createPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/basic/common/pane/RightPane.vue";
+import CssManager from "@/app/core/css/CssManager";
 
 @Component({
   components: {
@@ -56,8 +57,9 @@ export default class App extends Vue {
    * ライフサイクル
    */
   public async mounted() {
-    await WindowManager.instance.open("test-window");
-    await WindowManager.instance.open("test-window");
+    await WindowManager.instance.open<never>("test-window");
+    await WindowManager.instance.open<never>("test-window");
+    CssManager.instance.setGlobalCss();
   }
 
   /**
@@ -66,7 +68,7 @@ export default class App extends Vue {
    */
   @EventProcessor("wheel")
   private async onWheel(event: any) {
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<boolean>({
       type: "action-wheel",
       owner: "Quoridorn",
       value: event.wheelDelta > 0

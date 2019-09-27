@@ -1,13 +1,12 @@
 import {
   WindowDeclareInfo,
   WindowInfo,
-  WindowTableInfo,
-  WindowTaskInfo
+  WindowOpenInfo,
+  WindowTableInfo
 } from "@/@types/window";
 import TaskManager from "@/app/core/task/TaskManager";
-import { Task } from "@/@types/task";
 import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
-import { Anchor, Point } from "@/@types/address";
+import { Point } from "@/@types/address";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -33,6 +32,10 @@ export default class WindowManager {
 
   public get windowInfoList() {
     return this.__windowInfoList;
+  }
+
+  public getWindowInfo(key: string): WindowInfo {
+    return this.__windowInfoList.filter(info => info.key === key)[0];
   }
 
   private resist(type: string, declare: WindowDeclareInfo): string {
@@ -94,12 +97,12 @@ export default class WindowManager {
     });
   }
 
-  public async open(type: string) {
+  public async open<T>(type: string, arg?: T) {
     const key = this.resist(type, this.windowDeclareInfoContainer[type]);
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<WindowOpenInfo>({
       type: "window-open",
       owner: "Quoridorn",
-      value: key
+      value: { type, arg }
     });
   }
 }

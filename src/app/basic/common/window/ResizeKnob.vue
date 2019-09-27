@@ -32,7 +32,7 @@ export default class ResizeKnob extends Vue {
 .knob-right-top,
 .knob-right-bottom {
   position: absolute;
-  z-index: 90;
+  z-index: 1;
 }
 
 .knob-left,

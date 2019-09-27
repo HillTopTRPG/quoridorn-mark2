@@ -21,6 +21,7 @@ export function createRectangle(
 }
 
 export function isContain(r: Rectangle, p: Point) {
+  if (!r || !p) return false;
   if (p.x < r.x) return false;
   if (p.x > r.x + r.width) return false;
   if (p.y < r.y) return false;

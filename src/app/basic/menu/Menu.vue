@@ -570,9 +570,11 @@ export default class Menu extends Vue {
   top: 0;
   left: 0;
   width: 100%;
+  height: var(--menu-bar-height);
   background: linear-gradient(rgba(247, 248, 249, 1), rgba(0, 0, 0, 0));
   border-bottom: solid gray 1px;
   padding: 0.5em 1em;
+  box-sizing: border-box;
   font-size: 10px;
   z-index: 9;
 

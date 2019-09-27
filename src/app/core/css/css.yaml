@@ -1,0 +1,8 @@
+- property: --window-title-height
+  value: 1.5rem
+- property: --menu-bar-height
+  value: 2rem
+- property: --theme-color
+  value: rgba(250, 255, 255, 0.85)
+- property: --theme-color-accent
+  value: rgba(250, 255, 255, 0.9)

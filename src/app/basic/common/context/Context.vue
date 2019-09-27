@@ -64,7 +64,7 @@ export default class Context extends Vue {
   // @Logging
   private async emitEvent(emitName: string) {
     this.hide();
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<void>({
       type: emitName,
       owner: "Quoridorn",
       value: null

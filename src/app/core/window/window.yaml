@@ -7,7 +7,7 @@
     width: 350
     height: 200
   minSize:
-    width: 300
+    width: 150
     height: 150
   maxSize:
     width: 500

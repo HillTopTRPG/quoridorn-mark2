@@ -111,8 +111,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { WindowInfo } from "@/@types/window";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { Point, Rectangle, Size } from "@/@types/address";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -164,7 +164,7 @@ export default class WindowFrame extends Vue {
 
   private async activeWindow() {
     if (this.windowInfo.isMinimized) return;
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string>({
       type: "window-active",
       owner: "Quoridorn",
       value: this.key
@@ -223,10 +223,13 @@ export default class WindowFrame extends Vue {
       // 登録したタスクに完了通知
       if (task.resolve) task.resolve(task);
 
-      await TaskManager.instance.ignition<Point>({
+      await TaskManager.instance.ignition<WindowMoveInfo>({
         type: "window-moving",
         owner: "Quoridorn",
-        value: point
+        value: {
+          mouse: point,
+          windowKey: this.key
+        }
       });
       return;
     }
@@ -301,7 +304,7 @@ export default class WindowFrame extends Vue {
   }
 
   private async closeWindow(): Promise<void> {
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string>({
       type: "window-close",
       owner: "Quoridorn",
       value: this.key
@@ -471,7 +474,7 @@ export default class WindowFrame extends Vue {
   overflow: visible;
   min-height: 50px;
   border-radius: 8px 8px 0 0;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--theme-color);
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
   border: solid gray 1px;
   box-sizing: border-box;
@@ -484,8 +487,8 @@ export default class WindowFrame extends Vue {
 
   &.minimized {
     width: 100px !important;
-    height: 1.5rem !important;
-    top: calc(100% - 1.5rem) !important;
+    height: var(--window-title-height) !important;
+    top: calc(100% - var(--window-title-height)) !important;
     left: calc(
       100% - 100px * (var(--windowMinimizeLength) - var(--windowMinimizeIndex))
     ) !important;
@@ -518,7 +521,7 @@ export default class WindowFrame extends Vue {
   visibility: hidden;
   display: block;
   position: absolute;
-  top: calc(-1.5em - 1px);
+  top: calc(var(--window-title-height) * -1 - 1px);
   right: 0.5em;
   padding: 0 0.5em;
   min-width: 5em;
@@ -534,21 +537,19 @@ export default class WindowFrame extends Vue {
 }
 
 ._contents {
-  position: relative;
-  overflow: visible;
   width: 100%;
   height: 100%;
-  display: block;
-  z-index: 91;
+  z-index: 1;
 }
 
 .window-title {
-  @include flex-box(row, space-between, center);
+  @include flex-box(row, flex-end, center);
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 1.5rem;
+  background-color: var(--theme-color-accent);
+  height: var(--window-title-height);
   border-radius: 8px 8px 0 0;
   border-bottom: solid rgba(0, 0, 0, 0.2) 1px;
   cursor: move;
@@ -579,11 +580,13 @@ export default class WindowFrame extends Vue {
   .title-message-area {
     overflow-x: hidden;
     text-overflow: ellipsis;
+    margin-right: auto;
   }
 
   .fontSizeSlider {
     @include flex-box(row, center, center);
     font-size: 10px;
+    margin-right: auto;
     color: #444;
 
     input[type="range"] {
