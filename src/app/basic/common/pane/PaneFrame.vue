@@ -4,8 +4,6 @@
     <div
       class="pane-frame-title"
       :class="{ fix: !windowInfo.declare.resizable }"
-      @mousedown.left.stop="leftDown($event)"
-      @touchstart.stop="leftDown($event)"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
@@ -52,21 +50,18 @@
       :is="windowInfo.type"
       :windowKey="windowInfo.key"
       class="_contents"
-      :style="{ fontSize: fontSize + 'px' }"
       @wheel.stop
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { WindowInfo, WindowMoveInfo } from "@/@types/window";
-import { Point, Rectangle, Size } from "@/@types/address";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { WindowInfo } from "@/@types/window";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task } from "@/@types/task";
-import { createPoint, createRectangle } from "@/app/core/Coordinate";
+import TaskManager from "@/app/core/task/TaskManager";
+import { calcWindowPosition } from "@/app/core/Coordinate";
+import { getCssPxNum } from "@/app/core/Css";
 
 @Component({
   components: { ResizeKnob }
@@ -75,13 +70,6 @@ export default class PaneFrame extends Vue {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo;
 
-  private dragFrom: Point = createPoint(0, 0);
-  private diff: Rectangle = createRectangle(0, 0, 0, 0);
-
-  private fontSize: number = 12;
-  private standImageSize: string = "192*256";
-  private standImageWidth: number = 192;
-  private standImageHeight: number = 256;
   private isMounted: boolean = false;
 
   private mounted() {
@@ -92,20 +80,30 @@ export default class PaneFrame extends Vue {
     return `right-pane-${this.windowInfo.key}`;
   }
 
-  private leftDown(event: MouseEvent, side?: string): void {
-    if (this.windowInfo.isMinimized) return;
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.key,
-      type: side || ""
+  private async closeWindow(): Promise<void> {
+    await TaskManager.instance.ignition<string>({
+      type: "window-close",
+      owner: "Quoridorn",
+      value: this.key
     });
-    TaskManager.instance.setTaskParam<MouseMoveParam>(
-      "mouse-move-end-left-finished",
-      {
-        key: this.key,
-        type: side || ""
-      }
-    );
-    this.dragFrom = createPoint(event.pageX, event.pageY);
+  }
+
+  private async normalizeWindow() {
+    this.windowInfo.status = "window";
+
+    const windowSize = this.windowInfo.declare.size;
+    const position = this.windowInfo.declare.position;
+    const menuHeight = getCssPxNum("height", document.querySelector(
+      "#menu"
+    ) as HTMLElement);
+    const point = calcWindowPosition(position, windowSize, menuHeight);
+    this.windowInfo.x = point.x;
+    this.windowInfo.y = point.y;
+    await TaskManager.instance.ignition<string>({
+      type: "window-active",
+      owner: "Quoridorn",
+      value: this.windowInfo.key
+    });
   }
 }
 </script>

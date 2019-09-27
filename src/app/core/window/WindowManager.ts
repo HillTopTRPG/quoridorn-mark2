@@ -7,6 +7,7 @@ import {
 import TaskManager from "@/app/core/task/TaskManager";
 import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
+import { getCssPxNum } from "@/app/core/Css";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -22,6 +23,9 @@ export default class WindowManager {
   }
   private static _instance: WindowManager;
   private static readonly arrangeDistance = 24;
+
+  public static createFilter = (status: string) => (list: WindowInfo[]) =>
+    list.filter(info => info.status.indexOf(status) > -1);
 
   // コンストラクタの隠蔽
   private constructor() {}
@@ -48,15 +52,18 @@ export default class WindowManager {
       })
     );
 
-    const menuHeight = 30;
     const windowSize = declare.size;
     const position = declare.position;
+    const menuHeight = getCssPxNum("height", document.querySelector(
+      "#menu"
+    ) as HTMLElement);
     const point = calcWindowPosition(position, windowSize, menuHeight);
 
     const key = `window-${this.key++}`;
     this.__windowInfoList.push({
       key,
       title: declare.title,
+      status: "window",
       message: declare.message,
       type,
       declare,

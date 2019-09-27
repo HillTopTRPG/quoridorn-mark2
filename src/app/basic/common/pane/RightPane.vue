@@ -2,7 +2,7 @@
   <div id="right-pane" ref="pane" :class="{ minimized: isMinimized }">
     <!-- コンテンツ -->
     <pane-frame
-      v-for="(windowInfo, key) in windowInfoList"
+      v-for="(windowInfo, key) in filteredWindowInfoList"
       :key="key"
       :windowInfo="windowInfo"
       @wheel.stop
@@ -37,7 +37,7 @@ import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
   components: { PaneFrame, ResizeKnob }
 })
 export default class RightPane extends Vue {
-  private windowInfoList: WindowInfo[] = [];
+  private windowInfoList: WindowInfo[] = WindowManager.instance.windowInfoList;
 
   private dragFrom: number = 0;
   private diffX: number = 0;
@@ -45,10 +45,14 @@ export default class RightPane extends Vue {
   private fontSize: number = 12;
   private isMounted: boolean = false;
 
-  private width: number = 100;
+  private width: number = 50;
 
   private mounted() {
     this.isMounted = true;
+  }
+
+  private get filteredWindowInfoList() {
+    return WindowManager.createFilter("right-pane")(this.windowInfoList);
   }
 
   @TaskProcessor("window-moving-finished")
@@ -58,12 +62,11 @@ export default class RightPane extends Vue {
     const panePointRectangle = this.getPaneRectangle();
     if (isContain(panePointRectangle, task.value!.mouse)) {
       const key = task.value!.windowKey;
-      window.console.log("含まれてます！！", key);
-      const index = this.windowInfoList.findIndex(info => info.key === key);
+      const windowInfo = WindowManager.instance.getWindowInfo(key);
       // 既に追加されていたら処理しない
-      if (index > -1) return;
+      if (windowInfo.status === "right-pane") return;
 
-      this.windowInfoList.push(WindowManager.instance.getWindowInfo(key));
+      windowInfo.status = "window-right-pane";
       this.hoverWindowKey = key;
 
       let arrangeWidth: number;
@@ -72,14 +75,37 @@ export default class RightPane extends Vue {
       this.diffX = this.width - arrangeWidth;
     } else {
       if (this.hoverWindowKey) {
-        const index = this.windowInfoList.findIndex(
-          info => info.key === this.hoverWindowKey
+        const windowInfo = WindowManager.instance.getWindowInfo(
+          this.hoverWindowKey
         );
-        this.windowInfoList.splice(index, 1);
+        if (windowInfo.status === "window-right-pane") {
+          windowInfo.status = "window";
+        }
         this.hoverWindowKey = null;
         this.diffX = 0;
       }
     }
+  }
+
+  @TaskProcessor("mouse-move-end-left-finished")
+  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+    this.width -= this.diffX;
+
+    this.diffX = 0;
+
+    if (this.hoverWindowKey) {
+      const windowInfo = WindowManager.instance.getWindowInfo(
+        this.hoverWindowKey
+      );
+      windowInfo.status = "right-pane";
+      this.hoverWindowKey = null;
+    }
+
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
   private getPaneRectangle(): Rectangle {
@@ -103,18 +129,18 @@ export default class RightPane extends Vue {
   }
 
   private get minWidth() {
-    if (!this.windowInfoList.length) return 50;
+    if (!this.filteredWindowInfoList.length) return 50;
     return Math.min(
-      ...this.windowInfoList.map(info =>
+      ...this.filteredWindowInfoList.map(info =>
         info.declare.minSize ? info.declare.minSize.width : 0
       )
     );
   }
 
   private get maxWidth() {
-    if (!this.windowInfoList.length) return 50;
+    if (!this.filteredWindowInfoList.length) return 50;
     return Math.max(
-      ...this.windowInfoList.map(info =>
+      ...this.filteredWindowInfoList.map(info =>
         info.declare.maxSize ? info.declare.maxSize.width : 1000
       )
     );
@@ -133,20 +159,6 @@ export default class RightPane extends Vue {
       }
     );
     this.dragFrom = event.pageX;
-  }
-
-  @TaskProcessor("mouse-move-end-left-finished")
-  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
-    this.width -= this.diffX;
-
-    this.diffX = 0;
-    this.hoverWindowKey = null;
-
-    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
-    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
-
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
   }
 
   @TaskProcessor("mouse-moving-finished")

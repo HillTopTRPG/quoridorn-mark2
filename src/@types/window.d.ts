@@ -43,9 +43,12 @@ export interface WindowTaskInfo {
   readonly parentKey?: string;
 }
 
+type WindowStatus = "window" | "window-right-pane" | "right-pane";
+
 export interface WindowInfo extends Rectangle, WindowTaskInfo {
   readonly key: string;
   readonly title: string;
+  status: WindowStatus;
   message: string;
   order: number;
   isLocked: boolean;

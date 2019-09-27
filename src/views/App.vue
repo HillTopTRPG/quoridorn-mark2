@@ -46,20 +46,20 @@ export default class App extends Vue {
     // nekostore_test_client();
   }
 
-  /**
-   * ライフサイクル
-   */
+  /** ライフサイクル */
   public async created() {
     await this.presetImageLoad();
   }
 
-  /**
-   * ライフサイクル
-   */
-  public async mounted() {
-    await WindowManager.instance.open<never>("test-window");
-    await WindowManager.instance.open<never>("test-window");
+  /** ライフサイクル */
+  private async beforeMount() {
     CssManager.instance.setGlobalCss();
+  }
+
+  /** ライフサイクル */
+  public async mounted() {
+    WindowManager.instance.open<never>("test-window");
+    WindowManager.instance.open<never>("test-window");
   }
 
   /**
