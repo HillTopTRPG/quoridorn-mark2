@@ -4,6 +4,10 @@
     <div
       class="pane-frame-title"
       :class="{ fix: !windowInfo.declare.resizable }"
+      v-show="
+        !windowInfo.status.endsWith('-window') &&
+          !windowInfo.status.startsWith('window-')
+      "
       @mousedown.left="leftDown"
       @contextmenu.prevent
     >
@@ -16,43 +20,26 @@
       </div>
 
       <!-- 通常化 -->
-      <span class="title-icon-area">
-        <i
-          class="icon-arrow-up-right window-normalize"
-          @click.left.stop="normalizeWindow"
-          @keydown.space.stop="normalizeWindow"
-          @keydown.enter.stop="normalizeWindow"
-          @keydown.229.stop
-          @keyup.229.stop
-          :tabindex="0"
-        ></i>
-      </span>
+      <title-icon className="icon-arrow-down-left" @emit="normalizeWindow" />
 
       <!-- 閉じる -->
-      <span class="title-icon-area">
-        <i
-          class="icon-cross window-close"
-          @click.left.stop="closeWindow"
-          @keydown.space.stop="closeWindow"
-          @keydown.enter.stop="closeWindow"
-          @keydown.229.stop
-          @keyup.229.stop
-          :tabindex="0"
-        ></i>
-      </span>
-    </div>
-
-    <div class="window-title-balloon" v-if="windowInfo.isMinimizeAnimationEnd">
-      {{ windowInfo.title }}
+      <title-icon className="icon-cross" @emit="closeWindow" />
     </div>
 
     <!-- コンテンツ -->
     <component
       :is="windowInfo.type"
       :windowKey="windowInfo.key"
+      v-show="
+        !windowInfo.status.endsWith('-window') &&
+          !windowInfo.status.startsWith('window-')
+      "
       class="_contents"
       @wheel.stop
     />
+
+    <div v-if="windowInfo.status.endsWith('-window')" class="removing"></div>
+    <div v-if="windowInfo.status.startsWith('window-')" class="inserting"></div>
   </div>
 </template>
 
@@ -70,9 +57,10 @@ import { getCssPxNum } from "@/app/core/Css";
 import { Point, Rectangle } from "@/@types/address";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
+import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
 
 @Component({
-  components: { ResizeKnob }
+  components: { TitleIcon, ResizeKnob }
 })
 export default class PaneFrame extends Vue {
   @Prop({ type: Object, required: true })
@@ -199,7 +187,7 @@ export default class PaneFrame extends Vue {
 .pane-frame {
   position: relative;
   display: block;
-  padding: 29px 8px 8px 8px;
+  padding: calc(var(--window-title-height) + 9px) 8px 8px 8px;
   overflow: visible;
   min-height: 50px;
   /*background-color: rgba(255, 255, 255, 0.8);*/
@@ -208,7 +196,7 @@ export default class PaneFrame extends Vue {
   left: var(--windowX);
   top: var(--windowY);
   width: 100%;
-  height: var(--windowHeight);
+  height: calc(var(--windowHeight) + var(--window-title-height));
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);
 
@@ -329,36 +317,44 @@ export default class PaneFrame extends Vue {
       }
     }
   }
-
-  /*.title-icon-area {*/
-  /*justify-self: flex-end;*/
-  /*align-self: flex-end;*/
-  /*}*/
-
-  .title-icon-area i {
-    display: block;
-    padding: 3px;
-    font-size: 8px;
-    border: 2px solid rgba(0, 0, 0, 0.5);
-    color: rgba(0, 0, 0, 0.5);
-    transform-origin: right;
-    transform: scale(0.8) translateX(0);
-    cursor: pointer;
-    white-space: nowrap;
-
-    &:hover {
-      border-color: black;
-      color: black;
-    }
-  }
 }
 
-.standImage {
+.inserting,
+.removing {
   position: absolute;
-  bottom: calc(100% + 1px);
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding-top: calc(var(--window-title-height) + 3px);
+  border-bottom: solid gray 1px;
+  background-size: 20px 20px;
+  background-attachment: fixed;
+}
 
-  &:hover {
-    outline: solid 1px magenta;
-  }
+.inserting {
+  background-image: linear-gradient(
+    -45deg,
+    yellow 25%,
+    cyan 25%,
+    cyan 50%,
+    yellow 50%,
+    yellow 75%,
+    cyan 75%,
+    cyan
+  );
+}
+
+.removing {
+  background-image: linear-gradient(
+    -45deg,
+    yellow 25%,
+    orange 25%,
+    orange 50%,
+    yellow 50%,
+    yellow 75%,
+    orange 75%,
+    orange
+  );
 }
 </style>

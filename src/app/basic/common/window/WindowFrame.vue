@@ -44,43 +44,25 @@
       </label>
 
       <!-- 最小化 -->
-      <span class="title-icon-area" v-if="!windowInfo.isMinimized">
-        <i
-          class="icon-minus window-minimize"
-          @click.left.stop="minimizeWindow"
-          @keydown.space.stop="minimizeWindow"
-          @keydown.enter.stop="minimizeWindow"
-          @keydown.229.stop
-          @keyup.229.stop
-          :tabindex="0"
-        ></i>
-      </span>
+      <title-icon
+        className="icon-minus"
+        @emit="minimizeWindow"
+        v-if="!windowInfo.isMinimized"
+      />
 
       <!-- 通常化 -->
-      <span class="title-icon-area" v-if="windowInfo.isMinimized">
-        <i
-          class="icon-arrow-up-left window-normalize"
-          @click.left.stop="normalizeWindow"
-          @keydown.space.stop="normalizeWindow"
-          @keydown.enter.stop="normalizeWindow"
-          @keydown.229.stop
-          @keyup.229.stop
-          :tabindex="0"
-        ></i>
-      </span>
+      <title-icon
+        className="icon-arrow-up-left"
+        @emit="normalizeWindow"
+        v-if="windowInfo.isMinimized"
+      />
 
       <!-- 閉じる -->
-      <span class="title-icon-area" v-if="windowInfo.declare.closable">
-        <i
-          class="icon-cross window-close"
-          @click.left.stop="closeWindow"
-          @keydown.space.stop="closeWindow"
-          @keydown.enter.stop="closeWindow"
-          @keydown.229.stop
-          @keyup.229.stop
-          :tabindex="0"
-        ></i>
-      </span>
+      <title-icon
+        className="icon-cross"
+        @emit="closeWindow"
+        v-if="windowInfo.declare.closable"
+      />
     </div>
 
     <div class="window-title-balloon" v-if="windowInfo.isMinimizeAnimationEnd">
@@ -119,9 +101,11 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import { createPoint, createRectangle } from "@/app/core/Coordinate";
+import Logging from "@/app/core/logger/Logging";
+import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
 
 @Component({
-  components: { ResizeKnob }
+  components: { TitleIcon, ResizeKnob }
 })
 export default class WindowFrame extends Vue {
   @Prop({ type: Object, required: true })
@@ -172,6 +156,7 @@ export default class WindowFrame extends Vue {
   }
 
   @TaskProcessor("mouse-move-end-left-finished")
+  @Logging
   private async mouseLeftUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
@@ -311,6 +296,7 @@ export default class WindowFrame extends Vue {
     });
   }
 
+  @Logging
   private async minimizeWindow(): Promise<void> {
     await TaskManager.instance.ignition({
       type: "window-minimize",

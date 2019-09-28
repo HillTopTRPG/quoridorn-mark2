@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?pruihr');
-  src:  url('fonts/icomoon.eot?pruihr#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?pruihr') format('truetype'),
-    url('fonts/icomoon.woff?pruihr') format('woff'),
-    url('fonts/icomoon.svg?pruihr#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?dws72h');
+  src:  url('fonts/icomoon.eot?dws72h#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?dws72h') format('truetype'),
+    url('fonts/icomoon.woff?dws72h') format('woff'),
+    url('fonts/icomoon.svg?dws72h#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -130,11 +130,23 @@
 .icon-arrow-up-left:before {
   content: "\ea31";
 }
+.icon-arrow-up:before {
+  content: "\ea32";
+}
 .icon-arrow-up-right:before {
   content: "\ea33";
 }
 .icon-arrow-right:before {
   content: "\ea34";
+}
+.icon-arrow-down-right:before {
+  content: "\ea35";
+}
+.icon-arrow-down:before {
+  content: "\ea36";
+}
+.icon-arrow-down-left:before {
+  content: "\ea37";
 }
 .icon-arrow-left:before {
   content: "\ea38";
@@ -147,6 +159,9 @@
 }
 .icon-font:before {
   content: "\ea5c";
+}
+.icon-new-tab:before {
+  content: "\ea7e";
 }
 .icon-twitter:before {
   content: "\ea96";
