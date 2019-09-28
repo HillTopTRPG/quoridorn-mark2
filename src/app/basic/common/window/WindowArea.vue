@@ -1,8 +1,9 @@
 <template>
   <div id="window-area">
     <window-frame
-      v-for="(windowInfo, key) in filteredWindowInfoList"
+      v-for="(windowInfo, key) in windowInfoList"
       :key="key"
+      v-show="windowInfo.status.indexOf('window') > -1"
       :windowInfo="windowInfo"
     />
   </div>
@@ -15,17 +16,14 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import { WindowInfo } from "@/@types/window";
 import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
-import WindowManager from "@/app/core/window/WindowManager";
+import WindowManager from "@/app/basic/common/window/WindowManager";
+import Logging from "@/app/core/logger/Logging";
 
 @Component({
   components: { WindowFrame, TestWindow }
 })
 export default class WindowArea extends Vue {
   private windowInfoList: WindowInfo[] = WindowManager.instance.windowInfoList;
-
-  private get filteredWindowInfoList() {
-    return WindowManager.createFilter("window")(this.windowInfoList);
-  }
 
   @TaskProcessor("window-close-finished")
   private async closeWindow(task: Task<string>): Promise<string | void> {
@@ -40,6 +38,7 @@ export default class WindowArea extends Vue {
   }
 
   @TaskProcessor("window-minimize-finished")
+  @Logging
   private async minimizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
@@ -56,6 +55,7 @@ export default class WindowArea extends Vue {
   }
 
   @TaskProcessor("window-normalize-finished")
+  @Logging
   private async normalizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];

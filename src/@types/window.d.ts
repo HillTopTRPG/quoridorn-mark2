@@ -43,7 +43,14 @@ export interface WindowTaskInfo {
   readonly parentKey?: string;
 }
 
-type WindowStatus = "window" | "window-right-pane" | "right-pane";
+type WindowStatus =
+  | "left-pane"
+  | "left-pane-window"
+  | "window-left-pane"
+  | "window"
+  | "window-right-pane"
+  | "right-pane-window"
+  | "right-pane";
 
 export interface WindowInfo extends Rectangle, WindowTaskInfo {
   readonly key: string;
@@ -51,6 +58,8 @@ export interface WindowInfo extends Rectangle, WindowTaskInfo {
   status: WindowStatus;
   message: string;
   order: number;
+  paneY: number;
+  paneOrder: number;
   isLocked: boolean;
   isMinimized: boolean;
   minimizeIndex: number;

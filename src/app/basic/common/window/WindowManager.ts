@@ -3,11 +3,11 @@ import {
   WindowInfo,
   WindowOpenInfo,
   WindowTableInfo
-} from "@/@types/window";
-import TaskManager from "@/app/core/task/TaskManager";
-import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
-import { Point } from "@/@types/address";
-import { getCssPxNum } from "@/app/core/Css";
+} from "../../../../@types/window";
+import TaskManager from "../../../core/task/TaskManager";
+import { calcWindowPosition, createPoint } from "../../../core/Coordinate";
+import { Point } from "../../../../@types/address";
+import { getCssPxNum } from "../../../core/Css";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -22,7 +22,6 @@ export default class WindowManager {
     return this._instance;
   }
   private static _instance: WindowManager;
-  private static readonly arrangeDistance = 24;
 
   public static createFilter = (status: string) => (list: WindowInfo[]) =>
     list.filter(info => info.status.indexOf(status) > -1);
@@ -70,6 +69,8 @@ export default class WindowManager {
       ...point,
       ...windowSize,
       order: this.__windowInfoList.length,
+      paneOrder: this.__windowInfoList.length,
+      paneY: 0,
       isLocked: false,
       isMinimized: false,
       minimizeIndex: 0,
@@ -88,10 +89,9 @@ export default class WindowManager {
       if (info.key === targetKey) return;
       if (info.isMinimized) return;
       if (info.x !== target.x || info.y !== target.y) return;
-      const arrange: Point = createPoint(
-        WindowManager.arrangeDistance,
-        WindowManager.arrangeDistance
-      );
+
+      const arrangeDistance = getCssPxNum("--window-title-height");
+      const arrange: Point = createPoint(arrangeDistance, arrangeDistance);
 
       const position = target.declare.position;
       if (typeof position === "string") {

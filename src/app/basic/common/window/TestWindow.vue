@@ -8,7 +8,7 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
-import WindowManager from "@/app/core/window/WindowManager";
+import WindowManager from "@/app/basic/common/window/WindowManager";
 
 @Component({
   components: { CtrlButton }

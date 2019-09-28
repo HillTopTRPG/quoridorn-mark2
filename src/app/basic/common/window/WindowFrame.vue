@@ -59,7 +59,7 @@
       <!-- 通常化 -->
       <span class="title-icon-area" v-if="windowInfo.isMinimized">
         <i
-          class="icon-arrow-up-right window-normalize"
+          class="icon-arrow-up-left window-normalize"
           @click.left.stop="normalizeWindow"
           @keydown.space.stop="normalizeWindow"
           @keydown.enter.stop="normalizeWindow"

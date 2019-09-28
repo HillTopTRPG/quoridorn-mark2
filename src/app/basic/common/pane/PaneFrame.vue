@@ -4,6 +4,7 @@
     <div
       class="pane-frame-title"
       :class="{ fix: !windowInfo.declare.resizable }"
+      @mousedown.left="leftDown"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
@@ -59,9 +60,16 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { WindowInfo } from "@/@types/window";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
-import TaskManager from "@/app/core/task/TaskManager";
-import { calcWindowPosition } from "@/app/core/Coordinate";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import {
+  calcWindowPosition,
+  createPoint,
+  createRectangle
+} from "@/app/core/Coordinate";
 import { getCssPxNum } from "@/app/core/Css";
+import { Point, Rectangle } from "@/@types/address";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task } from "@/@types/task";
 
 @Component({
   components: { ResizeKnob }
@@ -71,6 +79,9 @@ export default class PaneFrame extends Vue {
   private windowInfo!: WindowInfo;
 
   private isMounted: boolean = false;
+  private dragFrom: Point = createPoint(0, 0);
+  private diff: Point = createPoint(0, 0);
+  private paneRectangle: Rectangle = createRectangle(0, 0, 0, 0);
 
   private mounted() {
     this.isMounted = true;
@@ -78,6 +89,80 @@ export default class PaneFrame extends Vue {
 
   private get key(): string {
     return `right-pane-${this.windowInfo.key}`;
+  }
+
+  private leftDown(event: MouseEvent) {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
+      key: this.key,
+      type: null
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-move-end-left-finished",
+      {
+        key: this.key,
+        type: null
+      }
+    );
+    this.dragFrom = createPoint(event.pageX, event.pageY);
+    const paneFrameElm: HTMLDivElement = this.$refs.paneFrame as HTMLDivElement;
+    this.paneRectangle = paneFrameElm.getBoundingClientRect() as Rectangle;
+  }
+
+  @TaskProcessor("mouse-move-end-left-finished")
+  private async mouseLeftUpFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param && param.key === this.key) {
+      const point = task.value!;
+
+      this.windowInfo.x = point.x - (this.dragFrom.x - this.paneRectangle.x);
+      this.windowInfo.y = point.y - (this.dragFrom.y - this.paneRectangle.y);
+
+      this.dragFrom.x = 0;
+      this.dragFrom.y = 0;
+      this.diff.x = 0;
+      this.diff.y = 0;
+
+      if (
+        this.windowInfo.status === "left-pane-window" ||
+        this.windowInfo.status === "right-pane-window"
+      ) {
+        this.windowInfo.status = "window";
+      }
+    }
+
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  @TaskProcessor("mouse-moving-finished")
+  private async mouseMoveFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param.key !== this.key) return;
+    const point = task.value!;
+
+    // 移動
+    this.diff.x = point.x - this.dragFrom.x;
+    this.diff.y = point.y - this.dragFrom.y;
+
+    if (point.x < this.paneRectangle.x) {
+      this.windowInfo.status = "right-pane-window";
+      this.windowInfo.x = point.x - (this.dragFrom.x - this.paneRectangle.x);
+      this.windowInfo.y = point.y - (this.dragFrom.y - this.paneRectangle.y);
+    } else if (point.x > this.paneRectangle.x + this.paneRectangle.width) {
+      this.windowInfo.status = "left-pane-window";
+    } else {
+      this.windowInfo.status = "right-pane";
+    }
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
   }
 
   private async closeWindow(): Promise<void> {

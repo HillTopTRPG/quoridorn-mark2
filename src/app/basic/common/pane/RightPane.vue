@@ -2,8 +2,9 @@
   <div id="right-pane" ref="pane" :class="{ minimized: isMinimized }">
     <!-- コンテンツ -->
     <pane-frame
-      v-for="(windowInfo, key) in filteredWindowInfoList"
+      v-for="(windowInfo, key) in windowInfoList"
       :key="key"
+      v-show="windowInfo.status.indexOf('right-pane') > -1"
       :windowInfo="windowInfo"
       @wheel.stop
     />
@@ -30,7 +31,7 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import { createRectangle, createSize, isContain } from "@/app/core/Coordinate";
 import { getCssPxNum } from "@/app/core/Css";
-import WindowManager from "@/app/core/window/WindowManager";
+import WindowManager from "@/app/basic/common/window/WindowManager";
 import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
 
 @Component({
@@ -56,7 +57,7 @@ export default class RightPane extends Vue {
   }
 
   @TaskProcessor("window-moving-finished")
-  private async onWindowMoving(
+  private async windowMovingFinished(
     task: Task<WindowMoveInfo>
   ): Promise<string | void> {
     const panePointRectangle = this.getPaneRectangle();

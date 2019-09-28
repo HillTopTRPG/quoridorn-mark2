@@ -8,11 +8,8 @@
       - finished
   types:
     - context-open
-    - window-open
-    - window-active
     - window-minimize
     - window-normalize
-    - window-close
 
 - taskAttribute:
     isPrivate: true
@@ -26,6 +23,9 @@
     - action-wheel
     - window-moving
     - window-move-end
+    - window-open
+    - window-active
+    - window-close
 
 - taskAttribute:
     isPrivate: true
