@@ -1,13 +1,9 @@
 <template>
-  <div class="pane-frame" ref="paneFrame">
+  <div class="pane-frame" ref="paneFrame" :id="key">
     <!-- タイトルバー -->
     <div
       class="pane-frame-title"
       :class="{ fix: !windowInfo.declare.resizable }"
-      v-show="
-        !windowInfo.status.endsWith('-window') &&
-          !windowInfo.status.startsWith('window-')
-      "
       @mousedown.left="leftDown"
       @contextmenu.prevent
     >
@@ -30,22 +26,25 @@
     <component
       :is="windowInfo.type"
       :windowKey="windowInfo.key"
-      v-show="
-        !windowInfo.status.endsWith('-window') &&
-          !windowInfo.status.startsWith('window-')
-      "
+      v-show="!windowInfo.status.startsWith('window-')"
       class="_contents"
       @wheel.stop
     />
 
     <div v-if="windowInfo.status.endsWith('-window')" class="removing"></div>
-    <div v-if="windowInfo.status.startsWith('window-')" class="inserting"></div>
+    <div
+      v-if="
+        windowInfo.status.startsWith('window-') ||
+          windowInfo.status.endsWith('moving')
+      "
+      class="inserting"
+    ></div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { WindowInfo } from "@/@types/window";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { PaneMoveInfo, WindowInfo } from "@/@types/window";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import {
@@ -74,11 +73,13 @@ export default class PaneFrame extends Vue {
   private mounted() {
     this.isMounted = true;
   }
-
   private get key(): string {
     return `right-pane-${this.windowInfo.key}`;
   }
 
+  /**
+   * マウス左ボタン押下イベント処理
+   */
   private leftDown(event: MouseEvent) {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
@@ -92,12 +93,78 @@ export default class PaneFrame extends Vue {
       }
     );
     this.dragFrom = createPoint(event.pageX, event.pageY);
-    const paneFrameElm: HTMLDivElement = this.$refs.paneFrame as HTMLDivElement;
-    this.paneRectangle = paneFrameElm.getBoundingClientRect() as Rectangle;
+    this.paneRectangle = this.paneElm.getBoundingClientRect() as Rectangle;
   }
 
+  /**
+   * マウス左ドラッグ中移動イベント処理
+   * @param task
+   * @param param
+   */
+  @TaskProcessor("mouse-moving-finished")
+  private async mouseMoveFinished(
+    task: Task<Point>,
+    param: MouseMoveParam
+  ): Promise<string | void> {
+    if (param.key !== this.key) return;
+    const point = task.value!;
+
+    // 移動
+    this.diff.x = point.x - this.dragFrom.x;
+    this.diff.y = point.y - this.dragFrom.y;
+
+    const newPoint = createPoint(
+      point.x - (this.dragFrom.x - this.paneRectangle.x),
+      point.y - (this.dragFrom.y - this.paneRectangle.y)
+    );
+
+    const isRight = this.windowInfo.status.indexOf("right") > -1;
+    const isLeft = this.windowInfo.status.indexOf("left") > -1;
+    this.windowInfo.x = newPoint.x;
+    this.windowInfo.y = newPoint.y;
+
+    if (isRight && point.x < this.paneRectangle.x) {
+      // 範囲外に出たので除外中にする
+      this.windowInfo.status = "right-pane-window";
+      await TaskManager.instance.ignition<string>({
+        type: "pane-relocation",
+        owner: "Quoridorn",
+        value: this.windowInfo.key
+      });
+    } else if (
+      isLeft &&
+      point.x > this.paneRectangle.x + this.paneRectangle.width
+    ) {
+      // 範囲外に出たので除外中にする
+      this.windowInfo.status = "left-pane-window";
+      await TaskManager.instance.ignition<string>({
+        type: "pane-relocation",
+        owner: "Quoridorn",
+        value: this.windowInfo.key
+      });
+    } else {
+      // 範囲内
+      await TaskManager.instance.ignition<PaneMoveInfo>({
+        type: isRight ? "right-pane-frame-moving" : "left-pane-frame-moving",
+        owner: "Quoridorn",
+        value: {
+          point: newPoint,
+          windowKey: this.windowInfo.key
+        }
+      });
+    }
+
+    // 登録したタスクに完了通知
+    if (task.resolve) task.resolve(task);
+  }
+
+  /**
+   * マウス左ボタンドラッグ終了イベント処理
+   * @param task
+   * @param param
+   */
   @TaskProcessor("mouse-move-end-left-finished")
-  private async mouseLeftUpFinished(
+  private async mouseMoveEndLeftFinished(
     task: Task<Point>,
     param: MouseMoveParam
   ): Promise<string | void> {
@@ -112,11 +179,27 @@ export default class PaneFrame extends Vue {
       this.diff.x = 0;
       this.diff.y = 0;
 
-      if (
-        this.windowInfo.status === "left-pane-window" ||
-        this.windowInfo.status === "right-pane-window"
-      ) {
+      // 移動によって子画面化の予備軍だった場合は子画面化する
+      if (this.windowInfo.status.endsWith("-window")) {
         this.windowInfo.status = "window";
+        await TaskManager.instance.ignition<string>({
+          type: "pane-relocation",
+          owner: "Quoridorn",
+          value: this.windowInfo.key
+        });
+      }
+
+      // 移動によって子画面化の予備軍だった場合は子画面化する
+      if (this.windowInfo.status.endsWith("moving")) {
+        const isRight = this.windowInfo.status.indexOf("right") > -1;
+        this.windowInfo.status = isRight ? "right-pane" : "left-pane";
+        setTimeout(async () => {
+          await TaskManager.instance.ignition<string>({
+            type: "pane-relocation",
+            owner: "Quoridorn",
+            value: this.windowInfo.key
+          });
+        });
       }
     }
 
@@ -127,32 +210,9 @@ export default class PaneFrame extends Vue {
     if (task.resolve) task.resolve(task);
   }
 
-  @TaskProcessor("mouse-moving-finished")
-  private async mouseMoveFinished(
-    task: Task<Point>,
-    param: MouseMoveParam
-  ): Promise<string | void> {
-    if (param.key !== this.key) return;
-    const point = task.value!;
-
-    // 移動
-    this.diff.x = point.x - this.dragFrom.x;
-    this.diff.y = point.y - this.dragFrom.y;
-
-    if (point.x < this.paneRectangle.x) {
-      this.windowInfo.status = "right-pane-window";
-      this.windowInfo.x = point.x - (this.dragFrom.x - this.paneRectangle.x);
-      this.windowInfo.y = point.y - (this.dragFrom.y - this.paneRectangle.y);
-    } else if (point.x > this.paneRectangle.x + this.paneRectangle.width) {
-      this.windowInfo.status = "left-pane-window";
-    } else {
-      this.windowInfo.status = "right-pane";
-    }
-
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
-  }
-
+  /**
+   * 閉じるイベント
+   */
   private async closeWindow(): Promise<void> {
     await TaskManager.instance.ignition<string>({
       type: "window-close",
@@ -161,22 +221,37 @@ export default class PaneFrame extends Vue {
     });
   }
 
+  /**
+   * 子画面化イベント
+   */
   private async normalizeWindow() {
-    this.windowInfo.status = "window";
-
-    const windowSize = this.windowInfo.declare.size;
-    const position = this.windowInfo.declare.position;
-    const menuHeight = getCssPxNum("height", document.querySelector(
-      "#menu"
-    ) as HTMLElement);
-    const point = calcWindowPosition(position, windowSize, menuHeight);
+    // 現在のサイズのまま、初期配置場所に設置しなおす
+    const point = calcWindowPosition(
+      this.windowInfo.declare.position,
+      this.windowInfo,
+      getCssPxNum("--menu-bar-height")
+    );
     this.windowInfo.x = point.x;
     this.windowInfo.y = point.y;
+
+    this.windowInfo.status = "window";
     await TaskManager.instance.ignition<string>({
-      type: "window-active",
+      type: "pane-relocation",
       owner: "Quoridorn",
       value: this.windowInfo.key
     });
+  }
+
+  private get paneElm(): HTMLDivElement {
+    return this.$refs.paneFrame as HTMLDivElement;
+  }
+
+  @Watch("isMounted")
+  @Watch("windowInfo.paneY")
+  private onChangeWindowY() {
+    if (!this.isMounted) return;
+    const y = this.windowInfo.paneY;
+    this.paneElm.style.setProperty("--paneY", `${y}px`);
   }
 }
 </script>
@@ -185,18 +260,16 @@ export default class PaneFrame extends Vue {
 @import "../../../../assets/common";
 
 .pane-frame {
-  position: relative;
+  position: absolute;
   display: block;
-  padding: calc(var(--window-title-height) + 9px) 8px 8px 8px;
+  padding-top: calc(var(--window-title-height) - 1px);
   overflow: visible;
-  min-height: 50px;
   /*background-color: rgba(255, 255, 255, 0.8);*/
   box-sizing: border-box;
   border-bottom: 1px solid gray;
-  left: var(--windowX);
-  top: var(--windowY);
+  left: 0;
+  top: var(--paneY);
   width: 100%;
-  height: calc(var(--windowHeight) + var(--window-title-height));
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);
 
@@ -236,6 +309,8 @@ export default class PaneFrame extends Vue {
   width: 100%;
   height: 100%;
   z-index: 1;
+  padding: var(--window-padding);
+  box-sizing: border-box;
 }
 
 .pane-frame-title {
@@ -326,35 +401,35 @@ export default class PaneFrame extends Vue {
   top: 0;
   width: 100%;
   height: 100%;
-  padding-top: calc(var(--window-title-height) + 3px);
   border-bottom: solid gray 1px;
   background-size: 20px 20px;
   background-attachment: fixed;
+  z-index: 2;
 }
 
 .inserting {
   background-image: linear-gradient(
     -45deg,
-    yellow 25%,
-    cyan 25%,
-    cyan 50%,
-    yellow 50%,
-    yellow 75%,
-    cyan 75%,
-    cyan
+    rgba(255, 255, 0, 0.4) 25%,
+    rgba(0, 255, 255, 0.4) 25%,
+    rgba(0, 255, 255, 0.4) 50%,
+    rgba(255, 255, 0, 0.4) 50%,
+    rgba(255, 255, 0, 0.4) 75%,
+    rgba(0, 255, 255, 0.4) 75%,
+    rgba(0, 255, 255, 0.4)
   );
 }
 
 .removing {
   background-image: linear-gradient(
     -45deg,
-    yellow 25%,
-    orange 25%,
-    orange 50%,
-    yellow 50%,
-    yellow 75%,
-    orange 75%,
-    orange
+    rgba(255, 255, 0, 0.4) 25%,
+    rgba(255, 0, 255, 0.4) 25%,
+    rgba(255, 0, 255, 0.4) 50%,
+    rgba(255, 255, 0, 0.4) 50%,
+    rgba(255, 255, 0, 0.4) 75%,
+    rgba(255, 0, 255, 0.4) 75%,
+    rgba(255, 0, 255, 0.4)
   );
 }
 </style>

@@ -25,6 +25,11 @@ export type WindowMoveInfo = {
   windowKey: string;
 };
 
+export type PaneMoveInfo = {
+  point: Point;
+  windowKey: string;
+};
+
 export type WindowOpenInfo = {
   type: string;
   arg: any;
@@ -45,12 +50,14 @@ export interface WindowTaskInfo {
 
 type WindowStatus =
   | "left-pane"
+  | "left-pane-moving"
   | "left-pane-window"
   | "window-left-pane"
   | "window"
   | "window-right-pane"
   | "right-pane-window"
-  | "right-pane";
+  | "right-pane"
+  | "right-pane-moving";
 
 export interface WindowInfo extends Rectangle, WindowTaskInfo {
   readonly key: string;

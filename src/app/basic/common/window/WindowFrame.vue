@@ -70,13 +70,14 @@
     </div>
 
     <!-- コンテンツ -->
-    <component
-      :is="windowInfo.type"
-      :windowKey="windowInfo.key"
-      class="_contents"
-      :style="{ fontSize: fontSize + 'px' }"
-      @wheel.stop
-    />
+    <div class="_contents">
+      <component
+        :is="windowInfo.type"
+        :windowKey="windowInfo.key"
+        :style="{ fontSize: fontSize + 'px' }"
+        @wheel.stop
+      />
+    </div>
 
     <!-- サイズ変更つまみ -->
     <template v-if="windowInfo.declare.resizable && !windowInfo.isMinimized">
@@ -456,7 +457,8 @@ export default class WindowFrame extends Vue {
 *[id^="window-"] {
   position: fixed;
   display: block;
-  padding: 29px 8px 8px 8px;
+  padding: 29px var(--window-padding) var(--window-padding)
+    var(--window-padding);
   overflow: visible;
   min-height: 50px;
   border-radius: 8px 8px 0 0;

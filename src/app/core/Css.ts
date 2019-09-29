@@ -18,10 +18,13 @@ export function getCssPxNum(
   const getEmNum = (cssVal: string) => deleteAndFloat(cssVal, "em");
   const getRemNum = (cssVal: string) => deleteAndFloat(cssVal, "rem");
 
-  const createError = (cssVal: string) =>
-    new ApplicationError(`Un supported font-size unit. value='${cssVal}'`);
-
   const targetElm = element || document.documentElement;
+
+  const createError = (cssVal: string) =>
+    new ApplicationError(
+      `Un supported unit of 'font-size'. property='${propertyName}' value='${cssVal}'`
+    );
+
   const rootFontSizeNum = getPxNum(
     getVal("font-size", document.documentElement)
   );
@@ -33,6 +36,9 @@ export function getCssPxNum(
         getEmNum(cssVal) *
         getCssPxNum("font-size", targetElm.parentElement || undefined)
       );
+    if (cssVal === "auto" && propertyName === "height") {
+      return targetElm.getBoundingClientRect().height;
+    }
     throw createError(cssVal);
   };
 
@@ -42,5 +48,8 @@ export function getCssPxNum(
   const cssVal = getVal(propertyName, targetElm);
   if (cssVal.endsWith("px") || cssVal.endsWith("rem")) return getNum(cssVal);
   if (cssVal.endsWith("em")) return getEmNum(cssVal) * fontSizeNum;
+  if (cssVal === "auto" && propertyName === "height") {
+    return targetElm.getBoundingClientRect().height;
+  }
   throw createError(cssVal);
 }

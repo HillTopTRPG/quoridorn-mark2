@@ -1,4 +1,8 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
+import { WindowInfo } from "@/@types/window";
+import WindowManager from "@/app/basic/common/window/WindowManager";
+import { getCssPxNum } from "@/app/core/Css";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 export function createPoint(x: number, y: number): Point {
   return { x, y };
@@ -32,7 +36,45 @@ export function ps(p: Point): string {
   return `(${Math.floor(p.x)}, ${Math.floor(p.y)})`;
 }
 
-export function getWindowSize(): Size {
+export function getQuerySelectorRectangle(query: string): Rectangle | null {
+  const elm = document.querySelector(query) as HTMLElement;
+  return elm ? (elm.getBoundingClientRect() as Rectangle) : null;
+}
+
+export function getWindowRectangle(windowKey: string): Rectangle | null {
+  return getQuerySelectorRectangle(`#${windowKey}`);
+}
+
+export function getPaneHeight(windowKey: string): number | null {
+  const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
+  const windowTitleHeight = getCssPxNum("--window-title-height");
+  const windowPadding = getCssPxNum("--window-padding");
+
+  // ペインに表示されている要素の高さを取得、あれば返却
+  let paneRectangle: Rectangle | null = null;
+  if (windowInfo.status.startsWith("window-")) return windowTitleHeight;
+  if (windowInfo.status.indexOf("right") > -1) {
+    paneRectangle = getQuerySelectorRectangle(`#right-pane-${windowKey}`);
+  }
+  if (windowInfo.status.indexOf("left") > -1) {
+    paneRectangle = getQuerySelectorRectangle(`#left-pane-${windowKey}`);
+  }
+  if (paneRectangle) {
+    return paneRectangle.height;
+  }
+
+  // // 子画面のコンテンツ高さとタイトル高さの合計を算出
+  // const windowContents = document.querySelector(
+  //   `#${windowKey} ._contents *`
+  // ) as HTMLElement;
+  // if (windowContents) {
+  //   const windowContentsHeight = getCssPxNum("height", windowContents);
+  //   return windowContentsHeight + windowTitleHeight + windowPadding * 2;
+  // }
+  throw new ApplicationError("ありえない分岐");
+}
+
+export function getPageSize(): Size {
   return createSize(window.innerWidth, window.innerHeight);
 }
 
@@ -65,7 +107,7 @@ export function calcWindowPosition(
   if (typeof position !== "string") return position;
 
   let point: Point = createPoint(0, 0);
-  const screenSize = getWindowSize();
+  const screenSize = getPageSize();
   const screenCenter = calcCenter({
     ...createPoint(0, menuHeight),
     width: screenSize.width,
