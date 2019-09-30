@@ -9,3 +9,6 @@ declare module "crypto-js";
 declare module "js-yaml";
 declare function parseInt(s: string, radix?: number): number;
 declare module "socket.io";
+interface HTMLElementEvent<T extends HTMLElement> extends Event {
+  target: T;
+}

@@ -59,7 +59,7 @@ export default class App extends Vue {
   /** ライフサイクル */
   public async mounted() {
     WindowManager.instance.open<never>("test-window");
-    WindowManager.instance.open<never>("test-window");
+    WindowManager.instance.open<number>("sample-window", 1);
   }
 
   /**

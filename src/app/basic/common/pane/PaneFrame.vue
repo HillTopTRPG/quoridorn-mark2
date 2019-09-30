@@ -15,6 +15,9 @@
         }}</span>
       </div>
 
+      <!-- 最小化 -->
+      <title-icon className="icon-minus" @emit="minimizeWindow" />
+
       <!-- 通常化 -->
       <title-icon className="icon-arrow-down-left" @emit="normalizeWindow" />
 
@@ -50,10 +53,12 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import {
   calcWindowPosition,
   createPoint,
-  createRectangle
+  createRectangle,
+  createSize,
+  getRightPaneRectangle
 } from "@/app/core/Coordinate";
 import { getCssPxNum } from "@/app/core/Css";
-import { Point, Rectangle } from "@/@types/address";
+import { Point, Rectangle, Size } from "@/@types/address";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
@@ -217,7 +222,21 @@ export default class PaneFrame extends Vue {
     await TaskManager.instance.ignition<string>({
       type: "window-close",
       owner: "Quoridorn",
-      value: this.key
+      value: this.windowInfo.key
+    });
+  }
+
+  /**
+   * 最小化イベント
+   */
+  private async minimizeWindow() {
+    this.windowInfo.x = getRightPaneRectangle().x;
+    this.windowInfo.y =
+      this.paneElm.getBoundingClientRect().top + getRightPaneRectangle().y;
+    await TaskManager.instance.ignition({
+      type: "window-minimize",
+      owner: "Quoridorn",
+      value: this.windowInfo.key
     });
   }
 
@@ -226,9 +245,10 @@ export default class PaneFrame extends Vue {
    */
   private async normalizeWindow() {
     // 現在のサイズのまま、初期配置場所に設置しなおす
+    const size = createSize(this.windowInfo.width, this.windowInfo.height);
     const point = calcWindowPosition(
       this.windowInfo.declare.position,
-      this.windowInfo,
+      size,
       getCssPxNum("--menu-bar-height")
     );
     this.windowInfo.x = point.x;
@@ -267,42 +287,13 @@ export default class PaneFrame extends Vue {
   /*background-color: rgba(255, 255, 255, 0.8);*/
   box-sizing: border-box;
   border-bottom: 1px solid gray;
+  border-right: 1px solid gray;
   left: 0;
   top: var(--paneY);
   width: 100%;
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);
-
-  &.minimized {
-    width: 100px !important;
-    height: var(--window-title-height) !important;
-    top: calc(100% - var(--window-title-height)) !important;
-    left: calc(
-      100% - 100px * (var(--windowMinimizeLength) - var(--windowMinimizeIndex))
-    ) !important;
-    transition-property: width, height, top, left;
-    transition-delay: 0ms;
-    transition-timing-function: linear;
-    transition-duration: 200ms;
-
-    .window-title {
-      cursor: default;
-      background-color: red;
-
-      &:hover + .window-title-balloon {
-        visibility: visible;
-      }
-    }
-
-    ._contents {
-      visibility: hidden;
-    }
-  }
-
-  img,
-  button {
-    white-space: nowrap;
-  }
+  scroll-snap-align: start;
 }
 
 ._contents {
@@ -403,7 +394,7 @@ export default class PaneFrame extends Vue {
   height: 100%;
   border-bottom: solid gray 1px;
   background-size: 20px 20px;
-  background-attachment: fixed;
+  background-attachment: local;
   z-index: 2;
 }
 

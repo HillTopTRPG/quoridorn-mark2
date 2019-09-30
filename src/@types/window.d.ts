@@ -30,9 +30,10 @@ export type PaneMoveInfo = {
   windowKey: string;
 };
 
-export type WindowOpenInfo = {
+export type WindowOpenInfo<T> = {
   type: string;
-  arg: any;
+  key: string;
+  args?: T;
 };
 
 export type WindowTableInfo = {
@@ -59,11 +60,12 @@ type WindowStatus =
   | "right-pane"
   | "right-pane-moving";
 
-export interface WindowInfo extends Rectangle, WindowTaskInfo {
+export interface WindowInfo<T> extends Rectangle, WindowTaskInfo {
   readonly key: string;
   readonly title: string;
   status: WindowStatus;
   message: string;
+  args?: T;
   order: number;
   paneY: number;
   paneOrder: number;

@@ -57,6 +57,9 @@
         v-if="windowInfo.isMinimized"
       />
 
+      <!-- 右ペイン格納 -->
+      <title-icon className="icon-arrow-right" @emit="storeRightPane" />
+
       <!-- 閉じる -->
       <title-icon
         className="icon-cross"
@@ -104,6 +107,7 @@ import { Task } from "@/@types/task";
 import { createPoint, createRectangle } from "@/app/core/Coordinate";
 import Logging from "@/app/core/logger/Logging";
 import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
+import WindowManager from "@/app/basic/common/window/WindowManager";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -293,7 +297,18 @@ export default class WindowFrame extends Vue {
     await TaskManager.instance.ignition<string>({
       type: "window-close",
       owner: "Quoridorn",
-      value: this.key
+      value: this.windowInfo.key
+    });
+  }
+
+  private async storeRightPane(): Promise<void> {
+    this.windowInfo.isMinimized = false;
+    this.windowInfo.status = "right-pane";
+    this.windowInfo.paneOrder = WindowManager.instance.windowInfoList.length;
+    await TaskManager.instance.ignition({
+      type: "pane-relocation",
+      owner: "Quoridorn",
+      value: this.windowInfo.key
     });
   }
 
@@ -302,7 +317,7 @@ export default class WindowFrame extends Vue {
     await TaskManager.instance.ignition({
       type: "window-minimize",
       owner: "Quoridorn",
-      value: this.key
+      value: this.windowInfo.key
     });
   }
 
@@ -310,7 +325,7 @@ export default class WindowFrame extends Vue {
     await TaskManager.instance.ignition({
       type: "window-normalize",
       owner: "Quoridorn",
-      value: this.key
+      value: this.windowInfo.key
     });
     this.activeWindow();
   }

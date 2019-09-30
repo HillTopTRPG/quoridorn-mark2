@@ -3,11 +3,11 @@ import {
   WindowInfo,
   WindowOpenInfo,
   WindowTableInfo
-} from "../../../../@types/window";
+} from "@/@types/window";
 import TaskManager from "../../../core/task/TaskManager";
-import { calcWindowPosition, createPoint } from "../../../core/Coordinate";
-import { Point } from "../../../../@types/address";
-import { getCssPxNum } from "../../../core/Css";
+import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
+import { Point } from "@/@types/address";
+import { getCssPxNum } from "@/app/core/Css";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -23,25 +23,28 @@ export default class WindowManager {
   }
   private static _instance: WindowManager;
 
-  public static createFilter = (status: string) => (list: WindowInfo[]) =>
-    list.filter(info => info.status.indexOf(status) > -1);
+  public static createFilter = (status: string) => (
+    list: WindowInfo<unknown>[]
+  ) => list.filter(info => info.status.indexOf(status) > -1);
 
   // コンストラクタの隠蔽
   private constructor() {}
 
   private readonly windowDeclareInfoContainer = Object.seal(windowDeclareInfo);
-  private readonly __windowInfoList: WindowInfo[] = [];
+  private readonly __windowInfoList: WindowInfo<unknown>[] = [];
   private key: number = 0;
 
   public get windowInfoList() {
     return this.__windowInfoList;
   }
 
-  public getWindowInfo(key: string): WindowInfo {
-    return this.__windowInfoList.filter(info => info.key === key)[0];
+  public getWindowInfo<T>(key: string): WindowInfo<T> {
+    return this.__windowInfoList.filter(
+      info => info.key === key
+    )[0] as WindowInfo<T>;
   }
 
-  private resist(type: string, declare: WindowDeclareInfo): string {
+  private resist<T>(type: string, declare: WindowDeclareInfo, args: T): string {
     const tableInfoList: WindowTableInfo[] = declare.tableInfoList.map(
       tableInfo => ({
         selectLineKey: null,
@@ -53,9 +56,7 @@ export default class WindowManager {
 
     const windowSize = declare.size;
     const position = declare.position;
-    const menuHeight = getCssPxNum("height", document.querySelector(
-      "#menu"
-    ) as HTMLElement);
+    const menuHeight = getCssPxNum("--menu-bar-height");
     const point = calcWindowPosition(position, windowSize, menuHeight);
 
     const key = `window-${this.key++}`;
@@ -64,6 +65,7 @@ export default class WindowManager {
       title: declare.title,
       status: "window",
       message: declare.message,
+      args,
       type,
       declare,
       ...point,
@@ -88,6 +90,7 @@ export default class WindowManager {
     this.__windowInfoList.forEach(info => {
       if (info.key === targetKey) return;
       if (info.isMinimized) return;
+      if (info.status !== "window") return;
       if (info.x !== target.x || info.y !== target.y) return;
 
       const arrangeDistance = getCssPxNum("--window-title-height");
@@ -104,12 +107,12 @@ export default class WindowManager {
     });
   }
 
-  public async open<T>(type: string, arg?: T) {
-    const key = this.resist(type, this.windowDeclareInfoContainer[type]);
-    await TaskManager.instance.ignition<WindowOpenInfo>({
+  public async open<T>(type: string, args?: T) {
+    const key = this.resist(type, this.windowDeclareInfoContainer[type], args);
+    await TaskManager.instance.ignition<WindowOpenInfo<T>>({
       type: "window-open",
       owner: "Quoridorn",
-      value: { type, arg }
+      value: { type, key, args }
     });
   }
 }

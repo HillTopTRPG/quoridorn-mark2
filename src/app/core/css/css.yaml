@@ -4,6 +4,8 @@
   value: 8px
 - property: --menu-bar-height
   value: 2rem
+- property: --scroll-bar-width
+  value: 17px
 - property: --theme-color
   value: rgba(250, 255, 255, 0.85)
 - property: --theme-color-accent

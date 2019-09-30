@@ -13,7 +13,8 @@ type Modules = {
 };
 
 const modules: Modules = {
-  "test-window": import("./app/basic/common/window/TestWindow.vue")
+  "test-window": import("./app/basic/common/window/TestWindow.vue"),
+  "sample-window": import("./app/basic/common/window/SampleWindow.vue")
 };
 
 Object.keys(windowInfo)

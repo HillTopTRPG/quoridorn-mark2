@@ -1,7 +1,7 @@
 <template>
   <div id="right-pane" ref="pane" :class="{ minimized: isMinimized }">
     <!-- コンテンツ -->
-    <div class="v-scroll" @wheel.stop>
+    <div class="v-scroll" @wheel.stop="onWheel" :class="{ isAnimationY }">
       <pane-frame
         v-for="(windowInfo, key) in windowInfoList"
         :key="key"
@@ -25,19 +25,17 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
-import { Point, Rectangle } from "@/@types/address";
+import { Point } from "@/@types/address";
 import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task } from "@/@types/task";
 import {
   createPoint,
-  createRectangle,
-  createSize,
   getPaneHeight,
+  getRightPaneRectangle,
   isContain
 } from "@/app/core/Coordinate";
-import { getCssPxNum } from "@/app/core/Css";
 import WindowManager from "@/app/basic/common/window/WindowManager";
 import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
 
@@ -45,7 +43,8 @@ import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
   components: { PaneFrame, ResizeKnob }
 })
 export default class RightPane extends Vue {
-  private windowInfoList: WindowInfo[] = WindowManager.instance.windowInfoList;
+  private windowInfoList: WindowInfo<unknown>[] =
+    WindowManager.instance.windowInfoList;
 
   private dragFrom: number = 0;
   private diffX: number = 0;
@@ -57,6 +56,8 @@ export default class RightPane extends Vue {
 
   private isMinimized: boolean = false;
   private hoverWindowKey: string | null = null;
+
+  private isAnimationY: boolean = false;
 
   private mounted() {
     this.isMounted = true;
@@ -111,7 +112,7 @@ export default class RightPane extends Vue {
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
     const point: Point = task.value!;
-    const paneRectangle = this.getPaneRectangle();
+    const paneRectangle = getRightPaneRectangle();
 
     // ペイン上のマウスの相対位置
     const mouseOnPane = createPoint(
@@ -147,7 +148,8 @@ export default class RightPane extends Vue {
     task: Task<WindowMoveInfo>
   ): Promise<string | void> {
     const point: Point = task.value!.mouse!;
-    const paneRectangle = this.getPaneRectangle();
+    const paneRectangle = getRightPaneRectangle();
+    this.isAnimationY = true;
 
     // ペイン上のマウスの相対位置
     const mouseOnPane = createPoint(
@@ -195,7 +197,8 @@ export default class RightPane extends Vue {
     const point = task.value!.point;
     const windowKey = task.value!.windowKey;
     const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
-    const paneRectangle = this.getPaneRectangle();
+    const paneRectangle = getRightPaneRectangle();
+    this.isAnimationY = true;
 
     // ペイン上のマウスの相対位置
     const mouseOnPane = createPoint(
@@ -204,7 +207,7 @@ export default class RightPane extends Vue {
     );
 
     windowInfo.status = "right-pane-moving";
-    this.arrangePaneOrder(mouseOnPane, windowKey, true);
+    this.arrangePaneOrder(mouseOnPane, windowKey, false);
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);
@@ -222,7 +225,14 @@ export default class RightPane extends Vue {
     task: Task<string>
   ): Promise<string | void> {
     const windowKey = task.value!;
-    this.arrangeY(windowKey);
+    this.arrangeY();
+
+    // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
+    let arrangeWidth: number;
+    arrangeWidth = Math.max(this.width, this.minWidth);
+    arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
+    this.width = arrangeWidth;
+
     await TaskManager.instance.ignition<string>({
       type: "window-active",
       owner: "Quoridorn",
@@ -230,23 +240,34 @@ export default class RightPane extends Vue {
     });
   }
 
+  @TaskProcessor("window-minimize-finished")
+  @TaskProcessor("window-close-finished")
+  private async closeWindow(task: Task<string>): Promise<string | void> {
+    this.isAnimationY = false;
+    setTimeout(() => {
+      this.arrangeY(task.value!);
+
+      // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
+      let arrangeWidth: number;
+      arrangeWidth = Math.max(this.width, this.minWidth);
+      arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
+      this.width = arrangeWidth;
+    });
+  }
+
   private arrangePaneOrder(mouseOnPane: Point, key: string, isBlock: boolean) {
     const windowInfo = WindowManager.instance.getWindowInfo(key);
     let order = -1;
-    const sortedList = this.filteredWindowInfoList
-      .filter(info => info.key !== key)
-      .sort((info1, info2) => {
-        if (info1.paneOrder < info2.paneOrder) return -1;
-        if (info1.paneOrder > info2.paneOrder) return 1;
-        return 0;
-      });
+    const sortedList = this.filteredWindowInfoList.sort((info1, info2) => {
+      if (info1.paneOrder < info2.paneOrder) return -1;
+      if (info1.paneOrder > info2.paneOrder) return 1;
+      return 0;
+    });
     let arrangeOrderMode: boolean = false;
-    for (let i = 0; i < sortedList.length; i++) {
-      const info = sortedList[i];
-
+    sortedList.forEach((info, i) => {
       if (arrangeOrderMode) {
         info.paneOrder = i + 1;
-        continue;
+        return;
       } else {
         info.paneOrder = i;
       }
@@ -256,14 +277,14 @@ export default class RightPane extends Vue {
         order = i;
         info.paneOrder = i + 1;
         arrangeOrderMode = true;
-        continue;
+        return;
       }
 
       // マウスカーソルが要素より下にある場合
       const paneHeight = getPaneHeight(info.key);
       if (info.paneY + paneHeight < mouseOnPane.y) {
         order = i + 1;
-        continue;
+        return;
       }
 
       // マウスカーソルが要素の中にある場合
@@ -284,18 +305,18 @@ export default class RightPane extends Vue {
         }
         arrangeOrderMode = true;
       }
-    }
+    });
 
     if (order === -1) order = 0;
     if (windowInfo) windowInfo.paneOrder = order;
 
-    this.arrangeY(key);
+    this.arrangeY();
   }
 
   /**
    * paneOrderの整理後に呼ぶことで、ペイン内の各子画面の座標を最適化する処理
    */
-  private arrangeY(key: string) {
+  private arrangeY(deleteKey?: string) {
     let y: number = 0;
     this.filteredWindowInfoList
       .sort((info1, info2) => {
@@ -306,8 +327,7 @@ export default class RightPane extends Vue {
       .forEach((info, index) => {
         info.paneY = y;
         info.paneOrder = index;
-        const height = getPaneHeight(info.key);
-        y += height;
+        if (info.key !== deleteKey) y += getPaneHeight(info.key);
       });
   }
 
@@ -342,30 +362,14 @@ export default class RightPane extends Vue {
     );
   }
 
-  private get appElm(): HTMLDivElement {
-    return document.querySelector("#app") as HTMLDivElement;
-  }
-
-  private getPaneRectangle(): Rectangle {
-    const top = getCssPxNum("--menu-bar-height", this.appElm);
-    const width = getCssPxNum("--right-pane-width", this.appElm);
-    const bottom = getCssPxNum("--window-title-height", this.appElm);
-    const windowSize = createSize(window.innerWidth, window.innerHeight);
-    return createRectangle(
-      windowSize.width - width,
-      top,
-      width,
-      windowSize.height - top - bottom
-    );
-  }
-
   @Watch("isMounted")
   @Watch("diffX")
   @Watch("width")
   private onChangeWindowWidth() {
     if (!this.isMounted) return;
     const width = this.width - this.diffX;
-    this.appElm.style.setProperty("--right-pane-width", `${width}px`);
+    const appElm = document.querySelector("#app") as HTMLDivElement;
+    appElm.style.setProperty("--right-pane-width", `${width}px`);
   }
 
   private get paneElm(): HTMLDivElement {
@@ -395,14 +399,25 @@ export default class RightPane extends Vue {
   border-right-width: 0;
   box-sizing: border-box;
   top: var(--menu-bar-height);
-  width: var(--right-pane-width);
+  width: calc(var(--right-pane-width) + var(--scroll-bar-width) + 1px);
   bottom: var(--window-title-height);
   right: 0;
   font-size: var(--fontSize);
   z-index: 10;
+  transition-property: right;
+  transition-delay: 0ms;
+  transition-timing-function: linear;
+  transition-duration: 200ms;
 
   &.minimized {
-    right: calc(var(--right-pane-width) * -1);
+    right: calc(var(--right-pane-width) * -1 - var(--scroll-bar-width) - 1px);
+  }
+
+  .isAnimationY .pane-frame {
+    transition-property: top;
+    transition-delay: 0ms;
+    transition-timing-function: linear;
+    transition-duration: 200ms;
   }
 
   .v-scroll {
@@ -411,7 +426,8 @@ export default class RightPane extends Vue {
     top: 0;
     bottom: 0;
     right: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
   }
 
   .pane-knob {

@@ -25,10 +25,21 @@
     - window-moving
     - window-move-end
     - window-open
-    - window-close
     - window-active
     - right-pane-frame-moving
     - pane-relocation
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    isTest: false
+    statusList:
+      - closing
+      - finished
+  types:
+    - window-close
 
 - taskAttribute:
     isPrivate: true

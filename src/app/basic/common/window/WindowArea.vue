@@ -3,7 +3,9 @@
     <window-frame
       v-for="(windowInfo, key) in windowInfoList"
       :key="key"
-      v-show="windowInfo.status.indexOf('window') > -1"
+      v-show="
+        windowInfo.status === 'window' || windowInfo.status.endsWith('-window')
+      "
       :windowInfo="windowInfo"
     />
   </div>
@@ -18,23 +20,26 @@ import { WindowInfo } from "@/@types/window";
 import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
 import WindowManager from "@/app/basic/common/window/WindowManager";
 import Logging from "@/app/core/logger/Logging";
+import { calcWindowPosition, createSize } from "@/app/core/Coordinate";
+import { getCssPxNum } from "@/app/core/Css";
 
 @Component({
   components: { WindowFrame, TestWindow }
 })
 export default class WindowArea extends Vue {
-  private windowInfoList: WindowInfo[] = WindowManager.instance.windowInfoList;
+  private windowInfoList: WindowInfo<unknown>[] =
+    WindowManager.instance.windowInfoList;
 
-  @TaskProcessor("window-close-finished")
-  private async closeWindow(task: Task<string>): Promise<string | void> {
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
     this.windowInfoList.splice(index, 1);
+  }
 
+  @TaskProcessor("window-close-finished")
+  private async windowCloseFinished(): Promise<string | void> {
     this.arrangeOrder();
     this.arrangeMinimizeIndex();
-
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
   }
 
   @TaskProcessor("window-minimize-finished")
@@ -42,13 +47,23 @@ export default class WindowArea extends Vue {
   private async minimizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
-    windowInfo.isMinimized = true;
-    windowInfo.isMinimizeAnimationEnd = false;
-    window.setTimeout(() => {
-      windowInfo.isMinimizeAnimationEnd = true;
-    }, 200);
 
-    this.arrangeMinimizeIndex();
+    const minimize = () => {
+      windowInfo.isMinimized = true;
+      windowInfo.isMinimizeAnimationEnd = false;
+      window.setTimeout(() => {
+        windowInfo.isMinimizeAnimationEnd = true;
+      }, 200);
+
+      this.arrangeMinimizeIndex();
+    };
+
+    if (windowInfo.status === "window") {
+      minimize();
+    } else {
+      windowInfo.status = "window";
+      setTimeout(minimize);
+    }
 
     // 登録したタスクに完了通知
     if (task.resolve) task.resolve(task);
@@ -61,6 +76,16 @@ export default class WindowArea extends Vue {
     const windowInfo = this.windowInfoList[index];
     windowInfo.isMinimized = false;
     windowInfo.isMinimizeAnimationEnd = false;
+
+    // 現在のサイズのまま、初期配置場所に設置しなおす
+    const size = createSize(windowInfo.width, windowInfo.height);
+    const point = calcWindowPosition(
+      windowInfo.declare.position,
+      size,
+      getCssPxNum("--menu-bar-height")
+    );
+    windowInfo.x = point.x;
+    windowInfo.y = point.y;
 
     this.arrangeMinimizeIndex();
 

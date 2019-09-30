@@ -133,3 +133,18 @@ export function calcWindowPosition(
 
   return point;
 }
+
+export function getRightPaneRectangle(): Rectangle {
+  const appElm = document.querySelector("#app") as HTMLDivElement;
+  const top = getCssPxNum("--menu-bar-height", appElm);
+  const width = getCssPxNum("--right-pane-width", appElm);
+  const bottom = getCssPxNum("--window-title-height", appElm);
+  const scrollBarWidth = getCssPxNum("--scroll-bar-width");
+  const windowSize = createSize(window.innerWidth, window.innerHeight);
+  return createRectangle(
+    windowSize.width - width - scrollBarWidth,
+    top,
+    width,
+    windowSize.height - top - bottom
+  );
+}
