@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
-    "build": "vue-cli-service build && npm run build-chat-log",
+    "build": "vue-cli-service build",
+    "build-original": "vue-cli-service build && npm run build-chat-log",
     "create-zip": "scripts/create-zip.sh",
     "build-chat-log": "scripts/build-chat-log.sh",
     "lint": "vue-cli-service lint",

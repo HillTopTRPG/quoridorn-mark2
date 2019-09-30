@@ -128,7 +128,7 @@ export default class RightPane extends Vue {
       );
       windowInfo.status = "right-pane";
       setTimeout(() => {
-        this.arrangePaneOrder(mouseOnPane, this.hoverWindowKey, false);
+        this.arrangePaneOrder(mouseOnPane, this.hoverWindowKey!, false);
       });
       this.hoverWindowKey = null;
     }

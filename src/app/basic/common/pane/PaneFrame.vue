@@ -68,7 +68,7 @@ import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
 })
 export default class PaneFrame extends Vue {
   @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo;
+  private windowInfo!: WindowInfo<unknown>;
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);

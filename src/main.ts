@@ -3,44 +3,18 @@ import router from "./router";
 import MainVue from "./MainVue.vue";
 import store from "@/app/store/store";
 import ImageDirective from "@/app/basic/common/directive/Image";
-const windowInfo: any = require("./app/basic/common/window/window.yaml");
+import TestWindow from "@/app/basic/common/window/TestWindow.vue";
+import SampleWindow from "@/app/basic/common/window/SampleWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
 
-type Modules = {
-  [name: string]: Promise<any>;
-};
+Vue.component("test-window", TestWindow);
+Vue.component("sample-window", SampleWindow);
 
-const modules: Modules = {
-  "test-window": import("./app/basic/common/window/TestWindow.vue"),
-  "sample-window": import("./app/basic/common/window/SampleWindow.vue")
-};
-
-Object.keys(windowInfo)
-  .filter((w: string) => !modules[w])
-  .forEach((w: string) => {
-    window.console.warn(`Un supported window='${w}'`);
-  });
-
-(async () => {
-  const moduleList: any[] = await Promise.all(
-    Object.keys(windowInfo)
-      .map((w: any) => modules[w])
-      .filter((p: Promise<any>) => p)
-  );
-  moduleList.forEach((module: any) => {
-    Vue.use({
-      install(Vue: any) {
-        Vue.component(module.default.name, module.default);
-      }
-    });
-  });
-
-  const app = new Vue({
-    router,
-    store,
-    render: h => h(MainVue)
-  });
-  app.$mount("#app");
-})();
+const app = new Vue({
+  router,
+  store,
+  render: h => h(MainVue)
+});
+app.$mount("#app");

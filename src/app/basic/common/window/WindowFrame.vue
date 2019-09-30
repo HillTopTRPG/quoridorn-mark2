@@ -114,7 +114,7 @@ import WindowManager from "@/app/basic/common/window/WindowManager";
 })
 export default class WindowFrame extends Vue {
   @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo;
+  private windowInfo!: WindowInfo<unknown>;
 
   private dragFrom: Point = createPoint(0, 0);
   private diff: Rectangle = createRectangle(0, 0, 0, 0);
@@ -161,7 +161,6 @@ export default class WindowFrame extends Vue {
   }
 
   @TaskProcessor("mouse-move-end-left-finished")
-  @Logging
   private async mouseLeftUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
@@ -312,7 +311,6 @@ export default class WindowFrame extends Vue {
     });
   }
 
-  @Logging
   private async minimizeWindow(): Promise<void> {
     await TaskManager.instance.ignition({
       type: "window-minimize",

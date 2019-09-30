@@ -43,7 +43,6 @@ export default class WindowArea extends Vue {
   }
 
   @TaskProcessor("window-minimize-finished")
-  @Logging
   private async minimizeWindow(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];

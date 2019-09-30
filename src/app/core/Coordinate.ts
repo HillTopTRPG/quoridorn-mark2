@@ -45,10 +45,9 @@ export function getWindowRectangle(windowKey: string): Rectangle | null {
   return getQuerySelectorRectangle(`#${windowKey}`);
 }
 
-export function getPaneHeight(windowKey: string): number | null {
+export function getPaneHeight(windowKey: string): number {
   const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
   const windowTitleHeight = getCssPxNum("--window-title-height");
-  const windowPadding = getCssPxNum("--window-padding");
 
   // ペインに表示されている要素の高さを取得、あれば返却
   let paneRectangle: Rectangle | null = null;
