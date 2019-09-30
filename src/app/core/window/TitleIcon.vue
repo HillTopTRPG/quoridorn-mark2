@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
+import ResizeKnob from "./ResizeKnob.vue";
 
 @Component({
   components: { ResizeKnob }
@@ -30,7 +30,7 @@ export default class TitleIcon extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .title-icon-area i {
   display: block;

@@ -13,18 +13,17 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import TestWindow from "@/app/basic/common/window/TestWindow.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
 import { WindowInfo } from "@/@types/window";
-import WindowFrame from "@/app/basic/common/window/WindowFrame.vue";
-import WindowManager from "@/app/basic/common/window/WindowManager";
-import Logging from "@/app/core/logger/Logging";
-import { calcWindowPosition, createSize } from "@/app/core/Coordinate";
-import { getCssPxNum } from "@/app/core/Css";
+import WindowFrame from "./WindowFrame.vue";
+import WindowManager from "./WindowManager";
+import Logging from "../logger/Logging";
+import { calcWindowPosition, createSize } from "../Coordinate";
+import { getCssPxNum } from "../Css";
 
 @Component({
-  components: { WindowFrame, TestWindow }
+  components: { WindowFrame }
 })
 export default class WindowArea extends Vue {
   private windowInfoList: WindowInfo<unknown>[] =

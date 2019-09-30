@@ -1,6 +1,6 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
 import { WindowInfo } from "@/@types/window";
-import WindowManager from "@/app/basic/common/window/WindowManager";
+import WindowManager from "@/app/core/window/WindowManager";
 import { getCssPxNum } from "@/app/core/Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 

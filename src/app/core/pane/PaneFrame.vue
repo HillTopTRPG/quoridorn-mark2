@@ -48,20 +48,20 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { PaneMoveInfo, WindowInfo } from "@/@types/window";
-import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import ResizeKnob from "../window/ResizeKnob.vue";
+import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import {
   calcWindowPosition,
   createPoint,
   createRectangle,
   createSize,
   getRightPaneRectangle
-} from "@/app/core/Coordinate";
-import { getCssPxNum } from "@/app/core/Css";
-import { Point, Rectangle, Size } from "@/@types/address";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+} from "../Coordinate";
+import { getCssPxNum } from "../Css";
+import { Point, Rectangle } from "@/@types/address";
+import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
-import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
+import TitleIcon from "../window/TitleIcon.vue";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -277,7 +277,7 @@ export default class PaneFrame extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .pane-frame {
   position: absolute;

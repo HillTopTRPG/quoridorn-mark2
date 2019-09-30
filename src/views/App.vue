@@ -16,14 +16,14 @@ import { Action, Getter } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TaskManager from "@/app/core/task/TaskManager";
-import Context from "@/app/basic/common/context/Context.vue";
+import Context from "@/app/core/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
-import WindowArea from "@/app/basic/common/window/WindowArea.vue";
-import WindowManager from "@/app/basic/common/window/WindowManager";
+import WindowArea from "@/app/core/window/WindowArea.vue";
+import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
 import { createPoint } from "@/app/core/Coordinate";
-import RightPane from "@/app/basic/common/pane/RightPane.vue";
+import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 
 @Component({

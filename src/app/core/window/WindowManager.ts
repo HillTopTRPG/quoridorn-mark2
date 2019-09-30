@@ -3,17 +3,17 @@ import {
   WindowInfo,
   WindowOpenInfo,
   WindowTableInfo
-} from "@/@types/window";
-import TaskManager from "../../../core/task/TaskManager";
-import { calcWindowPosition, createPoint } from "@/app/core/Coordinate";
-import { Point } from "@/@types/address";
-import { getCssPxNum } from "@/app/core/Css";
+} from "../../../@types/window";
+import TaskManager from "../task/TaskManager";
+import { calcWindowPosition, createPoint } from "../Coordinate";
+import { Point } from "../../../@types/address";
+import { getCssPxNum } from "../Css";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
 };
 
-const windowDeclareInfo: WindowDeclareInfoContainer = require("./window.yaml");
+const windowDeclareInfo: WindowDeclareInfoContainer = require("../window.yaml");
 
 export default class WindowManager {
   // シングルトン

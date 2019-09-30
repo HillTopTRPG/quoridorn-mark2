@@ -100,14 +100,13 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { Point, Rectangle, Size } from "@/@types/address";
-import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+import ResizeKnob from "./ResizeKnob.vue";
+import TaskManager, { MouseMoveParam } from "../task/TaskManager";
+import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
-import { createPoint, createRectangle } from "@/app/core/Coordinate";
-import Logging from "@/app/core/logger/Logging";
-import TitleIcon from "@/app/basic/common/window/TitleIcon.vue";
-import WindowManager from "@/app/basic/common/window/WindowManager";
+import { createPoint, createRectangle } from "../Coordinate";
+import TitleIcon from "./TitleIcon.vue";
+import WindowManager from "./WindowManager";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -465,7 +464,7 @@ export default class WindowFrame extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 *[id^="window-"] {
   position: fixed;

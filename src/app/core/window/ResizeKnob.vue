@@ -21,7 +21,7 @@ export default class ResizeKnob extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .knob-left,
 .knob-right,

@@ -28,15 +28,15 @@ import {
   ContextItemDeclareInfo,
   ContextTaskInfo,
   ContextTextItem
-} from "@/@types/context";
-import { Task } from "@/@types/task";
-import Logging from "@/app/core/logger/Logging";
+} from "../../../@types/context";
+import { Task } from "../../../@types/task";
+import Logging from "../logger/Logging";
 import { Getter } from "vuex-class";
-import { judgeCompare } from "@/app/core/Compare";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import TaskManager from "@/app/core/task/TaskManager";
+import { judgeCompare } from "../Compare";
+import TaskProcessor from "../task/TaskProcessor";
+import TaskManager from "../task/TaskManager";
 
-const contextInfo: ContextDeclareInfo = require("./context.yaml");
+const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
 type Item = {
   type: string;

@@ -26,18 +26,18 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { Point } from "@/@types/address";
-import ResizeKnob from "@/app/basic/common/window/ResizeKnob.vue";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
+import ResizeKnob from "../window/ResizeKnob.vue";
+import TaskManager, { MouseMoveParam } from "../task/TaskManager";
+import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
 import {
   createPoint,
   getPaneHeight,
   getRightPaneRectangle,
   isContain
-} from "@/app/core/Coordinate";
-import WindowManager from "@/app/basic/common/window/WindowManager";
-import PaneFrame from "@/app/basic/common/pane/PaneFrame.vue";
+} from "../Coordinate";
+import WindowManager from "../window/WindowManager";
+import PaneFrame from "./PaneFrame.vue";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -386,7 +386,7 @@ export default class RightPane extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 #right-pane {
   position: fixed;
