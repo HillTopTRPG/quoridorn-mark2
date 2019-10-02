@@ -18,7 +18,7 @@
     isExclusion: false
     isIgniteWithParam: false
     isLastValueCapture: false
-    isTest: true
+    isTest: false
     statusList:
       - finished
   types:

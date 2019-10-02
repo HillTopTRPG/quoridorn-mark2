@@ -1,5 +1,5 @@
 - property: --window-title-height
-  value: 1.5rem
+  value: 2rem
 - property: --window-padding
   value: 8px
 - property: --menu-bar-height
