@@ -28,7 +28,7 @@ export default class PieceMixin extends AddressCalcMixin {
 
   protected isHover: boolean = false;
 
-  protected leftDown(this: any): void {
+  protected leftDown(): void {
     if (this.storeObj.isLock || this.isRolling) {
       this.$emit("leftDown");
       return;

@@ -82,7 +82,12 @@ import { parseColor } from "@/app/core/Utility";
 import { Component } from "vue-mixin-decorator";
 import { Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
-import { arrangeAngle, createPoint, ps } from "@/app/core/Coordinate";
+import {
+  arrangeAngle,
+  createPoint,
+  getEventPoint,
+  ps
+} from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task } from "@/@types/task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -176,16 +181,16 @@ export default class GameTable extends AddressCalcMixin {
   /**
    * マウス左ボタン押下
    */
-  private leftDown(event: MouseEvent): void {
-    this.dragFrom = createPoint(event.pageX, event.pageY);
+  private leftDown(event: MouseEvent | TouchEvent): void {
+    this.dragFrom = getEventPoint(event);
     this.mouseDown("left");
   }
 
   /**
    * マウス右ボタン押下
    */
-  private rightDown(event: MouseEvent): void {
-    const mouse = createPoint(event.pageX, event.pageY);
+  private rightDown(event: MouseEvent | TouchEvent): void {
+    const mouse = getEventPoint(event);
     const calcResult = this.calcCoordinate(mouse, this.currentAngle);
     this.dragFrom = mouse;
     this.rotateFrom = calcResult.angle;
@@ -200,7 +205,9 @@ export default class GameTable extends AddressCalcMixin {
       type: `button-${button}`
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
-      `mouse-${button}-up-finished`,
+      button === "right"
+        ? "mouse-move-end-right-finished"
+        : `mouse-move-end-left-finished`,
       {
         key: "game-table",
         type: `${button}-click`
@@ -230,7 +237,9 @@ export default class GameTable extends AddressCalcMixin {
     const button = param.type!.split("-")[1];
     const type = `${button}-drag`;
     TaskManager.instance.setTaskParam<MouseMoveParam>(
-      `mouse-${button}-up-finished`,
+      button === "right"
+        ? "mouse-move-end-right-finished"
+        : `mouse-move-end-left-finished`,
       {
         key: "game-table",
         type
@@ -324,8 +333,6 @@ export default class GameTable extends AddressCalcMixin {
     transformList.push(`rotateX(0deg)`);
     transformList.push(`rotateZ(${rotateZ}deg)`);
     const result: any = {
-      // left: `${totalLeftX}px`,
-      // top: `${totalLeftY}px`,
       width: this.sizeW + "px",
       height: this.sizeH + "px",
       borderWidth: this.mapBorderWidth + "px",

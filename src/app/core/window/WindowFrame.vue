@@ -10,8 +10,8 @@
     <div
       class="window-title"
       :class="{ fix: !windowInfo.declare.resizable }"
-      @mousedown.left.stop="leftDown($event)"
-      @touchstart.stop="leftDown($event)"
+      @mousedown.left.stop="leftDown"
+      @touchstart.stop="leftDown"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
@@ -104,7 +104,7 @@ import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
-import { createPoint, createRectangle } from "../Coordinate";
+import { createPoint, createRectangle, getEventPoint } from "../Coordinate";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
 
@@ -133,7 +133,7 @@ export default class WindowFrame extends Vue {
     return this.windowInfo.key;
   }
 
-  private leftDown(event: MouseEvent, side?: string): void {
+  private leftDown(event: MouseEvent | TouchEvent, side?: string): void {
     if (this.windowInfo.isMinimized) return;
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
@@ -146,7 +146,8 @@ export default class WindowFrame extends Vue {
         type: side || ""
       }
     );
-    this.dragFrom = createPoint(event.pageX, event.pageY);
+    this.dragFrom = getEventPoint(event);
+    window.console.log(this.dragFrom.x, this.dragFrom.y);
     this.activeWindow();
   }
 
@@ -341,17 +342,18 @@ export default class WindowFrame extends Vue {
   private addEventForIFrame(): void {
     const elms: HTMLCollection = document.getElementsByTagName("iFrame");
     Array.prototype.slice.call(elms).forEach((iFrameElm: HTMLIFrameElement) => {
-      const dispatch = (event: MouseEvent, type: string) => {
+      const dispatch = (event: MouseEvent | TouchEvent, type: string) => {
         const iFrameRect = iFrameElm.getBoundingClientRect();
+        const point = getEventPoint(event);
         const evtObj = {
-          clientX: event.pageX + iFrameRect.left,
-          clientY: event.pageY + iFrameRect.top,
-          button: event.button
+          clientX: point.x + iFrameRect.left,
+          clientY: point.y + iFrameRect.top,
+          button: "touches" in event ? 0 : event.button
         };
         document.dispatchEvent(new MouseEvent(type, evtObj));
       };
       // マウス移動
-      const mouseMoveListener = (event: MouseEvent) => {
+      const mouseMoveListener = (event: MouseEvent | TouchEvent) => {
         dispatch(event, "mousemove");
       };
       // タッチ移動
@@ -368,11 +370,11 @@ export default class WindowFrame extends Vue {
         document.dispatchEvent(new TouchEvent("touchmove", evtObj));
       };
       // クリック
-      const clickListener = (event: MouseEvent) => {
+      const clickListener = (event: MouseEvent | TouchEvent) => {
         dispatch(event, "click");
       };
       // マウス離す
-      const mouseUpListener = (event: MouseEvent) => {
+      const mouseUpListener = (event: MouseEvent | TouchEvent) => {
         dispatch(event, "mouseUp");
       };
       const setListener = (elm: GlobalEventHandlers) => {

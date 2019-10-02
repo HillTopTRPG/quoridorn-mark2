@@ -11,13 +11,14 @@
     - window-minimize
     - window-normalize
     - left-pane-frame-moving
+    - bgm-setting-open
 
 - taskAttribute:
     isPrivate: true
     isExclusion: false
     isIgniteWithParam: false
     isLastValueCapture: false
-    isTest: false
+    isTest: true
     statusList:
       - finished
   types:

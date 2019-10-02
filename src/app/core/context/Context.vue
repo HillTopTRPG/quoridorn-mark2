@@ -5,6 +5,7 @@
     :style="contextStyle"
     @mouseleave.prevent="hide"
     @contextmenu.prevent
+    ref="context"
   >
     <template v-for="(item, index) in itemList">
       <hr :key="index" v-if="item.type === 'hr'" />
@@ -22,14 +23,14 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Vue } from "vue-property-decorator";
+import { Vue, Watch } from "vue-property-decorator";
 import {
   ContextDeclareInfo,
   ContextItemDeclareInfo,
   ContextTaskInfo,
   ContextTextItem
-} from "../../../@types/context";
-import { Task } from "../../../@types/task";
+} from "@/@types/context";
+import { Task } from "@/@types/task";
 import Logging from "../logger/Logging";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
@@ -61,7 +62,17 @@ export default class Context extends Vue {
     };
   }
 
-  // @Logging
+  private get contextElm(): HTMLDivElement {
+    return this.$refs.context as HTMLDivElement;
+  }
+
+  @Watch("y")
+  @Watch("isMounted")
+  private onChangeY() {
+    if (this.y === null) return;
+    this.contextElm.style.setProperty("--y", this.y.toString());
+  }
+
   private async emitEvent(emitName: string) {
     this.hide();
     await TaskManager.instance.ignition<void>({

@@ -5,6 +5,7 @@
       class="pane-frame-title"
       :class="{ fix: !windowInfo.declare.resizable }"
       @mousedown.left="leftDown"
+      @touchstart.stop="leftDown"
       @contextmenu.prevent
     >
       <!-- タイトル文言 -->
@@ -55,6 +56,7 @@ import {
   createPoint,
   createRectangle,
   createSize,
+  getEventPoint,
   getRightPaneRectangle
 } from "../Coordinate";
 import { getCssPxNum } from "../Css";
@@ -85,7 +87,7 @@ export default class PaneFrame extends Vue {
   /**
    * マウス左ボタン押下イベント処理
    */
-  private leftDown(event: MouseEvent) {
+  private leftDown(event: MouseEvent | TouchEvent) {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
       type: null
@@ -97,7 +99,7 @@ export default class PaneFrame extends Vue {
         type: null
       }
     );
-    this.dragFrom = createPoint(event.pageX, event.pageY);
+    this.dragFrom = getEventPoint(event);
     this.paneRectangle = this.paneElm.getBoundingClientRect() as Rectangle;
   }
 

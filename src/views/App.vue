@@ -22,7 +22,7 @@ import { nekostore_test_client } from "@/app/core/nekostore_test";
 import WindowArea from "@/app/core/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
-import { createPoint } from "@/app/core/Coordinate";
+import { createPoint, getEventPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 
@@ -67,11 +67,11 @@ export default class App extends Vue {
    * @param event
    */
   @EventProcessor("wheel")
-  private async onWheel(event: any) {
+  private async onWheel(event: WheelEvent) {
     await TaskManager.instance.ignition<boolean>({
       type: "action-wheel",
       owner: "Quoridorn",
-      value: event.wheelDelta > 0
+      value: event.deltaY < 0
     });
   }
 
@@ -82,37 +82,23 @@ export default class App extends Vue {
    * @param event
    */
   @EventProcessor("mousedown")
-  private mouseDown(event: MouseEvent): void {
-    this.mouse.x = event.pageX;
-    this.mouse.y = event.pageY;
+  private mouseDown(event: MouseEvent | TouchEvent): void {
+    this.mouse = getEventPoint(event);
   }
 
   /**
-   * マウス移動イベント
-   * @param event
-   */
-  @EventProcessor("mousemove")
-  private mouseMove(event: any): void {
-    this.setMouseLocateOnPage(createPoint(event.pageX, event.pageY));
-  }
-
-  /**
-   * タッチ移動イベント
+   * マウス移動/タッチ移動イベント
    * @param event
    */
   @EventProcessor("touchmove")
-  private touchMove(event: any): void {
-    this.setMouseLocateOnPage(
-      createPoint(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
-    );
-  }
-
-  private async setMouseLocateOnPage(mouse: Point): Promise<void> {
-    if (mouse.x === this.mouse.x && mouse.y === this.mouse.y) return;
+  @EventProcessor("mousemove")
+  private mouseTouchMove(event: MouseEvent | TouchEvent): void {
+    const point = getEventPoint(event);
+    if (point.x === this.mouse.x && point.y === this.mouse.y) return;
     TaskManager.instance.ignition<Point>({
       type: "mouse-moving",
       owner: "Quoridorn",
-      value: mouse
+      value: point
     });
   }
 
@@ -121,16 +107,23 @@ export default class App extends Vue {
    * @param event
    */
   @EventProcessor("mouseup")
-  private async mouseUp(event: MouseEvent): Promise<void> {
-    if (event.button === 0 || event.button === 2) {
+  @EventProcessor("touchend")
+  @EventProcessor("touchcancel")
+  private async mouseUp(event: MouseEvent | TouchEvent): Promise<void> {
+    let type: string | null = null;
+    if ("touches" in event) {
+      type = "mouse-move-end-left";
+    } else {
+      if (event.button <= 2) {
+        type =
+          event.button === 2 ? "mouse-move-end-right" : "mouse-move-end-left";
+      }
+    }
+    if (type) {
       await TaskManager.instance.ignition<Point>({
-        type:
-          event.button === 0 ? "mouse-move-end-left" : "mouse-move-end-right",
+        type,
         owner: "Quoridorn",
-        value: {
-          x: event.pageX,
-          y: event.pageY
-        }
+        value: getEventPoint(event)
       });
     }
   }

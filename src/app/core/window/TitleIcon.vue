@@ -25,7 +25,7 @@ export default class TitleIcon extends Vue {
   private className!: string;
 
   @Emit("emit")
-  private emit(event: MouseEvent) {}
+  private emit(event: MouseEvent | TouchEvent) {}
 }
 </script>
 

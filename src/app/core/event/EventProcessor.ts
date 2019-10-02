@@ -4,7 +4,7 @@ import {
 } from "@/app/core/decorator/generateMethodDecorator";
 import EventManager from "@/app/core/event/EventManager";
 
-type Listener = (this: Document, ev: MouseEvent) => void;
+type Listener = (this: Document, ev: MouseEvent | TouchEvent) => void;
 
 const mounted: GenerateProcessInfo = {
   method: "mounted",

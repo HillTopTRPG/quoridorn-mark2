@@ -1,6 +1,6 @@
 game-table:
-  - emitName: item01-emit
-    text: item01
+  - emitName: bgm-setting-open
+    text: BGM設定
   - isViewCompare:
       lhs: 4
       rhs: 5

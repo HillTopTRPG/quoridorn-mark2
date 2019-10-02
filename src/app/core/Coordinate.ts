@@ -45,6 +45,12 @@ export function getWindowRectangle(windowKey: string): Rectangle | null {
   return getQuerySelectorRectangle(`#${windowKey}`);
 }
 
+export function getEventPoint(event: MouseEvent | TouchEvent): Point {
+  return "touches" in event
+    ? createPoint(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
+    : createPoint(event.pageX, event.pageY);
+}
+
 export function getPaneHeight(windowKey: string): number {
   const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
   const windowTitleHeight = getCssPxNum("--window-title-height");

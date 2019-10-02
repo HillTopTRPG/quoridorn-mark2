@@ -32,6 +32,7 @@ import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
 import {
   createPoint,
+  getEventPoint,
   getPaneHeight,
   getRightPaneRectangle,
   isContain
@@ -66,7 +67,7 @@ export default class RightPane extends Vue {
   /**
    * マウス左ボタン押下イベント処理
    */
-  private leftDown(event: MouseEvent, side: string): void {
+  private leftDown(event: MouseEvent | TouchEvent, side: string): void {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: "right-pane",
       type: side
@@ -78,7 +79,7 @@ export default class RightPane extends Vue {
         type: side
       }
     );
-    this.dragFrom = event.pageX;
+    this.dragFrom = getEventPoint(event).x;
   }
 
   /**

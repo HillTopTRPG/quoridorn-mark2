@@ -16,7 +16,7 @@ export default class ResizeKnob extends Vue {
   private side!: string;
 
   @Emit("leftDown")
-  private leftDown(event: MouseEvent, side: string): void {}
+  private leftDown(event: MouseEvent | TouchEvent, side: string): void {}
 }
 </script>
 
