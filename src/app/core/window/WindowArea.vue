@@ -7,6 +7,7 @@
         windowInfo.status === 'window' || windowInfo.status.endsWith('-window')
       "
       :windowInfo="windowInfo"
+      :status="'window'"
     />
   </div>
 </template>

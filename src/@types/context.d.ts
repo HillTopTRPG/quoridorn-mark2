@@ -7,9 +7,10 @@ export interface ContextTaskInfo extends Point {
 }
 
 // 項目(表示条件ありなし)
-export type ContextTextItem = {
-  emitName: string;
+export type ContextTextItem<T> = {
+  taskName: string;
   text: string;
+  taskArg: T;
   isViewCompare?: CompareInfo;
   children?: ContextItemDeclareInfo[];
 };
@@ -19,7 +20,10 @@ export type ContextHrItem = {
   isViewCompare: CompareInfo;
 };
 
-export type ContextItemDeclareInfo = ContextTextItem | ContextHrItem | null;
+export type ContextItemDeclareInfo =
+  | ContextTextItem<unknown>
+  | ContextHrItem
+  | null;
 
 export type ContextDeclareInfo = {
   [type in string]: ContextItemDeclareInfo[];

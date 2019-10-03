@@ -51,6 +51,14 @@ export function getEventPoint(event: MouseEvent | TouchEvent): Point {
     : createPoint(event.pageX, event.pageY);
 }
 
+export function format(v: Point | Rectangle): string {
+  if (!v) return "Nothing.";
+  if ("width" in v) {
+    return `(${v.x}, ${v.y}) {${v.width} * ${v.height}}`;
+  }
+  return `(${v.x}, ${v.y})`;
+}
+
 export function getPaneHeight(windowKey: string): number {
   const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
   const windowTitleHeight = getCssPxNum("--window-title-height");

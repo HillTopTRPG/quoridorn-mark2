@@ -1,13 +1,12 @@
 import {
   WindowDeclareInfo,
   WindowInfo,
-  WindowOpenInfo,
   WindowTableInfo
-} from "../../../@types/window";
-import TaskManager from "../task/TaskManager";
+} from "@/@types/window";
 import { calcWindowPosition, createPoint } from "../Coordinate";
-import { Point } from "../../../@types/address";
+import { Point } from "@/@types/address";
 import { getCssPxNum } from "../Css";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -45,12 +44,15 @@ export default class WindowManager {
   }
 
   private resist<T>(type: string, declare: WindowDeclareInfo, args: T): string {
+    if (!declare) {
+      throw new ApplicationError(`No such window type='${type}'`);
+    }
     const tableInfoList: WindowTableInfo[] = declare.tableInfoList.map(
       tableInfo => ({
         selectLineKey: null,
         hoverLineIndex: null,
         operateDividerIndex: null,
-        columnWidthList: tableInfo.initColumnWidthList.concat()
+        columnWidthList: tableInfo.columnList.map(column => column.width)
       })
     );
 
@@ -107,12 +109,7 @@ export default class WindowManager {
     });
   }
 
-  public async open<T>(type: string, args?: T) {
-    const key = this.resist(type, this.windowDeclareInfoContainer[type], args);
-    await TaskManager.instance.ignition<WindowOpenInfo<T>>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: { type, key, args }
-    });
+  public async open<T>(type: string, args?: T): Promise<string> {
+    return this.resist(type, this.windowDeclareInfoContainer[type], args);
   }
 }

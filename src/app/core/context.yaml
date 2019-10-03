@@ -1,12 +1,13 @@
 game-table:
-  - emitName: bgm-setting-open
-    text: BGM設定
+  - text: BGM設定
+    taskName: window-open
+    taskArg: bgm-setting-window
   - isViewCompare:
       lhs: 4
       rhs: 5
-  - emitName: item02-emit
-    text: item02
+  - text: item02
+    taskName: item02-emit
     children:
-      - emitName: item02-item01-emit
+      - taskName: item02-item01-emit
       - text: item02-item01
 

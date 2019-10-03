@@ -30,6 +30,7 @@
     <component
       :is="windowInfo.type"
       :windowKey="windowInfo.key"
+      :status="status"
       v-show="!windowInfo.status.startsWith('window-')"
       class="_contents"
       @wheel.stop
@@ -71,6 +72,8 @@ import TitleIcon from "../window/TitleIcon.vue";
 export default class PaneFrame extends Vue {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<unknown>;
+  @Prop({ type: String, required: true })
+  private status!: string;
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);

@@ -1,9 +1,16 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
 
+export type WindowTableColumn = {
+  width: number;
+  type: string;
+  title: string;
+  target: string;
+};
+
 export type WindowTableDeclareInfo = {
   readonly isColumnVariableLength: boolean;
   readonly isFixTotalWidth: boolean;
-  readonly initColumnWidthList: number[];
+  readonly columnList: WindowTableColumn[];
 };
 
 export type WindowDeclareInfo = {

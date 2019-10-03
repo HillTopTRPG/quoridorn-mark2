@@ -77,6 +77,7 @@
       <component
         :is="windowInfo.type"
         :windowKey="windowInfo.key"
+        :status="status"
         :style="{ fontSize: fontSize + 'px' }"
         @wheel.stop
       />
@@ -114,6 +115,8 @@ import WindowManager from "./WindowManager";
 export default class WindowFrame extends Vue {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<unknown>;
+  @Prop({ type: String, required: true })
+  private status!: string;
 
   private dragFrom: Point = createPoint(0, 0);
   private diff: Rectangle = createRectangle(0, 0, 0, 0);

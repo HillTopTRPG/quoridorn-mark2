@@ -11,7 +11,6 @@
     - window-minimize
     - window-normalize
     - left-pane-frame-moving
-    - bgm-setting-open
 
 - taskAttribute:
     isPrivate: true
@@ -25,10 +24,21 @@
     - action-wheel
     - window-moving
     - window-move-end
-    - window-open
     - window-active
     - right-pane-frame-moving
     - pane-relocation
+
+- taskAttribute:
+    isPrivate: true
+    isExclusion: false
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    isTest: false
+    statusList:
+      - opening
+      - finished
+  types:
+    - window-open
 
 - taskAttribute:
     isPrivate: true
@@ -47,7 +57,7 @@
     isExclusion: false
     isIgniteWithParam: true
     isLastValueCapture: true
-    isTest: false
+    isTest: true
     statusList:
       - finished
   types:

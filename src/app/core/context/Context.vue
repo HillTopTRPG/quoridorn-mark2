@@ -2,7 +2,6 @@
   <div
     class="context"
     v-if="type"
-    :style="contextStyle"
     @mouseleave.prevent="hide"
     @contextmenu.prevent
     ref="context"
@@ -13,7 +12,7 @@
         :key="index"
         v-if="item.type !== 'hr'"
         class="item"
-        @click.left.stop="emitEvent(item.emitName)"
+        @click.left.stop="emitEvent(item.taskName, item.arg)"
       >
         {{ item.text }}
       </div>
@@ -36,13 +35,15 @@ import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
+import WindowManager from "@/app/core/window/WindowManager";
 
 const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
 type Item = {
   type: string;
   text?: string;
-  emitName?: string;
+  taskName?: string;
+  arg?: any;
 };
 
 @Component
@@ -55,30 +56,30 @@ export default class Context extends Vue {
 
   private itemList: Item[] = [];
 
-  private get contextStyle() {
-    return {
-      top: (this.y || 0) - 5 + "px",
-      left: (this.x || 0) - 5 + "px"
-    };
+  private getContextElm(): HTMLDivElement {
+    return this.$refs.context as HTMLDivElement;
   }
 
-  private get contextElm(): HTMLDivElement {
-    return this.$refs.context as HTMLDivElement;
+  @Watch("x")
+  @Watch("isMounted")
+  private onChangeX() {
+    if (this.x === null) return;
+    this.getContextElm().style.setProperty("--x", `${this.x}px`);
   }
 
   @Watch("y")
   @Watch("isMounted")
   private onChangeY() {
     if (this.y === null) return;
-    this.contextElm.style.setProperty("--y", this.y.toString());
+    this.getContextElm().style.setProperty("--y", `${this.y}px`);
   }
 
-  private async emitEvent(emitName: string) {
+  private async emitEvent(taskName: string, arg: any) {
     this.hide();
-    await TaskManager.instance.ignition<void>({
-      type: emitName,
+    await TaskManager.instance.ignition<any>({
+      type: taskName,
       owner: "Quoridorn",
-      value: null
+      value: arg
     });
   }
 
@@ -86,15 +87,21 @@ export default class Context extends Vue {
     this.type = null;
   }
 
+  @TaskProcessor("window-open-opening")
+  private async windowOpenOpening(task: Task<string>): Promise<string | void> {
+    WindowManager.instance.open(task.value);
+  }
+
   @TaskProcessor("context-open-finished")
-  @Logging
   private async openContextFinished(
     task: Task<ContextTaskInfo>
   ): Promise<string | void> {
     this.type = task.value!.type;
     this.target = task.value!.target;
-    this.x = task.value!.x;
-    this.y = task.value!.y;
+    setTimeout(() => {
+      this.x = task.value!.x - 5;
+      this.y = task.value!.y - 5;
+    });
 
     // 表示項目をリセット
     this.itemList.length = 0;
@@ -116,11 +123,12 @@ export default class Context extends Vue {
       const contextTextItem: ContextTextItem = item as ContextTextItem;
 
       // テキスト項目の追加
-      if (contextTextItem.emitName && contextTextItem.text) {
+      if (contextTextItem.taskName && contextTextItem.text) {
         this.itemList.push({
           type: "item",
-          emitName: contextTextItem.emitName || "default",
-          text: contextTextItem.text || "default"
+          taskName: contextTextItem.taskName || "default",
+          text: contextTextItem.text || "default",
+          arg: contextTextItem.taskArg
         });
         return;
       }
@@ -147,6 +155,8 @@ export default class Context extends Vue {
   border: solid gray 1px;
   box-sizing: border-box;
   cursor: default;
+  left: var(--x);
+  top: var(--y);
 
   > * {
     display: block;

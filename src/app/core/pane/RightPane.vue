@@ -1,12 +1,13 @@
 <template>
   <div id="right-pane" ref="pane" :class="{ minimized: isMinimized }">
     <!-- コンテンツ -->
-    <div class="v-scroll" @wheel.stop="onWheel" :class="{ isAnimationY }">
+    <div class="v-scroll" @wheel.stop :class="{ isAnimationY }">
       <pane-frame
         v-for="(windowInfo, key) in windowInfoList"
         :key="key"
         v-show="windowInfo.status.indexOf('right-pane') > -1"
         :windowInfo="windowInfo"
+        :status="'right-pane'"
       />
     </div>
 

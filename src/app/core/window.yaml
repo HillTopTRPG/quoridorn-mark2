@@ -34,3 +34,60 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"bgm-setting-window":
+  parentTypeList: []
+  title: BGM設定画面
+  message: ""
+  position: center
+  size:
+    width: 350
+    height: 200
+  minSize:
+    width: 150
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList:
+    - isColumnVariableLength: false
+      isFixTotalWidth: true
+      columnList:
+        - width: 20
+          type: text
+          title: 連動
+          target: isLinkage
+        - width: 20
+          type: text
+          title: タグ
+          target: tag
+        - width: 20
+          type: icon
+          title: 種別
+          target: type
+        - width: 20
+          type: text
+          title: タイトル
+          target: title
+        - width: 20
+          type: text
+          title: 時間
+          target: time
+        - width: 20
+          type: icon
+          title: 繰
+          target: isRepeat
+        - width: 20
+          type: text
+          title: 音量
+          target: volume
+        - width: 20
+          type: text
+          title: fade
+          target: fade
+        - width: 20
+          type: margin
+          title: ""
+          target: nothing

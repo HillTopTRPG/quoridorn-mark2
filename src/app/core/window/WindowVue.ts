@@ -5,6 +5,8 @@ import { WindowInfo } from "@/@types/window";
 export default class WindowVue<T> extends Vue {
   @Prop({ type: String, required: true })
   private windowKey!: string;
+  @Prop({ type: String, required: true })
+  private status!: string;
 
   private __args: T | null = null;
 
