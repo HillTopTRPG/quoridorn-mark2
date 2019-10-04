@@ -52,42 +52,37 @@
   fontSizePickable: true
   resizable: true
   tableInfoList:
-    - isColumnVariableLength: false
-      isFixTotalWidth: true
+    - type: free
       columnList:
-        - width: 20
+        - width: 40
           type: text
           title: 連動
           target: isLinkage
-        - width: 20
+        - width: 40
           type: text
           title: タグ
           target: tag
-        - width: 20
+        - width: 40
           type: icon
           title: 種別
           target: type
-        - width: 20
+        - width: 40
           type: text
           title: タイトル
           target: title
-        - width: 20
+        - width: 40
           type: text
           title: 時間
           target: time
-        - width: 20
+        - width: 40
           type: icon
           title: 繰
           target: isRepeat
-        - width: 20
+        - width: 40
           type: text
           title: 音量
           target: volume
-        - width: 20
+        - width: 40
           type: text
           title: fade
           target: fade
-        - width: 20
-          type: margin
-          title: ""
-          target: nothing

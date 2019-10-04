@@ -9,7 +9,7 @@ export type WindowTableColumn = {
 
 export type WindowTableDeclareInfo = {
   readonly isColumnVariableLength: boolean;
-  readonly isFixTotalWidth: boolean;
+  readonly type: "free" | "fix-on-side" | "fix-on-right";
   readonly columnList: WindowTableColumn[];
 };
 

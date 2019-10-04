@@ -76,6 +76,16 @@ export default class BgmSettingWindow extends WindowVue<number> {
       volume: 80,
       fade: "in"
     });
+    list.push({
+      isLinkage: true,
+      tag: "bgm",
+      type: "youtube",
+      title: "ECHO",
+      time: "8~",
+      isRepeat: true,
+      volume: 80,
+      fade: "in"
+    });
     return list;
   }
 }

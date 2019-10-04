@@ -73,13 +73,12 @@
     </div>
 
     <!-- コンテンツ -->
-    <div class="_contents">
+    <div class="_contents" @wheel.stop>
       <component
         :is="windowInfo.type"
         :windowKey="windowInfo.key"
         :status="status"
         :style="{ fontSize: fontSize + 'px' }"
-        @wheel.stop
       />
     </div>
 
@@ -545,6 +544,7 @@ export default class WindowFrame extends Vue {
   width: 100%;
   height: 100%;
   z-index: 1;
+  overflow: auto;
 }
 
 .window-title {

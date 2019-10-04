@@ -20,9 +20,6 @@ export default class Divider extends Vue {
   @Prop({ type: Number, required: true })
   private index!: number;
 
-  @Prop({ type: String, required: true })
-  private tableKey!: string;
-
   @Emit("hover")
   hoverDev(index: number): void {}
 
@@ -30,19 +27,7 @@ export default class Divider extends Vue {
   doubleClick(index: number): void {}
 
   @Emit("moveStart")
-  moveStart(event: MouseEvent | TouchEvent, index: number) {
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.tableKey,
-      type: `div-${this.index}`
-    });
-    TaskManager.instance.setTaskParam<MouseMoveParam>(
-      "mouse-move-end-left-finished",
-      {
-        key: this.tableKey,
-        type: `div-${this.index}`
-      }
-    );
-  }
+  moveStart(event: MouseEvent | TouchEvent, index: number) {}
 }
 </script>
 
@@ -51,7 +36,9 @@ export default class Divider extends Vue {
   background-color: rgb(183, 186, 188);
   cursor: col-resize;
   position: relative;
+  padding: 0;
   width: 1px;
+  min-width: 1px;
 
   &:after {
     position: absolute;

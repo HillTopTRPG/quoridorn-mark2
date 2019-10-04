@@ -59,6 +59,17 @@ export function format(v: Point | Rectangle): string {
   return `(${v.x}, ${v.y})`;
 }
 
+export function calcStrWidth(element: HTMLElement, str: string) {
+  const spanElm = document.createElement("span");
+  spanElm.innerHTML = str;
+  spanElm.style.whiteSpace = "nowrap";
+  spanElm.style.visibility = "hidden";
+  element.appendChild(spanElm);
+  const width = spanElm.offsetWidth;
+  element.removeChild(spanElm);
+  return width;
+}
+
 export function getPaneHeight(windowKey: string): number {
   const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
   const windowTitleHeight = getCssPxNum("--window-title-height");

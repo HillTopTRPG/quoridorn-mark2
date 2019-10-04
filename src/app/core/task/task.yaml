@@ -57,7 +57,7 @@
     isExclusion: false
     isIgniteWithParam: true
     isLastValueCapture: true
-    isTest: true
+    isTest: false
     statusList:
       - finished
   types:
