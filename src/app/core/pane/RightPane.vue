@@ -40,6 +40,7 @@ import {
 } from "../Coordinate";
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
+import { getCssPxNum } from "@/app/core/Css";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -401,7 +402,10 @@ export default class RightPane extends Vue {
   border-right-width: 0;
   box-sizing: border-box;
   top: var(--menu-bar-height);
-  width: calc(var(--right-pane-width) + var(--scroll-bar-width) + 1px);
+  width: calc(
+    var(--right-pane-width) + var(--scroll-bar-width) + var(--window-padding) *
+      2 + 5px
+  );
   bottom: var(--window-title-height);
   right: 0;
   font-size: var(--fontSize);

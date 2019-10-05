@@ -40,49 +40,50 @@
   message: ""
   position: center
   size:
-    width: 350
-    height: 200
+    width: 271
+    height: 300
   minSize:
-    width: 150
-    height: 150
+    width: 271
+    height: 300
   maxSize:
     width: 500
-    height: 450
+    height: 400
   closable: true
   fontSizePickable: true
   resizable: true
   tableInfoList:
     - type: free
+      height: 250
       columnList:
-        - width: 40
+        - width: 28
           type: text
           title: 連動
           target: isLinkage
-        - width: 40
+        - width: 28
           type: text
           title: タグ
           target: tag
-        - width: 40
+        - width: 34
           type: icon
           title: 種別
           target: type
-        - width: 40
+        - width: 64
           type: text
           title: タイトル
           target: title
-        - width: 40
+        - width: 28
           type: text
           title: 時間
           target: time
-        - width: 40
+        - width: 24
           type: icon
           title: 繰
           target: isRepeat
-        - width: 40
+        - width: 28
           type: text
           title: 音量
           target: volume
-        - width: 40
+        - width: 28
           type: text
           title: fade
           target: fade

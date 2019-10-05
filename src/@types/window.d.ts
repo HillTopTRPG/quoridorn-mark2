@@ -8,8 +8,8 @@ export type WindowTableColumn = {
 };
 
 export type WindowTableDeclareInfo = {
-  readonly isColumnVariableLength: boolean;
   readonly type: "free" | "fix-on-side" | "fix-on-right";
+  readonly height?: number;
   readonly columnList: WindowTableColumn[];
 };
 

@@ -473,8 +473,8 @@ export default class WindowFrame extends Vue {
 *[id^="window-"] {
   position: fixed;
   display: block;
-  padding: 29px var(--window-padding) var(--window-padding)
-    var(--window-padding);
+  padding: calc(var(--window-padding) + var(--window-title-height))
+    var(--window-padding) var(--window-padding) var(--window-padding);
   overflow: visible;
   min-height: 50px;
   border-radius: 8px 8px 0 0;
@@ -484,8 +484,10 @@ export default class WindowFrame extends Vue {
   box-sizing: border-box;
   left: var(--windowX);
   top: var(--windowY);
-  width: var(--windowWidth);
-  height: var(--windowHeight);
+  width: calc(var(--windowWidth) + var(--window-padding) * 2 + 5px);
+  height: calc(
+    var(--windowHeight) + var(--window-padding) * 2 + var(--window-title-height)
+  );
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);
 

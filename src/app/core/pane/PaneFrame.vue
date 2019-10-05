@@ -418,7 +418,7 @@ export default class PaneFrame extends Vue {
 
 .removing {
   background-image: linear-gradient(
-    -45deg,
+    45deg,
     rgba(255, 255, 0, 0.4) 25%,
     rgba(255, 0, 255, 0.4) 25%,
     rgba(255, 0, 255, 0.4) 50%,

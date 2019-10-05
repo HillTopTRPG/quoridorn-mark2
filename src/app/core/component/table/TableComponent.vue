@@ -6,17 +6,16 @@
     >
       <thead>
         <tr>
-          <template v-for="(colDef, index) in tableDeclareInfo.columnList">
+          <template v-for="(colDec, index) in tableDeclareInfo.columnList">
             <!-- セル -->
             <th
-              class="selectable"
               :key="`header-${index}`"
-              :title="colDef.title"
+              :title="colDec.title"
               :style="colStyle(index)"
               ref="column"
             >
-              <slot name="header" :columnDeclareInfo="colDef">
-                {{ colDef.title }}
+              <slot name="header" :colDec="colDec">
+                {{ colDec.title }}
               </slot>
             </th>
 
@@ -24,9 +23,8 @@
             <divider
               :key="`header-div-${index}`"
               :index="index"
-              @hover="divHover"
               @moveStart="divMoveStart"
-              @doubleClick="doubleClick"
+              @doubleClick="adjustWidth"
               v-if="
                 tableDeclareInfo.type === 'free' ||
                   index < tableDeclareInfo.columnList.length - 1
@@ -40,9 +38,18 @@
         <tr
           v-for="data in dataList"
           :key="data.key"
-          :class="{ isActive: selectLineKey === data.key }"
+          :class="{
+            isSelected: selectLineKey === data.key,
+            isHovered: hoverLineKey === data.key,
+            doubleClicked: doubleClickKey === data.key
+          }"
+          @mouseenter="hoverTr(data.key)"
+          @mouseleave="hoverTr(null)"
+          @mousedown.left="selectTr(data.key)"
+          @touchstart="selectTr(data.key)"
+          @dblclick="doubleClick(data.key)"
         >
-          <template v-for="(colDef, index) in tableDeclareInfo.columnList">
+          <template v-for="(colDec, index) in tableDeclareInfo.columnList">
             <!-- セル -->
             <td
               :style="colStyle(index)"
@@ -50,12 +57,12 @@
               class="selectable"
             >
               <slot
-                name="header"
-                :columnDeclareInfo="colDef"
+                name="contents"
+                :colDec="colDec"
                 :data="data"
                 :index="index"
               >
-                <span>{{ data[colDef.target] }}</span>
+                <span>{{ data[colDec.target] }}</span>
               </slot>
             </td>
 
@@ -63,9 +70,8 @@
             <divider
               :key="`body-div-${index}`"
               :index="index"
-              @hover="divHover"
               @moveStart="divMoveStart"
-              @doubleClick="doubleClick"
+              @doubleClick="adjustWidth"
               v-if="
                 tableDeclareInfo.type === 'free' ||
                   index < tableDeclareInfo.columnList.length - 1
@@ -81,7 +87,7 @@
             even: dataList.length % 2 === 0
           }"
         >
-          <template v-for="(colDef, index) in tableDeclareInfo.columnList">
+          <template v-for="(colDec, index) in tableDeclareInfo.columnList">
             <!-- 余白 -->
             <td :style="colStyle(index)" :key="`margin-${index}`"></td>
 
@@ -89,9 +95,8 @@
             <divider
               :key="`margin-div-${index}`"
               :index="index"
-              @hover="divHover"
               @moveStart="divMoveStart"
-              @doubleClick="doubleClick"
+              @doubleClick="adjustWidth"
               v-if="
                 tableDeclareInfo.type === 'free' ||
                   index < tableDeclareInfo.columnList.length - 1
@@ -106,7 +111,7 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Prop, Vue } from "vue-property-decorator";
+import { Emit, Prop, Vue } from "vue-property-decorator";
 import Divider from "@/app/core/component/table/Divider.vue";
 import {
   WindowInfo,
@@ -141,6 +146,8 @@ export default class TableComponent extends Vue {
   private fromRightWidth: number = 0;
   private fromLastWidth: number = 0;
   private selectLineKey: string | null = null;
+  private hoverLineKey: string | null = null;
+  private doubleClickKey: string | null = null;
 
   private get tableInfo(): WindowTableInfo {
     return this.windowInfo.tableInfoList[this.tableIndex];
@@ -232,8 +239,26 @@ export default class TableComponent extends Vue {
     });
   }
 
-  private divHover() {
-    // window.console.log("divHover");
+  private hoverTr(key: string) {
+    this.hoverLineKey = key;
+  }
+
+  @Emit("selectLine")
+  private selectTr(key: string) {
+    this.selectLineKey = key;
+  }
+
+  private doubleClickTimeoutId: number | null = null;
+  @Emit("doubleClick")
+  private doubleClick(key: string) {
+    this.doubleClickKey = key;
+    if (this.doubleClickTimeoutId !== null) {
+      clearTimeout(this.doubleClickTimeoutId);
+    }
+    this.doubleClickTimeoutId = window.setTimeout(() => {
+      this.doubleClickKey = null;
+      this.doubleClickTimeoutId = null;
+    }, 100);
   }
 
   private divMoveStart(event: MouseEvent | TouchEvent, index: number) {
@@ -259,7 +284,7 @@ export default class TableComponent extends Vue {
     );
   }
 
-  private doubleClick(index: number) {
+  private adjustWidth(index: number) {
     const leftIndex = index;
     const rightIndex = leftIndex + 1;
 
@@ -306,6 +331,9 @@ export default class TableComponent extends Vue {
 
 <style lang="scss">
 @import "../../../../assets/common";
+
+$lineHeight: 2em;
+
 .table-container {
   overflow: auto;
   width: 100%;
@@ -315,18 +343,30 @@ export default class TableComponent extends Vue {
     border-collapse: collapse;
     border-spacing: 0;
     border: 1px solid gray;
-    height: 300px;
 
     &.isFreeWidth {
       border-right: none;
     }
 
     tr {
-      height: 2em;
+      height: $lineHeight;
+
+      &.isSelected {
+        background-color: rgba(77, 196, 255, 1) !important;
+      }
+
+      &:not(.isSelected).isHovered {
+        background-color: rgba(191, 228, 255, 1) !important;
+      }
+
+      &.doubleClicked {
+        outline: 2px solid rgb(255, 75, 0);
+        outline-offset: -2px;
+      }
 
       &.space {
         height: auto;
-        background-size: 4em 4em;
+        background-size: calc(#{$lineHeight} * 2) calc(#{$lineHeight} * 2);
 
         &.odd {
           background-image: linear-gradient(
@@ -353,7 +393,8 @@ export default class TableComponent extends Vue {
     th {
       @include flex-box(row, center, center);
       overflow: hidden;
-      height: 100%;
+      height: $lineHeight;
+      padding: 0;
     }
 
     thead {

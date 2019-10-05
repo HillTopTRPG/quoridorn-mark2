@@ -4,8 +4,8 @@
     @dblclick.stop="doubleClick(index)"
     @mouseover="hoverDev(index)"
     @mouseout="hoverDev()"
-    @mousedown.stop="moveStart($event, index)"
-    @touchstart.stop="moveStart"
+    @mousedown="moveStart($event, index)"
+    @touchstart="moveStart"
     @contextmenu.prevent
   ></td>
 </template>
