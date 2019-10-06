@@ -164,11 +164,12 @@ export function getRightPaneRectangle(): Rectangle {
   const width = getCssPxNum("--right-pane-width", appElm);
   const bottom = getCssPxNum("--window-title-height", appElm);
   const scrollBarWidth = getCssPxNum("--scroll-bar-width");
+  const windowPadding = getCssPxNum("--window-padding");
   const windowSize = createSize(window.innerWidth, window.innerHeight);
   return createRectangle(
-    windowSize.width - width - scrollBarWidth,
+    windowSize.width - width - scrollBarWidth - windowPadding * 2,
     top,
-    width,
+    width + scrollBarWidth + windowPadding * 2,
     windowSize.height - top - bottom
   );
 }

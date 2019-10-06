@@ -8,6 +8,7 @@
         v-show="windowInfo.status.indexOf('right-pane') > -1"
         :windowInfo="windowInfo"
         :status="'right-pane'"
+        @changeMinMaxWidth="changeMinMaxWidth"
       />
     </div>
 
@@ -171,10 +172,7 @@ export default class RightPane extends Vue {
       this.hoverWindowKey = key;
 
       // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
-      let arrangeWidth: number;
-      arrangeWidth = Math.max(this.width, this.minWidth);
-      arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
-      this.diffX = this.width - arrangeWidth;
+      this.diffX = this.width - this.arrangeWidth(this.width);
     } else {
       // ペインに含まれない場合
       if (this.hoverWindowKey) {
@@ -231,16 +229,23 @@ export default class RightPane extends Vue {
     this.arrangeY();
 
     // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
-    let arrangeWidth: number;
-    arrangeWidth = Math.max(this.width, this.minWidth);
-    arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
-    this.width = arrangeWidth;
+    this.width = this.arrangeWidth(this.width);
 
     await TaskManager.instance.ignition<string>({
       type: "window-active",
       owner: "Quoridorn",
       value: windowKey
     });
+  }
+
+  private changeMinMaxWidth() {
+    this.width = this.arrangeWidth(this.width);
+  }
+
+  private arrangeWidth(newWidth: number): number {
+    newWidth = Math.max(newWidth, this.minWidth);
+    newWidth = Math.min(newWidth, this.maxWidth);
+    return newWidth;
   }
 
   @TaskProcessor("window-minimize-finished")
@@ -251,10 +256,7 @@ export default class RightPane extends Vue {
       this.arrangeY(task.value!);
 
       // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
-      let arrangeWidth: number;
-      arrangeWidth = Math.max(this.width, this.minWidth);
-      arrangeWidth = Math.min(arrangeWidth, this.maxWidth);
-      this.width = arrangeWidth;
+      this.width = this.arrangeWidth(this.width);
     });
   }
 
@@ -346,7 +348,7 @@ export default class RightPane extends Vue {
    */
   private get minWidth() {
     if (!this.filteredWindowInfoList.length) return 50;
-    return Math.min(
+    return Math.max(
       ...this.filteredWindowInfoList.map(info =>
         info.declare.minSize ? info.declare.minSize.width : 0
       )
@@ -358,7 +360,7 @@ export default class RightPane extends Vue {
    */
   private get maxWidth() {
     if (!this.filteredWindowInfoList.length) return 50;
-    return Math.max(
+    return Math.min(
       ...this.filteredWindowInfoList.map(info =>
         info.declare.maxSize ? info.declare.maxSize.width : 1000
       )
@@ -416,7 +418,10 @@ export default class RightPane extends Vue {
   transition-duration: 200ms;
 
   &.minimized {
-    right: calc(var(--right-pane-width) * -1 - var(--scroll-bar-width) - 1px);
+    right: calc(
+      var(--right-pane-width) * -1 - var(--scroll-bar-width) -
+        var(--window-padding) * 2 - 5px
+    );
   }
 
   .isAnimationY .pane-frame {

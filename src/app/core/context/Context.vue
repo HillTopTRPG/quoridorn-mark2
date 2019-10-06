@@ -89,7 +89,7 @@ export default class Context extends Vue {
 
   @TaskProcessor("window-open-opening")
   private async windowOpenOpening(task: Task<string>): Promise<string | void> {
-    WindowManager.instance.open(task.value);
+    WindowManager.instance.open(task.value!);
   }
 
   @TaskProcessor("context-open-finished")
@@ -120,7 +120,9 @@ export default class Context extends Vue {
       if (!judgeCompare(item.isViewCompare, this.target, this.getObj)) return;
 
       // 項目の判定と追加
-      const contextTextItem: ContextTextItem = item as ContextTextItem;
+      const contextTextItem: ContextTextItem<unknown> = item as ContextTextItem<
+        unknown
+      >;
 
       // テキスト項目の追加
       if (contextTextItem.taskName && contextTextItem.text) {

@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { PaneMoveInfo, WindowInfo } from "@/@types/window";
 import ResizeKnob from "../window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
@@ -271,6 +271,20 @@ export default class PaneFrame extends Vue {
     return this.$refs.paneFrame as HTMLDivElement;
   }
 
+  @Emit("changeMinMaxWidth")
+  @Watch("windowInfo.declare.minSize.width")
+  private onChangeMinWidth(width: number) {
+    if (this.windowInfo.width >= width) return;
+    this.windowInfo.width = width;
+  }
+
+  @Emit("changeMinMaxWidth")
+  @Watch("windowInfo.declare.maxSize.width")
+  private onChangeMaxWidth(width: number) {
+    if (this.windowInfo.width <= width) return;
+    this.windowInfo.width = width;
+  }
+
   @Watch("isMounted")
   @Watch("windowInfo.paneY")
   private onChangeWindowY() {
@@ -406,26 +420,26 @@ export default class PaneFrame extends Vue {
 .inserting {
   background-image: linear-gradient(
     -45deg,
-    rgba(255, 255, 0, 0.4) 25%,
-    rgba(0, 255, 255, 0.4) 25%,
-    rgba(0, 255, 255, 0.4) 50%,
-    rgba(255, 255, 0, 0.4) 50%,
-    rgba(255, 255, 0, 0.4) 75%,
-    rgba(0, 255, 255, 0.4) 75%,
-    rgba(0, 255, 255, 0.4)
+    rgba(255, 255, 0, 0.2) 25%,
+    rgba(0, 255, 255, 0.2) 25%,
+    rgba(0, 255, 255, 0.2) 50%,
+    rgba(255, 255, 0, 0.2) 50%,
+    rgba(255, 255, 0, 0.2) 75%,
+    rgba(0, 255, 255, 0.2) 75%,
+    rgba(0, 255, 255, 0.2)
   );
 }
 
 .removing {
   background-image: linear-gradient(
     45deg,
-    rgba(255, 255, 0, 0.4) 25%,
-    rgba(255, 0, 255, 0.4) 25%,
-    rgba(255, 0, 255, 0.4) 50%,
-    rgba(255, 255, 0, 0.4) 50%,
-    rgba(255, 255, 0, 0.4) 75%,
-    rgba(255, 0, 255, 0.4) 75%,
-    rgba(255, 0, 255, 0.4)
+    rgba(255, 255, 0, 0.2) 25%,
+    rgba(255, 0, 255, 0.2) 25%,
+    rgba(255, 0, 255, 0.2) 50%,
+    rgba(255, 255, 0, 0.2) 50%,
+    rgba(255, 255, 0, 0.2) 75%,
+    rgba(255, 0, 255, 0.2) 75%,
+    rgba(255, 0, 255, 0.2)
   );
 }
 </style>

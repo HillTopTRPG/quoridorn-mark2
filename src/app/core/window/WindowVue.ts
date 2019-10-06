@@ -6,7 +6,7 @@ export default class WindowVue<T> extends Vue {
   @Prop({ type: String, required: true })
   private windowKey!: string;
   @Prop({ type: String, required: true })
-  private status!: string;
+  protected status!: string;
 
   private __args: T | null = null;
 

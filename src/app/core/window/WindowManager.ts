@@ -43,11 +43,16 @@ export default class WindowManager {
     )[0] as WindowInfo<T>;
   }
 
-  private resist<T>(type: string, declare: WindowDeclareInfo, args: T): string {
-    if (!declare) {
+  private resist<T>(
+    type: string,
+    declareInfo: WindowDeclareInfo,
+    args: T
+  ): string {
+    if (!declareInfo) {
       throw new ApplicationError(`No such window type='${type}'`);
     }
-    const tableInfoList: WindowTableInfo[] = declare.tableInfoList.map(
+    declareInfo = JSON.parse(JSON.stringify(declareInfo)) as WindowDeclareInfo;
+    const tableInfoList: WindowTableInfo[] = declareInfo.tableInfoList.map(
       tableInfo => ({
         selectLineKey: null,
         hoverLineIndex: null,
@@ -56,20 +61,20 @@ export default class WindowManager {
       })
     );
 
-    const windowSize = declare.size;
-    const position = declare.position;
+    const windowSize = declareInfo.size;
+    const position = declareInfo.position;
     const menuHeight = getCssPxNum("--menu-bar-height");
     const point = calcWindowPosition(position, windowSize, menuHeight);
 
     const key = `window-${this.key++}`;
     this.__windowInfoList.push({
       key,
-      title: declare.title,
+      title: declareInfo.title,
       status: "window",
-      message: declare.message,
+      message: declareInfo.message,
       args,
       type,
-      declare,
+      declare: declareInfo,
       ...point,
       ...windowSize,
       order: this.__windowInfoList.length,

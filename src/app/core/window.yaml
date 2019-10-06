@@ -44,10 +44,10 @@
     height: 300
   minSize:
     width: 271
-    height: 300
+    height: 100
   maxSize:
-    width: 500
-    height: 400
+    width: 271
+    height: 1000
   closable: true
   fontSizePickable: true
   resizable: true

@@ -2,7 +2,9 @@
   <div>
     <div class="button-area">
       <ctrl-button @click="playBgm()">送信</ctrl-button>
-      <ctrl-button @click="preview">プレビュー</ctrl-button>
+      <ctrl-button @click="preview" class="margin-left-auto"
+        >プレビュー</ctrl-button
+      >
     </div>
 
     <table-component
@@ -12,30 +14,20 @@
       :dataList="bgmList"
       @selectLine="selectBgm"
       @doubleClick="playBgm"
+      @adjustWidth="adjustWidth"
     >
       <template #contents="{ colDec, data, index }">
-        <template v-if="index === 0">
-          {{ data.chatLinkage > 0 ? "あり" : "なし" }}
-        </template>
+        <template v-if="index === 0">{{ data | chatLinkage }}</template>
         <template v-else-if="index === 2">
-          <i class="icon-stop2" v-if="!data.url"></i>
-          <i class="icon-youtube2" v-else-if="isYoutube(data.url)"></i>
-          <i class="icon-dropbox" v-else-if="isDropBox(data.url)"></i>
-          <i class="icon-file-music" v-else></i>
+          <i :class="data | icon"></i>
         </template>
-        <template v-else-if="index === 4">
-          {{ data.url ? convertSecond(data.start, data.end) : "-" }}
-        </template>
+        <template v-else-if="index === 4">{{ data | time }}</template>
         <template v-else-if="index === 5">
           <i class="icon-loop" v-if="data.url && data.isLoop"></i>
-          {{ data.url && data.isLoop ? "" : "-" }}
+          {{ data | isLoop }}
         </template>
-        <template v-else-if="index === 6">
-          {{ data.url ? data.volume * 100 : "-" }}
-        </template>
-        <template v-else-if="index === 7">
-          {{ data.url ? fadeStr(data) : "-" }}
-        </template>
+        <template v-else-if="index === 6">{{ data | volume }}</template>
+        <template v-else-if="index === 7">{{ data | fade }}</template>
         <template v-else>
           {{ data[colDec.target] }}
         </template>
@@ -54,12 +46,36 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
-import WindowManager from "@/app/core/window/WindowManager";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
 
 @Component({
-  components: { TableComponent, CtrlButton }
+  components: { TableComponent, CtrlButton },
+  filters: {
+    chatLinkage: (data: BgmInfo) => (data.chatLinkage > 0 ? "あり" : "なし"),
+    icon: (data: BgmInfo) => {
+      if (!data.url) return "icon-stop2";
+      if (/www\.youtube\.com/.test(data.url)) return "icon-youtube2";
+      if (/dropbox/.test(data.url)) return "icon-dropbox";
+      return "icon-file-music";
+    },
+    time: (data: BgmInfo) => {
+      if (!data.url) return "-";
+      if (data.start && data.end) return `${data.start}〜${data.end}`;
+      if (data.start) return `${data.start}〜`;
+      if (data.end) return `〜${data.end}`;
+      return "All";
+    },
+    isLoop: (data: BgmInfo) => (data.url && data.isLoop ? "" : "-"),
+    volume: (data: BgmInfo) => (data.url ? data.volume * 100 : "-"),
+    fade: (data: BgmInfo) => {
+      if (!data.url) return "-";
+      if (data.fadeIn > 0 && data.fadeOut > 0) return "in/out";
+      if (data.fadeIn > 0 && data.fadeOut === 0) return "in";
+      if (data.fadeIn === 0 && data.fadeOut > 0) return "out";
+      return "-";
+    }
+  }
 })
 export default class BgmSettingWindow extends WindowVue<number> {
   private selectedBgmKey: string | null = null;
@@ -73,34 +89,11 @@ export default class BgmSettingWindow extends WindowVue<number> {
     window.console.log(useBgmKey);
   }
 
-  private clickButton() {
-    if (this.args === null) return;
-    WindowManager.instance.open<number>("sample-window", this.args + 1);
-  }
-
-  private isYoutube(url: string) {
-    return /www\.youtube\.com/.test(url);
-  }
-
-  private isDropBox(url: string) {
-    return /dropbox/.test(url);
-  }
-
-  private get convertSecond(): (start: number, end: number) => string {
-    return (start: number, end: number): string => {
-      if (start && end) return `${start}〜${end}`;
-      if (start) return `${start}〜`;
-      if (end) return `〜${end}`;
-      return "All";
-    };
-  }
-  private get fadeStr(): (bgmObj: any) => string {
-    return (bgmObj: any): string => {
-      if (bgmObj.fadeIn > 0 && bgmObj.fadeOut > 0) return "in/out";
-      if (bgmObj.fadeIn > 0 && bgmObj.fadeOut === 0) return "in";
-      if (bgmObj.fadeIn === 0 && bgmObj.fadeOut > 0) return "out";
-      return "-";
-    };
+  private adjustWidth(totalWidth: number) {
+    if (this.windowInfo.declare.minSize)
+      this.windowInfo.declare.minSize.width = totalWidth;
+    if (this.windowInfo.declare.maxSize)
+      this.windowInfo.declare.maxSize.width = totalWidth;
   }
 
   private mounted() {
@@ -181,7 +174,11 @@ export default class BgmSettingWindow extends WindowVue<number> {
 
 <style scoped lang="scss">
 @import "../../../assets/common";
-input {
-  width: 2em;
+.button-area {
+  @include flex-box(row, flex-start, center);
+
+  .margin-left-auto {
+    margin-left: auto;
+  }
 }
 </style>

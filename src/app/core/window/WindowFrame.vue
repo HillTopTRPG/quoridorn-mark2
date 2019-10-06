@@ -149,7 +149,6 @@ export default class WindowFrame extends Vue {
       }
     );
     this.dragFrom = getEventPoint(event);
-    window.console.log(this.dragFrom.x, this.dragFrom.y);
     this.activeWindow();
   }
 
@@ -400,6 +399,18 @@ export default class WindowFrame extends Vue {
       }
       setListener(iFrameElm);
     });
+  }
+
+  @Watch("windowInfo.declare.minSize.width")
+  private onChangeMinWidth(width: number) {
+    if (this.windowInfo.width >= width) return;
+    this.windowInfo.width = width;
+  }
+
+  @Watch("windowInfo.declare.maxSize.width")
+  private onChangeMaxWidth(width: number) {
+    if (this.windowInfo.width <= width) return;
+    this.windowInfo.width = width;
   }
 
   @Watch("isMounted")

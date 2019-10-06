@@ -2,11 +2,30 @@
   <div class="table-container">
     <table
       ref="table"
-      :class="{ isFreeWidth: tableDeclareInfo.type === 'free' }"
+      :class="{
+        isStretchRight:
+          windowInfo.status === 'right-pane' &&
+          tableDeclareInfo.type.startsWith('free'),
+        isStretchLeft:
+          windowInfo.status !== 'right-pane' &&
+          tableDeclareInfo.type.startsWith('free')
+      }"
     >
       <thead>
         <tr>
           <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+            <!-- 区切り線 -->
+            <divider
+              :key="`header-div-${index}`"
+              :index="index"
+              @moveStart="divMoveStart"
+              @doubleClick="adjustWidth"
+              v-if="
+                index !== 0 ||
+                  (windowInfo.status === 'right-pane' &&
+                    tableDeclareInfo.type.startsWith('free'))
+              "
+            />
             <!-- セル -->
             <th
               :key="`header-${index}`"
@@ -18,19 +37,19 @@
                 {{ colDec.title }}
               </slot>
             </th>
-
-            <!-- 区切り線 -->
-            <divider
-              :key="`header-div-${index}`"
-              :index="index"
-              @moveStart="divMoveStart"
-              @doubleClick="adjustWidth"
-              v-if="
-                tableDeclareInfo.type === 'free' ||
-                  index < tableDeclareInfo.columnList.length - 1
-              "
-            />
           </template>
+
+          <!-- 区切り線 -->
+          <divider
+            :key="`header-div-${tableDeclareInfo.columnList.length}`"
+            :index="tableDeclareInfo.columnList.length"
+            @moveStart="divMoveStart"
+            @doubleClick="adjustWidth"
+            v-if="
+              windowInfo.status !== 'right-pane' &&
+                tableDeclareInfo.type.startsWith('free')
+            "
+          />
         </tr>
       </thead>
       <tbody>
@@ -50,6 +69,19 @@
           @dblclick="doubleClick(data.key)"
         >
           <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+            <!-- 区切り線 -->
+            <divider
+              :key="`body-div-${index}`"
+              :index="index"
+              @moveStart="divMoveStart"
+              @doubleClick="adjustWidth"
+              v-if="
+                index !== 0 ||
+                  (windowInfo.status === 'right-pane' &&
+                    tableDeclareInfo.type.startsWith('free'))
+              "
+            />
+
             <!-- セル -->
             <td
               :style="colStyle(index)"
@@ -65,19 +97,19 @@
                 <span>{{ data[colDec.target] }}</span>
               </slot>
             </td>
-
-            <!-- 区切り線 -->
-            <divider
-              :key="`body-div-${index}`"
-              :index="index"
-              @moveStart="divMoveStart"
-              @doubleClick="adjustWidth"
-              v-if="
-                tableDeclareInfo.type === 'free' ||
-                  index < tableDeclareInfo.columnList.length - 1
-              "
-            />
           </template>
+
+          <!-- 区切り線 -->
+          <divider
+            :key="`header-div-${tableDeclareInfo.columnList.length}`"
+            :index="tableDeclareInfo.columnList.length"
+            @moveStart="divMoveStart"
+            @doubleClick="adjustWidth"
+            v-if="
+              windowInfo.status !== 'right-pane' &&
+                tableDeclareInfo.type.startsWith('free')
+            "
+          />
         </tr>
         <!-- 余白 -->
         <tr
@@ -88,9 +120,6 @@
           }"
         >
           <template v-for="(colDec, index) in tableDeclareInfo.columnList">
-            <!-- 余白 -->
-            <td :style="colStyle(index)" :key="`margin-${index}`"></td>
-
             <!-- 区切り線 -->
             <divider
               :key="`margin-div-${index}`"
@@ -98,11 +127,27 @@
               @moveStart="divMoveStart"
               @doubleClick="adjustWidth"
               v-if="
-                tableDeclareInfo.type === 'free' ||
-                  index < tableDeclareInfo.columnList.length - 1
+                index !== 0 ||
+                  (windowInfo.status === 'right-pane' &&
+                    tableDeclareInfo.type.startsWith('free'))
               "
             />
+
+            <!-- 余白 -->
+            <td :style="colStyle(index)" :key="`margin-${index}`"></td>
           </template>
+
+          <!-- 区切り線 -->
+          <divider
+            :key="`header-div-${tableDeclareInfo.columnList.length}`"
+            :index="tableDeclareInfo.columnList.length"
+            @moveStart="divMoveStart"
+            @doubleClick="adjustWidth"
+            v-if="
+              windowInfo.status !== 'right-pane' &&
+                tableDeclareInfo.type.startsWith('free')
+            "
+          />
         </tr>
       </tbody>
     </table>
@@ -137,7 +182,7 @@ export default class TableComponent extends Vue {
   @Prop({ type: String, required: true })
   private status!: string;
   @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo;
+  private windowInfo!: WindowInfo<unknown>;
   @Prop({ type: Array, required: true })
   private dataList!: any[];
 
@@ -193,17 +238,48 @@ export default class TableComponent extends Vue {
   ): Promise<string | void> {
     if (!param || param.key !== this.tableKey) return;
 
-    const leftIndex = parseInt(param.type.replace("div-", ""), 10);
-    const rightIndex = leftIndex + 1;
+    const leftIndex = parseInt(param.type!.replace("div-", ""), 10) - 1;
     const point = task.value!;
     const diffX = point.x - this.dragFrom.x;
 
-    let newLeftWidth = this.fromLeftWidth + diffX;
-    let newRightWidth = this.fromRightWidth;
-    let newLastWidth = this.fromLastWidth;
+    this.adjust(
+      leftIndex + (this.status !== "right-pane" ? 0 : 1),
+      leftIndex + (this.status !== "right-pane" ? 1 : 0),
+      this.fromLeftWidth + diffX * (this.status !== "right-pane" ? 1 : -1),
+      this.fromRightWidth,
+      this.fromLastWidth,
+      diffX
+    );
+  }
 
-    if (this.tableDeclareInfo.type === "free" && newLeftWidth < 20)
+  private adjustWidth(index: number) {
+    const leftIndex = index - 1 + (this.status !== "right-pane" ? 0 : 1);
+    const columns = this.$refs.column as HTMLTableRowElement[];
+    const element = columns[leftIndex];
+    const text = element.innerText;
+    let newLeftWidth = calcStrWidth(element, text);
+
+    this.adjust(
+      leftIndex,
+      index - 1 + (this.status !== "right-pane" ? 1 : 0),
+      newLeftWidth,
+      this.fromRightWidth,
+      this.fromLastWidth,
+      this.fromLeftWidth - newLeftWidth
+    );
+  }
+
+  private adjust(
+    leftIndex: number,
+    rightIndex: number,
+    newLeftWidth: number,
+    newRightWidth: number,
+    newLastWidth: number,
+    diffX: number
+  ) {
+    if (this.tableDeclareInfo.type === "free" && newLeftWidth < 20) {
       newLeftWidth = 20;
+    }
     if (this.tableDeclareInfo.type === "fix-on-side") {
       newRightWidth = this.fromRightWidth - diffX;
       if (newLeftWidth < 20) {
@@ -229,9 +305,26 @@ export default class TableComponent extends Vue {
 
     const list = this.tableInfo.columnWidthList;
     list.splice(leftIndex, 1, newLeftWidth);
-    list.splice(rightIndex, 1, newRightWidth);
-    list.splice(list.length - 1, 1, newLastWidth);
+    if (0 <= rightIndex && rightIndex < list.length) {
+      list.splice(rightIndex, 1, newRightWidth);
+      if (leftIndex < list.length - 1) {
+        list.splice(list.length - 1, 1, newLastWidth);
+      }
+    }
+
+    if (this.tableDeclareInfo.type === "free") {
+      const totalWidth: number = list.reduce(
+        (accumulator: number, currentValue: number) => {
+          return accumulator + currentValue + 1;
+        },
+        1
+      );
+      this.adjustEmit(totalWidth);
+    }
   }
+
+  @Emit("adjustWidth")
+  private adjustEmit(totalWidth: number) {}
 
   private get colStyle() {
     return (index: number) => ({
@@ -263,8 +356,8 @@ export default class TableComponent extends Vue {
 
   private divMoveStart(event: MouseEvent | TouchEvent, index: number) {
     this.dragFrom = getEventPoint(event);
-    const leftIndex = index;
-    const rightIndex = leftIndex + 1;
+    const leftIndex = index - 1 + (this.status !== "right-pane" ? 0 : 1);
+    const rightIndex = index - 1 + (this.status !== "right-pane" ? 1 : 0);
 
     const list = this.tableInfo.columnWidthList;
     this.fromLeftWidth = list[leftIndex];
@@ -282,49 +375,6 @@ export default class TableComponent extends Vue {
         type: `div-${index}`
       }
     );
-  }
-
-  private adjustWidth(index: number) {
-    const leftIndex = index;
-    const rightIndex = leftIndex + 1;
-
-    const columns = this.$refs.column;
-    const element = columns[index];
-    const text = element.innerText;
-
-    let newLeftWidth = calcStrWidth(element, text);
-    let newRightWidth = this.fromRightWidth;
-    let newLastWidth = this.fromLastWidth;
-
-    if (this.tableDeclareInfo.type === "free" && newLeftWidth < 20)
-      newLeftWidth = 20;
-    if (this.tableDeclareInfo.type === "fix-on-side") {
-      newRightWidth = this.fromRightWidth + this.fromLeftWidth - newLeftWidth;
-      if (newLeftWidth < 20) {
-        newLeftWidth = 20;
-        newRightWidth = this.fromRightWidth + this.fromLeftWidth - 20;
-      }
-      if (newRightWidth < 20) {
-        newRightWidth = 20;
-        newLeftWidth = this.fromRightWidth + this.fromLeftWidth - 20;
-      }
-    }
-    if (this.tableDeclareInfo.type === "fix-on-right") {
-      newLastWidth = this.fromLastWidth + this.fromLeftWidth - newLeftWidth;
-      if (newLeftWidth < 20) {
-        newLeftWidth = 20;
-        newLastWidth = this.fromLastWidth + this.fromLeftWidth - 20;
-      }
-      if (newLastWidth < 20) {
-        newLastWidth = 20;
-        newLeftWidth = this.fromLastWidth + this.fromLeftWidth - 20;
-      }
-    }
-
-    const list = this.tableInfo.columnWidthList;
-    list.splice(leftIndex, 1, newLeftWidth);
-    list.splice(rightIndex, 1, newRightWidth);
-    list.splice(list.length - 1, 1, newLastWidth);
   }
 }
 </script>
@@ -344,7 +394,11 @@ $lineHeight: 2em;
     border-spacing: 0;
     border: 1px solid gray;
 
-    &.isFreeWidth {
+    &.isStretchRight {
+      border-left: none;
+    }
+
+    &.isStretchLeft {
       border-right: none;
     }
 
