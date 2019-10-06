@@ -54,6 +54,8 @@ export default class Context extends Vue {
   private x: number | null = null;
   private y: number | null = null;
 
+  private key = "context";
+
   private itemList: Item[] = [];
 
   private getContextElm(): HTMLDivElement {

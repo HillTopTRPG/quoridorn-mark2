@@ -63,6 +63,8 @@ export default class RightPane extends Vue {
 
   private isAnimationY: boolean = false;
 
+  private key = "right-pane";
+
   private mounted() {
     this.isMounted = true;
   }
@@ -72,13 +74,13 @@ export default class RightPane extends Vue {
    */
   private leftDown(event: MouseEvent | TouchEvent, side: string): void {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: "right-pane",
+      key: this.key,
       type: side
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
       "mouse-move-end-left-finished",
       {
-        key: "right-pane",
+        key: this.key,
         type: side
       }
     );
@@ -95,7 +97,7 @@ export default class RightPane extends Vue {
     task: Task<Point>,
     param: MouseMoveParam
   ): Promise<string | void> {
-    if (param.key !== "right-pane") return;
+    if (param.key !== this.key) return;
     const point = task.value!;
 
     let diff = point.x - this.dragFrom;
@@ -166,7 +168,7 @@ export default class RightPane extends Vue {
       // ペインに含まれている場合
       const windowInfo = WindowManager.instance.getWindowInfo(key);
       // 既に追加されていたら処理しない
-      if (windowInfo.status.startsWith("right-pane")) return;
+      if (windowInfo.status.startsWith(this.key)) return;
 
       windowInfo.status = "window-right-pane";
       this.hoverWindowKey = key;
@@ -215,7 +217,7 @@ export default class RightPane extends Vue {
   }
 
   private get filteredWindowInfoList() {
-    return WindowManager.createFilter("right-pane")(this.windowInfoList);
+    return WindowManager.createFilter(this.key)(this.windowInfoList);
   }
 
   /**

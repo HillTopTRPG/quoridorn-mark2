@@ -212,19 +212,19 @@ export default class TableComponent extends Vue {
     return this.windowInfo.declare.tableInfoList[this.tableIndex];
   }
 
-  private get tableKey(): string {
+  private get key(): string {
     return `${this.windowInfo.key}-${this.status}-table-${this.tableIndex}`;
   }
 
   private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.tableKey,
+      key: this.key,
       type: `div-${divIndex}`
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
       "mouse-move-end-left-finished",
       {
-        key: this.tableKey,
+        key: this.key,
         type: `div-${divIndex}`
       }
     );
@@ -235,7 +235,7 @@ export default class TableComponent extends Vue {
     task: Task<Point>,
     param: MouseMoveParam
   ): Promise<string | void> {
-    if (!param || param.key !== this.tableKey) return;
+    if (!param || param.key !== this.key) return;
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -246,7 +246,7 @@ export default class TableComponent extends Vue {
     task: Task<Point>,
     param: MouseMoveParam
   ): Promise<string | void> {
-    if (!param || param.key !== this.tableKey) return;
+    if (!param || param.key !== this.key) return;
 
     const leftIndex = parseInt(param.type!.replace("div-", ""), 10) - 1;
     const point = task.value!;
@@ -375,13 +375,13 @@ export default class TableComponent extends Vue {
     this.fromLastWidth = list[list.length - 1];
 
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.tableKey,
+      key: this.key,
       type: `div-${index}`
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
       "mouse-move-end-left-finished",
       {
-        key: this.tableKey,
+        key: this.key,
         type: `div-${index}`
       }
     );

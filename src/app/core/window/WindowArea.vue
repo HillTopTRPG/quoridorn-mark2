@@ -30,6 +30,8 @@ export default class WindowArea extends Vue {
   private windowInfoList: WindowInfo<unknown>[] =
     WindowManager.instance.windowInfoList;
 
+  private key = "window-area";
+
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing(task: Task<string>): Promise<string | void> {
     const index = this.getWindowInfoIndex(task.value);

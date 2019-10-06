@@ -46,13 +46,11 @@ export default class TaskManager {
     key: string
   ): void {
     let processContainer = this.taskListener[type];
-    if (!processContainer) {
-      this.taskListener[type] = processContainer = {};
-    }
+    if (!processContainer) this.taskListener[type] = processContainer = {};
+
     let processList = processContainer[key];
-    if (!processList) {
-      processContainer[key] = processList = [];
-    }
+    if (!processList) processContainer[key] = processList = [];
+
     processList.push(process);
   }
 
@@ -62,14 +60,13 @@ export default class TaskManager {
    * @param key
    */
   public removeTaskListener(type: string, key?: string): void {
-    if (!key) {
-      delete this.taskListener[type];
+    window.console.log("removeTaskListener", type, key);
+    if (key) {
+      delete this.taskListener[type][key];
       return;
     }
 
-    if (this.taskListener[type]) {
-      delete this.taskListener[type][key];
-    }
+    delete this.taskListener[type];
   }
 
   /**

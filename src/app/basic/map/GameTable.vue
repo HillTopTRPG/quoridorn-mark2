@@ -131,6 +131,8 @@ export default class GameTable extends AddressCalcMixin {
   private wheelTimer: number | null = null;
   private wheel: number = 0;
 
+  private key = "game-table";
+
   @Watch("wheel")
   private onChangeWheel(wheel: number, oldValue: number) {
     if (wheel < -2400 || wheel > 800) {
@@ -201,7 +203,7 @@ export default class GameTable extends AddressCalcMixin {
     this.pointDiff.x = 0;
     this.pointDiff.y = 0;
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: "game-table",
+      key: this.key,
       type: `button-${button}`
     });
     TaskManager.instance.setTaskParam<MouseMoveParam>(
@@ -209,7 +211,7 @@ export default class GameTable extends AddressCalcMixin {
         ? "mouse-move-end-right-finished"
         : `mouse-move-end-left-finished`,
       {
-        key: "game-table",
+        key: this.key,
         type: `${button}-click`
       }
     );
@@ -229,7 +231,7 @@ export default class GameTable extends AddressCalcMixin {
     task: Task<Point>,
     param: MouseMoveParam
   ): Promise<string | void> {
-    if (param.key !== "game-table") return;
+    if (param.key !== this.key) return;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
     const point = task.value!;
 
@@ -241,7 +243,7 @@ export default class GameTable extends AddressCalcMixin {
         ? "mouse-move-end-right-finished"
         : `mouse-move-end-left-finished`,
       {
-        key: "game-table",
+        key: this.key,
         type
       }
     );
