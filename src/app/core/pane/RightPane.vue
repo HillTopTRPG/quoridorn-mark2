@@ -243,8 +243,8 @@ export default class RightPane extends Vue {
   }
 
   private arrangeWidth(newWidth: number): number {
-    newWidth = Math.max(newWidth, this.minWidth);
     newWidth = Math.min(newWidth, this.maxWidth);
+    newWidth = Math.max(newWidth, this.minWidth);
     return newWidth;
   }
 
@@ -347,24 +347,22 @@ export default class RightPane extends Vue {
    * ペインの最小幅の算出
    */
   private get minWidth() {
-    if (!this.filteredWindowInfoList.length) return 50;
-    return Math.max(
-      ...this.filteredWindowInfoList.map(info =>
-        info.declare.minSize ? info.declare.minSize.width : 0
-      )
+    const useList = this.filteredWindowInfoList.filter(
+      info => info.declare.minSize
     );
+    if (!useList.length) return 50;
+    return Math.max(...useList.map(info => info.declare.minSize!.width));
   }
 
   /**
    * ペインの最大幅の算出
    */
   private get maxWidth() {
-    if (!this.filteredWindowInfoList.length) return 50;
-    return Math.min(
-      ...this.filteredWindowInfoList.map(info =>
-        info.declare.maxSize ? info.declare.maxSize.width : 1000
-      )
+    const useList = this.filteredWindowInfoList.filter(
+      info => info.declare.maxSize
     );
+    if (!useList.length) return 50;
+    return Math.min(...useList.map(info => info.declare.maxSize!.width));
   }
 
   @Watch("isMounted")

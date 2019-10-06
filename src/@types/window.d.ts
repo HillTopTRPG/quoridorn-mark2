@@ -3,6 +3,7 @@ import { Anchor, Point, Rectangle, Size } from "@/@types/address";
 export type WindowTableColumn = {
   width: number;
   type: string;
+  align: "left" | "center" | "right";
   title: string;
   target: string;
 };

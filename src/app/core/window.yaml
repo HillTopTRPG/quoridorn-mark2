@@ -57,33 +57,41 @@
       columnList:
         - width: 28
           type: text
+          align: center
           title: 連動
           target: isLinkage
         - width: 28
           type: text
+          align: center
           title: タグ
           target: tag
         - width: 34
           type: icon
+          align: center
           title: 種別
           target: type
         - width: 64
           type: text
+          align: left
           title: タイトル
           target: title
         - width: 28
           type: text
+          align: center
           title: 時間
           target: time
         - width: 24
           type: icon
+          align: center
           title: 繰
           target: isRepeat
         - width: 28
           type: text
+          align: center
           title: 音量
           target: volume
         - width: 28
           type: text
+          align: center
           title: fade
           target: fade

@@ -31,6 +31,7 @@
               :key="`header-${index}`"
               :title="colDec.title"
               :style="colStyle(index)"
+              :class="colDec | align"
               ref="column"
             >
               <slot name="header" :colDec="colDec">
@@ -87,6 +88,7 @@
               :style="colStyle(index)"
               :key="`body-${index}`"
               class="selectable"
+              :class="colDec | align"
             >
               <slot
                 name="contents"
@@ -160,6 +162,7 @@ import { Emit, Prop, Vue } from "vue-property-decorator";
 import Divider from "@/app/core/component/table/Divider.vue";
 import {
   WindowInfo,
+  WindowTableColumn,
   WindowTableDeclareInfo,
   WindowTableInfo
 } from "@/@types/window";
@@ -174,7 +177,14 @@ import {
 } from "@/app/core/Coordinate";
 
 @Component({
-  components: { Divider }
+  components: { Divider },
+  filters: {
+    align: (data: WindowTableColumn) => {
+      if (data.align === "left") return "align-left";
+      if (data.align === "right") return "align-right";
+      return "align-center";
+    }
+  }
 })
 export default class TableComponent extends Vue {
   @Prop({ type: Number, required: true })
@@ -445,10 +455,24 @@ $lineHeight: 2em;
 
     td:not(.divider),
     th {
-      @include flex-box(row, center, center);
       overflow: hidden;
       height: $lineHeight;
       padding: 0;
+      box-sizing: border-box;
+
+      &.align-left {
+        @include flex-box(row, flex-start, center);
+        padding-left: var(--cell-padding);
+      }
+
+      &.align-center {
+        @include flex-box(row, center, center);
+      }
+
+      &.align-right {
+        @include flex-box(row, flex-end, center);
+        padding-right: var(--cell-padding);
+      }
     }
 
     thead {

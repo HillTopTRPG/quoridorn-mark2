@@ -79,6 +79,7 @@
         :windowKey="windowInfo.key"
         :status="status"
         :style="{ fontSize: fontSize + 'px' }"
+        @adjustWidth="adjustWidth"
       />
     </div>
 
@@ -401,16 +402,14 @@ export default class WindowFrame extends Vue {
     });
   }
 
-  @Watch("windowInfo.declare.minSize.width")
-  private onChangeMinWidth(width: number) {
-    if (this.windowInfo.width >= width) return;
-    this.windowInfo.width = width;
-  }
+  private adjustWidth() {
+    const maxSize = this.windowInfo.declare.maxSize;
+    if (maxSize && this.windowInfo.width > maxSize.width)
+      this.windowInfo.width = maxSize.width;
 
-  @Watch("windowInfo.declare.maxSize.width")
-  private onChangeMaxWidth(width: number) {
-    if (this.windowInfo.width <= width) return;
-    this.windowInfo.width = width;
+    const minSize = this.windowInfo.declare.maxSize;
+    if (minSize && this.windowInfo.width < minSize.width)
+      this.windowInfo.width = minSize.width;
   }
 
   @Watch("isMounted")
@@ -495,7 +494,10 @@ export default class WindowFrame extends Vue {
   box-sizing: border-box;
   left: var(--windowX);
   top: var(--windowY);
-  width: calc(var(--windowWidth) + var(--window-padding) * 2 + 5px);
+  width: calc(
+    var(--windowWidth) + var(--scroll-bar-width) + var(--window-padding) * 2 +
+      5px
+  );
   height: calc(
     var(--windowHeight) + var(--window-padding) * 2 + var(--window-title-height)
   );
@@ -557,7 +559,8 @@ export default class WindowFrame extends Vue {
   width: 100%;
   height: 100%;
   z-index: 1;
-  overflow: auto;
+  overflow-x: visible;
+  overflow-y: scroll;
 }
 
 .window-title {

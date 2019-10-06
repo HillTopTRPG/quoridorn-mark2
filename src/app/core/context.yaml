@@ -4,8 +4,8 @@ game-table:
     taskArg: bgm-setting-window
   - isViewCompare:
       lhs: 4
-      rhs: 5
-  - text: item02
+      rhs: 4
+  - text: 整備中
     taskName: item02-emit
     children:
       - taskName: item02-item01-emit

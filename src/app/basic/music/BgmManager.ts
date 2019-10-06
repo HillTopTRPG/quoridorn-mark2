@@ -1,4 +1,4 @@
-const bgmList: BgmInfo[] = require("../../../../public/static/conf/bgm.yaml");
+const bgmDeclareList: BgmDeclareInfo[] = require("../../../../public/static/conf/bgm.yaml");
 
 export default class BgmManager {
   // シングルトン
@@ -10,10 +10,19 @@ export default class BgmManager {
 
   // コンストラクタの隠蔽
   private constructor() {
-    this.bgmList = bgmList;
-    this.nextKey = bgmList.length + 1;
+    this._bgmList = bgmDeclareList.map((declareInfo, index) => {
+      return {
+        key: `bgm-${index}`,
+        ...declareInfo
+      };
+    });
+    this.nextKey = bgmDeclareList.length + 1;
   }
 
   private nextKey: number = 0;
-  private readonly bgmList: BgmInfo[];
+  private readonly _bgmList: BgmInfo[];
+
+  public get bgmList() {
+    return this._bgmList;
+  }
 }

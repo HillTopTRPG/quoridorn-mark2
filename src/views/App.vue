@@ -60,6 +60,7 @@ export default class App extends Vue {
   public async mounted() {
     WindowManager.instance.open<never>("test-window");
     WindowManager.instance.open<number>("sample-window", 1);
+    WindowManager.instance.open<never>("bgm-setting-window");
   }
 
   /**

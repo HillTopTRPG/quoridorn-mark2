@@ -44,10 +44,11 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import BgmManager from "@/app/basic/music/BgmManager";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -89,6 +90,7 @@ export default class BgmSettingWindow extends WindowVue<number> {
     window.console.log(useBgmKey);
   }
 
+  @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
     if (this.windowInfo.declare.minSize)
       this.windowInfo.declare.minSize.width = totalWidth;
@@ -121,53 +123,7 @@ export default class BgmSettingWindow extends WindowVue<number> {
   }
 
   private get bgmList(): any[] {
-    const list = [];
-    list.push({
-      key: "bgm-0",
-      isLinkage: true,
-      tag: "bgm",
-      type: "youtube",
-      title: "ECHO",
-      url: "https://www.youtube.com/watch?v=nq3YnT0km2o&t=15s",
-      time: "8~",
-      isLoop: true,
-      volume: 0.8,
-      fade: "in"
-    });
-    list.push({
-      key: "bgm-1",
-      isLinkage: true,
-      tag: "bgm",
-      type: "youtube",
-      title: "ECHO",
-      time: "8~",
-      isLoop: true,
-      volume: 0.8,
-      fade: "in"
-    });
-    list.push({
-      key: "bgm-2",
-      isLinkage: true,
-      tag: "bgm",
-      type: "youtube",
-      title: "ECHO",
-      time: "8~",
-      isLoop: true,
-      volume: 0.8,
-      fade: "in"
-    });
-    list.push({
-      key: "bgm-3",
-      isLinkage: true,
-      tag: "bgm",
-      type: "youtube",
-      title: "ECHO",
-      time: "8~",
-      isLoop: true,
-      volume: 0.8,
-      fade: "in"
-    });
-    return list;
+    return BgmManager.instance.bgmList;
   }
 }
 </script>

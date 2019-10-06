@@ -1,4 +1,4 @@
-type BgmInfo = {
+type BgmDeclareInfo = {
   title: string;
   url: string;
   tag: string;
@@ -11,4 +11,8 @@ type BgmInfo = {
   isLoop: boolean;
   fadeIn: number;
   fadeOut: number;
+};
+
+type BgmInfo = BgmDeclareInfo & {
+  key: string;
 };
