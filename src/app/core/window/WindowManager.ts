@@ -17,8 +17,8 @@ const windowDeclareInfo: WindowDeclareInfoContainer = require("../window.yaml");
 export default class WindowManager {
   // シングルトン
   public static get instance(): WindowManager {
-    if (!this._instance) this._instance = new WindowManager();
-    return this._instance;
+    if (!WindowManager._instance) WindowManager._instance = new WindowManager();
+    return WindowManager._instance;
   }
   private static _instance: WindowManager;
 

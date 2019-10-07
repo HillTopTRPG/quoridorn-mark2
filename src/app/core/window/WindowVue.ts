@@ -4,7 +4,7 @@ import { WindowInfo } from "@/@types/window";
 
 export default class WindowVue<T> extends Vue {
   @Prop({ type: String, required: true })
-  private windowKey!: string;
+  protected windowKey!: string;
   @Prop({ type: String, required: true })
   protected status!: string;
 
@@ -18,6 +18,10 @@ export default class WindowVue<T> extends Vue {
   @Watch("windowInfo.args", { immediate: true })
   onChangeWindowArgs(args: T) {
     this.__args = args;
+  }
+
+  protected get key() {
+    return `${this.windowKey}-${this.status}`;
   }
 
   protected get args(): T | null {

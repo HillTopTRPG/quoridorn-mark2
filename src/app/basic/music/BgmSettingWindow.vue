@@ -49,6 +49,7 @@ import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
+import YoutubeManager from "@/app/basic/music/YoutubeManager";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -56,8 +57,8 @@ import BgmManager from "@/app/basic/music/BgmManager";
     chatLinkage: (data: BgmInfo) => (data.chatLinkage > 0 ? "あり" : "なし"),
     icon: (data: BgmInfo) => {
       if (!data.url) return "icon-stop2";
-      if (/www\.youtube\.com/.test(data.url)) return "icon-youtube2";
-      if (/dropbox/.test(data.url)) return "icon-dropbox";
+      if (BgmManager.isYoutube(data)) return "icon-youtube2";
+      if (BgmManager.isDropbox(data)) return "icon-dropbox";
       return "icon-file-music";
     },
     time: (data: BgmInfo) => {
@@ -88,6 +89,15 @@ export default class BgmSettingWindow extends WindowVue<number> {
   private playBgm(bgmKey?: string) {
     const useBgmKey = bgmKey || this.selectedBgmKey;
     window.console.log(useBgmKey);
+    const info = BgmManager.instance.getBgmInfo(bgmKey);
+    if (BgmManager.isYoutube(info))
+      YoutubeManager.instance.registration(
+        info.tag,
+        info.url,
+        info.start,
+        info.end,
+        {}
+      );
   }
 
   @Emit("adjustWidth")
@@ -99,7 +109,7 @@ export default class BgmSettingWindow extends WindowVue<number> {
   }
 
   private mounted() {
-    window.console.log(this.windowInfo.key, "is mounted.");
+    // mounted
   }
 
   private preview() {

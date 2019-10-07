@@ -1,6 +1,12 @@
 <template>
   <div id="app">
     <game-table ref="gameTable" />
+    <div id="YoutubePlayerContainer">
+      <div class="unUse"><div id="YoutubePlayer001"></div></div>
+      <div class="unUse"><div id="YoutubePlayer002"></div></div>
+      <div class="unUse"><div id="YoutubePlayer003"></div></div>
+      <div class="unUse"><div id="YoutubePlayer004"></div></div>
+    </div>
     <Menu />
     <right-pane />
     <window-area />
@@ -41,14 +47,10 @@ export default class App extends Vue {
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Action("presetImageLoad") private presetImageLoad: any;
 
-  constructor() {
-    super();
-    // nekostore_test_client();
-  }
-
   /** ライフサイクル */
   public async created() {
     await this.presetImageLoad();
+    WindowManager.instance.open<never>("play-youtube-window");
   }
 
   /** ライフサイクル */

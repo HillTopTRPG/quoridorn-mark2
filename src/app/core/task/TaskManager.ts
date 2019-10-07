@@ -19,8 +19,8 @@ export type MouseMoveParam = {
 export default class TaskManager {
   // シングルトン
   public static get instance(): TaskManager {
-    if (!this._instance) this._instance = new TaskManager();
-    return this._instance;
+    if (!TaskManager._instance) TaskManager._instance = new TaskManager();
+    return TaskManager._instance;
   }
   private static _instance: TaskManager;
 

@@ -676,7 +676,7 @@ export default class GameTable extends AddressCalcMixin {
   right: 0;
   bottom: 0;
   transform: translateZ(var(--wheel, 0)) rotateY(0deg) rotateX(0deg);
-  z-index: 8;
+  z-index: 7;
 }
 
 #gameTable {

@@ -3,8 +3,8 @@ const bgmDeclareList: BgmDeclareInfo[] = require("../../../../public/static/conf
 export default class BgmManager {
   // シングルトン
   public static get instance(): BgmManager {
-    if (!this._instance) this._instance = new BgmManager();
-    return this._instance;
+    if (!BgmManager._instance) BgmManager._instance = new BgmManager();
+    return BgmManager._instance;
   }
   private static _instance: BgmManager;
 
@@ -24,5 +24,35 @@ export default class BgmManager {
 
   public get bgmList() {
     return this._bgmList;
+  }
+
+  public getBgmInfo(key: string): BgmInfo {
+    return this.bgmList.filter(info => info.key === key)[0];
+  }
+
+  private static getUrl(target: string | BgmDeclareInfo): string | null {
+    if (typeof target === "string") {
+      if (target.startsWith("bgm-")) {
+        const info: BgmInfo = BgmManager.instance.getBgmInfo(target);
+        if (!info) return null;
+        return info.url;
+      } else {
+        return target;
+      }
+    } else {
+      return target.url;
+    }
+  }
+
+  public static isYoutube(target: string | BgmDeclareInfo) {
+    const url = BgmManager.getUrl(target);
+    if (!url) return false;
+    return /www\.youtube\.com/.test(url);
+  }
+
+  public static isDropbox(target: string | BgmDeclareInfo) {
+    const url = BgmManager.getUrl(target);
+    if (!url) return false;
+    return /dropbox/.test(url);
   }
 }

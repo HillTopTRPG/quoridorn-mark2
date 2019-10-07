@@ -7,8 +7,8 @@ type Handler = {
 export default class EventManager {
   // シングルトン
   public static get instance(): EventManager {
-    if (!this._instance) this._instance = new EventManager();
-    return this._instance;
+    if (!EventManager._instance) EventManager._instance = new EventManager();
+    return EventManager._instance;
   }
   private static _instance: EventManager;
 

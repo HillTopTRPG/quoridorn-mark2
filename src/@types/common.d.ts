@@ -1,5 +1,6 @@
 declare module "skyway-js";
 declare module "jszip";
+declare module "vue";
 declare module "file-saver";
 declare module "vuedraggable";
 declare module "vue-slider-component";
@@ -12,3 +13,4 @@ declare module "socket.io";
 interface HTMLElementEvent<T extends HTMLElement> extends Event {
   target: T;
 }
+declare var YT: any;

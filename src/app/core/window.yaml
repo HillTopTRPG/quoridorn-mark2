@@ -34,6 +34,24 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"play-youtube-window":
+  parentTypeList: []
+  title: Youtube再生画面
+  message: ""
+  position: center
+  size:
+    width: 350
+    height: 200
+  minSize:
+    width: 150
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
 "bgm-setting-window":
   parentTypeList: []
   title: BGM設定画面

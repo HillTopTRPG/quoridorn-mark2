@@ -8,8 +8,8 @@ const cssInfoList: CssInfo[] = require("./css.yaml");
 export default class CssManager {
   // シングルトン
   public static get instance(): CssManager {
-    if (!this._instance) this._instance = new CssManager();
-    return this._instance;
+    if (!CssManager._instance) CssManager._instance = new CssManager();
+    return CssManager._instance;
   }
   private static _instance: CssManager;
 
