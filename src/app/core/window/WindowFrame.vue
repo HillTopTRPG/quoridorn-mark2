@@ -68,7 +68,10 @@
       />
     </div>
 
-    <div class="window-title-balloon" v-if="windowInfo.isMinimizeAnimationEnd">
+    <div
+      class="window-title-balloon"
+      v-show="windowInfo.isMinimizeAnimationEnd"
+    >
       {{ windowInfo.title }}
     </div>
 
@@ -128,8 +131,13 @@ export default class WindowFrame extends Vue {
   private isMounted: boolean = false;
 
   private mounted() {
+    window.console.log(`WindowFrame mounted: ${this.windowInfo.key}`);
     this.addEventForIFrame();
     this.isMounted = true;
+  }
+
+  private destroyed() {
+    window.console.log(`WindowFrame destroyed: ${this.windowInfo.key}`);
   }
 
   private get key(): string {
@@ -526,7 +534,7 @@ export default class WindowFrame extends Vue {
     }
 
     ._contents {
-      visibility: hidden;
+      /*visibility: hidden;*/
     }
   }
 

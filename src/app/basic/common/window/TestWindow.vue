@@ -18,7 +18,7 @@ export default class TestWindow extends Vue {
   private windowKey!: string;
 
   private clickButton() {
-    WindowManager.instance.open("test-window");
+    WindowManager.instance.open<never>({ type: "test-window" });
   }
 }
 </script>

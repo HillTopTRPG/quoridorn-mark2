@@ -1,6 +1,7 @@
 import {
   WindowDeclareInfo,
   WindowInfo,
+  WindowOpenInfo,
   WindowTableInfo
 } from "@/@types/window";
 import { calcWindowPosition, createPoint } from "../Coordinate";
@@ -46,7 +47,7 @@ export default class WindowManager {
   private resist<T>(
     type: string,
     declareInfo: WindowDeclareInfo,
-    args: T
+    args?: T
   ): string {
     if (!declareInfo) {
       throw new ApplicationError(`No such window type='${type}'`);
@@ -114,7 +115,16 @@ export default class WindowManager {
     });
   }
 
-  public async open<T>(type: string, args?: T): Promise<string> {
-    return this.resist(type, this.windowDeclareInfoContainer[type], args);
+  public open<T>(info: WindowOpenInfo<T>): string {
+    if (!info)
+      throw new ApplicationError(
+        "Illegal arguments error. WindowManager.instance#open"
+      );
+    const type = info.type;
+    return this.resist<T>(
+      type,
+      this.windowDeclareInfoContainer[type],
+      info.args
+    );
   }
 }

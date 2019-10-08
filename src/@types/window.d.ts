@@ -40,8 +40,8 @@ export type PaneMoveInfo = {
 
 export type WindowOpenInfo<T> = {
   type: string;
-  key: string;
   args?: T;
+  key?: string;
 };
 
 export type WindowTableInfo = {

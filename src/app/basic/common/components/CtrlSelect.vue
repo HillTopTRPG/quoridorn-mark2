@@ -33,10 +33,10 @@
 import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
 
 import { Prop, Watch } from "vue-property-decorator";
-import { Component, Mixins } from "vue-mixin-decorator";
+import { Component } from "vue-mixin-decorator";
 
 @Component
-export default class CtrlSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class CtrlSelect extends SelectMixin {
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 

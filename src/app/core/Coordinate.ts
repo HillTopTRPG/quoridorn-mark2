@@ -146,13 +146,26 @@ export function calcWindowPosition(
     point.x = screenCenter.x - windowCenter.x;
     point.y = screenCenter.y - windowCenter.y;
   } else {
+    const windowTitleHeight = getCssPxNum("--window-title-height");
+    const windowPadding = getCssPxNum("--window-padding");
+    const scrollBarWidth = getCssPxNum("--scroll-bar-width");
     const [h, v] = position.toString().split("-");
     if (h === "left") point.x = 0;
     if (h === "center") point.x = screenCenter.x - windowCenter.x;
-    if (h === "right") point.x = screenSize.width - windowSize.width;
+    if (h === "right")
+      point.x =
+        screenSize.width -
+        windowSize.width -
+        windowPadding * 2 -
+        scrollBarWidth;
     if (v === "top") point.y = menuHeight;
     if (v === "center") point.y = screenCenter.y - windowCenter.y;
-    if (v === "bottom") point.y = screenSize.height - windowSize.height;
+    if (v === "bottom")
+      point.y =
+        screenSize.height -
+        windowSize.height -
+        windowPadding * 2 -
+        windowTitleHeight;
   }
 
   return point;

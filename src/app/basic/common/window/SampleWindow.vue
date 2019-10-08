@@ -18,7 +18,10 @@ import WindowVue from "@/app/core/window/WindowVue";
 export default class SampleWindow extends WindowVue<number> {
   private clickButton() {
     if (this.args === null) return;
-    WindowManager.instance.open<number>("sample-window", this.args + 1);
+    WindowManager.instance.open<number>({
+      type: "sample-window",
+      args: this.args + 1
+    });
   }
 }
 </script>

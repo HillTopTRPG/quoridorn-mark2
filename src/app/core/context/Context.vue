@@ -30,12 +30,12 @@ import {
   ContextTextItem
 } from "@/@types/context";
 import { Task } from "@/@types/task";
-import Logging from "../logger/Logging";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
 import WindowManager from "@/app/core/window/WindowManager";
+import { WindowOpenInfo } from "@/@types/window";
 
 const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
@@ -90,8 +90,10 @@ export default class Context extends Vue {
   }
 
   @TaskProcessor("window-open-opening")
-  private async windowOpenOpening(task: Task<string>): Promise<string | void> {
-    WindowManager.instance.open(task.value!);
+  private async windowOpenOpening(
+    task: Task<WindowOpenInfo<unknown>>
+  ): Promise<string | void> {
+    task.value!.key = WindowManager.instance.open(task.value!);
   }
 
   @TaskProcessor("context-open-finished")

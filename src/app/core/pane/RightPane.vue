@@ -41,13 +41,12 @@ import {
 } from "../Coordinate";
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
-import { getCssPxNum } from "@/app/core/Css";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
 })
 export default class RightPane extends Vue {
-  private windowInfoList: WindowInfo<unknown>[] =
+  private windowInfoList: WindowInfo<any>[] =
     WindowManager.instance.windowInfoList;
 
   private dragFrom: number = 0;
@@ -68,6 +67,12 @@ export default class RightPane extends Vue {
   private mounted() {
     this.isMounted = true;
   }
+
+  // private get useList() {
+  //   return this.windowInfoList.filter(
+  //     windowInfo => windowInfo.status.indexOf("right-pane") > -1
+  //   );
+  // }
 
   /**
    * マウス左ボタン押下イベント処理
@@ -377,7 +382,7 @@ export default class RightPane extends Vue {
     appElm.style.setProperty("--right-pane-width", `${width}px`);
   }
 
-  private get paneElm(): HTMLDivElement {
+  private getPaneElm(): HTMLDivElement {
     return this.$refs.pane as HTMLDivElement;
   }
 
@@ -385,7 +390,7 @@ export default class RightPane extends Vue {
   @Watch("fontSize")
   private onChangeFontSize() {
     if (!this.isMounted) return;
-    this.paneElm.style.setProperty("--fontSize", `${this.fontSize}px`);
+    this.getPaneElm().style.setProperty("--fontSize", `${this.fontSize}px`);
   }
 }
 </script>

@@ -38,6 +38,13 @@ export default class WindowArea extends Vue {
     this.windowInfoList.splice(index, 1);
   }
 
+  // private get useList() {
+  //   return this.windowInfoList.filter(
+  //     windowInfo =>
+  //       windowInfo.status === "window" || windowInfo.status.endsWith("-window")
+  //   );
+  // }
+
   @TaskProcessor("window-close-finished")
   private async windowCloseFinished(): Promise<string | void> {
     this.arrangeOrder();

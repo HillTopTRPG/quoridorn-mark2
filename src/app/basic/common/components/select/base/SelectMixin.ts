@@ -1,5 +1,6 @@
-import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
+import { Vue, Prop, Emit } from "vue-property-decorator";
+import CtrlSelect from "@/app/basic/common/components/CtrlSelect.vue";
+import { Component } from "vue-mixin-decorator";
 
 @Component
 export default class SelectMixin extends Vue {

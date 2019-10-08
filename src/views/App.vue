@@ -31,6 +31,7 @@ import { Point } from "@/@types/address";
 import { createPoint, getEventPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
+import { WindowOpenInfo } from "@/@types/window";
 
 @Component({
   components: {
@@ -50,7 +51,6 @@ export default class App extends Vue {
   /** ライフサイクル */
   public async created() {
     await this.presetImageLoad();
-    WindowManager.instance.open<never>("play-youtube-window");
   }
 
   /** ライフサイクル */
@@ -60,9 +60,28 @@ export default class App extends Vue {
 
   /** ライフサイクル */
   public async mounted() {
-    WindowManager.instance.open<never>("test-window");
-    WindowManager.instance.open<number>("sample-window", 1);
-    WindowManager.instance.open<never>("bgm-setting-window");
+    TaskManager.instance.ignition<WindowOpenInfo<never>>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "test-window"
+      }
+    });
+    TaskManager.instance.ignition<WindowOpenInfo<number>>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "sample-window",
+        args: 1
+      }
+    });
+    TaskManager.instance.ignition<WindowOpenInfo<never>>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "bgm-setting-window"
+      }
+    });
   }
 
   /**

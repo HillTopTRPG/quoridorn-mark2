@@ -49,6 +49,10 @@ import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
+import WindowManager from "@/app/core/window/WindowManager";
+import TaskManager from "@/app/core/task/TaskManager";
+import { Point } from "@/@types/address";
+import { WindowOpenInfo } from "@/@types/window";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 
 @Component({
@@ -86,18 +90,26 @@ export default class BgmSettingWindow extends WindowVue<number> {
     this.selectedBgmKey = bgmKey;
   }
 
-  private playBgm(bgmKey?: string) {
+  private async playBgm(bgmKey?: string) {
     const useBgmKey = bgmKey || this.selectedBgmKey;
-    window.console.log(useBgmKey);
-    const info = BgmManager.instance.getBgmInfo(bgmKey);
-    if (BgmManager.isYoutube(info))
-      YoutubeManager.instance.registration(
-        info.tag,
-        info.url,
-        info.start,
-        info.end,
-        {}
-      );
+    if (!useBgmKey) return;
+    const info = BgmManager.instance.getBgmInfo(useBgmKey);
+
+    if (BgmManager.isYoutube(info)) {
+      const youtubeInfo = YoutubeManager.instance.getPlayerInfo(info.tag);
+      if (youtubeInfo) {
+        YoutubeManager.instance.loadVideoById(info);
+      } else {
+        TaskManager.instance.ignition<WindowOpenInfo<string>>({
+          type: "window-open",
+          owner: "Quoridorn",
+          value: {
+            type: "play-youtube-window",
+            args: useBgmKey
+          }
+        });
+      }
+    }
   }
 
   @Emit("adjustWidth")
