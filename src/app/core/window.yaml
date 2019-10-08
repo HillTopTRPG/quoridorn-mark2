@@ -40,14 +40,11 @@
   message: ""
   position: right-bottom
   size:
-    width: 350
-    height: 200
+    width: 426
+    height: 240
   minSize:
-    width: 150
-    height: 150
-  maxSize:
-    width: 500
-    height: 450
+    width: 160
+    height: 90
   closable: true
   fontSizePickable: false
   resizable: true

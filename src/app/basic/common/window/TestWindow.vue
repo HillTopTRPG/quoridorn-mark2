@@ -14,9 +14,6 @@ import WindowManager from "@/app/core/window/WindowManager";
   components: { CtrlButton }
 })
 export default class TestWindow extends Vue {
-  @Prop({ type: String, required: true })
-  private windowKey!: string;
-
   private clickButton() {
     WindowManager.instance.open<never>({ type: "test-window" });
   }

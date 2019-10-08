@@ -51,10 +51,13 @@ export function getEventPoint(event: MouseEvent | TouchEvent): Point {
     : createPoint(event.pageX, event.pageY);
 }
 
-export function format(v: Point | Rectangle): string {
+export function format(v: Point | Rectangle | Size): string {
   if (!v) return "Nothing.";
   if ("width" in v) {
-    return `(${v.x}, ${v.y}) {${v.width} * ${v.height}}`;
+    if ("x" in v) {
+      return `(${v.x}, ${v.y}) {${v.width} * ${v.height}}`;
+    }
+    return `{${v.width} * ${v.height}}`;
   }
   return `(${v.x}, ${v.y})`;
 }
@@ -157,7 +160,8 @@ export function calcWindowPosition(
         screenSize.width -
         windowSize.width -
         windowPadding * 2 -
-        scrollBarWidth;
+        scrollBarWidth -
+        3;
     if (v === "top") point.y = menuHeight;
     if (v === "center") point.y = screenCenter.y - windowCenter.y;
     if (v === "bottom")

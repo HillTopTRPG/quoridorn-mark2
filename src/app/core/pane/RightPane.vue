@@ -8,6 +8,7 @@
         v-show="windowInfo.status.indexOf('right-pane') > -1"
         :windowInfo="windowInfo"
         :status="'right-pane'"
+        :isResizing="false"
         @changeMinMaxWidth="changeMinMaxWidth"
       />
     </div>

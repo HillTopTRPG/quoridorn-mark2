@@ -44,6 +44,12 @@ export type WindowOpenInfo<T> = {
   key?: string;
 };
 
+export type WindowResizeInfo = {
+  key: string;
+  status: string;
+  size: Size;
+};
+
 export type WindowTableInfo = {
   selectLineKey: string | null;
   hoverLineIndex: number | null;
@@ -70,7 +76,7 @@ type WindowStatus =
 
 export interface WindowInfo<T> extends Rectangle, WindowTaskInfo {
   readonly key: string;
-  readonly title: string;
+  title: string;
   status: WindowStatus;
   message: string;
   args?: T;

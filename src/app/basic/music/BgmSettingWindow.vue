@@ -51,7 +51,6 @@ import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
 import WindowManager from "@/app/core/window/WindowManager";
 import TaskManager from "@/app/core/task/TaskManager";
-import { Point } from "@/@types/address";
 import { WindowOpenInfo } from "@/@types/window";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 
@@ -98,7 +97,11 @@ export default class BgmSettingWindow extends WindowVue<number> {
     if (BgmManager.isYoutube(info)) {
       const youtubeInfo = YoutubeManager.instance.getPlayerInfo(info.tag);
       if (youtubeInfo) {
-        YoutubeManager.instance.loadVideoById(info);
+        const windowKey = youtubeInfo.elementId
+          .replace("-youtube", "")
+          .replace(/(-window)|(-right-pane)|(-left-pane)/, "");
+        const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
+        windowInfo.args = useBgmKey;
       } else {
         TaskManager.instance.ignition<WindowOpenInfo<string>>({
           type: "window-open",

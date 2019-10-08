@@ -1,3 +1,6 @@
+import { Size } from "@/@types/address";
+import { createSize } from "@/app/core/Coordinate";
+
 type PlayerInfo = {
   player: any;
   elementId: string;
@@ -20,12 +23,12 @@ export type YoutubeEventHandler = {
  * 複数のYoutubeを再生するための特製のクラス！
  */
 export default class YoutubeManager {
+  public static playerElementSize: Size = createSize(640, 360);
+
   // シングルトン
   public static get instance(): YoutubeManager {
     if (!YoutubeManager._instance) {
-      const instance = new YoutubeManager();
-      YoutubeManager._instance = instance;
-      (window as any).onYouTubeIframeAPIReady = instance.init.bind(instance);
+      YoutubeManager._instance = new YoutubeManager();
 
       const script = document.createElement("script");
       script.src = "https://www.youtube.com/player_api";
@@ -76,8 +79,8 @@ export default class YoutubeManager {
 
       // 新規プレイヤー作成
       const player = new YT.Player(elementId, {
-        width: "426",
-        height: "240",
+        width: YoutubeManager.playerElementSize.width,
+        height: YoutubeManager.playerElementSize.height,
         videoId,
         events: {
           onReady: () => this.eventHandler.onReady(tag),
@@ -117,7 +120,7 @@ export default class YoutubeManager {
         playerVars: {
           origin: location.protocol + "//" + location.hostname + "/",
           autoplay: 0, // 0:自動再生しない or 1:自動再生
-          controls: 1, // 再生ボタンとか出さない
+          controls: 0, // 再生ボタンとか出さない
           disablekb: 1, // ショートカットキー無効
           enablejsapi: 1, // JavaScript API 有効
           list: "search", // 検索クエリ使用
@@ -417,8 +420,4 @@ export default class YoutubeManager {
     //   this.playerMapping[tag].eventHandler.onApiChange();
     // }
   };
-
-  public init() {
-    window.console.log("YoutubeManager#init");
-  }
 }

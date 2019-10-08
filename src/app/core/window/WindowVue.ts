@@ -1,14 +1,15 @@
 import { Prop, Vue, Watch } from "vue-property-decorator";
-import WindowManager from "@/app/core/window/WindowManager";
 import { WindowInfo } from "@/@types/window";
 
 export default class WindowVue<T> extends Vue {
-  @Prop({ type: String, required: true })
-  protected windowKey!: string;
+  @Prop({ type: Object, required: true })
+  protected windowInfo!: WindowInfo<unknown>;
   @Prop({ type: String, required: true })
   protected status!: string;
+  @Prop({ type: Boolean, required: true })
+  protected isResizing!: boolean;
 
-  private __args: T | null = null;
+  protected __args: T | null = null;
 
   @Watch("__args")
   private onChangeArgs(args: T) {
@@ -16,7 +17,7 @@ export default class WindowVue<T> extends Vue {
   }
 
   @Watch("windowInfo.args", { immediate: true })
-  onChangeWindowArgs(args: T) {
+  private onChangeWindowArgs(args: T) {
     this.__args = args;
   }
 
@@ -32,7 +33,7 @@ export default class WindowVue<T> extends Vue {
     this.__args = args;
   }
 
-  protected get windowInfo(): WindowInfo<T> {
-    return WindowManager.instance.getWindowInfo<T>(this.windowKey);
+  protected get windowKey(): string {
+    return this.windowInfo.key;
   }
 }

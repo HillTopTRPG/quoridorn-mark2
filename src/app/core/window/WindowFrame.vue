@@ -79,9 +79,10 @@
     <div class="_contents" @wheel.stop>
       <component
         :is="windowInfo.type"
-        :windowKey="windowInfo.key"
+        :windowInfo="windowInfo"
         :status="status"
         :style="{ fontSize: fontSize + 'px' }"
+        :isResizing="isResizing"
         @adjustWidth="adjustWidth"
       />
     </div>
@@ -102,13 +103,18 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { WindowInfo, WindowMoveInfo } from "@/@types/window";
+import { WindowInfo, WindowMoveInfo, WindowResizeInfo } from "@/@types/window";
 import { Point, Rectangle, Size } from "@/@types/address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task } from "@/@types/task";
-import { createPoint, createRectangle, getEventPoint } from "../Coordinate";
+import {
+  createPoint,
+  createRectangle,
+  createSize,
+  getEventPoint
+} from "../Coordinate";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
 
@@ -129,10 +135,10 @@ export default class WindowFrame extends Vue {
   private standImageWidth: number = 192;
   private standImageHeight: number = 256;
   private isMounted: boolean = false;
+  private isResizing: boolean = false;
 
   private mounted() {
-    window.console.log(`WindowFrame mounted: ${this.windowInfo.key}`);
-    this.addEventForIFrame();
+    WindowFrame.addEventForIFrame(this.windowElm);
     this.isMounted = true;
   }
 
@@ -157,6 +163,7 @@ export default class WindowFrame extends Vue {
         type: side || ""
       }
     );
+    this.isResizing = !!side;
     this.dragFrom = getEventPoint(event);
     this.activeWindow();
   }
@@ -186,6 +193,8 @@ export default class WindowFrame extends Vue {
     this.diff.y = 0;
     this.diff.width = 0;
     this.diff.height = 0;
+
+    this.isResizing = false;
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -349,8 +358,8 @@ export default class WindowFrame extends Vue {
     };
   }
 
-  private addEventForIFrame(): void {
-    const elms: HTMLCollection = document.getElementsByTagName("iFrame");
+  public static addEventForIFrame(containerElm: HTMLElement): void {
+    const elms: HTMLCollection = containerElm.getElementsByTagName("iFrame");
     Array.prototype.slice.call(elms).forEach((iFrameElm: HTMLIFrameElement) => {
       const dispatch = (event: MouseEvent | TouchEvent, type: string) => {
         const iFrameRect = iFrameElm.getBoundingClientRect();
@@ -402,6 +411,7 @@ export default class WindowFrame extends Vue {
             // コンテキストメニュー防止
             if (!bodyElm.oncontextmenu) bodyElm.oncontextmenu = () => false;
           } catch (error) {
+            // window.console.warn(error);
             /* nothing */
           }
         };
@@ -444,7 +454,17 @@ export default class WindowFrame extends Vue {
   private onChangeWindowWidth() {
     if (!this.isMounted) return;
     const width = this.windowInfo.width + this.diff.width;
+    const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowWidth", `${width}px`);
+    TaskManager.instance.ignition<WindowResizeInfo>({
+      type: "window-resize",
+      owner: "Quoridorn",
+      value: {
+        key: this.key,
+        status: this.status,
+        size: createSize(width, height)
+      }
+    });
   }
 
   @Watch("isMounted")
@@ -452,8 +472,18 @@ export default class WindowFrame extends Vue {
   @Watch("windowInfo.height")
   private onChangeWindowHeight() {
     if (!this.isMounted) return;
+    const width = this.windowInfo.width + this.diff.width;
     const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowHeight", `${height}px`);
+    TaskManager.instance.ignition<WindowResizeInfo>({
+      type: "window-resize",
+      owner: "Quoridorn",
+      value: {
+        key: this.key,
+        status: this.status,
+        size: createSize(width, height)
+      }
+    });
   }
 
   @Watch("isMounted")
@@ -504,10 +534,10 @@ export default class WindowFrame extends Vue {
   top: var(--windowY);
   width: calc(
     var(--windowWidth) + var(--scroll-bar-width) + var(--window-padding) * 2 +
-      5px
+      3px
   );
   height: calc(
-    var(--windowHeight) + var(--window-padding) * 2 + var(--window-title-height)
+    var(--windowHeight) + var(--window-title-height) + var(--window-padding) * 2
   );
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);

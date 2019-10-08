@@ -27,6 +27,7 @@
     - window-active
     - right-pane-frame-moving
     - pane-relocation
+    - window-resize
 
 - taskAttribute:
     isPrivate: true

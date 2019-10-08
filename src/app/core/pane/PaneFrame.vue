@@ -29,8 +29,9 @@
     <!-- コンテンツ -->
     <component
       :is="windowInfo.type"
-      :windowKey="windowInfo.key"
+      :windowInfo="windowInfo"
       :status="status"
+      :isResizing="isResizing"
       v-show="!windowInfo.status.startsWith('window-')"
       class="_contents"
       @wheel.stop
@@ -74,6 +75,8 @@ export default class PaneFrame extends Vue {
   private windowInfo!: WindowInfo<unknown>;
   @Prop({ type: String, required: true })
   private status!: string;
+  @Prop({ type: Boolean, required: true })
+  protected isResizing!: boolean;
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
