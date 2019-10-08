@@ -3,8 +3,8 @@
     <!-- コンテンツ -->
     <div class="v-scroll" @wheel.stop :class="{ isAnimationY }">
       <pane-frame
-        v-for="(windowInfo, key) in windowInfoList"
-        :key="key"
+        v-for="windowInfo in windowInfoList"
+        :key="windowInfo.key"
         v-show="windowInfo.status.indexOf('right-pane') > -1"
         :windowInfo="windowInfo"
         :status="'right-pane'"

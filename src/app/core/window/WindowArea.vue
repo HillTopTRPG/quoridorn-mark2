@@ -1,8 +1,8 @@
 <template>
   <div id="window-area">
     <window-frame
-      v-for="(windowInfo, key) in windowInfoList"
-      :key="key"
+      v-for="windowInfo in windowInfoList"
+      :key="windowInfo.key"
       v-show="
         windowInfo.status === 'window' || windowInfo.status.endsWith('-window')
       "

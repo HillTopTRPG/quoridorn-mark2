@@ -45,6 +45,7 @@ export default class TaskManager {
     process: TaskProcess<T>,
     key: string
   ): void {
+    // window.console.log("addTaskListener", type, key);
     let processContainer = this.taskListener[type];
     if (!processContainer) this.taskListener[type] = processContainer = {};
 
@@ -60,7 +61,7 @@ export default class TaskManager {
    * @param key
    */
   public removeTaskListener(type: string, key?: string): void {
-    window.console.log("removeTaskListener", type, key);
+    // window.console.log("removeTaskListener", type, key);
     if (key) {
       delete this.taskListener[type][key];
       return;
