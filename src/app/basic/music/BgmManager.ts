@@ -13,7 +13,13 @@ export default class BgmManager {
     this._bgmList = bgmDeclareList.map((declareInfo, index) => {
       return {
         key: `bgm-${index}`,
-        ...declareInfo
+        ...declareInfo,
+        isPlay: false,
+        isMute: false,
+        seek: 0,
+        volumeSetting: 0,
+        volume: 0,
+        duration: 0
       };
     });
     this.nextKey = bgmDeclareList.length + 1;
@@ -26,7 +32,7 @@ export default class BgmManager {
     return this._bgmList;
   }
 
-  public getBgmInfo(key: string): BgmInfo {
+  public getBgmInfo(key: string | null): BgmInfo {
     return this.bgmList.filter(info => info.key === key)[0];
   }
 

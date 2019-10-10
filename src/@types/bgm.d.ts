@@ -15,4 +15,10 @@ type BgmDeclareInfo = {
 
 type BgmInfo = BgmDeclareInfo & {
   key: string;
+  seek: number;
+  duration: number;
+  isPlay: boolean;
+  isMute: boolean;
+  volumeSetting: number;
+  volume: number;
 };

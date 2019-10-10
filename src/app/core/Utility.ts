@@ -181,17 +181,23 @@ export function parseColor(colorText: string) {
     };
   }
   _c.getColorCode = () =>
-    `#${("00" + _c.r.toString(16)).slice(-2)}${("00" + _c.g.toString(16)).slice(
-      -2
-    )}${("00" + _c.b.toString(16)).slice(-2)}`;
+    `#${zeroPadding(_c.r.toString(16), 2)}${zeroPadding(
+      _c.g.toString(16),
+      2
+    )}${zeroPadding(_c.b.toString(16), 2)}`;
   _c.getColorCodeReverse = () =>
-    `#${("00" + (255 - _c.r).toString(16)).slice(-2)}${(
-      "00" + (255 - _c.g).toString(16)
-    ).slice(-2)}${("00" + (255 - _c.b).toString(16)).slice(-2)}`;
+    `#${zeroPadding((255 - _c.r).toString(16), 2)}${zeroPadding(
+      (255 - _c.g).toString(16),
+      2
+    )}${zeroPadding((255 - _c.b).toString(16), 2)}`;
   _c.getRGB = () => `rgb(${_c.r}, ${_c.g}, ${_c.b})`;
   _c.getRGBA = () => `rgba(${_c.r}, ${_c.g}, ${_c.b}, ${_c.a})`;
   _c.getRGBReverse = () => `rgb(${255 - _c.r}, ${255 - _c.g}, ${255 - _c.b})`;
   return _c;
+}
+
+export function zeroPadding(num: number | string, length: number): string {
+  return ("0".repeat(length) + num).slice(-length);
 }
 
 export function conversion(num: number, unitName: string): any {

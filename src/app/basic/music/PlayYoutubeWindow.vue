@@ -14,6 +14,7 @@
         @click="thumbnailClick"
       />
     </div>
+    <seek-bar-component :bgmInfo="bgmInfo" @seekTo="seekTo" />
   </div>
 </template>
 
@@ -27,27 +28,27 @@ import YoutubeManager, {
 import BgmManager from "@/app/basic/music/BgmManager";
 import WindowFrame from "@/app/core/window/WindowFrame.vue";
 import { getUrlParam } from "@/app/core/Utility";
+import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 
 @Component({
-  components: { CtrlButton }
+  components: { SeekBarComponent, CtrlButton }
 })
 export default class PlayYoutubeWindow extends WindowVue<string>
   implements YoutubeEventHandler {
-  @Watch("windowInfo.args", { immediate: true })
-  private onChangeArgs2(args: string) {
-    const bgmInfo = this.getBgmInfo();
-    YoutubeManager.instance.loadVideoById(bgmInfo);
-    let title = `【タイトル】\n${bgmInfo.title}`;
-    title += `\n\n【URL】\n${bgmInfo.url}`;
+  private bgmInfo: BgmInfo | null = null;
+
+  @Watch("args", { immediate: true })
+  onChangeBgmInfo() {
+    this.bgmInfo = BgmManager.instance.getBgmInfo(this.args);
+    if (!this.bgmInfo) return;
+    YoutubeManager.instance.loadVideoById(this.bgmInfo);
+    let title = `【タイトル】\n${this.bgmInfo.title}`;
+    title += `\n\n【URL】\n${this.bgmInfo.url}`;
     this.thumbnailText = title;
     this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
       "v",
-      bgmInfo.url
+      this.bgmInfo.url
     )}/default.jpg`;
-  }
-
-  private getBgmInfo() {
-    return BgmManager.instance.getBgmInfo(this.args!);
   }
 
   private get youtubeElementId() {
@@ -55,7 +56,7 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   }
 
   private thumbnailClick(): void {
-    window.open(this.getBgmInfo().url, "_blank");
+    window.open(this.bgmInfo!.url, "_blank");
   }
 
   private isMounted: boolean = false;
@@ -66,24 +67,20 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   private mounted() {
     this.isMounted = true;
     if (this.windowInfo.status !== this.status) return;
-    const player = YoutubeManager.instance.getPlayerInfo(this.getBgmInfo().tag);
+    const player = YoutubeManager.instance.getPlayerInfo(this.bgmInfo!.tag);
     if (player) return;
     setTimeout(() => {
-      YoutubeManager.instance.open(
-        this.youtubeElementId,
-        this.getBgmInfo(),
-        this
-      );
+      YoutubeManager.instance.open(this.youtubeElementId, this.bgmInfo!, this);
     });
   }
 
   private destroyed() {
-    YoutubeManager.instance.destroyed(this.getBgmInfo().tag);
+    YoutubeManager.instance.destroyed(this.bgmInfo!.tag);
   }
 
   public onReady(): void {
     window.console.log("youtube ready");
-    YoutubeManager.instance.loadVideoById(this.getBgmInfo());
+    YoutubeManager.instance.loadVideoById(this.bgmInfo!);
   }
 
   public onError(error: any): void {
@@ -95,10 +92,13 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   }
 
   public onPlaying(duration: number): void {
-    // window.console.log("onPlaying", duration);
-    const bgmInfo = this.getBgmInfo();
-    this.windowInfo.title = `${this.windowInfo.declare.title}(${bgmInfo.tag})`;
-    this.windowInfo.message = bgmInfo.title;
+    window.console.log("onPlaying", duration);
+    this.windowInfo.title = `${this.windowInfo.declare.title}(${
+      this.bgmInfo!.tag
+    })`;
+    this.windowInfo.message = this.bgmInfo!.title;
+    this.bgmInfo!.duration = duration;
+    this.bgmInfo!.isPlay = true;
   }
 
   public onReject(): void {
@@ -106,11 +106,25 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   }
 
   public timeUpdate(time: number): void {
-    // window.console.log("timeUpdate", time);
+    this.bgmInfo!.seek = time;
   }
 
   public onEnded(): void {
     window.console.log("onEnded");
+    if (this.bgmInfo!.isLoop) {
+      YoutubeManager.instance.seekTo(
+        this.bgmInfo!.tag,
+        this.bgmInfo!.start,
+        true
+      );
+    }
+  }
+
+  private seekTo(seek: number, allowSeekAhead: boolean) {
+    YoutubeManager.instance.seekTo(this.bgmInfo!.tag, seek, allowSeekAhead);
+    if (allowSeekAhead) {
+      YoutubeManager.instance.play(this.bgmInfo!.tag);
+    }
   }
 
   private get windowElm(): HTMLDivElement {
