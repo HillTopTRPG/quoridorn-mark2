@@ -37,9 +37,10 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   implements YoutubeEventHandler {
   private bgmInfo: BgmInfo | null = null;
 
-  @Watch("args", { immediate: true })
+  @Watch("windowInfo.args", { immediate: true })
   onChangeBgmInfo() {
     this.bgmInfo = BgmManager.instance.getBgmInfo(this.args);
+    window.console.log("playMusic:", this.args);
     if (!this.bgmInfo) return;
     YoutubeManager.instance.loadVideoById(this.bgmInfo);
     let title = `【タイトル】\n${this.bgmInfo.title}`;
@@ -138,7 +139,7 @@ export default class PlayYoutubeWindow extends WindowVue<string>
     const playerSize = YoutubeManager.playerElementSize;
     const ratio = windowWidth / playerSize.width;
     this.viewSizeRatio = ratio;
-    this.windowInfo.height = ratio * playerSize.height;
+    this.windowInfo.height = ratio * playerSize.height + 16;
     this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
   }
 
@@ -146,7 +147,7 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   private onChangeWindowHeight() {
     const windowHeight = this.windowInfo.height;
     const playerSize = YoutubeManager.playerElementSize;
-    const ratio = windowHeight / playerSize.height;
+    const ratio = (windowHeight - 16) / playerSize.height;
     this.viewSizeRatio = ratio;
     this.windowInfo.width = ratio * playerSize.width;
     this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
@@ -163,7 +164,7 @@ export default class PlayYoutubeWindow extends WindowVue<string>
   .youtube-container-outer {
     display: block;
     width: 100%;
-    height: 100%;
+    height: calc(100% - 16px);
     position: relative;
     overflow: hidden;
 

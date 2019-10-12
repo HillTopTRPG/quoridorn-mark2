@@ -21,6 +21,7 @@ import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
 import { zeroPadding } from "@/app/core/Utility";
+import CssManager from "@/app/core/css/CssManager";
 
 @Component({
   components: { CtrlButton },
@@ -48,9 +49,22 @@ export default class SeekBarComponent extends Vue {
 
   private seek: number = 0;
   private isSeekInputting: boolean = false;
+  private isMounted: boolean = false;
 
   private fadeInTable: number[] = [];
   private fadeOutTable: number[] = [];
+
+  private mounted() {
+    this.elm.style.setProperty(
+      "--seek-base-color",
+      CssManager.getCss("--uni-color-gray")
+    );
+    this.elm.style.setProperty(
+      "--seek-font-color",
+      CssManager.getCss("--uni-color-white")
+    );
+    this.isMounted = true;
+  }
 
   private seekTo(allowSeekAhead: boolean) {
     this.$emit("seekTo", this.seek, allowSeekAhead);
@@ -70,9 +84,15 @@ export default class SeekBarComponent extends Vue {
     if (!this.isSeekInputting) this.seek = this.bgmInfo.seek;
   }
 
+  @Watch("isMounted")
   @Watch("bgmInfo.isPlay")
   private onChangeIsPlay(isPlay: boolean) {
-    this.elm.style.setProperty("--seek-color", isPlay ? "green" : "#8A084B");
+    this.elm.style.setProperty(
+      "--seek-color",
+      isPlay
+        ? CssManager.getCss("--uni-color-blue")
+        : CssManager.getCss("--uni-color-orange")
+    );
   }
 
   private changePlay(isPlay = !this.bgmInfo.isPlay): void {
@@ -134,8 +154,8 @@ export default class SeekBarComponent extends Vue {
     to right,
     var(--seek-color) 0%,
     var(--seek-color) var(--seek-per),
-    rgba(100, 100, 100, 1) var(--seek-per),
-    rgba(100, 100, 100, 1) 100%
+    var(--seek-base-color) var(--seek-per),
+    var(--seek-base-color) 100%
   );
 }
 
@@ -175,15 +195,16 @@ input[type="range"]::-webkit-slider-thumb {
   box-sizing: border-box;
   width: 6px;
   height: 16px;
-  background-color: black;
+  background-color: var(--uni-color-black);
 }
 .seek-text {
   position: absolute;
   right: 8px;
   transform-origin: right bottom;
   /*transform: scale(0.7);*/
-  color: white;
+  color: var(--seek-font-color);
   pointer-events: none;
   font-size: 10px;
+  /*align-self: flex-end;*/
 }
 </style>

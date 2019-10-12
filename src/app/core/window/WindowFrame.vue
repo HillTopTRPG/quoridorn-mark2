@@ -534,7 +534,7 @@ export default class WindowFrame extends Vue {
   top: var(--windowY);
   width: calc(
     var(--windowWidth) + var(--scroll-bar-width) + var(--window-padding) * 2 +
-      5px
+      2px
   );
   height: calc(
     var(--windowHeight) + var(--window-title-height) + var(--window-padding) * 2

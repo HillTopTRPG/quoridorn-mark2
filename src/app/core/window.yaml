@@ -2,7 +2,7 @@
   parentTypeList: []
   title: テスト画面
   message: ""
-  position: center
+  position: right-bottom
   size:
     width: 350
     height: 200
@@ -41,10 +41,10 @@
   position: right-bottom
   size:
     width: 426
-    height: 240
+    height: 256
   minSize:
     width: 160
-    height: 90
+    height: 106
   closable: true
   fontSizePickable: false
   resizable: true

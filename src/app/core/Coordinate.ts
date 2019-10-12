@@ -161,7 +161,7 @@ export function calcWindowPosition(
         windowSize.width -
         windowPadding * 2 -
         scrollBarWidth -
-        3;
+        2;
     if (v === "top") point.y = menuHeight;
     if (v === "center") point.y = screenCenter.y - windowCenter.y;
     if (v === "bottom")

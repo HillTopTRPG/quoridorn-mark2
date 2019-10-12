@@ -1,6 +1,7 @@
 type CssInfo = {
   property: string;
   value: string;
+  customizable: boolean;
 };
 
 const cssInfoList: CssInfo[] = require("./css.yaml");
@@ -23,5 +24,10 @@ export default class CssManager {
       const elm = document.documentElement;
       elm.style.setProperty(info.property, info.value);
     });
+  }
+
+  public static getCss(name: string) {
+    const elm = document.documentElement;
+    return window.getComputedStyle(elm).getPropertyValue(name);
   }
 }

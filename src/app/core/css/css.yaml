@@ -1,14 +1,82 @@
 - property: --window-title-height
   value: 2rem
+  customizable: false
 - property: --window-padding
   value: 8px
+  customizable: false
 - property: --menu-bar-height
   value: 2rem
+  customizable: false
 - property: --scroll-bar-width
   value: 17px
+  customizable: false
 - property: --cell-padding
   value: 3px
+  customizable: false
 - property: --theme-color
   value: rgba(250, 255, 255, 0.85)
+  customizable: true
 - property: --theme-color-accent
   value: rgba(250, 255, 255, 0.9)
+  customizable: true
+
+- property: --uni-color-red
+  value: rgb(255, 75, 0)
+  customizable: false
+- property: --uni-color-yellow
+  value: rgb(255, 241, 0)
+  customizable: false
+- property: --uni-color-green
+  value: rgb(3, 175, 122)
+  customizable: false
+- property: --uni-color-blue
+  value: rgb(0, 90, 255)
+  customizable: false
+- property: --uni-color-skyblue
+  value: rgb(77, 196, 255)
+  customizable: false
+- property: --uni-color-pink
+  value: rgb(255, 128, 130)
+  customizable: false
+- property: --uni-color-orange
+  value: rgb(246, 170, 0)
+  customizable: false
+- property: --uni-color-purple
+  value: rgb(153, 0, 153)
+  customizable: false
+- property: --uni-color-brown
+  value: rgb(128, 64, 0)
+  customizable: false
+- property: --uni-color-light-pink
+  value: rgb(255, 202, 191)
+  customizable: false
+- property: --uni-color-cream
+  value: rgb(255, 255, 128)
+  customizable: false
+- property: --uni-color-light-green
+  value: rgb(216, 242, 85)
+  customizable: false
+- property: --uni-color-light-skyblue
+  value: rgb(191, 228, 255)
+  customizable: false
+- property: --uni-color-beige
+  value: rgb(255, 202, 128)
+  customizable: false
+- property: --uni-color-light-green
+  value: rgb(119, 217, 168)
+  customizable: false
+- property: --uni-color-light-purple
+  value: rgb(201, 172, 230)
+  customizable: false
+- property: --uni-color-light-gray
+  value: rgb(200, 200, 203)
+  customizable: false
+- property: --uni-color-gray
+  value: rgb(132, 145, 158)
+  customizable: false
+- property: --uni-color-black
+  value: rgb(0, 0, 0)
+  customizable: false
+- property: --uni-color-white
+  value: rgb(255, 255, 255)
+  customizable: false
