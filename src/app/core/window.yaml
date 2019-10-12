@@ -2,7 +2,7 @@
   parentTypeList: []
   title: テスト画面
   message: ""
-  position: right-bottom
+  position: center
   size:
     width: 350
     height: 200
