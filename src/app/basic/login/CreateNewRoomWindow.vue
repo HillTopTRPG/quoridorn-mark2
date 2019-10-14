@@ -4,34 +4,45 @@
       <div>新規プレイルームを作成します。</div>
       <label>
         <span>プレイルーム名：</span>
-        <base-input type="text" placeholder="仮プレイルーム（削除可能）" />
+        <base-input
+          type="text"
+          :value="name"
+          @input="name = $event.target.value"
+          placeholder="仮プレイルーム（削除可能）"
+        />
       </label>
       <label>
         <span>パスワード(空ならパスワードなし)：</span>
-        <base-input type="password" />
+        <base-input
+          type="password"
+          :value="password"
+          @input="password = $event.target.value"
+        />
       </label>
-      <dice-bot-select
-        :labelText="'ゲームシステム'"
-        ref="diceBot"
-        v-model="currentDiceBotSystem"
-        class="diceBotSystem"
-      />
+      <label>
+        <span>ゲームシステム：</span>
+        <dice-bot-select ref="diceBot" v-model="system" class="diceBotSystem" />
+      </label>
     </div>
     <div class="button-area">
-      <ctrl-button>新規作成</ctrl-button>
-      <ctrl-button>ログイン</ctrl-button>
+      <ctrl-button @click.stop="commit()">作成</ctrl-button>
+      <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Emit } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { RoomInfo } from "@/@types/room";
+import App from "@/views/App.vue";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -39,8 +50,43 @@ import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vu
 export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
+  private name: string = "";
+  private password: string = "";
   /** 選択されているシステム */
-  private currentDiceBotSystem: string = "DiceBot";
+  private system: string = "DiceBot";
+
+  @Watch("currentDiceBotSystem")
+  private onChangeCurrentDiceBotSystem(system: string) {
+    window.console.log(system);
+  }
+
+  private async commit() {
+    window.console.log("commit");
+    await this.finally({
+      name: this.name,
+      password: this.password,
+      system: this.system,
+      memberNum: 1
+    });
+  }
+
+  private async rollback() {
+    window.console.log("rollback");
+    await this.finally();
+  }
+
+  private async finally(roomInfo?: RoomInfo) {
+    await TaskManager.instance.ignition<string, never>({
+      type: "window-close",
+      owner: "Quoridorn",
+      value: this.windowInfo.key
+    });
+    const task = TaskManager.instance.getTask<RoomInfo>("input-create-room");
+    if (!task) {
+      throw new ApplicationError("No such task.");
+    }
+    task.resolve(roomInfo ? [roomInfo] : []);
+  }
 }
 </script>
 

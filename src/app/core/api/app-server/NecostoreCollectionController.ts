@@ -1,5 +1,4 @@
 import Nekostore from "nekostore/lib/Nekostore";
-import uuid from "uuid";
 import QuerySnapshot from "nekostore/src/QuerySnapshot";
 import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
@@ -77,7 +76,7 @@ export default class NecostoreCollectionController<T> {
   ): Promise<void> {
     let target: CollectionReference<StoreObj<T>> = this.getCollection();
     const unsubscribe = await target.onSnapshot(onNext);
-    if (!this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
+    if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
   }
 }

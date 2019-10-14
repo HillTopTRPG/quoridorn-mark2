@@ -7,9 +7,11 @@
       diceSystemList.map(systemObj => ({
         key: systemObj.system,
         value: systemObj.system,
-        text: systemObj.system !== 'DiceBot' ? systemObj.name : '指定なし'
+        text: systemObj.system !== 'DiceBot' ? systemObj.name : '指定なし',
+        disabled: false
       }))
     "
+    :test="test"
     :maxWidth="19"
     :disabled="disabled"
   />
@@ -19,12 +21,16 @@
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import { DiceSystem } from "@/@types/bcdice";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Vue {
-  @Action("loading") private loading: any;
   @Action("getBcdiceSystemInfo") private getBcdiceSystemInfo: any;
-  @Getter("diceSystemList") private diceSystemList: any;
+
+  private diceSystemList: DiceSystem[] = [];
 
   @Prop({ type: String, required: true })
   private value!: string;
@@ -34,6 +40,26 @@ export default class DiceBotSelect extends Vue {
 
   @Prop({ type: String, required: false, default: "" })
   private labelText!: string;
+
+  @Prop({ type: Boolean, default: false })
+  private test!: boolean;
+
+  private mounted() {
+    if (BCDiceFacade.instance.isReady()) {
+      BCDiceFacade.instance.getDiceSystemList().forEach(info => {
+        this.diceSystemList.push(info);
+      });
+    }
+  }
+
+  @TaskProcessor("bcdice-ready-finished")
+  private async bcdiceReadyFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    BCDiceFacade.instance.getDiceSystemList().forEach(info => {
+      this.diceSystemList.push(info);
+    });
+  }
 
   /*
    * data
@@ -62,7 +88,7 @@ export default class DiceBotSelect extends Vue {
   input(currentSystem: string) {}
 
   @Watch("currentSystem", { immediate: true })
-  onChangeCurrentSystem(currentSystem: string) {
+  private async onChangeCurrentSystem(currentSystem: string) {
     if (currentSystem === "DiceBot") {
       this.helpMessage =
         this.baseHelpMessage +
@@ -70,17 +96,17 @@ export default class DiceBotSelect extends Vue {
         "ゲーム固有の判定がある場合はこの場所に記載されます。";
     } else {
       if (!currentSystem) return;
-      this.getBcdiceSystemInfo(currentSystem)
-        .then((info: any) => {
-          this.helpMessage =
-            this.baseHelpMessage +
-            `==【${info.name}専用】====================\n` +
-            info.info;
-        })
-        .catch((err: any) => {
-          window.console.error(err);
-          this.helpMessage = "ヘルプ文言の取得に失敗しました。";
-        });
+
+      try {
+        const info: any = await BCDiceFacade.getBcdiceSystemInfo(currentSystem);
+        this.helpMessage =
+          this.baseHelpMessage +
+          `==【${info.name}専用】====================\n` +
+          info.info;
+      } catch (err) {
+        window.console.error(err);
+        this.helpMessage = "ヘルプ文言の取得に失敗しました。";
+      }
     }
   }
 

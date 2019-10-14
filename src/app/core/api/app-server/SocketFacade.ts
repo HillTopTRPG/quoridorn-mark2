@@ -3,6 +3,25 @@ import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import { RoomInfo } from "@/@types/room";
 import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
+import { StoreMetaData, StoreObj } from "@/@types/store";
+import DocumentChange from "nekostore/lib/DocumentChange";
+
+export async function getStoreObj<T>(
+  doc: DocumentChange<StoreObj<T>>
+): Promise<(StoreObj<T> & StoreMetaData) | null> {
+  const docSnapshot = await doc.ref.get();
+  if (docSnapshot.exists()) {
+    const data: StoreObj<T> = docSnapshot.data;
+    return {
+      id: doc.ref.id,
+      createTime: doc.createTime ? doc.createTime.toDate() : null,
+      updateTime: doc.updateTime ? doc.updateTime.toDate() : null,
+      ...data
+    };
+  } else {
+    return null;
+  }
+}
 
 export default class SocketFacade {
   // シングルトン

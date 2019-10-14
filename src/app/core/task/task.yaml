@@ -27,6 +27,7 @@
     - pane-relocation
     - window-resize
     - task-finally
+    - bcdice-ready
 
 - taskAttribute:
     isIgniteWithParam: false

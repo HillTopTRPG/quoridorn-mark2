@@ -36,10 +36,19 @@ export default class TaskManager {
   private readonly taskLastValue: { [type: string]: any } = {};
   private readonly taskDeclareJsonList = taskDeclareJsonList;
 
-  public getTask(type: string, taskKey: string): Task<unknown, unknown> | null {
+  public getTask<U>(
+    type: string,
+    target?: string | number
+  ): Task<unknown, U> | null {
     const list = this.taskStore[type];
     if (!list) return null;
-    return list.filter(task => task.key === taskKey)[0] || null;
+    if (target) {
+      if (typeof target === "string")
+        return list.filter(task => task.key === target)[0] || null;
+      else return list[target];
+    } else {
+      return list[0];
+    }
   }
 
   /**

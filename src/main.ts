@@ -10,11 +10,13 @@ import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/music/PlayYoutubeWindow.vue";
 import LoginWindow from "@/app/basic/login/LoginWindow.vue";
 import CreateNewRoomWindow from "@/app/basic/login/CreateNewRoomWindow.vue";
+import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
 
 YoutubeManager.instance;
+BCDiceFacade.instance;
 
 Vue.component("test-window", TestWindow);
 Vue.component("sample-window", SampleWindow);

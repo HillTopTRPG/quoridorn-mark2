@@ -38,13 +38,15 @@ import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  getStoreObj
+} from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
 import { CreateRoomInfo, RoomInfo } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
+import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -79,9 +81,25 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
 
   private async mounted() {
     try {
+      SocketFacade.instance
+        .generateRoomInfoController()
+        .addCollectionSnapshot(
+          this.key,
+          (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
+            snapshot.docs.forEach(async doc => {
+              const docSnapshot = await doc.ref.get();
+              if (docSnapshot.exists()) {
+                const obj = await getStoreObj<RoomInfo>(doc);
+                if (obj) this.roomList.splice(docSnapshot.data.order, 1, obj);
+                else this.roomList.splice(docSnapshot.data.order, 1);
+              }
+            });
+          }
+        );
       this.roomList = await SocketFacade.instance.socketCommunication<
         (StoreObj<RoomInfo> & StoreMetaData)[]
       >("get-room-list");
+      window.console.log(this.roomList);
     } catch (err) {
       window.console.error(err);
     }
@@ -106,7 +124,7 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
       alert("部屋を選択してから新規作成をしてください。");
       return;
     }
-    const info: RoomInfo[] = await TaskManager.instance.ignition<
+    const [info] = await TaskManager.instance.ignition<
       CreateRoomInfo,
       RoomInfo
     >({
@@ -116,6 +134,19 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
         no: this.selectedRoomKey
       }
     });
+    window.console.log(info);
+    try {
+      const tableName = await SocketFacade.instance.socketCommunication(
+        "create-room",
+        {
+          no: this.selectedRoomKey,
+          roomInfo: info
+        }
+      );
+      window.console.log(tableName);
+    } catch (err) {
+      window.console.log(err);
+    }
   }
 }
 </script>
