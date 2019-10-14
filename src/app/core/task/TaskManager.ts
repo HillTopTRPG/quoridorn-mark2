@@ -53,7 +53,6 @@ export default class TaskManager {
     process: TaskProcess<T, U>,
     key: string
   ): void {
-    // window.console.log("addTaskListener", type, key);
     let processContainer = this.taskListener[type];
     if (!processContainer) this.taskListener[type] = processContainer = {};
 
@@ -69,7 +68,6 @@ export default class TaskManager {
    * @param key
    */
   public removeTaskListener(type: string, key?: string): void {
-    // window.console.log("removeTaskListener", type, key);
     if (key) {
       delete this.taskListener[type][key];
       return;
@@ -122,36 +120,37 @@ export default class TaskManager {
       window.console.warn(`🐧💢${taskInput.type}`);
     }, 300);
 
-    const promiseExecutor: TaskPromiseExecutor<U> = async (
-      resolve: (resultList?: U[]) => void,
-      reject: (reason?: any) => void
-    ) => {
-      const finallyFunc = () => {
-        clearTimeout(timeoutID);
-        task.resolve = () => {};
-        task.reject = () => {};
-        this.dequeTask(taskInput.type, taskKey);
-      };
-      const task: Task<T, U> = {
-        ...taskInput,
-        ...taskDeclare,
-        key: taskKey,
-        status: taskDeclare.statusList[0],
-        resolve: (resultList?: U[]) => {
-          resolve(resultList);
-          finallyFunc();
-        },
-        reject: (reason?: any) => {
-          reject(reason);
-          finallyFunc();
-        }
-      };
-      let taskList = this.taskStore[taskInput.type];
-      if (!taskList) taskList = this.taskStore[taskInput.type] = [];
-      taskList.push(task);
-      await this.process(task);
-    };
-    return new Promise(promiseExecutor);
+    return new Promise(
+      async (
+        resolve: (resultList?: U[]) => void,
+        reject: (reason?: any) => void
+      ) => {
+        const finallyFunc = () => {
+          clearTimeout(timeoutID);
+          task.resolve = () => {};
+          task.reject = () => {};
+          this.dequeTask(taskInput.type, taskKey);
+        };
+        const task: Task<T, U> = {
+          ...taskInput,
+          ...taskDeclare,
+          key: taskKey,
+          status: taskDeclare.statusList[0],
+          resolve: (resultList?: U[]) => {
+            resolve(resultList);
+            finallyFunc();
+          },
+          reject: (reason?: any) => {
+            reject(reason);
+            finallyFunc();
+          }
+        };
+        let taskList = this.taskStore[taskInput.type];
+        if (!taskList) taskList = this.taskStore[taskInput.type] = [];
+        taskList.push(task);
+        await this.process(task);
+      }
+    );
   }
 
   private dequeTask(type: string, taskKey: string) {
@@ -161,51 +160,59 @@ export default class TaskManager {
   }
 
   private async process<T, U>(task: Task<T, U>): Promise<U[] | null> {
-    const resultList = await this.callProcess<T, U>(task);
-    if (!task.resolve || !task.reject) return null;
+    try {
+      const resultList = await this.callProcess<T, U>(task);
+      if (!task.resolve || !task.reject) return null;
 
-    // 受け取った次のステータスの中で最も進んでいるものを採用
-    let nextStatusIndex = -1;
-    let processResult: U[] = [];
-    if (resultList && resultList.length) {
-      const useStatusList: string[] = resultList
-        .filter(result => result && result.nextStatus)
-        .map(result => result.nextStatus) as string[];
-      if (useStatusList.length) {
-        nextStatusIndex = Math.max(
-          ...useStatusList.map((nextStatus: string) =>
-            task.statusList.findIndex((status: string) => status === nextStatus)
-          )
+      // 受け取った次のステータスの中で最も進んでいるものを採用
+      let nextStatusIndex = -1;
+      let processResult: U[] = [];
+      if (resultList && resultList.length) {
+        const useStatusList: string[] = resultList
+          .filter(result => result && result.nextStatus)
+          .map(result => result.nextStatus) as string[];
+        if (useStatusList.length) {
+          nextStatusIndex = Math.max(
+            ...useStatusList.map((nextStatus: string) =>
+              task.statusList.findIndex(
+                (status: string) => status === nextStatus
+              )
+            )
+          );
+        }
+        processResult = resultList
+          .filter(result => result && result.value)
+          .map(result => result.value) as U[];
+      }
+
+      let nextStatus: string;
+
+      // 処理が登録されてなかったら、次のステータスを採用
+      if (nextStatusIndex === -1) {
+        const currentIndex: number = task.statusList.findIndex(
+          (status: string) => status === task.status
         );
+
+        nextStatus = task.statusList[currentIndex + 1];
+      } else {
+        nextStatus = task.statusList[nextStatusIndex];
       }
-      processResult = resultList
-        .filter(result => result && result.value)
-        .map(result => result.value) as U[];
-    }
 
-    let nextStatus: string;
-
-    // 処理が登録されてなかったら、次のステータスを採用
-    if (nextStatusIndex === -1) {
-      const currentIndex: number = task.statusList.findIndex(
-        (status: string) => status === task.status
-      );
-      nextStatus = task.statusList[currentIndex + 1];
-    } else {
-      nextStatus = task.statusList[nextStatusIndex];
-    }
-
-    // 最終ステータスに到達するまでステータスを進めながら呼び出していく
-    if (nextStatus) {
-      task.status = nextStatus;
-      return await this.process(task);
-    } else {
-      // 最終ステータスの処理が終わった
-      if (!task.isTraceFinally) {
-        task.resolve(processResult);
+      // 最終ステータスに到達するまでステータスを進めながら呼び出していく
+      if (nextStatus) {
+        task.status = nextStatus;
+        return await this.process(task);
+      } else {
+        // 最終ステータスの処理が終わった
+        if (!task.isTraceFinally) {
+          task.resolve(processResult);
+        }
       }
+      return processResult;
+    } catch (err) {
+      task.reject(err);
+      throw err;
     }
-    return processResult;
   }
 
   private async callProcess<T, U>(
@@ -254,15 +261,7 @@ export default class TaskManager {
         taskProcess(task, param, processRemover(taskProcess))
     );
 
-    // 登録された処理を全部非同期実行して、次のステータスを受け取る
-    return await Promise.all(promiseList).catch((reason: any) => {
-      if (task.reject) {
-        task.reject(reason);
-        task.reject = () => {};
-        task.resolve = () => {};
-        task.status = "rejected";
-      }
-      return null;
-    });
+    // 登録された処理を全部非同期実行する
+    return await Promise.all(promiseList);
   }
 }

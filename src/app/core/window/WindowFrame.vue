@@ -214,10 +214,8 @@ export default class WindowFrame extends Vue {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
-    task.resolve();
-
     // 移動
-    if (param.key === this.key && !param.type) {
+    if (param && !param.type && param.key === this.key) {
       // 画面の移動を発火
       await TaskManager.instance.ignition<Point, never>({
         type: "window-move-end",
@@ -225,6 +223,8 @@ export default class WindowFrame extends Vue {
         value: point
       });
     }
+
+    task.resolve();
   }
 
   @TaskProcessor("mouse-moving-finished")
