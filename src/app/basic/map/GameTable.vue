@@ -145,8 +145,8 @@ export default class GameTable extends AddressCalcMixin {
   @TaskProcessor("action-wheel-finished")
   // @Logging
   private async actionWheelFinished(
-    task: Task<boolean>
-  ): Promise<TaskResult<never>> {
+    task: Task<boolean, never>
+  ): Promise<TaskResult<never> | void> {
     this.wheel += 100 * (task!.value || false ? 1 : -1);
 
     this.setIsWheeling(true);
@@ -164,8 +164,8 @@ export default class GameTable extends AddressCalcMixin {
   @TaskProcessorSimple
   @Logging
   private async item01EmitFinished(
-    task: Task<number>
-  ): Promise<TaskResult<never>> {
+    task: Task<number, never>
+  ): Promise<TaskResult<never> | void> {
     window.console.log("ちゃんと拾えた");
 
     task.resolve();
@@ -228,9 +228,9 @@ export default class GameTable extends AddressCalcMixin {
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (param.key !== this.key) return;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
     const point = task.value!;
@@ -266,8 +266,8 @@ export default class GameTable extends AddressCalcMixin {
 
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point>
-  ): Promise<TaskResult<never>> {
+    task: Task<Point, never>
+  ): Promise<TaskResult<never> | void> {
     this.point.x += this.pointDiff.x;
     this.point.y += this.pointDiff.y;
     this.pointDiff.x = 0;
@@ -281,9 +281,9 @@ export default class GameTable extends AddressCalcMixin {
 
   @TaskProcessor("mouse-move-end-right-finished")
   private async mouseRightUpFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     const point: Point = task.value!;
 
     const eventType = param ? param.type!.split("-")[1] : "";

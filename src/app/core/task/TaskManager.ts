@@ -258,8 +258,8 @@ export default class TaskManager {
     return await Promise.all(promiseList).catch((reason: any) => {
       if (task.reject) {
         task.reject(reason);
-        task.reject = null;
-        task.resolve = null;
+        task.reject = () => {};
+        task.resolve = () => {};
         task.status = "rejected";
       }
       return null;

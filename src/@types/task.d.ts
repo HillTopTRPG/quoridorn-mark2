@@ -39,8 +39,8 @@ type StatusList = string[];
 export interface Task<T, U> extends TaskDeclare, TaskInput<T> {
   readonly key: string;
   status: string;
-  resolve: null | ((resultList?: U[]) => void);
-  reject: null | ((reason?: any) => void);
+  resolve: (resultList?: U[]) => void;
+  reject: (reason?: any) => void;
 }
 
 type TaskPromiseExecutor<U> = (

@@ -1,7 +1,7 @@
-import Nekostore from "nekostore"; // "socket"
+import Nekostore from "nekostore"; // "app-server"
 import BasicDriver from "nekostore/lib/driver/basic";
 import SocketDriver from "nekostore/lib/driver/socket";
-import Socket from "nekostore/lib/driver/socket/Socket"; // "socket/lib/driver/basic"
+import Socket from "nekostore/lib/driver/socket/Socket"; // "app-server/lib/driver/basic"
 import SocketClient from "socket.io-client";
 
 interface Data {
@@ -14,7 +14,7 @@ export async function nekostore_test_client(): Promise<void> {
   const driver = new SocketDriver({ socket });
   const nekostore = new Nekostore(driver);
 
-  // const c1Ref = socket.collection<Data>("c1");
+  // const c1Ref = app-server.collection<Data>("c1");
   // const unsubscribe1 = await c1Ref.onSnapshot(snapshot => {
   //   snapshot.docs.forEach(doc => {
   //     window.console.log(doc.ref.id, doc.type, doc.data);

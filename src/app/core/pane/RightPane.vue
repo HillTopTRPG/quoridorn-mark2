@@ -100,9 +100,9 @@ export default class RightPane extends Vue {
    */
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
@@ -122,8 +122,8 @@ export default class RightPane extends Vue {
    */
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point>
-  ): Promise<TaskResult<never>> {
+    task: Task<Point, never>
+  ): Promise<TaskResult<never> | void> {
     const point: Point = task.value!;
     const paneRectangle = getRightPaneRectangle();
 
@@ -157,8 +157,8 @@ export default class RightPane extends Vue {
    */
   @TaskProcessor("window-moving-finished")
   private async windowMovingFinished(
-    task: Task<WindowMoveInfo>
-  ): Promise<TaskResult<never>> {
+    task: Task<WindowMoveInfo, never>
+  ): Promise<TaskResult<never> | void> {
     const point: Point = task.value!.mouse!;
     const paneRectangle = getRightPaneRectangle();
     this.isAnimationY = true;
@@ -203,8 +203,8 @@ export default class RightPane extends Vue {
    */
   @TaskProcessor("right-pane-frame-moving-finished")
   private async rightPaneFrameMovingFinished(
-    task: Task<PaneMoveInfo>
-  ): Promise<TaskResult<never>> {
+    task: Task<PaneMoveInfo, never>
+  ): Promise<TaskResult<never> | void> {
     const point = task.value!.point;
     const windowKey = task.value!.windowKey;
     const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
@@ -232,8 +232,8 @@ export default class RightPane extends Vue {
    */
   @TaskProcessor("pane-relocation-finished")
   private async paneRelocationFinished(
-    task: Task<string>
-  ): Promise<TaskResult<never>> {
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     const windowKey = task.value!;
     this.arrangeY();
 
@@ -261,7 +261,9 @@ export default class RightPane extends Vue {
 
   @TaskProcessor("window-minimize-finished")
   @TaskProcessor("window-close-finished")
-  private async closeWindow(task: Task<string>): Promise<TaskResult<never>> {
+  private async closeWindow(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     this.isAnimationY = false;
     setTimeout(() => {
       this.arrangeY(task.value!);

@@ -195,18 +195,18 @@ export default class TableComponent extends Vue {
   @Prop({ type: String, required: true })
   private status!: string;
   @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo<unknown>;
+  private windowInfo!: WindowInfo<any>;
   @Prop({ type: Array, required: true })
   private dataList!: any[];
   @Prop({ type: String, required: false, default: "key" })
-  private keyProp!: string;
+  private keyProp!: keyof WindowInfo<any>;
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
   private fromLeftWidth: number = 0;
   private fromRightWidth: number = 0;
   private fromLastWidth: number = 0;
-  private rowList: RowInfo[] = [];
+  private rowList: RowInfo<any>[] = [];
 
   private mounted() {
     this.isMounted = true;
@@ -233,9 +233,11 @@ export default class TableComponent extends Vue {
   }
 
   private get key(): string {
-    return `${this.windowInfo[this.keyProp]}-${this.status}-table-${
-      this.tableIndex
-    }`;
+    let key: string =
+      this.keyProp in this.windowInfo
+        ? (this.windowInfo[this.keyProp] as string)
+        : "";
+    return `${key}-${this.status}-table-${this.tableIndex}`;
   }
 
   private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
@@ -254,9 +256,9 @@ export default class TableComponent extends Vue {
 
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
@@ -267,9 +269,9 @@ export default class TableComponent extends Vue {
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
 
     const leftIndex = parseInt(param.type!.replace("div-", ""), 10) - 1;
@@ -376,7 +378,7 @@ export default class TableComponent extends Vue {
   }
 
   private doubleClickTimeoutId: number | null = null;
-  private doubleClick(rowInfo: RowInfo) {
+  private doubleClick(rowInfo: RowInfo<any>) {
     rowInfo.isDoubleClick = true;
     if (this.doubleClickTimeoutId !== null) {
       clearTimeout(this.doubleClickTimeoutId);

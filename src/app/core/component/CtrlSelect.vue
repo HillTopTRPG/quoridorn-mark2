@@ -1,5 +1,6 @@
 <template>
   <label class="ctrl-select-wrapper" :disabled="disabled" @contextmenu.prevent>
+    <span>{{ labelText }}</span>
     <select
       v-model="localValue"
       ref="select"
@@ -45,6 +46,9 @@ export default class CtrlSelect extends SelectMixin {
 
   @Prop({ type: Number, default: 0 })
   private maxWidth!: number;
+
+  @Prop({ type: String, required: false, default: "" })
+  private labelText!: string;
 
   private fontColor: string = "";
 

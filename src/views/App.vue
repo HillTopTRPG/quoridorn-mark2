@@ -35,7 +35,7 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import { nekostore_test_client } from "@/app/core/nekostore_test";
 import { CreateRoomInfo, RoomInfo } from "@/@types/room";
-import SocketFacade from "@/app/core/socket/SocketFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -168,15 +168,15 @@ export default class App extends Vue {
 
   @TaskProcessor("window-open-finished")
   private async windowOpenOpening(
-    task: Task<WindowOpenInfo<unknown>>
-  ): Promise<TaskResult<never>> {
+    task: Task<WindowOpenInfo<unknown>, never>
+  ): Promise<TaskResult<never> | void> {
     task.value!.key = WindowManager.instance.open(task.value!, task.key);
   }
 
   @TaskProcessor("input-create-room-finished")
   private async inputCreateRoomFinished(
-    task: Task<CreateRoomInfo>
-  ): Promise<TaskResult<RoomInfo>[]> {
+    task: Task<CreateRoomInfo, RoomInfo>
+  ): Promise<TaskResult<RoomInfo>[] | void> {
     const roomNo = task.value!.no;
     try {
       await SocketFacade.instance.socketCommunication("touch-room", {

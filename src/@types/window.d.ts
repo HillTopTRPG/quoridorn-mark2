@@ -1,5 +1,4 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
-import { readonly } from "io-ts";
 
 export type WindowTableColumn = {
   width: number;

@@ -1,6 +1,7 @@
 <template>
   <ctrl-select
     :title="helpMessage"
+    :labelText="labelText"
     v-model="currentSystem"
     :optionInfoList="
       diceSystemList.map(systemObj => ({
@@ -15,9 +16,9 @@
 </template>
 
 <script lang="ts">
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Vue {
@@ -30,6 +31,9 @@ export default class DiceBotSelect extends Vue {
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
+
+  @Prop({ type: String, required: false, default: "" })
+  private labelText!: string;
 
   /*
    * data

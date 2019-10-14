@@ -34,8 +34,6 @@ import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
-import WindowManager from "@/app/core/window/WindowManager";
-import { WindowOpenInfo } from "@/@types/window";
 
 const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
@@ -91,8 +89,8 @@ export default class Context extends Vue {
 
   @TaskProcessor("context-open-finished")
   private async openContextFinished(
-    task: Task<ContextTaskInfo>
-  ): Promise<TaskResult<never>> {
+    task: Task<ContextTaskInfo, never>
+  ): Promise<TaskResult<never> | void> {
     this.type = task.value!.type;
     this.target = task.value!.target;
     setTimeout(() => {
@@ -104,7 +102,7 @@ export default class Context extends Vue {
     this.itemList.length = 0;
 
     // 定義を元に要素を構築していく
-    const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type];
+    const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type!];
     if (!itemInfoList) return;
     itemInfoList.forEach((item: ContextItemDeclareInfo | null) => {
       // 要素がnullだったら区切り線

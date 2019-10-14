@@ -1,8 +1,8 @@
 import SocketClient from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
-import NecostoreCollectionController from "@/app/core/socket/NecostoreCollectionController";
 import { RoomInfo } from "@/@types/room";
+import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
 
 export default class SocketFacade {
   // シングルトン

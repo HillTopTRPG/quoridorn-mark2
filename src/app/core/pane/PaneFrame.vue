@@ -116,9 +116,9 @@ export default class PaneFrame extends Vue {
    */
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
@@ -177,9 +177,9 @@ export default class PaneFrame extends Vue {
    */
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseMoveEndLeftFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (param && param.key === this.key) {
       const point = task.value!;
 

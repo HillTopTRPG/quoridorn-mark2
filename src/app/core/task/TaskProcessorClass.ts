@@ -19,7 +19,7 @@ export default function TaskProcessorClass<
     c.prototype["beforeMount"] = function() {
       taskList.forEach((taskName: string) => {
         const funcName: string = changeCase.camelCase(taskName);
-        const process: TaskProcess<unknown> = c.prototype[funcName];
+        const process: TaskProcess<unknown, unknown> = c.prototype[funcName];
         if (!process) {
           // Decoratorから例外を投げても無視されるのでこれは飾り
           new NoSuchMethodError(c.name, funcName);

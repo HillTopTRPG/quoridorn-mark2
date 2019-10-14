@@ -34,8 +34,8 @@ export default class WindowArea extends Vue {
 
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing(
-    task: Task<string>
-  ): Promise<TaskResult<never>> {
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     const index = this.getWindowInfoIndex(task.value);
     this.windowInfoList.splice(index, 1);
   }
@@ -49,15 +49,17 @@ export default class WindowArea extends Vue {
 
   @TaskProcessor("window-close-finished")
   private async windowCloseFinished(
-    task: Task<string>
-  ): Promise<TaskResult<never>> {
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     this.arrangeOrder();
     this.arrangeMinimizeIndex();
     task.resolve();
   }
 
   @TaskProcessor("window-minimize-finished")
-  private async minimizeWindow(task: Task<string>): Promise<TaskResult<never>> {
+  private async minimizeWindow(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
 
@@ -84,8 +86,8 @@ export default class WindowArea extends Vue {
   @TaskProcessor("window-normalize-finished")
   @Logging
   private async normalizeWindow(
-    task: Task<string>
-  ): Promise<TaskResult<never>> {
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
     windowInfo.isMinimized = false;
@@ -107,7 +109,9 @@ export default class WindowArea extends Vue {
   }
 
   @TaskProcessor("window-active-finished")
-  private async activeWindow(task: Task<string>): Promise<TaskResult<never>> {
+  private async activeWindow(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
     windowInfo.order = this.windowInfoList.length;

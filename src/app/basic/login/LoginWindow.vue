@@ -38,7 +38,7 @@ import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import SocketFacade from "@/app/core/socket/SocketFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
 import { CreateRoomInfo, RoomInfo } from "@/@types/room";

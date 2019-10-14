@@ -5,6 +5,7 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import { StoreMetaData, StoreObj } from "@/@types/store";
 
 export default class NecostoreCollectionController<T> {
   constructor(
@@ -24,28 +25,28 @@ export default class NecostoreCollectionController<T> {
   private snapshotMap: { [ownerKey in string]: Unsubscribe } = {};
 
   private getCollection() {
-    return this.nekostore.collection<T & StoreObj>(this.collectionName);
+    return this.nekostore.collection<StoreObj<T>>(this.collectionName);
   }
 
-  public async getList(): Promise<(T & StoreObj & StoreMetaData)[]> {
+  public async getList(): Promise<(StoreObj<T> & StoreMetaData)[]> {
     const c = this.getCollection();
-    return (await c.orderBy("updateTime").get()).docs
-      .filter(doc => doc.data)
-      .map(doc => {
-        window.console.log(doc.createTime, doc.updateTime);
-        return {
-          ...doc.data!,
-          createTime: doc.createTime ? doc.createTime.toDate() : null,
-          updateTime: doc.updateTime ? doc.updateTime.toDate() : null
-        };
-      });
+    return (await c.orderBy("updateTime").get()).docs.map(doc => {
+      window.console.log(doc.createTime, doc.updateTime);
+      return {
+        ...doc.data!,
+        id: doc.ref.id,
+        createTime: doc.createTime ? doc.createTime.toDate() : null,
+        updateTime: doc.updateTime ? doc.updateTime.toDate() : null
+      };
+    });
   }
 
   public async add(inputInfo: T) {
     const c = this.getCollection();
     await c.add({
-      key: uuid.v4(),
-      ...inputInfo
+      order: 1,
+      exclusionOwner: null,
+      data: inputInfo
     });
   }
 
@@ -60,9 +61,11 @@ export default class NecostoreCollectionController<T> {
   public async addSnapshot(
     ownerKey: string,
     docId: string,
-    onNext: (snapshot: DocumentSnapshot<T>) => void
+    onNext: (snapshot: DocumentSnapshot<StoreObj<T>>) => void
   ): Promise<void> {
-    let target: DocumentReference<T> = this.getCollection().doc(docId);
+    let target: DocumentReference<StoreObj<T>> = this.getCollection().doc(
+      docId
+    );
     const unsubscribe = await target.onSnapshot(onNext);
     if (!this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
@@ -70,9 +73,9 @@ export default class NecostoreCollectionController<T> {
 
   public async addCollectionSnapshot(
     ownerKey: string,
-    onNext: (snapshot: QuerySnapshot<T>) => void
+    onNext: (snapshot: QuerySnapshot<StoreObj<T>>) => void
   ): Promise<void> {
-    let target: CollectionReference<T> = this.getCollection();
+    let target: CollectionReference<StoreObj<T>> = this.getCollection();
     const unsubscribe = await target.onSnapshot(onNext);
     if (!this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;

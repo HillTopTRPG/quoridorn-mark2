@@ -13,7 +13,7 @@ const mounted: GenerateProcessInfo = {
   generator: function(
     this: any,
     methodName: string,
-    func: TaskProcess<any>,
+    func: TaskProcess<unknown, unknown>,
     taskName?: string
   ) {
     if (!taskName) taskName = changeCase.paramCase(methodName);
@@ -26,7 +26,7 @@ const beforeDestroy: GenerateProcessInfo = {
   generator: function(
     this: any,
     methodName: string,
-    func: TaskProcess<any>,
+    func: TaskProcess<unknown, unknown>,
     taskName?: string
   ) {
     if (!taskName) taskName = changeCase.paramCase(methodName);

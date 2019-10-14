@@ -148,6 +148,10 @@ export default class WindowFrame extends Vue {
           "window-open",
           this.windowInfo.taskKey
         );
+        if (!task) {
+          window.console.warn(`No such task. type=${this.windowInfo.type}`);
+          return;
+        }
         task.resolve();
       }
     }
@@ -190,9 +194,9 @@ export default class WindowFrame extends Vue {
 
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     const point = task.value!;
 
     this.windowInfo.x += this.diff.x;
@@ -225,9 +229,9 @@ export default class WindowFrame extends Vue {
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
-    task: Task<Point>,
+    task: Task<Point, never>,
     param: MouseMoveParam
-  ): Promise<TaskResult<never>> {
+  ): Promise<TaskResult<never> | void> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
