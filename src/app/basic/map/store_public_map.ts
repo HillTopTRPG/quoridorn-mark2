@@ -20,7 +20,7 @@ export type MapInfoInput = {
   background: string;
   chatLinkage: number;
   chatLinkageSearch: string;
-  processTime: number;
+  updateTime: number;
   owner: string;
 };
 
@@ -55,7 +55,7 @@ const state: State = {
       background: "#92A8B3",
       chatLinkage: 0,
       chatLinkageSearch: "",
-      processTime: 20010203000000,
+      updateTime: 20010203000000,
       owner: "Quoridorn"
     }
   ],

@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
+import SelectMixin from "../../basic/common/components/select/base/SelectMixin";
 
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
@@ -71,7 +71,7 @@ export default class CtrlSelect extends SelectMixin {
 </script>
 
 <style scoped lang="scss">
-@import "./Ctrl.scss";
+@import "Ctrl";
 
 .ctrl-select-wrapper {
   @include ctrl-select();

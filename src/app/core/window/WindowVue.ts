@@ -1,39 +1,23 @@
-import { Prop, Vue, Watch } from "vue-property-decorator";
+import Vue from "vue";
+import { Prop } from "vue-property-decorator";
 import { WindowInfo } from "@/@types/window";
+import { Mixin } from "vue-mixin-decorator";
 
+// @ts-ignore
+@Mixin
 export default class WindowVue<T> extends Vue {
   @Prop({ type: Object, required: true })
-  protected windowInfo!: WindowInfo<unknown>;
+  public windowInfo!: WindowInfo<T>;
   @Prop({ type: String, required: true })
-  protected status!: string;
+  public status!: string;
   @Prop({ type: Boolean, required: true })
-  protected isResizing!: boolean;
+  public isResizing!: boolean;
 
-  protected __args: T | null = null;
-
-  @Watch("__args")
-  private onChangeArgs(args: T) {
-    this.windowInfo.args = args;
-  }
-
-  @Watch("windowInfo.args", { immediate: true })
-  private onChangeWindowArgs(args: T) {
-    this.__args = args;
-  }
-
-  protected get key() {
+  public get key() {
     return `${this.windowKey}-${this.status}`;
   }
 
-  protected get args(): T | null {
-    return this.__args;
-  }
-
-  protected set args(args: T | null) {
-    this.__args = args;
-  }
-
-  protected get windowKey(): string {
+  public get windowKey(): string {
     return this.windowInfo.key;
   }
 }

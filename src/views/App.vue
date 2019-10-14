@@ -17,14 +17,13 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import BaseInput from "@/app/basic/common/components/BaseInput.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
 import { Action, Getter } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import Context from "@/app/core/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
-import { nekostore_test_client } from "@/app/core/nekostore_test";
 import WindowArea from "@/app/core/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point } from "@/@types/address";
@@ -32,6 +31,11 @@ import { createPoint, getEventPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
+import { nekostore_test_client } from "@/app/core/nekostore_test";
+import { CreateRoomInfo, RoomInfo } from "@/@types/room";
+import SocketFacade from "@/app/core/socket/SocketFacade";
 
 @Component({
   components: {
@@ -60,14 +64,14 @@ export default class App extends Vue {
 
   /** ライフサイクル */
   public async mounted() {
-    TaskManager.instance.ignition<WindowOpenInfo<never>>({
+    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "test-window"
       }
     });
-    TaskManager.instance.ignition<WindowOpenInfo<number>>({
+    await TaskManager.instance.ignition<WindowOpenInfo<number>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
@@ -75,11 +79,18 @@ export default class App extends Vue {
         args: 1
       }
     });
-    TaskManager.instance.ignition<WindowOpenInfo<never>>({
+    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "bgm-setting-window"
+      }
+    });
+    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "login-window"
       }
     });
   }
@@ -90,7 +101,7 @@ export default class App extends Vue {
    */
   @EventProcessor("wheel")
   private async onWheel(event: WheelEvent) {
-    await TaskManager.instance.ignition<boolean>({
+    await TaskManager.instance.ignition<boolean, never>({
       type: "action-wheel",
       owner: "Quoridorn",
       value: event.deltaY < 0
@@ -114,10 +125,10 @@ export default class App extends Vue {
    */
   @EventProcessor("touchmove")
   @EventProcessor("mousemove")
-  private mouseTouchMove(event: MouseEvent | TouchEvent): void {
+  private async mouseTouchMove(event: MouseEvent | TouchEvent): Promise<void> {
     const point = getEventPoint(event);
     if (point.x === this.mouse.x && point.y === this.mouse.y) return;
-    TaskManager.instance.ignition<Point>({
+    await TaskManager.instance.ignition<Point, never>({
       type: "mouse-moving",
       owner: "Quoridorn",
       value: point
@@ -142,7 +153,7 @@ export default class App extends Vue {
       }
     }
     if (type) {
-      await TaskManager.instance.ignition<Point>({
+      await TaskManager.instance.ignition<Point, never>({
         type,
         owner: "Quoridorn",
         value: getEventPoint(event)
@@ -153,6 +164,39 @@ export default class App extends Vue {
   @Watch("mapBackgroundColor", { immediate: true })
   private onChangeMapBackgroundColor(mapBackgroundColor: string): void {
     document.body.style.backgroundColor = mapBackgroundColor;
+  }
+
+  @TaskProcessor("window-open-finished")
+  private async windowOpenOpening(
+    task: Task<WindowOpenInfo<unknown>>
+  ): Promise<TaskResult<never>> {
+    task.value!.key = WindowManager.instance.open(task.value!, task.key);
+  }
+
+  @TaskProcessor("input-create-room-finished")
+  private async inputCreateRoomFinished(
+    task: Task<CreateRoomInfo>
+  ): Promise<TaskResult<RoomInfo>[]> {
+    const roomNo = task.value!.no;
+    try {
+      await SocketFacade.instance.socketCommunication("touch-room", {
+        no: roomNo
+      });
+    } catch (err) {
+      window.console.log(err);
+    }
+
+    const roomInfoList = await TaskManager.instance.ignition<
+      WindowOpenInfo<never>,
+      RoomInfo
+    >({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "create-new-room-window"
+      }
+    });
+    task.resolve(roomInfoList);
   }
 }
 </script>

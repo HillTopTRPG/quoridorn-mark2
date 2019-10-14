@@ -29,7 +29,7 @@ import {
   ContextTaskInfo,
   ContextTextItem
 } from "@/@types/context";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
@@ -78,7 +78,7 @@ export default class Context extends Vue {
 
   private async emitEvent(taskName: string, arg: any) {
     this.hide();
-    await TaskManager.instance.ignition<any>({
+    await TaskManager.instance.ignition<any, never>({
       type: taskName,
       owner: "Quoridorn",
       value: arg
@@ -89,17 +89,10 @@ export default class Context extends Vue {
     this.type = null;
   }
 
-  @TaskProcessor("window-open-opening")
-  private async windowOpenOpening(
-    task: Task<WindowOpenInfo<unknown>>
-  ): Promise<string | void> {
-    task.value!.key = WindowManager.instance.open(task.value!);
-  }
-
   @TaskProcessor("context-open-finished")
   private async openContextFinished(
     task: Task<ContextTaskInfo>
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     this.type = task.value!.type;
     this.target = task.value!.target;
     setTimeout(() => {
@@ -145,8 +138,7 @@ export default class Context extends Vue {
       });
     });
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 }
 </script>

@@ -8,6 +8,8 @@ import SampleWindow from "@/app/basic/common/window/SampleWindow.vue";
 import BgmSettingWindow from "@/app/basic/music/BgmSettingWindow.vue";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/music/PlayYoutubeWindow.vue";
+import LoginWindow from "@/app/basic/login/LoginWindow.vue";
+import CreateNewRoomWindow from "@/app/basic/login/CreateNewRoomWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -18,8 +20,11 @@ Vue.component("test-window", TestWindow);
 Vue.component("sample-window", SampleWindow);
 Vue.component("bgm-setting-window", BgmSettingWindow);
 Vue.component("play-youtube-window", PlayYoutubeWindow);
+Vue.component("login-window", LoginWindow);
+Vue.component("create-new-room-window", CreateNewRoomWindow);
 
 const app = new Vue({
+  // @ts-ignore
   router,
   store,
   render: (h: any) => h(MainVue)

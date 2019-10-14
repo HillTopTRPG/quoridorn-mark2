@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container">
+  <div class="table-container" ref="tableContainer">
     <table
       ref="table"
       :class="{
@@ -56,18 +56,15 @@
       <tbody>
         <!-- コンテンツ -->
         <tr
-          v-for="data in dataList"
-          :key="data.key"
+          v-for="row in rowList"
+          :key="row.data[keyProp]"
           :class="{
-            isSelected: selectLineKey === data.key,
-            isHovered: hoverLineKey === data.key,
-            doubleClicked: doubleClickKey === data.key
+            isSelected: row.isSelected,
+            doubleClicked: row.isDoubleClick
           }"
-          @mouseenter="hoverTr(data.key)"
-          @mouseleave="hoverTr(null)"
-          @mousedown.left="selectTr(data.key)"
-          @touchstart="selectTr(data.key)"
-          @dblclick="doubleClick(data.key)"
+          @mousedown.left="selectTr(row.data[keyProp])"
+          @touchstart="selectTr(row.data[keyProp])"
+          @dblclick="doubleClick(row)"
         >
           <template v-for="(colDec, index) in tableDeclareInfo.columnList">
             <!-- 区切り線 -->
@@ -93,10 +90,10 @@
               <slot
                 name="contents"
                 :colDec="colDec"
-                :data="data"
+                :data="row.data"
                 :index="index"
               >
-                <span>{{ data[colDec.target] }}</span>
+                <span>{{ row.data[colDec.target] }}</span>
               </slot>
             </td>
           </template>
@@ -158,7 +155,7 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Emit, Prop, Vue } from "vue-property-decorator";
+import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import Divider from "@/app/core/component/table/Divider.vue";
 import {
   WindowInfo,
@@ -168,13 +165,19 @@ import {
 } from "@/@types/window";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import { Point } from "@/@types/address";
 import {
   calcStrWidth,
   createPoint,
   getEventPoint
 } from "@/app/core/Coordinate";
+
+type RowInfo<T> = {
+  isSelected: boolean;
+  isDoubleClick: boolean;
+  data: T;
+};
 
 @Component({
   components: { Divider },
@@ -195,14 +198,31 @@ export default class TableComponent extends Vue {
   private windowInfo!: WindowInfo<unknown>;
   @Prop({ type: Array, required: true })
   private dataList!: any[];
+  @Prop({ type: String, required: false, default: "key" })
+  private keyProp!: string;
 
+  private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
   private fromLeftWidth: number = 0;
   private fromRightWidth: number = 0;
   private fromLastWidth: number = 0;
-  private selectLineKey: string | null = null;
-  private hoverLineKey: string | null = null;
-  private doubleClickKey: string | null = null;
+  private rowList: RowInfo[] = [];
+
+  private mounted() {
+    this.isMounted = true;
+  }
+
+  @Watch("dataList", { deep: true, immediate: true })
+  private onChangeDataList() {
+    this.rowList = this.dataList.map(data => {
+      return {
+        isHover: false,
+        isSelected: false,
+        isDoubleClick: false,
+        data
+      };
+    });
+  }
 
   private get tableInfo(): WindowTableInfo {
     return this.windowInfo.tableInfoList[this.tableIndex];
@@ -213,7 +233,9 @@ export default class TableComponent extends Vue {
   }
 
   private get key(): string {
-    return `${this.windowInfo.key}-${this.status}-table-${this.tableIndex}`;
+    return `${this.windowInfo[this.keyProp]}-${this.status}-table-${
+      this.tableIndex
+    }`;
   }
 
   private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
@@ -234,18 +256,20 @@ export default class TableComponent extends Vue {
   private async mouseLeftUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (!param || param.key !== this.key) return;
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
+
+    task.resolve();
   }
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (!param || param.key !== this.key) return;
 
     const leftIndex = parseInt(param.type!.replace("div-", ""), 10) - 1;
@@ -260,6 +284,8 @@ export default class TableComponent extends Vue {
       this.fromLastWidth,
       diffX
     );
+
+    task.resolve();
   }
 
   private adjustWidth(index: number) {
@@ -342,26 +368,24 @@ export default class TableComponent extends Vue {
     });
   }
 
-  private hoverTr(key: string) {
-    this.hoverLineKey = key;
-  }
-
   @Emit("selectLine")
-  private selectTr(key: string) {
-    this.selectLineKey = key;
+  private selectTr(key: any) {
+    this.rowList.forEach(row => {
+      row.isSelected = row.data[this.keyProp] === key;
+    });
   }
 
   private doubleClickTimeoutId: number | null = null;
-  @Emit("doubleClick")
-  private doubleClick(key: string) {
-    this.doubleClickKey = key;
+  private doubleClick(rowInfo: RowInfo) {
+    rowInfo.isDoubleClick = true;
     if (this.doubleClickTimeoutId !== null) {
       clearTimeout(this.doubleClickTimeoutId);
     }
     this.doubleClickTimeoutId = window.setTimeout(() => {
-      this.doubleClickKey = null;
+      rowInfo.isDoubleClick = false;
       this.doubleClickTimeoutId = null;
     }, 100);
+    this.$emit("doubleClick", rowInfo.data[this.keyProp]);
   }
 
   private divMoveStart(event: MouseEvent | TouchEvent, index: number) {
@@ -386,6 +410,20 @@ export default class TableComponent extends Vue {
       }
     );
   }
+
+  private get elm() {
+    return this.$refs.tableContainer as HTMLElement;
+  }
+
+  @Watch("isMounted")
+  @Watch("tableDeclareInfo.height")
+  private onChangeHeight() {
+    const height = this.tableDeclareInfo.height;
+    this.elm.style.setProperty(
+      "--tableHeight",
+      height ? `${height}px` : "auto"
+    );
+  }
 }
 </script>
 
@@ -395,14 +433,16 @@ export default class TableComponent extends Vue {
 $lineHeight: 2em;
 
 .table-container {
-  overflow: auto;
   width: 100%;
 
   table {
+    position: relative;
     table-layout: fixed;
     border-collapse: collapse;
     border-spacing: 0;
     border: 1px solid gray;
+    width: 100%;
+    height: var(--tableHeight);
 
     &.isStretchRight {
       border-left: none;
@@ -414,12 +454,15 @@ $lineHeight: 2em;
 
     tr {
       height: $lineHeight;
+      display: flex;
+    }
 
+    tbody tr {
       &.isSelected {
         background-color: rgba(77, 196, 255, 1) !important;
       }
 
-      &:not(.isSelected).isHovered {
+      &:not(.isSelected):hover {
         background-color: rgba(191, 228, 255, 1) !important;
       }
 
@@ -477,17 +520,28 @@ $lineHeight: 2em;
 
     thead {
       border-bottom: 1px solid gray;
-
-      tr {
-        background: linear-gradient(
-          to bottom,
-          rgba(255, 255, 255, 1) 0%,
-          rgba(234, 234, 234, 1) 100%
-        );
-      }
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding-right: var(--scroll-bar-width);
+      background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 1) 0%,
+        rgba(234, 234, 234, 1) 100%
+      );
+      box-sizing: border-box;
+      border-bottom: 1px solid gray;
     }
 
     tbody {
+      overflow-y: scroll;
+      position: absolute;
+      top: calc(#{$lineHeight} + 1px);
+      left: 0;
+      right: 0;
+      height: calc(var(--tableHeight) - #{$lineHeight});
+
       tr {
         &:nth-child(odd) {
           background-color: white;

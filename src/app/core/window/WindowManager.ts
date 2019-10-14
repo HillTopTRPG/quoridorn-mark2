@@ -47,6 +47,7 @@ export default class WindowManager {
   private resist<T>(
     type: string,
     declareInfo: WindowDeclareInfo,
+    taskKey?: string,
     args?: T
   ): string {
     if (!declareInfo) {
@@ -70,6 +71,7 @@ export default class WindowManager {
     const key = `window-${this.key++}`;
     this.__windowInfoList.push({
       key,
+      taskKey,
       title: declareInfo.title,
       status: "window",
       message: declareInfo.message,
@@ -115,7 +117,7 @@ export default class WindowManager {
     });
   }
 
-  public open<T>(info: WindowOpenInfo<T>): string {
+  public open<T>(info: WindowOpenInfo<T>, taskKey?: string): string {
     if (!info)
       throw new ApplicationError(
         "Illegal arguments error. WindowManager.instance#open"
@@ -124,6 +126,7 @@ export default class WindowManager {
     return this.resist<T>(
       type,
       this.windowDeclareInfoContainer[type],
+      taskKey,
       info.args
     );
   }

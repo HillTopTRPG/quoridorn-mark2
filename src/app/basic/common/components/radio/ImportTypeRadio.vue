@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-import CtrlRadio from "../CtrlRadio.vue";
+import CtrlRadio from "../../../../core/component/CtrlRadio.vue";
 @Component({
   components: { CtrlRadio }
 })

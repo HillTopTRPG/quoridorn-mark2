@@ -1,5 +1,5 @@
 import { Vue, Prop, Emit } from "vue-property-decorator";
-import CtrlSelect from "@/app/basic/common/components/CtrlSelect.vue";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import { Component } from "vue-mixin-decorator";
 
 @Component

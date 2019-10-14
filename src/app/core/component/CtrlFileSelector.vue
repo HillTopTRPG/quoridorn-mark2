@@ -39,7 +39,7 @@ export default class CtrlFileSelector extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "./Ctrl.scss";
+@import "Ctrl";
 
 .ctrl-input-file-wrapper {
   @include ctrl-button();

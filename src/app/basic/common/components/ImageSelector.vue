@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
-import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";

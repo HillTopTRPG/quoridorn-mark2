@@ -19,7 +19,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { zeroPadding } from "@/app/core/Utility";
 import CssManager from "@/app/core/css/CssManager";
 

@@ -20,27 +20,32 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import YoutubeManager, {
   YoutubeEventHandler
 } from "@/app/basic/music/YoutubeManager";
 import BgmManager from "@/app/basic/music/BgmManager";
-import WindowFrame from "@/app/core/window/WindowFrame.vue";
 import { getUrlParam } from "@/app/core/Utility";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
 })
-export default class PlayYoutubeWindow extends WindowVue<string>
+export default class PlayYoutubeWindow
+  extends Mixins<WindowVue<string>>(WindowVue)
   implements YoutubeEventHandler {
   private bgmInfo: BgmInfo | null = null;
 
   @Watch("windowInfo.args", { immediate: true })
   onChangeBgmInfo() {
-    this.bgmInfo = BgmManager.instance.getBgmInfo(this.args);
-    window.console.log("playMusic:", this.args);
+    if (!this.windowInfo.args) {
+      if (this.bgmInfo) YoutubeManager.instance.destroyed(this.bgmInfo.tag);
+      return;
+    }
+    this.bgmInfo = BgmManager.instance.getBgmInfo(this.windowInfo.args);
+    window.console.log("playMusic:", this.windowInfo.args);
     if (!this.bgmInfo) return;
     YoutubeManager.instance.loadVideoById(this.bgmInfo);
     let title = `【タイトル】\n${this.bgmInfo.title}`;
@@ -158,6 +163,7 @@ export default class PlayYoutubeWindow extends WindowVue<string>
 <style scoped lang="scss">
 @import "../../../assets/common";
 .container {
+  display: inline-block;
   width: 100%;
   height: 100%;
 

@@ -1,5 +1,6 @@
 "test-window":
   parentTypeList: []
+  isInputWindow: false
   title: テスト画面
   message: ""
   position: center
@@ -18,6 +19,7 @@
   tableInfoList: []
 "sample-window":
   parentTypeList: []
+  isInputWindow: false
   title: サンプル画面
   message: ""
   position: center
@@ -36,6 +38,7 @@
   tableInfoList: []
 "play-youtube-window":
   parentTypeList: []
+  isInputWindow: false
   title: Youtube再生画面
   message: ""
   position: right-bottom
@@ -51,6 +54,7 @@
   tableInfoList: []
 "bgm-setting-window":
   parentTypeList: []
+  isInputWindow: false
   title: BGM設定画面
   message: ""
   position: center
@@ -110,3 +114,84 @@
           align: center
           title: fade
           target: fade
+"login-window":
+  parentTypeList: []
+  isInputWindow: false
+  title: ログイン画面
+  message: ""
+  position: center
+  size:
+    width: 545
+    height: 300
+  minSize:
+    width: 545
+    height: 200
+  maxSize:
+    width: 545
+    height: 700
+  closable: false
+  fontSizePickable: true
+  resizable: true
+  tableInfoList:
+    - type: free
+      height: 250
+      columnList:
+        - width: 30
+          type: text
+          align: center
+          title: No.
+          target: order
+        - width: 100
+          type: text
+          align: center
+          title: プレイルーム名
+          target: name
+        - width: 90
+          type: text
+          align: center
+          title: ゲームシステム
+          target: system
+        - width: 50
+          type: text
+          align: center
+          title: 入室人数
+          target: memberNum
+        - width: 75
+          type: text
+          align: center
+          title: パスワード
+          target: hasPassword
+        - width: 34
+          type: text
+          align: center
+          title: 見学
+          target: visitable
+        - width: 120
+          type: text
+          align: center
+          title: 最終更新時刻
+          target: updateTime
+        - width: 34
+          type: deleteButton
+          align: center
+          title: 削除
+          target: ""
+"create-new-room-window":
+  parentTypeList: []
+  isInputWindow: true
+  title: 新規プレイルーム作成
+  message: ""
+  position: center
+  size:
+    width: 350
+    height: 200
+  minSize:
+    width: 150
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

@@ -146,7 +146,7 @@ import { Action, Getter, Mutation } from "vuex-class";
 import ChatLogViewer from "@/app/basic/chat/ChatLogViewer.vue";
 import { Watch } from "vue-property-decorator";
 import ImportTypeRadio from "@/app/basic/common/components/radio/ImportTypeRadio.vue";
-import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { saveJson, saveHTML, saveText } from "@/app/core/Utility";
 import moment from "moment";
 
@@ -386,8 +386,8 @@ export default class ChatLog extends Vue {
       logObj.color = this.colorMap[logObj.color];
 
       // 時間
-      logObj.time = logObj.processTime;
-      delete logObj.processTime;
+      logObj.time = logObj.updateTime;
+      delete logObj.updateTime;
 
       // from
       const fromActor: any = this.getObj(logObj.from);

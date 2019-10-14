@@ -1,7 +1,7 @@
 type SyncObj = {
   key: string;
   name: string;
-  processTime: number;
+  updateTime: number;
   owner: string;
 };
 

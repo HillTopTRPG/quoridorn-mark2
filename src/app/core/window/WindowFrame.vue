@@ -108,7 +108,7 @@ import { Point, Rectangle, Size } from "@/@types/address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import {
   createPoint,
   createRectangle,
@@ -140,6 +140,17 @@ export default class WindowFrame extends Vue {
   private mounted() {
     WindowFrame.addEventForIFrame(this.windowElm);
     this.isMounted = true;
+
+    if (!this.windowInfo.declare.isInputWindow) {
+      // 入力画面でないなら表示タスクは完了にする
+      if (this.status === "window" && this.windowInfo.taskKey) {
+        const task = TaskManager.instance.getTask(
+          "window-open",
+          this.windowInfo.taskKey
+        );
+        task.resolve();
+      }
+    }
   }
 
   private destroyed() {
@@ -170,7 +181,7 @@ export default class WindowFrame extends Vue {
 
   private async activeWindow() {
     if (this.windowInfo.isMinimized) return;
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-active",
       owner: "Quoridorn",
       value: this.key
@@ -181,7 +192,7 @@ export default class WindowFrame extends Vue {
   private async mouseLeftUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     const point = task.value!;
 
     this.windowInfo.x += this.diff.x;
@@ -199,13 +210,12 @@ export default class WindowFrame extends Vue {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
 
     // 移動
     if (param.key === this.key && !param.type) {
       // 画面の移動を発火
-      await TaskManager.instance.ignition<Point>({
+      await TaskManager.instance.ignition<Point, never>({
         type: "window-move-end",
         owner: "Quoridorn",
         value: point
@@ -217,7 +227,7 @@ export default class WindowFrame extends Vue {
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
@@ -228,10 +238,9 @@ export default class WindowFrame extends Vue {
       this.diff.width = 0;
       this.diff.height = 0;
 
-      // 登録したタスクに完了通知
-      if (task.resolve) task.resolve(task);
+      task.resolve();
 
-      await TaskManager.instance.ignition<WindowMoveInfo>({
+      await TaskManager.instance.ignition<WindowMoveInfo, never>({
         type: "window-moving",
         owner: "Quoridorn",
         value: {
@@ -244,8 +253,7 @@ export default class WindowFrame extends Vue {
 
     // サイズ変更不可なら処理終了
     if (!this.windowInfo.declare.resizable) {
-      // 登録したタスクに完了通知
-      if (task.resolve) task.resolve(task);
+      task.resolve();
       return;
     }
 
@@ -296,8 +304,7 @@ export default class WindowFrame extends Vue {
     this.diff.width += correctSize.width;
     this.diff.height += correctSize.height;
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private get windowElm(): HTMLDivElement {
@@ -312,7 +319,7 @@ export default class WindowFrame extends Vue {
   }
 
   private async closeWindow(): Promise<void> {
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-close",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -323,7 +330,7 @@ export default class WindowFrame extends Vue {
     this.windowInfo.isMinimized = false;
     this.windowInfo.status = "right-pane";
     this.windowInfo.paneOrder = WindowManager.instance.windowInfoList.length;
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string, never>({
       type: "pane-relocation",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -331,7 +338,7 @@ export default class WindowFrame extends Vue {
   }
 
   private async minimizeWindow(): Promise<void> {
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-minimize",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -339,7 +346,7 @@ export default class WindowFrame extends Vue {
   }
 
   private async normalizeWindow(): Promise<void> {
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-normalize",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -456,7 +463,7 @@ export default class WindowFrame extends Vue {
     const width = this.windowInfo.width + this.diff.width;
     const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowWidth", `${width}px`);
-    TaskManager.instance.ignition<WindowResizeInfo>({
+    TaskManager.instance.ignition<WindowResizeInfo, never>({
       type: "window-resize",
       owner: "Quoridorn",
       value: {
@@ -475,7 +482,7 @@ export default class WindowFrame extends Vue {
     const width = this.windowInfo.width + this.diff.width;
     const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowHeight", `${height}px`);
-    TaskManager.instance.ignition<WindowResizeInfo>({
+    TaskManager.instance.ignition<WindowResizeInfo, never>({
       type: "window-resize",
       owner: "Quoridorn",
       value: {

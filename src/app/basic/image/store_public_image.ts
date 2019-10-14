@@ -21,37 +21,37 @@ const state: State = {
       {
         key: "imgTag-0",
         name: "(全て)",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       },
       {
         key: "imgTag-1",
         name: "マップ",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       },
       {
         key: "imgTag-2",
         name: "キャラクター",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       },
       {
         key: "imgTag-3",
         name: "フロアタイル",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       },
       {
         key: "imgTag-4",
         name: "立ち絵",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       },
       {
         key: "imgTag-5",
         name: "立ち絵差分",
-        processTime: 20010203000000,
+        updateTime: 20010203000000,
         owner: "Quoridorn"
       }
     ],
@@ -83,7 +83,7 @@ export default {
       imageList.forEach((image: ImageInfo, index: number) => {
         image.key = `image-${index}`;
         image.name = image.data.replace(/.*\//, "");
-        image.processTime = 20010203000000;
+        image.updateTime = 20010203000000;
         image.owner = "Quoridorn";
 
         if (!image.imageArgList || !image.imageArgList.length) {
@@ -102,7 +102,7 @@ export default {
             getters.imageTagList.push({
               key: `imgTag-${nextNum}`,
               name: image.tag,
-              processTime: 20010203000000,
+              updateTime: 20010203000000,
               owner: "Quoridorn"
             });
           }

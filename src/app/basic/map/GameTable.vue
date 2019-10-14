@@ -76,7 +76,7 @@ import Character from "@/app/basic/map-object/character/Character.vue";
 import Chit from "@/app/basic/map-object/chit/Chit.vue";
 import DiceSymbol from "@/app/basic/map-object/dice-symbol/DiceSymbol.vue";
 import FloorTile from "@/app/basic/map-object/floor-tile/FloorTile.vue";
-import BaseInput from "@/app/basic/common/components/BaseInput.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
 
 import { parseColor } from "@/app/core/Utility";
 import { Component } from "vue-mixin-decorator";
@@ -89,7 +89,7 @@ import {
   ps
 } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import Logging from "@/app/core/logger/Logging";
 import { ContextTaskInfo } from "@/@types/context";
@@ -146,7 +146,7 @@ export default class GameTable extends AddressCalcMixin {
   // @Logging
   private async actionWheelFinished(
     task: Task<boolean>
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     this.wheel += 100 * (task!.value || false ? 1 : -1);
 
     this.setIsWheeling(true);
@@ -158,17 +158,17 @@ export default class GameTable extends AddressCalcMixin {
       this.wheelTimer = null;
     }, 600);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   @TaskProcessorSimple
   @Logging
-  private async item01EmitFinished(task: Task<number>): Promise<string | void> {
+  private async item01EmitFinished(
+    task: Task<number>
+  ): Promise<TaskResult<never>> {
     window.console.log("ちゃんと拾えた");
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private globalEnter() {
@@ -230,7 +230,7 @@ export default class GameTable extends AddressCalcMixin {
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (param.key !== this.key) return;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
     const point = task.value!;
@@ -257,8 +257,7 @@ export default class GameTable extends AddressCalcMixin {
       this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
     }
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private get currentAngle(): number {
@@ -266,7 +265,9 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   @TaskProcessor("mouse-move-end-left-finished")
-  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+  private async mouseLeftUpFinished(
+    task: Task<Point>
+  ): Promise<TaskResult<never>> {
     this.point.x += this.pointDiff.x;
     this.point.y += this.pointDiff.y;
     this.pointDiff.x = 0;
@@ -275,22 +276,21 @@ export default class GameTable extends AddressCalcMixin {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   @TaskProcessor("mouse-move-end-right-finished")
   private async mouseRightUpFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     const point: Point = task.value!;
 
     const eventType = param ? param.type!.split("-")[1] : "";
     if (eventType === "click") {
       // 右クリックメニュー表示
       setTimeout(async () => {
-        await TaskManager.instance.ignition<ContextTaskInfo>({
+        await TaskManager.instance.ignition<ContextTaskInfo, never>({
           type: "context-open",
           owner: "Quoridorn",
           value: {
@@ -310,8 +310,7 @@ export default class GameTable extends AddressCalcMixin {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-right-finished", null);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private get sizeW(this: any): number {

@@ -45,7 +45,7 @@
 
 <script lang="ts">
 import { Component, Emit } from "vue-property-decorator";
-import CtrlButton from "@/app/basic/common/components/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
@@ -103,7 +103,7 @@ export default class BgmSettingWindow extends WindowVue<number> {
         const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
         windowInfo.args = useBgmKey;
       } else {
-        TaskManager.instance.ignition<WindowOpenInfo<string>>({
+        await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
           type: "window-open",
           owner: "Quoridorn",
           value: {

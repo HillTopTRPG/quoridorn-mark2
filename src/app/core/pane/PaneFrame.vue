@@ -64,7 +64,7 @@ import {
 import { getCssPxNum } from "../Css";
 import { Point, Rectangle } from "@/@types/address";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import TitleIcon from "../window/TitleIcon.vue";
 
 @Component({
@@ -118,7 +118,7 @@ export default class PaneFrame extends Vue {
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
@@ -139,7 +139,7 @@ export default class PaneFrame extends Vue {
     if (isRight && point.x < this.paneRectangle.x) {
       // 範囲外に出たので除外中にする
       this.windowInfo.status = "right-pane-window";
-      await TaskManager.instance.ignition<string>({
+      await TaskManager.instance.ignition<string, never>({
         type: "pane-relocation",
         owner: "Quoridorn",
         value: this.windowInfo.key
@@ -150,14 +150,14 @@ export default class PaneFrame extends Vue {
     ) {
       // 範囲外に出たので除外中にする
       this.windowInfo.status = "left-pane-window";
-      await TaskManager.instance.ignition<string>({
+      await TaskManager.instance.ignition<string, never>({
         type: "pane-relocation",
         owner: "Quoridorn",
         value: this.windowInfo.key
       });
     } else {
       // 範囲内
-      await TaskManager.instance.ignition<PaneMoveInfo>({
+      await TaskManager.instance.ignition<PaneMoveInfo, never>({
         type: isRight ? "right-pane-frame-moving" : "left-pane-frame-moving",
         owner: "Quoridorn",
         value: {
@@ -167,8 +167,7 @@ export default class PaneFrame extends Vue {
       });
     }
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   /**
@@ -180,7 +179,7 @@ export default class PaneFrame extends Vue {
   private async mouseMoveEndLeftFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (param && param.key === this.key) {
       const point = task.value!;
 
@@ -195,7 +194,7 @@ export default class PaneFrame extends Vue {
       // 移動によって子画面化の予備軍だった場合は子画面化する
       if (this.windowInfo.status.endsWith("-window")) {
         this.windowInfo.status = "window";
-        await TaskManager.instance.ignition<string>({
+        await TaskManager.instance.ignition<string, never>({
           type: "pane-relocation",
           owner: "Quoridorn",
           value: this.windowInfo.key
@@ -207,7 +206,7 @@ export default class PaneFrame extends Vue {
         const isRight = this.windowInfo.status.indexOf("right") > -1;
         this.windowInfo.status = isRight ? "right-pane" : "left-pane";
         setTimeout(async () => {
-          await TaskManager.instance.ignition<string>({
+          await TaskManager.instance.ignition<string, never>({
             type: "pane-relocation",
             owner: "Quoridorn",
             value: this.windowInfo.key
@@ -219,15 +218,14 @@ export default class PaneFrame extends Vue {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   /**
    * 閉じるイベント
    */
   private async closeWindow(): Promise<void> {
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-close",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -241,7 +239,7 @@ export default class PaneFrame extends Vue {
     this.windowInfo.x = getRightPaneRectangle().x;
     this.windowInfo.y =
       this.paneElm.getBoundingClientRect().top + getRightPaneRectangle().y;
-    await TaskManager.instance.ignition({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-minimize",
       owner: "Quoridorn",
       value: this.windowInfo.key
@@ -263,7 +261,7 @@ export default class PaneFrame extends Vue {
     this.windowInfo.y = point.y;
 
     this.windowInfo.status = "window";
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<string, never>({
       type: "pane-relocation",
       owner: "Quoridorn",
       value: this.windowInfo.key

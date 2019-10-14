@@ -9,7 +9,7 @@
         >＞＞<b>{{ getViewName(chatLog.target) }}</b></span
       >：<span v-html="transText(chatLog.text)"></span></span
     ><span class="time" v-if="isViewTime">{{
-      getTime(chatLog.processTime)
+      getTime(chatLog.updateTime)
     }}</span>
   </div>
 </template>

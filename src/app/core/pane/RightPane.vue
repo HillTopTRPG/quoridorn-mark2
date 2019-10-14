@@ -32,7 +32,7 @@ import { Point } from "@/@types/address";
 import ResizeKnob from "../window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import {
   createPoint,
   getEventPoint,
@@ -102,7 +102,7 @@ export default class RightPane extends Vue {
   private async mouseMoveFinished(
     task: Task<Point>,
     param: MouseMoveParam
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     if (param.key !== this.key) return;
     const point = task.value!;
 
@@ -113,8 +113,7 @@ export default class RightPane extends Vue {
     w = Math.max(w, this.minWidth);
     this.diffX = diff - (w - simulationWidth);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   /**
@@ -122,7 +121,9 @@ export default class RightPane extends Vue {
    * @param task
    */
   @TaskProcessor("mouse-move-end-left-finished")
-  private async mouseLeftUpFinished(task: Task<Point>): Promise<string | void> {
+  private async mouseLeftUpFinished(
+    task: Task<Point>
+  ): Promise<TaskResult<never>> {
     const point: Point = task.value!;
     const paneRectangle = getRightPaneRectangle();
 
@@ -148,8 +149,7 @@ export default class RightPane extends Vue {
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   /**
@@ -158,7 +158,7 @@ export default class RightPane extends Vue {
   @TaskProcessor("window-moving-finished")
   private async windowMovingFinished(
     task: Task<WindowMoveInfo>
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     const point: Point = task.value!.mouse!;
     const paneRectangle = getRightPaneRectangle();
     this.isAnimationY = true;
@@ -194,6 +194,8 @@ export default class RightPane extends Vue {
       }
     }
     this.arrangePaneOrder(mouseOnPane, key, false);
+
+    task.resolve();
   }
 
   /**
@@ -202,7 +204,7 @@ export default class RightPane extends Vue {
   @TaskProcessor("right-pane-frame-moving-finished")
   private async rightPaneFrameMovingFinished(
     task: Task<PaneMoveInfo>
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     const point = task.value!.point;
     const windowKey = task.value!.windowKey;
     const windowInfo = WindowManager.instance.getWindowInfo(windowKey);
@@ -218,8 +220,7 @@ export default class RightPane extends Vue {
     windowInfo.status = "right-pane-moving";
     this.arrangePaneOrder(mouseOnPane, windowKey, false);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private get filteredWindowInfoList() {
@@ -232,18 +233,20 @@ export default class RightPane extends Vue {
   @TaskProcessor("pane-relocation-finished")
   private async paneRelocationFinished(
     task: Task<string>
-  ): Promise<string | void> {
+  ): Promise<TaskResult<never>> {
     const windowKey = task.value!;
     this.arrangeY();
 
     // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
     this.width = this.arrangeWidth(this.width);
 
-    await TaskManager.instance.ignition<string>({
+    await TaskManager.instance.ignition<string, never>({
       type: "window-active",
       owner: "Quoridorn",
       value: windowKey
     });
+
+    task.resolve();
   }
 
   private changeMinMaxWidth() {
@@ -258,7 +261,7 @@ export default class RightPane extends Vue {
 
   @TaskProcessor("window-minimize-finished")
   @TaskProcessor("window-close-finished")
-  private async closeWindow(task: Task<string>): Promise<string | void> {
+  private async closeWindow(task: Task<string>): Promise<TaskResult<never>> {
     this.isAnimationY = false;
     setTimeout(() => {
       this.arrangeY(task.value!);
@@ -266,6 +269,8 @@ export default class RightPane extends Vue {
       // ペインの幅をコンテンツの最小幅、最大幅に合わせて調整
       this.width = this.arrangeWidth(this.width);
     });
+
+    task.resolve();
   }
 
   private arrangePaneOrder(mouseOnPane: Point, key: string, isBlock: boolean) {
@@ -412,7 +417,7 @@ export default class RightPane extends Vue {
   top: var(--menu-bar-height);
   width: calc(
     var(--right-pane-width) + var(--scroll-bar-width) + var(--window-padding) *
-      2 + 5px
+      2 + 2px
   );
   bottom: var(--window-title-height);
   right: 0;

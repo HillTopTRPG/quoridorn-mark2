@@ -6,6 +6,7 @@
       :disabled="disabled"
       @click.left.stop.prevent="buttonOnClickLeft"
       @click.right.stop.prevent="buttonOnClickRight"
+      @dblclick.stop
       @keydown.enter.stop
       @keyup.enter.stop
       @keydown.229.stop
@@ -40,7 +41,7 @@ export default class CtrlButton extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "./Ctrl.scss";
+@import "Ctrl";
 
 .ctrl-button-wrapper {
   @include ctrl-button();

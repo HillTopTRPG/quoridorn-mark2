@@ -1,4 +1,5 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
+import { readonly } from "io-ts";
 
 export type WindowTableColumn = {
   width: number;
@@ -16,6 +17,7 @@ export type WindowTableDeclareInfo = {
 
 export type WindowDeclareInfo = {
   readonly parentTypeList: string[];
+  readonly isInputWindow: boolean;
   readonly title: string;
   readonly message: string;
   readonly position: Point | Anchor;
@@ -63,6 +65,10 @@ export interface WindowTaskInfo {
   readonly parentKey?: string;
 }
 
+export type TaskInfo = {
+  taskKey?: string;
+};
+
 type WindowStatus =
   | "left-pane"
   | "left-pane-moving"
@@ -74,7 +80,7 @@ type WindowStatus =
   | "right-pane"
   | "right-pane-moving";
 
-export interface WindowInfo<T> extends Rectangle, WindowTaskInfo {
+export interface WindowInfo<T> extends Rectangle, WindowTaskInfo, TaskInfo {
   readonly key: string;
   title: string;
   status: WindowStatus;

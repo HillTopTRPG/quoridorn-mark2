@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task } from "@/@types/task";
+import { Task, TaskResult } from "@/@types/task";
 import { WindowInfo } from "@/@types/window";
 import WindowFrame from "./WindowFrame.vue";
 import WindowManager from "./WindowManager";
@@ -30,10 +30,12 @@ export default class WindowArea extends Vue {
   private windowInfoList: WindowInfo<unknown>[] =
     WindowManager.instance.windowInfoList;
 
-  private key = "window-area";
+  public key = "window-area";
 
   @TaskProcessor("window-close-closing")
-  private async windowCloseClosing(task: Task<string>): Promise<string | void> {
+  private async windowCloseClosing(
+    task: Task<string>
+  ): Promise<TaskResult<never>> {
     const index = this.getWindowInfoIndex(task.value);
     this.windowInfoList.splice(index, 1);
   }
@@ -46,13 +48,16 @@ export default class WindowArea extends Vue {
   // }
 
   @TaskProcessor("window-close-finished")
-  private async windowCloseFinished(): Promise<string | void> {
+  private async windowCloseFinished(
+    task: Task<string>
+  ): Promise<TaskResult<never>> {
     this.arrangeOrder();
     this.arrangeMinimizeIndex();
+    task.resolve();
   }
 
   @TaskProcessor("window-minimize-finished")
-  private async minimizeWindow(task: Task<string>): Promise<string | void> {
+  private async minimizeWindow(task: Task<string>): Promise<TaskResult<never>> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
 
@@ -73,13 +78,14 @@ export default class WindowArea extends Vue {
       setTimeout(minimize);
     }
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   @TaskProcessor("window-normalize-finished")
   @Logging
-  private async normalizeWindow(task: Task<string>): Promise<string | void> {
+  private async normalizeWindow(
+    task: Task<string>
+  ): Promise<TaskResult<never>> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
     windowInfo.isMinimized = false;
@@ -97,12 +103,11 @@ export default class WindowArea extends Vue {
 
     this.arrangeMinimizeIndex();
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   @TaskProcessor("window-active-finished")
-  private async activeWindow(task: Task<string>): Promise<string | void> {
+  private async activeWindow(task: Task<string>): Promise<TaskResult<never>> {
     const index = this.getWindowInfoIndex(task.value);
     const windowInfo = this.windowInfoList[index];
     windowInfo.order = this.windowInfoList.length;
@@ -110,8 +115,7 @@ export default class WindowArea extends Vue {
     this.arrangeOrder();
     WindowManager.instance.arrangePoint(windowInfo.key);
 
-    // 登録したタスクに完了通知
-    if (task.resolve) task.resolve(task);
+    task.resolve();
   }
 
   private arrangeOrder() {

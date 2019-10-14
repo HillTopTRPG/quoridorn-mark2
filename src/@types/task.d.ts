@@ -1,8 +1,7 @@
 interface TaskDeclare {
-  isPrivate: boolean;
-  isExclusion: boolean;
   isIgniteWithParam: boolean;
   isLastValueCapture: boolean;
+  isTraceFinally: boolean;
   isTest: boolean;
   statusList: StatusList;
 }
@@ -19,15 +18,15 @@ interface TaskInput<T> {
   value: T | null;
 }
 
-type TaskProcess<T> = (
-  task: Task<T>,
+type TaskProcess<T, U> = (
+  task: Task<T, U>,
   param: any,
   processorRemover: () => void
-) => Promise<string | void>;
+) => Promise<TaskResult<U>>;
 
 type TaskListenerContainer = {
   [type in string]: {
-    [key in string]: TaskProcess<any>[];
+    [key in string]: TaskProcess<any, any>[];
   };
 };
 
@@ -37,14 +36,19 @@ type TaskListenerParameterContainer = {
 
 type StatusList = string[];
 
-export interface Task<T> extends TaskDeclare, TaskInput<T> {
+export interface Task<T, U> extends TaskDeclare, TaskInput<T> {
   readonly key: string;
   status: string;
-  resolve: null | ((task: Task<T>) => void);
+  resolve: null | ((resultList?: U[]) => void);
   reject: null | ((reason?: any) => void);
 }
 
-type TaskPromiseExecutor<T> = (
-  resolve: (task: Task<T>) => void,
+type TaskPromiseExecutor<U> = (
+  resolve: (resultList?: U[]) => void,
   reject: (reason?: any) => void
 ) => void;
+
+type TaskResult<U> = {
+  nextStatus?: string;
+  value?: U;
+};

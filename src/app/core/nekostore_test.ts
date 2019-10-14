@@ -1,7 +1,7 @@
-import Nekostore from "nekostore"; // "nekostore"
+import Nekostore from "nekostore"; // "socket"
 import BasicDriver from "nekostore/lib/driver/basic";
 import SocketDriver from "nekostore/lib/driver/socket";
-import Socket from "nekostore/lib/driver/socket/Socket"; // "nekostore/lib/driver/basic"
+import Socket from "nekostore/lib/driver/socket/Socket"; // "socket/lib/driver/basic"
 import SocketClient from "socket.io-client";
 
 interface Data {
@@ -14,47 +14,44 @@ export async function nekostore_test_client(): Promise<void> {
   const driver = new SocketDriver({ socket });
   const nekostore = new Nekostore(driver);
 
-  window.console.log("Get collectiopn reference");
+  // const c1Ref = socket.collection<Data>("c1");
+  // const unsubscribe1 = await c1Ref.onSnapshot(snapshot => {
+  //   snapshot.docs.forEach(doc => {
+  //     window.console.log(doc.ref.id, doc.type, doc.data);
+  //   });
+  // });
+  //
+  // const d1Ref = await c1Ref.doc("d1");
+  // const unsubscribe2 = await d1Ref.onSnapshot(snapshot => {
+  //   window.console.log(snapshot.exists(), snapshot.data);
+  // });
+  //
+  // await d1Ref.set({ foo: "a", bar: 0 });
+  // await d1Ref.update({ bar: 1 });
+  // await d1Ref.delete();
+  //
+  // await c1Ref.add({ foo: "b" });
+  //
+  // await unsubscribe1();
+  // await unsubscribe2();
+
   const c1Ref = nekostore.collection<Data>("c1");
 
-  window.console.log("Watch collection");
   const unsubscribe1 = await c1Ref.onSnapshot(snapshot => {
-    window.console.log("Collection snapshot");
     snapshot.docs.forEach(doc => {
       window.console.log(doc.ref.id, doc.type, doc.data);
     });
   });
 
-  window.console.log("Get document reference");
   const d1Ref = await c1Ref.doc("d1");
-
-  window.console.log("Watch document");
-  const unsubscribe2 = await d1Ref.onSnapshot(snapshot => {
-    window.console.log("Document snapshot");
-    window.console.log(snapshot.exists(), snapshot.data);
-  });
-
-  window.console.log("Set document");
-  // Collection snapshot / [id] added { foo: "a", bar: 0 }
-  // Document snapshot / true { foo: "a", bar: 0 }
+  // const unsubscribe2 = await d1Ref.onSnapshot(snapshot => {
+  //   window.console.log(snapshot.exists(), snapshot.data);
+  // });
   await d1Ref.set({ foo: "a", bar: 0 });
-
-  window.console.log("Update document");
-  await d1Ref.update({ bar: 1 });
-  // Collection snapshot / [id] modified { foo: "a", bar: 1 }
-  // Document snapshot / true { foo: "a", bar: 1 }
-
-  window.console.log("Delete documment");
-  await d1Ref.delete();
-  // Collection snapshot / removed undefined
-  // Document snapshot / false undefined
-
-  window.console.log("Add document");
-  await c1Ref.add({ foo: "b" });
-  // Collection snapshot / [id] added { foo: "a" }
+  // await d1Ref.update({ bar: 1 });
+  // await d1Ref.delete();
 
   await unsubscribe1();
-  await unsubscribe2();
 }
 
 export async function nekostore_test(): Promise<void> {
