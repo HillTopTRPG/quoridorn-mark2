@@ -28,6 +28,9 @@
     - window-resize
     - task-finally
     - bcdice-ready
+    - socket-connect
+    - socket-connect-error
+    - socket-reconnecting
 
 - taskAttribute:
     isIgniteWithParam: false

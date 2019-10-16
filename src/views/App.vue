@@ -33,9 +33,9 @@ import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
-import { nekostore_test_client } from "@/app/core/nekostore_test";
-import { CreateRoomInfo, RoomInfo } from "@/@types/room";
+import { CreateRoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { nekostore_test_client } from "@/app/core/nekostore_test";
 
 @Component({
   components: {
@@ -60,6 +60,11 @@ export default class App extends Vue {
   /** ライフサイクル */
   private async beforeMount() {
     CssManager.instance.setGlobalCss();
+  }
+
+  /** ライフサイクル */
+  private destroyed() {
+    SocketFacade.instance.destroy();
   }
 
   /** ライフサイクル */
@@ -166,6 +171,30 @@ export default class App extends Vue {
     document.body.style.backgroundColor = mapBackgroundColor;
   }
 
+  @TaskProcessor("socket-connect-finished")
+  private async socketConnectFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    window.console.log("socket-connect-finished");
+    task.resolve();
+  }
+
+  @TaskProcessor("socket-connect-error-finished")
+  private async socketConnectErrorFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    window.console.warn("socket-connect-error-finished");
+    task.resolve();
+  }
+
+  @TaskProcessor("socket-reconnecting-finished")
+  private async socketReconnectingFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    window.console.warn("socket-reconnecting-finished");
+    task.resolve();
+  }
+
   @TaskProcessor("window-open-finished")
   private async windowOpenOpening(
     task: Task<WindowOpenInfo<unknown>, never>
@@ -175,28 +204,32 @@ export default class App extends Vue {
 
   @TaskProcessor("input-create-room-finished")
   private async inputCreateRoomFinished(
-    task: Task<CreateRoomInfo, RoomInfo>
-  ): Promise<TaskResult<RoomInfo>[] | void> {
+    task: Task<CreateRoomInfo, RoomInfoWithPassword>
+  ): Promise<TaskResult<RoomInfoWithPassword>[] | void> {
     const roomNo = task.value!.no;
     try {
-      await SocketFacade.instance.socketCommunication("touch-room", {
-        no: roomNo
-      });
+      await SocketFacade.instance.socketCommunication("touch-room", roomNo);
     } catch (err) {
-      window.console.log(err);
+      task.reject(err);
+      return;
     }
 
-    const roomInfoList = await TaskManager.instance.ignition<
-      WindowOpenInfo<never>,
-      RoomInfo
-    >({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "create-new-room-window"
-      }
-    });
-    task.resolve(roomInfoList);
+    try {
+      const roomInfoList = await TaskManager.instance.ignition<
+        WindowOpenInfo<never>,
+        RoomInfoWithPassword
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "create-new-room-window"
+        }
+      });
+      task.resolve(roomInfoList);
+    } catch (err) {
+      task.reject(err);
+      return;
+    }
   }
 }
 </script>

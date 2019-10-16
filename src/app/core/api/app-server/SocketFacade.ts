@@ -4,19 +4,22 @@ import Nekostore from "nekostore/lib/Nekostore";
 import { RoomInfo } from "@/@types/room";
 import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
 import { StoreMetaData, StoreObj } from "@/@types/store";
-import DocumentChange from "nekostore/lib/DocumentChange";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import { ConnectInfo } from "@/@types/connect";
+import TaskManager from "@/app/core/task/TaskManager";
 
-export async function getStoreObj<T>(
-  doc: DocumentChange<StoreObj<T>>
-): Promise<(StoreObj<T> & StoreMetaData) | null> {
-  const docSnapshot = await doc.ref.get();
-  if (docSnapshot.exists()) {
-    const data: StoreObj<T> = docSnapshot.data;
+const connectInfo: ConnectInfo = require("../../../../../public/static/conf/connect.yaml");
+
+export function getStoreObj<T>(
+  doc: DocumentSnapshot<StoreObj<T>>
+): (StoreObj<T> & StoreMetaData) | null {
+  if (doc.exists()) {
+    const data: StoreObj<T> = doc.data;
     return {
+      ...data,
       id: doc.ref.id,
       createTime: doc.createTime ? doc.createTime.toDate() : null,
-      updateTime: doc.updateTime ? doc.updateTime.toDate() : null,
-      ...data
+      updateTime: doc.updateTime ? doc.updateTime.toDate() : null
     };
   } else {
     return null;
@@ -37,9 +40,30 @@ export default class SocketFacade {
 
   // コンストラクタの隠蔽
   private constructor() {
-    this.__socket = SocketClient.connect("http://localhost:2222");
+    this.__socket = SocketClient.connect(connectInfo.quoridornServer);
     const driver = new SocketDriver({ socket: this.__socket });
     this.nekostore = new Nekostore(driver);
+    this.__socket.on("connect", async (err: any) => {
+      await TaskManager.instance.ignition<never, never>({
+        type: "socket-connect",
+        owner: "Quoridorn",
+        value: null
+      });
+    });
+    this.__socket.on("connect_error", async (err: any) => {
+      await TaskManager.instance.ignition<any, never>({
+        type: "socket-connect-error",
+        owner: "Quoridorn",
+        value: err
+      });
+    });
+    this.__socket.on("reconnecting", async (err: any) => {
+      await TaskManager.instance.ignition<any, never>({
+        type: "socket-reconnecting",
+        owner: "Quoridorn",
+        value: err
+      });
+    });
   }
 
   public destroy() {

@@ -1,7 +1,6 @@
 ##[ Quoridornアプリケーションサーバ ]#############################################
-# ホスト名とポート番号
-quoridornServerHost: "localhost"
-quoridornServerPort: 2222
+# 向き先
+quoridornServer: "http://localhost:2222"
 
 ##[ BCDice-API ]################################################################
 # 向き先（末尾のスラッシュはなし）

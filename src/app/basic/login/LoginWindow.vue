@@ -43,7 +43,7 @@ import SocketFacade, {
 } from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { CreateRoomInfo, RoomInfo } from "@/@types/room";
+import { CreateRoomInfo, RoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
@@ -59,7 +59,7 @@ import QuerySnapshot from "nekostore/lib/QuerySnapshot";
     memberNum: (storeObj: StoreObj<RoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
     password: (storeObj: StoreObj<RoomInfo>) =>
-      storeObj.data && storeObj.data.password ? "有り" : "--",
+      storeObj.data && storeObj.data.hasPassword ? "有り" : "--",
     visitable: (storeObj: StoreObj<RoomInfo>) =>
       storeObj.data && storeObj.data.extend && storeObj.data.extend.visitable
         ? "可"
@@ -89,7 +89,7 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
             snapshot.docs.forEach(async doc => {
               const docSnapshot = await doc.ref.get();
               if (docSnapshot.exists()) {
-                const obj = await getStoreObj<RoomInfo>(doc);
+                const obj = getStoreObj<RoomInfo>(doc);
                 if (obj) this.roomList.splice(docSnapshot.data.order, 1, obj);
                 else this.roomList.splice(docSnapshot.data.order, 1);
               }
@@ -124,28 +124,41 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
       alert("部屋を選択してから新規作成をしてください。");
       return;
     }
-    const [info] = await TaskManager.instance.ignition<
-      CreateRoomInfo,
-      RoomInfo
-    >({
-      type: "input-create-room",
-      owner: "Quoridorn",
-      value: {
-        no: this.selectedRoomKey
-      }
-    });
-    window.console.log(info);
+
+    let info: RoomInfoWithPassword;
     try {
-      const tableName = await SocketFacade.instance.socketCommunication(
+      const resultArr = await TaskManager.instance.ignition<
+        CreateRoomInfo,
+        RoomInfoWithPassword
+      >({
+        type: "input-create-room",
+        owner: "Quoridorn",
+        value: {
+          no: this.selectedRoomKey
+        }
+      });
+      info = resultArr[0];
+    } catch (err) {
+      window.console.warn(err);
+      if ("message" in err) alert("サーバエラー\n" + err.message);
+      else alert("プログラムエラー" + err);
+      return;
+    }
+
+    window.console.log(info);
+
+    try {
+      const roomCollectionSuffix = await SocketFacade.instance.socketCommunication(
         "create-room",
         {
           no: this.selectedRoomKey,
-          roomInfo: info
+          password: info.password,
+          roomInfo: info.roomInfo
         }
       );
-      window.console.log(tableName);
+      window.console.log(roomCollectionSuffix);
     } catch (err) {
-      window.console.log(err);
+      window.console.warn(err);
     }
   }
 }

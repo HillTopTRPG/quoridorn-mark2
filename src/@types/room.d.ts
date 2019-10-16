@@ -19,10 +19,15 @@ export type RoomInfoExtend = {
 
 export type RoomInfo = {
   name: string;
-  password: string;
+  hasPassword: boolean;
   system: string;
   memberNum: number;
   extend?: RoomInfoExtend; // 一時的措置
+};
+
+export type RoomInfoWithPassword = {
+  password: string;
+  roomInfo: RoomInfo;
 };
 
 export type LoginInfo = {
