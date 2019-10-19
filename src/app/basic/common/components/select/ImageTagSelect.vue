@@ -13,6 +13,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { CtrlSelect } })
 export default class ImageTagSelect extends Mixins<SelectMixin>(SelectMixin) {
@@ -21,6 +22,7 @@ export default class ImageTagSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Prop({ type: String, default: "画像タグ" })
   protected defaultLabel!: string;
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.imageTagList.map((tagObj: any, index: number) => ({
       key: tagObj.key,

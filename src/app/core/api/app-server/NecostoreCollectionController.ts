@@ -27,10 +27,11 @@ export default class NecostoreCollectionController<T> {
     return this.nekostore.collection<StoreObj<T>>(this.collectionName);
   }
 
-  public async getList(): Promise<(StoreObj<T> & StoreMetaData)[]> {
+  public async getList(
+    column?: string
+  ): Promise<(StoreObj<T> & StoreMetaData)[]> {
     const c = this.getCollection();
-    return (await c.orderBy("updateTime").get()).docs.map(doc => {
-      window.console.log(doc.createTime, doc.updateTime);
+    return (await c.orderBy(column || "updateTime").get()).docs.map(doc => {
       return {
         ...doc.data!,
         id: doc.ref.id,

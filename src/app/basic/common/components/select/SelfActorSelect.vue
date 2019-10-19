@@ -14,6 +14,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect }
@@ -36,6 +37,7 @@ export default class SelfActorSelect extends Mixins<SelectMixin>(SelectMixin) {
     );
   }
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.selectActors.map((actor: any) => ({
       key: actor.key,

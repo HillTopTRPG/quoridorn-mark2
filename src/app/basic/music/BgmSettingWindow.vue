@@ -53,6 +53,8 @@ import WindowManager from "@/app/core/window/WindowManager";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -85,10 +87,12 @@ import YoutubeManager from "@/app/basic/music/YoutubeManager";
 export default class BgmSettingWindow extends WindowVue<number> {
   private selectedBgmKey: string | null = null;
 
+  @VueEvent
   private selectBgm(bgmKey: string) {
     this.selectedBgmKey = bgmKey;
   }
 
+  @VueEvent
   private async playBgm(bgmKey?: string) {
     const useBgmKey = bgmKey || this.selectedBgmKey;
     if (!useBgmKey) return;
@@ -123,30 +127,37 @@ export default class BgmSettingWindow extends WindowVue<number> {
       this.windowInfo.declare.maxSize.width = totalWidth;
   }
 
+  @LifeCycle
   private mounted() {
     // mounted
   }
 
+  @VueEvent
   private preview() {
     window.console.log("preview");
   }
 
+  @VueEvent
   private addMusic() {
     window.console.log("addMusic");
   }
 
+  @VueEvent
   private editMusic() {
     window.console.log("editMusic");
   }
 
+  @VueEvent
   private copyMusic() {
     window.console.log("copyMusic");
   }
 
+  @VueEvent
   private deleteMusic() {
     window.console.log("deleteMusic");
   }
 
+  @VueEvent
   private get bgmList(): any[] {
     return BgmManager.instance.bgmList;
   }

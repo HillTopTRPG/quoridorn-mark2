@@ -149,6 +149,7 @@ import ImportTypeRadio from "@/app/basic/common/components/radio/ImportTypeRadio
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { saveJson, saveHTML, saveText } from "@/app/core/Utility";
 import moment from "moment";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: {
@@ -178,6 +179,7 @@ export default class ChatLog extends Vue {
   private isViewVisualBlock: boolean = true;
   private isViewSaveBlock: boolean = false;
 
+  @LifeCycle
   private mounted() {
     this.onMount();
   }

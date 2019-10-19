@@ -13,6 +13,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect }
@@ -22,6 +23,7 @@ export default class GroupChatTabSelect extends Mixins<SelectMixin>(
 ) {
   @Getter("groupTargetTabListFiltered") private groupTargetTabListFiltered: any;
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.groupTargetTabListFiltered.map((tabObj: any) => ({
       key: tabObj.key,

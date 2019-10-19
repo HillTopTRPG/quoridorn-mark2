@@ -21,7 +21,7 @@
 import SelectMixin from "./SelectMixin";
 import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
-import { Prop, Watch } from "vue-property-decorator";
+import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { CtrlSelect } })

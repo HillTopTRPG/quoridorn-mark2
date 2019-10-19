@@ -1,6 +1,10 @@
 ##[ Quoridornアプリケーションサーバ ]#############################################
 # 向き先
-quoridornServer: "http://localhost:2222"
+quoridornServer: "wss://quori-dev.onlinesession.app"
+# quoridornServer: "http://localhost:2222"
+
+# Quoridornサーバとの通信のタイムアウト時間（単位：ms）
+socketTimeout: 5000
 
 ##[ BCDice-API ]################################################################
 # 向き先（末尾のスラッシュはなし）

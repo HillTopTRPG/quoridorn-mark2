@@ -22,12 +22,14 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({})
 export default class CtrlFileSelector extends Vue {
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
+  @VueEvent
   public requestFocus() {
     const input: HTMLInputElement = this.$refs.input as HTMLInputElement;
     input.focus();

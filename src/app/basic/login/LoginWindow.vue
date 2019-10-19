@@ -47,6 +47,8 @@ import { CreateRoomInfo, RoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -79,36 +81,37 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
   private roomList: (StoreObj<RoomInfo> & StoreMetaData)[] = [];
   private selectedRoomKey: number | null = null;
 
+  @LifeCycle
   private async mounted() {
     try {
-      SocketFacade.instance
-        .generateRoomInfoController()
-        .addCollectionSnapshot(
-          this.key,
-          (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
-            snapshot.docs.forEach(async doc => {
-              const docSnapshot = await doc.ref.get();
-              if (docSnapshot.exists()) {
-                const obj = getStoreObj<RoomInfo>(doc);
-                if (obj) this.roomList.splice(docSnapshot.data.order, 1, obj);
-                else this.roomList.splice(docSnapshot.data.order, 1);
-              }
-            });
-          }
-        );
+      const controller = SocketFacade.instance.generateRoomInfoController();
+      controller.addCollectionSnapshot(
+        this.key,
+        (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
+          snapshot.docs.forEach(async doc => {
+            const docSnapshot = await doc.ref.get();
+            if (docSnapshot.exists()) {
+              const obj = getStoreObj<RoomInfo>(doc);
+              if (obj) this.roomList.splice(docSnapshot.data.order, 1, obj);
+              else this.roomList.splice(docSnapshot.data.order, 1);
+            }
+          });
+        }
+      );
       this.roomList = await SocketFacade.instance.socketCommunication<
         (StoreObj<RoomInfo> & StoreMetaData)[]
       >("get-room-list");
-      window.console.log(this.roomList);
     } catch (err) {
       window.console.error(err);
     }
   }
 
+  @VueEvent
   private selectRoom(roomKey: number) {
     this.selectedRoomKey = roomKey;
   }
 
+  @VueEvent
   private async playRoom(bgmKey?: string) {}
 
   @Emit("adjustWidth")
@@ -119,6 +122,7 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
       this.windowInfo.declare.maxSize.width = totalWidth;
   }
 
+  @VueEvent
   private async createRoom() {
     if (this.selectedRoomKey === null) {
       alert("部屋を選択してから新規作成をしてください。");

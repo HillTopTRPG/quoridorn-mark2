@@ -41,7 +41,10 @@ export default class SocketFacade {
   // コンストラクタの隠蔽
   private constructor() {
     this.__socket = SocketClient.connect(connectInfo.quoridornServer);
-    const driver = new SocketDriver({ socket: this.__socket });
+    const driver = new SocketDriver({
+      socket: this.__socket,
+      timeout: connectInfo.socketTimeout
+    });
     this.nekostore = new Nekostore(driver);
     this.__socket.on("connect", async (err: any) => {
       await TaskManager.instance.ignition<never, never>({
@@ -63,6 +66,9 @@ export default class SocketFacade {
         owner: "Quoridorn",
         value: err
       });
+    });
+    this.__socket.on("connect_timeout", async (timeout: any) => {
+      window.console.log("connect_timeout", timeout);
     });
   }
 

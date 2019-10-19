@@ -22,6 +22,8 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { zeroPadding } from "@/app/core/Utility";
 import CssManager from "@/app/core/css/CssManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton },
@@ -54,6 +56,7 @@ export default class SeekBarComponent extends Vue {
   private fadeInTable: number[] = [];
   private fadeOutTable: number[] = [];
 
+  @LifeCycle
   private mounted() {
     this.elm.style.setProperty(
       "--seek-base-color",
@@ -66,6 +69,7 @@ export default class SeekBarComponent extends Vue {
     this.isMounted = true;
   }
 
+  @VueEvent
   private seekTo(allowSeekAhead: boolean) {
     this.$emit("seekTo", this.seek, allowSeekAhead);
     this.changePlay(true);

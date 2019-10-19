@@ -172,6 +172,7 @@ import {
   createPoint,
   getEventPoint
 } from "@/app/core/Coordinate";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -208,6 +209,7 @@ export default class TableComponent extends Vue {
   private fromLastWidth: number = 0;
   private rowList: RowInfo<any>[] = [];
 
+  @LifeCycle
   private mounted() {
     this.isMounted = true;
   }

@@ -16,6 +16,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Getter } from "vuex-class";
 import { stroke } from "@/app/core/CanvasDrawer";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component
 export default class SightField extends PieceMixin {
@@ -45,6 +46,7 @@ export default class SightField extends PieceMixin {
   @Prop({ type: Number, default: 1 })
   public lineWidth!: number;
 
+  @LifeCycle
   private mounted(): void {
     this.paint();
   }

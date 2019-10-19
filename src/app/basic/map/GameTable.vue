@@ -85,8 +85,7 @@ import { Watch } from "vue-property-decorator";
 import {
   arrangeAngle,
   createPoint,
-  getEventPoint,
-  ps
+  getEventPoint
 } from "@/app/core/Coordinate";
 import { Point } from "@/@types/address";
 import { Task, TaskResult } from "@/@types/task";
@@ -96,6 +95,7 @@ import { ContextTaskInfo } from "@/@types/context";
 import TaskProcessor, {
   TaskProcessorSimple
 } from "@/app/core/task/TaskProcessor";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -171,6 +171,7 @@ export default class GameTable extends AddressCalcMixin {
     task.resolve();
   }
 
+  @VueEvent
   private globalEnter() {
     // this.setProperty({
     //   property: "private.display.chatWindow.command",
@@ -183,6 +184,7 @@ export default class GameTable extends AddressCalcMixin {
   /**
    * マウス左ボタン押下
    */
+  @VueEvent
   private leftDown(event: MouseEvent | TouchEvent): void {
     this.dragFrom = getEventPoint(event);
     this.mouseDown("left");
@@ -191,6 +193,7 @@ export default class GameTable extends AddressCalcMixin {
   /**
    * マウス右ボタン押下
    */
+  @VueEvent
   private rightDown(event: MouseEvent | TouchEvent): void {
     const mouse = getEventPoint(event);
     const calcResult = this.calcCoordinate(mouse, this.currentAngle);
@@ -321,6 +324,7 @@ export default class GameTable extends AddressCalcMixin {
     return (this.mapRows + this.mapMarginGridSize * 2) * this.mapGridSize;
   }
 
+  @VueEvent
   private get gameTableStyle(): any {
     // const translateZ = this.mapWheel;
     const totalLeftX = this.point.x + this.pointDiff.x;
@@ -348,6 +352,7 @@ export default class GameTable extends AddressCalcMixin {
     return result;
   }
 
+  @VueEvent
   private get gridPaperStyle(): any {
     const maskColorObj = parseColor(this.mapMarginMaskColor);
     maskColorObj.a = this.mapMarginMaskAlpha;

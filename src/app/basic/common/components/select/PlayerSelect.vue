@@ -9,6 +9,7 @@ import SelectBase from "./base/SelectBase.vue";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import CtrlSelect from "@/components/parts/CtrlSelect.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect, SelectBase }
@@ -16,6 +17,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 export default class PlayerSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Getter("playerList") private playerList: any;
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.playerList.map((player: any) => ({
       key: player.key,

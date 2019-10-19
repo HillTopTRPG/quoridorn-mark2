@@ -17,6 +17,7 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { drawLine, drawLine2 } from "@/app/core/CanvasDrawer";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component
 export default class MapBoard extends Vue {
@@ -33,10 +34,12 @@ export default class MapBoard extends Vue {
   @Getter("mouseOnCanvasLocate") private mouseOnCanvasLocate: any;
   @Getter("isMapDraggingRight") private isMapDraggingRight!: boolean;
 
+  @LifeCycle
   private mounted(): void {
     this.paint();
   }
 
+  @LifeCycle
   private openContext() {
     window.console.log("open context2222");
   }

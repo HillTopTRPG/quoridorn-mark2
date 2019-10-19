@@ -25,6 +25,7 @@ import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import { DiceSystem } from "@/@types/bcdice";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Vue {
@@ -44,6 +45,7 @@ export default class DiceBotSelect extends Vue {
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
 
+  @LifeCycle
   private mounted() {
     if (BCDiceFacade.instance.isReady()) {
       BCDiceFacade.instance.getDiceSystemList().forEach(info => {

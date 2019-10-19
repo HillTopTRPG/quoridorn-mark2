@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Emit } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class CtrlRadio extends Vue {

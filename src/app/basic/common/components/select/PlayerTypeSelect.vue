@@ -8,6 +8,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Getter } from "vuex-class";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect }
@@ -15,6 +16,7 @@ import { Getter } from "vuex-class";
 export default class PlayerTypeSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Getter("roles") private roles: any;
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.roles.map((role: any) => ({
       key: role.value,

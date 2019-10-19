@@ -117,6 +117,8 @@ import {
 } from "../Coordinate";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -137,6 +139,7 @@ export default class WindowFrame extends Vue {
   private isMounted: boolean = false;
   private isResizing: boolean = false;
 
+  @LifeCycle
   private mounted() {
     WindowFrame.addEventForIFrame(this.windowElm);
     this.isMounted = true;
@@ -157,6 +160,7 @@ export default class WindowFrame extends Vue {
     }
   }
 
+  @LifeCycle
   private destroyed() {
     window.console.log(`WindowFrame destroyed: ${this.windowInfo.key}`);
   }
@@ -165,7 +169,11 @@ export default class WindowFrame extends Vue {
     return this.windowInfo.key;
   }
 
-  private leftDown(event: MouseEvent | TouchEvent, side?: string): void {
+  @VueEvent
+  private async leftDown(
+    event: MouseEvent | TouchEvent,
+    side?: string
+  ): Promise<void> {
     if (this.windowInfo.isMinimized) return;
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
@@ -180,7 +188,7 @@ export default class WindowFrame extends Vue {
     );
     this.isResizing = !!side;
     this.dragFrom = getEventPoint(event);
-    this.activeWindow();
+    await this.activeWindow();
   }
 
   private async activeWindow() {
@@ -322,6 +330,7 @@ export default class WindowFrame extends Vue {
     this.standImageHeight = parseInt(split[1]);
   }
 
+  @VueEvent
   private async closeWindow(): Promise<void> {
     await TaskManager.instance.ignition<string, never>({
       type: "window-close",
@@ -330,6 +339,7 @@ export default class WindowFrame extends Vue {
     });
   }
 
+  @VueEvent
   private async storeRightPane(): Promise<void> {
     this.windowInfo.isMinimized = false;
     this.windowInfo.status = "right-pane";
@@ -341,6 +351,7 @@ export default class WindowFrame extends Vue {
     });
   }
 
+  @VueEvent
   private async minimizeWindow(): Promise<void> {
     await TaskManager.instance.ignition<string, never>({
       type: "window-minimize",
@@ -349,18 +360,19 @@ export default class WindowFrame extends Vue {
     });
   }
 
+  @VueEvent
   private async normalizeWindow(): Promise<void> {
     await TaskManager.instance.ignition<string, never>({
       type: "window-normalize",
       owner: "Quoridorn",
       value: this.windowInfo.key
     });
-    this.activeWindow();
+    await this.activeWindow();
   }
 
+  @VueEvent
   private standImageStyle(standImage: any, index: number): any {
     const locate = standImage.locate;
-    const mpx: number = (this.standImageWidth * (locate - 1)) / 12;
     return {
       width: `${this.standImageWidth}px`,
       height: `${this.standImageHeight}px`,
@@ -431,6 +443,7 @@ export default class WindowFrame extends Vue {
     });
   }
 
+  @VueEvent
   private adjustWidth() {
     const maxSize = this.windowInfo.declare.maxSize;
     if (maxSize && this.windowInfo.width > maxSize.width)
@@ -462,12 +475,12 @@ export default class WindowFrame extends Vue {
   @Watch("isMounted")
   @Watch("diff.width")
   @Watch("windowInfo.width")
-  private onChangeWindowWidth() {
+  private async onChangeWindowWidth() {
     if (!this.isMounted) return;
     const width = this.windowInfo.width + this.diff.width;
     const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowWidth", `${width}px`);
-    TaskManager.instance.ignition<WindowResizeInfo, never>({
+    await TaskManager.instance.ignition<WindowResizeInfo, never>({
       type: "window-resize",
       owner: "Quoridorn",
       value: {
@@ -481,12 +494,12 @@ export default class WindowFrame extends Vue {
   @Watch("isMounted")
   @Watch("diff.height")
   @Watch("windowInfo.height")
-  private onChangeWindowHeight() {
+  private async onChangeWindowHeight() {
     if (!this.isMounted) return;
     const width = this.windowInfo.width + this.diff.width;
     const height = this.windowInfo.height + this.diff.height;
     this.windowElm.style.setProperty("--windowHeight", `${height}px`);
-    TaskManager.instance.ignition<WindowResizeInfo, never>({
+    await TaskManager.instance.ignition<WindowResizeInfo, never>({
       type: "window-resize",
       owner: "Quoridorn",
       value: {

@@ -17,6 +17,7 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 interface Rectangle {
   x: number;
@@ -164,6 +165,7 @@ export default class StandImageComponent extends Vue {
     clearTimeout(this.timer);
   }
 
+  @VueEvent
   private get standImageContainerStyle(): any {
     return {
       width: `${this.width}px`,
@@ -171,6 +173,7 @@ export default class StandImageComponent extends Vue {
     };
   }
 
+  @VueEvent
   private get standImageStyle(): any {
     const canvasSize: any = this.canvasSize;
     if (canvasSize.w === 0 || canvasSize.h === 0) return {};

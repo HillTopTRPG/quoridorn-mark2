@@ -13,6 +13,7 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect }
@@ -20,6 +21,7 @@ import { Prop } from "vue-property-decorator";
 export default class ChatTabSelect extends Mixins<SelectMixin>(SelectMixin) {
   @Getter("chatTabs") private chatTabs: any;
 
+  @VueEvent
   private get optionInfoList(): any[] {
     const resultList = this.chatTabs
       .filter((tabObj: any) => !tabObj.isTotal)

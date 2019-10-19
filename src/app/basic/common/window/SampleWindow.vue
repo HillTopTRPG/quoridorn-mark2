@@ -12,11 +12,13 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton }
 })
 export default class SampleWindow extends Mixins<WindowVue<number>>(WindowVue) {
+  @VueEvent
   private clickButton() {
     if (this.windowInfo.args === null) return;
     WindowManager.instance.open<number>({

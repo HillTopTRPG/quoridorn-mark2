@@ -35,7 +35,7 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import { CreateRoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { nekostore_test_client } from "@/app/core/nekostore_test";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: {
@@ -52,22 +52,22 @@ export default class App extends Vue {
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Action("presetImageLoad") private presetImageLoad: any;
 
-  /** ライフサイクル */
+  @LifeCycle
   public async created() {
     await this.presetImageLoad();
   }
 
-  /** ライフサイクル */
+  @LifeCycle
   private async beforeMount() {
     CssManager.instance.setGlobalCss();
   }
 
-  /** ライフサイクル */
+  @LifeCycle
   private destroyed() {
     SocketFacade.instance.destroy();
   }
 
-  /** ライフサイクル */
+  @LifeCycle
   public async mounted() {
     await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
       type: "window-open",
@@ -206,9 +206,9 @@ export default class App extends Vue {
   private async inputCreateRoomFinished(
     task: Task<CreateRoomInfo, RoomInfoWithPassword>
   ): Promise<TaskResult<RoomInfoWithPassword>[] | void> {
-    const roomNo = task.value!.no;
+    const arg = { order: task.value!.no };
     try {
-      await SocketFacade.instance.socketCommunication("touch-room", roomNo);
+      await SocketFacade.instance.socketCommunication("touch-room", arg);
     } catch (err) {
       task.reject(err);
       return;

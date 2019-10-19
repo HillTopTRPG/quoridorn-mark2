@@ -42,6 +42,7 @@ import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vu
 import TaskManager from "@/app/core/task/TaskManager";
 import { RoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -59,6 +60,7 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
     window.console.log(system);
   }
 
+  @VueEvent
   private async commit() {
     window.console.log("commit");
     await this.finally(
@@ -72,6 +74,7 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
     );
   }
 
+  @VueEvent
   private async rollback() {
     window.console.log("rollback");
     await this.finally();

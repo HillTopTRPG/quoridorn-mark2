@@ -21,6 +21,7 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class CtrlButton extends Vue {
@@ -33,6 +34,7 @@ export default class CtrlButton extends Vue {
   @Emit("click-right")
   private buttonOnClickRight(event: any) {}
 
+  @VueEvent
   public requestFocus(): void {
     const button: HTMLInputElement = this.$refs.button as HTMLInputElement;
     button.focus();

@@ -42,6 +42,7 @@ import {
 } from "../Coordinate";
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -65,6 +66,7 @@ export default class RightPane extends Vue {
 
   private key = "right-pane";
 
+  @LifeCycle
   private mounted() {
     this.isMounted = true;
   }

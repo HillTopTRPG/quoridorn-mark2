@@ -66,6 +66,7 @@ import { Point, Rectangle } from "@/@types/address";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import TitleIcon from "../window/TitleIcon.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -83,6 +84,7 @@ export default class PaneFrame extends Vue {
   private diff: Point = createPoint(0, 0);
   private paneRectangle: Rectangle = createRectangle(0, 0, 0, 0);
 
+  @LifeCycle
   private mounted() {
     this.isMounted = true;
   }

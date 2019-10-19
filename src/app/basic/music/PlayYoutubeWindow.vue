@@ -29,6 +29,8 @@ import BgmManager from "@/app/basic/music/BgmManager";
 import { getUrlParam } from "@/app/core/Utility";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -61,6 +63,7 @@ export default class PlayYoutubeWindow
     return `${this.windowKey}-${this.status}-youtube`;
   }
 
+  @VueEvent
   private thumbnailClick(): void {
     window.open(this.bgmInfo!.url, "_blank");
   }
@@ -70,6 +73,7 @@ export default class PlayYoutubeWindow
   private thumbnailData: string = "";
   private thumbnailText: string = "";
 
+  @LifeCycle
   private mounted() {
     this.isMounted = true;
     if (this.windowInfo.status !== this.status) return;
@@ -80,6 +84,7 @@ export default class PlayYoutubeWindow
     });
   }
 
+  @LifeCycle
   private destroyed() {
     YoutubeManager.instance.destroyed(this.bgmInfo!.tag);
   }
@@ -126,6 +131,7 @@ export default class PlayYoutubeWindow
     }
   }
 
+  @VueEvent
   private seekTo(seek: number, allowSeekAhead: boolean) {
     YoutubeManager.instance.seekTo(this.bgmInfo!.tag, seek, allowSeekAhead);
     if (allowSeekAhead) {

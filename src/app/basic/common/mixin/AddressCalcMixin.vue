@@ -10,6 +10,7 @@ import {
   createPoint
 } from "@/app/core/Coordinate";
 import { Matrix, Point, Rectangle } from "@/@types/address";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 type Coordinates = {
   angle: number; // 角度
@@ -77,6 +78,7 @@ export default class AddressCalcMixin extends Vue {
     };
   }
 
+  @VueEvent
   protected calcCanvasAddress(
     screenX: number,
     screenY: number,

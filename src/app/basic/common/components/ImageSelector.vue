@@ -37,6 +37,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { CtrlButton, ImageTagSelect } })
 export default class ImageSelector extends Vue {
@@ -51,6 +52,7 @@ export default class ImageSelector extends Vue {
 
   private selectImageTag: string = "";
 
+  @VueEvent
   public requestFocus(): void {
     const input: ImageTagSelect = this.$refs.input as ImageTagSelect;
     input.requestFocus();
@@ -92,18 +94,22 @@ export default class ImageSelector extends Vue {
     this.localValue = imageKey + (isReverse ? ":R" : "");
   }
 
+  @VueEvent
   private selectTagImage(key: string) {
     this.localValue = key;
   }
 
+  @VueEvent
   private doReverse() {
     this.isReverse = !this.isReverse;
   }
 
+  @VueEvent
   private onClickHideImage() {
     alert("未実装です。");
   }
 
+  @VueEvent
   private get selectedTagIndexText() {
     const index = this.useImageList.findIndex(
       image => image.key === this.imageKey
