@@ -13,11 +13,17 @@ import WindowManager from "@/app/core/window/WindowManager";
 import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: { CtrlButton }
 })
 export default class SampleWindow extends Mixins<WindowVue<number>>(WindowVue) {
+  @LifeCycle
+  public async mounted() {
+    await this.init();
+  }
+
   @VueEvent
   private clickButton() {
     if (this.windowInfo.args === null) return;

@@ -1,7 +1,7 @@
 ##[ Quoridornアプリケーションサーバ ]#############################################
 # 向き先
 quoridornServer: "wss://quori-dev.onlinesession.app"
-# quoridornServer: "http://localhost:2222"
+#quoridornServer: "http://localhost:8000"
 
 # Quoridornサーバとの通信のタイムアウト時間（単位：ms）
 socketTimeout: 5000

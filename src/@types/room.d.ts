@@ -31,10 +31,10 @@ export type RoomInfoWithPassword = {
 };
 
 export type LoginInfo = {
-  no: number;
+  roomNo: number;
   password: string;
 };
 
 export type CreateRoomInfo = {
-  no: number;
+  roomNo: number;
 };

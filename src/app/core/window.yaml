@@ -129,7 +129,7 @@
   maxSize:
     width: 545
     height: 700
-  closable: false
+  closable: true
   fontSizePickable: true
   resizable: true
   tableInfoList:

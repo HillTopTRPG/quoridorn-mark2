@@ -74,7 +74,8 @@ export default class PlayYoutubeWindow
   private thumbnailText: string = "";
 
   @LifeCycle
-  private mounted() {
+  public async mounted() {
+    await this.init();
     this.isMounted = true;
     if (this.windowInfo.status !== this.status) return;
     const player = YoutubeManager.instance.getPlayerInfo(this.bgmInfo!.tag);

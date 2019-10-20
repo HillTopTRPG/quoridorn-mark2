@@ -55,61 +55,59 @@
       </thead>
       <tbody>
         <!-- コンテンツ -->
-        <tr
-          v-for="row in rowList"
-          :key="row.data[keyProp]"
-          :class="{
-            isSelected: row.isSelected,
-            doubleClicked: row.isDoubleClick
-          }"
-          @mousedown.left="selectTr(row.data[keyProp])"
-          @touchstart="selectTr(row.data[keyProp])"
-          @dblclick="doubleClick(row)"
-        >
-          <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+        <template v-for="row in rowList">
+          <tr
+            :key="row.data[keyProp]"
+            :class="getRowClass(row)"
+            @mousedown.left="selectTr(row.data[keyProp])"
+            @touchstart="selectTr(row.data[keyProp])"
+            @dblclick="doubleClick(row)"
+          >
+            <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+              <!-- 区切り線 -->
+              <divider
+                :key="`body-div-${index}`"
+                :index="index"
+                @moveStart="divMoveStart"
+                @doubleClick="adjustWidth"
+                v-if="
+                  index !== 0 ||
+                    (windowInfo.status === 'right-pane' &&
+                      tableDeclareInfo.type.startsWith('free'))
+                "
+              />
+
+              <!-- セル -->
+              <td
+                :style="colStyle(index)"
+                :key="`body-${index}`"
+                class="selectable"
+                :class="colDec | align"
+              >
+                <slot
+                  name="contents"
+                  :colDec="colDec"
+                  :data="row.data"
+                  :index="index"
+                >
+                  <span>{{ row.data[colDec.target] }}</span>
+                </slot>
+              </td>
+            </template>
+
             <!-- 区切り線 -->
             <divider
-              :key="`body-div-${index}`"
-              :index="index"
+              :key="`header-div-${tableDeclareInfo.columnList.length}`"
+              :index="tableDeclareInfo.columnList.length"
               @moveStart="divMoveStart"
               @doubleClick="adjustWidth"
               v-if="
-                index !== 0 ||
-                  (windowInfo.status === 'right-pane' &&
-                    tableDeclareInfo.type.startsWith('free'))
+                windowInfo.status !== 'right-pane' &&
+                  tableDeclareInfo.type.startsWith('free')
               "
             />
-
-            <!-- セル -->
-            <td
-              :style="colStyle(index)"
-              :key="`body-${index}`"
-              class="selectable"
-              :class="colDec | align"
-            >
-              <slot
-                name="contents"
-                :colDec="colDec"
-                :data="row.data"
-                :index="index"
-              >
-                <span>{{ row.data[colDec.target] }}</span>
-              </slot>
-            </td>
-          </template>
-
-          <!-- 区切り線 -->
-          <divider
-            :key="`header-div-${tableDeclareInfo.columnList.length}`"
-            :index="tableDeclareInfo.columnList.length"
-            @moveStart="divMoveStart"
-            @doubleClick="adjustWidth"
-            v-if="
-              windowInfo.status !== 'right-pane' &&
-                tableDeclareInfo.type.startsWith('free')
-            "
-          />
-        </tr>
+          </tr>
+        </template>
         <!-- 余白 -->
         <tr
           class="space"
@@ -200,7 +198,9 @@ export default class TableComponent extends Vue {
   @Prop({ type: Array, required: true })
   private dataList!: any[];
   @Prop({ type: String, required: false, default: "key" })
-  private keyProp!: keyof WindowInfo<any>;
+  private keyProp!: string;
+  @Prop({ type: Function, required: false, default: () => [] })
+  private rowClassGetter!: (data: any) => string[];
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
@@ -208,6 +208,9 @@ export default class TableComponent extends Vue {
   private fromRightWidth: number = 0;
   private fromLastWidth: number = 0;
   private rowList: RowInfo<any>[] = [];
+
+  private selectedKey: string | number | null = null;
+  private doubleClickedKey: string | number | null = null;
 
   @LifeCycle
   private mounted() {
@@ -218,9 +221,8 @@ export default class TableComponent extends Vue {
   private onChangeDataList() {
     this.rowList = this.dataList.map(data => {
       return {
-        isHover: false,
-        isSelected: false,
-        isDoubleClick: false,
+        isSelected: data[this.keyProp] === this.selectedKey,
+        isDoubleClick: data[this.keyProp] === this.doubleClickedKey,
         data
       };
     });
@@ -237,7 +239,7 @@ export default class TableComponent extends Vue {
   private get key(): string {
     let key: string =
       this.keyProp in this.windowInfo
-        ? (this.windowInfo[this.keyProp] as string)
+        ? ((this.windowInfo as any)[this.keyProp] as string)
         : "";
     return `${key}-${this.status}-table-${this.tableIndex}`;
   }
@@ -254,6 +256,13 @@ export default class TableComponent extends Vue {
         type: `div-${divIndex}`
       }
     );
+  }
+
+  private getRowClass(row: RowInfo<unknown>): string[] {
+    const rowClass = this.rowClassGetter(row.data);
+    if (row.isSelected) rowClass.push("isSelected");
+    if (row.isDoubleClick) rowClass.push("doubleClicked");
+    return rowClass;
   }
 
   @TaskProcessor("mouse-move-end-left-finished")
@@ -373,23 +382,27 @@ export default class TableComponent extends Vue {
   }
 
   @Emit("selectLine")
-  private selectTr(key: any) {
+  private selectTr(key: string | number) {
     this.rowList.forEach(row => {
       row.isSelected = row.data[this.keyProp] === key;
     });
+    this.selectedKey = key;
   }
 
   private doubleClickTimeoutId: number | null = null;
-  private doubleClick(rowInfo: RowInfo<any>) {
-    rowInfo.isDoubleClick = true;
+  private doubleClick(row: RowInfo<any>) {
+    const key = row.data[this.keyProp];
+    this.doubleClickedKey = key;
+    row.isDoubleClick = true;
     if (this.doubleClickTimeoutId !== null) {
       clearTimeout(this.doubleClickTimeoutId);
     }
     this.doubleClickTimeoutId = window.setTimeout(() => {
-      rowInfo.isDoubleClick = false;
+      this.doubleClickedKey = null;
+      row.isDoubleClick = false;
       this.doubleClickTimeoutId = null;
     }, 100);
-    this.$emit("doubleClick", rowInfo.data[this.keyProp]);
+    this.$emit("doubleClick", key);
   }
 
   private divMoveStart(event: MouseEvent | TouchEvent, index: number) {

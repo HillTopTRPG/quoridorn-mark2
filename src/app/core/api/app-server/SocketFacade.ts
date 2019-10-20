@@ -2,7 +2,9 @@ import SocketClient from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import { RoomInfo } from "@/@types/room";
-import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
+import NecostoreCollectionController, {
+  CollectionType
+} from "@/app/core/api/app-server/NecostoreCollectionController";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
@@ -37,6 +39,9 @@ export default class SocketFacade {
 
   private readonly __socket: SocketIOClient.Socket;
   private readonly nekostore: Nekostore;
+  private readonly collectionControllerMap: {
+    [name: string]: NecostoreCollectionController<unknown>;
+  } = {};
 
   // コンストラクタの隠蔽
   private constructor() {
@@ -46,7 +51,7 @@ export default class SocketFacade {
       timeout: connectInfo.socketTimeout
     });
     this.nekostore = new Nekostore(driver);
-    this.__socket.on("connect", async (err: any) => {
+    this.__socket.on("connect", async () => {
       await TaskManager.instance.ignition<never, never>({
         type: "socket-connect",
         owner: "Quoridorn",
@@ -72,18 +77,37 @@ export default class SocketFacade {
     });
   }
 
-  public destroy() {
+  public async destroy() {
+    await Object.keys(this.collectionControllerMap)
+      .map((collectionName: string) => () =>
+        this.collectionControllerMap[collectionName].destroy()
+      )
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
     this.__socket.disconnect();
   }
 
   private generateCollectionController<T>(
-    collectionName: string
+    collectionName: string,
+    types: CollectionType[]
   ): NecostoreCollectionController<T> {
-    return new NecostoreCollectionController<T>(this.nekostore, collectionName);
+    let controller = this.collectionControllerMap[collectionName];
+    if (controller) {
+      return this.collectionControllerMap[
+        collectionName
+      ] as NecostoreCollectionController<T>;
+    }
+    return (this.collectionControllerMap[
+      collectionName
+    ] = new NecostoreCollectionController<T>(
+      this.__socket,
+      this.nekostore,
+      collectionName,
+      types
+    ));
   }
 
   public generateRoomInfoController(): NecostoreCollectionController<RoomInfo> {
-    return this.generateCollectionController<RoomInfo>("quoridorn-room-list");
+    return this.generateCollectionController<RoomInfo>("quoridorn-rooms", []);
   }
 
   public async socketCommunication<T>(event: string, args?: any): Promise<T> {

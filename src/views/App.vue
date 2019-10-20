@@ -33,9 +33,13 @@ import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
-import { CreateRoomInfo, RoomInfoWithPassword } from "@/@types/room";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { RoomInfo } from "@/@types/room";
+import SocketFacade, {
+  getStoreObj
+} from "@/app/core/api/app-server/SocketFacade";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { StoreMetaData, StoreObj } from "@/@types/store";
+import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 
 @Component({
   components: {
@@ -52,6 +56,8 @@ export default class App extends Vue {
   @Getter("isMapWheeling") private isMapWheeling!: boolean;
   @Action("presetImageLoad") private presetImageLoad: any;
 
+  private readonly key = "App";
+
   @LifeCycle
   public async created() {
     await this.presetImageLoad();
@@ -65,6 +71,7 @@ export default class App extends Vue {
   @LifeCycle
   private destroyed() {
     SocketFacade.instance.destroy();
+    WindowManager.instance.destroy();
   }
 
   @LifeCycle
@@ -91,13 +98,64 @@ export default class App extends Vue {
         type: "bgm-setting-window"
       }
     });
-    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
+
+    const roomList = await SocketFacade.instance.socketCommunication<
+      (StoreObj<RoomInfo> & StoreMetaData)[]
+    >("get-room-list");
+    const controller = SocketFacade.instance.generateRoomInfoController();
+    await controller.addCollectionSnapshot(
+      this.key,
+      (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
+        snapshot.docs.forEach(async doc => {
+          const obj = getStoreObj<RoomInfo>(doc);
+          if (obj) roomList.splice(obj.order, 1, obj);
+          else {
+            const index = roomList.findIndex(info => info.id === doc.ref.id);
+            roomList.splice(index, 1, {
+              exclusionOwner: null,
+              order: index,
+              createTime: null,
+              updateTime: null,
+              id: null
+            });
+          }
+        });
+      }
+    );
+    await TaskManager.instance.ignition<
+      WindowOpenInfo<(StoreObj<RoomInfo> & StoreMetaData)[]>,
+      never
+    >({
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "login-window"
+        type: "login-window",
+        args: roomList
       }
     });
+  }
+
+  /**
+   * キーダウンイベント
+   * @param event
+   */
+  @EventProcessor("keydown")
+  private async keyDown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      // Escが押下されたとき、入力画面がアクティブ画面だったら、それを閉じる
+      const activeWindowInfo = WindowManager.instance.activeWindow;
+      if (activeWindowInfo && activeWindowInfo.declare.isInputWindow) {
+        await TaskManager.instance.ignition<string, never>({
+          type: "window-close",
+          owner: "Quoridorn",
+          value: activeWindowInfo.key
+        });
+      }
+      return;
+    }
+    if (event.key === "Enter") {
+      window.console.log("GLOBAL enter");
+    }
   }
 
   /**
@@ -200,36 +258,6 @@ export default class App extends Vue {
     task: Task<WindowOpenInfo<unknown>, never>
   ): Promise<TaskResult<never> | void> {
     task.value!.key = WindowManager.instance.open(task.value!, task.key);
-  }
-
-  @TaskProcessor("input-create-room-finished")
-  private async inputCreateRoomFinished(
-    task: Task<CreateRoomInfo, RoomInfoWithPassword>
-  ): Promise<TaskResult<RoomInfoWithPassword>[] | void> {
-    const arg = { order: task.value!.no };
-    try {
-      await SocketFacade.instance.socketCommunication("touch-room", arg);
-    } catch (err) {
-      task.reject(err);
-      return;
-    }
-
-    try {
-      const roomInfoList = await TaskManager.instance.ignition<
-        WindowOpenInfo<never>,
-        RoomInfoWithPassword
-      >({
-        type: "window-open",
-        owner: "Quoridorn",
-        value: {
-          type: "create-new-room-window"
-        }
-      });
-      task.resolve(roomInfoList);
-    } catch (err) {
-      task.reject(err);
-      return;
-    }
   }
 }
 </script>

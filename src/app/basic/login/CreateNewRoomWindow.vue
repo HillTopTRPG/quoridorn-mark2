@@ -41,7 +41,6 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { RoomInfo, RoomInfoWithPassword } from "@/@types/room";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
@@ -63,7 +62,7 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     window.console.log("commit");
-    await this.finally(
+    this.finally(
       {
         name: this.name,
         hasPassword: !!this.password,
@@ -72,27 +71,27 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
       },
       this.password
     );
+    await this.close();
   }
 
   @VueEvent
   private async rollback() {
     window.console.log("rollback");
-    await this.finally();
+    this.finally();
+    await this.close();
   }
 
-  private async finally(roomInfo?: RoomInfo, password?: string) {
-    await TaskManager.instance.ignition<string, never>({
-      type: "window-close",
-      owner: "Quoridorn",
-      value: this.windowInfo.key
-    });
+  @VueEvent
+  private async beforeDestroy() {
+    this.finally();
+  }
+
+  private finally(roomInfo?: RoomInfo, password?: string) {
     const task = TaskManager.instance.getTask<RoomInfoWithPassword>(
-      "input-create-room"
+      "window-open",
+      this.windowInfo.taskKey
     );
-    if (!task) {
-      throw new ApplicationError("No such task.");
-    }
-    task.resolve(roomInfo ? [{ roomInfo, password: password! }] : []);
+    if (task) task.resolve(roomInfo ? [{ roomInfo, password: password! }] : []);
   }
 }
 </script>

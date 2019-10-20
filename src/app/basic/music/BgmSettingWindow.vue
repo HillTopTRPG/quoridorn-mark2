@@ -87,6 +87,11 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 export default class BgmSettingWindow extends WindowVue<number> {
   private selectedBgmKey: string | null = null;
 
+  @LifeCycle
+  public async mounted() {
+    await this.init();
+  }
+
   @VueEvent
   private selectBgm(bgmKey: string) {
     this.selectedBgmKey = bgmKey;
@@ -125,11 +130,6 @@ export default class BgmSettingWindow extends WindowVue<number> {
       this.windowInfo.declare.minSize.width = totalWidth;
     if (this.windowInfo.declare.maxSize)
       this.windowInfo.declare.maxSize.width = totalWidth;
-  }
-
-  @LifeCycle
-  private mounted() {
-    // mounted
   }
 
   @VueEvent

@@ -116,6 +116,8 @@ export default class WindowArea extends Vue {
     const windowInfo = this.windowInfoList[index];
     windowInfo.order = this.windowInfoList.length;
 
+    WindowManager.instance.activeWindowKey = task.value!;
+
     this.arrangeOrder();
     WindowManager.instance.arrangePoint(windowInfo.key);
 

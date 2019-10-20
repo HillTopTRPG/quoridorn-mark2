@@ -41,7 +41,6 @@
       - finished
   types:
     - window-open
-    - input-create-room
 
 - taskAttribute:
     isIgniteWithParam: false

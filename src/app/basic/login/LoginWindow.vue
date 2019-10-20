@@ -6,6 +6,7 @@
       :status="status"
       :dataList="roomList"
       keyProp="order"
+      :rowClassGetter="getRowClasses"
       @selectLine="selectRoom"
       @doubleClick="playRoom"
       @adjustWidth="adjustWidth"
@@ -19,7 +20,13 @@
         <template v-else-if="index === 5">{{ data | visitable }}</template>
         <template v-else-if="index === 6">{{ data | updateDate }}</template>
         <template v-else-if="index === 7">
-          <ctrl-button @click.stop @dblclick.stop>削除</ctrl-button>
+          <ctrl-button
+            @click.stop="deleteRoom(data.order)"
+            @dblclick.stop
+            :disabled="data | deleteButtonDisabled"
+          >
+            削除
+          </ctrl-button>
         </template>
         <template v-else>
           {{ data[colDec.target] }}
@@ -27,7 +34,9 @@
       </template>
     </table-component>
     <div class="button-area">
-      <ctrl-button @click="createRoom()">新規作成</ctrl-button>
+      <ctrl-button @click="createRoom()" :disabled="unTouchable">
+        新規作成
+      </ctrl-button>
       <ctrl-button>ログイン</ctrl-button>
     </div>
   </div>
@@ -49,6 +58,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { WindowOpenInfo } from "@/@types/window";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -74,45 +84,47 @@ import VueEvent from "@/app/core/decorator/VueEvent";
       if (data.updateTime)
         return moment(data.updateTime).format("YYYY/MM/DD HH:mm:ss");
       return "";
-    }
+    },
+    deleteButtonDisabled: (storeObj: StoreObj<RoomInfo>) =>
+      !storeObj.data && !storeObj.exclusionOwner
   }
 })
-export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
+export default class LoginWindow extends Mixins<
+  WindowVue<(StoreObj<RoomInfo> & StoreMetaData)[]>
+>(WindowVue) {
   private roomList: (StoreObj<RoomInfo> & StoreMetaData)[] = [];
-  private selectedRoomKey: number | null = null;
+  private selectedRoomNo: number | null = null;
+  private isInputtingRoomInfo: boolean = false;
 
   @LifeCycle
-  private async mounted() {
+  public async mounted() {
+    await this.init();
     try {
-      const controller = SocketFacade.instance.generateRoomInfoController();
-      controller.addCollectionSnapshot(
-        this.key,
-        (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
-          snapshot.docs.forEach(async doc => {
-            const docSnapshot = await doc.ref.get();
-            if (docSnapshot.exists()) {
-              const obj = getStoreObj<RoomInfo>(doc);
-              if (obj) this.roomList.splice(docSnapshot.data.order, 1, obj);
-              else this.roomList.splice(docSnapshot.data.order, 1);
-            }
-          });
-        }
-      );
-      this.roomList = await SocketFacade.instance.socketCommunication<
-        (StoreObj<RoomInfo> & StoreMetaData)[]
-      >("get-room-list");
+      this.roomList = this.windowInfo.args!;
     } catch (err) {
       window.console.error(err);
     }
   }
 
   @VueEvent
-  private selectRoom(roomKey: number) {
-    this.selectedRoomKey = roomKey;
+  private get unTouchable() {
+    if (this.isInputtingRoomInfo) return true;
+    if (this.selectedRoomNo === null) return false;
+    return !!this.roomList[this.selectedRoomNo - 1].data;
+  }
+
+  @LifeCycle
+  private async beforeDestroy() {
+    await this.releaseTouchRoom();
   }
 
   @VueEvent
-  private async playRoom(bgmKey?: string) {}
+  private selectRoom(order: number) {
+    this.selectedRoomNo = order + 1;
+  }
+
+  @VueEvent
+  private async playRoom(order?: number) {}
 
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
@@ -123,39 +135,76 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
   }
 
   @VueEvent
+  private async deleteRoom(order: number) {
+    window.console.log(order);
+  }
+
+  @VueEvent
+  private getRowClasses(data: StoreObj<RoomInfo> & StoreMetaData): string[] {
+    const classList: string[] = [];
+    if (data.exclusionOwner) {
+      classList.push(data.data ? "isEditing" : "isCreating");
+    }
+    return classList;
+  }
+
+  private async releaseTouchRoom() {
+    if (!this.selectedRoomNo) return;
+    if (!this.roomList[this.selectedRoomNo - 1].exclusionOwner) return;
+    const controller = SocketFacade.instance.generateRoomInfoController();
+    await controller.releaseTouch(this.selectedRoomNo - 1);
+  }
+
+  @VueEvent
   private async createRoom() {
-    if (this.selectedRoomKey === null) {
+    if (this.selectedRoomNo === null) {
       alert("部屋を選択してから新規作成をしてください。");
       return;
     }
 
-    let info: RoomInfoWithPassword;
+    // タッチ
     try {
-      const resultArr = await TaskManager.instance.ignition<
-        CreateRoomInfo,
-        RoomInfoWithPassword
-      >({
-        type: "input-create-room",
-        owner: "Quoridorn",
-        value: {
-          no: this.selectedRoomKey
-        }
-      });
-      info = resultArr[0];
+      const controller = SocketFacade.instance.generateRoomInfoController();
+      await controller.touch(this.selectedRoomNo - 1);
     } catch (err) {
-      window.console.warn(err);
-      if ("message" in err) alert("サーバエラー\n" + err.message);
-      else alert("プログラムエラー" + err);
       return;
     }
 
-    window.console.log(info);
+    // 入力画面
+    let info: RoomInfoWithPassword;
+    this.isInputtingRoomInfo = true;
+    try {
+      const roomInfoList = await TaskManager.instance.ignition<
+        WindowOpenInfo<never>,
+        RoomInfoWithPassword
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "create-new-room-window"
+        }
+      });
+      info = roomInfoList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
 
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!info) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    this.isInputtingRoomInfo = false;
+
+    // 部屋作成リクエストを投げる
     try {
       const roomCollectionSuffix = await SocketFacade.instance.socketCommunication(
         "create-room",
         {
-          no: this.selectedRoomKey,
+          roomNo: this.selectedRoomNo,
           password: info.password,
           roomInfo: info.roomInfo
         }
@@ -175,6 +224,53 @@ export default class LoginWindow extends Mixins<WindowVue<never>>(WindowVue) {
 
   .margin-left-auto {
     margin-left: auto;
+  }
+}
+</style>
+
+<style lang="scss">
+@import "../../../assets/common";
+.isCreating {
+  position: relative;
+  pointer-events: none;
+
+  &:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    background-image: linear-gradient(
+      -45deg,
+      var(--uni-color-cream) 25%,
+      var(--uni-color-light-pink) 25%,
+      var(--uni-color-light-pink) 50%,
+      var(--uni-color-cream) 50%,
+      var(--uni-color-cream) 75%,
+      var(--uni-color-light-pink) 75%,
+      var(--uni-color-light-pink)
+    );
+    background-size: 1em 1em;
+    background-attachment: local;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 9999999998;
+  }
+
+  &:after {
+    content: "作成中";
+    @include inline-flex-box(row, center, center);
+    position: absolute;
+    left: 50%;
+    padding: 0.2em 0.6em;
+    top: 0;
+    bottom: 0;
+    height: 1em;
+    margin: auto;
+    background-color: var(--uni-color-white);
+    color: var(--uni-color-black);
+    transform: translateX(-50%);
+    z-index: 9999999999;
   }
 }
 </style>

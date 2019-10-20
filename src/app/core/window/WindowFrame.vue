@@ -140,24 +140,9 @@ export default class WindowFrame extends Vue {
   private isResizing: boolean = false;
 
   @LifeCycle
-  private mounted() {
+  private async mounted() {
     WindowFrame.addEventForIFrame(this.windowElm);
     this.isMounted = true;
-
-    if (!this.windowInfo.declare.isInputWindow) {
-      // 入力画面でないなら表示タスクは完了にする
-      if (this.status === "window" && this.windowInfo.taskKey) {
-        const task = TaskManager.instance.getTask(
-          "window-open",
-          this.windowInfo.taskKey
-        );
-        if (!task) {
-          window.console.warn(`No such task. type=${this.windowInfo.type}`);
-          return;
-        }
-        task.resolve();
-      }
-    }
   }
 
   @LifeCycle

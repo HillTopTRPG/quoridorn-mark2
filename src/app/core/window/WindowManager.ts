@@ -8,6 +8,7 @@ import { calcWindowPosition, createPoint } from "../Coordinate";
 import { Point } from "@/@types/address";
 import { getCssPxNum } from "../Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import TaskManager from "@/app/core/task/TaskManager";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -32,10 +33,20 @@ export default class WindowManager {
 
   private readonly windowDeclareInfoContainer = Object.seal(windowDeclareInfo);
   private readonly __windowInfoList: WindowInfo<unknown>[] = [];
-  private key: number = 0;
+  private keyCount: number = 0;
+  private __activeWindowKey: string | null = null;
 
   public get windowInfoList() {
     return this.__windowInfoList;
+  }
+
+  public get activeWindow() {
+    if (!this.__activeWindowKey) return null;
+    return this.getWindowInfo(this.__activeWindowKey);
+  }
+
+  public set activeWindowKey(windowKey: string) {
+    this.__activeWindowKey = windowKey;
   }
 
   public getWindowInfo<T>(key: string): WindowInfo<T> {
@@ -68,7 +79,7 @@ export default class WindowManager {
     const menuHeight = getCssPxNum("--menu-bar-height");
     const point = calcWindowPosition(position, windowSize, menuHeight);
 
-    const key = `window-${this.key++}`;
+    const key = `window-${this.keyCount++}`;
     this.__windowInfoList.push({
       key,
       taskKey,
@@ -129,5 +140,16 @@ export default class WindowManager {
       taskKey,
       info.args
     );
+  }
+
+  public async destroy() {
+    const promiseList = this.windowInfoList.map(info => {
+      return TaskManager.instance.ignition<string, never>({
+        type: "window-close",
+        owner: "Quoridorn",
+        value: info.key
+      });
+    });
+    await Promise.all(promiseList);
   }
 }
