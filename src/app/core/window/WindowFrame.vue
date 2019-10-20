@@ -77,14 +77,17 @@
 
     <!-- コンテンツ -->
     <div class="_contents" @wheel.stop>
-      <component
-        :is="windowInfo.type"
-        :windowInfo="windowInfo"
-        :status="status"
-        :style="{ fontSize: fontSize + 'px' }"
-        :isResizing="isResizing"
-        @adjustWidth="adjustWidth"
-      />
+      <keep-alive>
+        <component
+          :is="windowInfo.type"
+          :windowInfo="windowInfo"
+          :status="status"
+          :style="{ fontSize: fontSize + 'px' }"
+          :isResizing="isResizing"
+          v-if="!isMoving"
+          @adjustWidth="adjustWidth"
+        />
+      </keep-alive>
     </div>
 
     <!-- サイズ変更つまみ -->
@@ -138,6 +141,7 @@ export default class WindowFrame extends Vue {
   private standImageHeight: number = 256;
   private isMounted: boolean = false;
   private isResizing: boolean = false;
+  private isMoving: boolean = false;
 
   @LifeCycle
   private async mounted() {
@@ -210,6 +214,9 @@ export default class WindowFrame extends Vue {
     // 移動
     if (param && !param.type && param.key === this.key) {
       // 画面の移動を発火
+      if (this.windowInfo.declare.isMovingRendering) {
+        this.isMoving = false;
+      }
       await TaskManager.instance.ignition<Point, never>({
         type: "window-move-end",
         owner: "Quoridorn",
@@ -234,6 +241,10 @@ export default class WindowFrame extends Vue {
       this.diff.y = point.y - this.dragFrom.y;
       this.diff.width = 0;
       this.diff.height = 0;
+
+      if (this.windowInfo.declare.isMovingRendering) {
+        this.isMoving = true;
+      }
 
       task.resolve();
 

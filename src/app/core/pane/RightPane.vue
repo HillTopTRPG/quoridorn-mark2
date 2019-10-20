@@ -43,6 +43,7 @@ import {
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import moment from "moment/moment";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -195,8 +196,8 @@ export default class RightPane extends Vue {
         this.diffX = 0;
       }
     }
-    this.arrangePaneOrder(mouseOnPane, key, false);
 
+    this.arrangePaneOrder(mouseOnPane, key, false);
     task.resolve();
   }
 

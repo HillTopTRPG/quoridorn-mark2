@@ -1,6 +1,7 @@
 "test-window":
   parentTypeList: []
   isInputWindow: false
+  isMovingRendering: false
   title: テスト画面
   message: ""
   position: center
@@ -20,6 +21,7 @@
 "sample-window":
   parentTypeList: []
   isInputWindow: false
+  isMovingRendering: false
   title: サンプル画面
   message: ""
   position: center
@@ -39,6 +41,7 @@
 "play-youtube-window":
   parentTypeList: []
   isInputWindow: false
+  isMovingRendering: false
   title: Youtube再生画面
   message: ""
   position: right-bottom
@@ -55,6 +58,7 @@
 "bgm-setting-window":
   parentTypeList: []
   isInputWindow: false
+  isMovingRendering: true
   title: BGM設定画面
   message: ""
   position: center
@@ -117,6 +121,7 @@
 "login-window":
   parentTypeList: []
   isInputWindow: false
+  isMovingRendering: true
   title: ログイン画面
   message: ""
   position: center
@@ -179,6 +184,7 @@
 "create-new-room-window":
   parentTypeList: []
   isInputWindow: true
+  isMovingRendering: false
   title: 新規プレイルーム作成
   message: ""
   position: center

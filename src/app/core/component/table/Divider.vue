@@ -1,6 +1,7 @@
 <template>
   <td
     class="divider"
+    :class="{ disabled }"
     @dblclick.stop="doubleClick(index)"
     @mouseover="hoverDev(index)"
     @mouseout="hoverDev()"
@@ -20,6 +21,9 @@ export default class Divider extends Vue {
   @Prop({ type: Number, required: true })
   private index!: number;
 
+  @Prop({ type: Boolean, required: false, default: false })
+  private disabled!: boolean;
+
   @Emit("hover")
   hoverDev(index: number): void {}
 
@@ -34,19 +38,22 @@ export default class Divider extends Vue {
 <style scoped lang="scss">
 .divider {
   background-color: rgb(183, 186, 188);
-  cursor: col-resize;
   position: relative;
   padding: 0;
   width: 1px;
   min-width: 1px;
 
-  &:after {
-    position: absolute;
-    height: 100%;
-    top: 0;
-    left: -3px;
-    content: "";
-    width: 7px;
+  &:not(.disabled) {
+    cursor: col-resize;
+
+    &:after {
+      position: absolute;
+      height: 100%;
+      top: 0;
+      left: -3px;
+      content: "";
+      width: 7px;
+    }
   }
 }
 </style>

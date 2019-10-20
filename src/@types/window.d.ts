@@ -17,6 +17,7 @@ export type WindowTableDeclareInfo = {
 export type WindowDeclareInfo = {
   readonly parentTypeList: string[];
   readonly isInputWindow: boolean;
+  readonly isMovingRendering: boolean;
   readonly title: string;
   readonly message: string;
   readonly position: Point | Anchor;

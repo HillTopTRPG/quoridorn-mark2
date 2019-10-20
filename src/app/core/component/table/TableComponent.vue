@@ -56,59 +56,61 @@
       <tbody>
         <!-- コンテンツ -->
         <template v-for="row in rowList">
-          <tr
-            :key="row.data[keyProp]"
-            :class="getRowClass(row)"
-            @mousedown.left="selectTr(row.data[keyProp])"
-            @touchstart="selectTr(row.data[keyProp])"
-            @dblclick="doubleClick(row)"
-          >
-            <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+          <keep-alive :key="row.data[keyProp]">
+            <tr
+              :class="getRowClass(row)"
+              v-if="!isColWidthMoving"
+              @mousedown.left="selectTr(row.data[keyProp])"
+              @touchstart="selectTr(row.data[keyProp])"
+              @dblclick="doubleClick(row)"
+            >
+              <template v-for="(colDec, index) in tableDeclareInfo.columnList">
+                <!-- 区切り線 -->
+                <divider
+                  :key="`body-div-${index}`"
+                  :index="index"
+                  :disabled="true"
+                  v-if="
+                    index !== 0 ||
+                      (windowInfo.status === 'right-pane' &&
+                        tableDeclareInfo.type.startsWith('free'))
+                  "
+                />
+
+                <!-- セル -->
+                <td
+                  :style="colStyle(index)"
+                  :key="`body-${index}`"
+                  class="selectable"
+                  :class="colDec | align"
+                >
+                  <slot
+                    name="contents"
+                    :colDec="colDec"
+                    :data="row.data"
+                    :index="index"
+                  >
+                    <span>{{ row.data[colDec.target] }}</span>
+                  </slot>
+                </td>
+              </template>
+
               <!-- 区切り線 -->
               <divider
-                :key="`body-div-${index}`"
-                :index="index"
-                @moveStart="divMoveStart"
-                @doubleClick="adjustWidth"
+                :key="`header-div-${tableDeclareInfo.columnList.length}`"
+                :index="tableDeclareInfo.columnList.length"
+                :disabled="true"
                 v-if="
-                  index !== 0 ||
-                    (windowInfo.status === 'right-pane' &&
-                      tableDeclareInfo.type.startsWith('free'))
+                  windowInfo.status !== 'right-pane' &&
+                    tableDeclareInfo.type.startsWith('free')
                 "
               />
-
-              <!-- セル -->
-              <td
-                :style="colStyle(index)"
-                :key="`body-${index}`"
-                class="selectable"
-                :class="colDec | align"
-              >
-                <slot
-                  name="contents"
-                  :colDec="colDec"
-                  :data="row.data"
-                  :index="index"
-                >
-                  <span>{{ row.data[colDec.target] }}</span>
-                </slot>
-              </td>
-            </template>
-
-            <!-- 区切り線 -->
-            <divider
-              :key="`header-div-${tableDeclareInfo.columnList.length}`"
-              :index="tableDeclareInfo.columnList.length"
-              @moveStart="divMoveStart"
-              @doubleClick="adjustWidth"
-              v-if="
-                windowInfo.status !== 'right-pane' &&
-                  tableDeclareInfo.type.startsWith('free')
-              "
-            />
-          </tr>
+            </tr>
+          </keep-alive>
         </template>
         <!-- 余白 -->
+      </tbody>
+      <tfoot>
         <tr
           class="space"
           :class="{
@@ -121,8 +123,7 @@
             <divider
               :key="`margin-div-${index}`"
               :index="index"
-              @moveStart="divMoveStart"
-              @doubleClick="adjustWidth"
+              :disabled="true"
               v-if="
                 index !== 0 ||
                   (windowInfo.status === 'right-pane' &&
@@ -138,15 +139,14 @@
           <divider
             :key="`header-div-${tableDeclareInfo.columnList.length}`"
             :index="tableDeclareInfo.columnList.length"
-            @moveStart="divMoveStart"
-            @doubleClick="adjustWidth"
+            :disabled="true"
             v-if="
               windowInfo.status !== 'right-pane' &&
                 tableDeclareInfo.type.startsWith('free')
             "
           />
         </tr>
-      </tbody>
+      </tfoot>
     </table>
   </div>
 </template>
@@ -171,6 +171,7 @@ import {
   getEventPoint
 } from "@/app/core/Coordinate";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -209,8 +210,12 @@ export default class TableComponent extends Vue {
   private fromLastWidth: number = 0;
   private rowList: RowInfo<any>[] = [];
 
+  private doubleClickTimeoutId: number | null = null;
+
   private selectedKey: string | number | null = null;
   private doubleClickedKey: string | number | null = null;
+
+  private isColWidthMoving: boolean = false;
 
   @LifeCycle
   private mounted() {
@@ -244,27 +249,6 @@ export default class TableComponent extends Vue {
     return `${key}-${this.status}-table-${this.tableIndex}`;
   }
 
-  private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.key,
-      type: `div-${divIndex}`
-    });
-    TaskManager.instance.setTaskParam<MouseMoveParam>(
-      "mouse-move-end-left-finished",
-      {
-        key: this.key,
-        type: `div-${divIndex}`
-      }
-    );
-  }
-
-  private getRowClass(row: RowInfo<unknown>): string[] {
-    const rowClass = this.rowClassGetter(row.data);
-    if (row.isSelected) rowClass.push("isSelected");
-    if (row.isDoubleClick) rowClass.push("doubleClicked");
-    return rowClass;
-  }
-
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
     task: Task<Point, never>,
@@ -272,6 +256,7 @@ export default class TableComponent extends Vue {
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
 
+    this.isColWidthMoving = false;
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
@@ -301,6 +286,30 @@ export default class TableComponent extends Vue {
     task.resolve();
   }
 
+  @VueEvent
+  private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
+      key: this.key,
+      type: `div-${divIndex}`
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-move-end-left-finished",
+      {
+        key: this.key,
+        type: `div-${divIndex}`
+      }
+    );
+  }
+
+  @VueEvent
+  private getRowClass(row: RowInfo<any>): string[] {
+    const rowClass = this.rowClassGetter(row.data);
+    if (row.isSelected) rowClass.push("isSelected");
+    if (row.isDoubleClick) rowClass.push("doubleClicked");
+    return rowClass;
+  }
+
+  @VueEvent
   private adjustWidth(index: number) {
     const leftIndex = index - 1 + (this.status !== "right-pane" ? 0 : 1);
     const columns = this.$refs.column as HTMLTableRowElement[];
@@ -316,6 +325,54 @@ export default class TableComponent extends Vue {
       this.fromLastWidth,
       this.fromLeftWidth - newLeftWidth
     );
+  }
+
+  @VueEvent
+  private doubleClick(row: RowInfo<any>) {
+    const key = row.data[this.keyProp];
+    this.doubleClickedKey = key;
+    row.isDoubleClick = true;
+    if (this.doubleClickTimeoutId !== null) {
+      clearTimeout(this.doubleClickTimeoutId);
+    }
+    this.doubleClickTimeoutId = window.setTimeout(() => {
+      this.doubleClickedKey = null;
+      row.isDoubleClick = false;
+      this.doubleClickTimeoutId = null;
+    }, 100);
+    this.$emit("doubleClick", key);
+  }
+
+  @VueEvent
+  private divMoveStart(event: MouseEvent | TouchEvent, index: number) {
+    this.dragFrom = getEventPoint(event);
+    const leftIndex = index - 1 + (this.status !== "right-pane" ? 0 : 1);
+    const rightIndex = index - 1 + (this.status !== "right-pane" ? 1 : 0);
+
+    const list = this.tableInfo.columnWidthList;
+    this.fromLeftWidth = list[leftIndex];
+    this.fromRightWidth = list[rightIndex];
+    this.fromLastWidth = list[list.length - 1];
+
+    this.isColWidthMoving = true;
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
+      key: this.key,
+      type: `div-${index}`
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-move-end-left-finished",
+      {
+        key: this.key,
+        type: `div-${index}`
+      }
+    );
+  }
+
+  @VueEvent
+  private get colStyle() {
+    return (index: number) => ({
+      width: `${this.tableInfo.columnWidthList[index]}px`
+    });
   }
 
   private adjust(
@@ -375,57 +432,12 @@ export default class TableComponent extends Vue {
   @Emit("adjustWidth")
   private adjustEmit(totalWidth: number) {}
 
-  private get colStyle() {
-    return (index: number) => ({
-      width: `${this.tableInfo.columnWidthList[index]}px`
-    });
-  }
-
   @Emit("selectLine")
   private selectTr(key: string | number) {
     this.rowList.forEach(row => {
       row.isSelected = row.data[this.keyProp] === key;
     });
     this.selectedKey = key;
-  }
-
-  private doubleClickTimeoutId: number | null = null;
-  private doubleClick(row: RowInfo<any>) {
-    const key = row.data[this.keyProp];
-    this.doubleClickedKey = key;
-    row.isDoubleClick = true;
-    if (this.doubleClickTimeoutId !== null) {
-      clearTimeout(this.doubleClickTimeoutId);
-    }
-    this.doubleClickTimeoutId = window.setTimeout(() => {
-      this.doubleClickedKey = null;
-      row.isDoubleClick = false;
-      this.doubleClickTimeoutId = null;
-    }, 100);
-    this.$emit("doubleClick", key);
-  }
-
-  private divMoveStart(event: MouseEvent | TouchEvent, index: number) {
-    this.dragFrom = getEventPoint(event);
-    const leftIndex = index - 1 + (this.status !== "right-pane" ? 0 : 1);
-    const rightIndex = index - 1 + (this.status !== "right-pane" ? 1 : 0);
-
-    const list = this.tableInfo.columnWidthList;
-    this.fromLeftWidth = list[leftIndex];
-    this.fromRightWidth = list[rightIndex];
-    this.fromLastWidth = list[list.length - 1];
-
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.key,
-      type: `div-${index}`
-    });
-    TaskManager.instance.setTaskParam<MouseMoveParam>(
-      "mouse-move-end-left-finished",
-      {
-        key: this.key,
-        type: `div-${index}`
-      }
-    );
   }
 
   private get elm() {
@@ -459,7 +471,7 @@ $lineHeight: 2em;
     border-spacing: 0;
     border: 1px solid gray;
     width: 100%;
-    height: var(--tableHeight);
+    height: calc(var(--tableHeight));
 
     &.isStretchRight {
       border-left: none;
@@ -474,49 +486,9 @@ $lineHeight: 2em;
       display: flex;
     }
 
-    tbody tr {
-      &.isSelected {
-        background-color: rgba(77, 196, 255, 1) !important;
-      }
-
-      &:not(.isSelected):hover {
-        background-color: rgba(191, 228, 255, 1) !important;
-      }
-
-      &.doubleClicked {
-        outline: 2px solid rgb(255, 75, 0);
-        outline-offset: -2px;
-      }
-
-      &.space {
-        height: auto;
-        background-size: calc(#{$lineHeight} * 2) calc(#{$lineHeight} * 2);
-
-        &.odd {
-          background-image: linear-gradient(
-            0deg,
-            white 0%,
-            white 50%,
-            rgb(247, 247, 247) 51%,
-            rgb(247, 247, 247) 100%
-          );
-        }
-        &.even {
-          background-image: linear-gradient(
-            0deg,
-            rgb(247, 247, 247) 0%,
-            rgb(247, 247, 247) 50%,
-            white 51%,
-            white 100%
-          );
-        }
-      }
-    }
-
     td:not(.divider),
     th {
       overflow: hidden;
-      height: $lineHeight;
       padding: 0;
       box-sizing: border-box;
 
@@ -557,7 +529,7 @@ $lineHeight: 2em;
       top: calc(#{$lineHeight} + 1px);
       left: 0;
       right: 0;
-      height: calc(var(--tableHeight) - #{$lineHeight});
+      height: calc(var(--tableHeight) - #{$lineHeight} - 3px);
 
       tr {
         &:nth-child(odd) {
@@ -566,6 +538,39 @@ $lineHeight: 2em;
         &:nth-child(even) {
           background-color: rgb(247, 247, 247);
         }
+
+        &.isSelected {
+          background-color: rgba(77, 196, 255, 1) !important;
+        }
+
+        &:not(.isSelected):hover {
+          background-color: rgba(191, 228, 255, 1) !important;
+        }
+
+        &.doubleClicked {
+          outline: 2px solid rgb(255, 75, 0);
+          outline-offset: -2px;
+        }
+      }
+    }
+
+    tfoot {
+      position: absolute;
+      top: calc(#{$lineHeight} + 1px);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding-right: var(--scroll-bar-width);
+      z-index: -1;
+
+      tr {
+        height: 100%;
+        background-size: calc(#{$lineHeight} * 2) calc(#{$lineHeight} * 2);
+        background-image: linear-gradient(
+          0deg,
+          rgb(247, 247, 247) 50%,
+          white 51%
+        );
       }
     }
   }

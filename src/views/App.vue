@@ -191,7 +191,7 @@ export default class App extends Vue {
   private async mouseTouchMove(event: MouseEvent | TouchEvent): Promise<void> {
     const point = getEventPoint(event);
     if (point.x === this.mouse.x && point.y === this.mouse.y) return;
-    await TaskManager.instance.ignition<Point, never>({
+    TaskManager.instance.ignition<Point, never>({
       type: "mouse-moving",
       owner: "Quoridorn",
       value: point
