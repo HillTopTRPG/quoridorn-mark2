@@ -86,7 +86,8 @@ import { WindowOpenInfo } from "@/@types/window";
       return "";
     },
     deleteButtonDisabled: (storeObj: StoreObj<RoomInfo>) =>
-      !storeObj.data && !storeObj.exclusionOwner
+      (!storeObj.data && !storeObj.exclusionOwner) ||
+      (storeObj.data && storeObj.data.memberNum > 0)
   }
 })
 export default class LoginWindow extends Mixins<
