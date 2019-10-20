@@ -60,8 +60,11 @@ export default class BCDiceFacade {
 
   public static async getBcdiceSystemInfo(system: string) {
     return new Promise((resolve: Function, reject: Function) => {
-      const params: string = `system=${system}`;
-      const url = `${connectInfo.bcdiceServer}/v1/systeminfo?${params}`;
+      const params = new URLSearchParams();
+      params.append("system", system);
+      const url = `${
+        connectInfo.bcdiceServer
+      }/v1/systeminfo?${params.toString()}`;
       fetch(url)
         .then(response => response.json())
         .then(json => {
