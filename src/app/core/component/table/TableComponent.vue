@@ -84,7 +84,7 @@ export default class TableComponent extends Vue {
       const ordinal: number = this.tableDeclareInfo.classificationOrdinal!;
       let useChoice: number = this.dataList.length;
 
-      if (useChoice > 50) {
+      if (this.tableDeclareInfo.height !== undefined && useChoice > 50) {
         const choiceList = [];
         let choice: number = this.tableDeclareInfo.height;
         if (choice < 100) {

@@ -237,7 +237,7 @@ export default class SimpleTableComponent extends Vue {
   }
 
   @TaskProcessor("window-font-size-finished")
-  private windowFontSizeFinished(
+  private async windowFontSizeFinished(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
@@ -248,13 +248,13 @@ export default class SimpleTableComponent extends Vue {
   }
 
   @TaskProcessor("window-move-end-finished")
-  private windowMoveEndFinished(
+  private async windowMoveEndFinished(
     task: Task<WindowMoveInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value.windowKey !== this.windowInfo.key) return;
+    if (task.value!.windowKey !== this.windowInfo.key) return;
     if (!this.isMounted) return;
     setTimeout(() => {
-      this.elm.querySelector("tbody").scrollTop = this.saveScrollTop;
+      this.elm.querySelector("tbody")!.scrollTop = this.saveScrollTop;
       this.arrangeViewRow();
     });
   }
@@ -275,7 +275,7 @@ export default class SimpleTableComponent extends Vue {
           this.saveTabInfo.target.to !== this.tableTabInfo.target.to))
     ) {
       setTimeout(() => {
-        this.elm.querySelector("tbody").scrollTop = 0;
+        this.elm.querySelector("tbody")!.scrollTop = 0;
         this.arrangeViewRow();
       });
     }
@@ -300,7 +300,7 @@ export default class SimpleTableComponent extends Vue {
       if (typeof this.tableTabInfo.target === "string") {
         const targetProp = this.tableDeclareInfo.classificationProp;
         const target = this.tableTabInfo.target;
-        rowList = rowList.filter(row => row[targetProp] === target);
+        rowList = rowList.filter((row: any) => row[targetProp] === target);
       } else {
         const from = this.tableTabInfo.target.from;
         const to = this.tableTabInfo.target.to;
@@ -317,7 +317,7 @@ export default class SimpleTableComponent extends Vue {
       //   this.viewRowFirstIndex.toString()
       // );
       setTimeout(() => {
-        this.elm.querySelector("tbody").scrollTop = this.saveScrollTop;
+        this.elm.querySelector("tbody")!.scrollTop = this.saveScrollTop;
       });
     }
     this.rowList = rowList.filter(
@@ -352,7 +352,7 @@ export default class SimpleTableComponent extends Vue {
 
     if (this.isColWidthMoving) {
       setTimeout(() => {
-        this.elm.querySelector("tbody").scrollTop = this.saveScrollTop;
+        this.elm.querySelector("tbody")!.scrollTop = this.saveScrollTop;
         this.arrangeViewRow();
       });
       this.isColWidthMoving = false;
@@ -394,7 +394,7 @@ export default class SimpleTableComponent extends Vue {
   }
 
   private arrangeViewRow() {
-    const target = this.elm.querySelector("tbody");
+    const target = this.elm.querySelector("tbody")!;
     const scrollTop = target.scrollTop;
     const tableHeight = target.getBoundingClientRect().height;
     const lineHeight = getCssPxNum("--table-row-height", this.elm);
