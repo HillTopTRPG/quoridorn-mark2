@@ -62,7 +62,7 @@ import { WindowOpenInfo } from "@/@types/window";
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
-    roomNo: (storeObj: StoreObj<RoomInfo>) => storeObj.order + 1,
+    roomNo: (storeObj: StoreObj<RoomInfo>) => storeObj.order,
     roomName: (storeObj: StoreObj<RoomInfo>) =>
       storeObj.data ? storeObj.data.name : "（空き部屋）",
     system: (storeObj: StoreObj<RoomInfo>) =>
@@ -110,7 +110,7 @@ export default class LoginWindow extends Mixins<
   private get unTouchable() {
     if (this.isInputtingRoomInfo) return true;
     if (this.selectedRoomNo === null) return false;
-    return !!this.roomList[this.selectedRoomNo - 1].data;
+    return !!this.roomList[this.selectedRoomNo].data;
   }
 
   @LifeCycle
@@ -120,7 +120,7 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private selectRoom(order: number) {
-    this.selectedRoomNo = order + 1;
+    this.selectedRoomNo = order;
   }
 
   @VueEvent
@@ -150,9 +150,9 @@ export default class LoginWindow extends Mixins<
 
   private async releaseTouchRoom() {
     if (!this.selectedRoomNo) return;
-    if (!this.roomList[this.selectedRoomNo - 1].exclusionOwner) return;
+    if (!this.roomList[this.selectedRoomNo].exclusionOwner) return;
     const controller = SocketFacade.instance.generateRoomInfoController();
-    await controller.releaseTouch(this.selectedRoomNo - 1);
+    await controller.releaseTouch(this.selectedRoomNo);
   }
 
   @VueEvent
@@ -165,7 +165,7 @@ export default class LoginWindow extends Mixins<
     // タッチ
     try {
       const controller = SocketFacade.instance.generateRoomInfoController();
-      await controller.touch(this.selectedRoomNo - 1);
+      await controller.touch(this.selectedRoomNo);
     } catch (err) {
       return;
     }

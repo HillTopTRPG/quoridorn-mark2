@@ -144,7 +144,7 @@
       height: 10
       classificationProp: order
       classificationType: range
-      classificationOrdinal: 1
+      classificationOrdinal: 0
       columnList:
         - width: 30
           type: text
