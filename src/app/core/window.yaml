@@ -76,7 +76,7 @@
   resizable: true
   tableInfoList:
     - type: free
-      height: 250
+      height: 11
       columnList:
         - width: 28
           type: text
@@ -139,7 +139,7 @@
   resizable: true
   tableInfoList:
     - type: free
-      height: 250
+      height: 11
       columnList:
         - width: 30
           type: text

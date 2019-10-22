@@ -31,7 +31,7 @@ export type WindowDeclareInfo = {
 };
 
 export type WindowMoveInfo = {
-  mouse: Point;
+  point: Point;
   windowKey: string;
 };
 

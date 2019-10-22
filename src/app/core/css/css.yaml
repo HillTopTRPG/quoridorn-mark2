@@ -1,6 +1,9 @@
 - property: --window-title-height
   value: 2rem
   customizable: false
+- property: --table-row-height
+  value: 2em
+  customizable: false
 - property: --window-padding
   value: 8px
   customizable: false

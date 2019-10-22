@@ -36,6 +36,7 @@
           v-model="fontSize"
           :tabindex="0"
           @mousedown.stop
+          @touchstart.stop
           @keydown.enter.stop
           @keyup.enter.stop
           @keydown.229.stop
@@ -84,22 +85,54 @@
           :status="status"
           :style="{ fontSize: fontSize + 'px' }"
           :isResizing="isResizing"
-          v-if="!isMoving"
+          v-if="!isMoving || !windowInfo.declare.isMovingRendering"
           @adjustWidth="adjustWidth"
         />
       </keep-alive>
     </div>
 
     <!-- サイズ変更つまみ -->
-    <template v-if="windowInfo.declare.resizable && !windowInfo.isMinimized">
-      <resize-knob side="left-top" @leftDown="leftDown" />
-      <resize-knob side="left-bottom" @leftDown="leftDown" />
-      <resize-knob side="right-top" @leftDown="leftDown" />
-      <resize-knob side="right-bottom" @leftDown="leftDown" />
-      <resize-knob side="top" @leftDown="leftDown" />
-      <resize-knob side="left" @leftDown="leftDown" />
-      <resize-knob side="right" @leftDown="leftDown" />
-      <resize-knob side="bottom" @leftDown="leftDown" />
+    <template
+      v-if="
+        windowInfo.declare.resizable && !windowInfo.isMinimized && !isMoving
+      "
+    >
+      <resize-knob
+        side="left-top"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable && verticalArrangeable"
+      />
+      <resize-knob
+        side="left-bottom"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable && verticalArrangeable"
+      />
+      <resize-knob
+        side="right-top"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable && verticalArrangeable"
+      />
+      <resize-knob
+        side="right-bottom"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable && verticalArrangeable"
+      />
+      <resize-knob side="top" @leftDown="leftDown" v-if="verticalArrangeable" />
+      <resize-knob
+        side="left"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable"
+      />
+      <resize-knob
+        side="right"
+        @leftDown="leftDown"
+        v-if="horizontalArrangeable"
+      />
+      <resize-knob
+        side="bottom"
+        @leftDown="leftDown"
+        v-if="verticalArrangeable"
+      />
     </template>
   </div>
 </template>
@@ -159,6 +192,20 @@ export default class WindowFrame extends Vue {
   }
 
   @VueEvent
+  private get horizontalArrangeable(): boolean {
+    const minSize = this.windowInfo.declare.minSize;
+    const maxSize = this.windowInfo.declare.maxSize;
+    return !(minSize && maxSize && minSize.width === maxSize.width);
+  }
+
+  @VueEvent
+  private get verticalArrangeable(): boolean {
+    const minSize = this.windowInfo.declare.minSize;
+    const maxSize = this.windowInfo.declare.maxSize;
+    return !(minSize && maxSize && minSize.height === maxSize.height);
+  }
+
+  @VueEvent
   private async leftDown(
     event: MouseEvent | TouchEvent,
     side?: string
@@ -214,13 +261,14 @@ export default class WindowFrame extends Vue {
     // 移動
     if (param && !param.type && param.key === this.key) {
       // 画面の移動を発火
-      if (this.windowInfo.declare.isMovingRendering) {
-        this.isMoving = false;
-      }
-      await TaskManager.instance.ignition<Point, never>({
+      this.isMoving = false;
+      await TaskManager.instance.ignition<WindowMoveInfo, never>({
         type: "window-move-end",
         owner: "Quoridorn",
-        value: point
+        value: {
+          point,
+          windowKey: this.windowInfo.key
+        }
       });
     }
 
@@ -242,9 +290,7 @@ export default class WindowFrame extends Vue {
       this.diff.width = 0;
       this.diff.height = 0;
 
-      if (this.windowInfo.declare.isMovingRendering) {
-        this.isMoving = true;
-      }
+      this.isMoving = true;
 
       task.resolve();
 
@@ -252,7 +298,7 @@ export default class WindowFrame extends Vue {
         type: "window-moving",
         owner: "Quoridorn",
         value: {
-          mouse: point,
+          point,
           windowKey: this.key
         }
       });
@@ -508,9 +554,15 @@ export default class WindowFrame extends Vue {
 
   @Watch("isMounted")
   @Watch("fontSize")
-  private onChangeFontSize() {
+  private async onChangeFontSize() {
     if (!this.isMounted) return;
     this.windowElm.style.setProperty("--windowFontSize", `${this.fontSize}px`);
+
+    await TaskManager.instance.ignition<string, never>({
+      type: "window-font-size",
+      owner: "Quoridorn",
+      value: this.windowInfo.key
+    });
   }
 
   @Watch("isMounted")
@@ -552,6 +604,13 @@ export default class WindowFrame extends Vue {
   box-sizing: border-box;
   left: var(--windowX);
   top: var(--windowY);
+  /*
+  left: 0;
+  top: 0;
+  -webkit-font-smoothing: subpixel-antialiased;
+  transform: translateX(var(--windowX)) translateY(var(--windowY)) translateZ(0)
+    scale(1, 1);
+  */
   width: calc(
     var(--windowWidth) + var(--scroll-bar-width) + var(--window-padding) * 2 +
       2px

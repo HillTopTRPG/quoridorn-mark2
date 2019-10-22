@@ -1,38 +1,40 @@
 <template>
   <div>
-    <table-component
-      :windowInfo="windowInfo"
-      :tableIndex="0"
-      :status="status"
-      :dataList="roomList"
-      keyProp="order"
-      :rowClassGetter="getRowClasses"
-      @selectLine="selectRoom"
-      @doubleClick="playRoom"
-      @adjustWidth="adjustWidth"
-    >
-      <template #contents="{ colDec, data, index }">
-        <template v-if="index === 0">{{ data | roomNo }}</template>
-        <template v-else-if="index === 1">{{ data | roomName }}</template>
-        <template v-else-if="index === 2">{{ data | system }}</template>
-        <template v-else-if="index === 3">{{ data | memberNum }}</template>
-        <template v-else-if="index === 4">{{ data | password }}</template>
-        <template v-else-if="index === 5">{{ data | visitable }}</template>
-        <template v-else-if="index === 6">{{ data | updateDate }}</template>
-        <template v-else-if="index === 7">
-          <ctrl-button
-            @click.stop="deleteRoom(data.order)"
-            @dblclick.stop
-            :disabled="data | deleteButtonDisabled"
-          >
-            削除
-          </ctrl-button>
+    <keep-alive>
+      <table-component
+        :windowInfo="windowInfo"
+        :tableIndex="0"
+        :status="status"
+        :dataList="roomList"
+        keyProp="order"
+        :rowClassGetter="getRowClasses"
+        @selectLine="selectRoom"
+        @doubleClick="playRoom"
+        @adjustWidth="adjustWidth"
+      >
+        <template #contents="{ colDec, data, index }">
+          <template v-if="index === 0">{{ data | roomNo }}</template>
+          <template v-else-if="index === 1">{{ data | roomName }}</template>
+          <template v-else-if="index === 2">{{ data | system }}</template>
+          <template v-else-if="index === 3">{{ data | memberNum }}</template>
+          <template v-else-if="index === 4">{{ data | password }}</template>
+          <template v-else-if="index === 5">{{ data | visitable }}</template>
+          <template v-else-if="index === 6">{{ data | updateDate }}</template>
+          <template v-else-if="index === 7">
+            <ctrl-button
+              @click.stop="deleteRoom(data.order)"
+              @dblclick.stop
+              :disabled="data | deleteButtonDisabled"
+            >
+              削除
+            </ctrl-button>
+          </template>
+          <template v-else>
+            {{ data[colDec.target] }}
+          </template>
         </template>
-        <template v-else>
-          {{ data[colDec.target] }}
-        </template>
-      </template>
-    </table-component>
+      </table-component>
+    </keep-alive>
     <div class="button-area">
       <ctrl-button @click="createRoom()" :disabled="unTouchable">
         新規作成

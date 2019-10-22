@@ -197,7 +197,7 @@ input[type="range"]::-webkit-slider-runnable-track {
 }
 input[type="range"]::-webkit-slider-thumb {
   box-sizing: border-box;
-  width: 6px;
+  width: 16px;
   height: 16px;
   background-color: var(--uni-color-black);
 }

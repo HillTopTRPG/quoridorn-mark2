@@ -162,7 +162,7 @@ export default class RightPane extends Vue {
   private async windowMovingFinished(
     task: Task<WindowMoveInfo, never>
   ): Promise<TaskResult<never> | void> {
-    const point: Point = task.value!.mouse!;
+    const point: Point = task.value!.point!;
     const paneRectangle = getRightPaneRectangle();
     this.isAnimationY = true;
 

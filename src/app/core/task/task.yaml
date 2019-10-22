@@ -23,6 +23,7 @@
     - window-moving
     - window-move-end
     - window-active
+    - window-font-size
     - right-pane-frame-moving
     - pane-relocation
     - window-resize

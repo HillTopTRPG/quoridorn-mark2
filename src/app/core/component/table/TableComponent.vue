@@ -20,11 +20,7 @@
               :index="index"
               @moveStart="divMoveStart"
               @doubleClick="adjustWidth"
-              v-if="
-                index !== 0 ||
-                  (windowInfo.status === 'right-pane' &&
-                    tableDeclareInfo.type.startsWith('free'))
-              "
+              v-if="hasLeftDivider(index)"
             />
             <!-- セル -->
             <th
@@ -46,105 +42,82 @@
             :index="tableDeclareInfo.columnList.length"
             @moveStart="divMoveStart"
             @doubleClick="adjustWidth"
-            v-if="
-              windowInfo.status !== 'right-pane' &&
-                tableDeclareInfo.type.startsWith('free')
-            "
+            v-if="hasLastDivider()"
           />
         </tr>
       </thead>
-      <tbody>
+      <tbody @scroll="onWheelBody()">
+        <!-- 余白 -->
+        <tr class="table-padding-top" v-if="!isColWidthMoving">
+          <td
+            v-for="(colDec, index) in tableDeclareInfo.columnList"
+            :style="colStyle(index)"
+            :key="`margin-${index}`"
+            :colspan="getColspan(index)"
+            :class="colClass(colDec, index)"
+          ></td>
+        </tr>
         <!-- コンテンツ -->
         <template v-for="row in rowList">
-          <keep-alive :key="row.data[keyProp]">
-            <tr
-              :class="getRowClass(row)"
-              v-if="!isColWidthMoving"
-              @mousedown.left="selectTr(row.data[keyProp])"
-              @touchstart="selectTr(row.data[keyProp])"
-              @dblclick="doubleClick(row)"
+          <tr
+            :key="row.data[keyProp]"
+            :class="getRowClass(row)"
+            v-if="!isColWidthMoving"
+            @mousedown.left="selectTr(row.data[keyProp])"
+            @touchstart="selectTr(row.data[keyProp])"
+            @dblclick="doubleClick(row)"
+          >
+            <!-- セル -->
+            <td
+              v-for="(colDec, index) in tableDeclareInfo.columnList"
+              :style="colStyle(index)"
+              :key="`body-${index}`"
+              class="selectable"
+              :colspan="getColspan(index)"
+              :class="colClass(colDec, index)"
             >
-              <template v-for="(colDec, index) in tableDeclareInfo.columnList">
-                <!-- 区切り線 -->
-                <divider
-                  :key="`body-div-${index}`"
+              <keep-alive>
+                <slot
+                  name="contents"
+                  :colDec="colDec"
+                  :data="row.data"
                   :index="index"
-                  :disabled="true"
-                  v-if="
-                    index !== 0 ||
-                      (windowInfo.status === 'right-pane' &&
-                        tableDeclareInfo.type.startsWith('free'))
-                  "
-                />
-
-                <!-- セル -->
-                <td
-                  :style="colStyle(index)"
-                  :key="`body-${index}`"
-                  class="selectable"
-                  :class="colDec | align"
                 >
-                  <slot
-                    name="contents"
-                    :colDec="colDec"
-                    :data="row.data"
-                    :index="index"
-                  >
-                    <span>{{ row.data[colDec.target] }}</span>
-                  </slot>
-                </td>
-              </template>
-
-              <!-- 区切り線 -->
-              <divider
-                :key="`header-div-${tableDeclareInfo.columnList.length}`"
-                :index="tableDeclareInfo.columnList.length"
-                :disabled="true"
-                v-if="
-                  windowInfo.status !== 'right-pane' &&
-                    tableDeclareInfo.type.startsWith('free')
-                "
-              />
-            </tr>
-          </keep-alive>
+                  <span>{{ row.data[colDec.target] }}</span>
+                </slot>
+              </keep-alive>
+            </td>
+          </tr>
         </template>
+
         <!-- 余白 -->
-      </tbody>
-      <tfoot>
         <tr
-          class="space"
+          class="table-padding-bottom"
+          v-if="!isColWidthMoving"
           :class="{
-            odd: dataList.length % 2 !== 0,
-            even: dataList.length % 2 === 0
+            odd: (dataList.length - viewRowLastIndex + 1) % 2 !== 0,
+            even: (dataList.length - viewRowLastIndex + 1) % 2 === 0
           }"
         >
-          <template v-for="(colDec, index) in tableDeclareInfo.columnList">
-            <!-- 区切り線 -->
-            <divider
-              :key="`margin-div-${index}`"
-              :index="index"
-              :disabled="true"
-              v-if="
-                index !== 0 ||
-                  (windowInfo.status === 'right-pane' &&
-                    tableDeclareInfo.type.startsWith('free'))
-              "
-            />
-
-            <!-- 余白 -->
-            <td :style="colStyle(index)" :key="`margin-${index}`"></td>
-          </template>
-
-          <!-- 区切り線 -->
-          <divider
-            :key="`header-div-${tableDeclareInfo.columnList.length}`"
-            :index="tableDeclareInfo.columnList.length"
-            :disabled="true"
-            v-if="
-              windowInfo.status !== 'right-pane' &&
-                tableDeclareInfo.type.startsWith('free')
-            "
-          />
+          <td
+            v-for="(colDec, index) in tableDeclareInfo.columnList"
+            :style="colStyle(index)"
+            :key="`margin-${index}`"
+            :colspan="getColspan(index)"
+            :class="colClass(colDec, index)"
+          ></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <!-- 余白 -->
+        <tr>
+          <td
+            v-for="(colDec, index) in tableDeclareInfo.columnList"
+            :style="colStyle(index)"
+            :key="`margin-${index}`"
+            :colspan="getColspan(index)"
+            :class="colClass(colDec, index)"
+          ></td>
         </tr>
       </tfoot>
     </table>
@@ -157,6 +130,7 @@ import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import Divider from "@/app/core/component/table/Divider.vue";
 import {
   WindowInfo,
+  WindowMoveInfo,
   WindowTableColumn,
   WindowTableDeclareInfo,
   WindowTableInfo
@@ -176,6 +150,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 type RowInfo<T> = {
   isSelected: boolean;
   isDoubleClick: boolean;
+  dataListIndex: number;
   data: T;
 };
 
@@ -217,20 +192,100 @@ export default class TableComponent extends Vue {
 
   private isColWidthMoving: boolean = false;
 
+  private viewRowFirstIndex: number = 0;
+  private viewRowLastIndex: number = 0;
+  private marginRowNum: number = 4;
+  private saveScrollTop: number = 0;
+
   @LifeCycle
   private mounted() {
+    this.viewRowFirstIndex = 0;
+    this.viewRowLastIndex =
+      this.tableDeclareInfo.height - 1 + this.marginRowNum;
     this.isMounted = true;
   }
 
+  @VueEvent
+  private hasLeftDivider(index: number): boolean {
+    return (
+      index !== 0 ||
+      (this.windowInfo.status === "right-pane" &&
+        this.tableDeclareInfo.type.startsWith("free"))
+    );
+  }
+
+  @VueEvent
+  private getColspan(index: number): number {
+    let colspan: number = 1;
+    if (this.hasLeftDivider(index)) colspan++;
+    if (this.hasLastDivider()) colspan++;
+    return colspan;
+  }
+
+  @VueEvent
+  private hasLastDivider(): boolean {
+    return (
+      this.windowInfo.status !== "right-pane" &&
+      this.tableDeclareInfo.type.startsWith("free")
+    );
+  }
+
+  @TaskProcessor("window-font-size-finished")
+  private windowFontSizeFinished(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value !== this.windowInfo.key) return;
+    if (!this.isMounted) return;
+    setTimeout(() => {
+      this.arrangeViewRow();
+    });
+  }
+
+  @TaskProcessor("window-move-end-finished")
+  private windowMoveEndFinished(
+    task: Task<WindowMoveInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value.windowKey !== this.windowInfo.key) return;
+    if (!this.isMounted) return;
+    setTimeout(() => {
+      this.elm.querySelector("tbody").scrollTop = this.saveScrollTop;
+      this.arrangeViewRow();
+    });
+  }
+
+  @Watch("isMounted")
+  @Watch("viewRowFirstIndex")
+  @Watch("viewRowLastIndex")
   @Watch("dataList", { deep: true, immediate: true })
   private onChangeDataList() {
-    this.rowList = this.dataList.map(data => {
-      return {
-        isSelected: data[this.keyProp] === this.selectedKey,
-        isDoubleClick: data[this.keyProp] === this.doubleClickedKey,
-        data
-      };
-    });
+    if (this.isMounted) {
+      this.elm.style.setProperty(
+        "--table-padding-bottom-rows",
+        (this.dataList.length - this.viewRowLastIndex - 1).toString()
+      );
+      this.elm.style.setProperty(
+        "--table-padding-top-rows",
+        this.viewRowFirstIndex.toString()
+      );
+      const target = this.elm.querySelector("tbody");
+      setTimeout(() => {
+        target.scrollTop = this.saveScrollTop;
+      });
+    }
+    this.rowList = this.dataList
+      .map((data, index) => {
+        return {
+          isSelected: data[this.keyProp] === this.selectedKey,
+          isDoubleClick: data[this.keyProp] === this.doubleClickedKey,
+          dataListIndex: index,
+          data
+        };
+      })
+      .filter(
+        (row, index) =>
+          index >= this.viewRowFirstIndex &&
+          (!this.viewRowLastIndex || index <= this.viewRowLastIndex)
+      );
   }
 
   private get tableInfo(): WindowTableInfo {
@@ -256,7 +311,13 @@ export default class TableComponent extends Vue {
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
 
-    this.isColWidthMoving = false;
+    if (this.isColWidthMoving) {
+      setTimeout(() => {
+        this.elm.querySelector("tbody").scrollTop = this.saveScrollTop;
+        this.arrangeViewRow();
+      });
+      this.isColWidthMoving = false;
+    }
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
 
@@ -286,6 +347,32 @@ export default class TableComponent extends Vue {
     task.resolve();
   }
 
+  private timerId: number | null = null;
+  @VueEvent
+  private onWheelBody() {
+    if (this.timerId !== null) clearTimeout(this.timerId);
+    this.timerId = window.setTimeout(this.arrangeViewRow.bind(this), 80);
+  }
+
+  private arrangeViewRow() {
+    const target = this.elm.querySelector("tbody");
+    const scrollTop = target.scrollTop;
+    const tableHeight = target.getBoundingClientRect().height;
+    const lineHeight = target.children[1].getBoundingClientRect().height;
+
+    // 算出
+    const newFirst = Math.floor(scrollTop / lineHeight) - this.marginRowNum;
+    const newLast =
+      Math.ceil((tableHeight + scrollTop) / lineHeight) - 1 + this.marginRowNum;
+
+    // 設定
+    this.saveScrollTop = scrollTop;
+    this.viewRowFirstIndex = Math.max(0, newFirst);
+    this.viewRowLastIndex = Math.min(this.dataList.length - 1, newLast);
+
+    this.timerId = null;
+  }
+
   @VueEvent
   private leftDown(event: MouseEvent | TouchEvent, divIndex: number): void {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
@@ -306,6 +393,7 @@ export default class TableComponent extends Vue {
     const rowClass = this.rowClassGetter(row.data);
     if (row.isSelected) rowClass.push("isSelected");
     if (row.isDoubleClick) rowClass.push("doubleClicked");
+    rowClass.push(row.dataListIndex % 2 === 0 ? "even" : "odd");
     return rowClass;
   }
 
@@ -369,10 +457,26 @@ export default class TableComponent extends Vue {
   }
 
   @VueEvent
-  private get colStyle() {
-    return (index: number) => ({
+  private colStyle(index: number) {
+    return {
       width: `${this.tableInfo.columnWidthList[index]}px`
-    });
+    };
+  }
+
+  @VueEvent
+  private colClass(colData: WindowTableColumn, index: number) {
+    let align: string = "align-center";
+    if (colData.align === "left") align = "align-left";
+    if (colData.align === "right") align = "align-right";
+    const result: string[] = [align];
+    if (this.hasLeftDivider(index)) result.push("border-left");
+    if (
+      this.hasLastDivider() &&
+      this.tableDeclareInfo.columnList.length - 1 === index
+    )
+      result.push("border-right");
+
+    return result;
   }
 
   private adjust(
@@ -450,7 +554,7 @@ export default class TableComponent extends Vue {
     const height = this.tableDeclareInfo.height;
     this.elm.style.setProperty(
       "--tableHeight",
-      height ? `${height}px` : "auto"
+      height ? `calc(${height} * var(--table-row-height))` : "auto"
     );
   }
 }
@@ -458,8 +562,6 @@ export default class TableComponent extends Vue {
 
 <style lang="scss">
 @import "../../../../assets/common";
-
-$lineHeight: 2em;
 
 .table-container {
   width: 100%;
@@ -471,7 +573,7 @@ $lineHeight: 2em;
     border-spacing: 0;
     border: 1px solid gray;
     width: 100%;
-    height: calc(var(--tableHeight));
+    height: calc(var(--tableHeight) + 3px);
 
     &.isStretchRight {
       border-left: none;
@@ -482,7 +584,7 @@ $lineHeight: 2em;
     }
 
     tr {
-      height: $lineHeight;
+      height: var(--table-row-height);
       display: flex;
     }
 
@@ -490,7 +592,7 @@ $lineHeight: 2em;
     th {
       overflow: hidden;
       padding: 0;
-      box-sizing: border-box;
+      box-sizing: content-box;
 
       &.align-left {
         @include flex-box(row, flex-start, center);
@@ -504,6 +606,14 @@ $lineHeight: 2em;
       &.align-right {
         @include flex-box(row, flex-end, center);
         padding-right: var(--cell-padding);
+      }
+
+      &.border-left {
+        border-left: 1px solid #b7babc;
+      }
+
+      &.border-right {
+        border-right: 1px solid #b7babc;
       }
     }
 
@@ -526,16 +636,55 @@ $lineHeight: 2em;
     tbody {
       overflow-y: scroll;
       position: absolute;
-      top: calc(#{$lineHeight} + 1px);
+      top: calc(var(--table-row-height) + 1px);
       left: 0;
       right: 0;
-      height: calc(var(--tableHeight) - #{$lineHeight} - 3px);
+      height: calc(var(--tableHeight) - var(--table-row-height));
+      /*scroll-snap-type: y mandatory;*/
 
       tr {
-        &:nth-child(odd) {
+        /*scroll-snap-align: start;*/
+
+        &.table-padding-top {
+          height: calc(var(--table-padding-top-rows) * var(--table-row-height));
+
+          background-size: calc(var(--table-row-height) * 2)
+            calc(var(--table-row-height) * 2);
+          background-image: linear-gradient(
+            0deg,
+            rgb(247, 247, 247) 50%,
+            white 51%
+          );
+        }
+        &.table-padding-bottom {
+          height: calc(
+            var(--table-padding-bottom-rows) * var(--table-row-height)
+          );
+
+          &.even {
+            background-size: calc(var(--table-row-height) * 2)
+              calc(var(--table-row-height) * 2);
+            background-image: linear-gradient(
+              0deg,
+              rgb(247, 247, 247) 50%,
+              white 51%
+            );
+          }
+          &.odd {
+            background-size: calc(var(--table-row-height) * 2)
+              calc(var(--table-row-height) * 2);
+            background-image: linear-gradient(
+              0deg,
+              white 50%,
+              rgb(247, 247, 247) 51%
+            );
+          }
+        }
+
+        &.even {
           background-color: white;
         }
-        &:nth-child(even) {
+        &.odd {
           background-color: rgb(247, 247, 247);
         }
 
@@ -556,7 +705,7 @@ $lineHeight: 2em;
 
     tfoot {
       position: absolute;
-      top: calc(#{$lineHeight} + 1px);
+      top: calc(var(--table-row-height) + 1px);
       left: 0;
       right: 0;
       bottom: 0;
@@ -565,7 +714,8 @@ $lineHeight: 2em;
 
       tr {
         height: 100%;
-        background-size: calc(#{$lineHeight} * 2) calc(#{$lineHeight} * 2);
+        background-size: calc(var(--table-row-height) * 2)
+          calc(var(--table-row-height) * 2);
         background-image: linear-gradient(
           0deg,
           rgb(247, 247, 247) 50%,
