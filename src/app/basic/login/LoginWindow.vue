@@ -49,15 +49,12 @@ import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import SocketFacade, {
-  getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { CreateRoomInfo, RoomInfo, RoomInfoWithPassword } from "@/@types/room";
+import { RoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
-import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { WindowOpenInfo } from "@/@types/window";

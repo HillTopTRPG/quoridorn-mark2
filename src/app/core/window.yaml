@@ -76,7 +76,9 @@
   resizable: true
   tableInfoList:
     - type: free
-      height: 11
+      height: 10
+      classificationProp: tag
+      classificationType: string
       columnList:
         - width: 28
           type: text
@@ -127,7 +129,7 @@
   position: center
   size:
     width: 545
-    height: 300
+    height: 330
   minSize:
     width: 545
     height: 200
@@ -139,7 +141,10 @@
   resizable: true
   tableInfoList:
     - type: free
-      height: 11
+      height: 10
+      classificationProp: order
+      classificationType: range
+      classificationOrdinal: 1
       columnList:
         - width: 30
           type: text

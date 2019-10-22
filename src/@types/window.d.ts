@@ -11,6 +11,9 @@ export type WindowTableColumn = {
 export type WindowTableDeclareInfo = {
   readonly type: "free" | "fix-on-side" | "fix-on-right";
   readonly height?: number;
+  readonly classificationProp: string;
+  readonly classificationType: "string" | "range";
+  readonly classificationOrdinal?: number;
   readonly columnList: WindowTableColumn[];
 };
 
@@ -95,3 +98,13 @@ export interface WindowInfo<T> extends Rectangle, WindowTaskInfo, TaskInfo {
   isMinimizeAnimationEnd: boolean;
   readonly tableInfoList: WindowTableInfo[];
 }
+
+export type TableTabInfo = {
+  text: string;
+  target:
+    | string
+    | {
+        from: number;
+        to: number;
+      };
+};

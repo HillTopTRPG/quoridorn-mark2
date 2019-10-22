@@ -35,7 +35,7 @@
 import { Component, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";

@@ -47,7 +47,7 @@
 import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
 import WindowManager from "@/app/core/window/WindowManager";
 import TaskManager from "@/app/core/task/TaskManager";
