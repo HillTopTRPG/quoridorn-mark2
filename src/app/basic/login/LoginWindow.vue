@@ -6,6 +6,7 @@
         :tableIndex="0"
         :status="status"
         :dataList="roomList"
+        :selectLock="isInputtingRoomInfo"
         keyProp="order"
         :rowClassGetter="getRowClasses"
         @selectLine="selectRoom"
@@ -52,7 +53,7 @@ import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { RoomInfo, RoomInfoWithPassword } from "@/@types/room";
+import { CreateRoomRequest, GetRoomListResponse } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -62,16 +63,16 @@ import { WindowOpenInfo } from "@/@types/window";
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
-    roomNo: (storeObj: StoreObj<RoomInfo>) => storeObj.order,
-    roomName: (storeObj: StoreObj<RoomInfo>) =>
+    roomNo: (storeObj: StoreObj<GetRoomListResponse>) => storeObj.order,
+    roomName: (storeObj: StoreObj<GetRoomListResponse>) =>
       storeObj.data ? storeObj.data.name : "（空き部屋）",
-    system: (storeObj: StoreObj<RoomInfo>) =>
+    system: (storeObj: StoreObj<GetRoomListResponse>) =>
       storeObj.data ? storeObj.data.system : "",
-    memberNum: (storeObj: StoreObj<RoomInfo>) =>
+    memberNum: (storeObj: StoreObj<GetRoomListResponse>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
-    password: (storeObj: StoreObj<RoomInfo>) =>
+    password: (storeObj: StoreObj<GetRoomListResponse>) =>
       storeObj.data && storeObj.data.hasPassword ? "有り" : "--",
-    visitable: (storeObj: StoreObj<RoomInfo>) =>
+    visitable: (storeObj: StoreObj<GetRoomListResponse>) =>
       storeObj.data && storeObj.data.extend && storeObj.data.extend.visitable
         ? "可"
         : "--",
@@ -84,15 +85,15 @@ import { WindowOpenInfo } from "@/@types/window";
         return moment(data.updateTime).format("YYYY/MM/DD HH:mm:ss");
       return "";
     },
-    deleteButtonDisabled: (storeObj: StoreObj<RoomInfo>) =>
+    deleteButtonDisabled: (storeObj: StoreObj<GetRoomListResponse>) =>
       (!storeObj.data && !storeObj.exclusionOwner) ||
       (storeObj.data && storeObj.data.memberNum > 0)
   }
 })
 export default class LoginWindow extends Mixins<
-  WindowVue<(StoreObj<RoomInfo> & StoreMetaData)[]>
+  WindowVue<(StoreObj<GetRoomListResponse> & StoreMetaData)[]>
 >(WindowVue) {
-  private roomList: (StoreObj<RoomInfo> & StoreMetaData)[] = [];
+  private roomList: (StoreObj<GetRoomListResponse> & StoreMetaData)[] = [];
   private selectedRoomNo: number | null = null;
   private isInputtingRoomInfo: boolean = false;
 
@@ -140,7 +141,9 @@ export default class LoginWindow extends Mixins<
   }
 
   @VueEvent
-  private getRowClasses(data: StoreObj<RoomInfo> & StoreMetaData): string[] {
+  private getRowClasses(
+    data: StoreObj<GetRoomListResponse> & StoreMetaData
+  ): string[] {
     const classList: string[] = [];
     if (data.exclusionOwner) {
       classList.push(data.data ? "isEditing" : "isCreating");
@@ -149,10 +152,16 @@ export default class LoginWindow extends Mixins<
   }
 
   private async releaseTouchRoom() {
-    if (!this.selectedRoomNo) return;
+    if (this.selectedRoomNo === null) return;
     if (!this.roomList[this.selectedRoomNo].exclusionOwner) return;
-    const controller = SocketFacade.instance.generateRoomInfoController();
-    await controller.releaseTouch(this.selectedRoomNo);
+    await SocketFacade.instance.socketCommunication<never>(
+      "release-touch-room",
+      {
+        roomNo: this.selectedRoomNo
+      }
+    );
+    // const controller = SocketFacade.instance.generateRoomInfoController();
+    // await controller.releaseTouch(this.selectedRoomNo);
   }
 
   @VueEvent
@@ -164,19 +173,22 @@ export default class LoginWindow extends Mixins<
 
     // タッチ
     try {
-      const controller = SocketFacade.instance.generateRoomInfoController();
-      await controller.touch(this.selectedRoomNo);
+      await SocketFacade.instance.socketCommunication<never>("touch-room", {
+        roomNo: this.selectedRoomNo
+      });
+      // const controller = SocketFacade.instance.generateRoomInfoController();
+      // await controller.touch(this.selectedRoomNo);
     } catch (err) {
       return;
     }
 
     // 入力画面
-    let info: RoomInfoWithPassword;
+    let info: CreateRoomRequest;
     this.isInputtingRoomInfo = true;
     try {
       const roomInfoList = await TaskManager.instance.ignition<
         WindowOpenInfo<never>,
-        RoomInfoWithPassword
+        CreateRoomRequest
       >({
         type: "window-open",
         owner: "Quoridorn",
@@ -201,15 +213,12 @@ export default class LoginWindow extends Mixins<
 
     // 部屋作成リクエストを投げる
     try {
-      const roomCollectionSuffix = await SocketFacade.instance.socketCommunication(
-        "create-room",
-        {
-          roomNo: this.selectedRoomNo,
-          password: info.password,
-          roomInfo: info.roomInfo
-        }
-      );
-      window.console.log(roomCollectionSuffix);
+      SocketFacade.instance.roomCollectionSuffix = await SocketFacade.instance.socketCommunication<
+        string
+      >("create-room", {
+        roomNo: this.selectedRoomNo,
+        ...info
+      });
     } catch (err) {
       window.console.warn(err);
     }
@@ -233,6 +242,11 @@ export default class LoginWindow extends Mixins<
 .isCreating {
   position: relative;
   pointer-events: none;
+
+  &.isSelected:before {
+    outline: 2px solid var(--uni-color-red);
+    outline-offset: -2px;
+  }
 
   &:before {
     content: "";

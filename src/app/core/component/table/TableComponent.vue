@@ -19,6 +19,7 @@
       :keyProp="keyProp"
       :tableTabInfo="currentTabInfo"
       :rowClassGetter="rowClassGetter"
+      :selectLock="selectLock"
       @selectLine="selectLine"
       @doubleClick="doubleClick"
       @adjustWidth="adjustWidth"
@@ -60,6 +61,8 @@ export default class TableComponent extends Vue {
   private keyProp!: string;
   @Prop({ type: Function, required: false, default: () => [] })
   private rowClassGetter!: (data: any) => string[];
+  @Prop({ type: Boolean, required: false, default: false })
+  private selectLock!: boolean;
 
   private tabList: TableTabInfo[] = [];
   private currentTabInfo: TableTabInfo | null = null;

@@ -1,3 +1,6 @@
+import { ChangeType } from "nekostore/lib/DocumentChange";
+import { StoreObj } from "@/@types/store";
+
 type MapShape = "square" | "horizontal-hex" | "vertical-hex";
 
 export type RoomInfoExtend = {
@@ -17,24 +20,36 @@ export type RoomInfoExtend = {
   autoResizeStandImage: boolean;
 };
 
-export type RoomInfo = {
+export type BaseRoomInfo = {
   name: string;
-  hasPassword: boolean;
   system: string;
-  memberNum: number;
   extend?: RoomInfoExtend; // 一時的措置
 };
 
-export type RoomInfoWithPassword = {
+export type CreateRoomInput = BaseRoomInfo & {
   password: string;
-  roomInfo: RoomInfo;
 };
 
-export type LoginInfo = {
+export type CreateRoomRequest = BaseRoomInfo & {
   roomNo: number;
   password: string;
 };
 
-export type CreateRoomInfo = {
-  roomNo: number;
+export type GetRoomListResponse = BaseRoomInfo & {
+  memberNum: number;
+  hasPassword: boolean;
+};
+
+export type RoomViewResponse = {
+  changeType: ChangeType;
+  id: string;
+  data?: StoreObj<GetRoomListResponse>;
+  createTime?: Date;
+  updateTime?: Date;
+};
+
+export type LoginResponse = BaseRoomInfo & {
+  memberNum: number;
+  hasPassword: boolean;
+  roomCollectionSuffix: string;
 };

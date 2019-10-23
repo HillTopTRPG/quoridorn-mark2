@@ -33,13 +33,10 @@ import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
-import { RoomInfo } from "@/@types/room";
-import SocketFacade, {
-  getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { StoreMetaData, StoreObj } from "@/@types/store";
-import QuerySnapshot from "nekostore/lib/QuerySnapshot";
+import { GetRoomListResponse, RoomViewResponse } from "@/@types/room";
 
 @Component({
   components: {
@@ -100,30 +97,37 @@ export default class App extends Vue {
     });
 
     const roomList = await SocketFacade.instance.socketCommunication<
-      (StoreObj<RoomInfo> & StoreMetaData)[]
+      (StoreObj<GetRoomListResponse> & StoreMetaData)[]
     >("get-room-list");
-    const controller = SocketFacade.instance.generateRoomInfoController();
-    await controller.addCollectionSnapshot(
-      this.key,
-      (snapshot: QuerySnapshot<StoreObj<RoomInfo>>) => {
-        snapshot.docs.forEach(async doc => {
-          const obj = getStoreObj<RoomInfo>(doc);
-          if (obj) roomList.splice(obj.order, 1, obj);
-          else {
-            const index = roomList.findIndex(info => info.id === doc.ref.id);
+    SocketFacade.instance.socketOn<RoomViewResponse[]>(
+      "result-room-view",
+      (err, changeList) => {
+        changeList.forEach(change => {
+          if (change.changeType === "removed") {
+            const index = roomList.findIndex(info => info.id === change.id);
+            window.console.log(change.changeType, index);
             roomList.splice(index, 1, {
-              exclusionOwner: null,
               order: index,
+              exclusionOwner: null,
               createTime: null,
               updateTime: null,
               id: null
+            });
+          } else {
+            const index = change.data!.order;
+            window.console.log(change.changeType, index);
+            roomList.splice(index, 1, {
+              ...change.data!,
+              id: change.id,
+              createTime: change.createTime || null,
+              updateTime: change.updateTime || null
             });
           }
         });
       }
     );
     await TaskManager.instance.ignition<
-      WindowOpenInfo<(StoreObj<RoomInfo> & StoreMetaData)[]>,
+      WindowOpenInfo<(StoreObj<GetRoomListResponse> & StoreMetaData)[]>,
       never
     >({
       type: "window-open",

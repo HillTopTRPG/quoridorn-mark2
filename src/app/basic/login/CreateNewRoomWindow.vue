@@ -40,8 +40,8 @@ import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
-import { RoomInfo, RoomInfoWithPassword } from "@/@types/room";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { CreateRoomInput, CreateRoomRequest } from "@/@types/room";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -62,15 +62,11 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     window.console.log("commit");
-    this.finally(
-      {
-        name: this.name,
-        hasPassword: !!this.password,
-        system: this.system,
-        memberNum: 1
-      },
-      this.password
-    );
+    this.finally({
+      name: this.name,
+      system: this.system,
+      password: this.password
+    });
     await this.close();
   }
 
@@ -86,12 +82,12 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
     this.finally();
   }
 
-  private finally(roomInfo?: RoomInfo, password?: string) {
-    const task = TaskManager.instance.getTask<RoomInfoWithPassword>(
+  private finally(roomInfo?: CreateRoomInput) {
+    const task = TaskManager.instance.getTask<CreateRoomInput>(
       "window-open",
       this.windowInfo.taskKey
     );
-    if (task) task.resolve(roomInfo ? [{ roomInfo, password: password! }] : []);
+    if (task) task.resolve(roomInfo ? [roomInfo] : []);
   }
 }
 </script>

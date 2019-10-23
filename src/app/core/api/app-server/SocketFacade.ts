@@ -1,7 +1,6 @@
 import SocketClient from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
-import { RoomInfo } from "@/@types/room";
 import NecostoreCollectionController, {
   CollectionType
 } from "@/app/core/api/app-server/NecostoreCollectionController";
@@ -42,6 +41,7 @@ export default class SocketFacade {
   private readonly collectionControllerMap: {
     [name: string]: NecostoreCollectionController<unknown>;
   } = {};
+  private __roomCollectionSuffix: string | null = null;
 
   // コンストラクタの隠蔽
   private constructor() {
@@ -86,10 +86,16 @@ export default class SocketFacade {
     this.__socket.disconnect();
   }
 
-  private generateCollectionController<T>(
-    collectionName: string,
+  public set roomCollectionSuffix(val: string) {
+    this.__roomCollectionSuffix = val;
+    window.console.log(val);
+  }
+
+  private roomCollectionController<T>(
+    collectionNamePrefix: string,
     types: CollectionType[]
   ): NecostoreCollectionController<T> {
+    const collectionName = collectionNamePrefix + this.__roomCollectionSuffix;
     let controller = this.collectionControllerMap[collectionName];
     if (controller) {
       return this.collectionControllerMap[
@@ -106,24 +112,27 @@ export default class SocketFacade {
     ));
   }
 
-  public generateRoomInfoController(): NecostoreCollectionController<RoomInfo> {
-    return this.generateCollectionController<RoomInfo>("quoridorn-rooms", []);
-  }
-
   public async socketCommunication<T>(event: string, args?: any): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       window.console.log("socketCommunication:", event);
-      const resultEvent = `result-${event}`;
-      const func = (err: string | null, result: T) => {
-        this.__socket.off(resultEvent, func);
+      this.__socket.once(`result-${event}`, (err: any, result: T) => {
         if (err) {
           reject(err);
           return;
         }
         resolve(result);
-      };
-      this.__socket.on(resultEvent, func);
+      });
       this.__socket.emit(event, args);
+    });
+  }
+
+  public socketOn<T>(
+    event: string,
+    callback: (err: any, result: T) => void
+  ): void {
+    this.__socket.on(event, (err: any, result: T) => {
+      if (err) window.console.error(err);
+      callback(err, result);
     });
   }
 }

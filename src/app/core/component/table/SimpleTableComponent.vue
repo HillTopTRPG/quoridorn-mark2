@@ -181,6 +181,8 @@ export default class SimpleTableComponent extends Vue {
   private keyProp!: string;
   @Prop({ type: Function, required: false, default: () => [] })
   private rowClassGetter!: (data: any) => string[];
+  @Prop({ type: Boolean, required: false, default: false })
+  private selectLock!: boolean;
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
@@ -585,12 +587,14 @@ export default class SimpleTableComponent extends Vue {
   @Emit("adjustWidth")
   private adjustEmit(totalWidth: number) {}
 
-  @Emit("selectLine")
+  @VueEvent
   private selectTr(key: string | number) {
+    if (this.selectLock) return;
     this.rowList.forEach(row => {
       row.isSelected = row.data[this.keyProp] === key;
     });
     this.selectedKey = key;
+    this.$emit("selectLine", key);
   }
 
   private get elm() {
@@ -754,7 +758,7 @@ export default class SimpleTableComponent extends Vue {
         }
 
         &.doubleClicked {
-          outline: 2px solid rgb(255, 75, 0);
+          outline: 2px solid var(--uni-color-red);
           outline-offset: -2px;
         }
       }
