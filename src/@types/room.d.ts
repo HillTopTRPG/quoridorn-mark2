@@ -26,14 +26,36 @@ export type BaseRoomInfo = {
   extend?: RoomInfoExtend; // 一時的措置
 };
 
-export type CreateRoomInput = BaseRoomInfo & {
-  password: string;
+export type RoomLoginInfo = {
+  roomId: string;
+  roomNo: number;
+  roomPassword: string;
 };
 
-export type CreateRoomRequest = BaseRoomInfo & {
-  roomNo: number;
-  password: string;
+type UserType = "GM" | "PL" | "VISITOR";
+
+export type UserLoginInput = {
+  userName: string;
+  userType?: UserType;
+  userPassword: string;
 };
+export type UserLoginRequest = UserLoginInput & {
+  roomId: string;
+};
+
+export type TouchRequest = {
+  roomNo: number;
+};
+export type ReleaseTouchRequest = TouchRequest;
+
+export type LoginRequest = RoomLoginInfo & UserLoginRequest;
+export type CreateRoomInput = BaseRoomInfo & {
+  roomPassword: string;
+};
+export type CreateRoomRequest = CreateRoomInput &
+  UserLoginInput &
+  LoginRequest &
+  BaseRoomInfo;
 
 export type GetRoomListResponse = BaseRoomInfo & {
   memberNum: number;
@@ -48,8 +70,6 @@ export type RoomViewResponse = {
   updateTime?: Date;
 };
 
-export type LoginResponse = BaseRoomInfo & {
-  memberNum: number;
-  hasPassword: boolean;
+export type LoginResponse = GetRoomListResponse & {
   roomCollectionSuffix: string;
 };

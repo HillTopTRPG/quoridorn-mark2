@@ -97,6 +97,7 @@ export default class App extends Vue {
     });
 
     const roomList = await SocketFacade.instance.socketCommunication<
+      never,
       (StoreObj<GetRoomListResponse> & StoreMetaData)[]
     >("get-room-list");
     SocketFacade.instance.socketOn<RoomViewResponse[]>(

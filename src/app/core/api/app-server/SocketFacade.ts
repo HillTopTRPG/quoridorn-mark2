@@ -112,10 +112,10 @@ export default class SocketFacade {
     ));
   }
 
-  public async socketCommunication<T>(event: string, args?: any): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+  public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
+    return new Promise<U>((resolve, reject) => {
       window.console.log("socketCommunication:", event);
-      this.__socket.once(`result-${event}`, (err: any, result: T) => {
+      this.__socket.once(`result-${event}`, (err: any, result: U) => {
         if (err) {
           reject(err);
           return;

@@ -1,14 +1,14 @@
 <template>
   <div>
     <div class="base-area">
-      <div>新規プレイルームを作成します。</div>
+      <div>ユーザ情報を入力してください。</div>
       <label>
-        <span>プレイルーム名：</span>
+        <span>ユーザ名：</span>
         <base-input
           type="text"
           :value="name"
           @input="name = $event.target.value"
-          placeholder="仮プレイルーム（削除可能）"
+          placeholder="ななしさん"
         />
       </label>
       <label>
@@ -20,12 +20,12 @@
         />
       </label>
       <label>
-        <span>ゲームシステム：</span>
-        <dice-bot-select v-model="system" />
+        <span>ユーザ種別：</span>
+        <user-type-select v-model="userType" />
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">作成</ctrl-button>
+      <ctrl-button @click.stop="commit()">ログイン</ctrl-button>
       <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
     </div>
   </div>
@@ -41,18 +41,24 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { CreateRoomInput } from "@/@types/room";
+import { UserLoginInput, UserType } from "@/@types/room";
+import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 
 @Component({
-  components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
+  components: {
+    UserTypeSelect,
+    DiceBotSelect,
+    BaseInput,
+    TableComponent,
+    CtrlButton
+  }
 })
-export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
+export default class UserLoginWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
   private name: string = "";
   private password: string = "";
-  /** 選択されているシステム */
-  private system: string = "DiceBot";
+  private userType: UserType = "GM";
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {
@@ -62,9 +68,9 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     this.finally({
-      name: this.name,
-      system: this.system,
-      roomPassword: this.password
+      userName: this.name,
+      userType: this.userType,
+      userPassword: this.password
     });
     await this.close();
   }
@@ -80,12 +86,12 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
     this.finally();
   }
 
-  private finally(roomInfo?: CreateRoomInput) {
-    const task = TaskManager.instance.getTask<CreateRoomInput>(
+  private finally(userInfo?: UserLoginInput) {
+    const task = TaskManager.instance.getTask<UserLoginInput>(
       "window-open",
       this.windowInfo.taskKey
     );
-    if (task) task.resolve(roomInfo ? [roomInfo] : []);
+    if (task) task.resolve(userInfo ? [userInfo] : []);
   }
 }
 </script>

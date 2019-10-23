@@ -53,7 +53,14 @@ import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { CreateRoomRequest, GetRoomListResponse } from "@/@types/room";
+import {
+  CreateRoomInput,
+  CreateRoomRequest,
+  GetRoomListResponse,
+  ReleaseTouchRequest,
+  TouchRequest,
+  UserLoginInput
+} from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -154,7 +161,7 @@ export default class LoginWindow extends Mixins<
   private async releaseTouchRoom() {
     if (this.selectedRoomNo === null) return;
     if (!this.roomList[this.selectedRoomNo].exclusionOwner) return;
-    await SocketFacade.instance.socketCommunication<never>(
+    await SocketFacade.instance.socketCommunication<ReleaseTouchRequest, never>(
       "release-touch-room",
       {
         roomNo: this.selectedRoomNo
@@ -173,22 +180,23 @@ export default class LoginWindow extends Mixins<
 
     // タッチ
     try {
-      await SocketFacade.instance.socketCommunication<never>("touch-room", {
-        roomNo: this.selectedRoomNo
-      });
-      // const controller = SocketFacade.instance.generateRoomInfoController();
-      // await controller.touch(this.selectedRoomNo);
+      await SocketFacade.instance.socketCommunication<TouchRequest, never>(
+        "touch-room",
+        {
+          roomNo: this.selectedRoomNo
+        }
+      );
     } catch (err) {
       return;
     }
 
-    // 入力画面
-    let info: CreateRoomRequest;
+    // 部屋情報入力画面
+    let createRoomInput: CreateRoomInput;
     this.isInputtingRoomInfo = true;
     try {
       const roomInfoList = await TaskManager.instance.ignition<
         WindowOpenInfo<never>,
-        CreateRoomRequest
+        CreateRoomInput
       >({
         type: "window-open",
         owner: "Quoridorn",
@@ -196,14 +204,40 @@ export default class LoginWindow extends Mixins<
           type: "create-new-room-window"
         }
       });
-      info = roomInfoList[0];
+      createRoomInput = roomInfoList[0];
     } catch (err) {
       window.console.warn(err);
       return;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
-    if (!info) {
+    if (!createRoomInput) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    // ユーザログイン画面
+    let userLoginInput: UserLoginInput;
+    try {
+      const userLoginInputList = await TaskManager.instance.ignition<
+        WindowOpenInfo<never>,
+        UserLoginInput
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "user-login-window"
+        }
+      });
+      userLoginInput = userLoginInputList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!userLoginInput) {
       await this.releaseTouchRoom();
       this.isInputtingRoomInfo = false;
       return;
@@ -214,10 +248,13 @@ export default class LoginWindow extends Mixins<
     // 部屋作成リクエストを投げる
     try {
       SocketFacade.instance.roomCollectionSuffix = await SocketFacade.instance.socketCommunication<
+        CreateRoomRequest,
         string
       >("create-room", {
+        roomId: this.roomList[this.selectedRoomNo].id!,
         roomNo: this.selectedRoomNo,
-        ...info
+        ...createRoomInput,
+        ...userLoginInput
       });
     } catch (err) {
       window.console.warn(err);

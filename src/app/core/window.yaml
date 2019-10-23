@@ -206,3 +206,23 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"user-login-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  title: ユーザログイン作成
+  message: ""
+  position: center
+  size:
+    width: 350
+    height: 200
+  minSize:
+    width: 300
+    height: 150
+  maxSize:
+    width: 500
+    height: 450
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

@@ -28,7 +28,6 @@
         class="fontSizeSlider"
         @click.prevent
       >
-        文字サイズ{{ fontSize }}px
         <input
           type="range"
           min="10"
@@ -42,6 +41,7 @@
           @keydown.229.stop
           @keyup.229.stop
         />
+        {{ fontSize }}px
       </label>
 
       <!-- 最小化 -->
@@ -724,7 +724,6 @@ export default class WindowFrame extends Vue {
   .fontSizeSlider {
     @include flex-box(row, center, center);
     font-size: 10px;
-    margin-right: auto;
     color: #444;
 
     input[type="range"] {
@@ -735,7 +734,7 @@ export default class WindowFrame extends Vue {
         rgb(201, 199, 200) 100%
       );
       height: 0.4em;
-      width: 100%;
+      width: 5rem;
       border-radius: 0.3em;
       border: 1px solid rgb(167, 167, 167);
       border-top: 1px solid rgb(105, 110, 106);

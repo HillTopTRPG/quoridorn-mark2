@@ -4,24 +4,32 @@
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Getter } from "vuex-class";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { UserType } from "@/@types/room";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+
+type Item = {
+  val: UserType;
+  text: string;
+};
 
 @Component({
   components: { CtrlSelect }
 })
-export default class PlayerTypeSelect extends Mixins<SelectMixin>(SelectMixin) {
-  @Getter("roles") private roles: any;
-
+export default class UserTypeSelect extends Mixins<SelectMixin>(SelectMixin) {
   @VueEvent
   private get optionInfoList(): any[] {
-    const resultList = this.roles.map((role: any) => ({
-      key: role.value,
-      value: role.value,
-      text: role.label,
+    const choice: Item[] = [
+      { val: "GM", text: "GM" },
+      { val: "PL", text: "PL" },
+      { val: "VISITOR", text: "見学者" }
+    ];
+    const resultList: any = choice.map((c: Item) => ({
+      key: c.val,
+      value: c.val,
+      text: c.text,
       disabled: false
     }));
     resultList.unshift({
