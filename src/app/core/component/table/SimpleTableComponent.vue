@@ -636,6 +636,7 @@ export default class SimpleTableComponent extends Vue {
     width: 100%;
     height: calc(var(--tableHeight) + 3px);
 
+    /*
     &.isStretchRight {
       border-left: none;
     }
@@ -643,6 +644,7 @@ export default class SimpleTableComponent extends Vue {
     &.isStretchLeft {
       border-right: none;
     }
+    */
 
     tr {
       height: var(--table-row-height);

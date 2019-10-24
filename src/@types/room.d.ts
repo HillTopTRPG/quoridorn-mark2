@@ -1,5 +1,5 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreObj } from "@/@types/store";
+import { StoreMetaData, StoreObj } from "@/@types/store";
 
 type MapShape = "square" | "horizontal-hex" | "vertical-hex";
 
@@ -57,19 +57,28 @@ export type CreateRoomRequest = CreateRoomInput &
   LoginRequest &
   BaseRoomInfo;
 
-export type GetRoomListResponse = BaseRoomInfo & {
+export type ClientRoomInfo = BaseRoomInfo & {
   memberNum: number;
   hasPassword: boolean;
+};
+export type Message = {
+  title: string;
+  descriptions: string[];
+  termOfUse: string;
+};
+export type GetRoomListResponse = {
+  roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[];
+  message: Message;
 };
 
 export type RoomViewResponse = {
   changeType: ChangeType;
   id: string;
-  data?: StoreObj<GetRoomListResponse>;
+  data?: StoreObj<ClientRoomInfo>;
   createTime?: Date;
   updateTime?: Date;
 };
 
-export type LoginResponse = GetRoomListResponse & {
+export type LoginResponse = ClientRoomInfo & {
   roomCollectionSuffix: string;
 };

@@ -129,14 +129,14 @@
   position: center
   size:
     width: 545
-    height: 330
+    height: 470
   minSize:
     width: 545
-    height: 200
+    height: 400
   maxSize:
     width: 545
-    height: 700
-  closable: true
+    height: 1000
+  closable: false
   fontSizePickable: true
   resizable: true
   tableInfoList:

@@ -1,5 +1,24 @@
 <template>
-  <div>
+  <div class="root">
+    <div class="message-scroll-area selectable" v-if="message">
+      <img
+        class="logo"
+        src="http://quoridorn.com/img/bg_white_4c.svg"
+        alt="logo"
+        draggable="false"
+      />
+      <span class="button" @click="serverSetting()">
+        <span class="icon-cog"></span>
+      </span>
+      <div class="message-documents">
+        <span class="title">{{ message.title }}</span>
+        <ul>
+          <li v-for="(description, index) in message.descriptions" :key="index">
+            <span v-html="toHtml(description)"></span>
+          </li>
+        </ul>
+      </div>
+    </div>
     <keep-alive>
       <table-component
         :windowInfo="windowInfo"
@@ -56,10 +75,12 @@ import moment from "moment/moment";
 import {
   CreateRoomInput,
   CreateRoomRequest,
-  GetRoomListResponse,
+  ClientRoomInfo,
   ReleaseTouchRequest,
   TouchRequest,
-  UserLoginInput
+  UserLoginInput,
+  GetRoomListResponse,
+  Message
 } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -70,16 +91,16 @@ import { WindowOpenInfo } from "@/@types/window";
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
-    roomNo: (storeObj: StoreObj<GetRoomListResponse>) => storeObj.order,
-    roomName: (storeObj: StoreObj<GetRoomListResponse>) =>
+    roomNo: (storeObj: StoreObj<ClientRoomInfo>) => storeObj.order,
+    roomName: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.name : "（空き部屋）",
-    system: (storeObj: StoreObj<GetRoomListResponse>) =>
+    system: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.system : "",
-    memberNum: (storeObj: StoreObj<GetRoomListResponse>) =>
+    memberNum: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
-    password: (storeObj: StoreObj<GetRoomListResponse>) =>
+    password: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data && storeObj.data.hasPassword ? "有り" : "--",
-    visitable: (storeObj: StoreObj<GetRoomListResponse>) =>
+    visitable: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data && storeObj.data.extend && storeObj.data.extend.visitable
         ? "可"
         : "--",
@@ -92,26 +113,39 @@ import { WindowOpenInfo } from "@/@types/window";
         return moment(data.updateTime).format("YYYY/MM/DD HH:mm:ss");
       return "";
     },
-    deleteButtonDisabled: (storeObj: StoreObj<GetRoomListResponse>) =>
+    deleteButtonDisabled: (storeObj: StoreObj<ClientRoomInfo>) =>
       (!storeObj.data && !storeObj.exclusionOwner) ||
       (storeObj.data && storeObj.data.memberNum > 0)
   }
 })
-export default class LoginWindow extends Mixins<
-  WindowVue<(StoreObj<GetRoomListResponse> & StoreMetaData)[]>
->(WindowVue) {
-  private roomList: (StoreObj<GetRoomListResponse> & StoreMetaData)[] = [];
+export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
+  WindowVue
+) {
+  private roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[] = [];
   private selectedRoomNo: number | null = null;
   private isInputtingRoomInfo: boolean = false;
+  private message: Message | null = null;
+  private readonly htmlRegExp: RegExp = new RegExp(
+    "\\[([^\\]]+)]\\(([^)]+)\\)",
+    "g"
+  );
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    try {
-      this.roomList = this.windowInfo.args!;
-    } catch (err) {
-      window.console.error(err);
-    }
+    this.roomList = this.windowInfo.args!.roomList;
+    this.message = this.windowInfo.args!.message;
+  }
+
+  @VueEvent
+  private serverSetting() {
+    window.console.log("serverSetting");
+    // TODO サーバ設定
+  }
+
+  @VueEvent
+  private toHtml(d: string) {
+    return d.replace(this.htmlRegExp, `<a href="$2" target="_blank">$1</a>`);
   }
 
   @VueEvent
@@ -149,7 +183,7 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private getRowClasses(
-    data: StoreObj<GetRoomListResponse> & StoreMetaData
+    data: StoreObj<ClientRoomInfo> & StoreMetaData
   ): string[] {
     const classList: string[] = [];
     if (data.exclusionOwner) {
@@ -265,6 +299,94 @@ export default class LoginWindow extends Mixins<
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+.root {
+  position: relative;
+
+  .message-scroll-area {
+    overflow-y: auto;
+    border: 1px solid gray;
+    margin-bottom: 0.5rem;
+    height: 10rem;
+    background-color: var(--uni-color-white);
+    background-image: url("http://quoridorn.com/img/mascot/normal/mascot_normal.png");
+    background-size: 18rem;
+    background-position: top 2rem right var(--scroll-bar-width);
+    background-repeat: no-repeat;
+
+    .logo {
+      position: absolute;
+      top: 0.4rem;
+      right: calc(var(--scroll-bar-width) + 0.5rem);
+      height: 1.5rem;
+    }
+
+    .button {
+      @include inline-flex-box(row, center, center);
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      text-decoration: none;
+      color: var(--uni-color-gray);
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+      border-radius: 50%;
+      overflow: hidden;
+      background-image: linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
+      text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 1px 2px rgba(0, 0, 0, 0.19);
+      border-bottom: solid 2px #b5b5b5;
+
+      &:active {
+        /*押したとき*/
+        top: 3px;
+        box-shadow: inset 0 0 0 rgba(255, 255, 255, 0.5),
+          0 2px 2px rgba(0, 0, 0, 0.19);
+        border-bottom: none;
+      }
+    }
+
+    .message-documents {
+      @include flex-box(column, flex-start, center);
+
+      .welcome {
+        font-size: 80%;
+        margin-top: 0.5em;
+        margin-left: 1em;
+        margin-right: 1rem;
+        align-self: flex-end;
+      }
+      .title {
+        font-size: 110%;
+        margin-top: 1.5rem;
+        margin-left: 4rem;
+        background-color: rgba(255, 255, 255, 0.6);
+        padding: 0.2rem;
+      }
+
+      ul {
+        position: relative;
+        font-size: 80%;
+        padding-left: 2rem;
+        width: 100%;
+        box-sizing: border-box;
+
+        li {
+          width: 100%;
+          line-height: 1.6;
+
+          span {
+            background-color: rgba(255, 255, 255, 0.6);
+            white-space: pre-wrap;
+            line-break: normal;
+            word-wrap: normal;
+          }
+        }
+      }
+    }
+  }
+}
 .button-area {
   @include flex-box(row, flex-start, center);
 

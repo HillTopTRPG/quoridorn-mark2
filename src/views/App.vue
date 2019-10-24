@@ -35,7 +35,6 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { StoreMetaData, StoreObj } from "@/@types/store";
 import { GetRoomListResponse, RoomViewResponse } from "@/@types/room";
 
 @Component({
@@ -96,18 +95,19 @@ export default class App extends Vue {
       }
     });
 
-    const roomList = await SocketFacade.instance.socketCommunication<
+    const serverInfo = await SocketFacade.instance.socketCommunication<
       never,
-      (StoreObj<GetRoomListResponse> & StoreMetaData)[]
+      GetRoomListResponse
     >("get-room-list");
     SocketFacade.instance.socketOn<RoomViewResponse[]>(
       "result-room-view",
       (err, changeList) => {
         changeList.forEach(change => {
           if (change.changeType === "removed") {
-            const index = roomList.findIndex(info => info.id === change.id);
-            window.console.log(change.changeType, index);
-            roomList.splice(index, 1, {
+            const index = serverInfo.roomList.findIndex(
+              info => info.id === change.id
+            );
+            serverInfo.roomList.splice(index, 1, {
               order: index,
               exclusionOwner: null,
               createTime: null,
@@ -116,8 +116,7 @@ export default class App extends Vue {
             });
           } else {
             const index = change.data!.order;
-            window.console.log(change.changeType, index);
-            roomList.splice(index, 1, {
+            serverInfo.roomList.splice(index, 1, {
               ...change.data!,
               id: change.id,
               createTime: change.createTime || null,
@@ -128,14 +127,14 @@ export default class App extends Vue {
       }
     );
     await TaskManager.instance.ignition<
-      WindowOpenInfo<(StoreObj<GetRoomListResponse> & StoreMetaData)[]>,
+      WindowOpenInfo<GetRoomListResponse>,
       never
     >({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "login-window",
-        args: roomList
+        args: serverInfo
       }
     });
   }
