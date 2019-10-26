@@ -1,10 +1,8 @@
 <template>
   <div>
-    <div class="button-area">
+    <div class="button-area space-between margin-none">
       <ctrl-button @click="playBgm()">送信</ctrl-button>
-      <ctrl-button @click="preview" class="margin-left-auto"
-        >プレビュー</ctrl-button
-      >
+      <ctrl-button @click="preview">プレビュー</ctrl-button>
     </div>
 
     <table-component
@@ -166,11 +164,4 @@ export default class BgmSettingWindow extends WindowVue<number> {
 
 <style scoped lang="scss">
 @import "../../../assets/common";
-.button-area {
-  @include flex-box(row, flex-start, center);
-
-  .margin-left-auto {
-    margin-left: auto;
-  }
-}
 </style>

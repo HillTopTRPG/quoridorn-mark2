@@ -752,11 +752,11 @@ export default class SimpleTableComponent extends Vue {
         }
 
         &.isSelected {
-          background-color: rgba(77, 196, 255, 1) !important;
+          background-color: var(--uni-color-skyblue) !important;
         }
 
         &:not(.isSelected):hover {
-          background-color: rgba(191, 228, 255, 1) !important;
+          background-color: var(--uni-color-light-skyblue) !important;
         }
 
         &.doubleClicked {

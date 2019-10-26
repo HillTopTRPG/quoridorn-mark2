@@ -8,6 +8,7 @@ import { StoreMetaData, StoreObj } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
+import { GetVersionResponse } from "@/@types/room";
 
 const connectInfo: ConnectInfo = require("../../../../../public/static/conf/connect.yaml");
 
@@ -27,6 +28,12 @@ export function getStoreObj<T>(
   }
 }
 
+export type DefaultServerInfo = {
+  title: string;
+  version: string;
+  url: string;
+};
+
 export default class SocketFacade {
   // シングルトン
   public static get instance(): SocketFacade {
@@ -36,45 +43,98 @@ export default class SocketFacade {
 
   private static _instance: SocketFacade;
 
-  private readonly __socket: SocketIOClient.Socket;
-  private readonly nekostore: Nekostore;
+  private socket: SocketIOClient.Socket | null = null;
+  private nekostore: Nekostore | null = null;
+  private __appServerUrl: string | null = null;
+  private readonly __appServerUrlList: DefaultServerInfo[] = [];
   private readonly collectionControllerMap: {
     [name: string]: NecostoreCollectionController<unknown>;
   } = {};
   private __roomCollectionSuffix: string | null = null;
 
-  // コンストラクタの隠蔽
-  private constructor() {
-    this.__socket = SocketClient.connect(connectInfo.quoridornServer);
-    const driver = new SocketDriver({
-      socket: this.__socket,
-      timeout: connectInfo.socketTimeout
-    });
-    this.nekostore = new Nekostore(driver);
-    this.__socket.on("connect", async () => {
+  public get appServerUrl(): string {
+    return this.__appServerUrl!;
+  }
+
+  public get appServerUrlList(): DefaultServerInfo[] {
+    return this.__appServerUrlList;
+  }
+
+  public async setAppServerUrl(url: string) {
+    this.__appServerUrl = url;
+    if (this.socket) await this.destroy();
+    this.socket = SocketClient.connect(this.__appServerUrl!);
+    this.nekostore = new Nekostore(
+      new SocketDriver({
+        socket: this.socket,
+        timeout: connectInfo.socketTimeout
+      })
+    );
+    this.socket.on("connect", async () => {
       await TaskManager.instance.ignition<never, never>({
         type: "socket-connect",
         owner: "Quoridorn",
         value: null
       });
     });
-    this.__socket.on("connect_error", async (err: any) => {
+    this.socket.on("connect_error", async (err: any) => {
       await TaskManager.instance.ignition<any, never>({
         type: "socket-connect-error",
         owner: "Quoridorn",
         value: err
       });
     });
-    this.__socket.on("reconnecting", async (err: any) => {
+    this.socket.on("reconnecting", async (err: any) => {
       await TaskManager.instance.ignition<any, never>({
         type: "socket-reconnecting",
         owner: "Quoridorn",
         value: err
       });
     });
-    this.__socket.on("connect_timeout", async (timeout: any) => {
+    this.socket.on("connect_timeout", async (timeout: any) => {
       window.console.log("connect_timeout", timeout);
     });
+  }
+
+  private async setDefaultServerUrlList() {
+    if (typeof connectInfo.quoridornServer === "string") {
+      window.console.log("## string");
+      this.__appServerUrlList.push({
+        ...(await this.testServer(connectInfo.quoridornServer)),
+        url: connectInfo.quoridornServer
+      });
+    } else {
+      window.console.log("## list");
+      // addDefaultUrlを直列の非同期で全部実行する
+      connectInfo.quoridornServer
+        .map((url: string) => () => this.addDefaultUrl(url))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    }
+  }
+
+  private async addDefaultUrl(url: string): Promise<void> {
+    let resp: GetVersionResponse;
+    try {
+      resp = await this.testServer(url);
+    } catch (err) {
+      window.console.warn(`${err}. url:${url}`);
+      return;
+    }
+    window.console.log(url, resp.title);
+    this.appServerUrlList.push({
+      ...resp,
+      url
+    });
+  }
+
+  // コンストラクタの隠蔽
+  private constructor() {
+    const defaultServer: string =
+      typeof connectInfo.quoridornServer === "string"
+        ? connectInfo.quoridornServer
+        : connectInfo.quoridornServer[0];
+    this.setAppServerUrl(defaultServer).then();
+    this.setDefaultServerUrlList().then();
   }
 
   public async destroy() {
@@ -83,7 +143,12 @@ export default class SocketFacade {
         this.collectionControllerMap[collectionName].destroy()
       )
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-    this.__socket.disconnect();
+    Object.keys(this.collectionControllerMap).forEach(
+      (collectionName: string) => {
+        delete this.collectionControllerMap[collectionName];
+      }
+    );
+    this.socket!.disconnect();
   }
 
   public set roomCollectionSuffix(val: string) {
@@ -105,8 +170,8 @@ export default class SocketFacade {
     return (this.collectionControllerMap[
       collectionName
     ] = new NecostoreCollectionController<T>(
-      this.__socket,
-      this.nekostore,
+      this.socket,
+      this.nekostore!,
       collectionName,
       types
     ));
@@ -115,14 +180,58 @@ export default class SocketFacade {
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
     return new Promise<U>((resolve, reject) => {
       window.console.log("socketCommunication:", event);
-      this.__socket.once(`result-${event}`, (err: any, result: U) => {
+      this.socket!.once(`result-${event}`, (err: any, result: U) => {
         if (err) {
           reject(err);
           return;
         }
         resolve(result);
       });
-      this.__socket.emit(event, args);
+      this.socket!.emit(event, args);
+    });
+  }
+
+  public async testServer(url: string): Promise<GetVersionResponse> {
+    return new Promise<GetVersionResponse>((resolve, reject) => {
+      const socket = SocketClient.connect(url);
+      socket.on("connect", async () => {
+        socket.emit("get-version");
+      });
+      const timeoutId = window.setTimeout(() => {
+        socket.off("result-get-version");
+        socket.disconnect();
+        reject("not-quoridorn");
+      }, connectInfo.socketTimeout + 100);
+      socket.once(
+        "result-get-version",
+        (err: any, result: GetVersionResponse) => {
+          clearTimeout(timeoutId);
+          socket.disconnect();
+          if (err) {
+            reject("internal-server-error");
+            return;
+          }
+
+          // タイトルチェック（サーバ側で必ず値は設定してくる）
+          const title: string = result.title;
+          if (!title) {
+            reject("not-quoridorn");
+            return;
+          }
+
+          // TODO バージョン互換性チェック
+          const version: string = result.version;
+          if (!version || !version.startsWith("Quoridorn ")) {
+            reject("not-quoridorn");
+            return;
+          }
+          resolve(result);
+        }
+      );
+      socket.on("connect_error", async (err: any) => {
+        socket.disconnect();
+        reject("no-such-server");
+      });
     });
   }
 
@@ -130,7 +239,7 @@ export default class SocketFacade {
     event: string,
     callback: (err: any, result: T) => void
   ): void {
-    this.__socket.on(event, (err: any, result: T) => {
+    this.socket!.on(event, (err: any, result: T) => {
       if (err) window.console.error(err);
       callback(err, result);
     });

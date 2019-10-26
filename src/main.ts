@@ -12,6 +12,7 @@ import LoginWindow from "@/app/basic/login/LoginWindow.vue";
 import CreateNewRoomWindow from "@/app/basic/login/CreateNewRoomWindow.vue";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import UserLoginWindow from "@/app/basic/login/UserLoginWindow.vue";
+import AppServerSettingWindow from "@/app/basic/login/AppServerSettingWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -26,6 +27,7 @@ Vue.component("play-youtube-window", PlayYoutubeWindow);
 Vue.component("login-window", LoginWindow);
 Vue.component("create-new-room-window", CreateNewRoomWindow);
 Vue.component("user-login-window", UserLoginWindow);
+Vue.component("app-server-setting-window", AppServerSettingWindow);
 
 const app = new Vue({
   // @ts-ignore

@@ -37,3 +37,33 @@
 .flex-max {
   flex: 1;
 }
+
+.button-area {
+  @include flex-box(row, center, center);
+  margin-top: 0.5rem;
+
+  &.margin-none {
+    margin-top: 0;
+  }
+
+  &.margin-bottom {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  &.left {
+    @include flex-box(row, flex-start, center);
+  }
+
+  &.space-between {
+    @include flex-box(row, space-between, center);
+  }
+
+  &.space-around {
+    @include flex-box(row, space-around, center);
+  }
+
+  > *:not(:first-child) {
+    margin-left: 0.5rem;
+  }
+}

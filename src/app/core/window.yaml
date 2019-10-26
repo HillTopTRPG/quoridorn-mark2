@@ -129,7 +129,7 @@
   position: center
   size:
     width: 545
-    height: 470
+    height: 472
   minSize:
     width: 545
     height: 400
@@ -222,6 +222,26 @@
   maxSize:
     width: 500
     height: 450
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"app-server-setting-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  title: アプリケーションサーバ設定
+  message: ""
+  position: center
+  size:
+    width: 350
+    height: 112
+  minSize:
+    width: 300
+    height: 100
+  maxSize:
+    width: 500
+    height: 186
   closable: true
   fontSizePickable: true
   resizable: true

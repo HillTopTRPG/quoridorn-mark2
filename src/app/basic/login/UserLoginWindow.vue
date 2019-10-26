@@ -114,11 +114,4 @@ export default class UserLoginWindow extends Mixins<WindowVue<never>>(
     }
   }
 }
-.button-area {
-  @include flex-box(row, flex-start, center);
-
-  .margin-left-auto {
-    margin-left: auto;
-  }
-}
 </style>

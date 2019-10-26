@@ -7,11 +7,13 @@
         alt="logo"
         draggable="false"
       />
-      <span class="button" @click="serverSetting()">
-        <span class="icon-cog"></span>
-      </span>
       <div class="message-documents">
-        <span class="title">{{ message.title }}</span>
+        <div class="title-contents" @click="serverSetting()">
+          <span class="title">{{ message.title }}</span>
+          <span class="button">
+            <span class="icon-cog"></span>
+          </span>
+        </div>
         <ul>
           <li v-for="(description, index) in message.descriptions" :key="index">
             <span v-html="toHtml(description)"></span>
@@ -80,7 +82,9 @@ import {
   TouchRequest,
   UserLoginInput,
   GetRoomListResponse,
-  Message
+  Message,
+  AppServerSettingInput,
+  RoomViewResponse
 } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -123,6 +127,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 ) {
   private roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[] = [];
   private selectedRoomNo: number | null = null;
+  private isInputtingServerSetting: boolean = false;
   private isInputtingRoomInfo: boolean = false;
   private message: Message | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
@@ -138,9 +143,75 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   @VueEvent
-  private serverSetting() {
+  private async serverSetting() {
     window.console.log("serverSetting");
-    // TODO サーバ設定
+
+    // 既に入力画面を開いていたら何もしない
+    if (this.isInputtingServerSetting) return;
+
+    this.isInputtingServerSetting = true;
+
+    // アプリケーションサーバ設定入力画面
+    let appServerSettingInput: AppServerSettingInput;
+    try {
+      const appServerSettingInputList = await TaskManager.instance.ignition<
+        WindowOpenInfo<void>,
+        AppServerSettingInput
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "app-server-setting-window"
+        }
+      });
+      appServerSettingInput = appServerSettingInputList[0];
+      this.isInputtingServerSetting = false;
+    } catch (err) {
+      window.console.warn(err);
+      this.isInputtingServerSetting = false;
+      return;
+    }
+
+    // 入力画面がキャンセルされていたら中断
+    if (!appServerSettingInput) return;
+
+    await SocketFacade.instance.setAppServerUrl(appServerSettingInput.url);
+    const serverInfo = await SocketFacade.instance.socketCommunication<
+      never,
+      GetRoomListResponse
+    >("get-room-list");
+    SocketFacade.instance.socketOn<RoomViewResponse[]>(
+      "result-room-view",
+      (err, changeList) => {
+        changeList.forEach(change => {
+          if (change.changeType === "removed") {
+            const index = this.roomList.findIndex(
+              info => info.id === change.id
+            );
+            this.roomList.splice(index, 1, {
+              order: index,
+              exclusionOwner: null,
+              createTime: null,
+              updateTime: null,
+              id: null
+            });
+          } else {
+            const index = change.data!.order;
+            this.roomList.splice(index, 1, {
+              ...change.data!,
+              id: change.id,
+              createTime: change.createTime || null,
+              updateTime: change.updateTime || null
+            });
+          }
+        });
+      }
+    );
+    this.roomList.splice(0, this.roomList.length);
+    serverInfo.roomList.forEach(roomInfo => {
+      this.roomList.push(roomInfo);
+    });
+    this.message = serverInfo.message;
   }
 
   @VueEvent
@@ -320,33 +391,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       height: 1.5rem;
     }
 
-    .button {
-      @include inline-flex-box(row, center, center);
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      text-decoration: none;
-      color: var(--uni-color-gray);
-      width: 2rem;
-      height: 2rem;
-      font-size: 1rem;
-      border-radius: 50%;
-      overflow: hidden;
-      background-image: linear-gradient(#e8e8e8 0%, #d6d6d6 100%);
-      text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
-        0 1px 2px rgba(0, 0, 0, 0.19);
-      border-bottom: solid 2px #b5b5b5;
-
-      &:active {
-        /*押したとき*/
-        top: 3px;
-        box-shadow: inset 0 0 0 rgba(255, 255, 255, 0.5),
-          0 2px 2px rgba(0, 0, 0, 0.19);
-        border-bottom: none;
-      }
-    }
-
     .message-documents {
       @include flex-box(column, flex-start, center);
 
@@ -357,12 +401,38 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         margin-right: 1rem;
         align-self: flex-end;
       }
-      .title {
+      .title-contents {
+        @include flex-box(row, center, center);
+        margin-top: 1rem;
+        margin-left: 3rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 0.5em;
+        cursor: pointer;
         font-size: 110%;
-        margin-top: 1.5rem;
-        margin-left: 4rem;
-        background-color: rgba(255, 255, 255, 0.6);
-        padding: 0.2rem;
+
+        &:hover {
+          text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
+          box-shadow: inset 0 0 0 rgba(255, 255, 255, 0.5),
+            0 2px 2px rgba(0, 0, 0, 0.19);
+          background-color: var(--uni-color-light-skyblue);
+        }
+
+        &:active {
+          /*押したとき*/
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            0 1px 2px rgba(0, 0, 0, 0.19);
+          border-bottom: none;
+          transform: translateY(1px);
+        }
+
+        .button {
+          @include inline-flex-box(row, center, center);
+          text-decoration: none;
+          color: var(--uni-color-gray);
+          border-radius: 50%;
+          overflow: hidden;
+          margin-left: 0.3rem;
+        }
       }
 
       ul {
@@ -385,13 +455,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         }
       }
     }
-  }
-}
-.button-area {
-  @include flex-box(row, flex-start, center);
-
-  .margin-left-auto {
-    margin-left: auto;
   }
 }
 </style>

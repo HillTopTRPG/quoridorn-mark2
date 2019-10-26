@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?dws72h');
-  src:  url('fonts/icomoon.eot?dws72h#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?dws72h') format('truetype'),
-    url('fonts/icomoon.woff?dws72h') format('woff'),
-    url('fonts/icomoon.svg?dws72h#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?nx4meo');
+  src:  url('fonts/icomoon.eot?nx4meo#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?nx4meo') format('truetype'),
+    url('fonts/icomoon.woff?nx4meo') format('woff'),
+    url('fonts/icomoon.svg?nx4meo#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -49,6 +49,9 @@
 .icon-bubbles3:before {
   content: "\e96f";
 }
+.icon-hour-glass:before {
+  content: "\e979";
+}
 .icon-enlarge2:before {
   content: "\e98b";
 }
@@ -81,6 +84,15 @@
 }
 .icon-link:before {
   content: "\e9cb";
+}
+.icon-grin:before {
+  content: "\e9e9";
+}
+.icon-confused:before {
+  content: "\e9f5";
+}
+.icon-wondering:before {
+  content: "\e9fb";
 }
 .icon-warning:before {
   content: "\ea07";

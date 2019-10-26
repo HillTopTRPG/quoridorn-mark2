@@ -95,7 +95,7 @@ export default class NecostoreCollectionController<T> {
     }
   }
 
-  public async releaseTouch(order: number) {
+  public async releaseTouch(order: number): Promise<void> {
     const docs = await this.getOrderDocs(order);
     this.checkOneDoc(order, docs);
 

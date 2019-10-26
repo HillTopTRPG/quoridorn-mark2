@@ -1,5 +1,5 @@
 export type ConnectInfo = {
-  quoridornServer: string;
+  quoridornServer: string | string[];
   bcdiceServer: string;
   skywayApiKey: string;
   skywayConnectType: string;

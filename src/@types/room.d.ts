@@ -82,3 +82,12 @@ export type RoomViewResponse = {
 export type LoginResponse = ClientRoomInfo & {
   roomCollectionSuffix: string;
 };
+
+export type AppServerSettingInput = {
+  url: string;
+};
+
+export type GetVersionResponse = {
+  version: string;
+  title: string;
+};
