@@ -14,6 +14,8 @@ import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import UserLoginWindow from "@/app/basic/login/UserLoginWindow.vue";
 import AppServerSettingWindow from "@/app/basic/login/AppServerSettingWindow.vue";
 import TermsOfUseWindow from "@/app/basic/login/TermsOfUseWindow.vue";
+import DeleteRoomWindow from "@/app/basic/login/DeleteRoomWindow.vue";
+import ConfirmWindow from "@/app/core/window/ConfirmWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -30,6 +32,8 @@ Vue.component("create-new-room-window", CreateNewRoomWindow);
 Vue.component("user-login-window", UserLoginWindow);
 Vue.component("app-server-setting-window", AppServerSettingWindow);
 Vue.component("terms-of-use-window", TermsOfUseWindow);
+Vue.component("delete-room-window", DeleteRoomWindow);
+Vue.component("confirm-window", ConfirmWindow);
 
 const app = new Vue({
   // @ts-ignore

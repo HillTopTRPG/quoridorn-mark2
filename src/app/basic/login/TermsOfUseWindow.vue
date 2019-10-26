@@ -42,7 +42,7 @@ export default class TermsOfUseWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.appServerTermOfUse = this.windowInfo.args!.message.termOfUse;
+    this.appServerTermOfUse = this.windowInfo.args!.message.termsOfUse;
   }
 
   @VueEvent

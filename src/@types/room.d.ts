@@ -52,10 +52,14 @@ export type LoginRequest = RoomLoginInfo & UserLoginRequest;
 export type CreateRoomInput = BaseRoomInfo & {
   roomPassword: string;
 };
+export type DeleteRoomInput = {
+  roomPassword: string;
+};
 export type CreateRoomRequest = CreateRoomInput &
   UserLoginInput &
   LoginRequest &
   BaseRoomInfo;
+export type DeleteRoomRequest = RoomLoginInfo;
 
 export type ClientRoomInfo = BaseRoomInfo & {
   memberNum: number;
@@ -64,7 +68,7 @@ export type ClientRoomInfo = BaseRoomInfo & {
 export type Message = {
   title: string;
   descriptions: string[];
-  termOfUse: string;
+  termsOfUse: string;
 };
 export type GetRoomListResponse = {
   roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[];

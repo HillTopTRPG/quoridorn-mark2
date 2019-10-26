@@ -85,13 +85,16 @@ import {
   GetRoomListResponse,
   Message,
   AppServerSettingInput,
-  RoomViewResponse
+  RoomViewResponse,
+  DeleteRoomInput,
+  DeleteRoomRequest
 } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { WindowOpenInfo } from "@/@types/window";
+import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -119,7 +122,8 @@ import { WindowOpenInfo } from "@/@types/window";
       return "";
     },
     deleteButtonDisabled: (storeObj: StoreObj<ClientRoomInfo>) =>
-      (!storeObj.data && !storeObj.exclusionOwner) ||
+      !storeObj.data ||
+      !!storeObj.exclusionOwner ||
       (storeObj.data && storeObj.data.memberNum > 0)
   }
 })
@@ -265,7 +269,102 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 
   @VueEvent
   private async deleteRoom(order: number) {
-    window.console.log(order);
+    if (this.selectedRoomNo === null) {
+      alert("部屋を選択してください。");
+      return;
+    }
+
+    // タッチ
+    if (!(await this.touchRoom(true))) return;
+    this.isInputtingRoomInfo = true;
+
+    window.console.log("touched");
+
+    // 確認画面
+    let confirmResult: boolean;
+    this.isInputtingRoomInfo = true;
+    try {
+      const confirmResultList = await TaskManager.instance.ignition<
+        WindowOpenInfo<ConfirmInfo>,
+        boolean
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "confirm-window",
+          args: {
+            title: "部屋削除",
+            message: `部屋を削除しますか？`,
+            type: "warning"
+          }
+        }
+      });
+      confirmResult = confirmResultList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!confirmResult) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    // 部屋削除入力画面
+    let deleteRoomInput: DeleteRoomInput;
+    try {
+      const deleteRoomInputList = await TaskManager.instance.ignition<
+        WindowOpenInfo<never>,
+        DeleteRoomInput
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "delete-room-window"
+        }
+      });
+      deleteRoomInput = deleteRoomInputList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!deleteRoomInput) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    this.isInputtingRoomInfo = false;
+
+    // 部屋削除リクエストを投げる
+    let deleteResult: boolean;
+    try {
+      deleteResult = await SocketFacade.instance.socketCommunication<
+        DeleteRoomRequest,
+        boolean
+      >("delete-room", {
+        roomId: this.roomList[this.selectedRoomNo].id!,
+        roomNo: this.selectedRoomNo,
+        ...deleteRoomInput
+      });
+    } catch (err) {
+      window.console.warn(err);
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+    setTimeout(() => {
+      alert(
+        deleteResult ? "部屋を削除しました。" : "部屋の削除に失敗しました。"
+      );
+    });
+    if (!deleteResult) {
+      await this.releaseTouchRoom();
+    }
   }
 
   @VueEvent
@@ -277,6 +376,21 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       classList.push(data.data ? "isEditing" : "isCreating");
     }
     return classList;
+  }
+
+  private async touchRoom(isModify: boolean): Promise<boolean> {
+    try {
+      await SocketFacade.instance.socketCommunication<TouchRequest, never>(
+        isModify ? "touch-room-modify" : "touch-room",
+        {
+          roomNo: this.selectedRoomNo!
+        }
+      );
+      return true;
+    } catch (err) {
+      window.console.warn(err);
+      return false;
+    }
   }
 
   private async releaseTouchRoom() {
@@ -300,16 +414,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     }
 
     // タッチ
-    try {
-      await SocketFacade.instance.socketCommunication<TouchRequest, never>(
-        "touch-room",
-        {
-          roomNo: this.selectedRoomNo
-        }
-      );
-    } catch (err) {
-      return;
-    }
+    if (!(await this.touchRoom(false))) return;
 
     // 部屋情報入力画面
     let createRoomInput: CreateRoomInput;

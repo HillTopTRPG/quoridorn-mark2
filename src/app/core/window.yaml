@@ -262,7 +262,47 @@
   maxSize:
     width: 700
     height: 700
-  closable: false
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"delete-room-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  title: 部屋削除
+  message: ""
+  position: center
+  size:
+    width: 220
+    height: 70
+  minSize:
+    width: 190
+    height: 60
+  maxSize:
+    width: 300
+    height: 95
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"confirm-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  title: 確認画面
+  message: ""
+  position: center
+  size:
+    width: 210
+    height: 80
+  minSize:
+    width: 185
+    height: 53
+  maxSize:
+    width: 250
+    height: 150
+  closable: true
   fontSizePickable: true
   resizable: true
   tableInfoList: []
