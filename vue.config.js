@@ -69,5 +69,11 @@ module.exports = {
       .use("yaml-loader")
       .loader("yaml-loader")
       .end();
+    config.module
+      .rule("text")
+      .test(/\.te?xt$/)
+      .use("raw-loader")
+      .loader("raw-loader")
+      .end();
   }
 };

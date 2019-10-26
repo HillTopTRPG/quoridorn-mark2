@@ -8,11 +8,12 @@
         draggable="false"
       />
       <div class="message-documents">
-        <div class="title-contents" @click="serverSetting()">
+        <div class="term-of-use flat-button" @click="viewTermOfUse()">
+          利用規約
+        </div>
+        <div class="title-contents flat-button" @click="serverSetting()">
           <span class="title">{{ message.title }}</span>
-          <span class="button">
-            <span class="icon-cog"></span>
-          </span>
+          <span class="icon-cog"></span>
         </div>
         <ul>
           <li v-for="(description, index) in message.descriptions" :key="index">
@@ -143,9 +144,24 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   @VueEvent
-  private async serverSetting() {
-    window.console.log("serverSetting");
+  private async viewTermOfUse() {
+    await TaskManager.instance.ignition<
+      WindowOpenInfo<{ message: Message }>,
+      void
+    >({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "terms-of-use-window",
+        args: {
+          message: this.message!
+        }
+      }
+    });
+  }
 
+  @VueEvent
+  private async serverSetting() {
     // 既に入力画面を開いていたら何もしない
     if (this.isInputtingServerSetting) return;
 
@@ -401,14 +417,12 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         margin-right: 1rem;
         align-self: flex-end;
       }
-      .title-contents {
+
+      .flat-button {
         @include flex-box(row, center, center);
-        margin-top: 1rem;
-        margin-left: 3rem;
         padding: 0.3rem 0.8rem;
         border-radius: 0.5em;
         cursor: pointer;
-        font-size: 110%;
 
         &:hover {
           text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.66);
@@ -418,19 +432,27 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         }
 
         &:active {
-          /*押したとき*/
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5),
             0 1px 2px rgba(0, 0, 0, 0.19);
           border-bottom: none;
           transform: translateY(1px);
         }
+      }
 
-        .button {
+      .term-of-use {
+        margin-top: 0.2rem;
+        margin-left: 0.2rem;
+        font-size: 90%;
+      }
+
+      .title-contents {
+        margin-top: 0;
+        margin-left: 3rem;
+        font-size: 110%;
+
+        .icon-cog {
           @include inline-flex-box(row, center, center);
-          text-decoration: none;
           color: var(--uni-color-gray);
-          border-radius: 50%;
-          overflow: hidden;
           margin-left: 0.3rem;
         }
       }

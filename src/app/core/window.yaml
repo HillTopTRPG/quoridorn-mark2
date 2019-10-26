@@ -210,7 +210,7 @@
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
-  title: ユーザログイン作成
+  title: ユーザログイン
   message: ""
   position: center
   size:
@@ -243,6 +243,26 @@
     width: 500
     height: 186
   closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"terms-of-use-window":
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  title: 利用規約確認
+  message: ""
+  position: center
+  size:
+    width: 400
+    height: 300
+  minSize:
+    width: 300
+    height: 150
+  maxSize:
+    width: 700
+    height: 700
+  closable: false
   fontSizePickable: true
   resizable: true
   tableInfoList: []

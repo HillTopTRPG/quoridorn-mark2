@@ -23,7 +23,11 @@
       <title-icon className="icon-arrow-down-left" @emit="normalizeWindow" />
 
       <!-- 閉じる -->
-      <title-icon className="icon-cross" @emit="closeWindow" />
+      <title-icon
+        className="icon-cross"
+        @emit="closeWindow"
+        v-if="windowInfo.declare.closable"
+      />
     </div>
 
     <!-- コンテンツ -->
