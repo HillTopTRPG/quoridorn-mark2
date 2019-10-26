@@ -129,7 +129,7 @@ import { Component } from "vue-mixin-decorator";
 import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import Divider from "@/app/core/component/table/Divider.vue";
 import {
-  TableTabInfo,
+  TabInfo,
   WindowInfo,
   WindowMoveInfo,
   WindowTableColumn,
@@ -174,7 +174,7 @@ export default class SimpleTableComponent extends Vue {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<any>;
   @Prop({ type: Object, required: false, default: null })
-  private tableTabInfo!: TableTabInfo | null;
+  private tabInfo!: TabInfo | null;
   @Prop({ type: Array, required: true })
   private dataList!: any[];
   @Prop({ type: String, required: false, default: "key" })
@@ -203,7 +203,7 @@ export default class SimpleTableComponent extends Vue {
   private marginRowNum: number = 4;
   private saveScrollTop: number = 0;
 
-  private saveTabInfo: TableTabInfo | null = null;
+  private saveTabInfo: TabInfo | null = null;
 
   @LifeCycle
   private mounted() {
@@ -261,32 +261,32 @@ export default class SimpleTableComponent extends Vue {
     });
   }
 
-  @Watch("tableTabInfo")
-  private onChangeTableTabInfo() {
+  @Watch("tabInfo")
+  private onChangeTabInfo() {
     if (!this.isMounted) return;
     if (
       !this.saveTabInfo ||
-      !this.tableTabInfo ||
-      this.saveTabInfo.text !== this.tableTabInfo.text ||
-      typeof this.saveTabInfo.target !== typeof this.tableTabInfo.target ||
+      !this.tabInfo ||
+      this.saveTabInfo.text !== this.tabInfo.text ||
+      typeof this.saveTabInfo.target !== typeof this.tabInfo.target ||
       (typeof this.saveTabInfo.target === "string" &&
-        this.saveTabInfo.target !== this.tableTabInfo.target) ||
+        this.saveTabInfo.target !== this.tabInfo.target) ||
       (typeof this.saveTabInfo.target !== "string" &&
-        typeof this.tableTabInfo.target !== "string" &&
-        (this.saveTabInfo.target.from !== this.tableTabInfo.target.from ||
-          this.saveTabInfo.target.to !== this.tableTabInfo.target.to))
+        typeof this.tabInfo.target !== "string" &&
+        (this.saveTabInfo.target.from !== this.tabInfo.target.from ||
+          this.saveTabInfo.target.to !== this.tabInfo.target.to))
     ) {
       setTimeout(() => {
         this.elm.querySelector("tbody")!.scrollTop = 0;
         this.arrangeViewRow();
       });
     }
-    this.saveTabInfo = this.tableTabInfo;
+    this.saveTabInfo = this.tabInfo;
   }
 
   @Watch("isMounted")
   @Watch("viewRowFirstIndex")
-  @Watch("tableTabInfo")
+  @Watch("tabInfo")
   @Watch("viewRowLastIndex")
   @Watch("dataList", { deep: true })
   private onChangeDataList() {
@@ -298,14 +298,14 @@ export default class SimpleTableComponent extends Vue {
         data
       };
     });
-    if (this.tableTabInfo) {
-      if (typeof this.tableTabInfo.target === "string") {
+    if (this.tabInfo) {
+      if (typeof this.tabInfo.target === "string") {
         const targetProp = this.tableDeclareInfo.classificationProp;
-        const target = this.tableTabInfo.target;
+        const target = this.tabInfo.target;
         rowList = rowList.filter((row: any) => row[targetProp] === target);
       } else {
-        const from = this.tableTabInfo.target.from;
-        const to = this.tableTabInfo.target.to;
+        const from = this.tabInfo.target.from;
+        const to = this.tabInfo.target.to;
         rowList = rowList.filter((row, index) => from <= index && index <= to);
       }
     }

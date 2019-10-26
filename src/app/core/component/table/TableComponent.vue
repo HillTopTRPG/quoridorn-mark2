@@ -1,23 +1,12 @@
 <template>
-  <div class="table-area" ref="tableArea">
-    <div class="tab-area">
-      <div
-        class="tab"
-        v-for="(tab, index) in tabList"
-        :class="{ isActive: tab.text === currentTabInfo.text }"
-        :key="index"
-        @click="selectTab(tab)"
-      >
-        {{ tab.text }}
-      </div>
-    </div>
+  <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
     <simple-table-component
       :tableIndex="tableIndex"
       :status="status"
       :windowInfo="windowInfo"
       :dataList="dataList"
       :keyProp="keyProp"
-      :tableTabInfo="currentTabInfo"
+      :tabInfo="currentTabInfo"
       :rowClassGetter="rowClassGetter"
       :selectLock="selectLock"
       @selectLine="selectLine"
@@ -31,22 +20,18 @@
         <slot name="contents" :colDec="colDec" :data="data" :index="index" />
       </template>
     </simple-table-component>
-  </div>
+  </simple-tab-component>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
 import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import {
-  TableTabInfo,
-  WindowInfo,
-  WindowTableDeclareInfo
-} from "@/@types/window";
+import { TabInfo, WindowInfo, WindowTableDeclareInfo } from "@/@types/window";
 import SimpleTableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
-  components: { SimpleTableComponent }
+  components: { SimpleTabComponent, SimpleTableComponent }
 })
 export default class TableComponent extends Vue {
   @Prop({ type: Number, required: true })
@@ -64,8 +49,8 @@ export default class TableComponent extends Vue {
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
 
-  private tabList: TableTabInfo[] = [];
-  private currentTabInfo: TableTabInfo | null = null;
+  private tabList: TabInfo[] = [];
+  private currentTabInfo: TabInfo | null = null;
 
   private get tableDeclareInfo(): WindowTableDeclareInfo {
     return this.windowInfo.declare.tableInfoList[this.tableIndex];
@@ -82,7 +67,7 @@ export default class TableComponent extends Vue {
 
   @Watch("dataList", { deep: true, immediate: true })
   private onChangeDataList() {
-    const tabList: TableTabInfo[] = [];
+    const tabList: TabInfo[] = [];
     if (this.tableDeclareInfo.classificationType === "range") {
       const ordinal: number = this.tableDeclareInfo.classificationOrdinal!;
       let useChoice: number = this.dataList.length;
@@ -105,7 +90,7 @@ export default class TableComponent extends Vue {
         let current: number = 0;
         let isFirst = true;
         while (current < this.dataList.length) {
-          const tabInfo: TableTabInfo = {
+          const tabInfo: TabInfo = {
             text: `${current + ordinal}-`,
             target: {
               from: current,
@@ -146,40 +131,9 @@ export default class TableComponent extends Vue {
     }
     this.tabList = tabList;
   }
-
-  @VueEvent
-  private selectTab(tab: TableTabInfo) {
-    this.currentTabInfo = tab;
-  }
 }
 </script>
 
 <style lang="scss">
 @import "../../../../assets/common";
-.tab-area {
-  @include flex-box(row, flex-start, center);
-
-  .tab {
-    @include flex-box(row, center, center);
-    background: linear-gradient(
-      to bottom,
-      rgba(240, 240, 240, 1),
-      rgba(200, 200, 200, 1)
-    );
-    border: 1px solid gray;
-    box-sizing: content-box;
-    cursor: pointer;
-    border-bottom-width: 0;
-    border-radius: 5px 5px 0 0;
-    padding: 0 0.5em;
-    height: var(--table-row-height);
-    min-width: var(--table-row-height);
-    font-weight: bold;
-
-    &.isActive {
-      background: white;
-      border-color: #0092ed;
-    }
-  }
-}
 </style>

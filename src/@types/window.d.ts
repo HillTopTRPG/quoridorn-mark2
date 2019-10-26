@@ -99,7 +99,7 @@ export interface WindowInfo<T> extends Rectangle, WindowTaskInfo, TaskInfo {
   readonly tableInfoList: WindowTableInfo[];
 }
 
-export type TableTabInfo = {
+export type TabInfo = {
   text: string;
   target:
     | string
