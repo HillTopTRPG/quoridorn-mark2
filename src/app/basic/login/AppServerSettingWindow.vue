@@ -77,9 +77,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   DefaultServerInfo
 } from "@/app/core/api/app-server/SocketFacade";
-import { ConnectInfo } from "@/@types/connect";
-
-const connectInfo: ConnectInfo = require("../../../../public/static/conf/connect.yaml");
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -87,10 +84,6 @@ const connectInfo: ConnectInfo = require("../../../../public/static/conf/connect
 export default class AppServerSettingWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
-  private readonly originalUrl: string =
-    typeof connectInfo.quoridornServer === "string"
-      ? connectInfo.quoridornServer
-      : connectInfo.quoridornServer[0];
   private url: string = "";
   private readonly originalUrlList: DefaultServerInfo[] =
     SocketFacade.instance.appServerUrlList;

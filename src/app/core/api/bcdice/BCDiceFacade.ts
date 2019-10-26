@@ -1,8 +1,6 @@
 import { DiceSystem } from "@/@types/bcdice";
-import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
-
-const connectInfo: ConnectInfo = require("../../../../../public/static/conf/connect.yaml");
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 export default class BCDiceFacade {
   // シングルトン
@@ -40,8 +38,26 @@ export default class BCDiceFacade {
    * BCDice-APIからシステム一覧を取得する
    */
   private static async getBcdiceSystemList(): Promise<DiceSystem[]> {
+    if (SocketFacade.instance.connectInfo) {
+      return this.doGetBcdiceSystemList();
+    } else {
+      return new Promise((resolve: Function, reject: Function) => {
+        const intervalId = window.setInterval(async () => {
+          if (SocketFacade.instance.connectInfo) {
+            clearInterval(intervalId);
+            resolve(await this.doGetBcdiceSystemList());
+          }
+        });
+      });
+    }
+  }
+
+  /**
+   * BCDice-APIからシステム一覧を取得する
+   */
+  private static async doGetBcdiceSystemList(): Promise<DiceSystem[]> {
     return new Promise((resolve: Function, reject: Function) => {
-      const url = `${connectInfo.bcdiceServer}/v1/names`;
+      const url = `${SocketFacade.instance.connectInfo.bcdiceServer}/v1/names`;
       fetch(url)
         .then(response => response.json())
         .then((json: any) => {
@@ -63,7 +79,7 @@ export default class BCDiceFacade {
       const params = new URLSearchParams();
       params.append("system", system);
       const url = `${
-        connectInfo.bcdiceServer
+        SocketFacade.instance.connectInfo.bcdiceServer
       }/v1/systeminfo?${params.toString()}`;
       fetch(url)
         .then(response => response.json())

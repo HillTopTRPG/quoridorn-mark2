@@ -1,4 +1,6 @@
-const bgmDeclareList: BgmDeclareInfo[] = require("../../../../public/static/conf/bgm.yaml");
+import { loadYaml } from "@/app/core/File";
+
+const bgmYamlPath: string = "/static/conf/bgm.yaml";
 
 export default class BgmManager {
   // シングルトン
@@ -10,8 +12,13 @@ export default class BgmManager {
 
   // コンストラクタの隠蔽
   private constructor() {
-    this._bgmList = bgmDeclareList.map((declareInfo, index) => {
-      return {
+    this.asyncConstructor().then();
+  }
+
+  private async asyncConstructor() {
+    const list: BgmDeclareInfo[] = await loadYaml(bgmYamlPath);
+    list.forEach((declareInfo, index) => {
+      this._bgmList.push({
         key: `bgm-${index}`,
         ...declareInfo,
         isPlay: false,
@@ -20,13 +27,13 @@ export default class BgmManager {
         volumeSetting: 0,
         volume: 0,
         duration: 0
-      };
+      });
     });
-    this.nextKey = bgmDeclareList.length + 1;
+    this.nextKey = this._bgmList.length + 1;
   }
 
   private nextKey: number = 0;
-  private readonly _bgmList: BgmInfo[];
+  private readonly _bgmList: BgmInfo[] = [];
 
   public get bgmList() {
     return this._bgmList;

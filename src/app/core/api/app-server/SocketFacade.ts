@@ -9,8 +9,9 @@ import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
 import { GetVersionResponse } from "@/@types/room";
+import { loadYaml } from "@/app/core/File";
 
-const connectInfo: ConnectInfo = require("../../../../../public/static/conf/connect.yaml");
+const connectYamlPath = "/static/conf/connect.yaml";
 
 export function getStoreObj<T>(
   doc: DocumentSnapshot<StoreObj<T>>
@@ -51,23 +52,28 @@ export default class SocketFacade {
     [name: string]: NecostoreCollectionController<unknown>;
   } = {};
   private __roomCollectionSuffix: string | null = null;
+  private __connectInfo: ConnectInfo | null = null;
 
   public get appServerUrl(): string {
     return this.__appServerUrl!;
+  }
+
+  public get connectInfo(): ConnectInfo {
+    return this.__connectInfo!;
   }
 
   public get appServerUrlList(): DefaultServerInfo[] {
     return this.__appServerUrlList;
   }
 
-  public async setAppServerUrl(url: string) {
-    this.__appServerUrl = url;
+  public async setAppServerUrl(appServerUrl: string) {
+    this.__appServerUrl = appServerUrl;
     if (this.socket) await this.destroy();
-    this.socket = SocketClient.connect(this.__appServerUrl!);
+    this.socket = SocketClient.connect(appServerUrl);
     this.nekostore = new Nekostore(
       new SocketDriver({
         socket: this.socket,
-        timeout: connectInfo.socketTimeout
+        timeout: this.__connectInfo!.socketTimeout
       })
     );
     this.socket.on("connect", async () => {
@@ -97,18 +103,16 @@ export default class SocketFacade {
   }
 
   private async setDefaultServerUrlList() {
-    if (typeof connectInfo.quoridornServer === "string") {
-      window.console.log("## string");
+    if (typeof this.__connectInfo!.quoridornServer === "string") {
       this.__appServerUrlList.push({
-        ...(await this.testServer(connectInfo.quoridornServer)),
-        url: connectInfo.quoridornServer
+        ...(await this.testServer(this.__connectInfo!.quoridornServer)),
+        url: this.__connectInfo!.quoridornServer
       });
     } else {
-      window.console.log("## list");
       // addDefaultUrlを直列の非同期で全部実行する
-      connectInfo.quoridornServer
-        .map((url: string) => () => this.addDefaultUrl(url))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+      this.__connectInfo!.quoridornServer.map((url: string) => () =>
+        this.addDefaultUrl(url)
+      ).reduce((prev, curr) => prev.then(curr), Promise.resolve());
     }
   }
 
@@ -129,12 +133,17 @@ export default class SocketFacade {
 
   // コンストラクタの隠蔽
   private constructor() {
-    const defaultServer: string =
-      typeof connectInfo.quoridornServer === "string"
-        ? connectInfo.quoridornServer
-        : connectInfo.quoridornServer[0];
-    this.setAppServerUrl(defaultServer).then();
-    this.setDefaultServerUrlList().then();
+    this.asyncConstructor().then();
+  }
+
+  private async asyncConstructor() {
+    this.__connectInfo = await loadYaml(connectYamlPath);
+    const appServerUrl =
+      typeof this.__connectInfo!.quoridornServer === "string"
+        ? this.__connectInfo!.quoridornServer
+        : this.__connectInfo!.quoridornServer[0];
+    await this.setAppServerUrl(appServerUrl);
+    await this.setDefaultServerUrlList();
   }
 
   public async destroy() {
@@ -178,6 +187,24 @@ export default class SocketFacade {
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
+    if (this.socket) {
+      return this.doSocketCommunication<T, U>(event, args);
+    } else {
+      return new Promise<U>((resolve, reject) => {
+        const intervalId = window.setInterval(async () => {
+          if (this.socket) {
+            clearInterval(intervalId);
+            resolve(await this.doSocketCommunication<T, U>(event, args));
+          }
+        }, 100);
+      });
+    }
+  }
+
+  private async doSocketCommunication<T, U>(
+    event: string,
+    args?: T
+  ): Promise<U> {
     return new Promise<U>((resolve, reject) => {
       window.console.log("socketCommunication:", event);
       this.socket!.once(`result-${event}`, (err: any, result: U) => {
@@ -201,7 +228,7 @@ export default class SocketFacade {
         socket.off("result-get-version");
         socket.disconnect();
         reject("not-quoridorn");
-      }, connectInfo.socketTimeout + 100);
+      }, this.__connectInfo!.socketTimeout + 100);
       socket.once(
         "result-get-version",
         (err: any, result: GetVersionResponse) => {

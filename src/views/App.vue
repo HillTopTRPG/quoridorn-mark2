@@ -72,29 +72,7 @@ export default class App extends Vue {
 
   @LifeCycle
   public async mounted() {
-    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "test-window"
-      }
-    });
-    await TaskManager.instance.ignition<WindowOpenInfo<number>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "sample-window",
-        args: 1
-      }
-    });
-    await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "bgm-setting-window"
-      }
-    });
-
+    // ログイン画面の表示
     const serverInfo = await SocketFacade.instance.socketCommunication<
       never,
       GetRoomListResponse

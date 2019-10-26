@@ -16,12 +16,14 @@ import AppServerSettingWindow from "@/app/basic/login/AppServerSettingWindow.vue
 import TermsOfUseWindow from "@/app/basic/login/TermsOfUseWindow.vue";
 import DeleteRoomWindow from "@/app/basic/login/DeleteRoomWindow.vue";
 import ConfirmWindow from "@/app/core/window/ConfirmWindow.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
 
-YoutubeManager.instance;
+SocketFacade.instance;
 BCDiceFacade.instance;
+YoutubeManager.instance;
 
 Vue.component("test-window", TestWindow);
 Vue.component("sample-window", SampleWindow);
