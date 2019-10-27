@@ -1,0 +1,68 @@
+button:
+  commit: Confirm
+  reject: Cancel
+  ok: OK
+  cancel: Cancel
+  login: Login
+  create-new: Create
+  delete: Delete
+
+label:
+  terms-of-use: Terms of Use
+  empty-room: (Empty)
+  exist: Exist
+  possible: 〇
+  creating: Creating
+
+test-window:
+  window-title: Test Window
+
+sample-window:
+  window-title: Sample Window
+
+play-youtube-window:
+  window-title: Youtube Player
+
+bgm-setting-window:
+  window-title: BGM Setting
+  table-columns:
+    -
+      - Linkage
+      - Tag
+      - Type
+      - Title
+      - Time
+      - Loop
+      - Volume
+      - Fade
+
+login-window:
+  window-title: Login
+  table-columns:
+    -
+      - No.
+      - Room Name
+      - System
+      - Users
+      - Password
+      - Visitor
+      - Update Time
+      - Delete
+
+create-new-room-window:
+  window-title: Create New Room
+
+user-login-window:
+  window-title: User Login
+
+app-server-setting-window:
+  window-title: Application Server Settings
+
+terms-of-use-window:
+  window-title: Terms Of Use
+
+delete-room-window:
+  window-title: Delete Room
+
+confirm-window:
+  window-title: Confirm Window

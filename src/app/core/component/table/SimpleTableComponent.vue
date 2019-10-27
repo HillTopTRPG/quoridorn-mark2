@@ -31,7 +31,11 @@
               ref="column"
             >
               <slot name="header" :colDec="colDec">
-                {{ colDec.title }}
+                <span
+                  v-t="
+                    `${windowInfo.type}.table-columns.${tableIndex}.${index}`
+                  "
+                ></span>
               </slot>
             </th>
           </template>

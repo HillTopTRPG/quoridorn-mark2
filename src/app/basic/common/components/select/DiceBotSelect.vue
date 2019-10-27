@@ -29,8 +29,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Vue {
-  @Action("getBcdiceSystemInfo") private getBcdiceSystemInfo: any;
-
   private diceSystemList: DiceSystem[] = [];
 
   @Prop({ type: String, required: true })

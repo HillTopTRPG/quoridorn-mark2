@@ -1,0 +1,68 @@
+button:
+  commit: 확인
+  reject: 취소
+  ok: OK
+  cancel: Cancel
+  login: 로그인
+  create-new: 작성
+  delete: 삭제
+
+label:
+  terms-of-use: 이용 약관
+  empty-room: (빈 방)
+  exist: 유
+  possible: 수
+  creating: 작성 중
+
+test-window:
+  window-title: 시험 화면
+
+sample-window:
+  window-title: 샘플 화면
+
+play-youtube-window:
+  window-title: Youtube 재생
+
+bgm-setting-window:
+  window-title: 음악 설정
+  table-columns:
+    -
+      - 연동
+      - 태그
+      - 종별
+      - 제목
+      - 시간
+      - 루프
+      - 볼륨
+      - Fade
+
+login-window:
+  window-title: 로그인
+  table-columns:
+    -
+      - No.
+      - 방 이름
+      - 시스템
+      - 인원
+      - 비밀번호
+      - 견학
+      - 마지막 시간
+      - 삭제
+
+create-new-room-window:
+  window-title: 방 만들기
+
+user-login-window:
+  window-title: 사용자 로그인
+
+app-server-setting-window:
+  window-title: 응용 프로그램 서버 설정
+
+terms-of-use-window:
+  window-title: 이용 약관
+
+delete-room-window:
+  window-title: 방 삭제
+
+confirm-window:
+  window-title: 확인 화면

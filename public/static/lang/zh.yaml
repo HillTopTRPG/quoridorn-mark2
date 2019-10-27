@@ -1,0 +1,68 @@
+button:
+  commit: 提交
+  reject: 拒绝
+  ok: OK
+  cancel: Cancel
+  login: 登入
+  create-new: 建立新的
+  delete: 删掉
+
+label:
+  terms-of-use: 使用条款
+  empty-room: (空房间)
+  exist: 有
+  possible: 好啦
+  creating: 创造
+
+test-window:
+  window-title: 体检 萤幕
+
+sample-window:
+  window-title: 样例 萤幕
+
+play-youtube-window:
+  window-title: Youtube 玩游戏
+
+bgm-setting-window:
+  window-title: 乐曲 设定
+  table-columns:
+    -
+      - 联锁
+      - 标签
+      - 型式
+      - 标题
+      - 时间
+      - 循环
+      - 数量
+      - Fade
+
+login-window:
+  window-title: 登入
+  table-columns:
+    -
+      - No.
+      - 房间名称
+      - 系统
+      - 人数
+      - 密码
+      - 来访
+      - 最后更新时间
+      - 删掉
+
+create-new-room-window:
+  window-title: 创建房间
+
+user-login-window:
+  window-title: 用户登录
+
+app-server-setting-window:
+  window-title: 应用服务器 设定
+
+terms-of-use-window:
+  window-title: 使用条款
+
+delete-room-window:
+  window-title: 删除房间
+
+confirm-window:
+  window-title: 提交画面

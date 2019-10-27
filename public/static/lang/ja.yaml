@@ -1,0 +1,68 @@
+button:
+  commit: 確認
+  reject: キャンセル
+  ok: OK
+  cancel: Cancel
+  login: ログイン
+  create-new: 新規作成
+  delete: 削除
+
+label:
+  terms-of-use: 利用規約
+  empty-room: （空部屋）
+  exist: 有り
+  possible: 可
+  creating: 作成中
+
+test-window:
+  window-title: テスト画面
+
+sample-window:
+  window-title: サンプル画面
+
+play-youtube-window:
+  window-title: Youtube再生画面
+
+bgm-setting-window:
+  window-title: BGM設定画面
+  table-columns:
+    -
+      - 連動
+      - タグ
+      - 種別
+      - タイトル
+      - 時間
+      - 繰
+      - 音量
+      - fade
+
+login-window:
+  window-title: ログイン画面
+  table-columns:
+    -
+      - No.
+      - プレイルーム名
+      - ゲームシステム
+      - 入室人数
+      - パスワード
+      - 見学
+      - 最終更新時刻
+      - 削除
+
+create-new-room-window:
+  window-title: 新規プレイルーム作成
+
+user-login-window:
+  window-title: ユーザログイン
+
+app-server-setting-window:
+  window-title: アプリケーションサーバ設定
+
+terms-of-use-window:
+  window-title: 利用規約確認
+
+delete-room-window:
+  window-title: 部屋削除
+
+confirm-window:
+  window-title: 確認画面

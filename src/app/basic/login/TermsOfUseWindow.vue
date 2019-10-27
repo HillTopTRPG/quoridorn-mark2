@@ -26,7 +26,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Message } from "@/@types/room";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
-const webServerTermOfUse = require("../../../../public/static/conf/termsOfUse.txt");
+import { loadText } from "@/app/core/File";
 
 @Component({
   components: { CtrlButton }
@@ -37,12 +37,13 @@ export default class TermsOfUseWindow extends Mixins<
   private readonly message: string =
     "各サーバの利用規約をご確認いただき、これらすべての内容を守ってご利用ください。";
   private appServerTermOfUse: string | null = null;
-  private webServerTermOfUse: string = webServerTermOfUse.default;
+  private webServerTermOfUse: string | null = null;
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.appServerTermOfUse = this.windowInfo.args!.message.termsOfUse;
+    this.webServerTermOfUse = await loadText("/static/conf/termsOfUse.txt");
   }
 
   @VueEvent

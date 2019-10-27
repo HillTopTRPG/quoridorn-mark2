@@ -17,9 +17,12 @@ import TermsOfUseWindow from "@/app/basic/login/TermsOfUseWindow.vue";
 import DeleteRoomWindow from "@/app/basic/login/DeleteRoomWindow.vue";
 import ConfirmWindow from "@/app/core/window/ConfirmWindow.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import VueI18n from "vue-i18n";
+import LanguageManager from "@/LanguageManager";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
+Vue.use(VueI18n);
 
 SocketFacade.instance;
 BCDiceFacade.instance;
@@ -37,10 +40,13 @@ Vue.component("terms-of-use-window", TermsOfUseWindow);
 Vue.component("delete-room-window", DeleteRoomWindow);
 Vue.component("confirm-window", ConfirmWindow);
 
-const app = new Vue({
-  // @ts-ignore
-  router,
-  store,
-  render: (h: any) => h(MainVue)
+LanguageManager.instance.init().then((i18n: any) => {
+  const app = new Vue({
+    // @ts-ignore
+    router,
+    i18n,
+    store,
+    render: (h: any) => h(MainVue)
+  });
+  app.$mount("#app");
 });
-app.$mount("#app");

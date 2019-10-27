@@ -9,7 +9,7 @@
       />
       <div class="message-documents">
         <div class="term-of-use flat-button" @click="viewTermOfUse()">
-          利用規約
+          <span v-t="'label.terms-of-use'"></span>
         </div>
         <div class="title-contents flat-button" @click="serverSetting()">
           <span class="title">{{ message.title }}</span>
@@ -22,6 +22,10 @@
         </ul>
       </div>
     </div>
+    <label class="language-select">
+      Language:
+      <language-select v-model="language" />
+    </label>
     <keep-alive>
       <table-component
         :windowInfo="windowInfo"
@@ -37,11 +41,25 @@
       >
         <template #contents="{ colDec, data, index }">
           <template v-if="index === 0">{{ data | roomNo }}</template>
-          <template v-else-if="index === 1">{{ data | roomName }}</template>
+          <template v-else-if="index === 1">
+            <span v-if="data.data">{{ data.data.name }}</span>
+            <span v-else v-t="'label.empty-room'"></span>
+          </template>
           <template v-else-if="index === 2">{{ data | system }}</template>
           <template v-else-if="index === 3">{{ data | memberNum }}</template>
-          <template v-else-if="index === 4">{{ data | password }}</template>
-          <template v-else-if="index === 5">{{ data | visitable }}</template>
+          <template v-else-if="index === 4">
+            <span v-if="!data.data || !data.data.hasPassword">--</span>
+            <span v-else v-t="'label.exist'"></span>
+          </template>
+          <template v-else-if="index === 5">
+            <span
+              v-if="
+                !data.data || !data.data.extend || !data.data.extend.visitable
+              "
+              >--</span
+            >
+            <span v-else v-t="'label.possible'"></span>
+          </template>
           <template v-else-if="index === 6">{{ data | updateDate }}</template>
           <template v-else-if="index === 7">
             <ctrl-button
@@ -49,7 +67,7 @@
               @dblclick.stop
               :disabled="data | deleteButtonDisabled"
             >
-              削除
+              <span v-t="'button.delete'"></span>
             </ctrl-button>
           </template>
           <template v-else>
@@ -60,15 +78,17 @@
     </keep-alive>
     <div class="button-area">
       <ctrl-button @click="createRoom()" :disabled="unTouchable">
-        新規作成
+        <span v-t="'button.create-new'"></span>
       </ctrl-button>
-      <ctrl-button>ログイン</ctrl-button>
+      <ctrl-button>
+        <span v-t="'button.login'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Emit } from "vue-property-decorator";
+import { Component, Emit, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
@@ -95,23 +115,17 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { WindowOpenInfo } from "@/@types/window";
 import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
+import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.vue";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
-  components: { TableComponent, CtrlButton },
+  components: { LanguageSelect, TableComponent, CtrlButton },
   filters: {
     roomNo: (storeObj: StoreObj<ClientRoomInfo>) => storeObj.order,
-    roomName: (storeObj: StoreObj<ClientRoomInfo>) =>
-      storeObj.data ? storeObj.data.name : "（空き部屋）",
     system: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.system : "",
     memberNum: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
-    password: (storeObj: StoreObj<ClientRoomInfo>) =>
-      storeObj.data && storeObj.data.hasPassword ? "有り" : "--",
-    visitable: (storeObj: StoreObj<ClientRoomInfo>) =>
-      storeObj.data && storeObj.data.extend && storeObj.data.extend.visitable
-        ? "可"
-        : "--",
     updateDate: (data: StoreMetaData) => {
       if (!data) return "";
       // return data.updateTime || data.createTime;
@@ -139,6 +153,13 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     "\\[([^\\]]+)]\\(([^)]+)\\)",
     "g"
   );
+  private language: string = navigator.language;
+
+  @Watch("language")
+  private onChangeLanguage() {
+    window.console.log(this.language);
+    LanguageManager.instance.language = this.language;
+  }
 
   @LifeCycle
   public async mounted() {
@@ -402,8 +423,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         roomNo: this.selectedRoomNo
       }
     );
-    // const controller = SocketFacade.instance.generateRoomInfoController();
-    // await controller.releaseTouch(this.selectedRoomNo);
   }
 
   @VueEvent
@@ -493,6 +512,12 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 @import "../../../assets/common";
 .root {
   position: relative;
+
+  .language-select {
+    position: absolute;
+    top: calc(10.5rem + 2px);
+    right: 0;
+  }
 
   .message-scroll-area {
     overflow-y: auto;
