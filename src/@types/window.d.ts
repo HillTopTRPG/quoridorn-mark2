@@ -1,10 +1,18 @@
-import { Anchor, Point, Rectangle, Size } from "@/@types/address";
+import { Anchor, Point, Size } from "@/@types/address";
+
+export type WindowSize = {
+  widthEm: number;
+  widthRem: number;
+  widthPx: number;
+  heightEm: number;
+  heightRem: number;
+  heightPx: number;
+};
 
 export type WindowTableColumn = {
   width: number;
   type: string;
   align: "left" | "center" | "right";
-  title: string;
   target: string;
 };
 
@@ -21,12 +29,11 @@ export type WindowDeclareInfo = {
   readonly parentTypeList: string[];
   readonly isInputWindow: boolean;
   readonly isMovingRendering: boolean;
-  readonly title: string;
   readonly message: string;
   readonly position: Point | Anchor;
-  readonly size: Size;
-  readonly minSize?: Size;
-  readonly maxSize?: Size;
+  readonly size: WindowSize;
+  readonly minSize?: WindowSize;
+  readonly maxSize?: WindowSize;
   readonly closable: boolean;
   readonly fontSizePickable: boolean;
   readonly resizable: boolean;
@@ -83,7 +90,11 @@ type WindowStatus =
   | "right-pane"
   | "right-pane-moving";
 
-export interface WindowInfo<T> extends Rectangle, WindowTaskInfo, TaskInfo {
+export interface WindowInfo<T>
+  extends Point,
+    WindowSize,
+    WindowTaskInfo,
+    TaskInfo {
   readonly key: string;
   title: string;
   status: WindowStatus;

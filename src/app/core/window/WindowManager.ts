@@ -4,7 +4,7 @@ import {
   WindowOpenInfo,
   WindowTableInfo
 } from "@/@types/window";
-import { calcWindowPosition, createPoint } from "../Coordinate";
+import { calcWindowPosition, createPoint, getWindowSize } from "../Coordinate";
 import { Point } from "@/@types/address";
 import { getCssPxNum } from "../Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
@@ -77,13 +77,17 @@ export default class WindowManager {
     const windowSize = declareInfo.size;
     const position = declareInfo.position;
     const menuHeight = getCssPxNum("--menu-bar-height");
-    const point = calcWindowPosition(position, windowSize, menuHeight);
+    const point = calcWindowPosition(
+      position,
+      getWindowSize(windowSize),
+      menuHeight
+    );
 
     const key = `window-${this.keyCount++}`;
     this.__windowInfoList.push({
       key,
       taskKey,
-      title: declareInfo.title,
+      title: "",
       status: "window",
       message: declareInfo.message,
       args,

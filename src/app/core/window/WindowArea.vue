@@ -20,7 +20,7 @@ import { WindowInfo } from "@/@types/window";
 import WindowFrame from "./WindowFrame.vue";
 import WindowManager from "./WindowManager";
 import Logging from "../logger/Logging";
-import { calcWindowPosition, createSize } from "../Coordinate";
+import { calcWindowPosition, getWindowSize } from "../Coordinate";
 import { getCssPxNum } from "../Css";
 
 @Component({
@@ -39,13 +39,6 @@ export default class WindowArea extends Vue {
     const index = this.getWindowInfoIndex(task.value);
     this.windowInfoList.splice(index, 1);
   }
-
-  // private get useList() {
-  //   return this.windowInfoList.filter(
-  //     windowInfo =>
-  //       windowInfo.status === "window" || windowInfo.status.endsWith("-window")
-  //   );
-  // }
 
   @TaskProcessor("window-close-finished")
   private async windowCloseFinished(
@@ -94,7 +87,10 @@ export default class WindowArea extends Vue {
     windowInfo.isMinimizeAnimationEnd = false;
 
     // 現在のサイズのまま、初期配置場所に設置しなおす
-    const size = createSize(windowInfo.width, windowInfo.height);
+    const size = getWindowSize(
+      windowInfo,
+      document.getElementById(windowInfo.key)
+    );
     const point = calcWindowPosition(
       windowInfo.declare.position,
       size,

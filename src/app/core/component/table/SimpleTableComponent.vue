@@ -25,7 +25,9 @@
             <!-- セル -->
             <th
               :key="`header-${index}`"
-              :title="colDec.title"
+              :title="
+                $t(`${windowInfo.type}.table-columns.${tableIndex}.${index}`)
+              "
               :style="colStyle(index)"
               :class="colDec | align"
               ref="column"

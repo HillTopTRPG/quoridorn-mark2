@@ -157,7 +157,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 
   @Watch("language")
   private onChangeLanguage() {
-    window.console.log(this.language);
     LanguageManager.instance.language = this.language;
   }
 
@@ -283,9 +282,9 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
     if (this.windowInfo.declare.minSize)
-      this.windowInfo.declare.minSize.width = totalWidth;
+      this.windowInfo.declare.minSize.widthPx = totalWidth;
     if (this.windowInfo.declare.maxSize)
-      this.windowInfo.declare.maxSize.width = totalWidth;
+      this.windowInfo.declare.maxSize.widthPx = totalWidth;
   }
 
   @VueEvent
@@ -511,11 +510,13 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 <style scoped lang="scss">
 @import "../../../assets/common";
 .root {
+  @include flex-box(column, stretch, flex-start);
   position: relative;
+  height: 100%;
 
   .language-select {
     position: absolute;
-    top: calc(10.5rem + 2px);
+    bottom: calc(24em + 0.5rem + 5px);
     right: 0;
   }
 
@@ -523,7 +524,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     overflow-y: auto;
     border: 1px solid gray;
     margin-bottom: 0.5rem;
-    height: 10rem;
+    flex: 1;
     background-color: var(--uni-color-white);
     background-image: url("http://quoridorn.com/img/mascot/normal/mascot_normal.png");
     background-size: 18rem;

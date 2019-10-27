@@ -125,9 +125,9 @@ export default class BgmSettingWindow extends WindowVue<number> {
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
     if (this.windowInfo.declare.minSize)
-      this.windowInfo.declare.minSize.width = totalWidth;
+      this.windowInfo.declare.minSize.widthPx = totalWidth;
     if (this.windowInfo.declare.maxSize)
-      this.windowInfo.declare.maxSize.width = totalWidth;
+      this.windowInfo.declare.maxSize.widthPx = totalWidth;
   }
 
   @VueEvent

@@ -1,5 +1,5 @@
 import { Anchor, Point, Rectangle, Size } from "@/@types/address";
-import { WindowInfo } from "@/@types/window";
+import { WindowSize } from "@/@types/window";
 import WindowManager from "@/app/core/window/WindowManager";
 import { getCssPxNum } from "@/app/core/Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
@@ -10,6 +10,17 @@ export function createPoint(x: number, y: number): Point {
 
 export function createSize(width: number, height: number): Size {
   return { width, height };
+}
+
+export function getWindowSize(s: WindowSize, elm?: HTMLElement): Size {
+  const rootFontSize = getCssPxNum("font-size");
+  const elmFontSize = elm ? getCssPxNum("font-size", elm) : 12;
+  const getEmSize = (n: number) => n * elmFontSize;
+  const getRemSize = (n: number) => n * rootFontSize;
+  return {
+    width: s.widthPx + getEmSize(s.widthEm) + getRemSize(s.widthRem),
+    height: s.heightPx + getEmSize(s.heightEm) + getRemSize(s.heightRem)
+  };
 }
 
 export function createRectangle(
