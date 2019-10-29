@@ -6,13 +6,21 @@ button:
   login: Se connecter
   create-new: Créer nouveau
   delete: Supprimer
+  send: Envoyer
+  preview: Aperçu
+  add: Ajouter
+  modify: Modifier
+  copy: Copie
 
 label:
   terms-of-use: Conditions d'utilisation
   empty-room: （Salle vide）
   exist: Exister
+  not-exist: Non exister
   possible: Possible
   creating: En créant
+  termsOfUseWebServer: Termes et conditions du serveur Web
+  termsOfUseAppServer: Conditions d'utilisation du serveur d'applications
 
 test-window:
   window-title: Test Écran
@@ -57,9 +65,17 @@ user-login-window:
 
 app-server-setting-window:
   window-title: Paramètres du serveur d'applications
+  message: Paramètres du serveur d'applications
+  testing: Tests
+  not-quoridorn: Pas un serveur Quoridorn
+  no-such-server: Impossible de se connecter
+  internal-server-error: Une erreur est survenue sur le serveur
+  un-match-version: Version incompatible du serveur
+  success: Connexion réussie
 
 terms-of-use-window:
   window-title: Conditions d'utilisation
+  message: Veuillez vérifier les conditions d'utilisation de chaque serveur et observer l'ensemble de ces contenus.
 
 delete-room-window:
   window-title: Supprimer la salle

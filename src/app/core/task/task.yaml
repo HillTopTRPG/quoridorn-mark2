@@ -32,6 +32,7 @@
     - socket-connect
     - socket-connect-error
     - socket-reconnecting
+    - language-change
 
 - taskAttribute:
     isIgniteWithParam: false

@@ -369,7 +369,7 @@ export default class RightPane extends Vue {
       info => info.declare.minSize
     );
     if (!useList.length) return 50;
-    return Math.max(...useList.map(info => info.declare.minSize!.width));
+    return Math.max(...useList.map(info => info.declare.minSize!.widthPx));
   }
 
   /**
@@ -380,7 +380,7 @@ export default class RightPane extends Vue {
       info => info.declare.maxSize
     );
     if (!useList.length) return 50;
-    return Math.min(...useList.map(info => info.declare.maxSize!.width));
+    return Math.min(...useList.map(info => info.declare.maxSize!.widthPx));
   }
 
   @Watch("isMounted")

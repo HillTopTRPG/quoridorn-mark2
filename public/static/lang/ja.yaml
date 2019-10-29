@@ -6,13 +6,21 @@ button:
   login: ログイン
   create-new: 新規作成
   delete: 削除
+  send: 送信
+  preview: プレビュー
+  add: 追加
+  modify: 変更
+  copy: コピー
 
 label:
   terms-of-use: 利用規約
   empty-room: （空部屋）
-  exist: 有り
+  exist: あり
+  not-exist: なし
   possible: 可
   creating: 作成中
+  termsOfUseWebServer: Webサーバの利用規約
+  termsOfUseAppServer: Appサーバの利用規約
 
 test-window:
   window-title: テスト画面
@@ -57,9 +65,17 @@ user-login-window:
 
 app-server-setting-window:
   window-title: アプリケーションサーバ設定
+  message: アプリケーションサーバに関する設定
+  testing: テスト中
+  not-quoridorn: Quoridornサーバではありません
+  no-such-server: 接続できませんでした
+  internal-server-error: サーバ内でエラーが発生しました
+  un-match-version: 互換性の無いバージョンのサーバです
+  success: 接続成功
 
 terms-of-use-window:
   window-title: 利用規約確認
+  message: 各サーバの利用規約をご確認いただき、これらすべての内容を守ってご利用ください。
 
 delete-room-window:
   window-title: 部屋削除

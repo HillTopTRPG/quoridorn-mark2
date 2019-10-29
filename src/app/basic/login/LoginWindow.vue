@@ -1,5 +1,5 @@
 <template>
-  <div class="root">
+  <div class="root" ref="login">
     <div class="message-scroll-area selectable" v-if="message">
       <img
         class="logo"
@@ -117,6 +117,8 @@ import { WindowOpenInfo } from "@/@types/window";
 import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
 import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.vue";
 import LanguageManager from "@/LanguageManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 @Component({
   components: { LanguageSelect, TableComponent, CtrlButton },
@@ -165,6 +167,25 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     await this.init();
     this.roomList = this.windowInfo.args!.roomList;
     this.message = this.windowInfo.args!.message;
+    this.elm.style.setProperty(
+      "--msg-creating",
+      `"${LanguageManager.instance.getText("label.creating")}"`
+    );
+  }
+
+  private get elm(): HTMLElement {
+    return this.$refs.login as HTMLElement;
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.elm.style.setProperty(
+      "--msg-creating",
+      `"${LanguageManager.instance.getText("label.creating")}"`
+    );
+    task.resolve();
   }
 
   @VueEvent
@@ -373,7 +394,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       });
     } catch (err) {
       window.console.warn(err);
-      await this.releaseTouchRoom();
       this.isInputtingRoomInfo = false;
       return;
     }
@@ -382,9 +402,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         deleteResult ? "部屋を削除しました。" : "部屋の削除に失敗しました。"
       );
     });
-    if (!deleteResult) {
-      await this.releaseTouchRoom();
-    }
   }
 
   @VueEvent
@@ -647,7 +664,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   &:after {
-    content: "作成中";
+    content: var(--msg-creating, "さくせいちゅう");
     @include inline-flex-box(row, center, center);
     position: absolute;
     left: 50%;

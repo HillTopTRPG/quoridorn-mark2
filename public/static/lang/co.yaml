@@ -6,13 +6,21 @@ button:
   login: 로그인
   create-new: 작성
   delete: 삭제
+  send: 보내다
+  preview: 시사
+  add: 더하다
+  modify: 수정하다
+  copy: 부
 
 label:
   terms-of-use: 이용 약관
   empty-room: (빈 방)
   exist: 유
+  not-exist: 없음
   possible: 수
   creating: 작성 중
+  termsOfUseWebServer: Web 서버 약관
+  termsOfUseAppServer: Application 서버 약관
 
 test-window:
   window-title: 시험 화면
@@ -57,9 +65,17 @@ user-login-window:
 
 app-server-setting-window:
   window-title: 응용 프로그램 서버 설정
+  message: 응용 프로그램 서버에 대한 설정
+  testing: 테스트 중
+  not-quoridorn: Quoridorn 서버가 없습니다
+  no-such-server: 연결할 수 없습니다
+  internal-server-error: 서버에 오류가 발생했습니다
+  un-match-version: 호환되지 않는 버전의 서버입니다
+  success: 연결 성공
 
 terms-of-use-window:
   window-title: 이용 약관
+  message: 각 서버의 이용 약관을 확인 하시고,이 모든 내용을 지켜 이용해주십시오.
 
 delete-room-window:
   window-title: 방 삭제

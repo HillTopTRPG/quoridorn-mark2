@@ -1,8 +1,12 @@
 <template>
   <div>
     <div class="button-area space-between margin-none">
-      <ctrl-button @click="playBgm()">送信</ctrl-button>
-      <ctrl-button @click="preview">プレビュー</ctrl-button>
+      <ctrl-button @click="playBgm()">
+        <span>{{ $t("button.send") }}</span>
+      </ctrl-button>
+      <ctrl-button @click="preview">
+        <span v-t="'button.preview'"></span>
+      </ctrl-button>
     </div>
 
     <table-component
@@ -15,7 +19,10 @@
       @adjustWidth="adjustWidth"
     >
       <template #contents="{ colDec, data, index }">
-        <template v-if="index === 0">{{ data | chatLinkage }}</template>
+        <template v-if="index === 0">
+          <span v-if="data.chatLinkage > 0" v-t="'label.exist'"></span>
+          <span v-else v-t="'label.not-exist'"></span>
+        </template>
         <template v-else-if="index === 2">
           <i :class="data | icon"></i>
         </template>
@@ -33,10 +40,18 @@
     </table-component>
 
     <div class="button-area">
-      <ctrl-button @click="addMusic">追加</ctrl-button>
-      <ctrl-button @click="editMusic">変更</ctrl-button>
-      <ctrl-button @click="copyMusic">コピー</ctrl-button>
-      <ctrl-button @click="deleteMusic">削除</ctrl-button>
+      <ctrl-button @click="addMusic">
+        <span v-t="'button.add'"></span>
+      </ctrl-button>
+      <ctrl-button @click="editMusic">
+        <span v-t="'button.modify'"></span>
+      </ctrl-button>
+      <ctrl-button @click="copyMusic">
+        <span v-t="'button.copy'"></span>
+      </ctrl-button>
+      <ctrl-button @click="deleteMusic">
+        <span v-t="'button.delete'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -57,7 +72,6 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
-    chatLinkage: (data: BgmInfo) => (data.chatLinkage > 0 ? "あり" : "なし"),
     icon: (data: BgmInfo) => {
       if (!data.url) return "icon-stop2";
       if (BgmManager.isYoutube(data)) return "icon-youtube2";
@@ -84,6 +98,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 })
 export default class BgmSettingWindow extends WindowVue<number> {
   private selectedBgmKey: string | null = null;
+  private bgmList: BgmInfo[] = BgmManager.instance.bgmList;
 
   @LifeCycle
   public async mounted() {
@@ -153,11 +168,6 @@ export default class BgmSettingWindow extends WindowVue<number> {
   @VueEvent
   private deleteMusic() {
     window.console.log("deleteMusic");
-  }
-
-  @VueEvent
-  private get bgmList(): any[] {
-    return BgmManager.instance.bgmList;
   }
 }
 </script>

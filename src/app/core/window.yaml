@@ -293,23 +293,23 @@
     widthPx: 350
     widthEm: 0
     widthRem: 0
-    heightPx: 112
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 100
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
   maxSize:
     widthPx: 500
     widthEm: 0
     widthRem: 0
-    heightPx: 186
-    heightEm: 0
-    heightRem: 0
+    heightPx: 26
+    heightEm: 8.5
+    heightRem: 0.5
   closable: true
   fontSizePickable: true
   resizable: true

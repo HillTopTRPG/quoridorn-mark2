@@ -16,7 +16,8 @@
     >
       <!-- タイトル文言 -->
       <div class="title-message-area">
-        <span v-t="`${windowInfo.type}.window-title`"></span>
+        <span v-if="windowInfo.title">{{ windowInfo.title }}</span>
+        <span v-else v-t="`${windowInfo.type}.window-title`"></span>
         <span class="message" v-if="windowInfo.message">{{
           windowInfo.message
         }}</span>

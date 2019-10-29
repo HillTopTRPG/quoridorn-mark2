@@ -89,7 +89,7 @@ export default class WindowArea extends Vue {
     // 現在のサイズのまま、初期配置場所に設置しなおす
     const size = getWindowSize(
       windowInfo,
-      document.getElementById(windowInfo.key)
+      document.getElementById(windowInfo.key)!
     );
     const point = calcWindowPosition(
       windowInfo.declare.position,

@@ -2,18 +2,20 @@
   <div>
     <div class="message">
       <span class="icon-notification"></span>
-      <span class="text">{{ message }}</span>
+      <span class="text" v-t="`${windowInfo.type}.message`"></span>
     </div>
     <fieldset>
-      <legend>Webサーバの利用規約</legend>
+      <legend v-t="'label.termsOfUseWebServer'"></legend>
       <div class="selectable">{{ webServerTermOfUse }}</div>
     </fieldset>
     <fieldset>
-      <legend>Appサーバの利用規約</legend>
+      <legend v-t="'label.termsOfUseAppServer'"></legend>
       <div class="selectable">{{ appServerTermOfUse }}</div>
     </fieldset>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">確認</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.commit'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -34,8 +36,6 @@ import { loadText } from "@/app/core/File";
 export default class TermsOfUseWindow extends Mixins<
   WindowVue<{ message: Message }>
 >(WindowVue) {
-  private readonly message: string =
-    "各サーバの利用規約をご確認いただき、これらすべての内容を守ってご利用ください。";
   private appServerTermOfUse: string | null = null;
   private webServerTermOfUse: string | null = null;
 

@@ -6,13 +6,21 @@ button:
   login: Login
   create-new: Create
   delete: Delete
+  send: Send
+  preview: Preview
+  add: Add
+  modify: Modify
+  copy: Copy
 
 label:
   terms-of-use: Terms of Use
   empty-room: (Empty)
   exist: Exist
+  not-exist: Not Exist
   possible: 〇
   creating: Creating
+  termsOfUseWebServer: Terms of use at Web Server
+  termsOfUseAppServer: Terms of use at Application Server
 
 test-window:
   window-title: Test Window
@@ -57,9 +65,17 @@ user-login-window:
 
 app-server-setting-window:
   window-title: Application Server Settings
+  message: Application server settings
+  testing: Testing
+  not-quoridorn: Not a Quoridorn server
+  no-such-server: Could not connect
+  internal-server-error: An error occurred in the server
+  un-match-version: Incompatible version of server
+  success: Successful connection
 
 terms-of-use-window:
   window-title: Terms Of Use
+  message: Please check the terms of use for each server and observe all of these contents.
 
 delete-room-window:
   window-title: Delete Room

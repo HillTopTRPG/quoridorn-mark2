@@ -31,6 +31,7 @@ import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -104,10 +105,11 @@ export default class PlayYoutubeWindow
   }
 
   public onPlaying(duration: number): void {
-    window.console.log("onPlaying", duration);
-    this.windowInfo.title = `${this.windowInfo.declare.title}(${
-      this.bgmInfo!.tag
-    })`;
+    const windowTitle = LanguageManager.instance.getText(
+      `${this.windowInfo.type}.window-title`
+    );
+    window.console.log("onPlaying", windowTitle);
+    this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
     this.windowInfo.message = this.bgmInfo!.title;
     this.bgmInfo!.duration = duration;
     this.bgmInfo!.isPlay = true;
@@ -145,23 +147,23 @@ export default class PlayYoutubeWindow
   }
 
   @Watch("isMounted")
-  @Watch("windowInfo.width")
+  @Watch("windowInfo.widthPx")
   private onChangeWindowWidth() {
-    const windowWidth = this.windowInfo.width;
+    const windowWidth = this.windowInfo.widthPx;
     const playerSize = YoutubeManager.playerElementSize;
     const ratio = windowWidth / playerSize.width;
     this.viewSizeRatio = ratio;
-    this.windowInfo.height = ratio * playerSize.height + 16;
+    this.windowInfo.heightPx = ratio * playerSize.height + 16;
     this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
   }
 
-  @Watch("windowInfo.height")
+  @Watch("windowInfo.heightPx")
   private onChangeWindowHeight() {
-    const windowHeight = this.windowInfo.height;
+    const windowHeight = this.windowInfo.heightPx;
     const playerSize = YoutubeManager.playerElementSize;
     const ratio = (windowHeight - 16) / playerSize.height;
     this.viewSizeRatio = ratio;
-    this.windowInfo.width = ratio * playerSize.width;
+    this.windowInfo.widthPx = ratio * playerSize.width;
     this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
   }
 }

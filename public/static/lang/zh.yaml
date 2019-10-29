@@ -6,13 +6,21 @@ button:
   login: 登入
   create-new: 建立新的
   delete: 删掉
+  send: 发送
+  preview: 预习
+  add: 加
+  modify: 修改
+  copy: 复制
 
 label:
   terms-of-use: 使用条款
   empty-room: (空房间)
   exist: 有
+  not-exist: 无
   possible: 好啦
   creating: 创造
+  termsOfUseWebServer: Web服务器条款和条件
+  termsOfUseAppServer: 应用服务器使用条款
 
 test-window:
   window-title: 体检 萤幕
@@ -57,9 +65,17 @@ user-login-window:
 
 app-server-setting-window:
   window-title: 应用服务器 设定
+  message: 应用程序服务器设置
+  testing: 测试中
+  not-quoridorn: 不是Quoridorn服务器
+  no-such-server: 无法连接
+  internal-server-error: 伺服器发生错误
+  un-match-version: 服务器版本不兼容
+  success: 连接成功
 
 terms-of-use-window:
   window-title: 使用条款
+  message: 请检查每个服务器的使用条款 并注意所有这些内容
 
 delete-room-window:
   window-title: 删除房间

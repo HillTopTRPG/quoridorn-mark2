@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="base-area">
-      <div>アプリケーションサーバに関する設定</div>
+      <div v-t="`${windowInfo.type}.message`"></div>
       <div class="item">
         <label>
           <span>URL：</span>
@@ -31,20 +31,19 @@
         }"
         v-if="testStatus"
       >
-        <span>{{ testMessage }}</span>
-        <span class="icon-hour-glass" v-if="testStatus === 'testing'"></span>
-        <span
-          class="icon-confused"
-          v-if="testStatus === 'not-quoridorn'"
-        ></span>
-        <span
-          class="icon-wondering"
-          v-if="testStatus === 'no-such-server'"
-        ></span>
-        <span
-          class="icon-warning"
-          v-if="testStatus === 'internal-server-error'"
-        ></span>
+        <span v-t="`${windowInfo.type}.${testStatus}`"></span>
+        <template v-if="testStatus === 'testing'">
+          <span class="icon-hour-glass"></span>
+        </template>
+        <template v-if="testStatus === 'not-quoridorn'">
+          <span class="icon-confused"></span>
+        </template>
+        <template v-if="testStatus === 'no-such-server'">
+          <span class="icon-wondering"></span>
+        </template>
+        <template v-if="testStatus === 'internal-server-error'">
+          <span class="icon-warning"></span>
+        </template>
         <template v-if="testStatus === 'success'">
           <span class="icon-grin"></span>
           ：<span class="selectable">{{ testServerTitle }}</span>
@@ -56,8 +55,12 @@
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">確定</ctrl-button>
-      <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.commit'"></span>
+      </ctrl-button>
+      <ctrl-button @click.stop="rollback()">
+        <span v-t="'button.reject'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -106,11 +109,9 @@ export default class AppServerSettingWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async test() {
     window.console.log("test");
-    this.testMessage = "接続中...";
     this.testStatus = "testing";
     try {
       const info = await SocketFacade.instance.testServer(this.url);
-      this.testMessage = "接続成功";
       this.testServerTitle = info.title;
       this.testServerVersion = info.version;
       this.testStatus = "success";
@@ -167,6 +168,8 @@ export default class AppServerSettingWindow extends Mixins<WindowVue<never>>(
 @import "../../../assets/common";
 .base-area {
   @include flex-box(column, stretch, center);
+  line-height: 1.5em;
+
   .item {
     @include flex-box(row, flex-start, center);
 

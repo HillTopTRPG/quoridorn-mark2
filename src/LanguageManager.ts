@@ -1,5 +1,8 @@
 import { loadYaml } from "@/app/core/File";
 import VueI18n from "vue-i18n";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
+import { AppServerSettingInput } from "@/@types/room";
 
 type LangInfo = {
   lang: string;
@@ -38,6 +41,15 @@ export default class LanguageManager {
 
   public set language(locale: string) {
     this.i18n.locale = locale;
+    TaskManager.instance.ignition<never, never>({
+      type: "language-change",
+      owner: "Quoridorn",
+      value: null
+    });
+  }
+
+  public getText(target: string): string {
+    return this.i18n.t(target);
   }
 
   public async init() {
