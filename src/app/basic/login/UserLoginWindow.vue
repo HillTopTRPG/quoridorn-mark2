@@ -1,18 +1,18 @@
 <template>
   <div>
     <div class="base-area">
-      <div>ユーザ情報を入力してください。</div>
+      <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span>ユーザ名：</span>
+        <span v-t="'label.userName'"></span>
         <base-input
           type="text"
           :value="name"
           @input="name = $event.target.value"
-          placeholder="ななしさん"
+          :placeholder="$t('label.nameless')"
         />
       </label>
       <label>
-        <span>パスワード(空ならパスワードなし)：</span>
+        <span v-t="'label.password'"></span>
         <base-input
           type="password"
           :value="password"
@@ -20,13 +20,17 @@
         />
       </label>
       <label>
-        <span>ユーザ種別：</span>
+        <span v-t="'label.userType'"></span>
         <user-type-select v-model="userType" />
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">ログイン</ctrl-button>
-      <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.login'"></span>
+      </ctrl-button>
+      <ctrl-button @click.stop="rollback()">
+        <span v-t="'button.reject'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -43,6 +47,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { UserLoginInput, UserType } from "@/@types/room";
 import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: {
@@ -58,7 +63,7 @@ export default class UserLoginWindow extends Mixins<WindowVue<never>>(
 ) {
   private name: string = "";
   private password: string = "";
-  private userType: UserType = "GM";
+  private userType: UserType = "PL";
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {
@@ -68,7 +73,7 @@ export default class UserLoginWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     this.finally({
-      userName: this.name,
+      userName: this.name || LanguageManager.instance.getText("label.nameless"),
       userType: this.userType,
       userPassword: this.password
     });
@@ -100,6 +105,8 @@ export default class UserLoginWindow extends Mixins<WindowVue<never>>(
 @import "../../../assets/common";
 .base-area {
   @include flex-box(column, stretch, center);
+  line-height: 1.5;
+
   label {
     @include flex-box(row, flex-start, center);
 

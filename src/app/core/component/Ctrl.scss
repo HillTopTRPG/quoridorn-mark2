@@ -166,6 +166,7 @@ $background-area-active-background: linear-gradient(
     appearance: none;
     padding: 0 calc(22px + 0.5em) 0 0.5em;
     cursor: pointer;
+    font-size: inherit;
 
     &[disabled="disabled"] {
       cursor: default;

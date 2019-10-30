@@ -9,6 +9,9 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { UserType } from "@/@types/room";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
+import LanguageManager from "@/LanguageManager";
 
 type Item = {
   val: UserType;
@@ -19,26 +22,49 @@ type Item = {
   components: { CtrlSelect }
 })
 export default class UserTypeSelect extends Mixins<SelectMixin>(SelectMixin) {
+  private optionInfoList: any[] = [];
+
   @VueEvent
-  private get optionInfoList(): any[] {
+  private mounted() {
     const choice: Item[] = [
-      { val: "GM", text: "GM" },
-      { val: "PL", text: "PL" },
-      { val: "VISITOR", text: "見学者" }
+      { val: "PL", text: LanguageManager.instance.getText("label.player") },
+      { val: "GM", text: LanguageManager.instance.getText("label.gameMaster") },
+      {
+        val: "VISITOR",
+        text: LanguageManager.instance.getText("label.visitor")
+      }
     ];
-    const resultList: any = choice.map((c: Item) => ({
+    this.optionInfoList = choice.map((c: Item) => ({
       key: c.val,
       value: c.val,
       text: c.text,
       disabled: false
     }));
-    resultList.unshift({
+    this.optionInfoList.unshift({
       key: null,
       value: "",
-      text: "権限",
+      text: LanguageManager.instance.getText("label.authority"),
       disabled: true
     });
-    return resultList;
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.optionInfoList[0].text = LanguageManager.instance.getText(
+      "label.authority"
+    );
+    this.optionInfoList[1].text = LanguageManager.instance.getText(
+      "label.player"
+    );
+    this.optionInfoList[2].text = LanguageManager.instance.getText(
+      "label.gameMaster"
+    );
+    this.optionInfoList[3].text = LanguageManager.instance.getText(
+      "label.visitor"
+    );
+    task.resolve();
   }
 }
 </script>

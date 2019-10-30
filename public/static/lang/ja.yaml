@@ -11,6 +11,7 @@ button:
   add: 追加
   modify: 変更
   copy: コピー
+  next: 次へ
 
 label:
   terms-of-use: 利用規約
@@ -21,6 +22,18 @@ label:
   creating: 作成中
   termsOfUseWebServer: Webサーバの利用規約
   termsOfUseAppServer: Appサーバの利用規約
+  userName: ユーザ名：
+  password: パスワード(空ならパスワードなし)：
+  userType: ユーザ種別：
+  nameless: ななし
+  authority: 権限
+  player: PL
+  gameMaster: GM
+  visitor: 見学者
+  roomName: プレイルーム名：
+  roomNamePlaceholder: 仮プレイルーム（削除可能）
+  gameSystem: ゲームシステム：
+  noTarget: 指定なし
 
 test-window:
   window-title: テスト画面
@@ -59,9 +72,11 @@ login-window:
 
 create-new-room-window:
   window-title: 新規プレイルーム作成
+  message: 新規プレイルームを作成します。
 
 user-login-window:
   window-title: ユーザログイン
+  message: ユーザ情報を入力してください。
 
 app-server-setting-window:
   window-title: アプリケーションサーバ設定

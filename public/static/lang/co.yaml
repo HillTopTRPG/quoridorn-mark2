@@ -11,6 +11,7 @@ button:
   add: 더하다
   modify: 수정하다
   copy: 부
+  next: 진행
 
 label:
   terms-of-use: 이용 약관
@@ -21,6 +22,18 @@ label:
   creating: 작성 중
   termsOfUseWebServer: Web 서버 약관
   termsOfUseAppServer: Application 서버 약관
+  userName: 사용자 이름：
+  password: 비밀번호 (비어있는 경우 비밀번호 없음)：
+  userType: 사용자 유형：
+  nameless: 무명
+  authority: 권한
+  player: PL
+  gameMaster: GM
+  visitor: 견학자
+  roomName: 놀이방 이름：
+  roomNamePlaceholder: 임시 놀이방 (삭제 가능)
+  gameSystem: 게임 시스템：
+  noTarget: 지정 없음
 
 test-window:
   window-title: 시험 화면
@@ -59,9 +72,11 @@ login-window:
 
 create-new-room-window:
   window-title: 방 만들기
+  message: 신규 놀이방을 만듭니다.
 
 user-login-window:
   window-title: 사용자 로그인
+  message: 사용자 정보를 입력하십시오
 
 app-server-setting-window:
   window-title: 응용 프로그램 서버 설정

@@ -26,5 +26,7 @@ export default class BaseInput extends Vue {
 <style scoped>
 input {
   font-size: inherit;
+  height: 2em;
+  box-sizing: border-box;
 }
 </style>

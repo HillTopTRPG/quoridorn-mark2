@@ -1,18 +1,18 @@
 <template>
   <div>
     <div class="base-area">
-      <div>新規プレイルームを作成します。</div>
+      <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span>プレイルーム名：</span>
+        <span v-t="'label.roomName'"></span>
         <base-input
           type="text"
           :value="name"
           @input="name = $event.target.value"
-          placeholder="仮プレイルーム（削除可能）"
+          :placeholder="$t('label.roomNamePlaceholder')"
         />
       </label>
       <label>
-        <span>パスワード(空ならパスワードなし)：</span>
+        <span v-t="'label.password'"></span>
         <base-input
           type="password"
           :value="password"
@@ -20,13 +20,17 @@
         />
       </label>
       <label>
-        <span>ゲームシステム：</span>
+        <span v-t="'label.gameSystem'"></span>
         <dice-bot-select v-model="system" />
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">作成</ctrl-button>
-      <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.next'"></span>
+      </ctrl-button>
+      <ctrl-button @click.stop="rollback()">
+        <span v-t="'button.reject'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -42,6 +46,7 @@ import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vu
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { CreateRoomInput } from "@/@types/room";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -62,7 +67,7 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     this.finally({
-      name: this.name,
+      name: this.name || LanguageManager.instance.getText(""),
       system: this.system,
       roomPassword: this.password
     });
@@ -94,6 +99,8 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
 @import "../../../assets/common";
 .base-area {
   @include flex-box(column, stretch, center);
+  line-height: 1.5;
+
   label {
     @include flex-box(row, flex-start, center);
 

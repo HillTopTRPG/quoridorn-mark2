@@ -11,6 +11,7 @@ button:
   add: Add
   modify: Modify
   copy: Copy
+  next: Next
 
 label:
   terms-of-use: Terms of Use
@@ -21,6 +22,18 @@ label:
   creating: Creating
   termsOfUseWebServer: Terms of use at Web Server
   termsOfUseAppServer: Terms of use at Application Server
+  userName: User name：
+  password: Password (no password if empty)：
+  userType: User type：
+  nameless: Nameless
+  authority: Authority
+  player: PL
+  gameMaster: GM
+  visitor: Visitor
+  roomName: Playroom name：
+  roomNamePlaceholder: Temporary playroom (can be deleted)
+  gameSystem: Game system：
+  noTarget: unspecified
 
 test-window:
   window-title: Test Window
@@ -59,9 +72,11 @@ login-window:
 
 create-new-room-window:
   window-title: Create New Room
+  message: Create a new playroom.
 
 user-login-window:
   window-title: User Login
+  message: Please enter your user information.
 
 app-server-setting-window:
   window-title: Application Server Settings

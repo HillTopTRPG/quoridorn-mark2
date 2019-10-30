@@ -11,6 +11,7 @@ button:
   add: Ajouter
   modify: Modifier
   copy: Copie
+  next: Suivant
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -21,6 +22,18 @@ label:
   creating: En créant
   termsOfUseWebServer: Termes et conditions du serveur Web
   termsOfUseAppServer: Conditions d'utilisation du serveur d'applications
+  userName: Nom d'utilisateur：
+  password: Mot de passe (pas de mot de passe si vide)：
+  userType: Type d'utilisateur：
+  nameless: Sans nom
+  authority: Autorité
+  player: PL
+  gameMaster: GM
+  visitor: Visiteur
+  roomName: Nom de la salle de jeux：
+  roomNamePlaceholder: Salle de jeux temporaire (peut être supprimé)
+  gameSystem: Système de jeu：
+  noTarget: Non spécifié
 
 test-window:
   window-title: Test Écran
@@ -59,9 +72,11 @@ login-window:
 
 create-new-room-window:
   window-title: Créer une nouvelle pièce
+  message: Créer une nouvelle salle de jeux.
 
 user-login-window:
   window-title: Login utilisateur
+  message: S'il vous plaît entrer vos informations d'utilisateur.
 
 app-server-setting-window:
   window-title: Paramètres du serveur d'applications

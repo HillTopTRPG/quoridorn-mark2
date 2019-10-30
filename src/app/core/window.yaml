@@ -228,26 +228,26 @@
   message: ""
   position: center
   size:
-    widthPx: 350
+    widthPx: 450
     widthEm: 0
     widthRem: 0
-    heightPx: 200
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   maxSize:
-    widthPx: 500
+    widthPx: 550
     widthEm: 0
     widthRem: 0
-    heightPx: 450
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   closable: true
   fontSizePickable: true
   resizable: true
@@ -262,23 +262,23 @@
     widthPx: 350
     widthEm: 0
     widthRem: 0
-    heightPx: 200
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   maxSize:
     widthPx: 500
     widthEm: 0
     widthRem: 0
-    heightPx: 450
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 9.5
+    heightRem: 0.5
   closable: true
   fontSizePickable: true
   resizable: true

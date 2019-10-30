@@ -11,6 +11,7 @@ button:
   add: 加
   modify: 修改
   copy: 复制
+  next: 下一个
 
 label:
   terms-of-use: 使用条款
@@ -21,6 +22,18 @@ label:
   creating: 创造
   termsOfUseWebServer: Web服务器条款和条件
   termsOfUseAppServer: 应用服务器使用条款
+  userName: 用户名：
+  password: 密码（如果为空，则没有密码）：
+  userType: 用户类型：
+  nameless: 无名
+  authority: 权威
+  player: PL
+  gameMaster: GM
+  visitor: 参观者
+  roomName: 游戏室名称：
+  roomNamePlaceholder: 临时游戏室（可以删除）
+  gameSystem: 游戏系统：
+  noTarget: 未指定
 
 test-window:
   window-title: 体检 萤幕
@@ -59,9 +72,11 @@ login-window:
 
 create-new-room-window:
   window-title: 创建房间
+  message: 创建一个新的游戏室
 
 user-login-window:
   window-title: 用户登录
+  message: 请输入您的用户信息
 
 app-server-setting-window:
   window-title: 应用服务器 设定
