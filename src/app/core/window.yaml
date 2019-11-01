@@ -232,22 +232,22 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   maxSize:
     widthPx: 550
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   closable: true
   fontSizePickable: true
   resizable: true
@@ -263,22 +263,22 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   maxSize:
     widthPx: 500
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 9.5
-    heightRem: 0.5
+    heightEm: 10
+    heightRem: 1.1
   closable: true
   fontSizePickable: true
   resizable: true
@@ -355,23 +355,23 @@
     widthPx: 220
     widthEm: 0
     widthRem: 0
-    heightPx: 70
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 5.5
+    heightRem: 0.7
   minSize:
     widthPx: 190
     widthEm: 0
     widthRem: 0
-    heightPx: 60
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 5.5
+    heightRem: 0.7
   maxSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 95
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 5.5
+    heightRem: 0.7
   closable: true
   fontSizePickable: true
   resizable: true
@@ -383,26 +383,26 @@
   message: ""
   position: center
   size:
-    widthPx: 210
+    widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 80
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 4
+    heightRem: 0.5
   minSize:
-    widthPx: 185
-    widthEm: 0
-    widthRem: 0
-    heightPx: 53
-    heightEm: 0
-    heightRem: 0
-  maxSize:
     widthPx: 250
     widthEm: 0
     widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
+    heightPx: 2
+    heightEm: 4
+    heightRem: 0.5
+  maxSize:
+    widthPx: 400
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 4
+    heightRem: 0.5
   closable: true
   fontSizePickable: true
   resizable: true

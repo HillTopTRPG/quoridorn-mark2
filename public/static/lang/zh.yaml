@@ -12,6 +12,7 @@ button:
   modify: 修改
   copy: 复制
   next: 下一个
+  execution: 执行
 
 label:
   terms-of-use: 使用条款
@@ -23,7 +24,8 @@ label:
   termsOfUseWebServer: Web服务器条款和条件
   termsOfUseAppServer: 应用服务器使用条款
   userName: 用户名：
-  password: 密码（如果为空，则没有密码）：
+  password: 密码：
+  passwordPlaceholder: （如果为空，则没有密码）
   userType: 用户类型：
   nameless: 无名
   authority: 权威
@@ -94,6 +96,10 @@ terms-of-use-window:
 
 delete-room-window:
   window-title: 删除房间
+  message: 删除房间
 
 confirm-window:
   window-title: 提交画面
+  delete-room:
+    title: 删除房间
+    message: 您要删除房间吗？

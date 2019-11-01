@@ -334,8 +334,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         value: {
           type: "confirm-window",
           args: {
-            title: "部屋削除",
-            message: `部屋を削除しますか？`,
+            target: "delete-room",
             type: "warning"
           }
         }

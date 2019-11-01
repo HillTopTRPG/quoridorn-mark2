@@ -9,6 +9,7 @@ declare module "moment";
 declare module "crypto-js";
 declare module "js-yaml";
 declare module "uuid";
+declare module "vue-password-strength-meter";
 declare function parseInt(s: string, radix?: number): number;
 declare module "socket.io";
 interface HTMLElementEvent<T extends HTMLElement> extends Event {

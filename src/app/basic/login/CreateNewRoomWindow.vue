@@ -13,11 +13,7 @@
       </label>
       <label>
         <span v-t="'label.password'"></span>
-        <base-input
-          type="password"
-          :value="password"
-          @input="password = $event.target.value"
-        />
+        <input-password-component :comp-key="key" v-model="password" />
       </label>
       <label>
         <span v-t="'label.gameSystem'"></span>
@@ -47,9 +43,16 @@ import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { CreateRoomInput } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 
 @Component({
-  components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
+  components: {
+    InputPasswordComponent,
+    DiceBotSelect,
+    BaseInput,
+    TableComponent,
+    CtrlButton
+  }
 })
 export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   WindowVue
@@ -103,6 +106,7 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
 
   label {
     @include flex-box(row, flex-start, center);
+    margin-top: 0.2rem;
 
     span {
       color: gray;

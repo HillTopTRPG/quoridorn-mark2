@@ -12,6 +12,7 @@ button:
   modify: Modify
   copy: Copy
   next: Next
+  execution: Execution
 
 label:
   terms-of-use: Terms of Use
@@ -23,7 +24,8 @@ label:
   termsOfUseWebServer: Terms of use at Web Server
   termsOfUseAppServer: Terms of use at Application Server
   userName: User name：
-  password: Password (no password if empty)：
+  password: Password：
+  passwordPlaceholder: (no password if empty)
   userType: User type：
   nameless: Nameless
   authority: Authority
@@ -94,6 +96,10 @@ terms-of-use-window:
 
 delete-room-window:
   window-title: Delete Room
+  message: Delete room.
 
 confirm-window:
   window-title: Confirm Window
+  delete-room:
+    title: Delete room
+    message: Do you want to delete the room?

@@ -12,6 +12,7 @@ button:
   modify: 수정하다
   copy: 부
   next: 진행
+  execution: 실행
 
 label:
   terms-of-use: 이용 약관
@@ -23,7 +24,8 @@ label:
   termsOfUseWebServer: Web 서버 약관
   termsOfUseAppServer: Application 서버 약관
   userName: 사용자 이름：
-  password: 비밀번호 (비어있는 경우 비밀번호 없음)：
+  password: 비밀번호：
+  passwordPlaceholder: (비어있는 경우 비밀번호 없음)
   userType: 사용자 유형：
   nameless: 무명
   authority: 권한
@@ -94,6 +96,10 @@ terms-of-use-window:
 
 delete-room-window:
   window-title: 방 삭제
+  message: 방을 삭제합니다
 
 confirm-window:
   window-title: 확인 화면
+  delete-room:
+    title: 객실 삭제
+    message: 방을 삭제 하시겠습니까?

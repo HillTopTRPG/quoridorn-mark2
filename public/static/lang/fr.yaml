@@ -12,6 +12,7 @@ button:
   modify: Modifier
   copy: Copie
   next: Suivant
+  execution: Exécution
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -23,7 +24,8 @@ label:
   termsOfUseWebServer: Termes et conditions du serveur Web
   termsOfUseAppServer: Conditions d'utilisation du serveur d'applications
   userName: Nom d'utilisateur：
-  password: Mot de passe (pas de mot de passe si vide)：
+  password: Mot de passe：
+  passwordPlaceholder: (pas de mot de passe si vide)
   userType: Type d'utilisateur：
   nameless: Sans nom
   authority: Autorité
@@ -94,6 +96,10 @@ terms-of-use-window:
 
 delete-room-window:
   window-title: Supprimer la salle
+  message: Supprimer la salle.
 
 confirm-window:
   window-title: Écran de confirmation
+  delete-room:
+    title: Supprimer la salle
+    message: Voulez-vous supprimer la pièce?

@@ -12,6 +12,7 @@ button:
   modify: 変更
   copy: コピー
   next: 次へ
+  execution: 実行
 
 label:
   terms-of-use: 利用規約
@@ -23,7 +24,8 @@ label:
   termsOfUseWebServer: Webサーバの利用規約
   termsOfUseAppServer: Appサーバの利用規約
   userName: ユーザ名：
-  password: パスワード(空ならパスワードなし)：
+  password: パスワード：
+  passwordPlaceholder: (空ならパスワードなし)
   userType: ユーザ種別：
   nameless: ななし
   authority: 権限
@@ -94,6 +96,10 @@ terms-of-use-window:
 
 delete-room-window:
   window-title: 部屋削除
+  message: 部屋を削除します。
 
 confirm-window:
   window-title: 確認画面
+  delete-room:
+    title: 部屋削除
+    message: 部屋を削除しますか？

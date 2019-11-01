@@ -13,11 +13,7 @@
       </label>
       <label>
         <span v-t="'label.password'"></span>
-        <base-input
-          type="password"
-          :value="password"
-          @input="password = $event.target.value"
-        />
+        <input-password-component :comp-key="key" v-model="password" />
       </label>
       <label>
         <span v-t="'label.userType'"></span>
@@ -48,9 +44,11 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { UserLoginInput, UserType } from "@/@types/room";
 import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 import LanguageManager from "@/LanguageManager";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 
 @Component({
   components: {
+    InputPasswordComponent,
     UserTypeSelect,
     DiceBotSelect,
     BaseInput,
@@ -109,6 +107,7 @@ export default class UserLoginWindow extends Mixins<WindowVue<never>>(
 
   label {
     @include flex-box(row, flex-start, center);
+    margin-top: 0.2rem;
 
     span {
       color: gray;

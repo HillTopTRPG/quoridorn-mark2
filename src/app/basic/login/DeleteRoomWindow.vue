@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="base-area">
-      <div>部屋を削除します。</div>
+      <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span>パスワード：</span>
+        <span v-t="'label.password'"></span>
         <base-input
           type="password"
           :value="password"
@@ -12,8 +12,12 @@
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">実行</ctrl-button>
-      <ctrl-button @click.stop="rollback()">キャンセル</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.execution'"></span>
+      </ctrl-button>
+      <ctrl-button @click.stop="rollback()">
+        <span v-t="'button.reject'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -69,8 +73,11 @@ export default class DeleteRoomWindow extends Mixins<WindowVue<never>>(
 @import "../../../assets/common";
 .base-area {
   @include flex-box(column, stretch, center);
+  line-height: 1.5;
+
   label {
     @include flex-box(row, flex-start, center);
+    margin-top: 0.2rem;
 
     span {
       color: gray;

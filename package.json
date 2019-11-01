@@ -36,13 +36,15 @@
     "vue-class-component": "^7.0.2",
     "vue-i18n": "^8.15.0",
     "vue-mixin-decorator": "^1.2.0",
+    "vue-password-strength-meter": "^1.5.0",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3",
     "vuedraggable": "^2.23.2",
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.2",
     "webpack-bundle-analyzer": "^3.5.0",
-    "yaml-loader": "^0.5.0"
+    "yaml-loader": "^0.5.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.11.0",

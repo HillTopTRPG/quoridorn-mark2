@@ -8,12 +8,16 @@
           v-if="info.type === 'notification'"
         ></span>
         <span class="icon-question" v-if="info.type === 'question'"></span>
-        <span class="text">{{ info.message }}</span>
+        <span class="text selectable">{{ message }}</span>
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">OK</ctrl-button>
-      <ctrl-button @click.stop="rollback()">Cancel</ctrl-button>
+      <ctrl-button @click.stop="commit()">
+        <span v-t="'button.ok'"></span>
+      </ctrl-button>
+      <ctrl-button @click.stop="rollback()">
+        <span v-t="'button.cancel'"></span>
+      </ctrl-button>
     </div>
   </div>
 </template>
@@ -27,10 +31,12 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LanguageManager from "@/LanguageManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 export type ConfirmInfo = {
-  title: string;
-  message: string;
+  target: string;
   type: "notification" | "warning" | "question";
 };
 
@@ -41,12 +47,35 @@ export default class SimpleConfirmWindow extends Mixins<WindowVue<ConfirmInfo>>(
   WindowVue
 ) {
   private info: ConfirmInfo | null = null;
+  private message: string | null = null;
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    const type = this.windowInfo.type;
+    const target = this.info!.target;
+    this.windowInfo.title = LanguageManager.instance.getText(
+      `${type}.${target}.title`
+    );
+    this.message = LanguageManager.instance.getText(
+      `${type}.${target}.message`
+    );
+    task.resolve();
+  }
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.info = this.windowInfo.args!;
-    this.windowInfo.title = this.info!.title;
+    const type = this.windowInfo.type;
+    const target = this.info!.target;
+    this.windowInfo.title = LanguageManager.instance.getText(
+      `${type}.${target}.title`
+    );
+    this.message = LanguageManager.instance.getText(
+      `${type}.${target}.message`
+    );
   }
 
   @VueEvent
@@ -80,8 +109,12 @@ export default class SimpleConfirmWindow extends Mixins<WindowVue<ConfirmInfo>>(
 @import "../../../assets/common";
 .base-area {
   @include flex-box(column, stretch, center);
+  line-height: 1.5;
 
   .message {
+    height: 2em;
+    @include flex-box(row, flex-start, center);
+
     > *[class^="icon-"] {
       font-size: 150%;
       margin-right: 0.3rem;
