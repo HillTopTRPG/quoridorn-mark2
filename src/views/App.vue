@@ -88,7 +88,7 @@ export default class App extends Vue {
             serverInfo.roomList.splice(index, 1, {
               order: index,
               exclusionOwner: null,
-              createTime: null,
+              createTime: new Date(),
               updateTime: null,
               id: null
             });
@@ -96,9 +96,7 @@ export default class App extends Vue {
             const index = change.data!.order;
             serverInfo.roomList.splice(index, 1, {
               ...change.data!,
-              id: change.id,
-              createTime: change.createTime || null,
-              updateTime: change.updateTime || null
+              id: change.id
             });
           }
         });

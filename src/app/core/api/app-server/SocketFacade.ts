@@ -20,9 +20,7 @@ export function getStoreObj<T>(
     const data: StoreObj<T> = doc.data;
     return {
       ...data,
-      id: doc.ref.id,
-      createTime: doc.createTime ? doc.createTime.toDate() : null,
-      updateTime: doc.updateTime ? doc.updateTime.toDate() : null
+      id: doc.ref.id
     };
   } else {
     return null;

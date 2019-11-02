@@ -128,14 +128,12 @@ import { Task, TaskResult } from "@/@types/task";
       storeObj.data ? storeObj.data.system : "",
     memberNum: (storeObj: StoreObj<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
-    updateDate: (data: StoreMetaData) => {
+    updateDate: (data: StoreObj<ClientRoomInfo>) => {
       if (!data) return "";
-      // return data.updateTime || data.createTime;
-      if (data.createTime)
-        return moment(data.createTime).format("YYYY/MM/DD HH:mm:ss");
-      if (data.updateTime)
-        return moment(data.updateTime).format("YYYY/MM/DD HH:mm:ss");
-      return "";
+      if (!data.data) return "";
+      return moment(data.updateTime ? data.updateTime : data.createTime).format(
+        "YYYY/MM/DD HH:mm:ss"
+      );
     },
     deleteButtonDisabled: (storeObj: StoreObj<ClientRoomInfo>) =>
       !storeObj.data ||
@@ -260,9 +258,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
             const index = change.data!.order;
             this.roomList.splice(index, 1, {
               ...change.data!,
-              id: change.id,
-              createTime: change.createTime || null,
-              updateTime: change.updateTime || null
+              id: change.id
             });
           }
         });

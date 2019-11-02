@@ -79,7 +79,9 @@ export default class NecostoreCollectionController<T> {
     if (!docs.length) {
       await c.add({
         order,
-        exclusionOwner: this.getSocketId()
+        exclusionOwner: this.getSocketId(),
+        createTime: new Date(),
+        updateTime: null
       });
     } else {
       if (docs.length > 1)

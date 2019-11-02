@@ -79,8 +79,6 @@ export type RoomViewResponse = {
   changeType: ChangeType;
   id: string;
   data?: StoreObj<ClientRoomInfo>;
-  createTime?: Date;
-  updateTime?: Date;
 };
 
 export type LoginResponse = ClientRoomInfo & {
