@@ -1,9 +1,7 @@
 import SocketClient from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
-import NecostoreCollectionController, {
-  CollectionType
-} from "@/app/core/api/app-server/NecostoreCollectionController";
+import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
@@ -164,23 +162,19 @@ export default class SocketFacade {
   }
 
   private roomCollectionController<T>(
-    collectionNamePrefix: string,
-    types: CollectionType[]
+    collectionNamePrefix: string
   ): NecostoreCollectionController<T> {
-    const collectionName = collectionNamePrefix + this.__roomCollectionSuffix;
+    const collectionName = `${collectionNamePrefix}-${this.__roomCollectionSuffix}`;
     let controller = this.collectionControllerMap[collectionName];
     if (controller) {
-      return this.collectionControllerMap[
-        collectionName
-      ] as NecostoreCollectionController<T>;
+      return controller as NecostoreCollectionController<T>;
     }
     return (this.collectionControllerMap[
       collectionName
     ] = new NecostoreCollectionController<T>(
       this.socket,
       this.nekostore!,
-      collectionName,
-      types
+      collectionName
     ));
   }
 
