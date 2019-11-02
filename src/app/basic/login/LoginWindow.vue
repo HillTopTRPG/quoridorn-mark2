@@ -250,7 +250,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
             this.roomList.splice(index, 1, {
               order: index,
               exclusionOwner: null,
-              createTime: null,
+              createTime: new Date(),
               updateTime: null,
               id: null
             });
