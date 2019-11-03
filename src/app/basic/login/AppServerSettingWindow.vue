@@ -10,6 +10,7 @@
             :value="url"
             @input="url = $event.target.value"
             list="urlList"
+            ref="firstFocus"
           />
           <datalist id="urlList" v-if="originalUrlList.length > 1">
             <option

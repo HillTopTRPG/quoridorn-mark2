@@ -33,6 +33,8 @@
     - socket-connect-error
     - socket-reconnecting
     - language-change
+    - mode-change
+    - room-initialize
 
 - taskAttribute:
     isIgniteWithParam: false

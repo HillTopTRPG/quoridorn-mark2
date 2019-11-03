@@ -9,11 +9,16 @@
           :value="name"
           @input="name = $event.target.value"
           :placeholder="$t('label.nameless')"
+          ref="firstFocus"
         />
       </label>
       <label>
         <span v-t="'label.password'"></span>
-        <input-password-component :comp-key="key" v-model="password" />
+        <input-password-component
+          :comp-key="`${key}-password`"
+          v-model="password"
+          :setting="isSetting"
+        />
       </label>
       <label>
         <span v-t="'label.userType'"></span>
@@ -32,11 +37,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
-import { Mixins } from "vue-mixin-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -45,6 +50,7 @@ import { UserLoginInput, UserType } from "@/@types/room";
 import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: {
@@ -56,12 +62,27 @@ import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.
     CtrlButton
   }
 })
-export default class UserLoginWindow extends Mixins<WindowVue<never>>(
+export default class UserLoginWindow extends Mixins<WindowVue<boolean>>(
   WindowVue
 ) {
   private name: string = "";
   private password: string = "";
   private userType: UserType = "PL";
+  private isSetting: boolean = false;
+
+  @LifeCycle
+  public async mounted() {
+    await this.init();
+    this.inputEnter(`${this.key}-password`, this.commit);
+    this.inputEnter(this.$refs.firstFocus, this.commit);
+    this.isSetting = this.windowInfo.args!;
+    if (!this.windowInfo.args) {
+      this.windowInfo.heightEm = 9.5;
+      this.windowInfo.declare.size.heightEm = 9.5;
+      this.windowInfo.declare.minSize!.heightEm = 9.5;
+      this.windowInfo.declare.maxSize!.heightEm = 9.5;
+    }
+  }
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {

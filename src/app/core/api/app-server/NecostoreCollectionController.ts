@@ -14,6 +14,7 @@ import {
   CreateDataRequest,
   DeleteDataRequest,
   ReleaseTouchRequest,
+  TouchModifyRequest,
   TouchRequest,
   UpdateDataRequest
 } from "@/@types/data";
@@ -69,22 +70,41 @@ export default class NecostoreCollectionController<T> {
     column?: string
   ): Promise<(StoreObj<T> & StoreMetaData)[]> {
     const c = this.getCollection();
-    return (await c.orderBy(column || "data.").get()).docs
+    return (await c.orderBy(column || "order").get()).docs
       .filter(doc => doc.exists() && doc.data.data)
-      .map(doc => {
-        return getStoreObj<T>(doc)!;
-      });
+      .map(doc => getStoreObj<T>(doc)!);
   }
 
-  public async touch(id: string): Promise<void> {
+  public async getData(
+    id: string
+  ): Promise<StoreObj<T> & StoreMetaData | null> {
+    const c = this.getCollection();
+    const docSnap = await c.doc(id).get();
+    if (!docSnap || !docSnap.exists()) return null;
+    return getStoreObj<T>(docSnap);
+  }
+
+  public async touch(): Promise<string> {
     const docId = await SocketFacade.instance.socketCommunication<
       TouchRequest,
       never
     >("touch-data", {
+      collection: this.collectionName
+    });
+    this.touchList.push(docId);
+    return docId;
+  }
+
+  public async touchModify(id: string): Promise<string> {
+    const docId = await SocketFacade.instance.socketCommunication<
+      TouchModifyRequest,
+      never
+    >("touch-data-modify", {
       collection: this.collectionName,
       id
     });
     this.touchList.push(docId);
+    return docId;
   }
 
   public async releaseTouch(id: string): Promise<void> {
@@ -99,24 +119,24 @@ export default class NecostoreCollectionController<T> {
     );
   }
 
-  public async add(id: string, data: T) {
+  public async add(id: string, data: T): Promise<string> {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
-    await SocketFacade.instance.socketCommunication<CreateDataRequest, never>(
-      "update-data",
-      {
-        collection: this.collectionName,
-        id,
-        data
-      }
-    );
+    return await SocketFacade.instance.socketCommunication<
+      CreateDataRequest,
+      string
+    >("create-data", {
+      collection: this.collectionName,
+      id,
+      data
+    });
   }
 
   public async update(id: string, data: T) {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
     await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
-      "delete-data",
+      "update-data",
       {
         collection: this.collectionName,
         id,

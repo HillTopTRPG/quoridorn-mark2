@@ -2,27 +2,38 @@
   <div>
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
-      <label>
-        <span v-t="'label.roomName'"></span>
-        <base-input
-          type="text"
-          :value="name"
-          @input="name = $event.target.value"
-          :placeholder="$t('label.roomNamePlaceholder')"
-          ref="firstFocus"
-        />
-      </label>
+      <div>
+        <span v-t="'label.isVisitor'"></span>
+        <label>
+          <base-input
+            type="radio"
+            v-model="userType"
+            name="user-type"
+            value="non-visitor"
+            checked
+          />
+          <span v-t="'label.participant'"></span>
+        </label>
+        <label>
+          <base-input
+            type="radio"
+            v-model="userType"
+            name="user-type"
+            value="visitor"
+          />
+          <span v-t="'label.visitor'"></span>
+        </label>
+      </div>
       <label>
         <span v-t="'label.password'"></span>
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"
-          :setting="true"
+          :setting="false"
+          @keydown.enter.stop="commit()"
+          @keyup.enter.stop
+          ref="firstFocus"
         />
-      </label>
-      <label>
-        <span v-t="'label.gameSystem'"></span>
-        <dice-bot-select v-model="system" />
       </label>
     </div>
     <div class="button-area">
@@ -37,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
@@ -46,8 +57,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { CreateRoomInput } from "@/@types/room";
-import LanguageManager from "@/LanguageManager";
+import { LoginRoomInput } from "@/@types/room";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 
@@ -60,30 +70,23 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
     CtrlButton
   }
 })
-export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
+export default class LoginRoomWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
-  private name: string = "";
+  private userType: string = "non-visitor";
   private password: string = "";
-  /** 選択されているシステム */
-  private system: string = "DiceBot";
 
   @LifeCycle
   public async mounted() {
     await this.init();
-  }
-
-  @Watch("currentDiceBotSystem")
-  private onChangeCurrentDiceBotSystem(system: string) {
-    window.console.log(system);
+    this.inputEnter(`${this.key}-password`, this.commit);
   }
 
   @VueEvent
   private async commit() {
     this.finally({
-      name: this.name || LanguageManager.instance.getText(""),
-      system: this.system,
-      roomPassword: this.password
+      roomPassword: this.password,
+      isVisitor: this.userType === "visitor"
     });
     await this.close();
   }
@@ -99,8 +102,8 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
     this.finally();
   }
 
-  private finally(roomInfo?: CreateRoomInput) {
-    const task = TaskManager.instance.getTask<CreateRoomInput>(
+  private finally(roomInfo?: LoginRoomInput) {
+    const task = TaskManager.instance.getTask<LoginRoomInput>(
       "window-open",
       this.windowInfo.taskKey
     );
@@ -115,18 +118,32 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @include flex-box(column, stretch, center);
   line-height: 1.5;
 
-  label {
+  > * {
     @include flex-box(row, flex-start, center);
-    margin-top: 0.2rem;
 
-    span {
+    &:not(:first-child) {
+      margin-top: 0.2rem;
+    }
+
+    > span {
       color: gray;
       font-size: 80%;
     }
 
+    > label {
+      @include inline-flex-box(row, flex-start, center);
+      height: 2em;
+    }
+
     input {
-      flex: 1;
-      width: 10px;
+      &:not([type="radio"]) {
+        flex: 1;
+        width: 10px;
+      }
+      &[type="radio"] {
+        width: 1em;
+        height: 1em;
+      }
     }
   }
 }

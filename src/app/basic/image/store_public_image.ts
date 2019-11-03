@@ -68,49 +68,6 @@ export default {
   state,
   actions: {
     /** ========================================================================
-     * プリセット画像を読み込む
-     */
-    presetImageLoad: async ({
-      state,
-      getters
-    }: {
-      state: State;
-      getters: any;
-    }) => {
-      const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
-        "./static/conf/image.yaml"
-      );
-      imageList.forEach((image: ImageInfo, index: number) => {
-        image.key = `image-${index}`;
-        image.name = image.data.replace(/.*\//, "");
-        image.updateTime = 20010203000000;
-        image.owner = "Quoridorn";
-
-        if (!image.imageArgList || !image.imageArgList.length) {
-          const imageArgList = getFileNameArgList(image.name);
-          if (imageArgList.length) image.imageArgList = imageArgList;
-        }
-
-        const regExp = new RegExp("[ 　]+", "g");
-        const tagStrList = image.tag.split(regExp);
-        tagStrList.forEach((tagStr: string) => {
-          const imageTag: ImageTagInfo = getters.imageTagList.filter(
-            (imageTag: any) => imageTag.name === tagStr
-          )[0];
-          if (!imageTag) {
-            const nextNum = ++state.tags.nextKey;
-            getters.imageTagList.push({
-              key: `imgTag-${nextNum}`,
-              name: image.tag,
-              updateTime: 20010203000000,
-              owner: "Quoridorn"
-            });
-          }
-        });
-      });
-      state.list = imageList;
-    },
-    /** ========================================================================
      * 画像のタブの構成を変更する
      */
     imageTagChange: ({ dispatch }: { dispatch: Function }, payload: any) => {

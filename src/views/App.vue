@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <game-table ref="gameTable" />
+    <div id="back-screen"></div>
+    <game-table ref="gameTable" v-if="roomInitialized" />
     <div id="YoutubePlayerContainer">
       <div class="unUse"><div id="YoutubePlayer001"></div></div>
       <div class="unUse"><div id="YoutubePlayer002"></div></div>
@@ -49,15 +50,13 @@ import { GetRoomListResponse, RoomViewResponse } from "@/@types/room";
 })
 export default class App extends Vue {
   @Getter("mapBackgroundColor") private mapBackgroundColor: any;
-  @Getter("isMapWheeling") private isMapWheeling!: boolean;
-  @Action("presetImageLoad") private presetImageLoad: any;
 
   private readonly key = "App";
+  private isMapWheeling: boolean = false;
+  private roomInitialized: boolean = false;
 
   @LifeCycle
-  public async created() {
-    await this.presetImageLoad();
-  }
+  public async created() {}
 
   @LifeCycle
   private async beforeMount() {
@@ -72,6 +71,14 @@ export default class App extends Vue {
 
   @LifeCycle
   public async mounted() {
+    document.documentElement.style.setProperty(
+      "--background-background-color",
+      "transparent"
+    );
+    document.documentElement.style.setProperty(
+      "--background-background-image",
+      "none"
+    );
     // ログイン画面の表示
     const serverInfo = await SocketFacade.instance.socketCommunication<
       never,
@@ -217,6 +224,26 @@ export default class App extends Vue {
     task.resolve();
   }
 
+  @TaskProcessor("room-initialize-finished")
+  private async roomInitializeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    // 部屋に接続できた
+    this.roomInitialized = true;
+    task.resolve();
+  }
+
+  @TaskProcessor("mode-change-finished")
+  private async modeChangeFinished(
+    task: Task<ModeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.type === "wheel") {
+      this.isMapWheeling = task.value!.value === "on";
+      window.console.log("mode-change-finished" + task.value!.value);
+      task.resolve();
+    }
+  }
+
   @TaskProcessor("socket-connect-error-finished")
   private async socketConnectErrorFinished(
     task: Task<never, never>
@@ -288,6 +315,18 @@ hr {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+
+  #back-screen {
+    position: absolute;
+    background-image: var(--background-image);
+    background-color: var(--background-color);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    filter: blur(var(--mask-blur));
+    transform: var(--background-transform);
+  }
 }
 
 .selectable {

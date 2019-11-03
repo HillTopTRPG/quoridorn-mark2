@@ -55,6 +55,9 @@ export type CreateRoomInput = BaseRoomInfo & {
 export type DeleteRoomInput = {
   roomPassword: string;
 };
+export type LoginRoomInput = DeleteRoomInput & {
+  isVisitor: boolean;
+};
 export type CreateRoomRequest = CreateRoomInput &
   UserLoginInput &
   LoginRequest &

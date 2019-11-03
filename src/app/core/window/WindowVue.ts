@@ -37,6 +37,22 @@ export default class WindowVue<T> extends Vue {
         }
       }
     }
+    setTimeout(() => {
+      const elm: any | null =
+        "firstFocus" in this.$refs
+          ? (this.$refs.firstFocus as HTMLElement)
+          : null;
+      if (!elm) return;
+      if ("focus" in elm) elm.focus();
+      else {
+        if ("$refs" in elm && "component" in elm.$refs) {
+          const componentElm = elm.$refs.component as HTMLElement;
+          componentElm.querySelector("input")!.focus();
+        } else {
+          window.console.warn(elm);
+        }
+      }
+    });
   }
 
   public get key() {
@@ -53,5 +69,39 @@ export default class WindowVue<T> extends Vue {
       owner: "Quoridorn",
       value: this.windowInfo.key
     });
+  }
+
+  public inputEnter(target: string | any, callback: () => void) {
+    const elm =
+      typeof target === "string"
+        ? (document.getElementById(target) as HTMLElement)
+        : target;
+    if ("addEventListener" in elm) {
+      elm.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (event.key === "Enter") {
+          event.stopPropagation();
+          callback();
+        }
+      });
+    } else {
+      if ("$refs" in elm && "component" in elm.$refs) {
+        const componentElm = elm.$refs.component as HTMLElement;
+        let inputElm: HTMLElement | null = componentElm;
+        if (componentElm.tagName !== "INPUT")
+          inputElm = componentElm.querySelector("input");
+        if (!inputElm) {
+          window.console.warn(elm);
+          return;
+        }
+        inputElm.addEventListener("keydown", (event: KeyboardEvent) => {
+          if (event.key === "Enter") {
+            event.stopPropagation();
+            callback();
+          }
+        });
+      } else {
+        window.console.warn(elm);
+      }
+    }
   }
 }

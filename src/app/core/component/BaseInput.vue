@@ -7,6 +7,7 @@
     @keyup.enter.stop
     @keydown.229.stop
     @keyup.229.stop
+    ref="component"
   ></component>
 </template>
 
@@ -19,6 +20,11 @@ export default class BaseInput extends Vue {
     return {
       ...this.$listeners
     };
+  }
+
+  public focus() {
+    const elm = this.$refs.component as HTMLElement;
+    elm.focus();
   }
 }
 </script>

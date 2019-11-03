@@ -4,7 +4,6 @@
     :class="{ isReverse: isMapReverse }"
     :width="mapCanvasSize.w"
     :height="mapCanvasSize.h"
-    v-bg-img="getBackgroundImage"
     @keydown.enter.stop
     @keyup.enter.stop
     @keydown.229.stop
@@ -21,7 +20,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component
 export default class MapBoard extends Vue {
-  @Getter("getBackgroundImage") private getBackgroundImage: any;
   @Getter("isDrawGridLine") private isDrawGridLine: any;
   @Getter("isDrawGridId") private isDrawGridId: any;
   @Getter("mapGridColor") private mapGridColor: any;
@@ -198,6 +196,7 @@ canvas {
   box-sizing: border-box;
   background-size: 100% 100%;
   pointer-events: none;
+  background-image: var(--background-image);
 }
 
 .isReverse {

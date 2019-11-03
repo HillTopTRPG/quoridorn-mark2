@@ -558,6 +558,7 @@ export default class WindowFrame extends Vue {
   @Watch("isMounted")
   @Watch("diff.height")
   @Watch("windowInfo.heightPx")
+  @Watch("windowInfo.heightEm")
   private async onChangeWindowHeight() {
     if (!this.isMounted) return;
     const widthPx = this.windowInfo.widthPx + this.diff.width;

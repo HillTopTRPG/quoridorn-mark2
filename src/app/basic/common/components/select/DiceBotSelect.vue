@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
+import { Emit, Prop, Watch } from "vue-property-decorator";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import { DiceSystem } from "@/@types/bcdice";
@@ -26,9 +26,11 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import LanguageManager from "@/LanguageManager";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Component, Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { CtrlSelect } })
-export default class DiceBotSelect extends Vue {
+export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
   private diceSystemList: DiceSystem[] = [];
   private noTarget: string = LanguageManager.instance.getText("label.noTarget");
 

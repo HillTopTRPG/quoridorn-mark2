@@ -19,6 +19,7 @@ import ConfirmWindow from "@/app/core/window/ConfirmWindow.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import VueI18n from "vue-i18n";
 import LanguageManager from "@/LanguageManager";
+import LoginRoomWindow from "@/app/basic/login/LoginRoomWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -39,6 +40,7 @@ Vue.component("app-server-setting-window", AppServerSettingWindow);
 Vue.component("terms-of-use-window", TermsOfUseWindow);
 Vue.component("delete-room-window", DeleteRoomWindow);
 Vue.component("confirm-window", ConfirmWindow);
+Vue.component("login-room-window", LoginRoomWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({

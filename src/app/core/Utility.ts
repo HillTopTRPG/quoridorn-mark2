@@ -1,4 +1,5 @@
 import { all, create } from "mathjs";
+import { StandImageInfo } from "@/@types/image";
 
 const config = {};
 const math = create(all, config);
@@ -406,22 +407,67 @@ export function removeExt(fileName: string): string {
  *
  * @param fileName
  */
-export function getFileNameArgList(fileName: string): (string | number)[] {
+export function getFileNameArgList(fileName: string): StandImageInfo | null {
   const matchExt: string[] | null = fileName.match(/(.*)(?:\.([^.]+$))/);
 
   const useFileName: string = matchExt ? matchExt[1] : fileName;
   const index: number = useFileName.indexOf("__");
 
-  if (index < 0) return [];
+  if (index < 0) return null;
 
   const argStr: string = useFileName.substring(index + 2).trim();
 
-  return argStr
+  const argList: (string | number)[] = argStr
     ? argStr.split("_").map(str => {
         const num: number = parseInt(str, 10);
         return isNaN(num) ? str : num;
       })
     : [];
+
+  const numberIndexList: number[] = [];
+  const stringIndexList: number[] = [];
+  argList.forEach((arg, index) => {
+    if (typeof arg === "string") stringIndexList.push(index);
+    else numberIndexList.push(index);
+  });
+
+  const baseInfo: StandImageInfo = {
+    type: "pile",
+    x: 0,
+    y: 0,
+    viewStart: 0,
+    viewEnd: 100,
+    status: ""
+  };
+  if (stringIndexList.length > 0) {
+    const str = argList[stringIndexList[0]] as string;
+    if (str === "pile" || str === "replace") {
+      baseInfo.type = str;
+    } else {
+      baseInfo.status = str;
+    }
+  }
+  if (stringIndexList.length > 1) {
+    const str = argList[stringIndexList[1]] as string;
+    if (str === "pile" || str === "replace") {
+      baseInfo.type = str;
+    } else {
+      baseInfo.status = str;
+    }
+  }
+  if (numberIndexList.length >= 2) {
+    baseInfo.x = argList[numberIndexList[0]] as number;
+    baseInfo.y = argList[numberIndexList[1]] as number;
+  }
+  if (numberIndexList.length >= 4) {
+    baseInfo.viewStart = argList[numberIndexList[2]] as number;
+    baseInfo.viewEnd = argList[numberIndexList[3]] as number;
+    if (baseInfo.viewStart < 0 || 100 < baseInfo.viewStart)
+      baseInfo.viewStart = 0;
+    if (baseInfo.viewEnd < 0 || 100 < baseInfo.viewEnd) baseInfo.viewEnd = 100;
+  }
+
+  return baseInfo;
 }
 
 export function toInitiativeObjList(

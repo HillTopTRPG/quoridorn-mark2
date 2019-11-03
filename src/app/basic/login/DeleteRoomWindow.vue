@@ -8,6 +8,7 @@
           type="password"
           :value="password"
           @input="password = $event.target.value"
+          ref="firstFocus"
         />
       </label>
     </div>
@@ -31,6 +32,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DeleteRoomInput } from "@/@types/room";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: { BaseInput, CtrlButton }
@@ -39,6 +41,11 @@ export default class DeleteRoomWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
   private password: string = "";
+
+  @LifeCycle
+  public async mounted() {
+    await this.init();
+  }
 
   @VueEvent
   private async commit() {

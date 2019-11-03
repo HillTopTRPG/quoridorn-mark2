@@ -51,7 +51,7 @@ const state: State = {
         isUseImage: false,
         borderWidth: 10
       },
-      grid: { totalColumn: 20, totalRow: 15, size: 48, color: "#000000" },
+      grid: { totalColumn: 20, totalRow: 15, size: 50, color: "#000000" },
       background: "#92A8B3",
       chatLinkage: 0,
       chatLinkageSearch: "",

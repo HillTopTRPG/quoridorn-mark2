@@ -5,7 +5,6 @@ import {
   TaskListenerContainer,
   TaskListenerParameterContainer,
   TaskProcess,
-  TaskPromiseExecutor,
   TaskResult
 } from "@/@types/task";
 import { ApplicationError } from "@/app/core/error/ApplicationError";

@@ -407,3 +407,34 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"login-room-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 380
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 7.5
+    heightRem: 0.9
+  minSize:
+    widthPx: 250
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 7.5
+    heightRem: 0.9
+  maxSize:
+    widthPx: 500
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 7.5
+    heightRem: 0.9
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

@@ -12,16 +12,22 @@ import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 type Item = {
   val: UserType;
   text: string;
 };
 
+interface MultiMixin extends SelectMixin, ComponentVue {}
+
 @Component({
   components: { CtrlSelect }
 })
-export default class UserTypeSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class UserTypeSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   private optionInfoList: any[] = [];
 
   @VueEvent

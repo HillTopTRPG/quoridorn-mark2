@@ -195,14 +195,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wink.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 30 # X座標(通常)
-    - 16 # Y座標(通常)
-    - 142 # X座標(反転時)
-    - 16 # Y座標(反転時)
-    - 20 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 30 # X座標
+    y: 16 # Y座標
+    viewStart: 20 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -210,14 +209,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/normal/mascot_normal_stick.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 177 # X座標(通常)
-    - 0 # Y座標(通常)
-    - 0 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 177 # X座標
+    y: 0 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -225,14 +223,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_1.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 40 # X座標(通常)
-    - 83 # Y座標(通常)
-    - 160 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 0 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 83 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -240,14 +237,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_2.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 40 # X座標(通常)
-    - 83 # Y座標(通常)
-    - 160 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 83 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -265,14 +261,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_left.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 197 # X座標(通常)
-    - 64 # Y座標(通常)
-    - 23 # X座標(反転時)
-    - 64 # Y座標(反転時)
-    - 0 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 197 # X座標
+    y: 64 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -280,14 +275,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_right.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 96 # X座標(通常)
-    - 92 # Y座標(通常)
-    - 127 # X座標(反転時)
-    - 92 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 96 # X座標
+    y: 92 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -295,14 +289,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_1.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 0 # X座標(通常)
-    - 0 # Y座標(通常)
-    - 180 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 0 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 0 # X座標
+    y: 0 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -310,14 +303,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_2.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 0 # X座標(通常)
-    - 0 # Y座標(通常)
-    - 190 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 0 # X座標
+    y: 0 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -325,14 +317,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_tie.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 134 # X座標(通常)
-    - 61 # Y座標(通常)
-    - 82 # X座標(反転時)
-    - 61 # Y座標(反転時)
-    - 0 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 134 # X座標
+    y: 61 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -340,14 +331,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_left.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 166 # X座標(通常)
-    - 19 # Y座標(通常)
-    - 55 # X座標(反転時)
-    - 19 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 166 # X座標
+    y: 19 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -355,14 +345,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_right.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 21 # X座標(通常)
-    - 61 # Y座標(通常)
-    - 173 # X座標(反転時)
-    - 61 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 21 # X座標
+    y: 61 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -380,14 +369,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/teach/mascot_teach_stick.png"
-  imageArgList:
-    - 1 # 画像処理方法(0: 重ねる, 1:置換)
-    - 179 # X座標(通常)
-    - 0 # Y座標(通常)
-    - 0 # X座標(反転時)
-    - 0 # Y座標(反転時)
-    - 20 # 表示時間(開始%) 0~100
-    - 70 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 179 # X座標
+    y: 0 # Y座標
+    viewStart: 20 # 表示時間(開始%) 0~100
+    viewEnd: 70 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -395,14 +383,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/teach/mascot_teach_wing_right.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 108 # X座標(通常)
-    - 81 # Y座標(通常)
-    - 91 # X座標(反転時)
-    - 81 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 108 # X座標
+    y: 81 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -410,14 +397,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/teach/mascot_teach_glad_1.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 40 # X座標(通常)
-    - 1 # Y座標(通常)
-    - 64 # X座標(反転時)
-    - 1 # Y座標(反転時)
-    - 0 # 表示時間(開始%) 0~100
-    - 50 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 1 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -425,14 +411,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/teach/mascot_teach_glad_2.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 43 # X座標(通常)
-    - 1 # Y座標(通常)
-    - 54 # X座標(反転時)
-    - 1 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 43 # X座標
+    y: 1 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#
@@ -440,14 +425,13 @@
   tag: "立ち絵差分"
   # データ
   data: "http://quoridorn.com/img/mascot/teach/mascot_teach_mouth.png"
-  imageArgList:
-    - 0 # 画像処理方法(0: 重ねる, 1:置換)
-    - 149 # X座標(通常)
-    - 55 # Y座標(通常)
-    - 82 # X座標(反転時)
-    - 55 # Y座標(反転時)
-    - 50 # 表示時間(開始%) 0~100
-    - 100 # 表示時間(終了%) 0~100
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 149 # X座標
+    y: 55 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
   # パスワード
   password: ""
 #=========#=========#=========#=========#=========#=========#

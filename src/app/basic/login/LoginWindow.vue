@@ -80,7 +80,7 @@
       <ctrl-button @click="createRoom()" :disabled="unTouchable">
         <span v-t="'button.create-new'"></span>
       </ctrl-button>
-      <ctrl-button>
+      <ctrl-button @click="login()">
         <span v-t="'button.login'"></span>
       </ctrl-button>
     </div>
@@ -107,7 +107,10 @@ import {
   AppServerSettingInput,
   RoomViewResponse,
   DeleteRoomInput,
-  DeleteRoomRequest
+  DeleteRoomRequest,
+  LoginRoomInput,
+  LoginRequest,
+  LoginResponse
 } from "@/@types/room";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -119,6 +122,9 @@ import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
+import { loadYaml } from "@/app/core/File";
+import { getFileNameArgList } from "@/app/core/Utility";
+import { Image } from "@/@types/image";
 
 @Component({
   components: { LanguageSelect, TableComponent, CtrlButton },
@@ -477,13 +483,14 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     let userLoginInput: UserLoginInput;
     try {
       const userLoginInputList = await TaskManager.instance.ignition<
-        WindowOpenInfo<never>,
+        WindowOpenInfo<boolean>,
         UserLoginInput
       >({
         type: "window-open",
         owner: "Quoridorn",
         value: {
-          type: "user-login-window"
+          type: "user-login-window",
+          args: true
         }
       });
       userLoginInput = userLoginInputList[0];
@@ -512,6 +519,246 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         ...createRoomInput,
         ...userLoginInput
       });
+
+      const imageList: Image[] = await loadYaml<Image[]>(
+        "./static/conf/image.yaml"
+      );
+      const imageTagList: string[] = await loadYaml<string[]>(
+        "./static/conf/imageTag.yaml"
+      );
+      imageList.forEach((image: Image, index: number) => {
+        if (!image.tag)
+          image.tag = imageTagList.length ? imageTagList[0] : "default";
+        if (image.standImageInfo) {
+          // 立ち絵パラメータの値を正しく設定
+          const si = image.standImageInfo;
+          if (!si.status) si.status = "";
+          if (si.type !== "pile" && si.type !== "replace") si.type = "pile";
+          if (
+            si.viewStart === undefined ||
+            si.viewStart < 0 ||
+            si.viewStart > 100
+          )
+            si.viewStart = 0;
+          if (si.viewEnd === undefined || si.viewEnd < 0 || si.viewEnd > 100)
+            si.viewEnd = 100;
+        } else {
+          // 立ち絵パラメータを推測＆設定
+          image.standImageInfo = getFileNameArgList(image.data) || null;
+        }
+
+        const regExp = new RegExp("[ 　]+", "g");
+        const tagStrList = image.tag.split(regExp);
+        tagStrList.forEach((tagStr: string) => {
+          const imageTag: string = imageTagList.filter(
+            (imageTag: string) => imageTag === tagStr
+          )[0];
+          if (!imageTag) imageTagList.push(tagStr);
+        });
+      });
+
+      /* --------------------------------------------------
+       * 画像タグのプリセットデータ投入
+       */
+      const imageTagStore = SocketFacade.instance.imageTagCollectionController();
+
+      const pushImageTag = async (imageTag: string): Promise<void> => {
+        await imageTagStore.add(await imageTagStore.touch(), imageTag);
+      };
+
+      // pushImageTagを直列の非同期で全部実行する
+      await imageTagList
+        .map((imageTag: string) => () => pushImageTag(imageTag))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+      /* --------------------------------------------------
+       * 画像データのプリセットデータ投入
+       */
+      const imageDataStore = SocketFacade.instance.imageDataCollectionController();
+
+      let imageId: string | null = null;
+      const pushImage = async (image: Image): Promise<void> => {
+        const docId = await imageDataStore.touch();
+        if (!imageId) imageId = docId;
+        await imageDataStore.add(docId, image);
+      };
+
+      // pushImageを直列の非同期で全部実行する
+      await imageList
+        .map((image: Image) => () => pushImage(image))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+      /* --------------------------------------------------
+       * マップデータのプリセットデータ投入
+       */
+      const mapDataStore = SocketFacade.instance.mapListCollectionController();
+
+      const mapSetting: MapSetting = {
+        backgroundType: "image",
+        imageTag: imageList[0].tag,
+        imageId: imageId!,
+        reverse: "none",
+        shapeType: "square",
+        totalColumn: 20,
+        totalRow: 15,
+        gridSize: 50,
+        gridBorderColor: "#000000",
+        isPourTile: false,
+        isHexFirstCorner: false,
+        isHexSecondSmall: false,
+        background: {
+          backgroundType: "image",
+          imageTag: imageList[0].tag,
+          imageId: imageId!,
+          reverse: "none",
+          // , backgroundColor: "rgb(146, 168, 179)"
+          maskBlur: 3
+        },
+        margin: {
+          backgroundType: "image",
+          imageTag: imageList[0].tag,
+          imageId: imageId!,
+          reverse: "none",
+          isUseGridColor: true,
+          gridColorBold: "rgba(255, 255, 255, 0.3)",
+          gridColorThin: "rgba(255, 255, 255, 0.1)",
+          column: 5,
+          row: 5,
+          isUseMaskColor: true,
+          maskColor: "rgba(20, 80, 20, 0.1)",
+          maskBlur: 3,
+          isUseImage: "none",
+          borderWidth: 10,
+          borderColor: "gray",
+          borderStyle: "ridge"
+        },
+        chatLinkage: 0,
+        chatLinkageSearch: "",
+        portTileMapping: ""
+      };
+      const mapDataDocId = await mapDataStore.add(
+        await mapDataStore.touch(),
+        mapSetting
+      );
+
+      /* --------------------------------------------------
+       * 部屋データのプリセットデータ投入
+       */
+      const roomDataStore = SocketFacade.instance.roomDataCollectionController();
+
+      const roomData: RoomData = {
+        mapId: mapDataDocId,
+        isDrawGridLine: true,
+        isDrawGridId: true,
+        isFitGrid: true,
+        isUseRotateMarker: true
+      };
+      await roomDataStore.add(await roomDataStore.touch(), roomData);
+
+      const initRoomInfo = null;
+
+      await TaskManager.instance.ignition<void, void>({
+        type: "room-initialize",
+        owner: "Quoridorn",
+        value: initRoomInfo
+      });
+      await this.close();
+    } catch (err) {
+      window.console.warn(err);
+    }
+  }
+
+  @VueEvent
+  private async login() {
+    if (this.selectedRoomNo === null) {
+      alert("部屋を選択してから新規作成をしてください。");
+      return;
+    }
+
+    this.isInputtingRoomInfo = true;
+
+    // タッチ
+    if (!(await this.touchRoom(true))) return;
+
+    // 部屋情報入力画面
+    let loginRoomInput: LoginRoomInput;
+    this.isInputtingRoomInfo = true;
+    try {
+      const loginRoomInputList = await TaskManager.instance.ignition<
+        WindowOpenInfo<never>,
+        LoginRoomInput
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "login-room-window"
+        }
+      });
+      loginRoomInput = loginRoomInputList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!loginRoomInput) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    // ユーザログイン画面
+    let userLoginInput: UserLoginInput;
+    try {
+      const userLoginInputList = await TaskManager.instance.ignition<
+        WindowOpenInfo<boolean>,
+        UserLoginInput
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "user-login-window",
+          args: false
+        }
+      });
+      userLoginInput = userLoginInputList[0];
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+
+    // 入力画面がキャンセルされていたらタッチ状態を解除
+    if (!userLoginInput) {
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
+      return;
+    }
+
+    this.isInputtingRoomInfo = false;
+
+    // ログインリクエストを投げる
+    try {
+      const loginResult = await SocketFacade.instance.socketCommunication<
+        LoginRequest,
+        LoginResponse
+      >("login", {
+        roomId: this.roomList[this.selectedRoomNo].id!,
+        roomNo: this.selectedRoomNo,
+        ...loginRoomInput,
+        ...userLoginInput
+      });
+      if (!loginResult) return;
+      SocketFacade.instance.roomCollectionSuffix =
+        loginResult.roomCollectionSuffix;
+
+      const initRoomInfo = null;
+
+      await TaskManager.instance.ignition<void, void>({
+        type: "room-initialize",
+        owner: "Quoridorn",
+        value: initRoomInfo
+      });
+      await this.close();
     } catch (err) {
       window.console.warn(err);
     }

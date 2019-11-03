@@ -1,7 +1,6 @@
 <template>
   <div id="gameTableContainer">
     <div
-      :style="gameTableStyle"
       @dragover.prevent
       @drop.prevent="drop"
       dropzone="move"
@@ -11,7 +10,8 @@
       @keydown.229.stop
       @keyup.229.stop
     >
-      <div :style="gridPaperStyle"></div>
+      <div id="table-background"></div>
+      <div id="grid-paper"></div>
 
       <div
         id="mapBoardFrame"
@@ -78,9 +78,8 @@ import DiceSymbol from "@/app/basic/map-object/dice-symbol/DiceSymbol.vue";
 import FloorTile from "@/app/basic/map-object/floor-tile/FloorTile.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 
-import { parseColor } from "@/app/core/Utility";
 import { Component } from "vue-mixin-decorator";
-import { Getter, Mutation } from "vuex-class";
+import { Getter } from "vuex-class";
 import { Watch } from "vue-property-decorator";
 import {
   arrangeAngle,
@@ -96,6 +95,9 @@ import TaskProcessor, {
   TaskProcessorSimple
 } from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { StoreMetaData, StoreObj } from "@/@types/store";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 @Component({
   components: {
@@ -114,16 +116,9 @@ export default class GameTable extends AddressCalcMixin {
   // @Action("setProperty") private setProperty: any;
   // @Action("windowClose") private windowClose: any;
   // @Action("importStart") private importStart: any;
-  @Mutation("setIsWheeling") private setIsWheeling: any;
+  // @Mutation("setIsWheeling") private setIsWheeling: any;
   // @Getter("isFitGrid") private isFitGrid: any;
-  @Getter("getBackgroundImage") private getBackgroundImage!: string | null;
-  @Getter("mapMarginGridColor") private mapMarginGridColor!: string;
-  @Getter("mapMarginMaskColor") private mapMarginMaskColor!: string;
-  @Getter("mapMarginMaskAlpha") private mapMarginMaskAlpha!: number;
-  @Getter("isMapUseGridColor") private isMapUseGridColor!: boolean;
-  @Getter("isMapUseImage") private isMapUseImage!: boolean;
   // @Getter("playerKey") private playerKey: any;
-  @Getter("isModal") private isModal!: boolean;
   @Getter("getMapObjectList") private getMapObjectList!: any;
   // @Getter("propertyList") private propertyList: any;
   // @Getter("getObj") private getObj: any;
@@ -132,6 +127,274 @@ export default class GameTable extends AddressCalcMixin {
   private wheel: number = 0;
 
   private key = "game-table";
+
+  private mapSetting: MapSetting | null = null;
+  private isMounted: boolean = false;
+
+  private isModal: boolean = false;
+
+  private get gameTableElm(): HTMLElement {
+    return document.getElementById("gameTable")!;
+  }
+
+  private get gridPaperElm(): HTMLElement {
+    return document.getElementById("grid-paper")!;
+  }
+
+  private get tableBackElm(): HTMLElement {
+    return document.getElementById("table-background")!;
+  }
+
+  @VueEvent
+  private async mounted() {
+    const mapDataStore = SocketFacade.instance.mapListCollectionController();
+    const roomDataStore = SocketFacade.instance.roomDataCollectionController();
+    const roomData: StoreObj<RoomData> &
+      StoreMetaData = (await roomDataStore.getList())[0];
+    if (!roomData) throw new ApplicationError("No such roomData.");
+
+    const mapId = roomData.data!.mapId;
+    const mapData = await mapDataStore.getData(mapId);
+    if (!mapData) throw new ApplicationError("No such mapData.");
+    this.mapSetting = mapData.data!;
+    this.isMounted = true;
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.backgroundType")
+  @Watch("mapSetting.backgroundColor")
+  @Watch("mapSetting.imageId")
+  @Watch("mapSetting.rotate")
+  @Watch("mapSetting.reverse")
+  private async onChangeBackgroundType() {
+    GameTable.setBackground("map-canvas", this.mapSetting!);
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.background.backgroundType")
+  @Watch("mapSetting.background.backgroundColor")
+  @Watch("mapSetting.background.imageId")
+  @Watch("mapSetting.background.rotate")
+  @Watch("mapSetting.background.reverse")
+  private async onChangeBackgroundBackgroundType() {
+    GameTable.setBackground("back-screen", this.mapSetting!.background);
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.backgroundType")
+  @Watch("mapSetting.margin.backgroundColor")
+  @Watch("mapSetting.margin.imageId")
+  @Watch("mapSetting.margin.rotate")
+  @Watch("mapSetting.margin.reverse")
+  private async onChangeMarginBackgroundType() {
+    GameTable.setBackground("table-background", this.mapSetting!.margin);
+  }
+
+  private static async setBackground(
+    targetId: string,
+    info: ColorSpec | ImageSpec
+  ) {
+    const elm: HTMLElement = document.getElementById(targetId) as HTMLElement;
+    const transformList: string[] = ["translate(0, 0)"];
+    if (info.backgroundType === "color") {
+      elm.style.setProperty("--background-color", info.backgroundColor);
+      elm.style.setProperty("--background-image", "none");
+    } else {
+      elm.style.setProperty("--background-color", "transparent");
+
+      const imageData = await SocketFacade.instance
+        .imageDataCollectionController()
+        .getData(info.imageId);
+      elm.style.setProperty(
+        "--background-image",
+        imageData && imageData.data ? `url("${imageData.data.data}")` : "none"
+      );
+      if (info.reverse === "horizontal") transformList.push("scale(-1, 1)");
+      if (info.reverse === "vertical") transformList.push("scale(1, -1)");
+    }
+    elm.style.setProperty("--background-transform", transformList.join(" "));
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.totalColumn")
+  private onChangeTotalColumn() {
+    this.gameTableElm.style.setProperty(
+      "--totalColumn",
+      this.mapSetting!.totalColumn!.toString(10)
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.totalRow")
+  private onChangeTotalRow() {
+    this.gameTableElm.style.setProperty(
+      "--totalRow",
+      this.mapSetting!.totalRow!.toString(10)
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.gridSize")
+  private onChangeGridSize() {
+    this.gameTableElm.style.setProperty(
+      "--gridSize",
+      this.mapSetting!.gridSize! + "px"
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.gridBorderColor")
+  private onChangeGridBorderColor() {
+    this.gameTableElm.style.setProperty(
+      "--gridBorderColor",
+      this.mapSetting!.gridBorderColor!
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.isUseMaskColor")
+  @Watch("mapSetting.margin.maskColor")
+  private onChangeMaskColor() {
+    this.gridPaperElm.style.setProperty(
+      "--mask-color",
+      this.mapSetting!.margin.isUseMaskColor
+        ? this.mapSetting!.margin.maskColor
+        : "transparent"
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.maskBlur")
+  private onChangeMarginMaskBlur() {
+    this.tableBackElm.style.setProperty(
+      "--mask-blur",
+      this.mapSetting!.margin.maskBlur + "px"
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.background.maskBlur")
+  private onChangeBackgroundMaskBlur() {
+    document
+      .getElementById("back-screen")!
+      .style.setProperty(
+        "--mask-blur",
+        this.mapSetting!.background.maskBlur + "px"
+      );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.isUseGridColor")
+  @Watch("mapSetting.margin.gridColorBold")
+  private onChangeMarginGridColorBold() {
+    if (this.mapSetting!.margin.isUseGridColor) {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-bold",
+        this.mapSetting!.margin.gridColorBold
+      );
+    } else {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-bold",
+        "transparent"
+      );
+    }
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.isUseGridColor")
+  @Watch("mapSetting.margin.gridColorThin")
+  private onChangeMarginGridColorThin() {
+    if (this.mapSetting!.margin.isUseGridColor) {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-thin",
+        this.mapSetting!.margin.gridColorThin
+      );
+    } else {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-thin",
+        "transparent"
+      );
+    }
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.column")
+  private onChangeMarginColumn() {
+    this.gameTableElm.style.setProperty(
+      "--margin-column",
+      this.mapSetting!.margin.column.toString(10)
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.row")
+  private onChangeMarginRow() {
+    this.gameTableElm.style.setProperty(
+      "--margin-row",
+      this.mapSetting!.margin.row.toString(10)
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.borderWidth")
+  private onChangeMarginBorderWidth() {
+    this.gameTableElm.style.setProperty(
+      "--margin-border-width",
+      this.mapSetting!.margin.borderWidth + "px"
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.borderColor")
+  private onChangeMarginBorderColor() {
+    this.gameTableElm.style.setProperty(
+      "--margin-border-color",
+      this.mapSetting!.margin.borderColor
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("mapSetting.margin.borderStyle")
+  private onChangeMarginBorderStyle() {
+    this.gameTableElm.style.setProperty(
+      "--margin-border-style",
+      this.mapSetting!.margin.borderStyle
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("currentAngle")
+  private onChangeCurrentAngle() {
+    this.gameTableElm.style.setProperty(
+      "--currentAngle",
+      this.currentAngle + "deg"
+    );
+  }
+
+  @Watch("isMounted")
+  @Watch("point.x")
+  @Watch("pointDiff.x")
+  private onChangeTotalLeftX() {
+    const totalLeftX = this.point.x + this.pointDiff.x;
+    this.gameTableElm.style.setProperty("--totalLeftX", totalLeftX + "px");
+  }
+
+  @Watch("isMounted")
+  @Watch("point.y")
+  @Watch("pointDiff.y")
+  private onChangeTotalLeftY() {
+    const totalLeftY = this.point.y + this.pointDiff.y;
+    this.gameTableElm.style.setProperty("--totalLeftY", totalLeftY + "px");
+  }
+
+  @Watch("isMounted")
+  @Watch("isModal")
+  private onChangeIsModal() {
+    this.gameTableElm.style.setProperty(
+      "--filter",
+      this.isModal ? "blur(3px)" : "none"
+    );
+  }
 
   @Watch("wheel")
   private onChangeWheel(wheel: number, oldValue: number) {
@@ -149,16 +412,40 @@ export default class GameTable extends AddressCalcMixin {
   ): Promise<TaskResult<never> | void> {
     this.wheel += 100 * (task!.value || false ? 1 : -1);
 
-    this.setIsWheeling(true);
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "wheel",
+        value: "on"
+      }
+    });
     if (this.wheelTimer !== null) {
       window.clearTimeout(this.wheelTimer);
     }
-    this.wheelTimer = window.setTimeout(() => {
-      this.setIsWheeling(false);
+    this.wheelTimer = window.setTimeout(async () => {
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "wheel",
+          value: "off"
+        }
+      });
       this.wheelTimer = null;
     }, 600);
 
     task.resolve();
+  }
+
+  @TaskProcessor("mode-change-finished")
+  private async modeChangeFinished(
+    task: Task<ModeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.type === "modal") {
+      this.isModal = task.value!.value === "on";
+      task.resolve();
+    }
   }
 
   @TaskProcessorSimple
@@ -314,75 +601,6 @@ export default class GameTable extends AddressCalcMixin {
     TaskManager.instance.setTaskParam("mouse-move-end-right-finished", null);
 
     task.resolve();
-  }
-
-  private get sizeW(this: any): number {
-    return (this.mapColumns + this.mapMarginGridSize * 2) * this.mapGridSize;
-  }
-
-  private get sizeH(this: any): number {
-    return (this.mapRows + this.mapMarginGridSize * 2) * this.mapGridSize;
-  }
-
-  @VueEvent
-  private get gameTableStyle(): any {
-    // const translateZ = this.mapWheel;
-    const totalLeftX = this.point.x + this.pointDiff.x;
-    const totalLeftY = this.point.y + this.pointDiff.y;
-    let rotateZ = this.currentAngle;
-
-    const transformList: string[] = [];
-    transformList.push(`translateY(${totalLeftY}px)`);
-    transformList.push(`translateX(${totalLeftX}px)`);
-    transformList.push(`rotateY(0deg)`);
-    transformList.push(`rotateX(0deg)`);
-    transformList.push(`rotateZ(${rotateZ}deg)`);
-    const result: any = {
-      width: this.sizeW + "px",
-      height: this.sizeH + "px",
-      borderWidth: this.mapBorderWidth + "px",
-      transform: transformList.join(" ")
-    };
-    if (this.isMapUseImage) {
-      result.backgroundImage = `url(${this.getBackgroundImage})`;
-    }
-    if (this.isModal) {
-      result.filter = "blur(3px)";
-    }
-    return result;
-  }
-
-  @VueEvent
-  private get gridPaperStyle(): any {
-    const maskColorObj = parseColor(this.mapMarginMaskColor);
-    maskColorObj.a = this.mapMarginMaskAlpha;
-    const marginMaskColorStr = maskColorObj.getRGBA();
-    const result: any = {
-      width: this.sizeW + "px",
-      height: this.sizeH + "px",
-      "background-color": marginMaskColorStr
-    };
-    if (this.isMapUseGridColor) {
-      const colorObj = parseColor(this.mapMarginGridColor);
-      colorObj.a = 0.3;
-      const marginGridColor3 = colorObj.getRGBA();
-      colorObj.a = 0.1;
-      const marginGridColor1 = colorObj.getRGBA();
-      result["background-image"] =
-        `linear-gradient(0deg, transparent -2px,` +
-        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
-        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
-        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
-        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
-        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent),` +
-        `linear-gradient(270deg, transparent -2px,` +
-        `${marginGridColor3} 2px, ${marginGridColor3} 3%, transparent 4%, transparent 20%,` +
-        `${marginGridColor1} 21%, ${marginGridColor1} 22%, transparent 23%, transparent 40%,` +
-        `${marginGridColor1} 41%, ${marginGridColor1} 42%, transparent 43%, transparent 60%,` +
-        `${marginGridColor1} 61%, ${marginGridColor1} 62%, transparent 63%, transparent 80%,` +
-        `${marginGridColor1} 81%, ${marginGridColor1} 82%, transparent 83%, transparent)`;
-    }
-    return result;
   }
 
   // private drop(this: any, event: any): void {
@@ -689,46 +907,124 @@ export default class GameTable extends AddressCalcMixin {
   margin: auto;
   text-align: center;
   vertical-align: middle;
-  background-position: 0 0;
-  background-size: 100% 100%;
   cursor: crosshair;
   z-index: -1;
   perspective: 1000px;
-  border: ridge gray;
   overflow: visible;
+  border-width: var(--margin-border-width);
+  border-style: var(--margin-border-style);
+  border-color: var(--margin-border-color);
+  width: calc(
+    (var(--totalColumn) + var(--margin-column) * 2) * var(--gridSize)
+  );
+  height: calc((var(--totalRow) + var(--margin-row) * 2) * var(--gridSize));
+  transform: translateY(var(--totalLeftY)) translateX(var(--totalLeftX))
+    rotateY(0deg) rotateX(0deg) rotateZ(var(--currentAngle));
+  filter: var(--filter);
 
-  &:before {
-    content: "";
-    background: inherit; /*.bgImageで設定した背景画像を継承する*/
-    -webkit-filter: blur(10px);
-    -ms-filter: blur(10px);
-    filter: blur(10px);
+  #table-background {
     position: absolute;
-    /*ブラー効果で画像の端がボヤけた分だけ位置を調整*/
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
-    z-index: -1; /*重なり順序を一番下にしておく*/
+    left: 0;
+    top: 0;
+    background-image: var(--background-image);
+    background-color: var(--background-color);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    filter: blur(var(--mask-blur));
+    transform: var(--background-transform);
+    z-index: 1;
   }
 
-  > div {
+  #grid-paper {
+    position: relative;
+    width: calc(
+      (var(--totalColumn) + var(--margin-column) * 2) * var(--gridSize)
+    );
+    overflow: hidden;
+    z-index: 2;
+    height: calc((var(--totalRow) + var(--margin-row) * 2) * var(--gridSize));
     background-position: 1px 1px;
-    background-size: 48px 48px;
-  }
-}
+    background-size: var(--gridSize) var(--gridSize);
+    background-color: var(--mask-color);
+    background-image: linear-gradient(
+        0deg,
+        transparent -2px,
+        var(--margin-grid-color-bold) 2px,
+        var(--margin-grid-color-bold) 3%,
+        transparent 4%,
+        transparent 20%,
+        var(--margin-grid-color-thin) 21%,
+        var(--margin-grid-color-thin) 22%,
+        transparent 23%,
+        transparent 40%,
+        var(--margin-grid-color-thin) 41%,
+        var(--margin-grid-color-thin) 42%,
+        transparent 43%,
+        transparent 60%,
+        var(--margin-grid-color-thin) 61%,
+        var(--margin-grid-color-thin) 62%,
+        transparent 63%,
+        transparent 80%,
+        var(--margin-grid-color-thin) 81%,
+        var(--margin-grid-color-thin) 82%,
+        transparent 83%,
+        transparent
+      ),
+      linear-gradient(
+        270deg,
+        transparent -2px,
+        var(--margin-grid-color-bold) 2px,
+        var(--margin-grid-color-bold) 3%,
+        transparent 4%,
+        transparent 20%,
+        var(--margin-grid-color-thin) 21%,
+        var(--margin-grid-color-thin) 22%,
+        transparent 23%,
+        transparent 40%,
+        var(--margin-grid-color-thin) 41%,
+        var(--margin-grid-color-thin) 42%,
+        transparent 43%,
+        transparent 60%,
+        var(--margin-grid-color-thin) 61%,
+        var(--margin-grid-color-thin) 62%,
+        transparent 63%,
+        transparent 80%,
+        var(--margin-grid-color-thin) 81%,
+        var(--margin-grid-color-thin) 82%,
+        transparent 83%,
+        transparent
+      );
 
-#mapBoardFrame {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  border: none;
-  text-align: center;
-  vertical-align: middle;
+    &:after {
+      content: "";
+      background: inherit; /*.bgImageで設定した背景画像を継承する*/
+      -webkit-filter: blur(10px);
+      -ms-filter: blur(10px);
+      filter: blur(10px);
+      position: absolute;
+      /*ブラー効果で画像の端がボヤけた分だけ位置を調整*/
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+    }
+  }
+
+  #mapBoardFrame {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: none;
+    text-align: center;
+    vertical-align: middle;
+    z-index: 3;
+  }
 }
 </style>

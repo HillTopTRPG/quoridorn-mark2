@@ -1,4 +1,4 @@
-import SocketClient from "socket.io-client";
+import * as Socket from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
@@ -8,6 +8,7 @@ import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
 import { GetVersionResponse } from "@/@types/room";
 import { loadYaml } from "@/app/core/File";
+import { Image } from "@/@types/image";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -65,7 +66,7 @@ export default class SocketFacade {
   public async setAppServerUrl(appServerUrl: string) {
     this.__appServerUrl = appServerUrl;
     if (this.socket) await this.destroy();
-    this.socket = SocketClient.connect(appServerUrl);
+    this.socket = Socket.connect(appServerUrl);
     this.nekostore = new Nekostore(
       new SocketDriver({
         socket: this.socket,
@@ -158,24 +159,6 @@ export default class SocketFacade {
 
   public set roomCollectionSuffix(val: string) {
     this.__roomCollectionSuffix = val;
-    window.console.log(val);
-  }
-
-  private roomCollectionController<T>(
-    collectionNamePrefix: string
-  ): NecostoreCollectionController<T> {
-    const collectionName = `${collectionNamePrefix}-${this.__roomCollectionSuffix}`;
-    let controller = this.collectionControllerMap[collectionName];
-    if (controller) {
-      return controller as NecostoreCollectionController<T>;
-    }
-    return (this.collectionControllerMap[
-      collectionName
-    ] = new NecostoreCollectionController<T>(
-      this.socket,
-      this.nekostore!,
-      collectionName
-    ));
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
@@ -198,7 +181,6 @@ export default class SocketFacade {
     args?: T
   ): Promise<U> {
     return new Promise<U>((resolve, reject) => {
-      window.console.log("socketCommunication:", event);
       this.socket!.once(`result-${event}`, (err: any, result: U) => {
         if (err) {
           reject(err);
@@ -212,7 +194,7 @@ export default class SocketFacade {
 
   public async testServer(url: string): Promise<GetVersionResponse> {
     return new Promise<GetVersionResponse>((resolve, reject) => {
-      const socket = SocketClient.connect(url);
+      const socket = Socket.connect(url);
       socket.on("connect", async () => {
         socket.emit("get-version");
       });
@@ -262,5 +244,38 @@ export default class SocketFacade {
       if (err) window.console.error(err);
       callback(err, result);
     });
+  }
+
+  private roomCollectionController<T>(
+    collectionNamePrefix: string
+  ): NecostoreCollectionController<T> {
+    const collectionName = `${this.__roomCollectionSuffix}-DATA-${collectionNamePrefix}`;
+    let controller = this.collectionControllerMap[collectionName];
+    if (controller) {
+      return controller as NecostoreCollectionController<T>;
+    }
+    return (this.collectionControllerMap[
+      collectionName
+    ] = new NecostoreCollectionController<T>(
+      this.socket,
+      this.nekostore!,
+      collectionName
+    ));
+  }
+
+  public mapListCollectionController() {
+    return this.roomCollectionController<MapSetting>("map-list");
+  }
+
+  public roomDataCollectionController() {
+    return this.roomCollectionController<RoomData>("room-data");
+  }
+
+  public imageDataCollectionController() {
+    return this.roomCollectionController<Image>("image-list");
+  }
+
+  public imageTagCollectionController() {
+    return this.roomCollectionController<string>("image-tag");
   }
 }

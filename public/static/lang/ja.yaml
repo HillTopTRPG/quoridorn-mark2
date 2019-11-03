@@ -36,6 +36,8 @@ label:
   roomNamePlaceholder: 仮プレイルーム（削除可能）
   gameSystem: ゲームシステム：
   noTarget: 指定なし
+  isVisitor: 参加者ですか？見学者ですか？：
+  participant: 参加者
 
 test-window:
   window-title: テスト画面
@@ -103,3 +105,7 @@ confirm-window:
   delete-room:
     title: 部屋削除
     message: 部屋を削除しますか？
+
+login-room-window:
+  window-title: ログインチェック
+  message: 部屋にログインします。
