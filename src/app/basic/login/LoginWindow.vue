@@ -525,7 +525,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 
     // 部屋作成リクエストを投げる
     try {
-      SocketFacade.instance.roomCollectionSuffix = await SocketFacade.instance.socketCommunication<
+      SocketFacade.instance.roomCollectionPrefix = await SocketFacade.instance.socketCommunication<
         CreateRoomRequest,
         string
       >("create-room", {
@@ -768,8 +768,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         ...userLoginInput
       });
       if (!loginResult) return;
-      SocketFacade.instance.roomCollectionSuffix =
-        loginResult.roomCollectionSuffix;
+      SocketFacade.instance.roomCollectionPrefix =
+        loginResult.roomCollectionPrefix;
     } catch (err) {
       window.console.warn(err);
     }

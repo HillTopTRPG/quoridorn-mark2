@@ -405,7 +405,7 @@ export default class SimpleTableComponent extends Vue {
     const target = this.elm.querySelector("tbody")!;
     const scrollTop = target.scrollTop;
     const tableHeight = target.getBoundingClientRect().height;
-    const lineHeight = getCssPxNum("--table-row-height", this.elm);
+    const lineHeight = getCssPxNum("--table-row-height");
 
     // 算出
     const newFirst = Math.floor(scrollTop / lineHeight) - this.marginRowNum;

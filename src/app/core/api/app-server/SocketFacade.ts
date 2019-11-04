@@ -48,7 +48,7 @@ export default class SocketFacade {
   private readonly collectionControllerMap: {
     [name: string]: NecostoreCollectionController<unknown>;
   } = {};
-  private __roomCollectionSuffix: string | null = null;
+  private __roomCollectionPrefix: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
 
   public get appServerUrl(): string {
@@ -157,8 +157,8 @@ export default class SocketFacade {
     this.socket!.disconnect();
   }
 
-  public set roomCollectionSuffix(val: string) {
-    this.__roomCollectionSuffix = val;
+  public set roomCollectionPrefix(val: string) {
+    this.__roomCollectionPrefix = val;
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
@@ -249,7 +249,7 @@ export default class SocketFacade {
   private roomCollectionController<T>(
     collectionNamePrefix: string
   ): NecostoreCollectionController<T> {
-    const collectionName = `${this.__roomCollectionSuffix}-DATA-${collectionNamePrefix}`;
+    const collectionName = `${this.__roomCollectionPrefix}-DATA-${collectionNamePrefix}`;
     let controller = this.collectionControllerMap[collectionName];
     if (controller) {
       return controller as NecostoreCollectionController<T>;

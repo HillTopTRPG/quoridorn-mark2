@@ -85,7 +85,7 @@ export type RoomViewResponse = {
 };
 
 export type LoginResponse = ClientRoomInfo & {
-  roomCollectionSuffix: string;
+  roomCollectionPrefix: string;
 };
 
 export type AppServerSettingInput = {
