@@ -22,7 +22,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import { Action, Getter } from "vuex-class";
+import { Getter } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TaskManager from "@/app/core/task/TaskManager";

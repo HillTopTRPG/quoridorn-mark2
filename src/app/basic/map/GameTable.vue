@@ -191,6 +191,12 @@ export default class GameTable extends AddressCalcMixin {
     GameTable.setBackground("table-background", this.mapSetting!.margin);
   }
 
+  private static changeImagePath(path: string) {
+    if (path.startsWith("/")) return `..${path}`;
+    if (path.startsWith("./")) return `.${path}`;
+    return path;
+  }
+
   private static async setBackground(
     targetId: string,
     info: ColorSpec | ImageSpec
@@ -208,7 +214,9 @@ export default class GameTable extends AddressCalcMixin {
         .getData(info.imageId);
       elm.style.setProperty(
         "--background-image",
-        imageData && imageData.data ? `url("${imageData.data.data}")` : "none"
+        imageData && imageData.data
+          ? `url("${GameTable.changeImagePath(imageData.data.data)}")`
+          : "none"
       );
       if (info.reverse === "horizontal") transformList.push("scale(-1, 1)");
       if (info.reverse === "vertical") transformList.push("scale(1, -1)");
