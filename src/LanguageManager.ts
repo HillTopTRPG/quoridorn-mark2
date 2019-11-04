@@ -1,8 +1,6 @@
 import { loadYaml } from "@/app/core/File";
 import VueI18n from "vue-i18n";
 import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import { AppServerSettingInput } from "@/@types/room";
 
 type LangInfo = {
   lang: string;

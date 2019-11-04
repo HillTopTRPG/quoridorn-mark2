@@ -111,7 +111,7 @@ import {
   LoginRoomInput,
   LoginRequest,
   LoginResponse
-} from "@/@types/room";
+} from "@/@types/socket";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -271,9 +271,11 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       }
     );
     this.roomList.splice(0, this.roomList.length);
-    serverInfo.roomList.forEach(roomInfo => {
-      this.roomList.push(roomInfo);
-    });
+    serverInfo.roomList.forEach(
+      (roomInfo: StoreObj<ClientRoomInfo> & StoreMetaData) => {
+        this.roomList.push(roomInfo);
+      }
+    );
     this.message = serverInfo.message;
   }
 

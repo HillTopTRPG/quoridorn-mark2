@@ -76,7 +76,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { AppServerSettingInput } from "@/@types/room";
+import { AppServerSettingInput } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   DefaultServerInfo

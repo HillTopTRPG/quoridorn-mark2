@@ -46,7 +46,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { UserLoginInput, UserType } from "@/@types/room";
+import { UserLoginInput, UserType } from "@/@types/socket";
 import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";

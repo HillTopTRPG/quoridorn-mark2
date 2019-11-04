@@ -6,7 +6,7 @@ import { StoreMetaData, StoreObj } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
-import { GetVersionResponse } from "@/@types/room";
+import { GetVersionResponse } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import { Image } from "@/@types/image";
 

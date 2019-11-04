@@ -31,7 +31,7 @@ import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { DeleteRoomInput } from "@/@types/room";
+import { DeleteRoomInput } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({

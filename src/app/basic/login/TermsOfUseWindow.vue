@@ -25,7 +25,7 @@ import { Component } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import { Message } from "@/@types/room";
+import { Message } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { loadText } from "@/app/core/File";

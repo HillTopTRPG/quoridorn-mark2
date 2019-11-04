@@ -39,7 +39,12 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { GetRoomListResponse, RoomViewResponse } from "@/@types/room";
+import {
+  ClientRoomInfo,
+  GetRoomListResponse,
+  RoomViewResponse
+} from "@/@types/socket";
+import { StoreMetaData, StoreObj } from "@/@types/store";
 
 @Component({
   components: {
@@ -93,7 +98,8 @@ export default class App extends Vue {
         changeList.forEach(change => {
           if (change.changeType === "removed") {
             const index = serverInfo.roomList.findIndex(
-              info => info.id === change.id
+              (info: StoreObj<ClientRoomInfo> & StoreMetaData) =>
+                info.id === change.id
             );
             serverInfo.roomList.splice(index, 1, {
               order: index,

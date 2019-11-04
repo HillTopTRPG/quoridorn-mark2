@@ -1,98 +1,56 @@
-import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreMetaData, StoreObj } from "@/@types/store";
-
-type MapShape = "square" | "horizontal-hex" | "vertical-hex";
-
-export type RoomInfoExtend = {
-  visitable: boolean;
-  chatWindow: boolean;
-  dice: boolean;
-  initiativeWindow: boolean;
-  resourceWindow: boolean;
-  chatPaletteWindow: boolean;
-  counterRemocon: boolean;
-  standImage: boolean;
-  cutIn: boolean;
-  drawMapAddress: boolean;
-  mapShape: MapShape;
-  drawMapShape: boolean;
-  autoFitMapShape: boolean;
-  autoResizeStandImage: boolean;
+type RoomData = {
+  mapId: string;
+  isDrawGridLine: boolean;
+  isDrawGridId: boolean;
+  isFitGrid: boolean;
+  isUseRotateMarker: boolean;
 };
 
-export type BaseRoomInfo = {
-  name: string;
-  system: string;
-  extend?: RoomInfoExtend; // 一時的措置
+type ColorOrImageSpec = ColorSpec | ImageSpec;
+
+type ColorSpec = {
+  backgroundType: "color";
+  backgroundColor: string;
 };
 
-export type RoomLoginInfo = {
-  roomId: string;
-  roomNo: number;
-  roomPassword: string;
+type ImageSpec = {
+  backgroundType: "image";
+  imageTag: string;
+  imageId: string;
+  reverse: "none" | "horizontal" | "vertical" | "180";
 };
 
-type UserType = "GM" | "PL" | "VISITOR";
-
-export type UserLoginInput = {
-  userName: string;
-  userType?: UserType;
-  userPassword: string;
-};
-export type UserLoginRequest = UserLoginInput & {
-  roomId: string;
+type ChatLinkable = {
+  chatLinkage: number;
+  chatLinkageSearch: string;
 };
 
-export type TouchRequest = {
-  roomNo: number;
-};
-export type ReleaseTouchRequest = TouchRequest;
-
-export type LoginRequest = RoomLoginInfo & UserLoginRequest;
-export type CreateRoomInput = BaseRoomInfo & {
-  roomPassword: string;
-};
-export type DeleteRoomInput = {
-  roomPassword: string;
-};
-export type LoginRoomInput = DeleteRoomInput & {
-  isVisitor: boolean;
-};
-export type CreateRoomRequest = CreateRoomInput &
-  UserLoginInput &
-  LoginRequest &
-  BaseRoomInfo;
-export type DeleteRoomRequest = RoomLoginInfo;
-
-export type ClientRoomInfo = BaseRoomInfo & {
-  memberNum: number;
-  hasPassword: boolean;
-};
-export type Message = {
-  title: string;
-  descriptions: string[];
-  termsOfUse: string;
-};
-export type GetRoomListResponse = {
-  roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[];
-  message: Message;
-};
-
-export type RoomViewResponse = {
-  changeType: ChangeType;
-  id: string;
-  data?: StoreObj<ClientRoomInfo>;
-};
-
-export type LoginResponse = ClientRoomInfo & {
-  roomCollectionSuffix: string;
-};
-
-export type AppServerSettingInput = {
-  url: string;
-};
-
-export type GetVersionResponse = {
-  version: string;
-  title: string;
-};
+type MapSetting = (ColorSpec | ImageSpec) &
+  ChatLinkable & {
+    shapeType: "square" | "hex-horizontal" | "hex-vertical";
+    totalColumn: number;
+    totalRow: number;
+    gridSize: number;
+    gridBorderColor: string;
+    isPourTile: boolean;
+    isHexFirstCorner: boolean;
+    isHexSecondSmall: boolean;
+    background: (ColorSpec | ImageSpec) & {
+      maskBlur: number;
+    };
+    margin: (ColorSpec | ImageSpec) & {
+      isUseGridColor: boolean;
+      gridColorBold: string;
+      gridColorThin: string;
+      column: number;
+      row: number;
+      isUseMaskColor: boolean;
+      maskColor: string;
+      maskBlur: number;
+      isUseImage: "none" | "same map" | "same background" | "original";
+      borderWidth: number;
+      borderColor: string;
+      borderStyle: "solid" | "ridge" | "double";
+    };
+    portTileMapping: string;
+  };
