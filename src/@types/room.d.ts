@@ -1,3 +1,5 @@
+import { UserType } from "@/@types/socket";
+
 type RoomData = {
   mapId: string;
   isDrawGridLine: boolean;
@@ -6,7 +8,11 @@ type RoomData = {
   isUseRotateMarker: boolean;
 };
 
-type ColorOrImageSpec = ColorSpec | ImageSpec;
+type UserData = {
+  userName: string;
+  userType: UserType;
+  login: number;
+};
 
 type ColorSpec = {
   backgroundType: "color";

@@ -9,6 +9,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import { GetVersionResponse } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import { Image } from "@/@types/image";
+import { MapSetting, RoomData, UserData } from "@/@types/room";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -263,19 +264,27 @@ export default class SocketFacade {
     ));
   }
 
-  public mapListCollectionController() {
+  public mapListCollectionController(): NecostoreCollectionController<
+    MapSetting
+  > {
     return this.roomCollectionController<MapSetting>("map-list");
   }
 
-  public roomDataCollectionController() {
+  public roomDataCollectionController(): NecostoreCollectionController<
+    RoomData
+  > {
     return this.roomCollectionController<RoomData>("room-data");
   }
 
-  public imageDataCollectionController() {
+  public imageDataCollectionController(): NecostoreCollectionController<Image> {
     return this.roomCollectionController<Image>("image-list");
   }
 
-  public imageTagCollectionController() {
-    return this.roomCollectionController<string>("image-tag");
+  public imageTagCollectionController(): NecostoreCollectionController<string> {
+    return this.roomCollectionController<string>("image-tag-list");
+  }
+
+  public userCollectionController(): NecostoreCollectionController<UserData> {
+    return this.roomCollectionController<UserData>("user-list");
   }
 }

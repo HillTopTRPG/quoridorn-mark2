@@ -98,6 +98,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreMetaData, StoreObj } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { ColorSpec, ImageSpec, MapSetting, RoomData } from "@/@types/room";
 
 @Component({
   components: {

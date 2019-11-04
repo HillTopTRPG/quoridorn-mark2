@@ -125,6 +125,7 @@ import { Task, TaskResult } from "@/@types/task";
 import { loadYaml } from "@/app/core/File";
 import { getFileNameArgList } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
+import { MapSetting, RoomData } from "@/@types/room";
 
 @Component({
   components: { LanguageSelect, TableComponent, CtrlButton },
