@@ -1,17 +1,20 @@
 <template>
   <div id="app">
     <div id="back-screen"></div>
-    <game-table ref="gameTable" v-if="roomInitialized" />
     <div id="YoutubePlayerContainer">
       <div class="unUse"><div id="YoutubePlayer001"></div></div>
       <div class="unUse"><div id="YoutubePlayer002"></div></div>
       <div class="unUse"><div id="YoutubePlayer003"></div></div>
       <div class="unUse"><div id="YoutubePlayer004"></div></div>
     </div>
-    <Menu />
-    <right-pane />
+
+    <template v-if="roomInitialized">
+      <game-table ref="gameTable" />
+      <Menu />
+      <right-pane />
+      <context />
+    </template>
     <window-area />
-    <context />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
   </div>
 </template>
@@ -239,7 +242,6 @@ export default class App extends Vue {
   ): Promise<TaskResult<never> | void> {
     if (task.value!.type === "wheel") {
       this.isMapWheeling = task.value!.value === "on";
-      window.console.log("mode-change-finished" + task.value!.value);
       task.resolve();
     }
   }

@@ -77,10 +77,10 @@
       </table-component>
     </keep-alive>
     <div class="button-area">
-      <ctrl-button @click="createRoom()" :disabled="unTouchable">
+      <ctrl-button @click="createRoom()" :disabled="disabledCreate">
         <span v-t="'button.create-new'"></span>
       </ctrl-button>
-      <ctrl-button @click="login()">
+      <ctrl-button @click="login()" :disabled="disabledLogin">
         <span v-t="'button.login'"></span>
       </ctrl-button>
     </div>
@@ -283,10 +283,17 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   @VueEvent
-  private get unTouchable() {
+  private get disabledCreate(): boolean {
     if (this.isInputtingRoomInfo) return true;
-    if (this.selectedRoomNo === null) return false;
+    if (this.selectedRoomNo === null) return true;
     return !!this.roomList[this.selectedRoomNo].data;
+  }
+
+  @VueEvent
+  private get disabledLogin(): boolean {
+    if (this.isInputtingRoomInfo) return true;
+    if (this.selectedRoomNo === null) return true;
+    return !this.roomList[this.selectedRoomNo].data;
   }
 
   @LifeCycle
@@ -344,6 +351,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       confirmResult = confirmResultList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
       return;
     }
 
@@ -370,17 +379,17 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       deleteRoomInput = deleteRoomInputList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
       return;
+    } finally {
+      this.isInputtingRoomInfo = false;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!deleteRoomInput) {
       await this.releaseTouchRoom();
-      this.isInputtingRoomInfo = false;
       return;
     }
-
-    this.isInputtingRoomInfo = false;
 
     // 部屋削除リクエストを投げる
     let deleteResult: boolean;
@@ -395,6 +404,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       });
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
       this.isInputtingRoomInfo = false;
       return;
     }
@@ -449,12 +459,13 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       return;
     }
 
+    this.isInputtingRoomInfo = true;
+
     // タッチ
     if (!(await this.touchRoom(false))) return;
 
     // 部屋情報入力画面
     let createRoomInput: CreateRoomInput;
-    this.isInputtingRoomInfo = true;
     try {
       const roomInfoList = await TaskManager.instance.ignition<
         WindowOpenInfo<never>,
@@ -469,6 +480,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       createRoomInput = roomInfoList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
       return;
     }
 
@@ -496,17 +509,17 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       userLoginInput = userLoginInputList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
       return;
+    } finally {
+      this.isInputtingRoomInfo = false;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!userLoginInput) {
       await this.releaseTouchRoom();
-      this.isInputtingRoomInfo = false;
       return;
     }
-
-    this.isInputtingRoomInfo = false;
 
     // 部屋作成リクエストを投げる
     try {
@@ -678,7 +691,10 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     this.isInputtingRoomInfo = true;
 
     // タッチ
-    if (!(await this.touchRoom(true))) return;
+    if (!(await this.touchRoom(true))) {
+      this.isInputtingRoomInfo = false;
+      return;
+    }
 
     // 部屋情報入力画面
     let loginRoomInput: LoginRoomInput;
@@ -697,6 +713,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       loginRoomInput = loginRoomInputList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
+      this.isInputtingRoomInfo = false;
       return;
     }
 
@@ -724,17 +742,17 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       userLoginInput = userLoginInputList[0];
     } catch (err) {
       window.console.warn(err);
+      await this.releaseTouchRoom();
       return;
+    } finally {
+      this.isInputtingRoomInfo = false;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!userLoginInput) {
       await this.releaseTouchRoom();
-      this.isInputtingRoomInfo = false;
       return;
     }
-
-    this.isInputtingRoomInfo = false;
 
     // ログインリクエストを投げる
     try {
@@ -750,18 +768,16 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       if (!loginResult) return;
       SocketFacade.instance.roomCollectionSuffix =
         loginResult.roomCollectionSuffix;
-
-      const initRoomInfo = null;
-
-      await TaskManager.instance.ignition<void, void>({
-        type: "room-initialize",
-        owner: "Quoridorn",
-        value: initRoomInfo
-      });
-      await this.close();
     } catch (err) {
       window.console.warn(err);
     }
+
+    await TaskManager.instance.ignition<void, void>({
+      type: "room-initialize",
+      owner: "Quoridorn",
+      value: null
+    });
+    await this.close();
   }
 }
 </script>
