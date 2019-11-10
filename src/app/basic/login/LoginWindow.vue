@@ -8,8 +8,15 @@
         draggable="false"
       />
       <div class="message-documents">
-        <div class="term-of-use flat-button" @click="viewTermOfUse()">
-          <span v-t="'label.terms-of-use'"></span>
+        <div class="h-box">
+          <div class="term-of-use flat-button" @click="viewTermOfUse()">
+            <span v-t="'label.terms-of-use'"></span>
+          </div>
+          <!--
+          <div class="version-info flat-button" @click="viewVersionInfo()">
+            <span v-t="'label.version-info'"></span>
+          </div>
+          -->
         </div>
         <div class="title-contents flat-button" @click="serverSetting()">
           <span class="title">{{ message.title }}</span>
@@ -156,6 +163,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   private isInputtingServerSetting: boolean = false;
   private isInputtingRoomInfo: boolean = false;
   private message: Message | null = null;
+  private version: string | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
     "\\[([^\\]]+)]\\(([^)]+)\\)",
     "g"
@@ -172,6 +180,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     await this.init();
     this.roomList = this.windowInfo.args!.roomList;
     this.message = this.windowInfo.args!.message;
+    this.version = this.windowInfo.args!.version;
     this.elm.style.setProperty(
       "--msg-creating",
       `"${LanguageManager.instance.getText("label.creating")}"`
@@ -205,6 +214,27 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         type: "terms-of-use-window",
         args: {
           message: this.message!
+        }
+      }
+    });
+  }
+
+  @VueEvent
+  private async viewVersionInfo() {
+    await TaskManager.instance.ignition<
+      WindowOpenInfo<{
+        message: Message;
+        version: string;
+      }>,
+      void
+    >({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "version-info-window",
+        args: {
+          message: this.message!,
+          version: this.version!
         }
       }
     });
@@ -327,11 +357,13 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       return;
     }
 
-    // タッチ
-    if (!(await this.touchRoom(true))) return;
     this.isInputtingRoomInfo = true;
 
-    window.console.log("touched");
+    // タッチ
+    if (!(await this.touchRoom(true))) {
+      this.isInputtingRoomInfo = false;
+      return;
+    }
 
     // 確認画面
     let confirmResult: boolean;
@@ -465,7 +497,10 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     this.isInputtingRoomInfo = true;
 
     // タッチ
-    if (!(await this.touchRoom(false))) return;
+    if (!(await this.touchRoom(false))) {
+      this.isInputtingRoomInfo = false;
+      return;
+    }
 
     // 部屋情報入力画面
     let createRoomInput: CreateRoomInput;
@@ -573,6 +608,16 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         });
       });
 
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "create-room",
+          value: "on"
+        }
+      });
+      await this.close();
+
       /* --------------------------------------------------
        * 画像タグのプリセットデータ投入
        */
@@ -673,12 +718,20 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
 
       const initRoomInfo = null;
 
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "create-room",
+          value: "off"
+        }
+      });
+
       await TaskManager.instance.ignition<void, void>({
         type: "room-initialize",
         owner: "Quoridorn",
         value: initRoomInfo
       });
-      await this.close();
     } catch (err) {
       window.console.warn(err);
     }
@@ -757,6 +810,15 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       return;
     }
 
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "create-room",
+        value: "on"
+      }
+    });
+
     // ログインリクエストを投げる
     try {
       const loginResult = await SocketFacade.instance.socketCommunication<
@@ -768,19 +830,31 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         ...loginRoomInput,
         ...userLoginInput
       });
-      if (!loginResult) return;
+      if (!loginResult) {
+        alert("ログイン失敗");
+        return;
+      }
       SocketFacade.instance.roomCollectionPrefix =
         loginResult.roomCollectionPrefix;
     } catch (err) {
       window.console.warn(err);
     }
+    await this.close();
+
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "create-room",
+        value: "off"
+      }
+    });
 
     await TaskManager.instance.ignition<void, void>({
       type: "room-initialize",
       owner: "Quoridorn",
       value: null
     });
-    await this.close();
   }
 }
 </script>
@@ -848,7 +922,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         }
       }
 
-      .term-of-use {
+      .term-of-use,
+      .version-info {
         margin-top: 0.2rem;
         margin-left: 0.2rem;
         font-size: 90%;

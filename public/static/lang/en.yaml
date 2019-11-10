@@ -38,6 +38,7 @@ label:
   noTarget: unspecified
   isVisitor: 参加者ですか？見学者ですか？：
   participant: 参加者
+  version-info: バージョン情報
 
 test-window:
   window-title: Test Window
@@ -109,3 +110,6 @@ confirm-window:
 login-room-window:
   window-title: ログインチェック
   message: 部屋にログインします。
+
+version-info-window:
+  window-title: バージョン情報

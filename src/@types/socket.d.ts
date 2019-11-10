@@ -76,6 +76,7 @@ export type Message = {
 export type GetRoomListResponse = {
   roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[];
   message: Message;
+  version: string;
 };
 
 export type RoomViewResponse = {
@@ -95,4 +96,9 @@ export type AppServerSettingInput = {
 export type GetVersionResponse = {
   version: string;
   title: string;
+};
+
+export type VersionWindowInfo = {
+  message: Message;
+  version: string;
 };

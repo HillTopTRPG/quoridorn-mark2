@@ -16,6 +16,13 @@
     </template>
     <window-area />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
+    <div id="loadingCreateRoom" v-if="isCreatingRoomMode">
+      <div class="message">お部屋を作成しています！</div>
+      <img
+        src="http://quoridorn.com/img/mascot/struggle/mascot_struggle.png"
+        alt=""
+      />
+    </div>
   </div>
 </template>
 
@@ -62,6 +69,7 @@ export default class App extends Vue {
   private readonly key = "App";
   private isMapWheeling: boolean = false;
   private roomInitialized: boolean = false;
+  private isCreatingRoomMode: boolean = false;
 
   @LifeCycle
   public async created() {}
@@ -246,8 +254,14 @@ export default class App extends Vue {
   private async modeChangeFinished(
     task: Task<ModeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value!.type === "wheel") {
-      this.isMapWheeling = task.value!.value === "on";
+    const type: string = task.value!.type;
+    const value: string = task.value!.value;
+    if (type === "wheel") {
+      this.isMapWheeling = value === "on";
+      task.resolve();
+    }
+    if (type === "create-room") {
+      this.isCreatingRoomMode = value === "on";
       task.resolve();
     }
   }
@@ -278,6 +292,8 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+@import "../assets/common";
+
 html,
 body {
   padding: 0;
@@ -385,6 +401,42 @@ hr {
     top: calc(50% - 15px);
     bottom: calc(50% - 15px);
     border-left: 2px rgba(0, 0, 0, 0.8) dotted;
+  }
+}
+
+#loadingCreateRoom {
+  @include flex-box(column, center, center);
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+
+  img {
+    width: 200px;
+    height: 200px;
+  }
+
+  .message {
+    position: relative;
+    font-size: 200%;
+    background-color: white;
+    border-radius: 0.3em;
+    padding: 0.4em;
+    margin-bottom: 1rem;
+
+    &:before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      border-color: transparent;
+      border-width: 1rem;
+      border-style: solid;
+      border-top-color: white;
+    }
   }
 }
 </style>

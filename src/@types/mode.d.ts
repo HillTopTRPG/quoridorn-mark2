@@ -1,4 +1,4 @@
-type ModeInfo = WheelModeInfo | ModalModeInfo;
+type ModeInfo = WheelModeInfo | ModalModeInfo | CreateRoomModeInfo;
 
 type WheelModeInfo = {
   type: "wheel";
@@ -7,5 +7,10 @@ type WheelModeInfo = {
 
 type ModalModeInfo = {
   type: "modal";
+  value: "on" | "off";
+};
+
+type CreateRoomModeInfo = {
+  type: "create-room";
   value: "on" | "off";
 };
