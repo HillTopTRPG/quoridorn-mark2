@@ -241,9 +241,10 @@ export default class TaskManager {
     } = this.taskListener[eventName];
     const reducer = (a: TaskProcess<T, U>[], c: TaskProcess<T, U>[]) =>
       a.concat(c);
-    const processList: TaskProcess<T, U>[] = processContainer
-      ? Object.values(processContainer).reduce(reducer)
-      : [];
+    const processList: TaskProcess<T, U>[] =
+      processContainer && Object.keys(processContainer).length
+        ? Object.values(processContainer).reduce(reducer)
+        : [];
     if (!processList || !processList.length) {
       // 登録された処理がない
       if (task.isTest) window.console.log(`${logText}🈳`);

@@ -3,7 +3,7 @@
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span v-t="'label.userName'"></span>
+        <span class="label-input" v-t="'label.user-name'"></span>
         <base-input
           type="text"
           :value="name"
@@ -13,7 +13,7 @@
         />
       </label>
       <label>
-        <span v-t="'label.password'"></span>
+        <span class="label-input" v-t="'label.password'"></span>
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"
@@ -21,7 +21,7 @@
         />
       </label>
       <label>
-        <span v-t="'label.userType'"></span>
+        <span class="label-input" v-t="'label.user-type'"></span>
         <user-type-select v-model="userType" />
       </label>
     </div>

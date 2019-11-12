@@ -13,6 +13,7 @@ button:
   copy: コピー
   next: 次へ
   execution: 実行
+  close: 閉じる
 
 label:
   terms-of-use: 利用規約
@@ -21,24 +22,29 @@ label:
   not-exist: なし
   possible: 可
   creating: 作成中
-  termsOfUseWebServer: Webサーバの利用規約
-  termsOfUseAppServer: Appサーバの利用規約
-  userName: ユーザ名：
-  password: パスワード：
-  passwordPlaceholder: (空ならパスワードなし)
-  userType: ユーザ種別：
+  terms-of-use-web-server: Webサーバの利用規約
+  terms-of-use-app-server: Appサーバの利用規約
+  user-name: ユーザ名
+  password: パスワード
+  password-placeholder: (空ならパスワードなし)
+  user-type: ユーザ種別
   nameless: ななし
   authority: 権限
   player: PL
   gameMaster: GM
   visitor: 見学者
-  roomName: プレイルーム名：
-  roomNamePlaceholder: 仮プレイルーム（削除可能）
-  gameSystem: ゲームシステム：
-  noTarget: 指定なし
-  isVisitor: 参加者ですか？見学者ですか？：
+  room-name: プレイルーム名
+  room-name-placeholder: 仮プレイルーム（削除可能）
+  game-system: ゲームシステム
+  no-target: 指定なし
+  is-visitor: 参加者ですか？見学者ですか？
   participant: 参加者
   version-info: バージョン情報
+  invite-url: 招待URL
+  room-member-num: 入室数
+
+message:
+  copy-to-clipboard: クリップボードにコピーしました。
 
 test-window:
   window-title: テスト画面
@@ -113,3 +119,6 @@ login-room-window:
 
 version-info-window:
   window-title: バージョン情報
+
+room-info-window:
+  window-title: プレイルーム情報表示

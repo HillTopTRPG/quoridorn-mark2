@@ -10,7 +10,7 @@
 
     <template v-if="roomInitialized">
       <game-table ref="gameTable" />
-      <Menu />
+      <Menu :roomInfo="roomInfo" />
       <right-pane />
       <context />
     </template>
@@ -51,7 +51,7 @@ import {
   GetRoomListResponse,
   RoomViewResponse
 } from "@/@types/socket";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreUseData } from "@/@types/store";
 
 @Component({
   components: {
@@ -70,6 +70,15 @@ export default class App extends Vue {
   private isMapWheeling: boolean = false;
   private roomInitialized: boolean = false;
   private isCreatingRoomMode: boolean = false;
+  private isMounted: boolean = false;
+
+  private isModal: boolean = false;
+
+  private roomInfo: ClientRoomInfo | null = null;
+
+  private get elm(): HTMLElement {
+    return document.getElementById("app") as HTMLElement;
+  }
 
   @LifeCycle
   public async created() {}
@@ -106,8 +115,7 @@ export default class App extends Vue {
         changeList.forEach(change => {
           if (change.changeType === "removed") {
             const index = serverInfo.roomList.findIndex(
-              (info: StoreObj<ClientRoomInfo> & StoreMetaData) =>
-                info.id === change.id
+              (info: StoreUseData<ClientRoomInfo>) => info.id === change.id
             );
             serverInfo.roomList.splice(index, 1, {
               order: index,
@@ -137,6 +145,7 @@ export default class App extends Vue {
         args: serverInfo
       }
     });
+    this.isMounted = true;
   }
 
   /**
@@ -233,6 +242,12 @@ export default class App extends Vue {
     document.body.style.backgroundColor = mapBackgroundColor;
   }
 
+  @Watch("isMounted")
+  @Watch("isModal")
+  private onChangeIsModal() {
+    this.elm.style.setProperty("--filter", this.isModal ? "blur(3px)" : "none");
+  }
+
   @TaskProcessor("socket-connect-finished")
   private async socketConnectFinished(
     task: Task<never, never>
@@ -243,10 +258,11 @@ export default class App extends Vue {
 
   @TaskProcessor("room-initialize-finished")
   private async roomInitializeFinished(
-    task: Task<never, never>
+    task: Task<ClientRoomInfo, never>
   ): Promise<TaskResult<never> | void> {
     // 部屋に接続できた
     this.roomInitialized = true;
+    this.roomInfo = task.value!;
     task.resolve();
   }
 
@@ -262,6 +278,10 @@ export default class App extends Vue {
     }
     if (type === "create-room") {
       this.isCreatingRoomMode = value === "on";
+      task.resolve();
+    }
+    if (task.value!.type === "modal") {
+      this.isModal = task.value!.value === "on";
       task.resolve();
     }
   }

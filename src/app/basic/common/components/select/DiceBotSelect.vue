@@ -32,7 +32,9 @@ import { Component, Mixins } from "vue-mixin-decorator";
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
   private diceSystemList: DiceSystem[] = [];
-  private noTarget: string = LanguageManager.instance.getText("label.noTarget");
+  private noTarget: string = LanguageManager.instance.getText(
+    "label.no-target"
+  );
 
   @Prop({ type: String, required: true })
   private value!: string;
@@ -59,7 +61,7 @@ export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    this.noTarget = LanguageManager.instance.getText("label.noTarget");
+    this.noTarget = LanguageManager.instance.getText("label.no-target");
     task.resolve();
   }
 

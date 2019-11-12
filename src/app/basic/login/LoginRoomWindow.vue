@@ -3,7 +3,7 @@
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <div>
-        <span v-t="'label.isVisitor'"></span>
+        <span class="label-input" v-t="'label.is-visitor'"></span>
         <label>
           <base-input
             type="radio"
@@ -25,7 +25,7 @@
         </label>
       </div>
       <label>
-        <span v-t="'label.password'"></span>
+        <span class="label-input" v-t="'label.password'"></span>
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"

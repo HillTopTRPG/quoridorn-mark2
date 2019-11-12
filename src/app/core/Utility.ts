@@ -1,5 +1,6 @@
 import { all, create } from "mathjs";
 import { StandImageInfo } from "@/@types/image";
+import LanguageManager from "@/LanguageManager";
 
 const config = {};
 const math = create(all, config);
@@ -389,6 +390,14 @@ export function execCopy(text: string): boolean {
 
   document.body.removeChild(temp);
   // true なら実行できている falseなら失敗か対応していないか
+
+  if (result) {
+    const message = LanguageManager.instance.getText(
+      "message.copy-to-clipboard"
+    );
+    alert(`${message}\n${text}`);
+  }
+
   return result;
 }
 

@@ -6,6 +6,8 @@ export type StoreObj<T> = {
   updateTime: Date | null;
 };
 
-export type StoreMetaData = {
+type StoreMetaData = {
   id: string | null;
 };
+
+export type StoreUseData<T> = StoreObj<T> & StoreMetaData;

@@ -3,7 +3,7 @@
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span v-t="'label.password'"></span>
+        <span class="label-input" v-t="'label.password'"></span>
         <base-input
           type="password"
           :value="password"

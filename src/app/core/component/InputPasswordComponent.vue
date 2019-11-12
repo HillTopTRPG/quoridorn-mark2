@@ -7,7 +7,7 @@
       :toggle="true"
       :required="false"
       title=""
-      :placeholder="$t('label.passwordPlaceholder')"
+      :placeholder="$t('label.password-placeholder')"
       :showStrengthMeter="setting"
       :badge="setting"
       @score="showScore"

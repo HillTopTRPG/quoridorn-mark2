@@ -2,7 +2,7 @@ import * as Socket from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -10,12 +10,24 @@ import { GetVersionResponse } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import { Image } from "@/@types/image";
 import { MapSetting, RoomData, UserData } from "@/@types/room";
+import {
+  CharacterStore,
+  ChitStore,
+  DiceSymbolStore,
+  ExtraStore,
+  FloorTileStore,
+  MapMaskStore,
+  PropertyFaceStore,
+  PropertySelectionStore,
+  PropertyStore,
+  TagNoteStore
+} from "@/@types/gameObject";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
 export function getStoreObj<T>(
   doc: DocumentSnapshot<StoreObj<T>>
-): (StoreObj<T> & StoreMetaData) | null {
+): StoreUseData<T> | null {
   if (doc.exists()) {
     const data: StoreObj<T> = doc.data;
     return {
@@ -264,27 +276,69 @@ export default class SocketFacade {
     ));
   }
 
-  public mapListCollectionController(): NecostoreCollectionController<
-    MapSetting
-  > {
+  public mapListCC(): NecostoreCollectionController<MapSetting> {
     return this.roomCollectionController<MapSetting>("map-list");
   }
 
-  public roomDataCollectionController(): NecostoreCollectionController<
-    RoomData
-  > {
+  public roomDataCC(): NecostoreCollectionController<RoomData> {
     return this.roomCollectionController<RoomData>("room-data");
   }
 
-  public imageDataCollectionController(): NecostoreCollectionController<Image> {
+  public imageDataCC(): NecostoreCollectionController<Image> {
     return this.roomCollectionController<Image>("image-list");
   }
 
-  public imageTagCollectionController(): NecostoreCollectionController<string> {
+  public imageTagCC(): NecostoreCollectionController<string> {
     return this.roomCollectionController<string>("image-tag-list");
   }
 
-  public userCollectionController(): NecostoreCollectionController<UserData> {
+  public userCC(): NecostoreCollectionController<UserData> {
     return this.roomCollectionController<UserData>("user-list");
+  }
+
+  public propertyCC(): NecostoreCollectionController<PropertyStore> {
+    return this.roomCollectionController<PropertyStore>("property-list");
+  }
+
+  public propertySelectionCC(): NecostoreCollectionController<
+    PropertySelectionStore
+  > {
+    return this.roomCollectionController<PropertySelectionStore>(
+      "property-selection-list"
+    );
+  }
+
+  public propertyFaceCC(): NecostoreCollectionController<PropertyFaceStore> {
+    return this.roomCollectionController<PropertyFaceStore>(
+      "property-face-list"
+    );
+  }
+
+  public characterCC(): NecostoreCollectionController<CharacterStore> {
+    return this.roomCollectionController<CharacterStore>("character-list");
+  }
+
+  public extraCC(): NecostoreCollectionController<ExtraStore> {
+    return this.roomCollectionController<ExtraStore>("extra-list");
+  }
+
+  public diceSymbolCC(): NecostoreCollectionController<DiceSymbolStore> {
+    return this.roomCollectionController<DiceSymbolStore>("dice-symbol-list");
+  }
+
+  public floorTileCC(): NecostoreCollectionController<FloorTileStore> {
+    return this.roomCollectionController<FloorTileStore>("floor-tile-list");
+  }
+
+  public chitCC(): NecostoreCollectionController<ChitStore> {
+    return this.roomCollectionController<ChitStore>("chit-list");
+  }
+
+  public mapMaskCC(): NecostoreCollectionController<MapMaskStore> {
+    return this.roomCollectionController<MapMaskStore>("map-mask-list");
+  }
+
+  public tagNoteCC(): NecostoreCollectionController<TagNoteStore> {
+    return this.roomCollectionController<TagNoteStore>("tag-note-list");
   }
 }

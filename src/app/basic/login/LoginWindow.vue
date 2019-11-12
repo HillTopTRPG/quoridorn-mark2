@@ -119,7 +119,7 @@ import {
   LoginRequest,
   LoginResponse
 } from "@/@types/socket";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -133,6 +133,7 @@ import { loadYaml } from "@/app/core/File";
 import { getFileNameArgList } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
 import { MapSetting, RoomData } from "@/@types/room";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: { LanguageSelect, TableComponent, CtrlButton },
@@ -158,7 +159,7 @@ import { MapSetting, RoomData } from "@/@types/room";
 export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   WindowVue
 ) {
-  private roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[] = [];
+  private roomList: StoreUseData<ClientRoomInfo>[] = [];
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
   private isInputtingRoomInfo: boolean = false;
@@ -302,11 +303,9 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       }
     );
     this.roomList.splice(0, this.roomList.length);
-    serverInfo.roomList.forEach(
-      (roomInfo: StoreObj<ClientRoomInfo> & StoreMetaData) => {
-        this.roomList.push(roomInfo);
-      }
-    );
+    serverInfo.roomList.forEach((roomInfo: StoreUseData<ClientRoomInfo>) => {
+      this.roomList.push(roomInfo);
+    });
     this.message = serverInfo.message;
   }
 
@@ -451,9 +450,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   @VueEvent
-  private getRowClasses(
-    data: StoreObj<ClientRoomInfo> & StoreMetaData
-  ): string[] {
+  private getRowClasses(data: StoreUseData<ClientRoomInfo>): string[] {
     const classList: string[] = [];
     if (data.exclusionOwner) {
       classList.push(data.data ? "isEditing" : "isCreating");
@@ -560,6 +557,15 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     }
 
     // 部屋作成リクエストを投げる
+
+    let initRoomInfo: ClientRoomInfo = {
+      name: createRoomInput.name,
+      system: createRoomInput.system,
+      extend: createRoomInput.extend,
+      memberNum: 0,
+      hasPassword: !!createRoomInput.roomPassword,
+      roomNo: this.selectedRoomNo
+    };
     try {
       SocketFacade.instance.roomCollectionPrefix = await SocketFacade.instance.socketCommunication<
         CreateRoomRequest,
@@ -621,7 +627,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       /* --------------------------------------------------
        * 画像タグのプリセットデータ投入
        */
-      const imageTagStore = SocketFacade.instance.imageTagCollectionController();
+      const imageTagStore = SocketFacade.instance.imageTagCC();
 
       const pushImageTag = async (imageTag: string): Promise<void> => {
         await imageTagStore.add(await imageTagStore.touch(), imageTag);
@@ -635,7 +641,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       /* --------------------------------------------------
        * 画像データのプリセットデータ投入
        */
-      const imageDataStore = SocketFacade.instance.imageDataCollectionController();
+      const imageDataStore = SocketFacade.instance.imageDataCC();
 
       let imageId: string | null = null;
       const pushImage = async (image: Image): Promise<void> => {
@@ -652,7 +658,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       /* --------------------------------------------------
        * マップデータのプリセットデータ投入
        */
-      const mapDataStore = SocketFacade.instance.mapListCollectionController();
+      const mapDataStore = SocketFacade.instance.mapListCC();
 
       const mapSetting: MapSetting = {
         backgroundType: "image",
@@ -705,7 +711,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       /* --------------------------------------------------
        * 部屋データのプリセットデータ投入
        */
-      const roomDataStore = SocketFacade.instance.roomDataCollectionController();
+      const roomDataStore = SocketFacade.instance.roomDataCC();
 
       const roomData: RoomData = {
         mapId: mapDataDocId,
@@ -716,8 +722,6 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       };
       await roomDataStore.add(await roomDataStore.touch(), roomData);
 
-      const initRoomInfo = null;
-
       await TaskManager.instance.ignition<ModeInfo, never>({
         type: "mode-change",
         owner: "Quoridorn",
@@ -727,7 +731,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         }
       });
 
-      await TaskManager.instance.ignition<void, void>({
+      await TaskManager.instance.ignition<ClientRoomInfo, void>({
         type: "room-initialize",
         owner: "Quoridorn",
         value: initRoomInfo
@@ -820,8 +824,9 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
     });
 
     // ログインリクエストを投げる
+    let loginResult: LoginResponse;
     try {
-      const loginResult = await SocketFacade.instance.socketCommunication<
+      loginResult = await SocketFacade.instance.socketCommunication<
         LoginRequest,
         LoginResponse
       >("login", {
@@ -838,6 +843,8 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
         loginResult.roomCollectionPrefix;
     } catch (err) {
       window.console.warn(err);
+      alert("ログイン失敗");
+      return;
     }
     await this.close();
 
@@ -850,10 +857,13 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       }
     });
 
-    await TaskManager.instance.ignition<void, void>({
+    loginResult.roomNo = this.selectedRoomNo;
+    GameObjectManager.instance.clientRoomInfo = loginResult;
+
+    await TaskManager.instance.ignition<ClientRoomInfo, void>({
       type: "room-initialize",
       owner: "Quoridorn",
-      value: null
+      value: loginResult
     });
   }
 }

@@ -1,5 +1,5 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 
 type MapShape = "square" | "horizontal-hex" | "vertical-hex";
 
@@ -20,7 +20,7 @@ export type RoomInfoExtend = {
   autoResizeStandImage: boolean;
 };
 
-export type BaseRoomInfo = {
+type BaseRoomInfo = {
   name: string;
   system: string;
   extend?: RoomInfoExtend; // 一時的措置
@@ -32,7 +32,7 @@ export type RoomLoginInfo = {
   roomPassword: string;
 };
 
-type UserType = "GM" | "PL" | "VISITOR";
+export type UserType = "GM" | "PL" | "VISITOR";
 
 export type UserLoginInput = {
   userName: string;
@@ -67,6 +67,7 @@ export type DeleteRoomRequest = RoomLoginInfo;
 export type ClientRoomInfo = BaseRoomInfo & {
   memberNum: number;
   hasPassword: boolean;
+  roomNo: number;
 };
 export type Message = {
   title: string;
@@ -74,7 +75,7 @@ export type Message = {
   termsOfUse: string;
 };
 export type GetRoomListResponse = {
-  roomList: (StoreObj<ClientRoomInfo> & StoreMetaData)[];
+  roomList: StoreUseData<ClientRoomInfo>[];
   message: Message;
   version: string;
 };

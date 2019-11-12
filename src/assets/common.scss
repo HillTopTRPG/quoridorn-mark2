@@ -67,3 +67,9 @@
     margin-left: 0.5rem;
   }
 }
+
+.label-input {
+  &:after {
+    content: "：";
+  }
+}

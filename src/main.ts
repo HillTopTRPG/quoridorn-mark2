@@ -21,6 +21,7 @@ import VueI18n from "vue-i18n";
 import LanguageManager from "@/LanguageManager";
 import LoginRoomWindow from "@/app/basic/login/LoginRoomWindow.vue";
 import VersionInfoWindow from "@/app/basic/login/VersionInfoWindow.vue";
+import RoomInfoWindow from "@/app/basic/login/RoomInfoWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -43,6 +44,7 @@ Vue.component("delete-room-window", DeleteRoomWindow);
 Vue.component("confirm-window", ConfirmWindow);
 Vue.component("login-room-window", LoginRoomWindow);
 Vue.component("version-info-window", VersionInfoWindow);
+Vue.component("room-info-window", RoomInfoWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({

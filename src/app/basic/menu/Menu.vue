@@ -1,5 +1,5 @@
 <template>
-  <div :style="menuStyle" id="menu" @contextmenu.prevent>
+  <div id="menu" @contextmenu.prevent>
     <!-- 操作ボタングループ -->
     <div class="span-group">
       <span
@@ -53,30 +53,18 @@
       </span>
     </div>
     <!-- 部屋情報 -->
-    <div
-      class="menu-button"
-      @click="clickRoomInfo"
-      :title="roomInfoTitle"
-      :class="{ isDisconnect: !isRoomJoined }"
-    >
-      <span :class="{ isDisconnect: !isRoomJoined }">{{
-        `${roomName}` || "未接続"
-      }}</span>
+    <div class="menu-button" @click="clickRoomInfo">
+      <span>{{ roomInfo.name }}</span>
       ：
-      <span>{{ members.length }}</span>
+      <span>{{ userList | loginNum }}</span>
       名
     </div>
     <!-- 共有メモ -->
-    <div class="menu-button" @click="clickPublicMemo" :title="publicMemoTitle">
+    <div class="menu-button" @click="clickPublicMemo">
       共有メモ
     </div>
     <!-- ログアウト -->
-    <div
-      class="menu-button"
-      @click="clickLogOut"
-      :class="{ isDisconnect: !isRoomJoined }"
-      :title="logoutTitle"
-    >
+    <div class="menu-button" @click="clickLogOut">
       ログアウト
     </div>
 
@@ -254,14 +242,28 @@
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 
 import { Action, Getter } from "vuex-class";
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import { ClientRoomInfo } from "@/@types/socket";
+import { StoreUseData } from "@/@types/store";
+import { UserData } from "@/@types/room";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: {
     MenuBooleanItem
+  },
+  filters: {
+    loginNum: (userList: StoreUseData<UserData>[]) =>
+      userList.filter(user => user!.data!.login > 0).length
   }
 })
 export default class Menu extends Vue {
+  @Prop({ type: Object, required: true })
+  private roomInfo!: ClientRoomInfo;
+
   @Action("windowOpen") private windowOpen: any;
   @Action("setProperty") private setProperty: any;
   @Action("doResetWindowLocate") private doResetWindowLocate: any;
@@ -269,14 +271,19 @@ export default class Menu extends Vue {
   @Action("addListObj") private addListObj: any;
   @Action("saveChatLogHtml") private saveChatLogHtml: any;
   @Getter("roomName") private roomName: any;
-  @Getter("isModal") private isModal: any;
   @Getter("peerId") private peerId: any;
   @Getter("members") private members: any;
-  @Getter("isRoomJoined") private isRoomJoined: any;
 
   private isConnectHover: boolean = false;
   private isSelecting: boolean = false;
   private currentMenu: string = "";
+  private userList: StoreUseData<UserData>[] =
+    GameObjectManager.instance.playerList;
+
+  public key: string = "menu";
+
+  // @LifeCycle
+  // public async mounted() {}
 
   menuClick(): void {
     this.isSelecting = !this.isSelecting;
@@ -297,12 +304,20 @@ export default class Menu extends Vue {
   }
 
   /** 部屋情報ボタン押下 */
-  clickRoomInfo(): void {
-    this.windowOpen("private.display.roomInfoWindow");
+  @VueEvent
+  private async clickRoomInfo(): Promise<void> {
+    await TaskManager.instance.ignition<WindowOpenInfo<void>, void>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "room-info-window"
+      }
+    });
   }
 
   /** 共有メモボタン押下 */
-  clickPublicMemo() {
+  @VueEvent
+  private clickPublicMemo() {
     this.addListObj({
       propName: "publicMemo",
       kind: "publicMemo",
@@ -313,7 +328,8 @@ export default class Menu extends Vue {
   }
 
   /** ログアウトボタン押下 */
-  clickLogOut(): void {
+  @VueEvent
+  private clickLogOut(): void {
     location.href = location.href.replace(/\?.+$/, "");
   }
 
@@ -532,40 +548,13 @@ export default class Menu extends Vue {
     window.open("https://9224.teacup.com/quoridorn_bug/bbs", "_blank");
     this.menuClick();
   }
-
-  get menuStyle(): any {
-    const result: any = {};
-    if (this.isModal) result.filter = "blur(3px)";
-    return result;
-  }
-
-  get roomInfoTitle(): string {
-    return this.isRoomJoined === true
-      ? "メンバーの一覧を見たり、部屋の設定を変えることができますよ。"
-      : "お部屋に入っていません。\n「接続」ボタンを押してお部屋を作りましょう！！";
-  }
-
-  get publicMemoTitle(): string {
-    return this.isRoomJoined === true
-      ? "メンバーに共有したいテキストはこちらにどうぞ"
-      : "部屋に入る前から準備しておくのですね！？\nなんと準備の良いお方でしょう！";
-  }
-
-  get logoutTitle(): string {
-    return this.isRoomJoined === true
-      ? "この部屋から退室するのですか？"
-      : "お部屋に入っていません。\n「接続」ボタンを押してお部屋を作りましょう！！";
-  }
 }
 </script>
 
 <style scoped lang="scss">
+@import "../../../assets/common";
 #menu {
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  @include flex-box(row, flex-start, center);
   position: fixed;
   top: 0;
   left: 0;
@@ -573,34 +562,21 @@ export default class Menu extends Vue {
   height: var(--menu-bar-height);
   background: linear-gradient(rgba(247, 248, 249, 1), rgba(0, 0, 0, 0));
   border-bottom: solid gray 1px;
-  padding: 0.5em 1em;
+  padding: 0 1rem;
   box-sizing: border-box;
-  font-size: 10px;
   z-index: 9;
+  filter: var(--filter);
 
   > *:not(:first-child) {
     margin-left: 1em;
   }
-}
-div.isDisconnect {
-  background-color: rgba(200, 200, 200, 0.5);
-
-  &:hover {
-    background-color: rgba(200, 200, 200, 0.5);
-  }
-}
-span.isDisconnect {
-  color: red;
-  font-weight: bold;
 }
 .span-group {
   display: flex;
   flex-direction: row;
   background-color: rgba(250, 250, 250, 0.2);
   border: solid gray 1px;
-  box-sizing: border-box;
   padding: 0 1em;
-  height: 2em;
 
   span {
     display: inline-flex;
@@ -608,6 +584,9 @@ span.isDisconnect {
     align-items: center;
     padding: 0 1em;
     white-space: nowrap;
+    height: 1.8rem;
+    box-sizing: border-box;
+    cursor: pointer;
   }
 }
 .span-group span:hover,
@@ -623,12 +602,11 @@ span.isDisconnect {
   background: rgba(250, 250, 250, 0.4);
   border: solid gray 1px;
   padding: 0 1em;
-  box-sizing: border-box;
   border-radius: 5px;
   cursor: pointer;
   white-space: nowrap;
   z-index: 100;
-  height: 2em;
+  height: 1.8rem;
 
   &:hover {
     border: solid #0092ed 1px;

@@ -13,6 +13,7 @@ button:
   copy: 부
   next: 진행
   execution: 실행
+  close: 閉じる
 
 label:
   terms-of-use: 이용 약관
@@ -21,24 +22,29 @@ label:
   not-exist: 없음
   possible: 수
   creating: 작성 중
-  termsOfUseWebServer: Web 서버 약관
-  termsOfUseAppServer: Application 서버 약관
-  userName: 사용자 이름：
-  password: 비밀번호：
-  passwordPlaceholder: (비어있는 경우 비밀번호 없음)
-  userType: 사용자 유형：
+  terms-of-use-web-server: Web 서버 약관
+  terms-of-use-app-server: Application 서버 약관
+  user-name: 사용자 이름
+  password: 비밀번호
+  password-placeholder: (비어있는 경우 비밀번호 없음)
+  user-type: 사용자 유형
   nameless: 무명
   authority: 권한
   player: PL
   gameMaster: GM
   visitor: 견학자
-  roomName: 놀이방 이름：
-  roomNamePlaceholder: 임시 놀이방 (삭제 가능)
-  gameSystem: 게임 시스템：
-  noTarget: 지정 없음
-  isVisitor: 参加者ですか？見学者ですか？：
+  room-name: 놀이방 이름
+  room-name-placeholder: 임시 놀이방 (삭제 가능)
+  game-system: 게임 시스템
+  no-target: 지정 없음
+  is-visitor: 参加者ですか？見学者ですか？
   participant: 参加者
   version-info: バージョン情報
+  invite-url: 招待URL
+  room-member-num: 入室数
+
+message:
+  copy-to-clipboard: クリップボードにコピーしました。
 
 test-window:
   window-title: 시험 화면
@@ -113,3 +119,6 @@ login-room-window:
 
 version-info-window:
   window-title: バージョン情報
+
+room-info-window:
+  window-title: プレイルーム情報表示

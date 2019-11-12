@@ -96,7 +96,7 @@ import TaskProcessor, {
 } from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { ColorSpec, ImageSpec, MapSetting, RoomData } from "@/@types/room";
 
@@ -132,8 +132,6 @@ export default class GameTable extends AddressCalcMixin {
   private mapSetting: MapSetting | null = null;
   private isMounted: boolean = false;
 
-  private isModal: boolean = false;
-
   private get gameTableElm(): HTMLElement {
     return document.getElementById("gameTable")!;
   }
@@ -148,10 +146,9 @@ export default class GameTable extends AddressCalcMixin {
 
   @VueEvent
   private async mounted() {
-    const mapDataStore = SocketFacade.instance.mapListCollectionController();
-    const roomDataStore = SocketFacade.instance.roomDataCollectionController();
-    const roomData: StoreObj<RoomData> &
-      StoreMetaData = (await roomDataStore.getList())[0];
+    const mapDataStore = SocketFacade.instance.mapListCC();
+    const roomDataStore = SocketFacade.instance.roomDataCC();
+    const roomData: StoreUseData<RoomData> = (await roomDataStore.getList())[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
     const mapId = roomData.data!.mapId;
@@ -210,7 +207,7 @@ export default class GameTable extends AddressCalcMixin {
       elm.style.setProperty("--background-color", "transparent");
 
       const imageData = await SocketFacade.instance
-        .imageDataCollectionController()
+        .imageDataCC()
         .getData(info.imageId);
       elm.style.setProperty(
         "--background-image",
@@ -396,15 +393,6 @@ export default class GameTable extends AddressCalcMixin {
     this.gameTableElm.style.setProperty("--totalLeftY", totalLeftY + "px");
   }
 
-  @Watch("isMounted")
-  @Watch("isModal")
-  private onChangeIsModal() {
-    this.gameTableElm.style.setProperty(
-      "--filter",
-      this.isModal ? "blur(3px)" : "none"
-    );
-  }
-
   @Watch("wheel")
   private onChangeWheel(wheel: number, oldValue: number) {
     if (wheel < -2400 || wheel > 800) {
@@ -445,16 +433,6 @@ export default class GameTable extends AddressCalcMixin {
     }, 600);
 
     task.resolve();
-  }
-
-  @TaskProcessor("mode-change-finished")
-  private async modeChangeFinished(
-    task: Task<ModeInfo, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value!.type === "modal") {
-      this.isModal = task.value!.value === "on";
-      task.resolve();
-    }
   }
 
   @TaskProcessorSimple

@@ -5,11 +5,11 @@
       <span class="text" v-t="`${windowInfo.type}.message`"></span>
     </div>
     <fieldset>
-      <legend v-t="'label.termsOfUseWebServer'"></legend>
+      <legend v-t="'label.terms-of-use-web-server'"></legend>
       <div class="selectable">{{ webServerTermOfUse }}</div>
     </fieldset>
     <fieldset>
-      <legend v-t="'label.termsOfUseAppServer'"></legend>
+      <legend v-t="'label.terms-of-use-app-server'"></legend>
       <div class="selectable">{{ appServerTermOfUse }}</div>
     </fieldset>
     <div class="button-area">

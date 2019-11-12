@@ -4,7 +4,7 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { StoreMetaData, StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { SystemError } from "@/app/core/error/SystemError";
 import SocketFacade, {
@@ -66,18 +66,14 @@ export default class NecostoreCollectionController<T> {
       );
   }
 
-  public async getList(
-    column?: string
-  ): Promise<(StoreObj<T> & StoreMetaData)[]> {
+  public async getList(column?: string): Promise<StoreUseData<T>[]> {
     const c = this.getCollection();
     return (await c.orderBy(column || "order").get()).docs
       .filter(doc => doc.exists() && doc.data.data)
       .map(doc => getStoreObj<T>(doc)!);
   }
 
-  public async getData(
-    id: string
-  ): Promise<StoreObj<T> & StoreMetaData | null> {
+  public async getData(id: string): Promise<StoreUseData<T> | null> {
     const c = this.getCollection();
     const docSnap = await c.doc(id).get();
     if (!docSnap || !docSnap.exists()) return null;
