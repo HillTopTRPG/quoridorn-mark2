@@ -28,7 +28,7 @@
             readonly="readonly"
           />
         </label>
-        <ctrl-button @click="copyToClipboad(getInviteUrl())">
+        <ctrl-button @click="copyToClipboard(getInviteUrl())">
           <span v-t="'button.copy'"></span>
         </ctrl-button>
       </div>
@@ -52,7 +52,7 @@
               />
             </td>
             <td class="button">
-              <ctrl-button @click="copyToClipboad(getInviteUrl(user))">
+              <ctrl-button @click="copyToClipboard(getInviteUrl(user))">
                 <span v-t="'button.copy'"></span>
               </ctrl-button>
             </td>
@@ -118,7 +118,8 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never>>(
     return `${baseUrl}?${params.toString()}`;
   }
 
-  private copyToClipboad(text: string) {
+  @VueEvent
+  private copyToClipboard(text: string) {
     execCopy(text);
   }
 

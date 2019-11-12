@@ -9,8 +9,18 @@
           :value="name"
           @input="name = $event.target.value"
           :placeholder="$t('label.nameless')"
+          :list="`${key}-user-list`"
           ref="firstFocus"
         />
+        <datalist :id="`${key}-user-list`">
+          <option
+            :value="userName"
+            v-for="userName in userNameList"
+            :key="userName"
+          >
+            {{ userName }}
+          </option>
+        </datalist>
       </label>
       <label>
         <span class="label-input" v-t="'label.password'"></span>
@@ -46,7 +56,11 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { UserLoginInput, UserType } from "@/@types/socket";
+import {
+  UserLoginInput,
+  UserLoginWindowInput,
+  UserType
+} from "@/@types/socket";
 import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
@@ -62,21 +76,23 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
     CtrlButton
   }
 })
-export default class UserLoginWindow extends Mixins<WindowVue<boolean>>(
-  WindowVue
-) {
+export default class UserLoginWindow extends Mixins<
+  WindowVue<UserLoginWindowInput>
+>(WindowVue) {
   private name: string = "";
   private password: string = "";
   private userType: UserType = "PL";
   private isSetting: boolean = false;
+  private userNameList: string[] = [];
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.inputEnter(`${this.key}-password`, this.commit);
     this.inputEnter(this.$refs.firstFocus, this.commit);
-    this.isSetting = this.windowInfo.args!;
-    if (!this.windowInfo.args) {
+    this.isSetting = this.windowInfo.args!.isSetting;
+    this.userNameList = this.windowInfo.args!.userNameList;
+    if (!this.isSetting) {
       this.windowInfo.heightEm = 9.5;
       this.windowInfo.declare.size.heightEm = 9.5;
       this.windowInfo.declare.minSize!.heightEm = 9.5;

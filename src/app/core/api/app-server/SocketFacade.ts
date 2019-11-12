@@ -170,7 +170,7 @@ export default class SocketFacade {
     this.socket!.disconnect();
   }
 
-  public set roomCollectionPrefix(val: string) {
+  public set roomCollectionPrefix(val: string | null) {
     this.__roomCollectionPrefix = val;
   }
 

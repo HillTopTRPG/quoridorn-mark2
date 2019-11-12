@@ -3,7 +3,7 @@
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span v-t="'label.roomName'"></span>
+        <span v-t="'label.room-name'"></span>
         <base-input
           type="text"
           :value="name"
