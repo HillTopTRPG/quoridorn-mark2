@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
@@ -29,7 +29,6 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DeleteRoomInput } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -37,9 +36,9 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 @Component({
   components: { BaseInput, CtrlButton }
 })
-export default class DeleteRoomWindow extends Mixins<WindowVue<never>>(
-  WindowVue
-) {
+export default class DeleteRoomWindow extends Mixins<
+  WindowVue<never, DeleteRoomInput>
+>(WindowVue) {
   private password: string = "";
 
   @LifeCycle
@@ -49,29 +48,14 @@ export default class DeleteRoomWindow extends Mixins<WindowVue<never>>(
 
   @VueEvent
   private async commit() {
-    this.finally({
+    await this.finally({
       roomPassword: this.password
     });
-    await this.close();
   }
 
   @VueEvent
   private async rollback() {
-    this.finally();
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally();
-  }
-
-  private finally(roomInfo?: DeleteRoomInput) {
-    const task = TaskManager.instance.getTask<DeleteRoomInput>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve(roomInfo ? [roomInfo] : []);
+    await this.finally();
   }
 }
 </script>

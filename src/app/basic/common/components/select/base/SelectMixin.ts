@@ -13,10 +13,10 @@ export default class SelectMixin extends Vue {
   @Emit("input")
   public input(value: string | null) {}
 
-  public requestFocus(): void {
+  public focus(): void {
     const elm: CtrlSelect = this.$refs.select as CtrlSelect;
     // @ts-ignore
-    elm.requestFocus();
+    elm.focus();
   }
 
   private get localValue(): string | null {

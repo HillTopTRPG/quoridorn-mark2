@@ -3,16 +3,21 @@ import { Prop } from "vue-property-decorator";
 import { WindowInfo } from "@/@types/window";
 import { Mixin } from "vue-mixin-decorator";
 import TaskManager from "@/app/core/task/TaskManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 // @ts-ignore
 @Mixin
-export default class WindowVue<T> extends Vue {
+export default class WindowVue<T, U> extends Vue {
   @Prop({ type: Object, required: true })
   public windowInfo!: WindowInfo<T>;
   @Prop({ type: String, required: true })
   public status!: string;
   @Prop({ type: Boolean, required: true })
   public isResizing!: boolean;
+
+  private finalized: boolean = false;
 
   public async init() {
     if (this.status === "window") {
@@ -38,19 +43,20 @@ export default class WindowVue<T> extends Vue {
       }
     }
     setTimeout(() => {
-      const elm: any | null =
-        "firstFocus" in this.$refs
-          ? (this.$refs.firstFocus as HTMLElement)
+      const windowContainerElm: HTMLElement | null =
+        "window-container" in this.$refs
+          ? (this.$refs["window-container"] as HTMLElement)
           : null;
-      if (!elm) return;
-      if ("focus" in elm) elm.focus();
-      else {
-        if ("$refs" in elm && "component" in elm.$refs) {
-          const componentElm = elm.$refs.component as HTMLElement;
-          componentElm.querySelector("input")!.focus();
-        } else {
-          window.console.warn(elm);
-        }
+      if (!windowContainerElm) return;
+
+      const elmList = Array.prototype.slice.call(
+        windowContainerElm.querySelectorAll("input, select")
+      );
+
+      for (const elm of elmList) {
+        if (elm.tagName === "INPUT" && elm.value) continue;
+        elm.focus();
+        break;
       }
     });
   }
@@ -63,6 +69,32 @@ export default class WindowVue<T> extends Vue {
     return this.windowInfo.key;
   }
 
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    // TODO
+    if (task.value !== this.windowInfo.key) return;
+    if (this.windowInfo.declare.isInputWindow)
+      await this.finally(undefined, true);
+  }
+
+  @LifeCycle
+  public async beforeDestroy() {
+    if (this.windowInfo.declare.isInputWindow) await this.finally();
+  }
+
+  public async finally(result?: U, isClosing: boolean = false) {
+    if (this.finalized) return;
+    const task = TaskManager.instance.getTask<U>(
+      "window-open",
+      this.windowInfo.taskKey
+    );
+    this.finalized = true;
+    if (task) task.resolve(result ? [result] : []);
+    if (!isClosing) await this.close();
+  }
+
   public async close() {
     await TaskManager.instance.ignition<string, never>({
       type: "window-close",
@@ -71,37 +103,22 @@ export default class WindowVue<T> extends Vue {
     });
   }
 
-  public inputEnter(target: string | any, callback: () => void) {
-    const elm =
-      typeof target === "string"
-        ? (document.getElementById(target) as HTMLElement)
-        : target;
-    if ("addEventListener" in elm) {
-      elm.addEventListener("keydown", (event: KeyboardEvent) => {
-        if (event.key === "Enter") {
-          event.stopPropagation();
-          callback();
-        }
-      });
-    } else {
-      if ("$refs" in elm && "component" in elm.$refs) {
-        const componentElm = elm.$refs.component as HTMLElement;
-        let inputElm: HTMLElement | null = componentElm;
-        if (componentElm.tagName !== "INPUT")
-          inputElm = componentElm.querySelector("input");
-        if (!inputElm) {
-          window.console.warn(elm);
-          return;
-        }
-        inputElm.addEventListener("keydown", (event: KeyboardEvent) => {
+  public inputEnter(target: string, callback: () => void) {
+    const windowContainerElm: HTMLElement | null =
+      "window-container" in this.$refs
+        ? (this.$refs["window-container"] as HTMLElement)
+        : null;
+    if (!windowContainerElm) return;
+
+    Array.prototype.slice
+      .call(windowContainerElm.querySelectorAll(target))
+      .forEach(elm => {
+        elm.addEventListener("keydown", (event: KeyboardEvent) => {
           if (event.key === "Enter") {
             event.stopPropagation();
             callback();
           }
         });
-      } else {
-        window.console.warn(elm);
-      }
-    }
+      });
   }
 }

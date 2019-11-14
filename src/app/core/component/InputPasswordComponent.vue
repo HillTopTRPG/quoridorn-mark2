@@ -59,6 +59,10 @@ export default class InputPasswordComponent extends Vue {
     return this.$refs.component as HTMLElement;
   }
 
+  public focus() {
+    this.elm.focus();
+  }
+
   @Watch("isMounted")
   @Watch("setting")
   private onChangeIsSetting() {
@@ -73,13 +77,13 @@ export default class InputPasswordComponent extends Vue {
     suggestions: string;
     warning: string;
   }) {
-    window.console.log("🙏", suggestions);
-    window.console.log("⚠", warning);
+    // window.console.log("🙏", suggestions);
+    // window.console.log("⚠", warning);
   }
 
   @VueEvent
   showScore(score: string) {
-    window.console.log("💯", score);
+    // window.console.log("💯", score);
   }
 }
 </script>

@@ -117,9 +117,9 @@ export default class ActorTabComponent extends Vue {
   private isDiagonal: boolean = false;
   private hoverTabKey: string = "";
 
-  public requestFocus(): void {
+  public focus(): void {
     const elm: SelfActorSelect = this.$refs.actorSelect as SelfActorSelect;
-    elm.requestFocus();
+    elm.focus();
   }
 
   private selectTab(activeId: string) {

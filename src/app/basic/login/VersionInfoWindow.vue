@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="base-area"></div>
     <div class="button-area">
       <ctrl-button @click.stop="commit()">
@@ -45,7 +45,7 @@ type ServerVersionInfo = {
   }
 })
 export default class VersionInfoWindow extends Mixins<
-  WindowVue<VersionWindowInfo>
+  WindowVue<VersionWindowInfo, UserLoginInput>
 >(WindowVue) {
   private name: string = "";
   private password: string = "";
@@ -109,31 +109,16 @@ export default class VersionInfoWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    this.finally({
+    await this.finally({
       userName: this.name || LanguageManager.instance.getText("label.nameless"),
       userType: this.userType,
       userPassword: this.password
     });
-    await this.close();
   }
 
   @VueEvent
   private async rollback() {
-    this.finally();
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally();
-  }
-
-  private finally(userInfo?: UserLoginInput) {
-    const task = TaskManager.instance.getTask<UserLoginInput>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve(userInfo ? [userInfo] : []);
+    await this.finally();
   }
 }
 </script>

@@ -14,6 +14,7 @@
     :test="test"
     :maxWidth="19"
     :disabled="disabled"
+    ref="component"
   />
 </template>
 
@@ -55,6 +56,11 @@ export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
         this.diceSystemList.push(info);
       });
     }
+  }
+
+  public focus() {
+    const elm = this.$refs.component as CtrlSelect;
+    elm.focus();
   }
 
   @TaskProcessor("language-change-finished")

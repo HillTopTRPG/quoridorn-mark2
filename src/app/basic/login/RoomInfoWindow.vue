@@ -1,5 +1,5 @@
 <template>
-  <div class="root">
+  <div class="root" ref="window-container">
     <div class="base-area">
       <div class="basic">
         <label>
@@ -117,7 +117,7 @@ import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
     CtrlButton
   }
 })
-export default class RoomInfoWindow extends Mixins<WindowVue<never>>(
+export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   WindowVue
 ) {
   private clientRoomInfo: ClientRoomInfo | null = null;
@@ -170,11 +170,6 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never>>(
   public async mounted() {
     await this.init();
     this.clientRoomInfo = GameObjectManager.instance.clientRoomInfo;
-
-    const declareTitle = LanguageManager.instance.getText(
-      `${this.windowInfo.type}.window-title`
-    );
-    this.windowInfo.title = `${declareTitle}（No.${this.clientRoomInfo.roomNo}）`;
 
     const heightEm = this.userList.length * 2 + 10;
     this.windowInfo.heightEm = heightEm;

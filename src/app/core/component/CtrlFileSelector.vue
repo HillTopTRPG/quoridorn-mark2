@@ -30,7 +30,7 @@ export default class CtrlFileSelector extends Vue {
   private disabled!: boolean;
 
   @VueEvent
-  public requestFocus() {
+  public focus() {
     const input: HTMLInputElement = this.$refs.input as HTMLInputElement;
     input.focus();
   }

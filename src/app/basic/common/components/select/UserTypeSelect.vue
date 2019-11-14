@@ -1,5 +1,9 @@
 <template>
-  <ctrl-select v-model="localValue" :optionInfoList="optionInfoList" />
+  <ctrl-select
+    v-model="localValue"
+    :optionInfoList="optionInfoList"
+    ref="component"
+  />
 </template>
 
 <script lang="ts">
@@ -52,6 +56,11 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
       text: LanguageManager.instance.getText("label.authority"),
       disabled: true
     });
+  }
+
+  public focus() {
+    const elm = this.$refs.component as CtrlSelect;
+    elm.focus();
   }
 
   @TaskProcessor("language-change-finished")

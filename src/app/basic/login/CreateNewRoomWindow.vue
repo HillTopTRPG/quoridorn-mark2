@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
@@ -18,11 +18,12 @@
           :comp-key="`${key}-password`"
           v-model="password"
           :setting="true"
+          ref="firstFocus"
         />
       </label>
       <label>
         <span class="label-input" v-t="'label.game-system'"></span>
-        <dice-bot-select v-model="system" />
+        <dice-bot-select v-model="system" ref="firstFocus" />
       </label>
     </div>
     <div class="button-area">
@@ -60,9 +61,9 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
     CtrlButton
   }
 })
-export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
-  WindowVue
-) {
+export default class CreateNewRoomWindow extends Mixins<
+  WindowVue<never, CreateRoomInput>
+>(WindowVue) {
   private name: string = "";
   private password: string = "";
   /** 選択されているシステム */
@@ -71,40 +72,23 @@ export default class CreateNewRoomWindow extends Mixins<WindowVue<never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-  }
-
-  @Watch("currentDiceBotSystem")
-  private onChangeCurrentDiceBotSystem(system: string) {
-    window.console.log(system);
+    this.inputEnter(".base-area select", this.commit);
+    this.inputEnter(".base-area input:not([type='button'])", this.commit);
   }
 
   @VueEvent
   private async commit() {
-    this.finally({
+    window.console.log("commit!!");
+    await this.finally({
       name: this.name || LanguageManager.instance.getText(""),
       system: this.system,
       roomPassword: this.password
     });
-    await this.close();
   }
 
   @VueEvent
   private async rollback() {
-    this.finally();
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally();
-  }
-
-  private finally(roomInfo?: CreateRoomInput) {
-    const task = TaskManager.instance.getTask<CreateRoomInput>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve(roomInfo ? [roomInfo] : []);
+    await this.finally();
   }
 }
 </script>

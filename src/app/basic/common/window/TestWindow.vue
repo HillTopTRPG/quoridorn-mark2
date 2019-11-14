@@ -17,7 +17,9 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 @Component({
   components: { CtrlButton }
 })
-export default class TestWindow extends Mixins<WindowVue<never>>(WindowVue) {
+export default class TestWindow extends Mixins<WindowVue<never, never>>(
+  WindowVue
+) {
   @LifeCycle
   public async mounted() {
     await this.init();

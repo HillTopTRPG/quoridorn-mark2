@@ -43,9 +43,9 @@ export type ConfirmInfo = {
 @Component({
   components: { BaseInput, CtrlButton }
 })
-export default class SimpleConfirmWindow extends Mixins<WindowVue<ConfirmInfo>>(
-  WindowVue
-) {
+export default class SimpleConfirmWindow extends Mixins<
+  WindowVue<ConfirmInfo, boolean>
+>(WindowVue) {
   private info: ConfirmInfo | null = null;
   private message: string | null = null;
 
@@ -80,27 +80,12 @@ export default class SimpleConfirmWindow extends Mixins<WindowVue<ConfirmInfo>>(
 
   @VueEvent
   private async commit() {
-    this.finally(true);
-    await this.close();
+    await this.finally(true);
   }
 
   @VueEvent
   private async rollback() {
-    this.finally(false);
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally(false);
-  }
-
-  private finally(result: boolean) {
-    const task = TaskManager.instance.getTask<boolean>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve([result]);
+    await this.finally(false);
   }
 }
 </script>

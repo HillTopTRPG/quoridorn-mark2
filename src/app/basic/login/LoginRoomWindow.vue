@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
@@ -33,7 +33,6 @@ import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue"
 import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { LoginRoomInput } from "@/@types/socket";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
@@ -48,42 +47,28 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
     CtrlButton
   }
 })
-export default class LoginRoomWindow extends Mixins<WindowVue<never>>(
-  WindowVue
-) {
+export default class LoginRoomWindow extends Mixins<
+  WindowVue<never, LoginRoomInput>
+>(WindowVue) {
   private password: string = "";
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.inputEnter(`${this.key}-password`, this.commit);
+    this.inputEnter(".base-area select", this.commit);
+    this.inputEnter(".base-area input:not([type='button'])", this.commit);
   }
 
   @VueEvent
   private async commit() {
-    this.finally({
+    await this.finally({
       roomPassword: this.password
     });
-    await this.close();
   }
 
   @VueEvent
   private async rollback() {
-    this.finally();
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally();
-  }
-
-  private finally(roomInfo?: LoginRoomInput) {
-    const task = TaskManager.instance.getTask<LoginRoomInput>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve(roomInfo ? [roomInfo] : []);
+    await this.finally();
   }
 }
 </script>

@@ -37,7 +37,7 @@ import LanguageManager from "@/LanguageManager";
   components: { SeekBarComponent, CtrlButton }
 })
 export default class PlayYoutubeWindow
-  extends Mixins<WindowVue<string>>(WindowVue)
+  extends Mixins<WindowVue<string, never>>(WindowVue)
   implements YoutubeEventHandler {
   private bgmInfo: BgmInfo | null = null;
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
@@ -28,11 +28,12 @@
           :comp-key="`${key}-password`"
           v-model="password"
           :setting="isSetting"
+          ref="firstFocus"
         />
       </label>
       <label>
         <span class="label-input" v-t="'label.user-type'"></span>
-        <user-type-select v-model="userType" />
+        <user-type-select v-model="userType" ref="firstFocus" />
       </label>
     </div>
     <div class="button-area">
@@ -54,7 +55,6 @@ import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue"
 import { Component, Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   UserLoginInput,
@@ -77,7 +77,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
   }
 })
 export default class UserLoginWindow extends Mixins<
-  WindowVue<UserLoginWindowInput>
+  WindowVue<UserLoginWindowInput, UserLoginInput>
 >(WindowVue) {
   private name: string = "";
   private password: string = "";
@@ -88,8 +88,8 @@ export default class UserLoginWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.inputEnter(`${this.key}-password`, this.commit);
-    this.inputEnter(this.$refs.firstFocus, this.commit);
+    this.inputEnter(".base-area select", this.commit);
+    this.inputEnter(".base-area input:not([type='button'])", this.commit);
     this.isSetting = this.windowInfo.args!.isSetting;
     this.userNameList = this.windowInfo.args!.userNameList;
     this.name = this.windowInfo.args!.userName || "";
@@ -108,31 +108,16 @@ export default class UserLoginWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    this.finally({
+    await this.finally({
       userName: this.name || LanguageManager.instance.getText("label.nameless"),
       userType: this.userType,
       userPassword: this.password
     });
-    await this.close();
   }
 
   @VueEvent
   private async rollback() {
-    this.finally();
-    await this.close();
-  }
-
-  @VueEvent
-  private async beforeDestroy() {
-    this.finally();
-  }
-
-  private finally(userInfo?: UserLoginInput) {
-    const task = TaskManager.instance.getTask<UserLoginInput>(
-      "window-open",
-      this.windowInfo.taskKey
-    );
-    if (task) task.resolve(userInfo ? [userInfo] : []);
+    await this.finally();
   }
 }
 </script>

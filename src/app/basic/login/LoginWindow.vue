@@ -1,5 +1,5 @@
 <template>
-  <div class="root" ref="login">
+  <div class="root" ref="window-container">
     <div class="message-scroll-area selectable" v-if="message">
       <img
         class="logo"
@@ -162,9 +162,9 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
       (storeObj.data && storeObj.data.memberNum > 0)
   }
 })
-export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
-  WindowVue
-) {
+export default class LoginWindow extends Mixins<
+  WindowVue<GetRoomListResponse, never>
+>(WindowVue) {
   private roomList: StoreUseData<ClientRoomInfo>[] = [];
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
@@ -199,7 +199,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   private get elm(): HTMLElement {
-    return this.$refs.login as HTMLElement;
+    return this.$refs["window-container"] as HTMLElement;
   }
 
   @TaskProcessor("language-change-finished")
@@ -349,12 +349,15 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
   }
 
   @LifeCycle
-  private async beforeDestroy() {
+  public async beforeDestroy() {
     await this.releaseTouchRoom();
   }
 
   @VueEvent
-  private async playRoom(order?: number) {}
+  private async playRoom(order?: number) {
+    if (!this.disabledLogin) await this.login();
+    if (!this.disabledCreate) await this.createRoom();
+  }
 
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
@@ -534,6 +537,7 @@ export default class LoginWindow extends Mixins<WindowVue<GetRoomListResponse>>(
       });
       createRoomInput = roomInfoList[0];
 
+      window.console.log(createRoomInput);
       if (!createRoomInput) {
         // 入力画面キャンセル
         await this.releaseTouchRoom();

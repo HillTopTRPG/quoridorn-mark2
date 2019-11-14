@@ -35,7 +35,7 @@ export default class CtrlButton extends Vue {
   private buttonOnClickRight(event: any) {}
 
   @VueEvent
-  public requestFocus(): void {
+  public focus(): void {
     const button: HTMLInputElement = this.$refs.button as HTMLInputElement;
     button.focus();
   }

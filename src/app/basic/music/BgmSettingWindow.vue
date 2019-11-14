@@ -68,6 +68,7 @@ import { WindowOpenInfo } from "@/@types/window";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -96,7 +97,9 @@ import VueEvent from "@/app/core/decorator/VueEvent";
     }
   }
 })
-export default class BgmSettingWindow extends WindowVue<number> {
+export default class BgmSettingWindow extends Mixins<WindowVue<number, never>>(
+  WindowVue
+) {
   private selectedBgmKey: string | null = null;
   private bgmList: BgmInfo[] = BgmManager.instance.bgmList;
 

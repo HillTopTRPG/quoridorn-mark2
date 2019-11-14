@@ -2,7 +2,7 @@
   <div class="ctrl-select-wrapper" :disabled="disabled" @contextmenu.prevent>
     <select
       v-model="localValue"
-      ref="select"
+      ref="component"
       :disabled="disabled"
       :style="{
         webkitTextFillColor: fontColor,
@@ -48,8 +48,8 @@ export default class CtrlSelect extends SelectMixin {
 
   private fontColor: string = "";
 
-  public requestFocus(): void {
-    const elm: HTMLSelectElement = this.$refs.select as HTMLSelectElement;
+  public focus(): void {
+    const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
     elm.focus();
   }
 

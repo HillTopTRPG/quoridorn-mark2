@@ -53,9 +53,9 @@ export default class ImageSelector extends Vue {
   private selectImageTag: string = "";
 
   @VueEvent
-  public requestFocus(): void {
+  public focus(): void {
     const input: ImageTagSelect = this.$refs.input as ImageTagSelect;
-    input.requestFocus();
+    input.focus();
   }
 
   @Emit("input")

@@ -23,8 +23,13 @@ export default class BaseInput extends Vue {
   }
 
   public focus() {
-    const elm = this.$refs.component as HTMLElement;
+    const elm = this.$refs.component as HTMLInputElement;
     elm.focus();
+  }
+
+  public get value() {
+    const elm = this.$refs.component as HTMLInputElement;
+    return elm.value;
   }
 }
 </script>

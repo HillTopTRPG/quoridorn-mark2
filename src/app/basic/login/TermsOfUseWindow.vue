@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="message">
       <span class="icon-notification"></span>
       <span class="text" v-t="`${windowInfo.type}.message`"></span>
@@ -34,7 +34,7 @@ import { loadText } from "@/app/core/File";
   components: { CtrlButton }
 })
 export default class TermsOfUseWindow extends Mixins<
-  WindowVue<{ message: Message }>
+  WindowVue<{ message: Message }, never>
 >(WindowVue) {
   private appServerTermOfUse: string | null = null;
   private webServerTermOfUse: string | null = null;
