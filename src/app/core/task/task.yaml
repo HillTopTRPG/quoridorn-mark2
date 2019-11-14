@@ -35,6 +35,7 @@
     - language-change
     - mode-change
     - room-initialize
+    - global-enter
 
 - taskAttribute:
     isIgniteWithParam: false

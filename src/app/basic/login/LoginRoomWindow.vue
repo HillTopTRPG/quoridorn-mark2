@@ -2,28 +2,6 @@
   <div>
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
-      <div>
-        <span class="label-input" v-t="'label.is-visitor'"></span>
-        <label>
-          <base-input
-            type="radio"
-            v-model="userType"
-            name="user-type"
-            value="non-visitor"
-            checked
-          />
-          <span v-t="'label.participant'"></span>
-        </label>
-        <label>
-          <base-input
-            type="radio"
-            v-model="userType"
-            name="user-type"
-            value="visitor"
-          />
-          <span v-t="'label.visitor'"></span>
-        </label>
-      </div>
       <label>
         <span class="label-input" v-t="'label.password'"></span>
         <input-password-component
@@ -73,7 +51,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 export default class LoginRoomWindow extends Mixins<WindowVue<never>>(
   WindowVue
 ) {
-  private userType: string = "non-visitor";
   private password: string = "";
 
   @LifeCycle
@@ -85,8 +62,7 @@ export default class LoginRoomWindow extends Mixins<WindowVue<never>>(
   @VueEvent
   private async commit() {
     this.finally({
-      roomPassword: this.password,
-      isVisitor: this.userType === "visitor"
+      roomPassword: this.password
     });
     await this.close();
   }

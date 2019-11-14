@@ -52,7 +52,7 @@
           />
         </tr>
       </thead>
-      <tbody @scroll="onWheelBody()">
+      <tbody @scroll="onWheelBody()" @keydown.enter="enter()" tabindex="0">
         <template v-if="!isColWidthMoving">
           <!-- 余白 -->
           <tr class="table-padding-top">
@@ -189,6 +189,19 @@ export default class SimpleTableComponent extends Vue {
   private rowClassGetter!: (data: any) => string[];
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
+  @Prop({ required: true })
+  private value!: string | number | null;
+
+  @Emit("input")
+  public input(val: string | number | null) {}
+
+  public get localValue(): string | number | null {
+    return this.value;
+  }
+
+  public set localValue(val: string | number | null) {
+    this.input(val);
+  }
 
   private isMounted: boolean = false;
   private dragFrom: Point = createPoint(0, 0);
@@ -199,7 +212,6 @@ export default class SimpleTableComponent extends Vue {
 
   private doubleClickTimeoutId: number | null = null;
 
-  private selectedKey: string | number | null = null;
   private doubleClickedKey: string | number | null = null;
 
   private isColWidthMoving: boolean = false;
@@ -226,6 +238,11 @@ export default class SimpleTableComponent extends Vue {
       (this.windowInfo.status === "right-pane" &&
         this.tableDeclareInfo.type.startsWith("free"))
     );
+  }
+
+  @VueEvent
+  private enter() {
+    this.$emit("enter", this.localValue);
   }
 
   @VueEvent
@@ -298,7 +315,7 @@ export default class SimpleTableComponent extends Vue {
   private onChangeDataList() {
     let rowList = this.dataList.map((data, index) => {
       return {
-        isSelected: data[this.keyProp] === this.selectedKey,
+        isSelected: data[this.keyProp] === this.localValue,
         isDoubleClick: data[this.keyProp] === this.doubleClickedKey,
         dataListIndex: index,
         data
@@ -599,8 +616,7 @@ export default class SimpleTableComponent extends Vue {
     this.rowList.forEach(row => {
       row.isSelected = row.data[this.keyProp] === key;
     });
-    this.selectedKey = key;
-    this.$emit("selectLine", key);
+    this.localValue = key;
   }
 
   private get elm() {

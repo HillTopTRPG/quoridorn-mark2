@@ -14,6 +14,8 @@ button:
   next: 下一个
   execution: 执行
   close: 閉じる
+  logout: ログアウト
+  exit-room: 退室
 
 label:
   terms-of-use: 使用条款
@@ -37,11 +39,13 @@ label:
   room-name-placeholder: 临时游戏室（可以删除）
   game-system: 游戏系统
   no-target: 未指定
-  is-visitor: 参加者ですか？見学者ですか？
   participant: 参加者
   version-info: バージョン情報
   invite-url: 招待URL
   room-member-num: 入室数
+  comeback-url: 復帰URL
+  default-dicebot: ダイスボット(指定なし)
+  room-no: 部屋番号
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

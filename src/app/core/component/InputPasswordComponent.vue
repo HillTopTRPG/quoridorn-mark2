@@ -4,12 +4,13 @@
       :id="compKey"
       v-model="localValue"
       :secureLength="10"
-      :toggle="true"
+      :toggle="!disabled"
       :required="false"
       title=""
       :placeholder="$t('label.password-placeholder')"
       :showStrengthMeter="setting"
       :badge="setting"
+      :disabled="disabled"
       @score="showScore"
       @feedback="showFeedback"
     />
@@ -33,6 +34,8 @@ export default class InputPasswordComponent extends Vue {
   public compKey!: string;
   @Prop({ type: Boolean, required: true })
   public setting!: boolean;
+  @Prop({ type: Boolean, required: false, default: false })
+  public disabled!: boolean;
 
   private isMounted: boolean = false;
 
@@ -104,6 +107,10 @@ export default class InputPasswordComponent extends Vue {
       height: 0.5em;
       margin: 0;
     }
+  }
+
+  input:disabled {
+    background-color: var(--uni-color-light-gray) !important;
   }
 }
 </style>

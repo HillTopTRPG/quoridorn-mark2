@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-for="(optionInfo, index) in optionInfoList" :key="index">
+    <label v-for="optionInfo in optionInfoList" :key="optionInfo.value">
       <input
         type="radio"
         :name="name"
@@ -9,19 +9,23 @@
         @keydown.enter.stop
         @keyup.enter.stop
       />
-      {{ optionInfo.text }}
+      {{ optionInfo.label }}
     </label>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+
+export type Option = {
+  value: string;
+  label: string;
+};
 
 @Component
 export default class CtrlRadio extends Vue {
   @Prop({ type: Array, required: true })
-  protected optionInfoList!: any[];
+  protected optionInfoList!: Option[];
 
   @Prop({ type: String, required: true })
   protected name!: string;

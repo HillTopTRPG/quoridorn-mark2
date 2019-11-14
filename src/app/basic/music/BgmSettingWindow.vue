@@ -14,7 +14,7 @@
       :tableIndex="0"
       :status="status"
       :dataList="bgmList"
-      @selectLine="selectBgm"
+      v-model="selectedBgmKey"
       @doubleClick="playBgm"
       @adjustWidth="adjustWidth"
     >
@@ -103,11 +103,6 @@ export default class BgmSettingWindow extends WindowVue<number> {
   @LifeCycle
   public async mounted() {
     await this.init();
-  }
-
-  @VueEvent
-  private selectBgm(bgmKey: string) {
-    this.selectedBgmKey = bgmKey;
   }
 
   @VueEvent

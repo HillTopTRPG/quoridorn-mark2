@@ -168,6 +168,11 @@ export default class App extends Vue {
     }
     if (event.key === "Enter") {
       window.console.log("GLOBAL enter");
+      await TaskManager.instance.ignition<never, never>({
+        type: "global-enter",
+        owner: "Quoridorn",
+        value: null
+      });
     }
   }
 

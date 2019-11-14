@@ -37,6 +37,7 @@ export type UserType = "GM" | "PL" | "VISITOR";
 export type UserLoginWindowInput = {
   isSetting: boolean;
   userNameList: string[];
+  userName: string | null;
 };
 
 export type UserLoginInput = {
@@ -57,10 +58,9 @@ export type CreateRoomInput = BaseRoomInfo & {
 export type DeleteRoomInput = {
   roomPassword: string;
 };
-export type LoginRoomInput = DeleteRoomInput & {
-  isVisitor: boolean;
-};
-export type CreateRoomRequest = CreateRoomInput;
+export type LoginRoomInput = DeleteRoomInput;
+export type RoomLoginRequest = RoomLoginInfo;
+export type CreateRoomRequest = RoomLoginInfo & BaseRoomInfo;
 export type DeleteRoomRequest = RoomLoginInfo;
 
 export type ClientRoomInfo = BaseRoomInfo & {

@@ -1,6 +1,7 @@
-import { DiceSystem } from "@/@types/bcdice";
+import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
 import TaskManager from "@/app/core/task/TaskManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import LanguageManager from "@/LanguageManager";
 
 export default class BCDiceFacade {
   // シングルトン
@@ -74,7 +75,9 @@ export default class BCDiceFacade {
     });
   }
 
-  public static async getBcdiceSystemInfo(system: string) {
+  public static async getBcdiceSystemInfo(
+    system: string
+  ): Promise<BcdiceSystemInfo> {
     return new Promise((resolve: Function, reject: Function) => {
       const params = new URLSearchParams();
       params.append("system", system);
@@ -85,12 +88,22 @@ export default class BCDiceFacade {
         .then(response => response.json())
         .then(json => {
           if (json.ok) {
-            resolve(json.systeminfo);
+            resolve(json.systeminfo as BcdiceSystemInfo);
           } else {
             reject(json);
           }
         })
         .catch(err => reject(err));
     });
+  }
+
+  public static async getBcdiceSystemName(
+    system: string | null
+  ): Promise<string | null> {
+    if (!system) return null;
+    if (system === "DiceBot")
+      return LanguageManager.instance.getText("label.default-dicebot");
+    const info = await BCDiceFacade.getBcdiceSystemInfo(system);
+    return info.name;
   }
 }

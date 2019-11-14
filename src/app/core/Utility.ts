@@ -809,3 +809,8 @@ function createBase64DataSet(
     })
   );
 }
+
+export function convertNumber(str: string | null): number | null {
+  if (str === null) return null;
+  return str.match(/^[0-9]+$/) ? parseInt(str, 10) : null;
+}

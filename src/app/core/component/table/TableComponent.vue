@@ -9,9 +9,10 @@
       :tabInfo="currentTabInfo"
       :rowClassGetter="rowClassGetter"
       :selectLock="selectLock"
-      @selectLine="selectLine"
+      v-model="localValue"
       @doubleClick="doubleClick"
       @adjustWidth="adjustWidth"
+      @enter="enter"
     >
       <template #header="{ colDec }">
         <slot name="header" :colDec="colDec" />
@@ -48,6 +49,19 @@ export default class TableComponent extends Vue {
   private rowClassGetter!: (data: any) => string[];
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
+  @Prop({ required: true })
+  private value!: string | number | null;
+
+  @Emit("input")
+  public input(val: string | number | null) {}
+
+  public get localValue(): string | number | null {
+    return this.value;
+  }
+
+  public set localValue(val: string | number | null) {
+    this.input(val);
+  }
 
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
@@ -64,6 +78,9 @@ export default class TableComponent extends Vue {
 
   @Emit("doubleClick")
   private doubleClick(key: string | number) {}
+
+  @Emit("enter")
+  private enter(key: string | number | null) {}
 
   @Watch("dataList", { deep: true, immediate: true })
   private onChangeDataList() {

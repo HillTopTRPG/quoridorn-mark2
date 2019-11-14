@@ -29,10 +29,14 @@ export default class BaseInput extends Vue {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 input {
   font-size: inherit;
   height: 2em;
   box-sizing: border-box;
+
+  &:read-only {
+    outline: none;
+  }
 }
 </style>

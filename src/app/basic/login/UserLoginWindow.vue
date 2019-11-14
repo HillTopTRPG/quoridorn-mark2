@@ -92,6 +92,7 @@ export default class UserLoginWindow extends Mixins<
     this.inputEnter(this.$refs.firstFocus, this.commit);
     this.isSetting = this.windowInfo.args!.isSetting;
     this.userNameList = this.windowInfo.args!.userNameList;
+    this.name = this.windowInfo.args!.userName || "";
     if (!this.isSetting) {
       this.windowInfo.heightEm = 9.5;
       this.windowInfo.declare.size.heightEm = 9.5;

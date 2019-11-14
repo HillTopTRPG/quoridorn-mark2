@@ -418,22 +418,22 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 7.5
-    heightRem: 0.9
+    heightEm: 5.5
+    heightRem: 0.7
   minSize:
     widthPx: 250
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 7.5
-    heightRem: 0.9
+    heightEm: 5.5
+    heightRem: 0.7
   maxSize:
     widthPx: 500
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 7.5
-    heightRem: 0.9
+    heightEm: 5.5
+    heightRem: 0.7
   closable: true
   fontSizePickable: true
   resizable: true
@@ -481,21 +481,21 @@
     widthRem: 0
     heightPx: 3
     heightEm: 8
-    heightRem: 0.9
+    heightRem: 1.1
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
     heightPx: 3
     heightEm: 8
-    heightRem: 0.9
+    heightRem: 1.1
   maxSize:
     widthPx: 700
     widthEm: 0
     widthRem: 0
     heightPx: 3
     heightEm: 8
-    heightRem: 0.9
+    heightRem: 1.1
   closable: true
   fontSizePickable: true
   resizable: true
