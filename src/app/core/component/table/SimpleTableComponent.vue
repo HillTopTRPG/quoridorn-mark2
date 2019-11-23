@@ -311,7 +311,7 @@ export default class SimpleTableComponent extends Vue {
   @Watch("viewRowFirstIndex")
   @Watch("tabInfo")
   @Watch("viewRowLastIndex")
-  @Watch("dataList", { deep: true })
+  @Watch("dataList")
   private onChangeDataList() {
     let rowList = this.dataList.map((data, index) => {
       return {
