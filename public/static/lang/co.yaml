@@ -36,8 +36,8 @@ label:
   gameMaster: GM
   visitor: 견학자
   room-name: 놀이방 이름
-  room-name-placeholder: 임시 놀이방 (삭제 가능)
-  game-system: 게임 시스템
+  room-name-placeholder: 部屋名(必須項目)
+  game-system: 게임 시스템(入力指定も可)
   no-target: 지정 없음
   participant: 参加者
   version-info: バージョン情報

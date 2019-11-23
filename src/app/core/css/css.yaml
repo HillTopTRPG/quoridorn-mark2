@@ -4,6 +4,9 @@
 - property: --table-row-height
   value: 2em
   customizable: false
+- property: --select-item-height
+  value: 2em
+  customizable: false
 - property: --window-padding
   value: 8px
   customizable: false

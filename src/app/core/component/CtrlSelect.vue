@@ -15,6 +15,7 @@
       @keyup.enter.stop
       @keydown.229.stop
       @keyup.229.stop
+      :tabindex="disabled ? -1 : 0"
     >
       <option
         v-for="optionInfo in optionInfoList"

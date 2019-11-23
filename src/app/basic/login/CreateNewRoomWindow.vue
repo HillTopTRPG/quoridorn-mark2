@@ -3,7 +3,7 @@
     <div class="base-area">
       <div v-t="`${windowInfo.type}.message`"></div>
       <label>
-        <span v-t="'label.room-name'"></span>
+        <span class="label-input" v-t="'label.room-name'"></span>
         <base-input
           type="text"
           :value="name"
@@ -23,11 +23,15 @@
       </label>
       <label>
         <span class="label-input" v-t="'label.game-system'"></span>
-        <dice-bot-select v-model="system" ref="firstFocus" />
+        <dice-bot-input
+          v-model="system"
+          ref="firstFocus"
+          :windowInfo="windowInfo"
+        />
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">
+      <ctrl-button @click.stop="commit()" :disabled="!name">
         <span v-t="'button.next'"></span>
       </ctrl-button>
       <ctrl-button @click.stop="rollback()">
@@ -38,22 +42,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { CreateRoomInput } from "@/@types/socket";
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import DiceBotInput from "@/app/basic/common/components/DiceBotInput.vue";
+import { DiceSystem } from "@/@types/bcdice";
 
 @Component({
   components: {
+    DiceBotInput,
     InputPasswordComponent,
     DiceBotSelect,
     BaseInput,
@@ -67,7 +73,7 @@ export default class CreateNewRoomWindow extends Mixins<
   private name: string = "";
   private password: string = "";
   /** 選択されているシステム */
-  private system: string = "DiceBot";
+  private system: DiceSystem = { system: "DiceBot", name: "DiceBot" };
 
   @LifeCycle
   public async mounted() {
@@ -78,10 +84,9 @@ export default class CreateNewRoomWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    window.console.log("commit!!");
     await this.finally({
       name: this.name || LanguageManager.instance.getText(""),
-      system: this.system,
+      system: this.system.system,
       roomPassword: this.password
     });
   }

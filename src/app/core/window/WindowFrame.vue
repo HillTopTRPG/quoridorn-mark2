@@ -585,10 +585,13 @@ export default class WindowFrame extends Vue {
     if (!this.isMounted) return;
     this.windowElm.style.setProperty("--windowFontSize", `${this.fontSize}px`);
 
-    await TaskManager.instance.ignition<string, never>({
+    await TaskManager.instance.ignition<{ key: string; size: number }, never>({
       type: "window-font-size",
       owner: "Quoridorn",
-      value: this.windowInfo.key
+      value: {
+        key: this.windowInfo.key,
+        size: this.fontSize
+      }
     });
   }
 

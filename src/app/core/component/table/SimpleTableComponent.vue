@@ -263,9 +263,9 @@ export default class SimpleTableComponent extends Vue {
 
   @TaskProcessor("window-font-size-finished")
   private async windowFontSizeFinished(
-    task: Task<string, never>
+    task: Task<{ key: string; size: number }, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
+    if (task.value!.key !== this.windowInfo.key) return;
     if (!this.isMounted) return;
     setTimeout(() => {
       this.arrangeViewRow();

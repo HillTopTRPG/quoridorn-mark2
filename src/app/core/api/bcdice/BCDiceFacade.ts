@@ -104,6 +104,7 @@ export default class BCDiceFacade {
     if (system === "DiceBot")
       return LanguageManager.instance.getText("label.default-dicebot");
     const info = await BCDiceFacade.getBcdiceSystemInfo(system);
+    window.console.log(info);
     return info.name;
   }
 }

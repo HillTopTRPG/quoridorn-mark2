@@ -36,8 +36,8 @@ label:
   gameMaster: GM
   visitor: Visitor
   room-name: Playroom name
-  room-name-placeholder: Temporary playroom (can be deleted)
-  game-system: Game system
+  room-name-placeholder: 部屋名(必須項目)
+  game-system: Game system(入力指定も可)
   no-target: unspecified
   participant: 参加者
   version-info: バージョン情報

@@ -36,8 +36,8 @@ label:
   gameMaster: GM
   visitor: Visiteur
   room-name: Nom de la salle de jeux
-  room-name-placeholder: Salle de jeux temporaire (peut être supprimé)
-  game-system: Système de jeu
+  room-name-placeholder: 部屋名(必須項目)
+  game-system: Système de jeu(入力指定も可)
   no-target: Non spécifié
   participant: 参加者
   version-info: バージョン情報

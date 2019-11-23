@@ -114,7 +114,9 @@ export default class WindowVue<T, U> extends Vue {
       .call(windowContainerElm.querySelectorAll(target))
       .forEach(elm => {
         elm.addEventListener("keydown", (event: KeyboardEvent) => {
+          const elm: HTMLElement = event.target! as HTMLElement;
           if (event.key === "Enter") {
+            if ((elm.className as string).indexOf("pending") > -1) return;
             event.stopPropagation();
             callback();
           }

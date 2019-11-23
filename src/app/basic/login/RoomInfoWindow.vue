@@ -105,7 +105,6 @@ import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
 import { execCopy } from "@/app/core/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import LanguageManager from "@/LanguageManager";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 
 @Component({

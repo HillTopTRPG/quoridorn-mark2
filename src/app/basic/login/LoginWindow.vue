@@ -537,7 +537,6 @@ export default class LoginWindow extends Mixins<
       });
       createRoomInput = roomInfoList[0];
 
-      window.console.log(createRoomInput);
       if (!createRoomInput) {
         // 入力画面キャンセル
         await this.releaseTouchRoom();
