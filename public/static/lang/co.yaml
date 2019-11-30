@@ -59,8 +59,8 @@ sample-window:
 play-youtube-window:
   window-title: Youtube 재생
 
-bgm-setting-window:
-  window-title: 음악 설정
+cut-in-setting-window:
+  window-title: カットイン設定画面
   table-columns:
     -
       - 연동

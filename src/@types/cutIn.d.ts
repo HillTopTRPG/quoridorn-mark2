@@ -1,4 +1,4 @@
-type BgmDeclareInfo = {
+type CutInDeclareInfo = {
   title: string;
   url: string;
   tag: string;
@@ -13,12 +13,6 @@ type BgmDeclareInfo = {
   fadeOut: number;
 };
 
-type BgmInfo = BgmDeclareInfo & {
-  key: string;
-  seek: number;
-  duration: number;
-  isPlay: boolean;
-  isMute: boolean;
-  volumeSetting: number;
-  volume: number;
+type CutInPlayingInfo = {
+  targetId: string;
 };

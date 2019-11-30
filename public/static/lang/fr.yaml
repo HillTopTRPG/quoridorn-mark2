@@ -59,8 +59,8 @@ sample-window:
 play-youtube-window:
   window-title: Youtube Jouer
 
-bgm-setting-window:
-  window-title: BGM Ensemble
+cut-in-setting-window:
+  window-title: カットイン設定画面
   table-columns:
     -
       - Emboîtement

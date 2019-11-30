@@ -59,8 +59,8 @@ sample-window:
 play-youtube-window:
   window-title: Youtube 玩游戏
 
-bgm-setting-window:
-  window-title: 乐曲 设定
+cut-in-setting-window:
+  window-title: カットイン設定画面
   table-columns:
     -
       - 联锁

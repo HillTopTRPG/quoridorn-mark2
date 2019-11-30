@@ -148,7 +148,9 @@ export default class GameTable extends AddressCalcMixin {
   private async mounted() {
     const mapDataStore = SocketFacade.instance.mapListCC();
     const roomDataStore = SocketFacade.instance.roomDataCC();
-    const roomData: StoreUseData<RoomData> = (await roomDataStore.getList())[0];
+    const roomData: StoreUseData<RoomData> = (await roomDataStore.getList(
+      false
+    ))[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
     const mapId = roomData.data!.mapId;

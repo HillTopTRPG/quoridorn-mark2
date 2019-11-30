@@ -63,7 +63,7 @@ export default class YoutubeManager {
 
   public open(
     elementId: string,
-    { tag, url }: BgmInfo,
+    { tag, url }: CutInDeclareInfo,
     eventHandler: YoutubeEventHandler
   ) {
     let playerObj = this.playerMapping[tag];
@@ -178,7 +178,7 @@ export default class YoutubeManager {
 
   /** IDを指定して読み込ませる */
   public loadVideoById(
-    { tag, url, start, end }: BgmInfo,
+    { tag, url, start, end }: CutInDeclareInfo,
     suggestedQuality: string = "small"
   ) {
     let playerObj = this.playerMapping[tag];

@@ -3,7 +3,7 @@ import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import NecostoreCollectionController from "@/app/core/api/app-server/NecostoreCollectionController";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
   CharacterStore,
   ChitStore,
@@ -31,7 +31,7 @@ export default class GameObjectManager {
   // コンストラクタの隠蔽
   private constructor() {
     const setBasicSnapShot = <T>(
-      c: NecostoreCollectionController<T>,
+      c: NekostoreCollectionController<T>,
       list: StoreUseData<T>[]
     ) => {
       c.setCollectionSnapshot(

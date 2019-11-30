@@ -59,8 +59,8 @@ sample-window:
 play-youtube-window:
   window-title: Youtube Player
 
-bgm-setting-window:
-  window-title: BGM Setting
+cut-in-setting-window:
+  window-title: CutIn Setting
   table-columns:
     -
       - Linkage

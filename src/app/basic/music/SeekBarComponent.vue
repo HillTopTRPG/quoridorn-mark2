@@ -4,14 +4,14 @@
       class="seek-bar"
       type="range"
       min="0"
-      :max="Math.round(bgmInfo.duration * 100) / 100"
+      :max="Math.round(duration * 100) / 100"
       step="0.01"
-      v-model="seek"
-      @input="seekTo(false)"
-      @change="seekTo(true)"
+      v-model="useSeek"
+      @input="seekTo($event.target.value, false)"
+      @change="seekTo($event.target.value, true)"
     />
     <span class="seek-text">
-      {{ bgmInfo | time }}
+      {{ time }}
     </span>
   </div>
 </template>
@@ -26,35 +26,37 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
-  components: { CtrlButton },
-  filters: {
-    time: (bgmInfo: BgmInfo) => {
-      const isHour = bgmInfo.duration >= 3600;
-      const seek = Math.round(bgmInfo.seek);
-      const duration = Math.round(bgmInfo.duration);
-
-      const getTime = (num: number): string => {
-        const hour = Math.floor(num / 3600);
-        const minute = Math.floor((num % 3600) / 60);
-        const second = num % 60;
-        let result = `${zeroPadding(minute, 2)}:${zeroPadding(second, 2)}`;
-        if (isHour) result = `${hour}:` + result;
-        return result;
-      };
-      return `${getTime(seek)}/${getTime(duration)}`;
-    }
-  }
+  components: { CtrlButton }
 })
 export default class SeekBarComponent extends Vue {
   @Prop({ type: Object, required: true })
-  private bgmInfo!: BgmInfo;
+  private bgmInfo!: CutInDeclareInfo;
+  @Prop({ type: Number, required: true })
+  private duration!: number;
+  @Prop({ type: Number, required: true })
+  private seek!: number;
 
-  private seek: number = 0;
   private isSeekInputting: boolean = false;
   private isMounted: boolean = false;
+  private isPlay: boolean = false;
 
-  private fadeInTable: number[] = [];
-  private fadeOutTable: number[] = [];
+  private useSeek: number = 0;
+
+  private get time() {
+    const isHour = this.duration >= 3600;
+    const seek = Math.round(this.seek);
+    const duration = Math.round(this.duration);
+
+    const getTime = (num: number): string => {
+      const hour = Math.floor(num / 3600);
+      const minute = Math.floor((num % 3600) / 60);
+      const second = num % 60;
+      let result = `${zeroPadding(minute, 2)}:${zeroPadding(second, 2)}`;
+      if (isHour) result = `${hour}:` + result;
+      return result;
+    };
+    return `${getTime(seek)}/${getTime(duration)}`;
+  }
 
   @LifeCycle
   private mounted() {
@@ -66,12 +68,13 @@ export default class SeekBarComponent extends Vue {
       "--seek-font-color",
       CssManager.getCss("--uni-color-white")
     );
+    this.useSeek = this.seek;
     this.isMounted = true;
   }
 
   @VueEvent
-  private seekTo(allowSeekAhead: boolean) {
-    this.$emit("seekTo", this.seek, allowSeekAhead);
+  private seekTo(seek: string, allowSeekAhead: boolean) {
+    this.$emit("seekTo", seek, allowSeekAhead);
     this.changePlay(true);
     this.isSeekInputting = !allowSeekAhead;
   }
@@ -80,16 +83,19 @@ export default class SeekBarComponent extends Vue {
     return this.$refs.elm as HTMLDivElement;
   }
 
-  @Watch("bgmInfo.seek")
-  @Watch("bgmInfo.duration")
+  @Watch("seek")
+  @Watch("duration")
   private onChangeSeekPer() {
-    const per = (this.bgmInfo.seek * 100) / this.bgmInfo.duration;
+    const per = (this.seek * 100) / this.duration;
     this.elm.style.setProperty("--seek-per", `${per}%`);
-    if (!this.isSeekInputting) this.seek = this.bgmInfo.seek;
+    setTimeout(() => {
+      this.useSeek = this.seek;
+    });
+    // if (!this.isSeekInputting) this.seek = this.seek;
   }
 
   @Watch("isMounted")
-  @Watch("bgmInfo.isPlay")
+  @Watch("isPlay")
   private onChangeIsPlay(isPlay: boolean) {
     this.elm.style.setProperty(
       "--seek-color",
@@ -99,47 +105,9 @@ export default class SeekBarComponent extends Vue {
     );
   }
 
-  private changePlay(isPlay = !this.bgmInfo.isPlay): void {
-    this.bgmInfo.isPlay = isPlay;
+  private changePlay(isPlay = !this.isPlay): void {
+    this.isPlay = isPlay;
     this.$emit(isPlay ? "play" : "pause");
-  }
-
-  @Watch("bgmInfo.duration")
-  private setDuration(duration: number): void {
-    window.console.log("setDuration");
-    this.fadeInTable = [];
-    for (let i = 0; i <= this.bgmInfo.fadeIn; i++) {
-      this.fadeInTable.push(this.bgmStart + i / 10);
-    }
-
-    this.fadeOutTable = [];
-    for (let i = 0; i <= this.bgmInfo.fadeOut; i++) {
-      this.fadeOutTable.push(this.bgmEnd - (this.bgmInfo.fadeOut - i) / 10);
-    }
-  }
-
-  private get bgmStart(): number {
-    let start = 0;
-    if (this.bgmInfo.start > 0) {
-      start = this.bgmInfo.start;
-    } else if (this.bgmInfo.start < 0) {
-      start = this.bgmInfo.duration + this.bgmInfo.start;
-    }
-    if (start > this.bgmInfo.duration) start = this.bgmInfo.duration;
-    if (start < 0) start = 0;
-    return start;
-  }
-
-  private get bgmEnd(): number {
-    let end = this.bgmInfo.duration;
-    if (this.bgmInfo.end > 0) {
-      end = this.bgmInfo.end;
-    } else if (this.bgmInfo.end < 0) {
-      end = this.bgmInfo.duration + this.bgmInfo.end;
-    }
-    if (end > this.bgmInfo.duration) end = this.bgmInfo.duration;
-    if (end < 0) end = 0;
-    return end;
   }
 }
 </script>
@@ -149,8 +117,8 @@ export default class SeekBarComponent extends Vue {
 .seek-bar-area {
   position: relative;
   @include flex-box(row, center, flex-end);
-  width: 100%;
-  height: 16px;
+  grid-row: 2 / 2;
+  grid-column: 1 / 2;
 }
 
 .seek-bar {
@@ -173,32 +141,23 @@ input[type="range"] {
   outline: 0;
   cursor: pointer;
 }
-input[type="range"]::-webkit-slider-thumb {
-  position: relative;
-  -webkit-appearance: none;
-  cursor: pointer;
-}
-input[type="range"].volume::-webkit-slider-thumb {
-  background: black;
-  width: 6px;
-  height: 20px;
-  margin-top: -4px;
-  margin-bottom: -4px;
-  box-sizing: border-box;
-  border: 2px solid black;
-}
 
 input[type="range"] {
-  height: 16px;
+  height: 100%;
 }
 input[type="range"]::-webkit-slider-runnable-track {
   background: rgba(0, 0, 0, 0);
   box-sizing: border-box;
 }
 input[type="range"]::-webkit-slider-thumb {
+  position: relative;
+  -webkit-appearance: none;
+  cursor: pointer;
   box-sizing: border-box;
-  width: 16px;
-  height: 16px;
+  font-size: 12px;
+  width: 2em;
+  height: 2em;
+  border: none;
   background-color: var(--uni-color-black);
 }
 .seek-text {
@@ -208,7 +167,6 @@ input[type="range"]::-webkit-slider-thumb {
   /*transform: scale(0.7);*/
   color: var(--seek-font-color);
   pointer-events: none;
-  font-size: 10px;
   /*align-self: flex-end;*/
 }
 </style>

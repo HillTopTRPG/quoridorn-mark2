@@ -5,7 +5,7 @@ import store from "@/app/store/store";
 import ImageDirective from "@/app/basic/common/directive/Image";
 import TestWindow from "@/app/basic/common/window/TestWindow.vue";
 import SampleWindow from "@/app/basic/common/window/SampleWindow.vue";
-import BgmSettingWindow from "@/app/basic/music/BgmSettingWindow.vue";
+import CutInSettingWindow from "@/app/basic/music/CutInSettingWindow.vue";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/music/PlayYoutubeWindow.vue";
 import LoginWindow from "@/app/basic/login/LoginWindow.vue";
@@ -33,7 +33,7 @@ YoutubeManager.instance;
 
 Vue.component("test-window", TestWindow);
 Vue.component("sample-window", SampleWindow);
-Vue.component("bgm-setting-window", BgmSettingWindow);
+Vue.component("cut-in-setting-window", CutInSettingWindow);
 Vue.component("play-youtube-window", PlayYoutubeWindow);
 Vue.component("login-window", LoginWindow);
 Vue.component("create-new-room-window", CreateNewRoomWindow);

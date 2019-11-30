@@ -2,7 +2,7 @@ game-table:
   - text: BGM設定
     taskName: window-open
     taskArg:
-      type: bgm-setting-window
+      type: cut-in-setting-window
   - isViewCompare:
       lhs: 4
       rhs: 4

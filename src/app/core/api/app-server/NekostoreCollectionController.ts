@@ -19,7 +19,7 @@ import {
   UpdateDataRequest
 } from "@/@types/data";
 
-export default class NecostoreCollectionController<T> {
+export default class NekostoreCollectionController<T> {
   constructor(
     private readonly socket: any,
     private readonly nekostore: Nekostore,
@@ -66,11 +66,28 @@ export default class NecostoreCollectionController<T> {
       );
   }
 
-  public async getList(column?: string): Promise<StoreUseData<T>[]> {
+  public async getList(
+    isSync: boolean,
+    column?: string
+  ): Promise<StoreUseData<T>[]> {
     const c = this.getCollection();
-    return (await c.orderBy(column || "order").get()).docs
+    const list = (await c.orderBy(column || "order").get()).docs
       .filter(doc => doc.exists() && doc.data.data)
       .map(doc => getStoreObj<T>(doc)!);
+    this.setCollectionSnapshot(
+      "NekostoreCollectionController",
+      (snapshot: QuerySnapshot<StoreObj<T>>) => {
+        snapshot.docs.forEach(doc => {
+          const index = list.findIndex(p => p.id === doc.ref.id);
+          if (doc.type === "removed") {
+            list.splice(index, 1);
+          } else {
+            list.splice(index, index < 0 ? 0 : 1, getStoreObj(doc)!);
+          }
+        });
+      }
+    );
+    return list;
   }
 
   public async getData(id: string): Promise<StoreUseData<T> | null> {
@@ -157,22 +174,30 @@ export default class NecostoreCollectionController<T> {
     ownerKey: string,
     docId: string,
     onNext: (snapshot: DocumentSnapshot<StoreObj<T>>) => void
-  ): Promise<void> {
+  ): Promise<() => void> {
     let target: DocumentReference<StoreObj<T>> = this.getCollection().doc(
       docId
     );
     const unsubscribe = await target.onSnapshot(onNext);
-    if (!this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
+    if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
+    return () => {
+      unsubscribe();
+      delete this.snapshotMap[ownerKey];
+    };
   }
 
   public async setCollectionSnapshot(
     ownerKey: string,
     onNext: (snapshot: QuerySnapshot<StoreObj<T>>) => void
-  ): Promise<void> {
+  ): Promise<() => void> {
     let target: CollectionReference<StoreObj<T>> = this.getCollection();
     const unsubscribe = await target.onSnapshot(onNext);
     if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
+    return () => {
+      unsubscribe();
+      delete this.snapshotMap[ownerKey];
+    };
   }
 }

@@ -84,7 +84,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
-"bgm-setting-window":
+"cut-in-setting-window":
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: true

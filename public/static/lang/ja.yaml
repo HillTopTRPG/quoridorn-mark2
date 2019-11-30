@@ -59,8 +59,8 @@ sample-window:
 play-youtube-window:
   window-title: Youtube再生画面
 
-bgm-setting-window:
-  window-title: BGM設定画面
+cut-in-setting-window:
+  window-title: カットイン設定画面
   table-columns:
     -
       - 連動

@@ -1,6 +1,5 @@
-import { loadYaml } from "@/app/core/File";
-
-const bgmYamlPath: string = "/static/conf/bgm.yaml";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { StoreUseData } from "@/@types/store";
 
 export default class BgmManager {
   // シングルトン
@@ -16,54 +15,38 @@ export default class BgmManager {
   }
 
   private async asyncConstructor() {
-    const list: BgmDeclareInfo[] = await loadYaml(bgmYamlPath);
-    list.forEach((declareInfo, index) => {
-      this._bgmList.push({
-        key: `bgm-${index}`,
-        ...declareInfo,
-        isPlay: false,
-        isMute: false,
-        seek: 0,
-        volumeSetting: 0,
-        volume: 0,
-        duration: 0
-      });
-    });
-    this.nextKey = this._bgmList.length + 1;
+    this._bgmList = await SocketFacade.instance.cutInDataCC().getList(true);
   }
 
-  private nextKey: number = 0;
-  private readonly _bgmList: BgmInfo[] = [];
+  private _bgmList: StoreUseData<CutInDeclareInfo>[] = [];
 
   public get bgmList() {
     return this._bgmList;
   }
 
-  public getBgmInfo(key: string | null): BgmInfo {
-    return this.bgmList.filter(info => info.key === key)[0];
+  private getInfo(id: string | null) {
+    return this._bgmList.filter(info => info.id === id)[0];
   }
 
-  private static getUrl(target: string | BgmDeclareInfo): string | null {
+  private static getUrl(target: string | CutInDeclareInfo): string | null {
     if (typeof target === "string") {
-      if (target.startsWith("bgm-")) {
-        const info: BgmInfo = BgmManager.instance.getBgmInfo(target);
-        if (!info) return null;
-        return info.url;
-      } else {
-        return target;
-      }
+      const info: StoreUseData<CutInDeclareInfo> = BgmManager.instance.getInfo(
+        target
+      );
+      if (!info) return null;
+      return info.data!.url;
     } else {
       return target.url;
     }
   }
 
-  public static isYoutube(target: string | BgmDeclareInfo) {
+  public static isYoutube(target: string | CutInDeclareInfo) {
     const url = BgmManager.getUrl(target);
     if (!url) return false;
     return /www\.youtube\.com/.test(url);
   }
 
-  public static isDropbox(target: string | BgmDeclareInfo) {
+  public static isDropbox(target: string | CutInDeclareInfo) {
     const url = BgmManager.getUrl(target);
     if (!url) return false;
     return /dropbox/.test(url);

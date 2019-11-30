@@ -51,7 +51,10 @@ import {
   GetRoomListResponse,
   RoomViewResponse
 } from "@/@types/socket";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
+import QuerySnapshot from "nekostore/lib/QuerySnapshot";
+import BgmManager from "@/app/basic/music/BgmManager";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 
 @Component({
   components: {
@@ -146,6 +149,62 @@ export default class App extends Vue {
       }
     });
     this.isMounted = true;
+  }
+
+  private dbInspection() {
+    const playListCC = SocketFacade.instance.playListCC();
+    playListCC.setCollectionSnapshot(
+      "App",
+      (snapshot: QuerySnapshot<StoreObj<CutInPlayingInfo>>) => {
+        snapshot.docs.forEach(async doc => {
+          if (doc.type === "added") {
+            if (doc.data!.data) {
+              // 当初から入ってたもの
+              await TaskManager.instance.ignition<
+                WindowOpenInfo<string>,
+                never
+              >({
+                type: "window-open",
+                owner: "Quoridorn",
+                value: {
+                  type: "play-youtube-window",
+                  args: doc.ref.id
+                }
+              });
+            } else {
+              // 後から追加されたもの
+              const unsubscribe = await playListCC.setSnapshot(
+                doc.ref.id,
+                doc.ref.id,
+                async (ss: DocumentSnapshot<StoreObj<CutInPlayingInfo>>) => {
+                  if (ss.exists() && ss.data!.data) {
+                    const targetId = ss.data!.data!.targetId;
+                    const cutInDataCC = SocketFacade.instance.cutInDataCC();
+                    const cutInData = await cutInDataCC.getData(targetId);
+
+                    if (BgmManager.isYoutube(cutInData!.data!)) {
+                      window.console.log("open:", ss.ref.id);
+                      await TaskManager.instance.ignition<
+                        WindowOpenInfo<string>,
+                        never
+                      >({
+                        type: "window-open",
+                        owner: "Quoridorn",
+                        value: {
+                          type: "play-youtube-window",
+                          args: ss.ref.id
+                        }
+                      });
+                    }
+                    unsubscribe();
+                  }
+                }
+              );
+            }
+          }
+        });
+      }
+    );
   }
 
   /**
@@ -268,6 +327,7 @@ export default class App extends Vue {
     // 部屋に接続できた
     this.roomInitialized = true;
     this.roomInfo = task.value!;
+    this.dbInspection();
     task.resolve();
   }
 

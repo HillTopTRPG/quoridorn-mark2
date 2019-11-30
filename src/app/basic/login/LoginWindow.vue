@@ -770,9 +770,9 @@ export default class LoginWindow extends Mixins<
           type: "user-login-window",
           args: {
             isSetting: false,
-            userNameList: (await SocketFacade.instance.userCC().getList()).map(
-              userData => userData.data!.userName
-            ),
+            userNameList: (await SocketFacade.instance
+              .userCC()
+              .getList(false)).map(userData => userData.data!.userName),
             userName: this.urlPlayerName
           }
         }
@@ -889,10 +889,10 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * 画像タグのプリセットデータ投入
      */
-    const imageTagStore = SocketFacade.instance.imageTagCC();
+    const imageTagCC = SocketFacade.instance.imageTagCC();
 
     const pushImageTag = async (imageTag: string): Promise<void> => {
-      await imageTagStore.add(await imageTagStore.touch(), imageTag);
+      await imageTagCC.add(await imageTagCC.touch(), imageTag);
     };
 
     // pushImageTagを直列の非同期で全部実行する
@@ -903,13 +903,13 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * 画像データのプリセットデータ投入
      */
-    const imageDataStore = SocketFacade.instance.imageDataCC();
+    const imageDataCC = SocketFacade.instance.imageDataCC();
 
     let imageId: string | null = null;
     const pushImage = async (image: Image): Promise<void> => {
-      const docId = await imageDataStore.touch();
+      const docId = await imageDataCC.touch();
       if (!imageId) imageId = docId;
-      await imageDataStore.add(docId, image);
+      await imageDataCC.add(docId, image);
     };
 
     // pushImageを直列の非同期で全部実行する
@@ -918,9 +918,25 @@ export default class LoginWindow extends Mixins<
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
+     * BGMデータのプリセットデータ投入
+     */
+    const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
+    const cutInDataCC = SocketFacade.instance.cutInDataCC();
+
+    const pushBgm = async (bgm: CutInDeclareInfo): Promise<void> => {
+      const docId = await cutInDataCC.touch();
+      await cutInDataCC.add(docId, bgm);
+    };
+
+    // pushBgmを直列の非同期で全部実行する
+    await bgmList
+      .map((bgm: CutInDeclareInfo) => () => pushBgm(bgm))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
-    const mapDataStore = SocketFacade.instance.mapListCC();
+    const mapListCC = SocketFacade.instance.mapListCC();
 
     const mapSetting: MapSetting = {
       backgroundType: "image",
@@ -965,15 +981,15 @@ export default class LoginWindow extends Mixins<
       chatLinkageSearch: "",
       portTileMapping: ""
     };
-    const mapDataDocId = await mapDataStore.add(
-      await mapDataStore.touch(),
+    const mapDataDocId = await mapListCC.add(
+      await mapListCC.touch(),
       mapSetting
     );
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
      */
-    const roomDataStore = SocketFacade.instance.roomDataCC();
+    const roomDataCC = SocketFacade.instance.roomDataCC();
 
     const roomData: RoomData = {
       mapId: mapDataDocId,
@@ -982,7 +998,7 @@ export default class LoginWindow extends Mixins<
       isFitGrid: true,
       isUseRotateMarker: true
     };
-    await roomDataStore.add(await roomDataStore.touch(), roomData);
+    await roomDataCC.add(await roomDataCC.touch(), roomData);
   }
 }
 </script>
