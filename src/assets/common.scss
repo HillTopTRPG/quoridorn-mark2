@@ -24,6 +24,46 @@
   flex-wrap: $wrap;
 }
 
+@mixin basic-map-object() {
+  @include flex-box(row, center, center);
+  position: fixed;
+  left: calc(var(--x) + var(--margin-column) * var(--gridSize) - var(--inflate-width));
+  top: calc(var(--y) + var(--margin-row) * var(--gridSize) - var(--inflate-width));
+  width: calc(var(--columns) * var(--gridSize) + var(--inflate-width) * 2);
+  height: calc(var(--rows) * var(--gridSize) + var(--inflate-width) * 2);
+  background-color: var(--back-color);
+  color: var(--font-color);
+  border-width: calc(var(--isHideBorder) * 2px);
+  border-style: solid;
+  border-color: var(--isLock);
+  transform: rotate(var(--angle));
+  box-sizing: border-box;
+  white-space: nowrap;
+  font-size: 12px;
+  cursor: crosshair;
+  z-index: 500000000;
+
+  &.hover {
+    z-index: 599999999;
+  }
+
+  &.hover.moving,
+  &.rolling {
+    z-index: 999999999;
+  }
+
+  &:before {
+    content: var(--text);
+    @include flex-box(row, center, center);
+    position: absolute;
+    left: calc(var(--isHideBorder) * 2px);
+    right: calc(var(--isHideBorder) * 2px);
+    bottom: calc(var(--isHideBorder) * 2px);
+    top: calc(var(--isHideBorder) * 2px);
+    border: calc(var(--isHideBorder) * 2px) solid transparent;
+  }
+}
+
 .v-box {
   @include flex-box(column, stretch, flex-start);
   position: relative;

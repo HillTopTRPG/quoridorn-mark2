@@ -3,6 +3,10 @@ game-table:
     taskName: window-open
     taskArg:
       type: cut-in-setting-window
+  - text: マップマスク追加
+    taskName: window-open
+    taskArg:
+      type: add-map-mask-window
   - isViewCompare:
       lhs: 4
       rhs: 4

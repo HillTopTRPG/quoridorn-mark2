@@ -11,6 +11,7 @@ import {
   ExtraStore,
   FloorTileStore,
   MapMaskStore,
+  MapObject,
   PropertyFaceStore,
   PropertySelectionStore,
   PropertyStore,
@@ -29,12 +30,14 @@ export default class GameObjectManager {
   private static _instance: GameObjectManager;
 
   // コンストラクタの隠蔽
-  private constructor() {
-    const setBasicSnapShot = <T>(
+  private constructor() {}
+
+  private async initialize() {
+    const setBasicSnapShot = async <T>(
       c: NekostoreCollectionController<T>,
       list: StoreUseData<T>[]
     ) => {
-      c.setCollectionSnapshot(
+      await c.setCollectionSnapshot(
         "PlayerManager",
         (snapshot: QuerySnapshot<StoreObj<T>>) => {
           snapshot.docs.forEach(doc => {
@@ -48,26 +51,36 @@ export default class GameObjectManager {
         }
       );
     };
-    setBasicSnapShot(SocketFacade.instance.userCC(), this.playerList);
-    setBasicSnapShot(SocketFacade.instance.mapMaskCC(), this.mapMaskList);
-    setBasicSnapShot(SocketFacade.instance.chitCC(), this.chitList);
-    setBasicSnapShot(SocketFacade.instance.floorTileCC(), this.floorTileList);
-    setBasicSnapShot(SocketFacade.instance.diceSymbolCC(), this.diceSymbolList);
-    setBasicSnapShot(SocketFacade.instance.extraCC(), this.extraList);
-    setBasicSnapShot(SocketFacade.instance.characterCC(), this.characterList);
-    setBasicSnapShot(
+    await setBasicSnapShot(SocketFacade.instance.userCC(), this.playerList);
+    await setBasicSnapShot(SocketFacade.instance.mapMaskCC(), this.mapMaskList);
+    await setBasicSnapShot(SocketFacade.instance.chitCC(), this.chitList);
+    await setBasicSnapShot(
+      SocketFacade.instance.floorTileCC(),
+      this.floorTileList
+    );
+    await setBasicSnapShot(
+      SocketFacade.instance.diceSymbolCC(),
+      this.diceSymbolList
+    );
+    await setBasicSnapShot(SocketFacade.instance.extraCC(), this.extraList);
+    await setBasicSnapShot(
+      SocketFacade.instance.characterCC(),
+      this.characterList
+    );
+    await setBasicSnapShot(
       SocketFacade.instance.propertyFaceCC(),
       this.propertyFaceList
     );
-    setBasicSnapShot(SocketFacade.instance.propertyCC(), this.propertyList);
-    setBasicSnapShot(
+    await setBasicSnapShot(
+      SocketFacade.instance.propertyCC(),
+      this.propertyList
+    );
+    await setBasicSnapShot(
       SocketFacade.instance.propertySelectionCC(),
       this.propertySelectionList
     );
-    setBasicSnapShot(SocketFacade.instance.tagNoteCC(), this.tagNoteList);
+    await setBasicSnapShot(SocketFacade.instance.tagNoteCC(), this.tagNoteList);
   }
-
-  private myselfId: string | null = null;
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
   public readonly playerList: StoreUseData<UserData>[] = [];
@@ -84,15 +97,6 @@ export default class GameObjectManager {
   >[] = [];
   public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
 
-  public setMyself(name: string) {
-    const playerInfo = this.playerList.filter(
-      p => p.data!.userName === name
-    )[0];
-    if (!playerInfo) throw new ApplicationError(`No such player. name=${name}`);
-
-    this.myselfId = playerInfo.id;
-  }
-
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
       throw new ApplicationError(
@@ -102,11 +106,27 @@ export default class GameObjectManager {
     return this.__clientRoomInfo;
   }
 
-  public set clientRoomInfo(info: ClientRoomInfo) {
+  public async setClientRoomInfo(info: ClientRoomInfo) {
     this.__clientRoomInfo = info;
+    await this.initialize();
   }
 
   public get mySelf(): StoreUseData<UserData> | null {
-    return this.playerList.filter(p => p.id === this.myselfId)[0] || null;
+    return this.playerList.filter(p => p.id === this.mySelfId)[0] || null;
+  }
+
+  public static filterPlaceList(
+    list: StoreUseData<MapObject>[],
+    place: "field" | "graveyard" | "backstage"
+  ) {
+    return list.filter(item => item.data && item.data.place === place);
+  }
+
+  public get mySelfId(): string {
+    const userId = SocketFacade.instance.userId;
+    if (!userId) {
+      throw new ApplicationError(`Illegal timing error.`);
+    }
+    return userId;
   }
 }

@@ -30,6 +30,7 @@ export function getStoreObj<T>(
 ): StoreUseData<T> | null {
   if (doc.exists()) {
     const data: StoreObj<T> = doc.data;
+    if (!data) return null;
     return {
       ...data,
       id: doc.ref.id
@@ -62,6 +63,7 @@ export default class SocketFacade {
     [name: string]: NekostoreCollectionController<unknown>;
   } = {};
   private __roomCollectionPrefix: string | null = null;
+  private __userId: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
 
   public get appServerUrl(): string {
@@ -172,6 +174,14 @@ export default class SocketFacade {
 
   public set roomCollectionPrefix(val: string | null) {
     this.__roomCollectionPrefix = val;
+  }
+
+  public set userId(val: string | null) {
+    this.__userId = val;
+  }
+
+  public get userId(): string | null {
+    return this.__userId;
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
@@ -298,6 +308,12 @@ export default class SocketFacade {
 
   public playListCC(): NekostoreCollectionController<CutInPlayingInfo> {
     return this.roomCollectionController<CutInPlayingInfo>("play-list");
+  }
+
+  public privatePlayListCC(): NekostoreCollectionController<CutInPlayingInfo> {
+    return this.roomCollectionController<CutInPlayingInfo>(
+      `${this.userId}-play-list`
+    );
   }
 
   public userCC(): NekostoreCollectionController<UserData> {

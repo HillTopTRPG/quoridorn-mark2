@@ -11,6 +11,7 @@ import {
 } from "@/app/core/Coordinate";
 import { Matrix, Point, Rectangle } from "@/@types/address";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { getCssPxNum } from "@/app/core/Css";
 
 type Coordinates = {
   angle: number; // 角度
@@ -46,12 +47,14 @@ export default class AddressCalcMixin extends Vue {
     const canvasRectangle: Rectangle = document
       .getElementById("map-canvas")!
       .getBoundingClientRect() as Rectangle;
+
+    const zoom = (getCssPxNum("--wheel") * -1 + 1000) / 1000;
     // canvasの中心点
     const canvasCenter: Point = calcCenter(canvasRectangle);
     // 中心点と指定された座標とを結ぶ線の角度を求める
     const angle: number = calcAngle(mouse, canvasCenter);
     // 中心点と指定された座標とを結ぶ線の長さを求める
-    const distance: number = calcDistance(mouse, canvasCenter);
+    const distance: number = calcDistance(mouse, canvasCenter) * zoom;
     // マップ回転前の角度を求める
     const angleBefore: number = arrangeAngle(angle - oldAngle);
     const planeLocateScreen: Point = {

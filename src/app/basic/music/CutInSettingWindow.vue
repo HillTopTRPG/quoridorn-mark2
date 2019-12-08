@@ -68,6 +68,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
 import { StoreUseData } from "@/@types/store";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -120,37 +121,64 @@ export default class CutInSettingWindow extends Mixins<
     const playListCC = SocketFacade.instance.playListCC();
     const playList = await playListCC.getList(false);
 
-    const index = this.cutInList.findIndex(item => item.id === useId);
-    const tag = this.cutInList[index].data!.tag;
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    const privatePlayList = await privatePlayListCC.getList(false);
 
-    const deletePlayList = async (_index: number) => {
-      const playListId = playList[_index].id;
-      await playListCC.touchModify(playListId!);
-      await playListCC.delete(playListId!);
+    const cutInInfo = this.cutInList.filter(item => item.id === useId)[0];
+    const tag = cutInInfo.data!.tag;
+
+    const deleteCC = async (
+      list: StoreUseData<CutInPlayingInfo>[],
+      cc: NekostoreCollectionController<CutInPlayingInfo>,
+      findIndexFunc: (play: StoreUseData<CutInPlayingInfo>) => boolean
+    ) => {
+      const index = list.findIndex(findIndexFunc);
+      if (index < 0) return;
+      const id = list[index].id!;
+      window.console.log("!!!!! doDelete touchModify", id);
+      try {
+        await cc.touchModify(id);
+      } catch (err) {
+        window.console.log(err);
+        return;
+      }
+      window.console.log("!!!!! doDelete delete", id);
+      await cc.delete(id);
+      window.console.log("!!!!! doDelete finished", id);
     };
 
-    const playTagIndex = playList.findIndex(play => {
-      if (play.data!.targetId === useId) return false;
-      const cutIn = this.cutInList.filter(
-        cutIn => cutIn.id === play.data!.targetId
-      )[0];
+    const findIndexByTagFunc = (play: StoreUseData<CutInPlayingInfo>) => {
+      if (play.id === useId) return false;
+      const cutIn = this.cutInList.filter(cutIn => cutIn.id === play.id)[0];
       return cutIn.data!.tag === tag;
-    });
-    if (playTagIndex > -1) {
-      // 同じタグのカットインが既に再生中の場合
-      await deletePlayList(playTagIndex);
-    }
+    };
+    // 同じタグのカットインが既に再生中の場合は削除
+    window.console.log("Delete tag 0");
+    await deleteCC(privatePlayList, privatePlayListCC, findIndexByTagFunc);
+    window.console.log("Delete tag 1");
+    await deleteCC(playList, playListCC, findIndexByTagFunc);
+    window.console.log("Delete tag 2");
 
-    const playIndex = playList.findIndex(item => item.data!.targetId === useId);
-    if (playIndex > -1) {
-      // 既に対象のカットインを再生中
-      await deletePlayList(playIndex);
-    }
+    const findIndexByIdFunc = (play: StoreUseData<CutInPlayingInfo>) =>
+      play.id === useId;
+    // 既に対象のカットインを再生中
+    window.console.log("Delete id 0");
+    await deleteCC(privatePlayList, privatePlayListCC, findIndexByIdFunc);
+    window.console.log("Delete id 1");
+    await deleteCC(playList, playListCC, findIndexByIdFunc);
+    window.console.log("Delete id 2");
 
-    const docId = await playListCC.touch();
-    playListCC.add(docId, {
-      targetId: useId
-    });
+    const addCC = async (
+      cc: NekostoreCollectionController<CutInPlayingInfo>
+    ) => {
+      window.console.log("!!!!! addCC touch", useId);
+      const docId = await cc.touch(useId);
+      window.console.log("!!!!! addCC add", docId);
+      await cc.add(docId, "exists");
+      window.console.log("!!!!! addCC finished", docId);
+    };
+    window.console.log("!!!!! ADD !!!!!", useId);
+    await addCC(playListCC);
   }
 
   @Emit("adjustWidth")

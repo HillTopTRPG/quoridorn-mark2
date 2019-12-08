@@ -47,6 +47,8 @@ import LanguageManager from "@/LanguageManager";
 import { getCssPxNum } from "@/app/core/Css";
 import CssManager from "@/app/core/css/CssManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -97,22 +99,43 @@ export default class PlayYoutubeWindow
     await this.startPlay();
   }
 
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    window.console.log("$$$ close");
+    if (task.value !== this.windowInfo.key) return;
+    if ("window" !== this.windowInfo.status) return;
+    YoutubeManager.instance.pause(this.bgmInfo!.tag);
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    if (this.playListRemoveUnsubscribe) this.playListRemoveUnsubscribe();
+    try {
+      await privatePlayListCC.touchModify(this.windowInfo.args!);
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+    await privatePlayListCC.delete(this.windowInfo.args!);
+  }
+
+  private playListRemoveUnsubscribe: (() => void) | null = null;
   private async startPlay() {
     if (this.status !== "window") return;
-    const playListCC = SocketFacade.instance.playListCC();
-    const playData = await playListCC.getData(this.windowInfo.args!);
-    const unsubscribe = await playListCC.setCollectionSnapshot(
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    const targetId = this.windowInfo.args!;
+    const unsubscribe = await privatePlayListCC.setCollectionSnapshot(
       this.key,
       snapshot => {
-        snapshot.docs.filter(async doc => {
-          if (doc.type === "removed" && doc.ref.id === this.windowInfo.args) {
+        snapshot.docs.forEach(async doc => {
+          if (doc.type === "removed" && doc.ref.id === targetId) {
+            window.console.log("プレイリストから削除されたので画面閉じるっ！");
             await this.close();
             unsubscribe();
           }
         });
       }
     );
-    const targetId = playData!.data!.targetId;
+    this.playListRemoveUnsubscribe = unsubscribe;
 
     const cutInDataCC = SocketFacade.instance.cutInDataCC();
     const cutInData = await cutInDataCC.getData(targetId);
@@ -231,6 +254,9 @@ export default class PlayYoutubeWindow
           );
           this.isSeekToBefore = false;
         } else {
+          window.console.log(
+            "ループ再生でないし再生位置が範囲外になったから閉じる！"
+          );
           await this.close();
           return;
         }
@@ -272,6 +298,9 @@ export default class PlayYoutubeWindow
       if (this.bgmInfo!.fadeIn > 1) this.volume = 0;
       this.isSeekToAfter = false;
       this.isSeekToBefore = false;
+    } else {
+      window.console.log("再生終了だしループじゃないから閉じるっ！");
+      this.close().then();
     }
   }
 
@@ -424,6 +453,7 @@ export default class PlayYoutubeWindow
       transform: rotate(-90deg) translateX(calc(-100% + 2em));
       transform-origin: 1em 1em;
       outline: none;
+      cursor: pointer;
       background: linear-gradient(
         to right,
         var(--volume-color) 0%,
@@ -452,6 +482,7 @@ export default class PlayYoutubeWindow
     position: relative;
     grid-row: 2 / 2;
     grid-column: 2 / 2;
+    cursor: pointer;
 
     > * {
       @include flex-box(row, center, center);

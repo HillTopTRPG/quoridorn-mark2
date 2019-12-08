@@ -46,6 +46,12 @@ label:
   comeback-url: 復帰URL
   default-dicebot: ダイスボット(指定なし)
   room-no: 部屋番号
+  text: テキスト
+  background-color: 背景色
+  height: 高さ
+  width: 幅
+  alpha: 透過度
+  multi-create: 複数作成
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

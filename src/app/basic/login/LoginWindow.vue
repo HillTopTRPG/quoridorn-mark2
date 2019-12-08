@@ -308,6 +308,7 @@ export default class LoginWindow extends Mixins<
             this.roomList.splice(index, 1, {
               order: index,
               exclusionOwner: null,
+              status: null,
               createTime: new Date(),
               updateTime: null,
               id: null
@@ -615,10 +616,10 @@ export default class LoginWindow extends Mixins<
      * ログインリクエスト
      */
     try {
-      await SocketFacade.instance.socketCommunication<UserLoginRequest, void>(
-        "user-login",
-        userLoginInput
-      );
+      SocketFacade.instance.userId = await SocketFacade.instance.socketCommunication<
+        UserLoginRequest,
+        string
+      >("user-login", userLoginInput);
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
@@ -650,7 +651,7 @@ export default class LoginWindow extends Mixins<
       hasPassword: !!createRoomInput.roomPassword,
       roomNo: this.selectedRoomNo
     };
-    GameObjectManager.instance.clientRoomInfo = loginResult;
+    await GameObjectManager.instance.setClientRoomInfo(loginResult);
 
     const params = new URLSearchParams();
     params.append("no", loginResult.roomNo.toString(10));
@@ -805,10 +806,10 @@ export default class LoginWindow extends Mixins<
      * ログインリクエスト
      */
     try {
-      await SocketFacade.instance.socketCommunication<UserLoginRequest, void>(
-        "user-login",
-        userLoginInput
-      );
+      SocketFacade.instance.userId = await SocketFacade.instance.socketCommunication<
+        UserLoginRequest,
+        string
+      >("user-login", userLoginInput);
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
@@ -834,7 +835,7 @@ export default class LoginWindow extends Mixins<
     const loginResult: ClientRoomInfo = this.roomList[this.selectedRoomNo]
       .data!;
     loginResult.roomNo = this.selectedRoomNo;
-    GameObjectManager.instance.clientRoomInfo = loginResult;
+    await GameObjectManager.instance.setClientRoomInfo(loginResult);
 
     const params = new URLSearchParams();
     params.append("no", loginResult.roomNo.toString(10));

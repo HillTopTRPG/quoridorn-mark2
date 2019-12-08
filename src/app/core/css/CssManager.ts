@@ -26,8 +26,8 @@ export default class CssManager {
     });
   }
 
-  public static getCss(name: string) {
-    const elm = document.documentElement;
-    return window.getComputedStyle(elm).getPropertyValue(name);
+  public static getCss(name: string, elm?: HTMLElement) {
+    const useElm = elm || document.documentElement;
+    return window.getComputedStyle(useElm).getPropertyValue(name);
   }
 }

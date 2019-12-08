@@ -74,7 +74,7 @@ export default class NekostoreCollectionController<T> {
     const list = (await c.orderBy(column || "order").get()).docs
       .filter(doc => doc.exists() && doc.data.data)
       .map(doc => getStoreObj<T>(doc)!);
-    this.setCollectionSnapshot(
+    await this.setCollectionSnapshot(
       "NekostoreCollectionController",
       (snapshot: QuerySnapshot<StoreObj<T>>) => {
         snapshot.docs.forEach(doc => {
@@ -93,16 +93,17 @@ export default class NekostoreCollectionController<T> {
   public async getData(id: string): Promise<StoreUseData<T> | null> {
     const c = this.getCollection();
     const docSnap = await c.doc(id).get();
-    if (!docSnap || !docSnap.exists()) return null;
+    if (!docSnap || !docSnap.data || !docSnap.exists()) return null;
     return getStoreObj<T>(docSnap);
   }
 
-  public async touch(): Promise<string> {
+  public async touch(createId?: string): Promise<string> {
     const docId = await SocketFacade.instance.socketCommunication<
       TouchRequest,
-      never
+      string
     >("touch-data", {
-      collection: this.collectionName
+      collection: this.collectionName,
+      id: createId
     });
     this.touchList.push(docId);
     return docId;

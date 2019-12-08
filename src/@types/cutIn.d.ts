@@ -13,6 +13,4 @@ type CutInDeclareInfo = {
   fadeOut: number;
 };
 
-type CutInPlayingInfo = {
-  targetId: string;
-};
+type CutInPlayingInfo = {};

@@ -500,3 +500,34 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"add-map-mask-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 400
+    widthEm: 0
+    widthRem: 0
+    heightPx: 6
+    heightEm: 12
+    heightRem: 0
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 6
+    heightEm: 12
+    heightRem: 0
+  maxSize:
+    widthPx: 700
+    widthEm: 0
+    widthRem: 0
+    heightPx: 6
+    heightEm: 12
+    heightRem: 0
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

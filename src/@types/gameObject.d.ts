@@ -3,6 +3,8 @@ import { ColorSpec, ImageSpec } from "@/@types/room";
 
 type VolatileMapObject = {
   moveFrom: Point;
+  moveFromPlane: Point;
+  moveFromPlaneRelative: Point;
   moveGridOffset: Point;
   moveDiff: Point;
   angleFrom: number;
@@ -17,7 +19,7 @@ type MapObject = Point & {
   isHideHighlight: boolean;
   isLock: boolean;
   place: "field" | "graveyard" | "backstage";
-  backgroundList: (ColorSpec & ImageSpec)[];
+  backgroundList: (ColorSpec | ImageSpec)[];
   useBackGround: number;
   angle: number;
 };

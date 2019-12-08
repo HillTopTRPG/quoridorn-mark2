@@ -17,6 +17,8 @@ type UserData = {
 type ColorSpec = {
   backgroundType: "color";
   backgroundColor: string;
+  fontColor: string;
+  text: string;
 };
 
 type ImageSpec = {
