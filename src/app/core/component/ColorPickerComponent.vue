@@ -23,12 +23,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { parseColor, zeroPadding } from "@/app/core/Utility";
-import CssManager from "@/app/core/css/CssManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { parseColor } from "../Utility";
+import LifeCycle from "../decorator/LifeCycle";
+import VueEvent from "../decorator/VueEvent";
 import BaseInput from "@/app/core/component/BaseInput.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: { BaseInput, CtrlButton }
@@ -82,7 +81,7 @@ export default class ColorPickerComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../../../assets/common";
+@import "../../../assets/common";
 
 .color-picker-container {
   @include flex-box(row, flex-start, center);

@@ -3,7 +3,7 @@ import AddressCalcMixin from "./AddressCalcMixin.vue";
 
 import { Prop, Watch } from "vue-property-decorator";
 import { Mixin } from "vue-mixin-decorator";
-import { createPoint } from "@/app/core/Coordinate";
+import { createPoint, getEventPoint } from "@/app/core/Coordinate";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   getStoreObj
@@ -17,6 +17,7 @@ import { Task, TaskResult } from "@/@types/task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import { getCssPxNum } from "@/app/core/Css";
+import { ContextTaskInfo } from "@/@types/context";
 
 @Mixin
 export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
@@ -44,16 +45,25 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     angleDiff: 0
   };
 
-  private async getStoreInfo(): Promise<StoreUseData<T>> {
-    if (this.type === "mapMask") this.cc = SocketFacade.instance.mapMaskCC();
-    else return null;
-    return (await this.cc.getData(this.docId)) as StoreUseData<T>;
+  public get key() {
+    return `${this.type}-${this.docId}`;
+  }
+
+  private async getStoreInfo(): Promise<StoreUseData<T> | null> {
+    try {
+      this.cc = SocketFacade.instance.getCC(this.type);
+    } catch (err) {
+      window.console.warn(err);
+      return null;
+    }
+    return (await this.cc!.getData(this.docId)) as StoreUseData<T>;
   }
 
   @LifeCycle
   private async mounted() {
     this.storeInfo = await this.getStoreInfo();
-    await this.cc.setSnapshot(this.docId, this.docId, snapshot => {
+    await this.cc!.setSnapshot(this.docId, this.docId, snapshot => {
+      if (!snapshot.data) return;
       if (snapshot.data.status === "modified") {
         this.isMoving = false;
         this.storeInfo = getStoreObj<T>(snapshot);
@@ -66,10 +76,10 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   protected get basicClasses() {
     if (!this.isMounted) return [];
     return [
-      this.storeInfo.data.isLock ? "lock" : "non-lock",
+      this.storeInfo!.data!.isLock ? "lock" : "non-lock",
       this.isHover ? "hover" : "non-hover",
       this.isMoving ? "moving" : "non-moving",
-      this.storeInfo.data.isHideBorder ? "border-hide" : "border-view"
+      this.storeInfo!.data!.isHideBorder ? "border-hide" : "border-view"
     ];
   }
 
@@ -79,10 +89,14 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
 
   private setCssProperty(property: string, failValue?: any, trueValue?: any) {
     if (!this.isMounted) return;
-    const propertyValue = this.storeInfo.data[property];
+    const propertyValue = (this.storeInfo!.data! as any)[property];
     const useValue = propertyValue
-      ? trueValue || propertyValue
-      : failValue || propertyValue;
+      ? trueValue !== undefined
+        ? trueValue
+        : propertyValue
+      : failValue !== undefined
+      ? failValue
+      : propertyValue;
     this.elm.style.setProperty(`--${property}`, useValue.toString());
   }
 
@@ -90,12 +104,18 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("volatileInfo.moveDiff", { deep: true })
   private onChangePoint() {
     if (!this.isMounted) return;
-    const x = this.storeInfo.data.x;
+    const x = this.storeInfo!.data!.x;
     const useX = this.isMoving ? x + this.volatileInfo.moveDiff.x : x;
     this.elm.style.setProperty(`--x`, `${useX}px`);
-    const y = this.storeInfo.data.y;
+    const y = this.storeInfo!.data!.y;
     const useY = this.isMoving ? y + this.volatileInfo.moveDiff.y : y;
     this.elm.style.setProperty(`--y`, `${useY}px`);
+  }
+
+  @Watch("isMounted")
+  @Watch("storeInfo.order")
+  private onChangeOrder() {
+    this.elm.style.setProperty(`--order`, `${this.storeInfo!.order}`);
   }
 
   @Watch("isMounted")
@@ -125,13 +145,13 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("storeInfo.data.isLock")
   private onChangeIsLock() {
-    this.setCssProperty("isLock", "yellow", "blue");
+    this.setCssProperty("isLock", "rgb(255, 255, 153)", "rgb(255, 153, 153)");
   }
 
   @Watch("isMounted")
   @Watch("storeInfo.data.angle")
   private onChangeAngle() {
-    this.setCssProperty("angle", "0deg", `${this.storeInfo.data.angle}deg`);
+    this.setCssProperty("angle", "0deg", `${this.storeInfo!.data!.angle}deg`);
   }
 
   @Watch("isMounted")
@@ -139,8 +159,8 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("storeInfo.data.useBackGround")
   private onChangeBackground() {
     if (!this.isMounted) return;
-    const backgroundList = this.storeInfo.data.backgroundList;
-    const useBackGround = this.storeInfo.data.useBackGround;
+    const backgroundList = this.storeInfo!.data!.backgroundList;
+    const useBackGround = this.storeInfo!.data!.useBackGround;
     const backInfo = backgroundList[useBackGround];
     if (backInfo.backgroundType === "color") {
       this.elm.style.setProperty(`--image`, ``);
@@ -178,26 +198,105 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     this.volatileInfo.moveDiff = createPoint(diffX, diffY);
   }
 
+  @TaskProcessor("change-border-view-finished")
+  private async changeBorderViewFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    window.console.log(
+      `【border:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
+    );
+    try {
+      await this.cc!.touchModify(this.docId);
+      const data = (await this.cc!.getData(this.docId))!;
+      data.data!.isHideBorder = task.value.value;
+      await this.cc!.update(this.docId, data.data!);
+    } catch (err) {
+      window.console.warn(err);
+    }
+  }
+
+  @TaskProcessor("lock-object-finished")
+  private async lockObjectFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    window.console.log(
+      `【lock:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
+    );
+    try {
+      await this.cc!.touchModify(this.docId);
+      const data = (await this.cc!.getData(this.docId))!;
+      data.data!.isLock = task.value.value;
+      await this.cc!.update(this.docId, data.data!);
+    } catch (err) {
+      window.console.warn(err);
+    }
+  }
+
+  @TaskProcessor("copy-object-finished")
+  private async copyObjectFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    window.console.log(
+      `【copy:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
+    );
+    try {
+      const newDocId = await this.cc!.touch();
+      const data = (await this.cc!.getData(this.docId))!;
+      await this.cc!.add(newDocId, data.data!);
+    } catch (err) {
+      window.console.warn(err);
+    }
+  }
+
+  @TaskProcessor("delete-object-finished")
+  private async deleteObjectFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    window.console.log(
+      `【delete:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
+    );
+    try {
+      await this.cc!.touchModify(this.docId);
+      await this.cc!.delete(this.docId);
+    } catch (err) {
+      window.console.warn(err);
+    }
+  }
+
   private getPoint(point: Point) {
     const currentAngleStr = CssManager.getCss(
       "--currentAngle",
-      document.getElementById("gameTable")
+      document.getElementById("gameTable")!
     );
     const currentAngle = parseInt(currentAngleStr.replace("deg", ""), 10);
     const calcResult = this.calcCoordinate(point, currentAngle);
     return calcResult.planeLocateScreen;
   }
 
-  protected async leftDown(event: MouseEvent): void {
+  protected async leftDown(event: MouseEvent): Promise<void> {
+    if (this.storeInfo!.data!.isLock) return;
+    event.stopPropagation();
     try {
-      await this.cc.touchModify(this.docId);
+      await this.cc!.touchModify(this.docId);
     } catch (err) {
       window.console.warn(err);
       return;
     }
     const clientRect = (event.target as any).getBoundingClientRect();
     const elmPoint = this.getPoint(createPoint(clientRect.x, clientRect.y));
-    const point = createPoint(event.pageX, event.pageY);
+    const point = getEventPoint(event);
     const planeLocateScreen = this.getPoint(point);
     this.volatileInfo.moveDiff = createPoint(0, 0);
     this.volatileInfo.moveFrom = createPoint(point.x, point.y);
@@ -209,16 +308,42 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     const relativeY = planeLocateScreen.y - elmPoint.y;
     this.volatileInfo.moveFromPlaneRelative = createPoint(relativeX, relativeY);
     this.isMoving = true;
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.docId,
-      type: null
-    });
     this.inflateWidth = 2;
+    this.mouseDown("left");
   }
 
-  protected async leftUp(): void {
-    if (!this.isMoving) return;
-    const data = JSON.parse(JSON.stringify(this.storeInfo.data)) as T;
+  protected rightDown(event: MouseEvent): void {
+    window.console.log("rightDown");
+    // if (this.isRolling) {
+    //   this.$emit("rightDown");
+    // }
+    this.mouseDown("right");
+  }
+
+  private mouseDown(button: string) {
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
+      key: this.docId,
+      type: `button-${button}`
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      button === "right"
+        ? "mouse-move-end-right-finished"
+        : `mouse-move-end-left-finished`,
+      {
+        key: this.docId,
+        type: `${button}-click`
+      }
+    );
+  }
+
+  @TaskProcessor("mouse-move-end-left-finished")
+  private async mouseLeftUpFinished(
+    task: Task<Point, never>,
+    param: MouseMoveParam
+  ): Promise<TaskResult<never> | void> {
+    if (!param || param.key !== this.docId) return;
+    window.console.log("mouse-move-end-left-finished", param.key, param.type);
+    const data = JSON.parse(JSON.stringify(this.storeInfo!.data)) as T;
     data.x += this.volatileInfo.moveDiff.x;
     data.y += this.volatileInfo.moveDiff.y;
 
@@ -226,7 +351,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     if (isGridFit) {
       const gridSize = getCssPxNum(
         "--gridSize",
-        document.getElementById("gameTable")
+        document.getElementById("gameTable")!
       );
       const relativeX = this.volatileInfo.moveFromPlaneRelative.x;
       const relativeY = this.volatileInfo.moveFromPlaneRelative.y;
@@ -239,9 +364,46 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
           Math.floor(relativeY / gridSize)) *
         gridSize;
     }
-    await this.cc.update(this.docId, data);
+    await this.cc!.update(this.docId, data);
     this.inflateWidth = 0;
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
+
+    task.resolve();
+  }
+
+  @TaskProcessor("mouse-move-end-right-finished")
+  private async mouseRightUpFinished(
+    task: Task<Point, never>,
+    param: MouseMoveParam
+  ): Promise<TaskResult<never> | void> {
+    if (!param || param.key !== this.docId) return;
+    window.console.log("mouse-move-end-right-finished", param.key, param.type);
+    const point: Point = task.value!;
+
+    const eventType = param ? param.type!.split("-")[1] : "";
+    if (eventType === "click") {
+      //
+    }
+
+    // 右クリックメニュー表示
+    setTimeout(async () => {
+      await TaskManager.instance.ignition<ContextTaskInfo, never>({
+        type: "context-open",
+        owner: "Quoridorn",
+        value: {
+          type: this.type,
+          target: this.docId,
+          x: point.x,
+          y: point.y
+        }
+      });
+    });
+
+    TaskManager.instance.setTaskParam("mouse-moving-finished", null);
+    TaskManager.instance.setTaskParam("mouse-move-end-right-finished", null);
+
+    task.resolve();
   }
 
   protected rollStart() {
@@ -279,12 +441,6 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     //     dragging: 0
     //   }
     // });
-  }
-
-  protected rightDown(this: any): void {
-    // if (this.isRolling) {
-    //   this.$emit("rightDown");
-    // }
   }
 
   protected rightUp(this: any, event: any): void {

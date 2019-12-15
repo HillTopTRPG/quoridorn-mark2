@@ -21,20 +21,14 @@
         @touchstart="leftDown"
       >
         <map-board />
+
+        <map-mask
+          v-for="obj in getMapObjectList(mapMaskList, 'field')"
+          :key="obj.id"
+          :docId="obj.id"
+          type="map-mask"
+        />
       </div>
-
-      <map-mask
-        v-for="obj in getMapObjectList(mapMaskList, 'field')"
-        :key="obj.id"
-        :docId="obj.id"
-        type="mapMask"
-      />
-
-      <!--
-      <label>
-        <base-input type="button" value="ccc" @click.left="clickButton3" />
-      </label>
-      -->
 
       <!--
       <character
@@ -81,7 +75,6 @@ import FloorTile from "@/app/basic/map-object/floor-tile/FloorTile.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 
 import { Component } from "vue-mixin-decorator";
-import { Getter } from "vuex-class";
 import { Watch } from "vue-property-decorator";
 import {
   arrangeAngle,
@@ -103,6 +96,7 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { ColorSpec, ImageSpec, MapSetting, RoomData } from "@/@types/room";
 import { MapMaskStore, MapObject } from "@/@types/gameObject";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { AddObjectInfo } from "@/@types/data";
 
 @Component({
   components: {
@@ -557,8 +551,10 @@ export default class GameTable extends AddressCalcMixin {
 
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point, never>
+    task: Task<Point, never>,
+    param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
+    if (!param || param.key !== this.key) return;
     this.point.x += this.pointDiff.x;
     this.point.y += this.pointDiff.y;
     this.pointDiff.x = 0;
@@ -575,6 +571,7 @@ export default class GameTable extends AddressCalcMixin {
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
+    if (!param || param.key !== this.key) return;
     const point: Point = task.value!;
 
     const eventType = param ? param.type!.split("-")[1] : "";
@@ -606,9 +603,10 @@ export default class GameTable extends AddressCalcMixin {
 
   @VueEvent
   private async drop(event: DragEvent): Promise<void> {
-    const type = event.dataTransfer.getData("dropType");
-    const offsetX = event.dataTransfer.getData("offsetX");
-    const offsetY = event.dataTransfer.getData("offsetY");
+    const type = event.dataTransfer!.getData("dropType");
+    const dropWindow = event.dataTransfer!.getData("dropWindow");
+    const offsetX = event.dataTransfer!.getData("offsetX");
+    const offsetY = event.dataTransfer!.getData("offsetY");
     const canvasAddress = this.calcCanvasAddress(
       event.pageX,
       event.pageY,
@@ -617,8 +615,6 @@ export default class GameTable extends AddressCalcMixin {
       offsetY ? parseInt(offsetY, 10) : undefined
     );
     const locateOnCanvas = canvasAddress.locateOnCanvas;
-    const gridX = canvasAddress.grid.column;
-    const gridY = canvasAddress.grid.row;
 
     // TODO isGridFit
     const isGridFit = true;
@@ -629,39 +625,19 @@ export default class GameTable extends AddressCalcMixin {
         Math.floor(locateOnCanvas.y / this.mapGridSize) * this.mapGridSize;
     }
 
-    const owner = GameObjectManager.instance.mySelfId;
-
+    let isAddedObject = false;
     if (type === "map-mask") {
-      const text = event.dataTransfer.getData("text");
-      const backgroundColor = event.dataTransfer.getData("backColor");
-      const fontColor = event.dataTransfer.getData("fontColor");
-      const columns = parseInt(event.dataTransfer.getData("columns"), 10);
-      const rows = parseInt(event.dataTransfer.getData("rows"), 10);
-
-      const mapMaskInfo: MapMaskStore = {
-        x: locateOnCanvas.x,
-        y: locateOnCanvas.y,
-        owner,
-        columns,
-        rows,
-        place: "field",
-        isHideBorder: false,
-        isHideHighlight: false,
-        isLock: false,
-        backgroundList: [
-          {
-            backgroundType: "color",
-            backgroundColor,
-            fontColor,
-            text
-          }
-        ],
-        useBackGround: 0,
-        angle: 0
-      };
-      const mapMaskCC = SocketFacade.instance.mapMaskCC();
-      const docId = await mapMaskCC.touch();
-      await mapMaskCC.add(docId, mapMaskInfo);
+      isAddedObject = true;
+    }
+    if (isAddedObject) {
+      await TaskManager.instance.ignition<AddObjectInfo, never>({
+        type: "added-object",
+        owner: "Quoridorn",
+        value: {
+          dropWindow,
+          point: locateOnCanvas
+        }
+      });
     }
   }
 

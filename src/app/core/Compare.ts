@@ -1,34 +1,43 @@
 import { Operand, CompareInfo, SimpleCompareInfo } from "@/@types/compare";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 /**
  * オペランドの値を取得する
  * @param o オペランド
- * @param target 値を取得するオブジェクトが持つターゲット
- * @param getObj storeからオブジェクトを取得できる関数
+ * @param type
+ * @param docId
  */
-function getOperandValue(
+async function getOperandValue(
   o: Operand,
-  target: string | null | undefined,
-  getObj: (key: string) => any
-): any {
+  type: string | null,
+  docId: string | null
+): Promise<any> {
   if (typeof o === "object") {
-    const getProperty = (key: string, prop: string) => {
-      const syncObj: any = getObj(key);
-      return syncObj ? syncObj[prop] : undefined;
-    };
-    if (o.refType === "sync-obj-exist") return !!getObj(o.key);
-    if (o.refType === "sync-obj-property")
-      return getProperty(o.key, o.property);
-    if (o.refType === "store-property") return getObj(o.property);
-    if (o.refType === "attendant-key-exist") return !!target;
-    if (o.refType === "attendant-key-obj-exist") {
-      if (!target) throw new ApplicationError("Invalid target non exist.");
-      return getObj(target);
+    if (o.refType === "db-id-exist") {
+      const cc = SocketFacade.instance.getCC(type!);
+      const data = await cc.getData(docId!);
+      return !!data;
     }
-    if (o.refType === "attendant-key-obj-property") {
-      if (!target) throw new ApplicationError("Invalid target non exist.");
-      return getProperty(target, o.property);
+    if (o.refType === "db-search-exist") {
+      const cc = SocketFacade.instance.getCC(type!);
+      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      return dataList && dataList.length > 0;
+    }
+    if (o.refType === "db-search-length") {
+      const cc = SocketFacade.instance.getCC(type!);
+      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      return dataList ? dataList.length : 0;
+    }
+    if (o.refType === "db-id-property") {
+      const cc = SocketFacade.instance.getCC(type!);
+      const data = await cc.getData(docId!);
+      return data ? data.data[o.property] : null;
+    }
+    if (o.refType === "db-search-property") {
+      const cc = SocketFacade.instance.getCC(type!);
+      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      return dataList && dataList.length ? dataList[0].data[o.property] : null;
     }
     throw new ApplicationError(`Un supported refType='${(<any>o).refType}'`);
   }
@@ -38,33 +47,33 @@ function getOperandValue(
 /**
  * 比較情報を基に比較を行い、その結果を返却する
  * @param comp 比較情報
- * @param target 比較オブジェクトから指定された対象
- * @param getObj storeからオブジェクトを取得できる関数
+ * @param type
+ * @param docId
  */
-export function judgeCompare(
+export async function judgeCompare(
   comp: CompareInfo | null | undefined,
-  target: string | null | undefined,
-  getObj: (key: string) => any
-): boolean {
+  type: string | null,
+  docId: string | null
+): Promise<boolean> {
   if (!comp) return true;
 
   // 判定メソッド
-  const judgement = (c: SimpleCompareInfo): boolean => {
-    const lhs: any = getOperandValue(c.lhs, target, getObj);
-    const rhs: any = getOperandValue(c.rhs, target, getObj);
+  const judgement = async (c: SimpleCompareInfo): Promise<boolean> => {
+    const lhs: any = await getOperandValue(c.lhs, type, docId);
+    const rhs: any = await getOperandValue(c.rhs, type, docId);
     return c.isNot ? lhs !== rhs : lhs === rhs;
   };
 
   // MultiCompareInfo の場合
   if ("operator" in comp && "list" in comp.list) {
     const mComp = comp;
-    const r: boolean[] = mComp.list.map(c => judgement(c));
+    const r: boolean[] = await Promise.all(mComp.list.map(c => judgement(c)));
     const trueCount: number = r.filter((r: boolean) => r).length;
     return mComp.operator === "and" ? trueCount === r.length : trueCount > 0;
   }
 
   // SingleCompareInfo の場合
-  if ("lhs" in comp && "rhs" in comp) return judgement(comp);
+  if ("lhs" in comp && "rhs" in comp) return await judgement(comp);
 
   // どっちでもない場合はエラー
   throw new ApplicationError("Invalid comp info type");

@@ -392,6 +392,7 @@ export default class WindowFrame extends Vue {
 
   @VueEvent
   private async closeWindow(): Promise<void> {
+    window.console.log("##### CLOSE WINDOW #####");
     await TaskManager.instance.ignition<string, never>({
       type: "window-close",
       owner: "Quoridorn",

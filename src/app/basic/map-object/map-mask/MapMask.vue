@@ -6,13 +6,9 @@
     @mouseover="mouseover"
     @mouseout="mouseout"
     @click.right.prevent="openContext"
-    @mousedown.left.stop="leftDown"
-    @mouseup.left.stop="leftUp"
+    @mousedown.left="leftDown"
+    @touchstart="leftDown"
     @mousedown.right.stop="rightDown"
-    @mouseup.right.stop="rightUp"
-    @touchstart.stop="leftDown"
-    @touchend.stop="leftUp"
-    @touchcancel.stop="leftUp"
     @contextmenu.prevent
     ref="component"
   ></div>

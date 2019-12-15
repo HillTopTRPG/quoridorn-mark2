@@ -22,6 +22,7 @@ import {
   PropertyStore,
   TagNoteStore
 } from "@/@types/gameObject";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -364,5 +365,48 @@ export default class SocketFacade {
 
   public tagNoteCC(): NekostoreCollectionController<TagNoteStore> {
     return this.roomCollectionController<TagNoteStore>("tag-note-list");
+  }
+
+  public getCC(type: string): NekostoreCollectionController<any> {
+    switch (type) {
+      case "map-list":
+        return this.mapListCC();
+      case "room-data":
+        return this.roomDataCC();
+      case "image-list":
+        return this.imageDataCC();
+      case "image-tag-list":
+        return this.imageTagCC();
+      case "cut-in-list":
+        return this.cutInDataCC();
+      case "play-list":
+        return this.playListCC();
+      case "private-play-list":
+        return this.privatePlayListCC();
+      case "user-list":
+        return this.userCC();
+      case "property-list":
+        return this.propertyCC();
+      case "property-selection-list":
+        return this.propertySelectionCC();
+      case "property-face-list":
+        return this.propertyFaceCC();
+      case "character":
+        return this.characterCC();
+      case "extra":
+        return this.extraCC();
+      case "dice-symbol":
+        return this.diceSymbolCC();
+      case "floor-tile":
+        return this.floorTileCC();
+      case "chit":
+        return this.chitCC();
+      case "map-mask":
+        return this.mapMaskCC();
+      case "tag-note-list":
+        return this.tagNoteCC();
+      default:
+        throw new ApplicationError(`Invalid type error. type=${type}`);
+    }
   }
 }

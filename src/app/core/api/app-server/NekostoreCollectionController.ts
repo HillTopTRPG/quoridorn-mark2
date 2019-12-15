@@ -97,6 +97,19 @@ export default class NekostoreCollectionController<T> {
     return getStoreObj<T>(docSnap);
   }
 
+  public async find(
+    property: string,
+    operand: "==",
+    value: any
+  ): Promise<StoreUseData<T>[] | null> {
+    const c = this.getCollection();
+    const docs = (await c.where(property, operand, value).get()).docs;
+    if (!docs) return null;
+    return docs
+      .filter(item => item && item.exists())
+      .map(item => getStoreObj(item)!);
+  }
+
   public async touch(createId?: string): Promise<string> {
     const docId = await SocketFacade.instance.socketCommunication<
       TouchRequest,

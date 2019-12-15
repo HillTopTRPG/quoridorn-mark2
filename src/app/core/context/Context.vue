@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Vue, Watch } from "vue-property-decorator";
+import { Vue } from "vue-property-decorator";
 import {
   ContextDeclareInfo,
   ContextItemDeclareInfo,
@@ -30,10 +30,12 @@ import {
   ContextTextItem
 } from "@/@types/context";
 import { Task, TaskResult } from "@/@types/task";
-import { Getter } from "vuex-class";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { clone } from "@/app/core/Utility";
 
 const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
@@ -46,9 +48,8 @@ type Item = {
 
 @Component
 export default class Context extends Vue {
-  @Getter("getObj") private getObj!: (key: string) => any;
   private type: string | null = null;
-  private target: string | null | undefined = null;
+  private target: string | null = null;
   private x: number | null = null;
   private y: number | null = null;
 
@@ -60,20 +61,94 @@ export default class Context extends Vue {
     return this.$refs.context as HTMLDivElement;
   }
 
-  @Watch("x")
-  @Watch("isMounted")
-  private onChangeX() {
-    if (this.x === null) return;
-    this.getContextElm().style.setProperty("--x", `${this.x}px`);
+  /**
+   * 表示イベント
+   * @param task
+   */
+  @TaskProcessor("context-open-finished")
+  private async openContextFinished(
+    task: Task<ContextTaskInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    this.type = task.value!.type;
+    this.target = task.value!.target;
+    this.x = task.value!.x - 5;
+    this.y = task.value!.y - 5;
+
+    window.console.log(
+      `【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`
+    );
+
+    // 表示項目をリセット
+    this.itemList.length = 0;
+
+    // 定義を元に要素を構築していく
+    const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type!];
+    if (!itemInfoList) return;
+
+    // 直列の非同期で全部実行する
+    await itemInfoList
+      .map((item: ContextItemDeclareInfo | null) => () => this.addItem(item))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    task.resolve();
   }
 
-  @Watch("y")
-  @Watch("isMounted")
-  private onChangeY() {
-    if (this.y === null) return;
-    this.getContextElm().style.setProperty("--y", `${this.y}px`);
+  /**
+   * 項目追加
+   * @param item
+   */
+  private async addItem(item: ContextItemDeclareInfo | null) {
+    const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
+      item
+    );
+
+    // 要素がnullだったら区切り線
+    if (!contextItem) {
+      this.itemList.push({ type: "hr" });
+      return;
+    }
+
+    // 項目を表示するかどうかの判定
+    if (
+      !(await judgeCompare(contextItem!.isViewCompare, this.type, this.target))
+    )
+      return;
+
+    // テキスト項目の追加
+    if ("text" in contextItem) {
+      const argObj = {
+        type: this.type,
+        docId: this.target
+      };
+      if (!contextItem.taskArg) {
+        contextItem.taskArg = {
+          args: argObj
+        };
+      }
+      if (!contextItem.taskArg.arg) {
+        contextItem.taskArg.args = argObj;
+      }
+      this.itemList.push({
+        type: "item",
+        taskName: contextItem.taskName || "default",
+        text: contextItem.text || "default",
+        arg: contextItem.taskArg
+      });
+      return;
+    }
+
+    // 区切り線を追加
+    this.itemList.push({
+      type: "hr"
+    });
   }
 
+  /**
+   * 項目選択
+   * @param taskName
+   * @param arg
+   */
+  @VueEvent
   private async emitEvent(taskName: string, arg: any) {
     this.hide();
     await TaskManager.instance.ignition<any, never>({
@@ -83,60 +158,22 @@ export default class Context extends Vue {
     });
   }
 
+  /**
+   * 非表示処理
+   */
   private hide() {
     this.type = null;
   }
 
-  @TaskProcessor("context-open-finished")
-  private async openContextFinished(
-    task: Task<ContextTaskInfo, never>
-  ): Promise<TaskResult<never> | void> {
-    this.type = task.value!.type;
-    this.target = task.value!.target;
-    setTimeout(() => {
-      this.x = task.value!.x - 5;
-      this.y = task.value!.y - 5;
-    });
-
-    // 表示項目をリセット
-    this.itemList.length = 0;
-
-    // 定義を元に要素を構築していく
-    const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type!];
-    if (!itemInfoList) return;
-    itemInfoList.forEach((item: ContextItemDeclareInfo | null) => {
-      // 要素がnullだったら区切り線
-      if (!item) {
-        this.itemList.push({ type: "hr" });
-        return;
-      }
-
-      // 項目を表示するかどうかの判定
-      if (!judgeCompare(item.isViewCompare, this.target, this.getObj)) return;
-
-      // 項目の判定と追加
-      const contextTextItem: ContextTextItem<unknown> = item as ContextTextItem<
-        unknown
-      >;
-
-      // テキスト項目の追加
-      if (contextTextItem.taskName && contextTextItem.text) {
-        this.itemList.push({
-          type: "item",
-          taskName: contextTextItem.taskName || "default",
-          text: contextTextItem.text || "default",
-          arg: contextTextItem.taskArg
-        });
-        return;
-      }
-
-      // 区切り線を追加
-      this.itemList.push({
-        type: "hr"
-      });
-    });
-
-    task.resolve();
+  /**
+   * 表示座標制御
+   */
+  @LifeCycle
+  private updated() {
+    const elm = this.getContextElm();
+    if (!elm) return;
+    elm.style.setProperty("--x", `${this.x}px`);
+    elm.style.setProperty("--y", `${this.y}px`);
   }
 }
 </script>

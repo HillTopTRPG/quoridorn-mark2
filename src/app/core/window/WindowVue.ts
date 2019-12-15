@@ -18,6 +18,7 @@ export default class WindowVue<T, U> extends Vue {
   public isResizing!: boolean;
 
   private finalized: boolean = false;
+  private saveKey: string | null = null;
 
   public async init() {
     if (this.status === "window") {
@@ -26,6 +27,10 @@ export default class WindowVue<T, U> extends Vue {
         owner: "Quoridorn",
         value: this.windowKey
       });
+
+      if (!this.saveKey) {
+        this.saveKey = this.key;
+      }
 
       if (!this.windowInfo.declare.isInputWindow) {
         // 入力画面でないなら表示タスクは完了にする
@@ -75,13 +80,18 @@ export default class WindowVue<T, U> extends Vue {
   ): Promise<TaskResult<never> | void> {
     // TODO
     if (task.value !== this.windowInfo.key) return;
-    if (this.windowInfo.declare.isInputWindow)
+    if (this.windowInfo.declare.isInputWindow) {
       await this.finally(undefined, true);
+    }
   }
 
   @LifeCycle
   public async beforeDestroy() {
-    if (this.windowInfo.declare.isInputWindow) await this.finally();
+    // if (this.key !== this.saveKey) {
+    //   window.console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
+    // }
+    // window.console.log(this.key, this.saveKey);
+    // if (this.windowInfo.declare.isInputWindow) await this.finally();
   }
 
   public async finally(result?: U, isClosing: boolean = false) {
@@ -92,7 +102,9 @@ export default class WindowVue<T, U> extends Vue {
     );
     this.finalized = true;
     if (task) task.resolve(result ? [result] : []);
-    if (!isClosing) await this.close();
+    if (!isClosing) {
+      await this.close();
+    }
   }
 
   public async close() {

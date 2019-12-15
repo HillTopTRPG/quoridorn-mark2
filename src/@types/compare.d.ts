@@ -1,10 +1,14 @@
 export type Operand =
-  | { refType: "sync-obj-exist"; key: string }
-  | { refType: "sync-obj-property"; key: string; property: string }
-  | { refType: "store-property"; property: string }
-  | { refType: "attendant-key-exist" }
-  | { refType: "attendant-key-obj-exist" }
-  | { refType: "attendant-key-obj-property"; property: string }
+  | { refType: "db-id-exist" }
+  | { refType: "db-search-exist"; searchProperty: string; searchValue: string }
+  | { refType: "db-search-length"; searchProperty: string; searchValue: string }
+  | { refType: "db-id-property"; property: string }
+  | {
+      refType: "db-search-property";
+      searchProperty: string;
+      searchValue: string;
+      property: string;
+    }
   | string
   | number
   | boolean;

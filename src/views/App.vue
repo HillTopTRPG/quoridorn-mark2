@@ -181,7 +181,7 @@ export default class App extends Vue {
     };
 
     (await privatePlayListCC.getList(false)).forEach(async item => {
-      await playCutIn(item.id);
+      await playCutIn(item.id!);
     });
     const playListCC = SocketFacade.instance.playListCC();
     await playListCC.setCollectionSnapshot(

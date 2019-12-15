@@ -33,7 +33,7 @@
   height: calc(var(--rows) * var(--gridSize) + var(--inflate-width) * 2);
   background-color: var(--back-color);
   color: var(--font-color);
-  border-width: calc(var(--isHideBorder) * 2px);
+  border-width: calc((var(--isHideBorder) - 1) * -3px);
   border-style: solid;
   border-color: var(--isLock);
   transform: rotate(var(--angle));
@@ -41,7 +41,7 @@
   white-space: nowrap;
   font-size: 12px;
   cursor: crosshair;
-  z-index: 500000000;
+  z-index: calc(500000000 + var(--order));
 
   &.hover {
     z-index: 599999999;

@@ -36,6 +36,11 @@
     - mode-change
     - room-initialize
     - global-enter
+    - change-border-view
+    - lock-object
+    - copy-object
+    - delete-object
+    - added-object
 
 - taskAttribute:
     isIgniteWithParam: false

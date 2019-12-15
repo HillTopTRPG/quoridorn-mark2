@@ -988,3 +988,8 @@ export function convertNumber(str: string | null): number | null {
   if (str === null) return null;
   return str.match(/^[0-9]+$/) ? parseInt(str, 10) : null;
 }
+
+export function clone<T>(obj: T): T {
+  if (!obj) return obj;
+  return JSON.parse(JSON.stringify(obj)) as T;
+}
