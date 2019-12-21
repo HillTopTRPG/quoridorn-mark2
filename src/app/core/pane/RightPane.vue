@@ -192,7 +192,9 @@ export default class RightPane extends Vue {
         const windowInfo = WindowManager.instance.getWindowInfo(
           this.hoverWindowKey
         );
-        windowInfo.status = "window";
+        if (windowInfo) {
+          windowInfo.status = "window";
+        }
         this.hoverWindowKey = null;
         this.diffX = 0;
       }

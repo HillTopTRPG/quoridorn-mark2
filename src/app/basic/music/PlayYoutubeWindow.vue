@@ -7,7 +7,7 @@
     </div>
     <div class="youtube-container-outer" v-else>
       <img
-        v-img="thumbnailData"
+        :src="thumbnailData"
         draggable="false"
         alt="Not Found"
         :title="thumbnailText"
@@ -49,6 +49,7 @@ import CssManager from "@/app/core/css/CssManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
+import TaskManager from "@/app/core/task/TaskManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -79,9 +80,17 @@ export default class PlayYoutubeWindow
       CssManager.getCss("--uni-color-white")
     );
     this.isMounted = true;
-    if (this.windowInfo.status !== this.status) return;
-    if (this.status !== "window") return;
+
+    await this.initWindow();
+    const tag = this.bgmInfo!.tag;
+    if (this.status !== "window") {
+      YoutubeManager.instance.addEventHandler(tag, this);
+      this.volume = YoutubeManager.instance.getVolume(tag);
+      this.isMute = YoutubeManager.instance.isMuted(tag);
+      return;
+    }
     await this.startPlay();
+
     const player = YoutubeManager.instance.getPlayerInfo(this.bgmInfo!.tag);
     if (player) return;
     setTimeout(() => {
@@ -96,6 +105,9 @@ export default class PlayYoutubeWindow
       return;
     }
     if (!this.isMounted) return;
+
+    await this.initWindow();
+    if (this.status !== "window") return;
     await this.startPlay();
   }
 
@@ -118,11 +130,33 @@ export default class PlayYoutubeWindow
     await privatePlayListCC.delete(this.windowInfo.args!);
   }
 
-  private playListRemoveUnsubscribe: (() => void) | null = null;
-  private async startPlay() {
-    if (this.status !== "window") return;
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+  private async initWindow() {
     const targetId = this.windowInfo.args!;
+    const cutInDataCC = SocketFacade.instance.cutInDataCC();
+    const cutInData = await cutInDataCC.getData(targetId);
+    this.bgmInfo = cutInData!.data!;
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    const privatePlayInfo = await privatePlayListCC.getData(targetId);
+    this.duration = privatePlayInfo.data.duration;
+
+    if (this.bgmInfo!.fadeIn < 2) this.volume = this.bgmInfo!.volume;
+    this.maxVolume = this.bgmInfo!.volume;
+    if (!this.bgmInfo) return;
+    let title = `【タイトル】\n${this.bgmInfo.title}`;
+    title += `\n\n【URL】\n${this.bgmInfo.url}`;
+    this.thumbnailText = title;
+    this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
+      "v",
+      this.bgmInfo.url
+    )}/default.jpg`;
+  }
+
+  private playListRemoveUnsubscribe: (() => void) | null = null;
+
+  private async startPlay() {
+    const targetId = this.windowInfo.args!;
+    YoutubeManager.instance.loadVideoById(this.bgmInfo);
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const unsubscribe = await privatePlayListCC.setCollectionSnapshot(
       this.key,
       snapshot => {
@@ -132,26 +166,17 @@ export default class PlayYoutubeWindow
             await this.close();
             unsubscribe();
           }
+          if (
+            doc.type === "modified" &&
+            doc.ref.id === targetId &&
+            doc.data.status === "modified"
+          ) {
+            this.duration = doc.data.data.duration;
+          }
         });
       }
     );
     this.playListRemoveUnsubscribe = unsubscribe;
-
-    const cutInDataCC = SocketFacade.instance.cutInDataCC();
-    const cutInData = await cutInDataCC.getData(targetId);
-
-    this.bgmInfo = cutInData!.data!;
-    if (this.bgmInfo!.fadeIn < 2) this.volume = this.bgmInfo!.volume;
-    this.maxVolume = this.bgmInfo!.volume;
-    if (!this.bgmInfo) return;
-    YoutubeManager.instance.loadVideoById(this.bgmInfo);
-    let title = `【タイトル】\n${this.bgmInfo.title}`;
-    title += `\n\n【URL】\n${this.bgmInfo.url}`;
-    this.thumbnailText = title;
-    this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
-      "v",
-      this.bgmInfo.url
-    )}/default.jpg`;
   }
 
   private get youtubeElementId() {
@@ -170,6 +195,8 @@ export default class PlayYoutubeWindow
 
   @LifeCycle
   private destroyed() {
+    if (this.status !== "window") return;
+    window.console.log("Youtube destroyed.");
     YoutubeManager.instance.destroyed(this.bgmInfo!.tag);
   }
 
@@ -195,9 +222,14 @@ export default class PlayYoutubeWindow
     this.isPlay = false;
   }
 
-  public onPlaying(duration: number): void {
+  public async onPlaying(duration: number): Promise<void> {
     if (this.status !== "window") return;
-    this.duration = duration;
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    const targetId = this.windowInfo.args!;
+    const data = await privatePlayListCC.getData(targetId);
+    data.data.duration = duration;
+    await privatePlayListCC.touchModify(targetId);
+    await privatePlayListCC.update(targetId, data.data);
     this.isPlay = true;
     window.console.log("onPlaying");
 
@@ -241,7 +273,7 @@ export default class PlayYoutubeWindow
   }
 
   public async timeUpdate(time: number): Promise<void> {
-    if (this.status !== "window") return;
+    if (time === undefined) return;
     let isReturn = false;
     if (!this.isSeekToAfter) {
       if (this.seek > this.bgmEnd) {
@@ -306,7 +338,6 @@ export default class PlayYoutubeWindow
 
   @VueEvent
   private onChangeMute() {
-    if (this.status !== "window") return;
     this.isMute = !this.isMute;
     if (this.isMute) YoutubeManager.instance.mute(this.bgmInfo!.tag);
     else YoutubeManager.instance.unMute(this.bgmInfo!.tag);
@@ -316,7 +347,6 @@ export default class PlayYoutubeWindow
   private isSeekToAfter: boolean = false;
   @VueEvent
   private seekTo(seekStr: string, allowSeekAhead: boolean) {
-    if (this.status !== "window") return;
     const seek = parseInt(seekStr, 10);
     this.isSeekToBefore = seek < this.bgmStart;
     this.isSeekToAfter = this.bgmEnd < seek;
@@ -325,10 +355,8 @@ export default class PlayYoutubeWindow
       this.seek = seek;
     });
     if (allowSeekAhead) {
-      window.console.log("PLAY PLAY PLAY");
       YoutubeManager.instance.play(this.bgmInfo!.tag);
     } else {
-      window.console.log("PAUSE PAUSE PAUSE");
       YoutubeManager.instance.pause(this.bgmInfo!.tag);
     }
   }
@@ -343,10 +371,19 @@ export default class PlayYoutubeWindow
 
   @Watch("isMounted")
   @Watch("volume")
-  private onChangeVolume() {
+  private async onChangeVolume() {
     if (!this.isMounted) return;
     if (this.bgmInfo) {
       YoutubeManager.instance.setVolume(this.bgmInfo!.tag, this.volume);
+      await TaskManager.instance.ignition<YoutubeVolumeChangeInfo, never>({
+        type: "youtube-volume-change",
+        owner: "Quoridorn",
+        value: {
+          tag: this.bgmInfo.tag,
+          windowStatus: this.status,
+          volume: this.volume
+        }
+      });
     }
     this.volumeContainerElm.style.setProperty(
       "--volume-per",
@@ -354,9 +391,19 @@ export default class PlayYoutubeWindow
     );
   }
 
+  @TaskProcessor("youtube-volume-change-finished")
+  private async youtubeVolumeChange(
+    task: Task<YoutubeVolumeChangeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.bgmInfo.tag !== task.value.tag) return;
+    if (this.status === task.value.windowStatus) return;
+    if (this.volume !== task.value.volume) this.volume = task.value.volume;
+    task.resolve();
+  }
+
   @Watch("isMounted")
   @Watch("isMute")
-  private onChangeIsPlay() {
+  private async onChangeIsPlay() {
     if (!this.isMounted) return;
     this.volumeContainerElm.style.setProperty(
       "--volume-color",
@@ -364,26 +411,56 @@ export default class PlayYoutubeWindow
         ? CssManager.getCss("--uni-color-orange")
         : CssManager.getCss("--uni-color-skyblue")
     );
+    if (this.bgmInfo) {
+      await TaskManager.instance.ignition<YoutubeMuteChangeInfo, never>({
+        type: "youtube-mute-change",
+        owner: "Quoridorn",
+        value: {
+          tag: this.bgmInfo.tag,
+          windowStatus: this.status,
+          isMute: this.isMute
+        }
+      });
+    }
+  }
+
+  @TaskProcessor("youtube-mute-change-finished")
+  private async youtubeMuteChange(
+    task: Task<YoutubeMuteChangeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.bgmInfo.tag !== task.value.tag) return;
+    if (this.status === task.value.windowStatus) return;
+    this.isMute = task.value.isMute;
+    task.resolve();
   }
 
   @Watch("isMounted")
   @Watch("windowInfo.widthPx")
   private onChangeWindowWidth() {
-    const fontSize = getCssPxNum("font-size", this.windowElm);
-    const windowWidth = this.windowInfo.widthPx;
-    const playerSize = YoutubeManager.playerElementSize;
-    const ratio = (windowWidth - fontSize * 2) / playerSize.width;
-    this.viewSizeRatio = ratio;
-    this.windowInfo.heightPx = ratio * playerSize.height + fontSize * 2;
-    this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
-    setTimeout(() => {
-      const volumeContainerHeight = this.volumeContainerElm.getBoundingClientRect()
-        .height;
+    if (this.status === "window") {
+      const fontSize = getCssPxNum("font-size", this.windowElm);
+      const windowWidth = this.windowInfo.widthPx;
+      const playerSize = YoutubeManager.playerElementSize;
+      const ratio = (windowWidth - fontSize * 2) / playerSize.width;
+      this.viewSizeRatio = ratio;
+      this.windowInfo.heightPx = ratio * playerSize.height + fontSize * 2;
       this.windowElm.style.setProperty(
-        "--volume-height",
-        volumeContainerHeight + "px"
+        "--youtube-size-ratio",
+        ratio.toString()
       );
-    });
+      setTimeout(() => {
+        const volumeContainerHeight = this.volumeContainerElm.getBoundingClientRect()
+          .height;
+        this.windowElm.style.setProperty(
+          "--volume-height",
+          volumeContainerHeight + "px"
+        );
+      });
+    } else {
+      setTimeout(() => {
+        this.windowElm.style.setProperty("--volume-height", "90px");
+      });
+    }
   }
 
   @Watch("windowInfo.heightPx")
@@ -423,6 +500,10 @@ export default class PlayYoutubeWindow
     grid-column: 1 / 2;
     position: relative;
     overflow: hidden;
+
+    img {
+      display: block;
+    }
 
     .youtube-container-transform {
       display: block;

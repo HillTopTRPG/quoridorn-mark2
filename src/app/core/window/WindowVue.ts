@@ -3,7 +3,6 @@ import { Prop } from "vue-property-decorator";
 import { WindowInfo } from "@/@types/window";
 import { Mixin } from "vue-mixin-decorator";
 import TaskManager from "@/app/core/task/TaskManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 
@@ -18,7 +17,6 @@ export default class WindowVue<T, U> extends Vue {
   public isResizing!: boolean;
 
   private finalized: boolean = false;
-  private saveKey: string | null = null;
 
   public async init() {
     if (this.status === "window") {
@@ -27,10 +25,6 @@ export default class WindowVue<T, U> extends Vue {
         owner: "Quoridorn",
         value: this.windowKey
       });
-
-      if (!this.saveKey) {
-        this.saveKey = this.key;
-      }
 
       if (!this.windowInfo.declare.isInputWindow) {
         // 入力画面でないなら表示タスクは完了にする
@@ -83,15 +77,6 @@ export default class WindowVue<T, U> extends Vue {
     if (this.windowInfo.declare.isInputWindow) {
       await this.finally(undefined, true);
     }
-  }
-
-  @LifeCycle
-  public async beforeDestroy() {
-    // if (this.key !== this.saveKey) {
-    //   window.console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-    // }
-    // window.console.log(this.key, this.saveKey);
-    // if (this.windowInfo.declare.isInputWindow) await this.finally();
   }
 
   public async finally(result?: U, isClosing: boolean = false) {

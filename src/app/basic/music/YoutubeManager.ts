@@ -4,7 +4,7 @@ import { createSize } from "@/app/core/Coordinate";
 type PlayerInfo = {
   player: any;
   elementId: string;
-  eventHandler: YoutubeEventHandler;
+  eventHandlers: YoutubeEventHandler[];
   timeUpdateTimer: number | null;
   timerReload: number | null;
 };
@@ -134,12 +134,16 @@ export default class YoutubeManager {
       playerObj = {
         player,
         elementId,
-        eventHandler: eventHandler,
+        eventHandlers: [eventHandler],
         timeUpdateTimer: null,
         timerReload: null
       };
       this.playerMapping[tag] = playerObj;
     }
+  }
+
+  public addEventHandler(tag: string, eventHandler: YoutubeEventHandler) {
+    this.playerMapping[tag].eventHandlers.push(eventHandler);
   }
 
   public destroyed(tag: string) {
@@ -200,7 +204,9 @@ export default class YoutubeManager {
     // 1500ミリ秒経っても再生できてなければRejectする
     // （通常に読み込めるときの時間は900msくらい）
     playerObj.timerReload = window.setTimeout(() => {
-      this.playerMapping[tag].eventHandler.onReject();
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onReject();
+      });
     }, 1500);
   }
 
@@ -230,8 +236,8 @@ export default class YoutubeManager {
   }
 
   /** ミュート状態の取得 */
-  public isMuted(tag: string) {
-    this.doPlayerMethod("isMuted", tag);
+  public isMuted(tag: string): boolean {
+    return this.doPlayerMethod("isMuted", tag);
   }
 
   /** 音量設定 */
@@ -240,8 +246,8 @@ export default class YoutubeManager {
   }
 
   /** 音量取得 */
-  public getVolume(tag: string) {
-    this.doPlayerMethod("getVolume", tag);
+  public getVolume(tag: string): number {
+    return this.doPlayerMethod("getVolume", tag);
   }
 
   /** ループ状態の設定 */
@@ -340,10 +346,14 @@ export default class YoutubeManager {
 
   private eventHandler = {
     onReady: (tag: string) => {
-      this.playerMapping[tag].eventHandler.onReady();
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onReady();
+      });
     },
     onEnded: (tag: string) => {
-      this.playerMapping[tag].eventHandler.onEnded();
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onEnded();
+      });
     },
     onPlaying: (tag: string, event: any) => {
       try {
@@ -362,17 +372,16 @@ export default class YoutubeManager {
 
         // 100ミリ秒毎に現在の再生経過時間を通知する
         playerObj.timeUpdateTimer = window.setInterval(() => {
-          this.playerMapping[tag].eventHandler.timeUpdate(
-            event.target!.getCurrentTime()
-          );
+          this.playerMapping[tag].eventHandlers.forEach(eh => {
+            eh.timeUpdate(event.target!.getCurrentTime());
+          });
         }, 100);
       } catch (error) {
         window.console.error(error);
       }
-      this.playerMapping[tag].eventHandler.onPlaying(
-        event.target.getDuration(),
-        event.target
-      );
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onPlaying(event.target.getDuration(), event.target);
+      });
     },
     onPaused: (tag: string) => {
       let playerObj = this.playerMapping[tag];
@@ -388,10 +397,14 @@ export default class YoutubeManager {
         playerObj.timerReload = null;
       }
 
-      this.playerMapping[tag].eventHandler.onPaused();
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onPaused();
+      });
     },
     onError: (tag: string, event: any) => {
-      this.playerMapping[tag].eventHandler.onError(event);
+      this.playerMapping[tag].eventHandlers.forEach(eh => {
+        eh.onError(event);
+      });
     }
     // onBuffering: (tag: string) => {
     //   let playerObj = this.playerMapping[tag];

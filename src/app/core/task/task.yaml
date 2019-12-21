@@ -41,6 +41,17 @@
     - copy-object
     - delete-object
     - added-object
+    - youtube-volume-change
+    - youtube-mute-change
+
+- taskAttribute:
+    isIgniteWithParam: false
+    isLastValueCapture: false
+    isTraceFinally: false
+    isTest: true
+    statusList:
+      - finished
+  types: []
 
 - taskAttribute:
     isIgniteWithParam: false

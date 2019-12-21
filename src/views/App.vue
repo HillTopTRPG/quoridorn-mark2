@@ -160,7 +160,9 @@ export default class App extends Vue {
         const data = await privatePlayListCC.getData(targetId);
         if (!data) {
           await privatePlayListCC.touch(targetId);
-          await privatePlayListCC.add(targetId, "exist");
+          await privatePlayListCC.add(targetId, {
+            duration: 0
+          });
         }
         const cutInDataCC = SocketFacade.instance.cutInDataCC();
         const cutInData = await cutInDataCC.getData(targetId);

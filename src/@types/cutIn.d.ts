@@ -13,4 +13,18 @@ type CutInDeclareInfo = {
   fadeOut: number;
 };
 
-type CutInPlayingInfo = {};
+type CutInPlayingInfo = {
+  duration: number;
+};
+
+type YoutubeVolumeChangeInfo = {
+  tag: string;
+  windowStatus: string;
+  volume: number;
+};
+
+type YoutubeMuteChangeInfo = {
+  tag: string;
+  windowStatus: string;
+  isMute: boolean;
+};

@@ -171,13 +171,11 @@ export default class CutInSettingWindow extends Mixins<
     const addCC = async (
       cc: NekostoreCollectionController<CutInPlayingInfo>
     ) => {
-      window.console.log("!!!!! addCC touch", useId);
       const docId = await cc.touch(useId);
-      window.console.log("!!!!! addCC add", docId);
-      await cc.add(docId, "exists");
-      window.console.log("!!!!! addCC finished", docId);
+      await cc.add(docId, {
+        duration: 0
+      });
     };
-    window.console.log("!!!!! ADD !!!!!", useId);
     await addCC(playListCC);
   }
 
