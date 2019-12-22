@@ -36,13 +36,15 @@
           <label :for="`${windowKey}-image-pick-direction`">向き：</label>
         </th>
         <td>
-          <reverse-type-select
-            :id="`${windowKey}-image-pick-direction`"
-            v-model="reverse"
-          />
-          <!--
-          <base-input type="text" placeholder="隠しパスワード" v-model="password" />
-          -->
+          <div class="flex-space-between">
+            <reverse-type-select
+              :id="`${windowKey}-image-pick-direction`"
+              v-model="reverse"
+            />
+            <ctrl-button @click="inputPassword">
+              <span v-t="'label.image-password'"></span>
+            </ctrl-button>
+          </div>
         </td>
       </tr>
     </table>
@@ -61,9 +63,16 @@ import { Reverse } from "@/@types/room";
 import ImageSelector from "@/app/basic/common/components/ImageSelector.vue";
 import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
 import ReverseTypeSelect from "@/app/basic/common/components/select/ReverseTypeSelect.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
-  components: { ReverseTypeSelect, ImageTagSelect, ImageSelector, BaseInput }
+  components: {
+    CtrlButton,
+    ReverseTypeSelect,
+    ImageTagSelect,
+    ImageSelector,
+    BaseInput
+  }
 })
 export default class ImagePickerComponent extends Vue {
   @Prop({ type: String, required: true })
@@ -107,6 +116,10 @@ export default class ImagePickerComponent extends Vue {
       image => image.id === this.localValue
     );
     return `${index + 1}/${this.useImageList.length}`;
+  }
+
+  private inputPassword() {
+    alert("隠し画像");
   }
 
   @LifeCycle

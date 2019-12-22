@@ -65,11 +65,11 @@
           <label
             :for="`${key}-background-size`"
             class="label-background-size label-input"
-            v-t="'label.background-size'"
+            v-t="'label.background-location'"
           ></label>
         </th>
         <td class="value-cell">
-          <background-size-select
+          <background-location-select
             :id="`${key}-background-size`"
             v-model="backgroundSize"
           />
@@ -96,14 +96,14 @@ import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { ChitStore } from "@/@types/gameObject";
-import BackgroundSizeSelect from "@/app/basic/common/components/select/BackgroundSizeSelect.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
+import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
 
 @Component({
   components: {
+    BackgroundLocationSelect,
     SimpleTabComponent,
-    BackgroundSizeSelect,
     ImagePickerComponent,
     BaseInput,
     CtrlButton
@@ -230,6 +230,34 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
       (this.height * ratio).toString()
     );
   }
+
+  @Watch("isMounted")
+  @Watch("backgroundSize")
+  private onChangeLocation() {
+    if (!this.isMounted) return;
+    let backgroundSize = "";
+    let backgroundPosition = "center";
+    if (this.backgroundSize === "contain") backgroundSize = "contain";
+    if (this.backgroundSize === "cover-start") {
+      backgroundSize = "cover";
+      backgroundPosition = "top left";
+    }
+    if (this.backgroundSize === "cover-center") {
+      backgroundSize = "cover";
+    }
+    if (this.backgroundSize === "cover-end") {
+      backgroundSize = "cover";
+      backgroundPosition = "bottom right";
+    }
+    if (this.backgroundSize === "100%") {
+      backgroundSize = "100% 100%";
+    }
+    this.chitElm.style.setProperty("--image-background-size", backgroundSize);
+    this.chitElm.style.setProperty(
+      "--image-background-position",
+      backgroundPosition
+    );
+  }
 }
 </script>
 
@@ -241,14 +269,15 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   width: calc(var(--width-ratio) * 3em);
   height: calc(var(--height-ratio) * 3em);
   background-image: var(--imageSrc);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
   transform: var(--image-reverse);
   border-style: solid;
   border-color: rgb(255, 255, 153);
   border-width: 3px;
   box-sizing: border-box;
+  background-size: var(--image-background-size);
+  background-repeat: no-repeat;
+  background-position: var(--image-background-position);
+  transform: var(--image-reverse);
 
   &[draggable="false"] {
     background-image: linear-gradient(
@@ -279,13 +308,15 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     grid-row: 1 / 3;
     grid-column: 2 / 3;
 
-    .image-picker-container {
+    > *:not(:first-child) {
       height: 100%;
+      width: 100%;
+    }
+
+    .image-picker-container {
     }
 
     textarea {
-      height: 100%;
-      width: 100%;
       resize: none;
       padding: 0;
       box-sizing: border-box;

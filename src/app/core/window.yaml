@@ -569,25 +569,25 @@
   message: ""
   position: center
   size:
-    # スクロールバー１本分
-    widthPx: 68
-    widthEm: 32
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個 + 20px(スクロールバー１本分)
+    widthPx: 452
+    widthEm: 0
     widthRem: 0
     heightPx: 2
     heightEm: 18
     heightRem: 0
   minSize:
-    # スクロールバー１本分
-    widthPx: 20
-    widthEm: 32
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
+    widthPx: 404
+    widthEm: 0
     widthRem: 0
     heightPx: 2
     heightEm: 18
     heightRem: 0
   maxSize:
-    # スクロールバー１本分
-    widthPx: 260
-    widthEm: 32
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
+    widthPx: 644
+    widthEm: 0
     widthRem: 0
     heightPx: 2
     heightEm: 18

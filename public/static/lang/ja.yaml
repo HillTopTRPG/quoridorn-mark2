@@ -66,13 +66,13 @@ label:
   reverse-horizontal: 左右反転
   reverse-vertical: 上下反転
   reverse-180: 180度回転
-  background-size: 画像
-  background-size-label: 画像サイズ
-  background-size-contain: 内包
-  background-size-cover-start: カバー(始)
-  background-size-cover-center: カバー(中)
-  background-size-cover-end: カバー(終)
-  background-size-100%: 100%
+  background-location: 配置
+  background-location-contain: 内包
+  background-location-cover-start: カバー(始)
+  background-location-cover-center: カバー(中)
+  background-location-cover-end: カバー(終)
+  background-location-100%: 100%
+  image-password: 隠し画像
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

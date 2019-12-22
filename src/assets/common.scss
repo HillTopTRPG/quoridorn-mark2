@@ -71,18 +71,13 @@
     word-break: break-all;
     color: var(--font-color);
     @include flex-box(row, center, center);
-    border-radius: 5px;
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     top: 0;
+    border-radius: 5px;
     box-shadow: 0 0 0 calc((var(--isHideBorder) - 1) * -3px) var(--isLock);
-    /*
-    outline-width: calc((var(--isHideBorder) - 1) * -3px);
-    outline-style: solid;
-    outline-color: var(--isLock);
-    */
   }
 }
 

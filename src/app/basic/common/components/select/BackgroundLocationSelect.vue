@@ -30,7 +30,7 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class BackgroundSizeSelect extends Mixins<MultiMixin>(
+export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
@@ -42,17 +42,20 @@ export default class BackgroundSizeSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
     const choice: Item[] = [
-      { val: "contain", text: getText("label.background-size-contain") },
+      { val: "contain", text: getText("label.background-location-contain") },
+      { val: "100%", text: getText("label.background-location-100%") },
       {
         val: "cover-start",
-        text: getText("label.background-size-cover-start")
+        text: getText("label.background-location-cover-start")
       },
       {
         val: "cover-center",
-        text: getText("label.background-size-cover-center")
+        text: getText("label.background-location-cover-center")
       },
-      { val: "cover-end", text: getText("label.background-size-cover-end") },
-      { val: "100%", text: getText("label.background-size-100%") }
+      {
+        val: "cover-end",
+        text: getText("label.background-location-cover-end")
+      }
     ];
     this.optionInfoList = choice.map((c: Item) => ({
       key: c.val,
@@ -63,7 +66,7 @@ export default class BackgroundSizeSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: null,
       value: "",
-      text: LanguageManager.instance.getText("label.background-size-label"),
+      text: LanguageManager.instance.getText("label.background-location"),
       disabled: true
     });
   }
@@ -80,12 +83,18 @@ export default class BackgroundSizeSelect extends Mixins<MultiMixin>(
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    this.optionInfoList[0].text = getText("label.background-size-label");
-    this.optionInfoList[1].text = getText("label.background-size-contain");
-    this.optionInfoList[2].text = getText("label.background-size-cover-start");
-    this.optionInfoList[3].text = getText("label.background-size-cover-center");
-    this.optionInfoList[4].text = getText("label.background-size-cover-end");
-    this.optionInfoList[5].text = getText("label.background-size-100%");
+    this.optionInfoList[0].text = getText("label.background-location");
+    this.optionInfoList[1].text = getText("label.background-location-contain");
+    this.optionInfoList[2].text = getText("label.background-location-100%");
+    this.optionInfoList[3].text = getText(
+      "label.background-location-cover-start"
+    );
+    this.optionInfoList[4].text = getText(
+      "label.background-location-cover-center"
+    );
+    this.optionInfoList[5].text = getText(
+      "label.background-location-cover-end"
+    );
     task.resolve();
   }
 }
