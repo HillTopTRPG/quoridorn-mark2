@@ -21,11 +21,19 @@ type ColorSpec = {
   text: string;
 };
 
+type BackgroundSize =
+  | "contain"
+  | "cover-start"
+  | "cover-center"
+  | "cover-end"
+  | "100%";
+type Reverse = "none" | "horizontal" | "vertical" | "180";
 type ImageSpec = {
   backgroundType: "image";
   imageTag: string;
   imageId: string;
-  reverse: "none" | "horizontal" | "vertical" | "180";
+  reverse: Reverse;
+  backgroundSize: BackgroundSize;
 };
 
 type ChatLinkable = {

@@ -18,6 +18,8 @@ import {
   TagNoteStore
 } from "@/@types/gameObject";
 import { ClientRoomInfo } from "@/@types/socket";
+import { Image } from "@/@types/image";
+import { ImageTagInfo } from "@/app/basic/image/store_public_image";
 
 export default class GameObjectManager {
   // シングルトン
@@ -51,6 +53,11 @@ export default class GameObjectManager {
         }
       );
     };
+    await setBasicSnapShot(SocketFacade.instance.imageDataCC(), this.imageList);
+    await setBasicSnapShot(
+      SocketFacade.instance.imageTagCC(),
+      this.imageTagList
+    );
     await setBasicSnapShot(SocketFacade.instance.userCC(), this.playerList);
     await setBasicSnapShot(SocketFacade.instance.mapMaskCC(), this.mapMaskList);
     await setBasicSnapShot(SocketFacade.instance.chitCC(), this.chitList);
@@ -83,6 +90,8 @@ export default class GameObjectManager {
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
+  public readonly imageList: StoreUseData<Image>[] = [];
+  public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly playerList: StoreUseData<UserData>[] = [];
   public readonly mapMaskList: StoreUseData<MapMaskStore>[] = [];
   public readonly chitList: StoreUseData<ChitStore>[] = [];

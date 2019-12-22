@@ -28,6 +28,13 @@
           :docId="obj.id"
           type="map-mask"
         />
+
+        <chit
+          v-for="obj in getMapObjectList(chitList, 'field')"
+          :key="obj.id"
+          :docId="obj.id"
+          type="chit"
+        />
       </div>
 
       <!--
@@ -111,6 +118,7 @@ import { AddObjectInfo } from "@/@types/data";
 })
 export default class GameTable extends AddressCalcMixin {
   private mapMaskList = GameObjectManager.instance.mapMaskList;
+  private chitList = GameObjectManager.instance.chitList;
   // @Action("addListObj") private addListObj: any;
   // @Action("windowOpen") private windowOpen: any;
   // @Action("setProperty") private setProperty: any;
@@ -582,7 +590,7 @@ export default class GameTable extends AddressCalcMixin {
           type: "context-open",
           owner: "Quoridorn",
           value: {
-            type: "game-table",
+            type: "map",
             target: null,
             x: point.x,
             y: point.y
@@ -625,11 +633,7 @@ export default class GameTable extends AddressCalcMixin {
         Math.floor(locateOnCanvas.y / this.mapGridSize) * this.mapGridSize;
     }
 
-    let isAddedObject = false;
-    if (type === "map-mask") {
-      isAddedObject = true;
-    }
-    if (isAddedObject) {
+    if (["map-mask", "chit"].findIndex(t => t === type) > -1) {
       await TaskManager.instance.ignition<AddObjectInfo, never>({
         type: "added-object",
         owner: "Quoridorn",

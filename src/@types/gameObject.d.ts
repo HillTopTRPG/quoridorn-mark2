@@ -18,6 +18,7 @@ type MapObject = Point & {
   isHideBorder: boolean;
   isHideHighlight: boolean;
   isLock: boolean;
+  otherText: string;
   place: "field" | "graveyard" | "backstage";
   backgroundList: (ColorSpec | ImageSpec)[];
   useBackGround: number;

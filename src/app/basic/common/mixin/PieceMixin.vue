@@ -18,6 +18,7 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import { getCssPxNum } from "@/app/core/Css";
 import { ContextTaskInfo } from "@/@types/context";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Mixin
 export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
@@ -31,9 +32,14 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   protected isMoving: boolean = false;
   protected inflateWidth: number = 0;
   protected cc: NekostoreCollectionController<T> | null = null;
+  private imageList = GameObjectManager.instance.imageList;
 
   protected isMounted: boolean = false;
   protected storeInfo: StoreUseData<T> | null = null;
+
+  // HTMLで参照する項目
+  protected imageSrc: string = "";
+  protected otherText: string = "";
 
   private volatileInfo: VolatileMapObject = {
     moveFrom: createPoint(0, 0),
@@ -113,6 +119,12 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   }
 
   @Watch("isMounted")
+  @Watch("storeInfo.data.otherText")
+  private onChangeOtherText() {
+    this.otherText = this.storeInfo.data.otherText;
+  }
+
+  @Watch("isMounted")
   @Watch("storeInfo.order")
   private onChangeOrder() {
     this.elm.style.setProperty(`--order`, `${this.storeInfo!.order}`);
@@ -164,15 +176,46 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     const backInfo = backgroundList[useBackGround];
     if (backInfo.backgroundType === "color") {
       this.elm.style.setProperty(`--image`, ``);
+      this.imageSrc = "";
+      this.elm.style.setProperty(`--image-reverse`, ``);
       this.elm.style.setProperty(`--back-color`, backInfo.backgroundColor);
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
       // TODO 画像設定
-      this.elm.style.setProperty(`--image`, ``);
+      const imageObj = this.imageList.filter(
+        obj => obj.id === backInfo.imageId
+      )[0];
+      this.elm.style.setProperty(`--image`, `url(${imageObj.data!.data})`);
+      this.imageSrc = imageObj.data!.data;
+      let reverse = "";
+      if (backInfo.reverse === "horizontal") reverse = "scale(-1, 1)";
+      if (backInfo.reverse === "vertical") reverse = "scale(1, -1)";
+      if (backInfo.reverse === "180") reverse = "rotate(180deg)";
+      let backgroundSize = "";
+      let backgroundPosition = "center";
+      if (backInfo.backgroundSize === "contain") backgroundSize = "contain";
+      if (backInfo.backgroundSize === "cover-start") {
+        backgroundSize = "cover";
+        backgroundPosition = "top left";
+      }
+      if (backInfo.backgroundSize === "cover-center") {
+        backgroundSize = "cover";
+      }
+      if (backInfo.backgroundSize === "cover-end") {
+        backgroundSize = "cover";
+        backgroundPosition = "bottom right";
+      }
+      if (backInfo.backgroundSize === "100%") backgroundSize = "100% 100%";
+      this.elm.style.setProperty(`--image-background-size`, backgroundSize);
+      this.elm.style.setProperty(
+        `--image-background-position`,
+        backgroundPosition
+      );
+      this.elm.style.setProperty(`--image-reverse`, reverse);
       this.elm.style.setProperty(`--back-color`, "transparent");
       this.elm.style.setProperty(`--font-color`, "transparent");
-      this.elm.style.setProperty(`--text`, "");
+      this.elm.style.setProperty(`--text`, `""`);
     }
     this.setCssProperty("angle", 0);
   }
@@ -196,6 +239,26 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     const diffX = planeLocateScreen.x - this.volatileInfo.moveFromPlane.x;
     const diffY = planeLocateScreen.y - this.volatileInfo.moveFromPlane.y;
     this.volatileInfo.moveDiff = createPoint(diffX, diffY);
+  }
+
+  @TaskProcessor("change-highlight-view-finished")
+  private async changeHighlightViewFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    window.console.log(
+      `【highlight:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
+    );
+    try {
+      await this.cc!.touchModify(this.docId);
+      const data = (await this.cc!.getData(this.docId))!;
+      data.data!.isHideHighlight = task.value.value;
+      await this.cc!.update(this.docId, data.data!);
+    } catch (err) {
+      window.console.warn(err);
+    }
   }
 
   @TaskProcessor("change-border-view-finished")

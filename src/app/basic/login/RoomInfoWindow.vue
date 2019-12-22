@@ -252,8 +252,6 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   }
 
   table {
-    border-collapse: collapse;
-    border-spacing: 0;
     border-bottom: solid 1px gray;
     border-left: solid 1px gray;
     width: 100%;

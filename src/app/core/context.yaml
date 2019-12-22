@@ -1,4 +1,4 @@
-game-table:
+map:
   - text: BGM設定
     taskName: window-open
     taskArg:
@@ -7,10 +7,14 @@ game-table:
     taskName: window-open
     taskArg:
       type: add-map-mask-window
-  - isViewCompare:
-      lhs: 4
-      rhs: 4
+  - text: チット追加
+    taskName: window-open
+    taskArg:
+      type: add-chit-window
   - text: 整備中
+    isViewCompare:
+      lhs: true
+      rhs: false
     children:
       - taskName: item02-item01-emit
       - text: item02-item01
@@ -51,10 +55,50 @@ map-mask:
       lhs:
         refType: db-id-property
         property: isHideBorder
+      rhs: false
+    taskArg:
+      value: true
+  - text: 枠線を表示
+    taskName: change-border-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideBorder
       rhs: true
     taskArg:
       value: false
-  - text: 枠線を表示
+
+chit:
+  - text: 変更
+    taskName: window-open
+    taskArg:
+      type: edit-chit-window
+  - text: 複製
+    taskName: copy-object
+    taskArg: ~
+  - text: 削除
+    taskName: delete-object
+    taskArg: ~
+  - ~
+  - text: 固定
+    taskName: lock-object
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isLock
+      rhs: false
+    taskArg:
+      value: true
+  - text: 固定解除
+    taskName: lock-object
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isLock
+      rhs: true
+    taskArg:
+      value: false
+  - text: 枠線を非表示
     taskName: change-border-view
     isViewCompare:
       lhs:
@@ -63,4 +107,30 @@ map-mask:
       rhs: false
     taskArg:
       value: true
-
+  - text: 枠線を表示
+    taskName: change-border-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideBorder
+      rhs: true
+    taskArg:
+      value: false
+  - text: ハイライトを非表示
+    taskName: change-highlight-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideHighlight
+      rhs: false
+    taskArg:
+      value: true
+  - text: ハイライトを表示
+    taskName: change-highlight-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideHighlight
+      rhs: true
+    taskArg:
+      value: false

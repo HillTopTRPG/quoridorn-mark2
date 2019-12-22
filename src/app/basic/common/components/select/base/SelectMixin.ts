@@ -7,6 +7,9 @@ export default class SelectMixin extends Vue {
   @Prop({ type: String, default: "" })
   public value!: string;
 
+  @Prop({ type: String, default: null })
+  public id!: string | null;
+
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
 

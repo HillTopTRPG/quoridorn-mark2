@@ -17,6 +17,15 @@ button:
   logout: ログアウト
   exit-room: 退室
 
+type:
+  map-mask: マップマスク
+  chit: チット
+  character: キャラクター
+  map: マップ
+  floor-tile: フロアタイル
+  stand-image: 立ち絵
+  stand-image-diff: 立ち絵差分
+
 label:
   terms-of-use: 利用規約
   empty-room: （空部屋）
@@ -52,6 +61,18 @@ label:
   width: 幅
   alpha: 透過度
   multi-create: 複数作成
+  reverse-label: 向き
+  reverse-none: そのまま
+  reverse-horizontal: 左右反転
+  reverse-vertical: 上下反転
+  reverse-180: 180度回転
+  background-size: 画像
+  background-size-label: 画像サイズ
+  background-size-contain: 内包
+  background-size-cover-start: カバー(始)
+  background-size-cover-center: カバー(中)
+  background-size-cover-end: カバー(終)
+  background-size-100%: 100%
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -135,3 +156,9 @@ room-info-window:
 
 add-map-mask-window:
   window-title: マップマスク追加
+
+edit-map-mask-window:
+  window-title: マップマスク編集
+
+add-chit-window:
+  window-title: チット追加

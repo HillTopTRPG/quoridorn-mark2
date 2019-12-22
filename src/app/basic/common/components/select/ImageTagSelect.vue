@@ -2,40 +2,43 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
+    :id="id"
     ref="select"
   />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Prop } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 
 @Component({ components: { CtrlSelect } })
 export default class ImageTagSelect extends Mixins<SelectMixin>(SelectMixin) {
-  @Getter("imageTagList") private imageTagList: any;
+  private imageTagList = GameObjectManager.instance.imageTagList;
 
   @Prop({ type: String, default: "画像タグ" })
   protected defaultLabel!: string;
 
   @VueEvent
   private get optionInfoList(): any[] {
-    const resultList = this.imageTagList.map((tagObj: any, index: number) => ({
-      key: tagObj.key,
-      value: tagObj.key,
-      text: tagObj.name,
+    const resultList = this.imageTagList.map(tagObj => ({
+      key: tagObj.id,
+      value: tagObj.data,
+      text: tagObj.data,
       disabled: false
     }));
-    resultList.unshift({
-      key: null,
-      value: "",
-      text: this.defaultLabel,
-      disabled: true
-    });
+    if (this.defaultLabel) {
+      resultList.unshift({
+        key: null,
+        value: "",
+        text: this.defaultLabel,
+        disabled: true
+      });
+    }
     return resultList;
   }
 }

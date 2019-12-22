@@ -652,8 +652,6 @@ export default class SimpleTableComponent extends Vue {
   table {
     position: relative;
     table-layout: fixed;
-    border-collapse: collapse;
-    border-spacing: 0;
     border: 1px solid gray;
     width: 100%;
     height: calc(var(--tableHeight) + 3px);

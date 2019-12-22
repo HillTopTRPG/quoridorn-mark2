@@ -6,6 +6,7 @@
     @contextmenu.prevent
     ref="context"
   >
+    <div class="title">{{ title }}</div>
     <template v-for="(item, index) in itemList">
       <hr :key="index" v-if="item.type === 'hr'" />
       <div
@@ -26,8 +27,7 @@ import { Vue } from "vue-property-decorator";
 import {
   ContextDeclareInfo,
   ContextItemDeclareInfo,
-  ContextTaskInfo,
-  ContextTextItem
+  ContextTaskInfo
 } from "@/@types/context";
 import { Task, TaskResult } from "@/@types/task";
 import { judgeCompare } from "../Compare";
@@ -36,6 +36,7 @@ import TaskManager from "../task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { clone } from "@/app/core/Utility";
+import LanguageManager from "@/LanguageManager";
 
 const contextInfo: ContextDeclareInfo = require("../context.yaml");
 
@@ -54,6 +55,7 @@ export default class Context extends Vue {
   private y: number | null = null;
 
   private key = "context";
+  private title: string = "";
 
   private itemList: Item[] = [];
 
@@ -73,6 +75,8 @@ export default class Context extends Vue {
     this.target = task.value!.target;
     this.x = task.value!.x - 5;
     this.y = task.value!.y - 5;
+
+    this.title = LanguageManager.instance.getText(`type.${this.type}`);
 
     window.console.log(
       `【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`
@@ -189,7 +193,7 @@ export default class Context extends Vue {
   box-sizing: border-box;
   cursor: default;
   left: var(--x);
-  top: var(--y);
+  top: calc(var(--y) - 1.8em);
 
   > * {
     display: block;
@@ -199,7 +203,14 @@ export default class Context extends Vue {
     line-height: 1.8em;
     cursor: pointer;
 
-    &:not(.disabled):hover {
+    &.title {
+      background-color: var(--uni-color-blue);
+      color: var(--uni-color-white);
+      font-weight: bold;
+      cursor: default;
+    }
+
+    &:not(.title):not(.disabled):hover {
       background-color: lightblue;
     }
 

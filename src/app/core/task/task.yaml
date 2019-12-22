@@ -37,6 +37,7 @@
     - room-initialize
     - global-enter
     - change-border-view
+    - change-highlight-view
     - lock-object
     - copy-object
     - delete-object

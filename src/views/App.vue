@@ -399,6 +399,11 @@ body {
   font-size: 14px;
 }
 
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
 /* サイズ調整（コンテンツを比率を変えずに内側にフィット） */
 img {
   object-fit: contain;

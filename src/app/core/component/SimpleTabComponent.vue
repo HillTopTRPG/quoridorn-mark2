@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="simple-tab-component">
     <div class="tab-area">
       <div
         class="tab"
@@ -47,6 +47,9 @@ export default class SimpleTabComponent extends Vue {
 
 <style lang="scss">
 @import "../../../assets/common";
+.simple-tab-component {
+  @include flex-box(column, flex-start, flex-start);
+}
 .tab-area {
   @include flex-box(row, flex-start, center);
 

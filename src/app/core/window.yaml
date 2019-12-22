@@ -562,3 +562,37 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"add-chit-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # スクロールバー１本分
+    widthPx: 68
+    widthEm: 32
+    widthRem: 0
+    heightPx: 2
+    heightEm: 18
+    heightRem: 0
+  minSize:
+    # スクロールバー１本分
+    widthPx: 20
+    widthEm: 32
+    widthRem: 0
+    heightPx: 2
+    heightEm: 18
+    heightRem: 0
+  maxSize:
+    # スクロールバー１本分
+    widthPx: 260
+    widthEm: 32
+    widthRem: 0
+    heightPx: 2
+    heightEm: 18
+    heightRem: 0
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

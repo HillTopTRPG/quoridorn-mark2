@@ -169,6 +169,8 @@ export default class PlayYoutubeWindow
           if (
             doc.type === "modified" &&
             doc.ref.id === targetId &&
+            doc.data &&
+            doc.data.data &&
             doc.data.status === "modified"
           ) {
             this.duration = doc.data.data.duration;
@@ -226,7 +228,7 @@ export default class PlayYoutubeWindow
     if (this.status !== "window") return;
     const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const targetId = this.windowInfo.args!;
-    const data = await privatePlayListCC.getData(targetId);
+    const data = await privatePlayListCC.getData(targetId)!;
     data.data.duration = duration;
     await privatePlayListCC.touchModify(targetId);
     await privatePlayListCC.update(targetId, data.data);
@@ -395,9 +397,9 @@ export default class PlayYoutubeWindow
   private async youtubeVolumeChange(
     task: Task<YoutubeVolumeChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (this.bgmInfo.tag !== task.value.tag) return;
-    if (this.status === task.value.windowStatus) return;
-    if (this.volume !== task.value.volume) this.volume = task.value.volume;
+    if (this.bgmInfo!.tag !== task.value!.tag) return;
+    if (this.status === task.value!.windowStatus) return;
+    if (this.volume !== task.value!.volume) this.volume = task.value!.volume;
     task.resolve();
   }
 
@@ -428,9 +430,9 @@ export default class PlayYoutubeWindow
   private async youtubeMuteChange(
     task: Task<YoutubeMuteChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (this.bgmInfo.tag !== task.value.tag) return;
-    if (this.status === task.value.windowStatus) return;
-    this.isMute = task.value.isMute;
+    if (this.bgmInfo!.tag !== task.value!.tag) return;
+    if (this.status === task.value!.windowStatus) return;
+    this.isMute = task.value!.isMute;
     task.resolve();
   }
 

@@ -2,6 +2,7 @@
   <div class="ctrl-select-wrapper" :disabled="disabled" @contextmenu.prevent>
     <select
       v-model="localValue"
+      :id="id || undefined"
       ref="component"
       :disabled="disabled"
       :style="{
