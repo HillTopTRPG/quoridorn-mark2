@@ -19,7 +19,14 @@
           />
         </td>
         <td rowspan="7" class="map-mask-cell">
-          <div class="map-mask" ref="mapMask" draggable="false">{{ text }}</div>
+          <div
+            class="map-mask"
+            ref="mapMask"
+            draggable="true"
+            @dragstart="dragStart"
+          >
+            {{ text }}
+          </div>
         </td>
       </tr>
       <tr>
@@ -47,7 +54,7 @@
           ></label>
         </th>
         <td>
-          <input
+          <base-input
             :id="`${key}-alpha`"
             class="value-alpha"
             type="range"
@@ -56,10 +63,6 @@
             step="0.1"
             :value="alpha"
             @input="alpha = $event.target.value"
-            @keydown.enter.stop
-            @keyup.enter.stop
-            @keydown.229.stop
-            @keyup.229.stop
           />
         </td>
       </tr>
@@ -103,14 +106,14 @@
       </tr>
       <tr>
         <td colspan="2">
-          <div class="button-area">
-            <ctrl-button @click="commit()">
-              <span v-t="'button.modify'"></span>
-            </ctrl-button>
-            <ctrl-button @click="rollback()">
-              <span v-t="'button.reject'"></span>
-            </ctrl-button>
-          </div>
+          <label class="multi-create">
+            <base-input
+              type="checkbox"
+              :value="isMulti"
+              @input="isMulti = $event.target.value"
+            />
+            <span v-t="'label.multi-create'"></span>
+          </label>
         </td>
       </tr>
     </table>
@@ -119,65 +122,40 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
+import { parseColor } from "@/app/core/Utility";
+import { Mixins } from "vue-mixin-decorator";
+import { Task, TaskResult } from "@/@types/task";
+import { MapMaskStore } from "@/@types/gameObject";
+import { AddObjectInfo } from "@/@types/data";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import { parseColor } from "@/app/core/Utility";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
-import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import { DataReference } from "@/@types/data";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import { MapMaskStore } from "@/@types/gameObject";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
 
 @Component({
   components: { ColorPickerComponent, BaseInput, SeekBarComponent, CtrlButton }
 })
-export default class EditMapMaskWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private type: string = "";
-  private docId: string = "";
-  private cc: NekostoreCollectionController<MapMaskStore> | null = null;
-
+export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
+  WindowVue
+) {
   private text: string = "";
   private color: string = "#ff0000";
   private height: number = 1;
   private width: number = 1;
-  private alpha: number = 0.5;
+  private alpha: number = 1;
+  private isMulti: boolean = false;
   private isMounted: boolean = false;
-
-  private isProcessed: boolean = false;
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.isMounted = true;
-    this.type = this.windowInfo.args!.type;
-    this.docId = this.windowInfo.args!.docId;
-    this.cc = SocketFacade.instance.getCC(this.type);
-    const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "color") {
-      this.text = backgroundInfo.text;
-      const colorObj = parseColor(backgroundInfo.backgroundColor);
-      this.color = colorObj.getColorCode();
-      this.alpha = colorObj.a;
-    }
-    this.width = data.data!.columns;
-    this.height = data.data!.rows;
-    try {
-      await this.cc.touchModify(this.docId);
-    } catch (err) {
-      window.console.warn(err);
-      this.isProcessed = true;
-      await this.close();
-    }
   }
 
   private get mapMaskElm(): HTMLElement {
@@ -185,36 +163,49 @@ export default class EditMapMaskWindow extends Mixins<
   }
 
   @VueEvent
-  private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "color") {
-      backgroundInfo.text = this.text;
-      backgroundInfo.backgroundColor = this.colorObj.getRGBA();
-      backgroundInfo.fontColor = this.colorObj.getRGBReverse();
-    }
-    data.data!.rows = this.height;
-    data.data!.columns = this.width;
-    await this.cc!.update(this.docId, data.data!);
-    this.isProcessed = true;
-    await this.close();
+  private dragStart(event: DragEvent) {
+    event.dataTransfer!.setData("dropType", "map-mask");
+    event.dataTransfer!.setData("dropWindow", this.key);
   }
 
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
+  @TaskProcessor("added-object-finished")
+  private async addedObjectFinished(
+    task: Task<AddObjectInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      await this.rollback();
-    }
-  }
+    if (task.value!.dropWindow !== this.key) return;
+    const point = task.value!.point;
 
-  @VueEvent
-  private async rollback() {
-    await this.cc!.releaseTouch(this.docId);
-    this.isProcessed = true;
-    await this.close();
+    const owner = GameObjectManager.instance.mySelfId;
+    const backgroundColor = this.colorObj.getRGBA();
+    const fontColor = this.colorObj.getRGBReverse();
+    const mapMaskInfo: MapMaskStore = {
+      x: point.x,
+      y: point.y,
+      owner,
+      columns: this.width,
+      rows: this.height,
+      place: "field",
+      isHideBorder: false,
+      isHideHighlight: false,
+      isLock: false,
+      otherText: "",
+      backgroundList: [
+        {
+          backgroundType: "color",
+          backgroundColor,
+          fontColor,
+          text: this.text
+        }
+      ],
+      useBackGround: 0,
+      angle: 0
+    };
+    const mapMaskCC = SocketFacade.instance.mapMaskCC();
+    const docId = await mapMaskCC.touch();
+    await mapMaskCC.add(docId, mapMaskInfo);
+
+    if (!this.isMulti) await this.close();
+    task.resolve();
   }
 
   @Watch("isMounted")
@@ -253,7 +244,7 @@ export default class EditMapMaskWindow extends Mixins<
 </script>
 
 <style scoped lang="scss">
-@import "../../../../../assets/common";
+@import "../../../../assets/common";
 
 .map-mask {
   @include inline-flex-box(row, center, center);
@@ -269,8 +260,6 @@ export default class EditMapMaskWindow extends Mixins<
   height: 100%;
 
   table {
-    border-collapse: collapse;
-    border-spacing: 0;
     width: 100%;
   }
 

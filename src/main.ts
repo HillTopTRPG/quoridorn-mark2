@@ -22,8 +22,9 @@ import LanguageManager from "@/LanguageManager";
 import LoginRoomWindow from "@/app/basic/login/LoginRoomWindow.vue";
 import VersionInfoWindow from "@/app/basic/login/VersionInfoWindow.vue";
 import RoomInfoWindow from "@/app/basic/login/RoomInfoWindow.vue";
-import AddMapMaskWindow from "@/app/basic/map-object/map-mask/add/AddMapMaskWindow.vue";
-import EditMapMaskWindow from "@/app/basic/map-object/map-mask/edit/EditMapMaskWindow.vue";
+import AddMapMaskWindow from "@/app/basic/map-object/map-mask/AddMapMaskWindow.vue";
+import EditMapMaskWindow from "@/app/basic/map-object/map-mask/EditMapMaskWindow.vue";
+import AddChitWindow from "@/app/basic/map-object/chit/AddChitWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -49,6 +50,7 @@ Vue.component("version-info-window", VersionInfoWindow);
 Vue.component("room-info-window", RoomInfoWindow);
 Vue.component("add-map-mask-window", AddMapMaskWindow);
 Vue.component("edit-map-mask-window", EditMapMaskWindow);
+Vue.component("add-chit-window", AddChitWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({
