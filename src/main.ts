@@ -25,6 +25,7 @@ import RoomInfoWindow from "@/app/basic/login/RoomInfoWindow.vue";
 import AddMapMaskWindow from "@/app/basic/map-object/map-mask/AddMapMaskWindow.vue";
 import EditMapMaskWindow from "@/app/basic/map-object/map-mask/EditMapMaskWindow.vue";
 import AddChitWindow from "@/app/basic/map-object/chit/AddChitWindow.vue";
+import InputImagePasswordWindow from "@/app/core/component/InputImagePasswordWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -51,6 +52,7 @@ Vue.component("room-info-window", RoomInfoWindow);
 Vue.component("add-map-mask-window", AddMapMaskWindow);
 Vue.component("edit-map-mask-window", EditMapMaskWindow);
 Vue.component("add-chit-window", AddChitWindow);
+Vue.component("input-image-password-window", InputImagePasswordWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({

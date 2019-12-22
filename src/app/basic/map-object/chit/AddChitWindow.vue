@@ -14,7 +14,7 @@
         v-model="imageDocId"
         :windowKey="key"
         :imageTag.sync="imageTag"
-        :reverse.sync="reverse"
+        :direction.sync="direction"
       />
       <textarea
         v-if="currentTabInfo.target === 'text'"
@@ -91,7 +91,7 @@ import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import { AddObjectInfo } from "@/@types/data";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import { BackgroundSize, Reverse } from "@/@types/room";
+import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
@@ -118,7 +118,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   private width: number = 1;
   private imageDocId: string | null = null;
   private imageTag: string | null = null;
-  private reverse: Reverse = "none";
+  private direction: Direction = "none";
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
@@ -148,7 +148,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
 
   @Watch("isMounted")
   @Watch("imageDocId")
-  @Watch("reverse")
+  @Watch("direction")
   @Watch("backgroundSize")
   private onChangeImage() {
     if (!this.isMounted) return;
@@ -156,11 +156,11 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     if (!imageObj) return;
     this.imageSrc = imageObj.data.data;
     this.chitElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
-    let reverse = "";
-    if (this.reverse === "horizontal") reverse = "scale(-1, 1)";
-    if (this.reverse === "vertical") reverse = "scale(1, -1)";
-    if (this.reverse === "180") reverse = "rotate(180deg)";
-    this.chitElm.style.setProperty(`--image-reverse`, reverse);
+    let direction = "";
+    if (this.direction === "horizontal") direction = "scale(-1, 1)";
+    if (this.direction === "vertical") direction = "scale(1, -1)";
+    if (this.direction === "180") direction = "rotate(180deg)";
+    this.chitElm.style.setProperty(`--image-direction`, direction);
     this.chitElm.style.setProperty(
       "--isEmpty",
       (this.imageSrc ? 0 : 1).toString()
@@ -201,7 +201,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
           backgroundType: "image",
           imageTag: this.imageTag,
           imageId: this.imageDocId,
-          reverse: this.reverse,
+          direction: this.direction,
           backgroundSize: this.backgroundSize
         }
       ],
@@ -269,15 +269,14 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   width: calc(var(--width-ratio) * 3em);
   height: calc(var(--height-ratio) * 3em);
   background-image: var(--imageSrc);
-  transform: var(--image-reverse);
+  transform: var(--image-direction);
+  background-size: var(--image-background-size);
+  background-repeat: no-repeat;
+  background-position: var(--image-background-position);
   border-style: solid;
   border-color: rgb(255, 255, 153);
   border-width: 3px;
   box-sizing: border-box;
-  background-size: var(--image-background-size);
-  background-repeat: no-repeat;
-  background-position: var(--image-background-position);
-  transform: var(--image-reverse);
 
   &[draggable="false"] {
     background-image: linear-gradient(

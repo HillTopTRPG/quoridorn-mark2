@@ -27,12 +27,12 @@ type BackgroundSize =
   | "cover-center"
   | "cover-end"
   | "100%";
-type Reverse = "none" | "horizontal" | "vertical" | "180";
+type Direction = "none" | "horizontal" | "vertical" | "180";
 type ImageSpec = {
   backgroundType: "image";
   imageTag: string;
   imageId: string;
-  reverse: Reverse;
+  direction: Direction;
   backgroundSize: BackgroundSize;
 };
 

@@ -62,7 +62,7 @@
     background-size: var(--image-background-size);
     background-repeat: no-repeat;
     background-position: var(--image-background-position);
-    transform: var(--image-reverse);
+    transform: var(--image-direction);
   }
 
   &:after {

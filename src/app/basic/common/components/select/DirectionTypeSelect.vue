@@ -30,7 +30,7 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class ReverseTypeSelect extends Mixins<MultiMixin>(
+export default class DirectionTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
@@ -42,10 +42,10 @@ export default class ReverseTypeSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
     const choice: Item[] = [
-      { val: "none", text: getText("label.reverse-none") },
-      { val: "horizontal", text: getText("label.reverse-horizontal") },
-      { val: "vertical", text: getText("label.reverse-vertical") },
-      { val: "180", text: getText("label.reverse-180") }
+      { val: "none", text: getText("label.direction-none") },
+      { val: "horizontal", text: getText("label.direction-horizontal") },
+      { val: "vertical", text: getText("label.direction-vertical") },
+      { val: "180", text: getText("label.direction-180") }
     ];
     this.optionInfoList = choice.map((c: Item) => ({
       key: c.val,
@@ -56,7 +56,7 @@ export default class ReverseTypeSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: null,
       value: "",
-      text: LanguageManager.instance.getText("label.reverse-label"),
+      text: LanguageManager.instance.getText("label.direction"),
       disabled: true
     });
   }
@@ -73,11 +73,11 @@ export default class ReverseTypeSelect extends Mixins<MultiMixin>(
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    this.optionInfoList[0].text = getText("label.reverse-label");
-    this.optionInfoList[1].text = getText("label.reverse-none");
-    this.optionInfoList[2].text = getText("label.reverse-horizontal");
-    this.optionInfoList[3].text = getText("label.reverse-vertical");
-    this.optionInfoList[4].text = getText("label.reverse-180");
+    this.optionInfoList[0].text = getText("label.direction");
+    this.optionInfoList[1].text = getText("label.direction-none");
+    this.optionInfoList[2].text = getText("label.direction-horizontal");
+    this.optionInfoList[3].text = getText("label.direction-vertical");
+    this.optionInfoList[4].text = getText("label.direction-180");
     task.resolve();
   }
 }

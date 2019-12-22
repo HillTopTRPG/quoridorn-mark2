@@ -177,7 +177,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     if (backInfo.backgroundType === "color") {
       this.elm.style.setProperty(`--image`, ``);
       this.imageSrc = "";
-      this.elm.style.setProperty(`--image-reverse`, ``);
+      this.elm.style.setProperty(`--image-direction`, ``);
       this.elm.style.setProperty(`--back-color`, backInfo.backgroundColor);
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
@@ -188,10 +188,10 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
       )[0];
       this.elm.style.setProperty(`--image`, `url(${imageObj.data!.data})`);
       this.imageSrc = imageObj.data!.data;
-      let reverse = "";
-      if (backInfo.reverse === "horizontal") reverse = "scale(-1, 1)";
-      if (backInfo.reverse === "vertical") reverse = "scale(1, -1)";
-      if (backInfo.reverse === "180") reverse = "rotate(180deg)";
+      let direction = "";
+      if (backInfo.direction === "horizontal") direction = "scale(-1, 1)";
+      if (backInfo.direction === "vertical") direction = "scale(1, -1)";
+      if (backInfo.direction === "180") direction = "rotate(180deg)";
       let backgroundSize = "";
       let backgroundPosition = "center";
       if (backInfo.backgroundSize === "contain") backgroundSize = "contain";
@@ -212,7 +212,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
         `--image-background-position`,
         backgroundPosition
       );
-      this.elm.style.setProperty(`--image-reverse`, reverse);
+      this.elm.style.setProperty(`--image-direction`, direction);
       this.elm.style.setProperty(`--back-color`, "transparent");
       this.elm.style.setProperty(`--font-color`, "transparent");
       this.elm.style.setProperty(`--text`, `""`);

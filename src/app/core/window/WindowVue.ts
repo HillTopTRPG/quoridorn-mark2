@@ -86,7 +86,7 @@ export default class WindowVue<T, U> extends Vue {
       this.windowInfo.taskKey
     );
     this.finalized = true;
-    if (task) task.resolve(result ? [result] : []);
+    if (task) task.resolve(result !== undefined ? [result] : []);
     if (!isClosing) {
       await this.close();
     }

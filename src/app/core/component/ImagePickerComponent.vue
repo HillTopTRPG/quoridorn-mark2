@@ -17,7 +17,11 @@
     <table>
       <tr>
         <th>
-          <label :for="`${windowKey}-image-pick-tag`">タグ名：</label>
+          <label
+            :for="`${windowKey}-image-pick-tag`"
+            v-t="'label.tag'"
+            class="label-input"
+          ></label>
         </th>
         <td>
           <div class="flex-space-between">
@@ -33,13 +37,17 @@
       </tr>
       <tr>
         <th>
-          <label :for="`${windowKey}-image-pick-direction`">向き：</label>
+          <label
+            :for="`${windowKey}-image-pick-direction`"
+            v-t="'label.direction'"
+            class="label-input"
+          ></label>
         </th>
         <td>
           <div class="flex-space-between">
-            <reverse-type-select
+            <direction-type-select
               :id="`${windowKey}-image-pick-direction`"
-              v-model="reverse"
+              v-model="direction"
             />
             <ctrl-button @click="inputPassword">
               <span v-t="'label.image-password'"></span>
@@ -59,16 +67,18 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import { StoreUseData } from "@/@types/store";
 import { Image } from "@/@types/image";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { Reverse } from "@/@types/room";
+import { Direction } from "@/@types/room";
 import ImageSelector from "@/app/basic/common/components/ImageSelector.vue";
 import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
-import ReverseTypeSelect from "@/app/basic/common/components/select/ReverseTypeSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
 
 @Component({
   components: {
+    DirectionTypeSelect,
     CtrlButton,
-    ReverseTypeSelect,
     ImageTagSelect,
     ImageSelector,
     BaseInput
@@ -87,7 +97,7 @@ export default class ImagePickerComponent extends Vue {
   private isMounted: boolean = false;
   private selectImageTag: string | null = null;
   private password: string = "";
-  private reverse: Reverse = "none";
+  private direction: Direction = "none";
 
   private rowImageList: StoreUseData<Image>[] = [];
   private useImageList: StoreUseData<Image>[] = [];
@@ -108,7 +118,6 @@ export default class ImagePickerComponent extends Vue {
       if (d.data.tag !== this.selectImageTag) return false;
       return d.data.password === this.password;
     });
-    window.console.log(this.useImageList);
   }
 
   private get selectedTagIndexText() {
@@ -118,14 +127,25 @@ export default class ImagePickerComponent extends Vue {
     return `${index + 1}/${this.useImageList.length}`;
   }
 
-  private inputPassword() {
-    alert("隠し画像");
+  private async inputPassword() {
+    const imagePasswordList = await TaskManager.instance.ignition<
+      WindowOpenInfo<string>,
+      string
+    >({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "input-image-password-window",
+        args: this.password
+      }
+    });
+    window.console.log(imagePasswordList);
+    if (imagePasswordList.length) this.password = imagePasswordList[0];
   }
 
   @LifeCycle
   private mounted() {
     this.rowImageList = GameObjectManager.instance.imageList;
-    window.console.log(this.rowImageList);
     this.isMounted = true;
   }
 
@@ -151,9 +171,9 @@ export default class ImagePickerComponent extends Vue {
     this.$emit("update:imageTag", value);
   }
 
-  @Watch("reverse")
-  private onChangeReverse(value: Reverse) {
-    this.$emit("update:reverse", value);
+  @Watch("direction")
+  private onChangeReverse(value: Direction) {
+    this.$emit("update:direction", value);
   }
 
   private get elm(): HTMLDivElement {

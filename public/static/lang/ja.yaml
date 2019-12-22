@@ -61,11 +61,12 @@ label:
   width: 幅
   alpha: 透過度
   multi-create: 複数作成
-  reverse-label: 向き
-  reverse-none: そのまま
-  reverse-horizontal: 左右反転
-  reverse-vertical: 上下反転
-  reverse-180: 180度回転
+  tag: タグ
+  direction: 向き
+  direction-none: そのまま
+  direction-horizontal: 左右反転
+  direction-vertical: 上下反転
+  direction-180: 180度回転
   background-location: 配置
   background-location-contain: 内包
   background-location-cover-start: カバー(始)
@@ -162,3 +163,7 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: チット追加
+
+input-image-password-window:
+  window-title: 隠し画像用パスワード入力
+  message: パスワードを入力することで、隠し画像を表示することができます。
