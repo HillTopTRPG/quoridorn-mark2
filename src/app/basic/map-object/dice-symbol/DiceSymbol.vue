@@ -44,48 +44,49 @@ import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 
 import { Component } from "vue-property-decorator";
 import { Getter } from "vuex-class";
+import { ChitStore } from "@/@types/gameObject";
 
 @Component({})
-export default class DiceSymbol extends PieceMixin {
-  @Getter("dicePipsImage") private dicePipsImage: any;
-  @Getter("playerKey") private playerKey: any;
-
-  private getKeyObj(list: any[], key: string) {
-    const filteredList = list.filter(obj => obj.key === key);
-    if (filteredList.length === 0) return null;
-    if (filteredList.length > 1) return null;
-    return filteredList[0];
-  }
-
-  private get chitStyle() {
-    let obj: any = this.style;
-    if (this.storeObj.isDraggingLeft) {
-      const plus = 1.5;
-      obj.left = this.rect.left - plus + "px";
-      obj.top = this.rect.top - plus + "px";
-      obj.width = this.rect.width + plus * 2 + "px";
-      obj.height = this.rect.height + plus * 2 + "px";
-      obj.opacity = 0.6;
-    }
-    return obj;
-  }
-
-  private get isAbsoluteHide() {
-    if (!this.storeObj.isHide) return false;
-    return this.storeObj.owner !== this.playerKey;
-  }
-
-  private get ownerPlayer() {
-    return this.getObj(this.storeObj.owner);
-  }
-
-  private get diceImage() {
-    return this.dicePipsImage(
-      this.storeObj.faceNum,
-      this.storeObj.type,
-      this.storeObj.pips
-    );
-  }
+export default class DiceSymbol extends PieceMixin<ChitStore> {
+  // @Getter("dicePipsImage") private dicePipsImage: any;
+  // @Getter("playerKey") private playerKey: any;
+  //
+  // private getKeyObj(list: any[], key: string) {
+  //   const filteredList = list.filter(obj => obj.key === key);
+  //   if (filteredList.length === 0) return null;
+  //   if (filteredList.length > 1) return null;
+  //   return filteredList[0];
+  // }
+  //
+  // private get chitStyle() {
+  //   let obj: any = this.style;
+  //   if (this.storeObj.isDraggingLeft) {
+  //     const plus = 1.5;
+  //     obj.left = this.rect.left - plus + "px";
+  //     obj.top = this.rect.top - plus + "px";
+  //     obj.width = this.rect.width + plus * 2 + "px";
+  //     obj.height = this.rect.height + plus * 2 + "px";
+  //     obj.opacity = 0.6;
+  //   }
+  //   return obj;
+  // }
+  //
+  // private get isAbsoluteHide() {
+  //   if (!this.storeObj.isHide) return false;
+  //   return this.storeObj.owner !== this.playerKey;
+  // }
+  //
+  // private get ownerPlayer() {
+  //   return this.getObj(this.storeObj.owner);
+  // }
+  //
+  // private get diceImage() {
+  //   return this.dicePipsImage(
+  //     this.storeObj.faceNum,
+  //     this.storeObj.type,
+  //     this.storeObj.pips
+  //   );
+  // }
 }
 </script>
 

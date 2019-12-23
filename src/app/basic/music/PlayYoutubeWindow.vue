@@ -137,7 +137,7 @@ export default class PlayYoutubeWindow
     this.bgmInfo = cutInData!.data!;
     const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const privatePlayInfo = await privatePlayListCC.getData(targetId);
-    this.duration = privatePlayInfo.data.duration;
+    this.duration = privatePlayInfo!.data!.duration;
 
     if (this.bgmInfo!.fadeIn < 2) this.volume = this.bgmInfo!.volume;
     this.maxVolume = this.bgmInfo!.volume;
@@ -155,7 +155,7 @@ export default class PlayYoutubeWindow
 
   private async startPlay() {
     const targetId = this.windowInfo.args!;
-    YoutubeManager.instance.loadVideoById(this.bgmInfo);
+    YoutubeManager.instance.loadVideoById(this.bgmInfo!);
     const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const unsubscribe = await privatePlayListCC.setCollectionSnapshot(
       this.key,
@@ -228,10 +228,10 @@ export default class PlayYoutubeWindow
     if (this.status !== "window") return;
     const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const targetId = this.windowInfo.args!;
-    const data = await privatePlayListCC.getData(targetId)!;
-    data.data.duration = duration;
+    const data = (await privatePlayListCC.getData(targetId))!;
+    data.data!.duration = duration;
     await privatePlayListCC.touchModify(targetId);
-    await privatePlayListCC.update(targetId, data.data);
+    await privatePlayListCC.update(targetId, data.data!);
     this.isPlay = true;
     window.console.log("onPlaying");
 

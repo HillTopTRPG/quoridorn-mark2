@@ -35,34 +35,35 @@ import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 
 import { Component } from "vue-property-decorator";
 import { Getter } from "vuex-class";
+import { ChitStore } from "@/@types/gameObject";
 
 @Component
-export default class FloorTile extends PieceMixin {
-  @Getter("imageList") imageList: any;
-
-  private get imageData() {
-    const obj: any = this.imageList.filter(
-      (obj: any) => obj.key === this.imageKey
-    )[0];
-    return obj ? obj.data : null;
-  }
-
-  private get floorTileStyle() {
-    let obj: any = this.style;
-    if (this.storeObj.isDraggingLeft) {
-      const plus = 1.5;
-      obj.left = this.rect.left - plus + "px";
-      obj.top = this.rect.top - plus + "px";
-      obj.width = this.rect.width + plus * 2 + "px";
-      obj.height = this.rect.height + plus * 2 + "px";
-      obj.opacity = 0.6;
-    }
-    return obj;
-  }
-
-  private get imageKey() {
-    return this.storeObj.imageKey.replace(":R", "");
-  }
+export default class FloorTile extends PieceMixin<ChitStore> {
+  // @Getter("imageList") imageList: any;
+  //
+  // private get imageData() {
+  //   const obj: any = this.imageList.filter(
+  //     (obj: any) => obj.key === this.imageKey
+  //   )[0];
+  //   return obj ? obj.data : null;
+  // }
+  //
+  // private get floorTileStyle() {
+  //   let obj: any = this.style;
+  //   if (this.storeObj.isDraggingLeft) {
+  //     const plus = 1.5;
+  //     obj.left = this.rect.left - plus + "px";
+  //     obj.top = this.rect.top - plus + "px";
+  //     obj.width = this.rect.width + plus * 2 + "px";
+  //     obj.height = this.rect.height + plus * 2 + "px";
+  //     obj.opacity = 0.6;
+  //   }
+  //   return obj;
+  // }
+  //
+  // private get imageKey() {
+  //   return this.storeObj.imageKey.replace(":R", "");
+  // }
 }
 </script>
 

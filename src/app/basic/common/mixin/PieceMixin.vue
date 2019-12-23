@@ -66,7 +66,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   }
 
   @LifeCycle
-  private async mounted() {
+  protected async mounted() {
     this.storeInfo = await this.getStoreInfo();
     await this.cc!.setSnapshot(this.docId, this.docId, snapshot => {
       if (!snapshot.data) return;
@@ -121,7 +121,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("storeInfo.data.otherText")
   private onChangeOtherText() {
-    this.otherText = this.storeInfo.data.otherText;
+    this.otherText = this.storeInfo!.data!.otherText;
   }
 
   @Watch("isMounted")

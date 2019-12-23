@@ -66,8 +66,6 @@ import BgmManager from "@/app/basic/music/BgmManager";
   }
 })
 export default class App extends Vue {
-  @Getter("mapBackgroundColor") private mapBackgroundColor: any;
-
   private readonly key = "App";
   private isMapWheeling: boolean = false;
   private roomInitialized: boolean = false;
@@ -311,11 +309,6 @@ export default class App extends Vue {
     }
   }
 
-  @Watch("mapBackgroundColor", { immediate: true })
-  private onChangeMapBackgroundColor(mapBackgroundColor: string): void {
-    document.body.style.backgroundColor = mapBackgroundColor;
-  }
-
   @Watch("isMounted")
   @Watch("isModal")
   private onChangeIsModal() {
@@ -397,6 +390,7 @@ body {
   height: 100%;
   overflow: hidden;
   font-size: 14px;
+  background-color: #92a8b3;
 }
 
 table {
@@ -449,7 +443,7 @@ hr {
     width: 100%;
     height: 100%;
     filter: blur(var(--mask-blur));
-    transform: var(--background-transform);
+    transform: var(--image-direction);
   }
 }
 

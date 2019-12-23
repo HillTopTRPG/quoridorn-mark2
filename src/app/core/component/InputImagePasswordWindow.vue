@@ -48,8 +48,7 @@ export default class InputImagePasswordWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    window.console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-    this.password = this.windowInfo.args;
+    this.password = this.windowInfo.args!;
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
   }
 

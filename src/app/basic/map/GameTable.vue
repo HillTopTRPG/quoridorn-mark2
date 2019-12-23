@@ -20,7 +20,7 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board />
+        <map-board :mapSetting="mapSetting" />
 
         <map-mask
           v-for="obj in getMapObjectList(mapMaskList, 'field')"
@@ -160,8 +160,8 @@ export default class GameTable extends AddressCalcMixin {
   @VueEvent
   private async mounted() {
     const mapDataStore = SocketFacade.instance.mapListCC();
-    const roomDataStore = SocketFacade.instance.roomDataCC();
-    const roomData: StoreUseData<RoomData> = (await roomDataStore.getList(
+    const roomDataCC = SocketFacade.instance.roomDataCC();
+    const roomData: StoreUseData<RoomData> = (await roomDataCC.getList(
       false
     ))[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
@@ -181,7 +181,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("mapSetting.rotate")
   @Watch("mapSetting.reverse")
   private async onChangeBackgroundType() {
-    GameTable.setBackground("map-canvas", this.mapSetting!);
+    await GameTable.setBackground("map-canvas-container", this.mapSetting!);
   }
 
   @Watch("isMounted")
@@ -191,7 +191,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("mapSetting.background.rotate")
   @Watch("mapSetting.background.reverse")
   private async onChangeBackgroundBackgroundType() {
-    GameTable.setBackground("back-screen", this.mapSetting!.background);
+    await GameTable.setBackground("back-screen", this.mapSetting!.background);
   }
 
   @Watch("isMounted")
@@ -201,10 +201,10 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("mapSetting.margin.rotate")
   @Watch("mapSetting.margin.reverse")
   private async onChangeMarginBackgroundType() {
-    GameTable.setBackground("table-background", this.mapSetting!.margin);
+    await GameTable.setBackground("table-background", this.mapSetting!.margin);
   }
 
-  private static changeImagePath(path: string) {
+  public static changeImagePath(path: string) {
     if (path.startsWith("/")) return `..${path}`;
     if (path.startsWith("./")) return `.${path}`;
     return path;
@@ -215,26 +215,27 @@ export default class GameTable extends AddressCalcMixin {
     info: ColorSpec | ImageSpec
   ) {
     const elm: HTMLElement = document.getElementById(targetId) as HTMLElement;
-    const transformList: string[] = ["translate(0, 0)"];
+    let direction: string = "";
+    let backgroundColor: string = "transparent";
+    let backgroundImage: string = "none";
     if (info.backgroundType === "color") {
-      elm.style.setProperty("--background-color", info.backgroundColor);
-      elm.style.setProperty("--background-image", "none");
+      backgroundColor = info.backgroundColor;
     } else {
-      elm.style.setProperty("--background-color", "transparent");
-
       const imageData = await SocketFacade.instance
         .imageDataCC()
         .getData(info.imageId);
-      elm.style.setProperty(
-        "--background-image",
-        imageData && imageData.data
-          ? `url("${GameTable.changeImagePath(imageData.data.data)}")`
-          : "none"
-      );
-      if (info.reverse === "horizontal") transformList.push("scale(-1, 1)");
-      if (info.reverse === "vertical") transformList.push("scale(1, -1)");
+      if (imageData && imageData.data) {
+        backgroundImage = `url("${GameTable.changeImagePath(
+          imageData.data.data
+        )}")`;
+      }
+      if (info.direction === "horizontal") direction = "scale(-1, 1)";
+      if (info.direction === "vertical") direction = "scale(1, -1)";
+      if (info.direction === "180") direction = "rotate(180deg)";
     }
-    elm.style.setProperty("--background-transform", transformList.join(" "));
+    elm.style.setProperty("--background-color", backgroundColor);
+    elm.style.setProperty("--background-image", backgroundImage);
+    elm.style.setProperty("--image-direction", direction);
   }
 
   @Watch("isMounted")
@@ -626,11 +627,10 @@ export default class GameTable extends AddressCalcMixin {
 
     // TODO isGridFit
     const isGridFit = true;
+    const gridSize = AddressCalcMixin.getMapGridSize();
     if (isGridFit) {
-      locateOnCanvas.x =
-        Math.floor(locateOnCanvas.x / this.mapGridSize) * this.mapGridSize;
-      locateOnCanvas.y =
-        Math.floor(locateOnCanvas.y / this.mapGridSize) * this.mapGridSize;
+      locateOnCanvas.x = Math.floor(locateOnCanvas.x / gridSize) * gridSize;
+      locateOnCanvas.y = Math.floor(locateOnCanvas.y / gridSize) * gridSize;
     }
 
     if (["map-mask", "chit"].findIndex(t => t === type) > -1) {
@@ -644,291 +644,6 @@ export default class GameTable extends AddressCalcMixin {
       });
     }
   }
-
-  // private drop(this: any, event: any): void {
-  //   // ドロップされた物の種類
-  //   const kind = event.dataTransfer.getData("kind");
-  //
-  //   const offsetX = event.dataTransfer.getData("offsetX");
-  //   const offsetY = event.dataTransfer.getData("offsetY");
-  //
-  //   const canvasAddress = this.calcCanvasAddress(
-  //     event.pageX,
-  //     event.pageY,
-  //     this.currentAngle,
-  //     this.wheel
-  //     offsetX,
-  //     offsetY
-  //   );
-  //   const locateOnTable = canvasAddress.locateOnTable;
-  //   if (this.isFitGrid) {
-  //     locateOnTable.x =
-  //       (Math.ceil(locateOnTable.x / this.mapGridSize) - 1) * this.mapGridSize;
-  //     locateOnTable.y =
-  //       (Math.ceil(locateOnTable.y / this.mapGridSize) - 1) * this.mapGridSize;
-  //   }
-  //
-  //   qLog(
-  //     `  [methods] drop on GameTable => type: ${kind}, address: (${canvasAddress.grid.column},${canvasAddress.grid.row})`
-  //   );
-  //
-  //   const pieceObj: any = {
-  //     kind: kind,
-  //     propName: kind,
-  //     left: locateOnTable.x,
-  //     top: locateOnTable.y,
-  //     isNotice: true,
-  //     owner: this.playerKey,
-  //     place: "field",
-  //     isDraggingLeft: false,
-  //     move: {
-  //       from: { x: 0, y: 0 },
-  //       dragging: { x: 0, y: 0 },
-  //       gridOffset: { x: 0, y: 0 }
-  //     },
-  //     angle: {
-  //       total: 0,
-  //       dragging: 0,
-  //       dragStart: 0
-  //     },
-  //     isLock: false,
-  //     order: 0,
-  //     isBorderHide: false
-  //   };
-  //
-  //   // マップマスクの作成
-  //   if (kind === "mapMask") {
-  //     const name = event.dataTransfer.getData("name");
-  //     const color = event.dataTransfer.getData("color");
-  //     const fontColor = event.dataTransfer.getData("fontColor");
-  //     const columns = parseInt(event.dataTransfer.getData("columns"), 10);
-  //     const rows = parseInt(event.dataTransfer.getData("rows"), 10);
-  //     const isMulti = event.dataTransfer.getData("isMulti");
-  //
-  //     // 必須項目
-  //     pieceObj.columns = columns;
-  //     pieceObj.rows = rows;
-  //     // 個別部
-  //     pieceObj.name = name;
-  //     pieceObj.color = color;
-  //     pieceObj.fontColor = fontColor;
-  //
-  //     this.addListObj(pieceObj);
-  //     if (isMulti === "false") {
-  //       this.windowClose("private.display.addMapMaskWindow");
-  //     }
-  //     return;
-  //   }
-  //
-  //   // キャラクターの作成
-  //   if (kind === "character") {
-  //     const name = event.dataTransfer.getData("name");
-  //     const size = event.dataTransfer.getData("size");
-  //     const useImageList = event.dataTransfer.getData("useImageList");
-  //     const isHide = event.dataTransfer.getData("isHide") === "true";
-  //     const url = event.dataTransfer.getData("urlStr");
-  //     const text = [
-  //       {
-  //         kind: "text",
-  //         text: event.dataTransfer.getData("description")
-  //       }
-  //     ];
-  //     const useImageIndex = parseInt(
-  //       event.dataTransfer.getData("useImageIndex"),
-  //       10
-  //     );
-  //     const currentImageTag = event.dataTransfer.getData("currentImageTag");
-  //
-  //     // 必須項目
-  //     pieceObj.columns = size;
-  //     pieceObj.rows = size;
-  //     // 個別部
-  //     pieceObj.name = name;
-  //     pieceObj.useImageList = useImageList;
-  //     pieceObj.isHide = isHide;
-  //     pieceObj.url = url;
-  //     pieceObj.text = text;
-  //     pieceObj.useImageIndex = useImageIndex;
-  //     pieceObj.currentImageTag = currentImageTag;
-  //     pieceObj.fontColorType = "0";
-  //     pieceObj.fontColor = "#000";
-  //     pieceObj.chatPalette = {
-  //       list: []
-  //     };
-  //     pieceObj.statusList = [
-  //       {
-  //         name: "◆",
-  //         standImage: {
-  //           ref: "",
-  //           base: "",
-  //           baseTag: "imgTag-0",
-  //           autoResize: false,
-  //           animationLength: 0,
-  //           locate: 1,
-  //           diffList: [],
-  //           isSystemLock: true
-  //         }
-  //       }
-  //     ];
-  //     pieceObj.viewHighlight = false;
-  //     pieceObj.property = {
-  //       initiative: 0,
-  //       subInitiative: 0
-  //     };
-  //
-  //     this.propertyList.forEach((prop: any, index: number) => {
-  //       if (prop.type === "min") {
-  //         const nextProp = this.propertyList[index + 1];
-  //         pieceObj.property[prop.refStr] = 0;
-  //       }
-  //       if (prop.type === "number") {
-  //         pieceObj.property[prop.refStr] = 0;
-  //       }
-  //       if (prop.type === "max") {
-  //         pieceObj.property[prop.refStr] = 99;
-  //       }
-  //       if (prop.type === "checkbox") {
-  //         pieceObj.property[prop.refStr] = false;
-  //       }
-  //     });
-  //
-  //     if (this.$store.state.private.display.addCharacterWindow.isContinuous) {
-  //       const splits = name.split("_");
-  //       const continuousNum = parseInt(splits[splits.length - 1], 10);
-  //       this.setProperty({
-  //         property: "private.display.addCharacterWindow.continuousNum",
-  //         value: continuousNum + 1,
-  //         logOff: true
-  //       });
-  //     } else {
-  //       this.windowClose("private.display.addCharacterWindow");
-  //       this.setProperty({
-  //         property: "private.display.addCharacterWindow.continuousNum",
-  //         value: 1,
-  //         logOff: true
-  //       });
-  //     }
-  //
-  //     this.addListObj(pieceObj);
-  //     return;
-  //   }
-  //
-  //   // フロアタイルの作成
-  //   if (kind === "floorTile") {
-  //     const currentImageTag = event.dataTransfer.getData("currentImageTag");
-  //     const imageKey = event.dataTransfer.getData("imageKey");
-  //     const isReverse = event.dataTransfer.getData("isReverse");
-  //     const columns = event.dataTransfer.getData("columns");
-  //     const rows = event.dataTransfer.getData("rows");
-  //     const description = event.dataTransfer.getData("description");
-  //     const isMulti = event.dataTransfer.getData("isMulti");
-  //
-  //     // 必須項目
-  //     pieceObj.columns = columns;
-  //     pieceObj.rows = rows;
-  //     // 個別部
-  //     pieceObj.currentImageTag = currentImageTag;
-  //     pieceObj.imageKey = imageKey;
-  //     pieceObj.isReverse = isReverse === "true";
-  //     pieceObj.description = description;
-  //
-  //     this.addListObj(pieceObj);
-  //
-  //     window.console.log(isMulti);
-  //     if (isMulti === "false") {
-  //       this.windowClose("private.display.addFloorTileWindow");
-  //     }
-  //     return;
-  //   }
-  //
-  //   // チットの作成
-  //   if (kind === "chit") {
-  //     const currentImageTag = event.dataTransfer.getData("currentImageTag");
-  //     const imageKey = event.dataTransfer.getData("imageKey");
-  //     const isReverse = event.dataTransfer.getData("isReverse");
-  //     const columns = event.dataTransfer.getData("columns");
-  //     const rows = event.dataTransfer.getData("rows");
-  //     const description = event.dataTransfer.getData("description");
-  //     const isMulti = event.dataTransfer.getData("isMulti");
-  //
-  //     // 必須項目
-  //     pieceObj.columns = columns;
-  //     pieceObj.rows = rows;
-  //     // 個別部
-  //     pieceObj.currentImageTag = currentImageTag;
-  //     pieceObj.imageKey = imageKey;
-  //     pieceObj.isReverse = isReverse === "true";
-  //     pieceObj.description = description;
-  //
-  //     this.addListObj(pieceObj);
-  //
-  //     window.console.log(isMulti);
-  //     if (isMulti === "false") {
-  //       this.windowClose("private.display.addMapMaskWindow");
-  //     }
-  //     return;
-  //   }
-  //
-  //   // ダイスシンボルの作成
-  //   if (kind === "diceSymbol") {
-  //     const faceNum = event.dataTransfer.getData("faceNum");
-  //     const type = event.dataTransfer.getData("type");
-  //     const label = event.dataTransfer.getData("label");
-  //     const pips = event.dataTransfer.getData("pips");
-  //     const isHide = event.dataTransfer.getData("isHide");
-  //
-  //     // 必須項目
-  //     pieceObj.columns = 1;
-  //     pieceObj.rows = 1;
-  //     // 個別部
-  //     pieceObj.faceNum = parseInt(faceNum, 10);
-  //     pieceObj.type = type;
-  //     pieceObj.label = label;
-  //     pieceObj.pips = parseInt(pips, 10);
-  //     pieceObj.isHide = isHide === "true";
-  //
-  //     this.addListObj(pieceObj);
-  //     return;
-  //   }
-  //
-  //   // ファイルがドロップされてる
-  //   const files = event.dataTransfer.files;
-  //
-  //   // ファイルの種類に応じて振り分け
-  //   const imageFiles: any[] = [];
-  //   const zipFiles: any[] = [];
-  //   for (const file of files) {
-  //     window.console.log(file.type);
-  //     if (file.type.indexOf("image/") === 0) {
-  //       // 画像
-  //       imageFiles.push(file);
-  //     } else if (file.type.indexOf("zip") >= 0) {
-  //       // zip
-  //       zipFiles.push(file);
-  //     }
-  //   }
-  //
-  //   // 画像ファイルの処理
-  //   if (imageFiles.length > 0) {
-  //     // どこに使う画像ファイルなのかを選んでもらう
-  //     const _: any = this;
-  //     fileToBase64(imageFiles).then((values: any[]) => {
-  //       values.forEach((valueObj: any, index: number) => {
-  //         valueObj.key = index;
-  //       });
-  //       _.setProperty({
-  //         property: "private.display.dropImageWindow.imageDataList",
-  //         value: values
-  //       });
-  //     });
-  //     this.windowOpen("private.display.dropImageWindow");
-  //   }
-  //
-  //   // zipファイルの処理
-  //   if (zipFiles.length > 0) {
-  //     this.importStart({ zipFiles: zipFiles, isRoomCreate: false });
-  //   }
-  // }
 }
 </script>
 
@@ -975,7 +690,7 @@ export default class GameTable extends AddressCalcMixin {
     width: 100%;
     height: 100%;
     filter: blur(var(--mask-blur));
-    transform: var(--background-transform);
+    transform: var(--image-direction);
     z-index: 1;
   }
 
@@ -1060,8 +775,6 @@ export default class GameTable extends AddressCalcMixin {
     top: 0;
     right: 0;
     bottom: 0;
-    width: 100%;
-    height: 100%;
     box-sizing: border-box;
     border: none;
     text-align: center;

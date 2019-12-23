@@ -154,7 +154,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     if (!this.isMounted) return;
     const imageObj = this.getImageObj();
     if (!imageObj) return;
-    this.imageSrc = imageObj.data.data;
+    this.imageSrc = imageObj.data!.data;
     this.chitElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
     let direction = "";
     if (this.direction === "horizontal") direction = "scale(-1, 1)";
@@ -199,10 +199,10 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
       backgroundList: [
         {
           backgroundType: "image",
-          imageTag: this.imageTag,
-          imageId: this.imageDocId,
+          imageTag: this.imageTag!,
+          imageId: this.imageDocId!,
           direction: this.direction,
-          backgroundSize: this.backgroundSize
+          backgroundSize: this.backgroundSize!
         }
       ],
       useBackGround: 0,

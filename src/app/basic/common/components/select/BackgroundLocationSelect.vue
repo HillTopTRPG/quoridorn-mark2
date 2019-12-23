@@ -12,13 +12,12 @@ import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { UserType } from "@/@types/socket";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { BackgroundSize, Reverse } from "@/@types/room";
+import { BackgroundSize } from "@/@types/room";
 
 type Item = {
   val: BackgroundSize;
