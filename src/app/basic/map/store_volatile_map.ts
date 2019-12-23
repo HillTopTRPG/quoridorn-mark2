@@ -11,6 +11,7 @@ const state: State = {
 export default {
   state,
   getters: {
+    // マウスカーソル直下のマス情報
     mapGrid: (state: State): Matrix => state.grid
   }
 };

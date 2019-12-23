@@ -20,6 +20,9 @@
         v-if="currentTabInfo.target === 'text'"
         v-model="otherText"
       ></textarea>
+      <div v-if="currentTabInfo.target === 'layer'">
+        <map-layer-select v-model="layerId" />
+      </div>
     </simple-tab-component>
     <table class="info-table">
       <tr>
@@ -99,9 +102,11 @@ import { ChitStore } from "@/@types/gameObject";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
+import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
 
 @Component({
   components: {
+    MapLayerSelect,
     BackgroundLocationSelect,
     SimpleTabComponent,
     ImagePickerComponent,
@@ -122,11 +127,18 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
+  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+    ml => ml.data.type === "character"
+  )[0].id;
 
   private tabList: TabInfo[] = [
     {
       text: "画像",
       target: "image"
+    },
+    {
+      text: "レイヤー",
+      target: "layer"
     },
     {
       text: "その他欄",
@@ -196,6 +208,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
       isHideHighlight: false,
       isLock: false,
       otherText: this.otherText,
+      layerId: this.layerId,
       backgroundList: [
         {
           backgroundType: "image",

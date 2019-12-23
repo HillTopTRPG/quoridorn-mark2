@@ -1,7 +1,7 @@
 import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import { StoreObj, StoreUseData } from "@/@types/store";
-import { UserData } from "@/@types/room";
+import { MapAndLayer, MapLayer, UserData } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
@@ -83,6 +83,14 @@ export default class GameObjectManager {
       this.propertyList
     );
     await setBasicSnapShot(
+      SocketFacade.instance.mapLayerCC(),
+      this.mapLayerList
+    );
+    await setBasicSnapShot(
+      SocketFacade.instance.mapAndLayerCC(),
+      this.mapAndLayerList
+    );
+    await setBasicSnapShot(
       SocketFacade.instance.propertySelectionCC(),
       this.propertySelectionList
     );
@@ -100,6 +108,8 @@ export default class GameObjectManager {
   public readonly extraList: StoreUseData<ExtraStore>[] = [];
   public readonly characterList: StoreUseData<CharacterStore>[] = [];
   public readonly propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
+  public readonly mapLayerList: StoreUseData<MapLayer>[] = [];
+  public readonly mapAndLayerList: StoreUseData<MapAndLayer>[] = [];
   public readonly propertyList: StoreUseData<PropertyStore>[] = [];
   public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore

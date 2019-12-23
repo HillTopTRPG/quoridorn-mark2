@@ -22,50 +22,12 @@
       >
         <map-board :mapSetting="mapSetting" />
 
-        <map-mask
-          v-for="obj in getMapObjectList(mapMaskList, 'field')"
-          :key="obj.id"
-          :docId="obj.id"
-          type="map-mask"
-        />
-
-        <chit
-          v-for="obj in getMapObjectList(chitList, 'field')"
-          :key="obj.id"
-          :docId="obj.id"
-          type="chit"
+        <map-layer-component
+          v-for="layer in useLayerList"
+          :key="layer.id"
+          :layer="layer"
         />
       </div>
-
-      <!--
-      <character
-        v-for="obj in getMapObjectList({ kind: 'character', place: 'field' })"
-        :key="obj.key"
-        :objKey="obj.key"
-        type="character"
-      />
-
-      <chit
-        v-for="obj in getMapObjectList({ kind: 'chit', place: 'field' })"
-        :key="obj.key"
-        :objKey="obj.key"
-        type="chit"
-      />
-
-      <floor-tile
-        v-for="obj in getMapObjectList({ kind: 'floorTile', place: 'field' })"
-        :key="obj.key"
-        :objKey="obj.key"
-        type="floorTile"
-      />
-
-      <dice-symbol
-        v-for="obj in getMapObjectList({ kind: 'diceSymbol' })"
-        :key="obj.key"
-        :objKey="obj.key"
-        type="diceSymbol"
-      />
-      -->
     </div>
   </div>
 </template>
@@ -75,11 +37,7 @@ import MapBoard from "./MapBoard.vue";
 import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
 
 import MapMask from "@/app/basic/map-object/map-mask/MapMask.vue";
-import Character from "@/app/basic/map-object/character/Character.vue";
 import Chit from "@/app/basic/map-object/chit/Chit.vue";
-import DiceSymbol from "@/app/basic/map-object/dice-symbol/DiceSymbol.vue";
-import FloorTile from "@/app/basic/map-object/floor-tile/FloorTile.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 
 import { Component } from "vue-mixin-decorator";
 import { Watch } from "vue-property-decorator";
@@ -100,41 +58,38 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { ColorSpec, ImageSpec, MapSetting, RoomData } from "@/@types/room";
-import { MapMaskStore, MapObject } from "@/@types/gameObject";
+import {
+  ColorSpec,
+  ImageSpec,
+  MapLayer,
+  MapSetting,
+  RoomData
+} from "@/@types/room";
+import { MapObject } from "@/@types/gameObject";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
+import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
 
 @Component({
   components: {
+    MapLayerComponent,
     MapBoard,
-    FloorTile,
-    DiceSymbol,
     MapMask,
-    Character,
-    Chit,
-    BaseInput
+    Chit
   }
 })
 export default class GameTable extends AddressCalcMixin {
-  private mapMaskList = GameObjectManager.instance.mapMaskList;
-  private chitList = GameObjectManager.instance.chitList;
-  // @Action("addListObj") private addListObj: any;
-  // @Action("windowOpen") private windowOpen: any;
-  // @Action("setProperty") private setProperty: any;
-  // @Action("windowClose") private windowClose: any;
-  // @Action("importStart") private importStart: any;
-  // @Mutation("setIsWheeling") private setIsWheeling: any;
-  // @Getter("isFitGrid") private isFitGrid: any;
-  // @Getter("playerKey") private playerKey: any;
-  // @Getter("propertyList") private propertyList: any;
-  // @Getter("getObj") private getObj: any;
+  private mapLayerList = GameObjectManager.instance.mapLayerList;
+  private mapAndLayerList = GameObjectManager.instance.mapAndLayerList;
 
-  private getMapObjectList(
-    list: StoreUseData<MapObject>[],
-    place: "field" | "graveyard" | "backstage"
-  ) {
-    return GameObjectManager.filterPlaceList(list, place);
+  private useLayerList: StoreUseData<MapLayer>[] = [];
+
+  private getMapLayerList() {
+    return this.mapAndLayerList
+      .filter(mal => mal.data.mapId === this.mapId)
+      .map(mal => mal.data.layerId)
+      .map(layerId => this.mapLayerList.filter(ml => ml.id === layerId)[0])
+      .filter(ml => ml);
   }
 
   private wheelTimer: number | null = null;
@@ -142,6 +97,7 @@ export default class GameTable extends AddressCalcMixin {
 
   private key = "game-table";
 
+  private mapId: string | null = null;
   private mapSetting: MapSetting | null = null;
   private isMounted: boolean = false;
 
@@ -166,10 +122,12 @@ export default class GameTable extends AddressCalcMixin {
     ))[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
-    const mapId = roomData.data!.mapId;
-    const mapData = await mapDataStore.getData(mapId);
+    this.mapId = roomData.data!.mapId;
+    const mapData = await mapDataStore.getData(this.mapId);
     if (!mapData) throw new ApplicationError("No such mapData.");
     this.mapSetting = mapData.data!;
+    this.useLayerList = await this.getMapLayerList();
+
     this.isMounted = true;
     document.documentElement.style.setProperty("--wheel", `0px`);
   }

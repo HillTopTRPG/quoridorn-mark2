@@ -12,6 +12,7 @@ import {
 import { Matrix, Point, Rectangle } from "@/@types/address";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { getCssPxNum } from "@/app/core/Css";
+import CssManager from "@/app/core/css/CssManager";
 
 type Coordinates = {
   angle: number; // 角度
@@ -30,14 +31,34 @@ export default class AddressCalcMixin extends Vue {
     return getCssPxNum("--gridSize", document.getElementById("gameTable")!);
   }
 
+  protected static getMapRow(): number {
+    return parseInt(
+      CssManager.getCss("--totalRow", document.getElementById("gameTable")!),
+      10
+    );
+  }
+
+  protected static getMapColumn(): number {
+    return parseInt(
+      CssManager.getCss("--totalColumn", document.getElementById("gameTable")!),
+      10
+    );
+  }
+
   protected static getMapMarginRow(): number {
-    return getCssPxNum("--margin-row", document.getElementById("gameTable")!);
+    return parseInt(
+      CssManager.getCss("--margin-row", document.getElementById("gameTable")!),
+      10
+    );
   }
 
   protected static getMapMarginColumn(): number {
-    return getCssPxNum(
-      "--margin-column",
-      document.getElementById("gameTable")!
+    return parseInt(
+      CssManager.getCss(
+        "--margin-column",
+        document.getElementById("gameTable")!
+      ),
+      10
     );
   }
 
@@ -71,9 +92,11 @@ export default class AddressCalcMixin extends Vue {
       y: planeLocateScreen.y - canvasCenter.y
     };
     const gridSize = AddressCalcMixin.getMapGridSize();
+    const mapColumn = AddressCalcMixin.getMapColumn();
+    const mapRow = AddressCalcMixin.getMapRow();
     const planeLocateCanvas: Point = {
-      x: planeLocateCenter.x + (this.mapColumns / 2) * gridSize,
-      y: planeLocateCenter.y + (this.mapRows / 2) * gridSize
+      x: planeLocateCenter.x + (mapColumn / 2) * gridSize,
+      y: planeLocateCenter.y + (mapRow / 2) * gridSize
     };
     return {
       angle, // 角度

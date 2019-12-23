@@ -138,7 +138,7 @@ import {
   getUrlParam
 } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
-import { MapSetting, RoomData } from "@/@types/room";
+import { MapAndLayer, MapLayer, MapSetting, RoomData } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
@@ -935,6 +935,41 @@ export default class LoginWindow extends Mixins<
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
+     * マップレイヤーのプリセットデータ投入
+     */
+    const mapLayerCC = SocketFacade.instance.mapLayerCC();
+    await mapLayerCC.add(await mapLayerCC.touch(), {
+      type: "floor-tile",
+      defaultOrder: 1,
+      isDefault: true,
+      deletable: false
+    });
+    await mapLayerCC.add(await mapLayerCC.touch(), {
+      type: "map-mask",
+      defaultOrder: 2,
+      isDefault: true,
+      deletable: false
+    });
+    await mapLayerCC.add(await mapLayerCC.touch(), {
+      type: "map-marker",
+      defaultOrder: 3,
+      isDefault: true,
+      deletable: false
+    });
+    await mapLayerCC.add(await mapLayerCC.touch(), {
+      type: "dice-symbol",
+      defaultOrder: 4,
+      isDefault: true,
+      deletable: false
+    });
+    await mapLayerCC.add(await mapLayerCC.touch(), {
+      type: "character",
+      defaultOrder: 5,
+      isDefault: true,
+      deletable: false
+    });
+
+    /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
     const mapListCC = SocketFacade.instance.mapListCC();
@@ -989,6 +1024,28 @@ export default class LoginWindow extends Mixins<
       await mapListCC.touch(),
       mapSetting
     );
+
+    /* --------------------------------------------------
+     * マップとレイヤーの紐づきのプリセットデータ投入
+     */
+    const mapAndLayerCC = SocketFacade.instance.mapAndLayerCC();
+
+    const addMapAndLayer = async (
+      ml: StoreUseData<MapLayer>
+    ): Promise<void> => {
+      await mapAndLayerCC.add(await mapAndLayerCC.touch(), {
+        mapId: mapDataDocId,
+        layerId: ml.id,
+        isTakeOver: true,
+        objectList: []
+      });
+    };
+
+    // pushImageTagを直列の非同期で全部実行する
+    await (await mapLayerCC.getList(false))
+      .filter(ml => ml.data.isDefault)
+      .map((ml: StoreUseData<MapLayer>) => () => addMapAndLayer(ml))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入

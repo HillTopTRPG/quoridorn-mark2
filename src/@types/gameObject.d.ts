@@ -11,6 +11,7 @@ type VolatileMapObject = {
   angleDiff: number;
 };
 
+type Place = "field" | "graveyard" | "backstage";
 type MapObject = Point & {
   owner: string; // id
   columns: number;
@@ -19,7 +20,8 @@ type MapObject = Point & {
   isHideHighlight: boolean;
   isLock: boolean;
   otherText: string;
-  place: "field" | "graveyard" | "backstage";
+  place: Place;
+  layerId: string;
   backgroundList: (ColorSpec | ImageSpec)[];
   useBackGround: number;
   angle: number;

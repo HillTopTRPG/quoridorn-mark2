@@ -9,7 +9,13 @@ import TaskManager from "@/app/core/task/TaskManager";
 import { GetVersionResponse } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import { Image } from "@/@types/image";
-import { MapSetting, RoomData, UserData } from "@/@types/room";
+import {
+  MapAndLayer,
+  MapLayer,
+  MapSetting,
+  RoomData,
+  UserData
+} from "@/@types/room";
 import {
   CharacterStore,
   ChitStore,
@@ -291,6 +297,14 @@ export default class SocketFacade {
     return this.roomCollectionController<MapSetting>("map-list");
   }
 
+  public mapAndLayerCC(): NekostoreCollectionController<MapAndLayer> {
+    return this.roomCollectionController<MapAndLayer>("map-and-layer-list");
+  }
+
+  public tagNoteCC(): NekostoreCollectionController<TagNoteStore> {
+    return this.roomCollectionController<TagNoteStore>("tag-note-list");
+  }
+
   public roomDataCC(): NekostoreCollectionController<RoomData> {
     return this.roomCollectionController<RoomData>("room-data");
   }
@@ -363,8 +377,8 @@ export default class SocketFacade {
     return this.roomCollectionController<MapMaskStore>("map-mask-list");
   }
 
-  public tagNoteCC(): NekostoreCollectionController<TagNoteStore> {
-    return this.roomCollectionController<TagNoteStore>("tag-note-list");
+  public mapLayerCC(): NekostoreCollectionController<MapLayer> {
+    return this.roomCollectionController<MapLayer>("map-layer-list");
   }
 
   public getCC(type: string): NekostoreCollectionController<any> {
@@ -403,6 +417,10 @@ export default class SocketFacade {
         return this.chitCC();
       case "map-mask":
         return this.mapMaskCC();
+      case "map-layer":
+        return this.mapLayerCC();
+      case "map-and-layer":
+        return this.mapAndLayerCC();
       case "tag-note-list":
         return this.tagNoteCC();
       default:

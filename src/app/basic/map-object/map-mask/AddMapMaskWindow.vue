@@ -151,6 +151,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   private alpha: number = 1;
   private isMulti: boolean = false;
   private isMounted: boolean = false;
+  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+    ml => ml.data.type === "map-mask"
+  )[0].id;
 
   @LifeCycle
   public async mounted() {
@@ -189,6 +192,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
       isHideHighlight: false,
       isLock: false,
       otherText: "",
+      layerId: this.layerId,
       backgroundList: [
         {
           backgroundType: "color",

@@ -19,6 +19,8 @@ button:
 
 type:
   map-mask: マップマスク
+  map-marker: マップマーカー
+  dice-symbol: ダイスシンボル
   chit: チット
   character: キャラクター
   map: マップ
@@ -74,6 +76,7 @@ label:
   background-location-cover-end: カバー(終)
   background-location-100%: 100%
   image-password: 隠し画像
+  layer: レイヤー
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

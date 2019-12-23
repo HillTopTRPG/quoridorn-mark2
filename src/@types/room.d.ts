@@ -1,4 +1,6 @@
 import { UserType } from "@/@types/socket";
+import { Point } from "@/@types/address";
+import { Place } from "@/@types/gameObject";
 
 type RoomData = {
   mapId: string;
@@ -39,6 +41,36 @@ type ImageSpec = {
 type ChatLinkable = {
   chatLinkage: number;
   chatLinkageSearch: string;
+};
+
+type MapLayerType =
+  | "floor-tile"
+  | "map-mask"
+  | "map-marker"
+  | "dice-symbol"
+  | "character"
+  | "other";
+
+type MapLayer = {
+  type: MapLayerType;
+  defaultOrder: number;
+  deletable: boolean;
+  isDefault: boolean;
+  name?: string;
+};
+
+type MapObjectLocation = Point & {
+  objectId: string;
+  status: "normal" | string;
+  place: Place;
+  entering: "none" | string; // 入方方法
+};
+
+type MapAndLayer = {
+  mapId: string;
+  layerId: string;
+  isTakeOver: boolean;
+  objectList: MapObjectLocation[];
 };
 
 type MapSetting = (ColorSpec | ImageSpec) &
