@@ -37,6 +37,18 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
 
   @VueEvent
   private mounted() {
+    this.createOptionInfoList();
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
+  }
+
+  private createOptionInfoList() {
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
@@ -73,28 +85,6 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
   public focus() {
     const elm = this.$refs.component as CtrlSelect;
     elm.focus();
-  }
-
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-    this.optionInfoList[0].text = getText("label.background-location");
-    this.optionInfoList[1].text = getText("label.background-location-contain");
-    this.optionInfoList[2].text = getText("label.background-location-100%");
-    this.optionInfoList[3].text = getText(
-      "label.background-location-cover-start"
-    );
-    this.optionInfoList[4].text = getText(
-      "label.background-location-cover-center"
-    );
-    this.optionInfoList[5].text = getText(
-      "label.background-location-cover-end"
-    );
-    task.resolve();
   }
 }
 </script>

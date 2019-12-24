@@ -149,7 +149,7 @@ export default class EditMapMaskWindow extends Mixins<
   private color: string = "#ff0000";
   private height: number = 1;
   private width: number = 1;
-  private alpha: number = 0.5;
+  private alpha: number = 1;
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;

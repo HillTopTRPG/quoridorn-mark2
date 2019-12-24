@@ -10,9 +10,8 @@
       :disabled="!defaultSelectable"
       value=""
       v-if="defaultLabel !== undefined"
-    >
-      {{ defaultLabel }}
-    </option>
+      v-t="defaultLabel"
+    ></option>
     <slot />
   </ctrl-select>
 </template>

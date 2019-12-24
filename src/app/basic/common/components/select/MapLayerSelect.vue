@@ -34,8 +34,8 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  private optionInfoList: any[] = [];
   private orderList: string[] = [];
+  private optionInfoList: any[] = [];
 
   @VueEvent
   private async mounted() {
@@ -51,6 +51,14 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
       })
       .map(mal => mal.data!.layerId);
     this.createOptionInfoList();
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
   }
 
   private createOptionInfoList() {
@@ -92,14 +100,6 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
   public focus() {
     const elm = this.$refs.component as CtrlSelect;
     elm.focus();
-  }
-
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    this.createOptionInfoList();
-    task.resolve();
   }
 }
 </script>

@@ -20,8 +20,11 @@
         v-if="currentTabInfo.target === 'text'"
         v-model="otherText"
       ></textarea>
-      <div v-if="currentTabInfo.target === 'layer'">
-        <map-layer-select v-model="layerId" />
+      <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
+        <label>
+          <span v-t="'label.add-target'" class="label-input"></span>
+          <map-layer-select v-model="layerId" />
+        </label>
       </div>
     </simple-tab-component>
     <table class="info-table">
@@ -133,18 +136,31 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
 
   private tabList: TabInfo[] = [
     {
-      text: "画像",
+      text: LanguageManager.instance.getText("label.image"),
       target: "image"
     },
     {
-      text: "レイヤー",
+      text: LanguageManager.instance.getText("label.layer"),
       target: "layer"
     },
     {
-      text: "その他欄",
+      text: LanguageManager.instance.getText("label.other-text"),
       target: "text"
     }
   ];
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+    this.tabList[0].text = getText("label.image");
+    this.tabList[1].text = getText("label.layer");
+    this.tabList[2].text = getText("label.other-text");
+    task.resolve();
+  }
   private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @LifeCycle
@@ -326,6 +342,12 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     }
 
     .image-picker-container {
+    }
+
+    .layer-block {
+      border: solid 1px gray;
+      box-sizing: border-box;
+      padding: 0.2rem;
     }
 
     textarea {

@@ -37,6 +37,18 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
 
   @VueEvent
   private mounted() {
+    this.createOptionInfoList();
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
+  }
+
+  private createOptionInfoList() {
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
@@ -63,21 +75,6 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
   public focus() {
     const elm = this.$refs.component as CtrlSelect;
     elm.focus();
-  }
-
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-    this.optionInfoList[0].text = getText("label.direction");
-    this.optionInfoList[1].text = getText("label.direction-none");
-    this.optionInfoList[2].text = getText("label.direction-horizontal");
-    this.optionInfoList[3].text = getText("label.direction-vertical");
-    this.optionInfoList[4].text = getText("label.direction-180");
-    task.resolve();
   }
 }
 </script>

@@ -17,6 +17,31 @@ button:
   logout: ログアウト
   exit-room: 退室
 
+type:
+  map-mask: マップマスク
+  map-marker: マップマーカー
+  dice-symbol: ダイスシンボル
+  chit: チット
+  character: キャラクター
+  map: マップ
+  floor-tile: フロアタイル
+  stand-image: 立ち絵
+  stand-image-diff: 立ち絵差分
+
+context:
+  bgm-setting: BGM設定
+  add-map-mask: マップマスク追加
+  add-chit: チット追加
+  modify: 変更
+  copy: 複製
+  delete: 削除
+  fix: 固定
+  un-fix: 固定解除
+  view-border: 枠線を表示
+  hide-border: 枠線を非表示
+  view-highlight: ハイライトを表示
+  hide-highlight: ハイライトを非表示
+
 label:
   terms-of-use: Conditions d'utilisation
   empty-room: （Salle vide）
@@ -52,6 +77,23 @@ label:
   width: 幅
   alpha: 透過度
   multi-create: 複数作成
+  tag: タグ
+  direction: 向き
+  direction-none: そのまま
+  direction-horizontal: 左右反転
+  direction-vertical: 上下反転
+  direction-180: 180度回転
+  background-location: 配置
+  background-location-contain: 内包
+  background-location-cover-start: カバー(始)
+  background-location-cover-center: カバー(中)
+  background-location-cover-end: カバー(終)
+  background-location-100%: 100%
+  image-password: 隠し画像
+  layer: レイヤー
+  add-target: 追加先
+  image: 画像
+  other-text: その他欄
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -132,3 +174,16 @@ version-info-window:
 
 room-info-window:
   window-title: プレイルーム情報表示
+
+add-map-mask-window:
+  window-title: マップマスク追加
+
+edit-map-mask-window:
+  window-title: マップマスク編集
+
+add-chit-window:
+  window-title: チット追加
+
+input-image-password-window:
+  window-title: 隠し画像用パスワード入力
+  message: パスワードを入力することで、隠し画像を表示することができます。

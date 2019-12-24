@@ -3,7 +3,7 @@
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :id="id"
-    ref="select"
+    ref="component"
   />
 </template>
 
@@ -15,31 +15,58 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import LanguageManager from "@/LanguageManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "@/@types/task";
 
 @Component({ components: { CtrlSelect } })
 export default class ImageTagSelect extends Mixins<SelectMixin>(SelectMixin) {
-  private imageTagList = GameObjectManager.instance.imageTagList;
-
-  @Prop({ type: String, default: "画像タグ" })
+  @Prop({ type: String, default: "label.image-tag" })
   protected defaultLabel!: string;
 
+  private optionInfoList: any[] = [];
+
   @VueEvent
-  private get optionInfoList(): any[] {
-    const resultList = this.imageTagList.map(tagObj => ({
-      key: tagObj.id,
-      value: tagObj.data,
-      text: tagObj.data,
-      disabled: false
-    }));
+  private mounted() {
+    this.createOptionInfoList();
+  }
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
+  }
+
+  private createOptionInfoList() {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+    this.optionInfoList = GameObjectManager.instance.imageTagList.map(
+      tagObj => ({
+        key: tagObj.id,
+        value: tagObj.data,
+        text: tagObj.data,
+        disabled: false
+      })
+    );
     if (this.defaultLabel) {
-      resultList.unshift({
+      this.optionInfoList.unshift({
         key: null,
         value: "",
-        text: this.defaultLabel,
+        text:
+          this.defaultLabel === "label.image-tag"
+            ? getText(this.defaultLabel)
+            : this.defaultLabel,
         disabled: true
       });
     }
-    return resultList;
+  }
+
+  public focus() {
+    const elm = this.$refs.component as CtrlSelect;
+    elm.focus();
   }
 }
 </script>

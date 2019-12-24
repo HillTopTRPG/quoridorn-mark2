@@ -14,9 +14,8 @@
         v-if="item.type !== 'hr'"
         class="item"
         @click.left.stop="emitEvent(item.taskName, item.arg)"
-      >
-        {{ item.text }}
-      </div>
+        v-t="item.text"
+      ></div>
     </template>
   </div>
 </template>

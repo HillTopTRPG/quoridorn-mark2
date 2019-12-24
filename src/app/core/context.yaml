@@ -1,13 +1,13 @@
 map:
-  - text: BGM設定
+  - text: context.bgm-setting
     taskName: window-open
     taskArg:
       type: cut-in-setting-window
-  - text: マップマスク追加
+  - text: context.add-map-mask
     taskName: window-open
     taskArg:
       type: add-map-mask-window
-  - text: チット追加
+  - text: context.add-chit
     taskName: window-open
     taskArg:
       type: add-chit-window
@@ -20,18 +20,18 @@ map:
       - text: item02-item01
 
 map-mask:
-  - text: 変更
+  - text: context.modify
     taskName: window-open
     taskArg:
       type: edit-map-mask-window
-  - text: 複製
+  - text: context.copy
     taskName: copy-object
     taskArg: ~
-  - text: 削除
+  - text: context.delete
     taskName: delete-object
     taskArg: ~
   - ~
-  - text: 固定
+  - text: context.fix
     taskName: lock-object
     isViewCompare:
       lhs:
@@ -40,7 +40,7 @@ map-mask:
       rhs: false
     taskArg:
       value: true
-  - text: 固定解除
+  - text: context.un-fix
     taskName: lock-object
     isViewCompare:
       lhs:
@@ -49,7 +49,7 @@ map-mask:
       rhs: true
     taskArg:
       value: false
-  - text: 枠線を非表示
+  - text: context.hide-border
     taskName: change-border-view
     isViewCompare:
       lhs:
@@ -58,7 +58,7 @@ map-mask:
       rhs: false
     taskArg:
       value: true
-  - text: 枠線を表示
+  - text: context.view-border
     taskName: change-border-view
     isViewCompare:
       lhs:
@@ -69,18 +69,18 @@ map-mask:
       value: false
 
 chit:
-  - text: 変更
+  - text: context.modify
     taskName: window-open
     taskArg:
       type: edit-chit-window
-  - text: 複製
+  - text: context.copy
     taskName: copy-object
     taskArg: ~
-  - text: 削除
+  - text: context.delete
     taskName: delete-object
     taskArg: ~
   - ~
-  - text: 固定
+  - text: context.fix
     taskName: lock-object
     isViewCompare:
       lhs:
@@ -89,7 +89,7 @@ chit:
       rhs: false
     taskArg:
       value: true
-  - text: 固定解除
+  - text: context.un-fix
     taskName: lock-object
     isViewCompare:
       lhs:
@@ -98,7 +98,7 @@ chit:
       rhs: true
     taskArg:
       value: false
-  - text: 枠線を非表示
+  - text: context.hide-border
     taskName: change-border-view
     isViewCompare:
       lhs:
@@ -107,7 +107,7 @@ chit:
       rhs: false
     taskArg:
       value: true
-  - text: 枠線を表示
+  - text: context.view-border
     taskName: change-border-view
     isViewCompare:
       lhs:
@@ -116,7 +116,7 @@ chit:
       rhs: true
     taskArg:
       value: false
-  - text: ハイライトを非表示
+  - text: context.hide-highlight
     taskName: change-highlight-view
     isViewCompare:
       lhs:
@@ -125,7 +125,7 @@ chit:
       rhs: false
     taskArg:
       value: true
-  - text: ハイライトを表示
+  - text: context.view-highlight
     taskName: change-highlight-view
     isViewCompare:
       lhs:
