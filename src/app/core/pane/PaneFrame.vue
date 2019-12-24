@@ -17,7 +17,11 @@
       </div>
 
       <!-- 最小化 -->
-      <title-icon className="icon-minus" @emit="minimizeWindow" />
+      <title-icon
+        className="icon-minus"
+        @emit="minimizeWindow"
+        v-if="windowInfo.declare.minimizable"
+      />
 
       <!-- 通常化 -->
       <title-icon className="icon-arrow-down-left" @emit="normalizeWindow" />

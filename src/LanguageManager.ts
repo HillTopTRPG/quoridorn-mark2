@@ -14,6 +14,7 @@ type Message = {
 export type SupportLangInfo = {
   lang: string;
   title: string;
+  isDefault?: boolean;
 };
 
 export const supportLangList: SupportLangInfo[] = [];
@@ -39,15 +40,22 @@ export default class LanguageManager {
 
   public set language(locale: string) {
     this.i18n.locale = locale;
-    TaskManager.instance.ignition<never, never>({
-      type: "language-change",
-      owner: "Quoridorn",
-      value: null
-    });
+    TaskManager.instance
+      .ignition<never, never>({
+        type: "language-change",
+        owner: "Quoridorn",
+        value: null
+      })
+      .then();
   }
 
   public getText(target: string): string {
     return this.i18n.t(target);
+  }
+
+  public get defaultLanguage() {
+    const langInfo = supportLangList.filter(l => l.isDefault)[0];
+    return langInfo ? langInfo.lang : navigator.language;
   }
 
   public async init() {

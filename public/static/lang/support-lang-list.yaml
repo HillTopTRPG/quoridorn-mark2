@@ -1,6 +1,7 @@
 # この一覧に追加すれば、ログイン画面で言語を選択できるようになり、各言語の辞書ファイルを参照します。
 - title: 日本語
   lang: ja
+  isDefault: true
 - title: English
   lang: en
 - title: 한국

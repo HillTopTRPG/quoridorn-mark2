@@ -49,18 +49,22 @@
       <title-icon
         className="icon-minus"
         @emit="minimizeWindow"
-        v-if="!windowInfo.isMinimized"
+        v-if="windowInfo.declare.minimizable && !windowInfo.isMinimized"
       />
 
       <!-- 通常化 -->
       <title-icon
         className="icon-arrow-up-left"
         @emit="normalizeWindow"
-        v-if="windowInfo.isMinimized"
+        v-if="windowInfo.declare.minimizable && windowInfo.isMinimized"
       />
 
       <!-- 右ペイン格納 -->
-      <title-icon className="icon-arrow-right" @emit="storeRightPane" />
+      <title-icon
+        className="icon-arrow-right"
+        @emit="storeRightPane"
+        v-if="windowInfo.declare.paneContainable"
+      />
 
       <!-- 閉じる -->
       <title-icon
@@ -74,7 +78,8 @@
       class="window-title-balloon"
       v-show="windowInfo.isMinimizeAnimationEnd"
     >
-      {{ windowInfo.title }}
+      <span v-if="windowInfo.title">{{ windowInfo.title }}</span>
+      <span v-else v-t="`${windowInfo.type}.window-title`"></span>
     </div>
 
     <!-- コンテンツ -->
@@ -690,6 +695,7 @@ export default class WindowFrame extends Vue {
   display: block;
   position: absolute;
   top: calc(var(--window-title-height) * -1 - 1px);
+  line-height: var(--window-title-height);
   right: 0.5em;
   padding: 0 0.5em;
   min-width: 5em;

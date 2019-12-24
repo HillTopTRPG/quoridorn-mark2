@@ -30,7 +30,7 @@
       </div>
     </div>
     <label class="language-select">
-      Language:
+      <span class="label-input">Language</span>
       <language-select v-model="language" />
     </label>
     <keep-alive>
@@ -175,7 +175,7 @@ export default class LoginWindow extends Mixins<
     "\\[([^\\]]+)]\\(([^)]+)\\)",
     "g"
   );
-  private language: string = navigator.language;
+  private language: string = LanguageManager.instance.defaultLanguage;
   private urlPassword: string | null = null;
   private urlPlayerName: string | null = null;
 

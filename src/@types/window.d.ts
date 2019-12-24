@@ -35,6 +35,8 @@ export type WindowDeclareInfo = {
   readonly minSize?: WindowSize;
   readonly maxSize?: WindowSize;
   readonly closable: boolean;
+  readonly minimizable: boolean;
+  readonly paneContainable: boolean;
   readonly fontSizePickable: boolean;
   readonly resizable: boolean;
   readonly tableInfoList: WindowTableDeclareInfo[];

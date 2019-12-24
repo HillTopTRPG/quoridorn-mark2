@@ -3,8 +3,6 @@ import router from "./router";
 import MainVue from "./MainVue.vue";
 import store from "@/app/store/store";
 import ImageDirective from "@/app/basic/common/directive/Image";
-import TestWindow from "@/app/basic/common/window/TestWindow.vue";
-import SampleWindow from "@/app/basic/common/window/SampleWindow.vue";
 import CutInSettingWindow from "@/app/basic/music/CutInSettingWindow.vue";
 import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/music/PlayYoutubeWindow.vue";
@@ -35,8 +33,6 @@ SocketFacade.instance;
 BCDiceFacade.instance;
 YoutubeManager.instance;
 
-Vue.component("test-window", TestWindow);
-Vue.component("sample-window", SampleWindow);
 Vue.component("cut-in-setting-window", CutInSettingWindow);
 Vue.component("play-youtube-window", PlayYoutubeWindow);
 Vue.component("login-window", LoginWindow);

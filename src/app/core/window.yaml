@@ -1,65 +1,3 @@
-"test-window":
-  parentTypeList: []
-  isInputWindow: false
-  isMovingRendering: false
-  message: ""
-  position: center
-  size:
-    widthPx: 350
-    widthEm: 0
-    widthRem: 0
-    heightPx: 200
-    heightEm: 0
-    heightRem: 0
-  minSize:
-    widthPx: 150
-    widthEm: 0
-    widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
-  maxSize:
-    widthPx: 500
-    widthEm: 0
-    widthRem: 0
-    heightPx: 450
-    heightEm: 0
-    heightRem: 0
-  closable: true
-  fontSizePickable: true
-  resizable: true
-  tableInfoList: []
-"sample-window":
-  parentTypeList: []
-  isInputWindow: false
-  isMovingRendering: false
-  message: ""
-  position: center
-  size:
-    widthPx: 350
-    widthEm: 0
-    widthRem: 0
-    heightPx:
-    heightEm: 0
-    heightRem: 0
-  minSize:
-    widthPx: 150
-    widthEm: 0
-    widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
-  maxSize:
-    widthPx: 500
-    widthEm: 0
-    widthRem: 0
-    heightPx: 450
-    heightEm: 0
-    heightRem: 0
-  closable: true
-  fontSizePickable: true
-  resizable: true
-  tableInfoList: []
 "play-youtube-window":
   parentTypeList: []
   isInputWindow: false
@@ -80,6 +18,8 @@
     heightPx: 106
     heightEm: 0
     heightRem: 0
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: false
   resizable: true
@@ -111,6 +51,8 @@
     heightPx: 5
     heightEm: 26
     heightRem: 0.5
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -179,6 +121,8 @@
     heightPx: 253
     heightEm: 26
     heightRem: 3
+  minimizable: true
+  paneContainable: false
   closable: false
   fontSizePickable: true
   resizable: true
@@ -248,6 +192,8 @@
     heightPx: 2
     heightEm: 10
     heightRem: 1.1
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -279,6 +225,8 @@
     heightPx: 2
     heightEm: 10
     heightRem: 1.1
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -310,6 +258,8 @@
     heightPx: 26
     heightEm: 8.5
     heightRem: 0.5
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -341,6 +291,8 @@
     heightPx: 700
     heightEm: 0
     heightRem: 0
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -372,6 +324,8 @@
     heightPx: 2
     heightEm: 5.5
     heightRem: 0.7
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -403,6 +357,8 @@
     heightPx: 2
     heightEm: 4
     heightRem: 0.5
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -434,6 +390,8 @@
     heightPx: 2
     heightEm: 5.5
     heightRem: 0.7
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -465,6 +423,8 @@
     heightPx: 700
     heightEm: 0
     heightRem: 0
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -496,6 +456,8 @@
     heightPx: 3
     heightEm: 8
     heightRem: 1.1
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -527,6 +489,8 @@
     heightPx: 6
     heightEm: 12
     heightRem: 0
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -558,6 +522,8 @@
     heightPx: 6
     heightEm: 12
     heightRem: 0.3
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -592,6 +558,8 @@
     heightPx: 2
     heightEm: 18
     heightRem: 0
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
@@ -623,6 +591,8 @@
     heightPx: 2
     heightEm: 5.5
     heightRem: 0.7
+  minimizable: true
+  paneContainable: true
   closable: true
   fontSizePickable: true
   resizable: true
