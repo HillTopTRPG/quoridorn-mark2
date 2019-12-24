@@ -152,8 +152,8 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   private isMulti: boolean = false;
   private isMounted: boolean = false;
   private layerId: string = GameObjectManager.instance.mapLayerList.filter(
-    ml => ml.data.type === "map-mask"
-  )[0].id;
+    ml => ml.data!.type === "map-mask"
+  )[0].id!;
 
   @LifeCycle
   public async mounted() {

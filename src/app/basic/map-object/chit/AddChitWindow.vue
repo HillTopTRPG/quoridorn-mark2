@@ -128,8 +128,8 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
   private layerId: string = GameObjectManager.instance.mapLayerList.filter(
-    ml => ml.data.type === "character"
-  )[0].id;
+    ml => ml.data!.type === "character"
+  )[0].id!;
 
   private tabList: TabInfo[] = [
     {

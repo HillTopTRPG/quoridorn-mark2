@@ -1035,7 +1035,7 @@ export default class LoginWindow extends Mixins<
     ): Promise<void> => {
       await mapAndLayerCC.add(await mapAndLayerCC.touch(), {
         mapId: mapDataDocId,
-        layerId: ml.id,
+        layerId: ml.id!,
         isTakeOver: true,
         objectList: []
       });
@@ -1043,7 +1043,7 @@ export default class LoginWindow extends Mixins<
 
     // pushImageTagを直列の非同期で全部実行する
     await (await mapLayerCC.getList(false))
-      .filter(ml => ml.data.isDefault)
+      .filter(ml => ml.data!.isDefault)
       .map((ml: StoreUseData<MapLayer>) => () => addMapAndLayer(ml))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 

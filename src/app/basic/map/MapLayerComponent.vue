@@ -43,9 +43,9 @@ export default class MapLayerComponent extends Vue {
   private isMounted: boolean = false;
 
   private get className(): string {
-    return this.layer.data.deletable
-      ? this.layer.data.name
-      : this.layer.data.type;
+    return this.layer.data!.deletable
+      ? this.layer.data!.name!
+      : this.layer.data!.type;
   }
 
   @LifeCycle
@@ -65,7 +65,7 @@ export default class MapLayerComponent extends Vue {
     place: "field" | "graveyard" | "backstage"
   ) {
     return GameObjectManager.filterPlaceList(list, place).filter(
-      o => o.data.layerId === this.layer.id
+      o => o.data!.layerId === this.layer.id
     );
   }
 

@@ -41,15 +41,15 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
   private async mounted() {
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
-    const mapId = roomData.data.mapId;
+    const mapId = roomData.data!.mapId;
     this.orderList = GameObjectManager.instance.mapAndLayerList
-      .filter(mal => mal.data.mapId === mapId)
+      .filter(mal => mal.data!.mapId === mapId)
       .sort((mal1, mal2) => {
         if (mal1.order < mal2.order) return -1;
         if (mal1.order > mal2.order) return 1;
         return 0;
       })
-      .map(mal => mal.data.layerId);
+      .map(mal => mal.data!.layerId);
     this.createOptionInfoList();
   }
 
@@ -68,10 +68,10 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
       })
       .map(ml => {
         const mlIndex = this.orderList.findIndex(o => o === ml.id);
-        let text = ml.data.name;
-        if (ml.data.type !== "other") text = getText(`type.${ml.data.type}`);
+        let text = ml.data!.name;
+        if (ml.data!.type !== "other") text = getText(`type.${ml.data!.type}`);
         return {
-          val: ml.id,
+          val: ml.id!,
           text: `${mlIndex + 1}：${text}`
         };
       });

@@ -86,8 +86,8 @@ export default class GameTable extends AddressCalcMixin {
 
   private getMapLayerList() {
     return this.mapAndLayerList
-      .filter(mal => mal.data.mapId === this.mapId)
-      .map(mal => mal.data.layerId)
+      .filter(mal => mal.data && mal.data.mapId === this.mapId)
+      .map(mal => mal.data!.layerId)
       .map(layerId => this.mapLayerList.filter(ml => ml.id === layerId)[0])
       .filter(ml => ml);
   }
