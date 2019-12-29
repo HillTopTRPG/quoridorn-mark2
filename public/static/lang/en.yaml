@@ -13,34 +13,34 @@ button:
   copy: Copy
   next: Next
   execution: Execution
-  close: 閉じる
-  logout: ログアウト
-  exit-room: 退室
+  close: Close
+  logout: Logout
+  exit-room: Exit
 
 type:
-  map-mask: マップマスク
-  map-marker: マップマーカー
-  dice-symbol: ダイスシンボル
-  chit: チット
-  character: キャラクター
-  map: マップ
-  floor-tile: フロアタイル
-  stand-image: 立ち絵
-  stand-image-diff: 立ち絵差分
+  map-mask: Map mask
+  map-marker: Map marker
+  dice-symbol: Dice symbol
+  chit: Chit
+  character: Character
+  map: Map
+  floor-tile: Floor tile
+  stand-image: Stand image
+  stand-image-diff: Standing image difference
 
 context:
-  bgm-setting: BGM設定
-  add-map-mask: マップマスク追加
-  add-chit: チット追加
-  modify: 変更
-  copy: 複製
-  delete: 削除
-  fix: 固定
-  un-fix: 固定解除
-  view-border: 枠線を表示
-  hide-border: 枠線を非表示
-  view-highlight: ハイライトを表示
-  hide-highlight: ハイライトを非表示
+  bgm-setting: BGM Setting
+  add-map-mask: Add Map mask
+  add-chit: Add Chit
+  modify: Modify
+  copy: Copy
+  delete: Delete
+  fix: Fix
+  un-fix: Release
+  view-border: Show border
+  hide-border: Hide border
+  view-highlight: Show highlights
+  hide-highlight: Hide highlight
 
 label:
   terms-of-use: Terms of Use
@@ -61,39 +61,48 @@ label:
   gameMaster: GM
   visitor: Visitor
   room-name: Playroom name
-  room-name-placeholder: 部屋名(必須項目)
-  game-system: Game system(入力指定も可)
+  room-name-placeholder: Room name (required item)
+  game-system: Game system (Can be input)
   no-target: unspecified
-  participant: 参加者
-  version-info: バージョン情報
-  invite-url: 招待URL
-  room-member-num: 入室数
-  comeback-url: 復帰URL
-  default-dicebot: ダイスボット(指定なし)
-  room-no: 部屋番号
-  text: テキスト
-  background-color: 背景色
-  height: 高さ
-  width: 幅
-  alpha: 透過度
-  multi-create: 複数作成
-  tag: タグ
-  direction: 向き
-  direction-none: そのまま
-  direction-horizontal: 左右反転
-  direction-vertical: 上下反転
-  direction-180: 180度回転
-  background-location: 配置
-  background-location-contain: 内包
-  background-location-cover-start: カバー(始)
-  background-location-cover-center: カバー(中)
-  background-location-cover-end: カバー(終)
+  participant: Participant
+  version-info: Version information
+  invite-url: invite url
+  room-member-num: Number of occupants
+  comeback-url: Comeback URL
+  default-dicebot: Dice bot(default)
+  room-no: Room no
+  text: Text
+  background-color: Background color
+  height: Height
+  width: Width
+  alpha: Transmittance
+  multi-create: Create multiple
+  tag: Tag
+  direction: Direction
+  direction-none: As it is
+  direction-horizontal: Flip horizontal
+  direction-vertical: flip Vertical
+  direction-180: 180 degree rotation
+  background-location: Arrangement
+  background-location-contain: Contain
+  background-location-cover-start: Cover(start)
+  background-location-cover-center: Cover(center)
+  background-location-cover-end: Cover(end)
   background-location-100%: 100%
-  image-password: 隠し画像
-  layer: レイヤー
-  add-target: 追加先
-  image: 画像
-  other-text: その他欄
+  image-password: Image Password
+  layer: Layer
+  add-target: Add to
+  image: Image
+  other-text: Additional Text
+  image-tag: Image tag
+  client: Client
+  server: Server
+  version: Version
+  adequate-client: Adequate Client
+  adequate-server: Adequate Server
+  version-compatible: Version Compatible
+  adequate: Adequate
+  inadequate: inadequate
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

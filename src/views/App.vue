@@ -49,7 +49,9 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   ClientRoomInfo,
   GetRoomListResponse,
-  RoomViewResponse
+  LoginWindowInput,
+  RoomViewResponse,
+  ServerTestResult
 } from "@/@types/socket";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
@@ -90,8 +92,8 @@ export default class App extends Vue {
 
   @LifeCycle
   private destroyed() {
-    SocketFacade.instance.destroy();
-    WindowManager.instance.destroy();
+    SocketFacade.instance.destroy().then();
+    WindowManager.instance.destroy().then();
   }
 
   @LifeCycle
@@ -106,9 +108,9 @@ export default class App extends Vue {
     );
     // ログイン画面の表示
     const serverInfo = await SocketFacade.instance.socketCommunication<
-      never,
+      string,
       GetRoomListResponse
-    >("get-room-list");
+    >("get-room-list", process.env.VUE_APP_VERSION);
     SocketFacade.instance.socketOn<RoomViewResponse[]>(
       "result-room-view",
       (err, changeList) => {
@@ -135,15 +137,27 @@ export default class App extends Vue {
         });
       }
     );
+    let resp: ServerTestResult;
+    const url = SocketFacade.instance.appServerUrl;
+    try {
+      resp = await SocketFacade.instance.testServer(url);
+    } catch (err) {
+      window.console.warn(`${err}. url:${url}`);
+      return;
+    }
+
     await TaskManager.instance.ignition<
-      WindowOpenInfo<GetRoomListResponse>,
+      WindowOpenInfo<LoginWindowInput>,
       never
     >({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "login-window",
-        args: serverInfo
+        args: {
+          ...serverInfo,
+          serverTestResult: resp
+        }
       }
     });
     this.isMounted = true;

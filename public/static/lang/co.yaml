@@ -13,34 +13,34 @@ button:
   copy: 부
   next: 진행
   execution: 실행
-  close: 閉じる
-  logout: ログアウト
-  exit-room: 退室
+  close: 닫기
+  logout: 로그 아웃
+  exit-room: 퇴실
 
 type:
-  map-mask: マップマスク
-  map-marker: マップマーカー
-  dice-symbol: ダイスシンボル
-  chit: チット
-  character: キャラクター
-  map: マップ
-  floor-tile: フロアタイル
-  stand-image: 立ち絵
-  stand-image-diff: 立ち絵差分
+  map-mask: 맵 마스크
+  map-marker: 맵 마커
+  dice-symbol: 거푸집 기호
+  chit: 전표
+  character: 캐릭터
+  map: 지도
+  floor-tile: 바닥 타일
+  stand-image: 서 그림
+  stand-image-diff: 서 그림 차이
 
 context:
-  bgm-setting: BGM設定
-  add-map-mask: マップマスク追加
-  add-chit: チット追加
-  modify: 変更
-  copy: 複製
-  delete: 削除
-  fix: 固定
-  un-fix: 固定解除
-  view-border: 枠線を表示
-  hide-border: 枠線を非表示
-  view-highlight: ハイライトを表示
-  hide-highlight: ハイライトを非表示
+  bgm-setting: BGM 설정
+  add-map-mask: 맵 마스크 추가
+  add-chit: 전표 추가
+  modify: 변경
+  copy: 복제
+  delete: 삭제
+  fix: 고정
+  un-fix: 고정 해제
+  view-border: 테두리 표시
+  hide-border: 테두리 숨기기
+  view-highlight: 하이라이트 표시
+  hide-highlight: 하이라이트 숨기기
 
 label:
   terms-of-use: 이용 약관
@@ -61,42 +61,51 @@ label:
   gameMaster: GM
   visitor: 견학자
   room-name: 놀이방 이름
-  room-name-placeholder: 部屋名(必須項目)
-  game-system: 게임 시스템(入力指定も可)
+  room-name-placeholder: 방의 이름 (필수)
+  game-system: 게임 시스템 (입력 지정도 가능)
   no-target: 지정 없음
-  participant: 参加者
-  version-info: バージョン情報
-  invite-url: 招待URL
-  room-member-num: 入室数
-  comeback-url: 復帰URL
-  default-dicebot: ダイスボット(指定なし)
-  room-no: 部屋番号
-  text: テキスト
-  background-color: 背景色
-  height: 高さ
-  width: 幅
-  alpha: 透過度
-  multi-create: 複数作成
-  tag: タグ
-  direction: 向き
-  direction-none: そのまま
-  direction-horizontal: 左右反転
-  direction-vertical: 上下反転
-  direction-180: 180度回転
-  background-location: 配置
-  background-location-contain: 内包
-  background-location-cover-start: カバー(始)
-  background-location-cover-center: カバー(中)
-  background-location-cover-end: カバー(終)
+  participant: 참가자
+  version-info: 버전 정보
+  invite-url: 초대 URL
+  room-member-num: 입실 수
+  comeback-url: 복귀 URL
+  default-dicebot: 주사위 봇 (지정하지 않음)
+  room-no: 방 번호
+  text: 텍스트
+  background-color: 배경색
+  height: 높이
+  width: 폭
+  alpha: 투과도
+  multi-create: 여러 작성
+  tag: 태그
+  direction: 방향
+  direction-none: 그대로
+  direction-horizontal: 좌우 반전
+  direction-vertical: 상하 반전
+  direction-180: 180도 회전
+  background-location: 배치
+  background-location-contain: 내포
+  background-location-cover-start: 커버 (시작)
+  background-location-cover-center: 커버 (중)
+  background-location-cover-end: 커버 (끝)
   background-location-100%: 100%
-  image-password: 隠し画像
-  layer: レイヤー
-  add-target: 追加先
-  image: 画像
-  other-text: その他欄
+  image-password: 숨겨진 이미지
+  layer: 레이어
+  add-target: 추가 정보
+  image: 이미지
+  other-text: 기타 란
+  image-tag: 이미지 태그
+  client: 클라이언트
+  server: 서버
+  version: 버전
+  adequate-client: 적정 클라이언트
+  adequate-server: 적정 서버
+  version-compatible: 버전 호환성
+  adequate: 적정
+  inadequate: 부적정
 
 message:
-  copy-to-clipboard: クリップボードにコピーしました。
+  copy-to-clipboard: 클립 보드에 복사했습니다
 
 test-window:
   window-title: 시험 화면
@@ -108,7 +117,7 @@ play-youtube-window:
   window-title: Youtube 재생
 
 cut-in-setting-window:
-  window-title: カットイン設定画面
+  window-title: 컷인 설정 화면
   table-columns:
     -
       - 연동
@@ -135,7 +144,7 @@ login-window:
 
 create-new-room-window:
   window-title: 방 만들기
-  message: 신규 놀이방을 만듭니다.
+  message: 신규 놀이방을 만듭니다
 
 user-login-window:
   window-title: 사용자 로그인
@@ -153,7 +162,7 @@ app-server-setting-window:
 
 terms-of-use-window:
   window-title: 이용 약관
-  message: 각 서버의 이용 약관을 확인 하시고,이 모든 내용을 지켜 이용해주십시오.
+  message: 각 서버의 이용 약관을 확인 하시고,이 모든 내용을 지켜 이용해주십시오
 
 delete-room-window:
   window-title: 방 삭제
@@ -166,24 +175,24 @@ confirm-window:
     message: 방을 삭제 하시겠습니까?
 
 login-room-window:
-  window-title: ログインチェック
-  message: 部屋にログインします。
+  window-title: 로그인 체크
+  message: 방에 로그인합니다
 
 version-info-window:
-  window-title: バージョン情報
+  window-title: 버전 정보
 
 room-info-window:
-  window-title: プレイルーム情報表示
+  window-title: 놀이방 정보 표시
 
 add-map-mask-window:
-  window-title: マップマスク追加
+  window-title: 맵 마스크 추가
 
 edit-map-mask-window:
-  window-title: マップマスク編集
+  window-title: 맵 마스크 편집
 
 add-chit-window:
-  window-title: チット追加
+  window-title: 전표 추가
 
 input-image-password-window:
-  window-title: 隠し画像用パスワード入力
-  message: パスワードを入力することで、隠し画像を表示することができます。
+  window-title: 숨겨진 이미지 암호 입력
+  message: 암호를 입력하면 숨겨진 이미지를 표시 할 수 있습니다

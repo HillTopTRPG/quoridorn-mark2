@@ -259,7 +259,7 @@
     heightEm: 8.5
     heightRem: 0.5
   minimizable: true
-  paneContainable: true
+  paneContainable: false
   closable: true
   fontSizePickable: true
   resizable: true
@@ -292,7 +292,7 @@
     heightEm: 0
     heightRem: 0
   minimizable: true
-  paneContainable: true
+  paneContainable: false
   closable: true
   fontSizePickable: true
   resizable: true
@@ -406,23 +406,23 @@
     widthPx: 400
     widthEm: 0
     widthRem: 0
-    heightPx: 300
-    heightEm: 0
-    heightRem: 0
+    heightPx: 14
+    heightEm: 15.5
+    heightRem: 3.5
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 150
-    heightEm: 0
-    heightRem: 0
+    heightPx: 14
+    heightEm: 15.5
+    heightRem: 3.5
   maxSize:
     widthPx: 700
     widthEm: 0
     widthRem: 0
-    heightPx: 700
-    heightEm: 0
-    heightRem: 0
+    heightPx: 14
+    heightEm: 15.5
+    heightRem: 3.5
   minimizable: true
   paneContainable: true
   closable: true

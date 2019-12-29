@@ -4,9 +4,13 @@ import Nekostore from "nekostore/lib/Nekostore";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { ConnectInfo } from "@/@types/connect";
+import { ConnectInfo, Interoperability } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
-import { GetVersionResponse } from "@/@types/socket";
+import {
+  DefaultServerInfo,
+  GetVersionResponse,
+  ServerTestResult
+} from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import { Image } from "@/@types/image";
 import {
@@ -29,6 +33,12 @@ import {
   TagNoteStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import {
+  compareVersion,
+  getFileRow,
+  TargetVersion
+} from "@/app/core/api/Github";
+import yaml from "js-yaml";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -46,12 +56,6 @@ export function getStoreObj<T>(
     return null;
   }
 }
-
-export type DefaultServerInfo = {
-  title: string;
-  version: string;
-  url: string;
-};
 
 export default class SocketFacade {
   // シングルトン
@@ -72,6 +76,11 @@ export default class SocketFacade {
   private __roomCollectionPrefix: string | null = null;
   private __userId: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
+  private __interoperability: Interoperability[] | null = null;
+  private targetServer: TargetVersion = {
+    from: null,
+    to: null
+  };
 
   public get appServerUrl(): string {
     return this.__appServerUrl!;
@@ -83,6 +92,52 @@ export default class SocketFacade {
 
   public get appServerUrlList(): DefaultServerInfo[] {
     return this.__appServerUrlList;
+  }
+
+  // コンストラクタの隠蔽
+  private constructor() {
+    this.asyncConstructor().then();
+  }
+
+  private async asyncConstructor() {
+    this.__connectInfo = await loadYaml(connectYamlPath);
+
+    // 相互運用性チェック
+    try {
+      this.__interoperability = (yaml as any).safeLoad(
+        await getFileRow("quoridorn-server", "src/interoperability.yaml")
+      );
+    } catch (err) {
+      //
+    }
+    if (this.__interoperability) {
+      const iList = this.__interoperability;
+      const clientVersion = process.env.VUE_APP_VERSION as string;
+      if (compareVersion(iList[0].client, clientVersion) <= 0) {
+        // クライアントが最新系
+        this.targetServer.from = iList[0].server;
+      } else {
+        // クライアントは最新系ではない
+        iList.forEach((i, index) => {
+          if (!index) return;
+          if (
+            compareVersion(iList[index - 1].client, clientVersion) > 0 &&
+            compareVersion(i.client, clientVersion) <= 0
+          ) {
+            this.targetServer.from = i.server;
+            this.targetServer.to = iList[index - 1].server;
+          }
+        });
+      }
+    }
+
+    await this.setDefaultServerUrlList();
+    const serverInfo = this.appServerUrlList[0];
+    if (!serverInfo) {
+      alert("有効なアプリケーションサーバに接続できませんでした。");
+      return;
+    }
+    await this.setAppServerUrl(serverInfo.url);
   }
 
   public async setAppServerUrl(appServerUrl: string) {
@@ -123,10 +178,7 @@ export default class SocketFacade {
 
   private async setDefaultServerUrlList() {
     if (typeof this.__connectInfo!.quoridornServer === "string") {
-      this.__appServerUrlList.push({
-        ...(await this.testServer(this.__connectInfo!.quoridornServer)),
-        url: this.__connectInfo!.quoridornServer
-      });
+      await this.addDefaultUrl(this.__connectInfo!.quoridornServer);
     } else {
       // addDefaultUrlを直列の非同期で全部実行する
       this.__connectInfo!.quoridornServer.map((url: string) => () =>
@@ -136,33 +188,17 @@ export default class SocketFacade {
   }
 
   private async addDefaultUrl(url: string): Promise<void> {
-    let resp: GetVersionResponse;
+    let resp: ServerTestResult;
     try {
       resp = await this.testServer(url);
     } catch (err) {
       window.console.warn(`${err}. url:${url}`);
       return;
     }
-    window.console.log(url, resp.title);
     this.appServerUrlList.push({
       ...resp,
       url
     });
-  }
-
-  // コンストラクタの隠蔽
-  private constructor() {
-    this.asyncConstructor().then();
-  }
-
-  private async asyncConstructor() {
-    this.__connectInfo = await loadYaml(connectYamlPath);
-    const appServerUrl =
-      typeof this.__connectInfo!.quoridornServer === "string"
-        ? this.__connectInfo!.quoridornServer
-        : this.__connectInfo!.quoridornServer[0];
-    await this.setAppServerUrl(appServerUrl);
-    await this.setDefaultServerUrlList();
   }
 
   public async destroy() {
@@ -222,8 +258,8 @@ export default class SocketFacade {
     });
   }
 
-  public async testServer(url: string): Promise<GetVersionResponse> {
-    return new Promise<GetVersionResponse>((resolve, reject) => {
+  public async testServer(url: string): Promise<ServerTestResult> {
+    return new Promise<ServerTestResult>((resolve, reject) => {
       const socket = Socket.connect(url);
       socket.on("connect", async () => {
         socket.emit("get-version");
@@ -250,13 +286,33 @@ export default class SocketFacade {
             return;
           }
 
-          // TODO バージョン互換性チェック
-          const version: string = result.version;
-          if (!version || !version.startsWith("Quoridorn ")) {
+          const serverVersion: string = result.version;
+          if (!serverVersion || !serverVersion.startsWith("Quoridorn ")) {
             reject("not-quoridorn");
             return;
           }
-          resolve(result);
+          let usable: boolean = false;
+          if (this.__interoperability) {
+            if (this.targetServer.from) {
+              if (this.targetServer.to) {
+                usable =
+                  compareVersion(this.targetServer.from, serverVersion) <= 0 &&
+                  compareVersion(this.targetServer.to, serverVersion) > 0;
+              } else {
+                usable =
+                  compareVersion(this.targetServer.from, serverVersion) <= 0;
+              }
+            }
+          }
+
+          // 応答を返却
+          resolve({
+            serverVersion: result.version,
+            title: result.title,
+            targetClient: result.targetClient,
+            targetServer: this.targetServer,
+            usable
+          });
         }
       );
       socket.on("connect_error", async (err: any) => {

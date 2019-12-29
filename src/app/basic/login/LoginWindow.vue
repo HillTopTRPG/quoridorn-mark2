@@ -12,11 +12,14 @@
           <div class="term-of-use flat-button" @click="viewTermOfUse()">
             <span v-t="'label.terms-of-use'"></span>
           </div>
-          <!--
-          <div class="version-info flat-button" @click="viewVersionInfo()">
-            <span v-t="'label.version-info'"></span>
+          <div
+            class="version-info flat-button"
+            v-if="roomList"
+            @click="viewVersionInfo()"
+          >
+            <span class="normal" v-t="'label.version-info'"></span>
+            <span class="hovering">{{ versionText }}</span>
           </div>
-          -->
         </div>
         <div class="title-contents flat-button" @click="serverSetting()">
           <span class="title">{{ message.title }}</span>
@@ -39,6 +42,7 @@
         :tableIndex="0"
         :status="status"
         :dataList="roomList"
+        v-if="roomList"
         :selectLock="isInputtingRoomInfo"
         keyProp="order"
         :rowClassGetter="getRowClasses"
@@ -83,6 +87,12 @@
           </template>
         </template>
       </table-component>
+      <template v-else>
+        <version-info-component
+          v-if="serverTestResult"
+          :serverTestResult="serverTestResult"
+        />
+      </template>
     </keep-alive>
     <div class="button-area">
       <ctrl-button @click="createRoom()" :disabled="disabledCreate">
@@ -119,7 +129,10 @@ import {
   LoginRoomInput,
   UserLoginWindowInput,
   UserLoginRequest,
-  RoomLoginRequest
+  RoomLoginRequest,
+  UserLoginResponse,
+  LoginWindowInput,
+  ServerTestResult
 } from "@/@types/socket";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -138,11 +151,18 @@ import {
   getUrlParam
 } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
-import { MapAndLayer, MapLayer, MapSetting, RoomData } from "@/@types/room";
+import { MapLayer, MapSetting, RoomData } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import * as Cookies from "es-cookie";
+import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 
 @Component({
-  components: { LanguageSelect, TableComponent, CtrlButton },
+  components: {
+    VersionInfoComponent,
+    LanguageSelect,
+    TableComponent,
+    CtrlButton
+  },
   filters: {
     roomNo: (storeObj: StoreObj<ClientRoomInfo>) => storeObj.order,
     system: (storeObj: StoreObj<ClientRoomInfo>) =>
@@ -163,14 +183,14 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
   }
 })
 export default class LoginWindow extends Mixins<
-  WindowVue<GetRoomListResponse, never>
+  WindowVue<LoginWindowInput, never>
 >(WindowVue) {
-  private roomList: StoreUseData<ClientRoomInfo>[] = [];
+  private roomList: StoreUseData<ClientRoomInfo>[] | null = null;
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
   private isInputtingRoomInfo: boolean = false;
   private message: Message | null = null;
-  private version: string | null = null;
+  private serverTestResult: ServerTestResult | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
     "\\[([^\\]]+)]\\(([^)]+)\\)",
     "g"
@@ -184,18 +204,57 @@ export default class LoginWindow extends Mixins<
     LanguageManager.instance.language = this.language;
   }
 
+  @VueEvent
+  private get versionText(): string {
+    if (!this.serverTestResult) return "";
+    const server = this.serverTestResult.serverVersion.replace(
+      "Quoridorn ",
+      ""
+    );
+    const client = process.env.VUE_APP_VERSION;
+    return `${server} / ${client}`;
+  }
+
   @LifeCycle
   public async mounted() {
     await this.init();
     this.roomList = this.windowInfo.args!.roomList;
     this.message = this.windowInfo.args!.message;
-    this.version = this.windowInfo.args!.version;
+    this.serverTestResult = this.windowInfo.args!.serverTestResult;
     this.elm.style.setProperty(
       "--msg-creating",
       `"${LanguageManager.instance.getText("label.creating")}"`
     );
 
     await this.procUrlParam();
+
+    if (!this.roomList) {
+      this.windowInfo.heightEm -= 10.5;
+      this.windowInfo.heightPx += 4;
+      this.windowInfo.heightRem += 3;
+      this.windowInfo.declare.size!.heightEm -= 10.5;
+      this.windowInfo.declare.size!.heightPx += 4;
+      this.windowInfo.declare.size!.heightRem += 3;
+      this.windowInfo.declare.minSize!.heightEm -= 10.5;
+      this.windowInfo.declare.minSize!.heightPx += 4;
+      this.windowInfo.declare.minSize!.heightRem += 3;
+      this.windowInfo.declare.maxSize!.heightEm -= 10.5;
+      this.windowInfo.declare.maxSize!.heightPx += 4;
+      this.windowInfo.declare.maxSize!.heightRem += 3;
+      // 24em + 2px
+      // ↓↓↓
+      // 13.5em + 3rem + 6px
+      // TODO
+      this.elm.style.setProperty(
+        "--language-bottom",
+        `calc(13.5em + 3.5rem + 9px)`
+      );
+    } else {
+      this.elm.style.setProperty(
+        "--language-bottom",
+        `calc(24em + 0.5rem + 5px)`
+      );
+    }
   }
 
   private get elm(): HTMLElement {
@@ -242,23 +301,16 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private async viewVersionInfo() {
-    await TaskManager.instance.ignition<
-      WindowOpenInfo<{
-        message: Message;
-        version: string;
-      }>,
-      void
-    >({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "version-info-window",
-        args: {
-          message: this.message!,
-          version: this.version!
+    await TaskManager.instance.ignition<WindowOpenInfo<ServerTestResult>, void>(
+      {
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "version-info-window",
+          args: this.serverTestResult!
         }
       }
-    });
+    );
   }
 
   @VueEvent
@@ -281,6 +333,7 @@ export default class LoginWindow extends Mixins<
           type: "app-server-setting-window"
         }
       });
+      window.console.log(appServerSettingInputList);
       appServerSettingInput = appServerSettingInputList[0];
       this.isInputtingServerSetting = false;
     } catch (err) {
@@ -293,41 +346,61 @@ export default class LoginWindow extends Mixins<
     if (!appServerSettingInput) return;
 
     await SocketFacade.instance.setAppServerUrl(appServerSettingInput.url);
-    const serverInfo = await SocketFacade.instance.socketCommunication<
-      never,
-      GetRoomListResponse
-    >("get-room-list");
-    SocketFacade.instance.socketOn<RoomViewResponse[]>(
-      "result-room-view",
-      (err, changeList) => {
-        changeList.forEach(change => {
-          if (change.changeType === "removed") {
-            const index = this.roomList.findIndex(
-              info => info.id === change.id
-            );
-            this.roomList.splice(index, 1, {
-              order: index,
-              exclusionOwner: null,
-              status: null,
-              createTime: new Date(),
-              updateTime: null,
-              id: null
-            });
-          } else {
-            const index = change.data!.order;
-            this.roomList.splice(index, 1, {
-              ...change.data!,
-              id: change.id
-            });
-          }
-        });
+    try {
+      const serverInfo = await SocketFacade.instance.socketCommunication<
+        string,
+        GetRoomListResponse
+      >("get-room-list", process.env.VUE_APP_VERSION);
+      SocketFacade.instance.socketOn<RoomViewResponse[]>(
+        "result-room-view",
+        (err, changeList) => {
+          changeList.forEach(change => {
+            if (change.changeType === "removed") {
+              const index = this.roomList!.findIndex(
+                info => info.id === change.id
+              );
+              this.roomList!.splice(index, 1, {
+                order: index,
+                exclusionOwner: null,
+                status: null,
+                createTime: new Date(),
+                updateTime: null,
+                id: null
+              });
+            } else {
+              const index = change.data!.order;
+              this.roomList!.splice(index, 1, {
+                ...change.data!,
+                id: change.id
+              });
+            }
+          });
+        }
+      );
+      let resp: ServerTestResult;
+      const url = SocketFacade.instance.appServerUrl;
+      try {
+        resp = await SocketFacade.instance.testServer(url);
+      } catch (err) {
+        window.console.warn(`${err}. url:${url}`);
+        return;
       }
-    );
-    this.roomList.splice(0, this.roomList.length);
-    serverInfo.roomList.forEach((roomInfo: StoreUseData<ClientRoomInfo>) => {
-      this.roomList.push(roomInfo);
-    });
-    this.message = serverInfo.message;
+      this.serverTestResult = resp;
+      if (serverInfo.roomList) {
+        if (!this.roomList) this.roomList = [];
+        else this.roomList!.splice(0, this.roomList!.length);
+        serverInfo.roomList.forEach(
+          (roomInfo: StoreUseData<ClientRoomInfo>) => {
+            this.roomList!.push(roomInfo);
+          }
+        );
+      } else {
+        this.roomList = null;
+      }
+      this.message = serverInfo.message;
+    } catch (err) {
+      window.console.error(err);
+    }
   }
 
   @VueEvent
@@ -339,6 +412,7 @@ export default class LoginWindow extends Mixins<
   private get disabledCreate(): boolean {
     if (this.isInputtingRoomInfo) return true;
     if (this.selectedRoomNo === null) return true;
+    if (!this.roomList) return true;
     return !!this.roomList[this.selectedRoomNo].data;
   }
 
@@ -346,6 +420,7 @@ export default class LoginWindow extends Mixins<
   private get disabledLogin(): boolean {
     if (this.isInputtingRoomInfo) return true;
     if (this.selectedRoomNo === null) return true;
+    if (!this.roomList) return true;
     return !this.roomList[this.selectedRoomNo].data;
   }
 
@@ -451,7 +526,7 @@ export default class LoginWindow extends Mixins<
         DeleteRoomRequest,
         boolean
       >("delete-room", {
-        roomId: this.roomList[this.selectedRoomNo].id!,
+        roomId: this.roomList![this.selectedRoomNo].id!,
         roomNo: this.selectedRoomNo,
         ...deleteRoomInput
       });
@@ -494,7 +569,7 @@ export default class LoginWindow extends Mixins<
 
   private async releaseTouchRoom() {
     if (this.selectedRoomNo === null) return;
-    if (!this.roomList[this.selectedRoomNo].exclusionOwner) return;
+    if (!this.roomList![this.selectedRoomNo].exclusionOwner) return;
     await SocketFacade.instance.socketCommunication<ReleaseTouchRequest, never>(
       "release-touch-room",
       {
@@ -595,6 +670,8 @@ export default class LoginWindow extends Mixins<
       }
     });
 
+    const roomId = this.roomList![this.selectedRoomNo].id!;
+
     /* ----------------------------------------------------------------------
      * 部屋作成リクエスト
      */
@@ -603,29 +680,56 @@ export default class LoginWindow extends Mixins<
         CreateRoomRequest,
         string
       >("create-room", {
-        roomId: this.roomList[this.selectedRoomNo].id!,
+        roomId,
         roomNo: this.selectedRoomNo,
         ...createRoomInput
       });
     } catch (err) {
       window.console.warn(err);
+
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "create-room",
+          value: "off"
+        }
+      });
       return;
     }
 
     /* ----------------------------------------------------------------------
      * ログインリクエスト
      */
+    let userLoginResponse: UserLoginResponse;
     try {
-      SocketFacade.instance.userId = await SocketFacade.instance.socketCommunication<
+      userLoginResponse = await SocketFacade.instance.socketCommunication<
         UserLoginRequest,
-        string
+        UserLoginResponse
       >("user-login", userLoginInput);
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
       SocketFacade.instance.roomCollectionPrefix = null;
+
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "create-room",
+          value: "off"
+        }
+      });
       return;
     }
+    SocketFacade.instance.userId = userLoginResponse.userId;
+    Cookies.set(
+      `${roomId}/${userLoginInput.userName}`,
+      userLoginResponse.token,
+      {
+        expires: 365
+      }
+    );
 
     /* ----------------------------------------------------------------------
      * 部屋の使用準備
@@ -668,12 +772,18 @@ export default class LoginWindow extends Mixins<
   private async procUrlParam() {
     const no: number | null = convertNumber(getUrlParam("no"));
 
-    if (no !== null && 0 <= no && no < this.roomList.length) {
+    if (this.roomList && no !== null && 0 <= no && no < this.roomList.length) {
       this.selectedRoomNo = no;
       this.urlPassword = getUrlParam("password");
       this.urlPlayerName = getUrlParam("player");
 
-      if (!this.disabledLogin) await this.login();
+      if (this.urlPlayerName) {
+        const roomId = this.roomList.filter(r => r.order === no)[0].id;
+        const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
+        window.console.log(`token: ${cookieToken}`);
+      } else {
+        if (!this.disabledLogin) await this.login();
+      }
       return;
     }
     window.history.replaceState("", "", "");
@@ -734,6 +844,8 @@ export default class LoginWindow extends Mixins<
       }
     }
 
+    const roomId = this.roomList![this.selectedRoomNo].id!;
+
     /* ----------------------------------------------------------------------
      * 部屋ログインリクエスト
      */
@@ -742,7 +854,7 @@ export default class LoginWindow extends Mixins<
         RoomLoginRequest,
         string
       >("room-login", {
-        roomId: this.roomList[this.selectedRoomNo].id!,
+        roomId,
         roomNo: this.selectedRoomNo,
         ...loginRoomInput
       });
@@ -805,10 +917,11 @@ export default class LoginWindow extends Mixins<
     /* ----------------------------------------------------------------------
      * ログインリクエスト
      */
+    let userLoginResponse: UserLoginResponse;
     try {
-      SocketFacade.instance.userId = await SocketFacade.instance.socketCommunication<
+      userLoginResponse = await SocketFacade.instance.socketCommunication<
         UserLoginRequest,
-        string
+        UserLoginResponse
       >("user-login", userLoginInput);
     } catch (err) {
       window.console.warn(err);
@@ -826,13 +939,21 @@ export default class LoginWindow extends Mixins<
         }
       });
     }
+    SocketFacade.instance.userId = userLoginResponse.userId;
+    Cookies.set(
+      `${roomId}/${userLoginInput.userName}`,
+      userLoginResponse.token,
+      {
+        expires: 365
+      }
+    );
 
     /* ----------------------------------------------------------------------
      * 部屋の使用準備
      */
     await this.close();
 
-    const loginResult: ClientRoomInfo = this.roomList[this.selectedRoomNo]
+    const loginResult: ClientRoomInfo = this.roomList![this.selectedRoomNo]
       .data!;
     loginResult.roomNo = this.selectedRoomNo;
     await GameObjectManager.instance.setClientRoomInfo(loginResult);
@@ -1073,7 +1194,7 @@ export default class LoginWindow extends Mixins<
 
   .language-select {
     position: absolute;
-    bottom: calc(24em + 0.5rem + 5px);
+    bottom: var(--language-bottom);
     right: 0;
   }
 
@@ -1092,7 +1213,7 @@ export default class LoginWindow extends Mixins<
       position: absolute;
       top: 0.4rem;
       right: calc(var(--scroll-bar-width) + 0.5rem);
-      height: 1.5rem;
+      width: 8rem;
     }
 
     .message-documents {
@@ -1132,6 +1253,16 @@ export default class LoginWindow extends Mixins<
         margin-top: 0.2rem;
         margin-left: 0.2rem;
         font-size: 90%;
+        line-height: 2em;
+      }
+
+      .version-info {
+        &:not(:hover) .hovering {
+          display: none;
+        }
+        &:hover .normal {
+          display: none;
+        }
       }
 
       .title-contents {

@@ -1,5 +1,6 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
 import { StoreObj, StoreUseData } from "@/@types/store";
+import { TargetVersion } from "@/app/core/api/Github";
 
 type MapShape = "square" | "horizontal-hex" | "vertical-hex";
 
@@ -47,6 +48,11 @@ export type UserLoginInput = {
 };
 export type UserLoginRequest = UserLoginInput;
 
+export type UserLoginResponse = {
+  userId: string;
+  token: string;
+};
+
 export type TouchRequest = {
   roomNo: number;
 };
@@ -74,9 +80,12 @@ export type Message = {
   termsOfUse: string;
 };
 export type GetRoomListResponse = {
-  roomList: StoreUseData<ClientRoomInfo>[];
+  roomList: StoreUseData<ClientRoomInfo>[] | null;
   message: Message;
-  version: string;
+};
+
+export type LoginWindowInput = GetRoomListResponse & {
+  serverTestResult: ServerTestResult;
 };
 
 export type RoomViewResponse = {
@@ -96,6 +105,19 @@ export type AppServerSettingInput = {
 export type GetVersionResponse = {
   version: string;
   title: string;
+  targetClient: TargetVersion;
+};
+
+export type ServerTestResult = {
+  serverVersion: string;
+  title: string;
+  targetClient: TargetVersion;
+  targetServer: TargetVersion;
+  usable: boolean;
+};
+
+export type DefaultServerInfo = ServerTestResult & {
+  url: string;
 };
 
 export type VersionWindowInfo = {

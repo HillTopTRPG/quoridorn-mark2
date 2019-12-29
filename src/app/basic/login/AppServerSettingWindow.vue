@@ -75,11 +75,9 @@ import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { AppServerSettingInput } from "@/@types/socket";
+import { AppServerSettingInput, DefaultServerInfo } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade, {
-  DefaultServerInfo
-} from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
@@ -113,7 +111,7 @@ export default class AppServerSettingWindow extends Mixins<
     try {
       const info = await SocketFacade.instance.testServer(this.url);
       this.testServerTitle = info.title;
-      this.testServerVersion = info.version;
+      this.testServerVersion = info.serverVersion;
       this.testStatus = "success";
     } catch (err) {
       switch (err) {

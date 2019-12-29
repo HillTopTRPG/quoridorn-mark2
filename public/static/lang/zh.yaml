@@ -13,34 +13,34 @@ button:
   copy: 复制
   next: 下一个
   execution: 执行
-  close: 閉じる
-  logout: ログアウト
-  exit-room: 退室
+  close: 关门
+  logout: 登出
+  exit-room: 退出
 
 type:
-  map-mask: マップマスク
-  map-marker: マップマーカー
-  dice-symbol: ダイスシンボル
+  map-mask: 地图遮罩
+  map-marker: 地图标记
+  dice-symbol: 骰子符号
   chit: チット
-  character: キャラクター
-  map: マップ
-  floor-tile: フロアタイル
-  stand-image: 立ち絵
-  stand-image-diff: 立ち絵差分
+  character: 角色
+  map: 地图
+  floor-tile: 地砖
+  stand-image: 站立图片
+  stand-image-diff: 站立图片差异
 
 context:
-  bgm-setting: BGM設定
-  add-map-mask: マップマスク追加
-  add-chit: チット追加
-  modify: 変更
-  copy: 複製
-  delete: 削除
-  fix: 固定
-  un-fix: 固定解除
-  view-border: 枠線を表示
-  hide-border: 枠線を非表示
-  view-highlight: ハイライトを表示
-  hide-highlight: ハイライトを非表示
+  bgm-setting: 音乐设定
+  add-map-mask: 添加地图蒙版
+  add-chit: 添加聊天
+  modify: 改变
+  copy: 复制
+  delete: 删掉
+  fix: 锁扣
+  un-fix: 解锁
+  view-border: 显示边框
+  hide-border: 隐藏边框
+  view-highlight: 显示突出显示
+  hide-highlight: 隐藏突出显示
 
 label:
   terms-of-use: 使用条款
@@ -61,42 +61,51 @@ label:
   gameMaster: GM
   visitor: 参观者
   room-name: 游戏室名称
-  room-name-placeholder: 部屋名(必須項目)
-  game-system: 游戏系统(入力指定も可)
+  room-name-placeholder: 房间名称（必填项）
+  game-system: 游戏系统 (可以输入)
   no-target: 未指定
   participant: 参加者
-  version-info: バージョン情報
-  invite-url: 招待URL
-  room-member-num: 入室数
-  comeback-url: 復帰URL
-  default-dicebot: ダイスボット(指定なし)
-  room-no: 部屋番号
-  text: テキスト
+  version-info: 版本信息
+  invite-url: 邀请网址
+  room-member-num: 人数
+  comeback-url: 返回网址
+  default-dicebot: 骰子机器人（未指定）
+  room-no: 房间号
+  text: 文字内容
   background-color: 背景色
-  height: 高さ
-  width: 幅
-  alpha: 透過度
-  multi-create: 複数作成
-  tag: タグ
-  direction: 向き
-  direction-none: そのまま
-  direction-horizontal: 左右反転
-  direction-vertical: 上下反転
-  direction-180: 180度回転
-  background-location: 配置
-  background-location-contain: 内包
-  background-location-cover-start: カバー(始)
-  background-location-cover-center: カバー(中)
-  background-location-cover-end: カバー(終)
+  height: 身高
+  width: 幅宽
+  alpha: 透过率
+  multi-create: 创建多个
+  tag: 标签
+  direction: 方向
+  direction-none: 照原样
+  direction-horizontal: 左右翻转
+  direction-vertical: 上下翻转
+  direction-180: 180度旋转
+  background-location: 安排
+  background-location-contain: 包容性
+  background-location-cover-start: 封面（开始）
+  background-location-cover-center: 封面（中）
+  background-location-cover-end: 封面（最终）
   background-location-100%: 100%
-  image-password: 隠し画像
-  layer: レイヤー
-  add-target: 追加先
-  image: 画像
-  other-text: その他欄
+  image-password: 隐藏的图像
+  layer: 层数
+  add-target: 加到
+  image: 图片
+  other-text: 其他栏
+  image-tag: 图片标签
+  client: 委托人
+  server: 伺服器
+  version: 版本号
+  adequate-client: 合适的客户
+  adequate-server: 合适的服务器
+  version-compatible: 版本兼容性
+  adequate: 适当的
+  inadequate: 不当的
 
 message:
-  copy-to-clipboard: クリップボードにコピーしました。
+  copy-to-clipboard: 复制到剪贴板
 
 test-window:
   window-title: 体检 萤幕
@@ -108,7 +117,7 @@ play-youtube-window:
   window-title: Youtube 玩游戏
 
 cut-in-setting-window:
-  window-title: カットイン設定画面
+  window-title: 插入设定画面
   table-columns:
     -
       - 联锁
@@ -166,24 +175,24 @@ confirm-window:
     message: 您要删除房间吗？
 
 login-room-window:
-  window-title: ログインチェック
-  message: 部屋にログインします。
+  window-title: 登录检查
+  message: 登录到房间
 
 version-info-window:
-  window-title: バージョン情報
+  window-title: 版本信息
 
 room-info-window:
-  window-title: プレイルーム情報表示
+  window-title: 游戏室信息显示
 
 add-map-mask-window:
-  window-title: マップマスク追加
+  window-title: 添加地图蒙版
 
 edit-map-mask-window:
-  window-title: マップマスク編集
+  window-title: 编辑地图遮罩
 
 add-chit-window:
-  window-title: チット追加
+  window-title: 添加聊天
 
 input-image-password-window:
-  window-title: 隠し画像用パスワード入力
-  message: パスワードを入力することで、隠し画像を表示することができます。
+  window-title: 输入隐藏图片的密码
+  message: 通过输入密码 可以显示隐藏的图像

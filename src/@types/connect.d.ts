@@ -5,3 +5,8 @@ export type ConnectInfo = {
   skywayConnectType: string;
   socketTimeout: number;
 };
+
+export type Interoperability = {
+  server: string;
+  client: string;
+};

@@ -49,8 +49,6 @@ label:
   not-exist: なし
   possible: 可
   creating: 作成中
-  terms-of-use-web-server: Webサーバの利用規約
-  terms-of-use-app-server: Appサーバの利用規約
   user-name: ユーザ名
   password: パスワード
   password-placeholder: (空ならパスワードなし)
@@ -95,6 +93,15 @@ label:
   image: 画像
   other-text: その他欄
   image-tag: 画像タグ
+  client: クライアント
+  server: サーバ
+  version: バージョン
+  adequate-client: 適正のクライアント
+  adequate-server: 適正のサーバ
+  version-compatible: バージョン互換性
+  adequate: 適正
+  inadequate: 不適正
+
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -154,7 +161,7 @@ app-server-setting-window:
 
 terms-of-use-window:
   window-title: 利用規約確認
-  message: 各サーバの利用規約をご確認いただき、これらすべての内容を守ってご利用ください。
+  message: 下記はプログラム設置者が定めた利用規約です。利用者はこの両方を守ってご利用ください。
 
 delete-room-window:
   window-title: 部屋削除
