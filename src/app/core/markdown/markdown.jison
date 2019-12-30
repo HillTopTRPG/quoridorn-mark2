@@ -5,26 +5,33 @@ window.console.log("-----------------------------------------------");
 %}
 */
 %lex
+%x code-block
+%x row-block
 %%
 
-\r                     /* skip whitespace */
-\n                     return 'nl'
-\s                     return 'space'
-"#"{1,6}" "*[^\r\n]+   return 'header'
-">"                    return 'blockquotes'
-"*"{3}.+?"*"{3}        return 'bi*'
-"_"{3}.+?"_"{3}        return 'bi_'
-"*"{2}.+?"*"{2}        return 'b*'
-"_"{2}.+?"_"{2}        return 'b_'
-("*"{3}|"_"{3}|"-"{3}) return 'hr'
-"*".+?"*"              return 'i*'
-"_".+?"_"\b            return 'i_'
-"`".+?"`"              return '`'
-[-+*]" "               return 'ul'
-[0-9]+\." "            return 'ol'
-<<EOF>>                return 'EOF'
-"*"{1,2}               return 'text'
-.                      return 'text'
+<*>\r                  /* skip whitespace */
+<*><<EOF>>             return 'EOF';
+<row-block>"```"       return 'text';
+<INITIAL>"```"         this.begin('code-block');
+<code-block>"```"\n    this.popState();
+<code-block>\n         return 'cb-nl';
+<code-block>.          return 'cb-text';
+<INITIAL,row-block>\n                     { this.begin('row-block'); return 'nl'; }
+<INITIAL,row-block>\s                     { this.begin('row-block'); return 'space'; }
+<INITIAL,row-block>"#"{1,6}" "*[^\r\n]+   { this.begin('row-block'); return 'header'; }
+<INITIAL,row-block>">"                    { this.begin('row-block'); return 'blockquotes'; }
+<INITIAL,row-block>"*"{3}.+?"*"{3}        { this.begin('row-block'); return 'bi*'; }
+<INITIAL,row-block>"_"{3}.+?"_"{3}        { this.begin('row-block'); return 'bi_'; }
+<INITIAL,row-block>"*"{2}.+?"*"{2}        { this.begin('row-block'); return 'b*'; }
+<INITIAL,row-block>"_"{2}.+?"_"{2}        { this.begin('row-block'); return 'b_'; }
+<INITIAL,row-block>("*"{3}|"_"{3}|"-"{3}) { this.begin('row-block'); return 'hr'; }
+<INITIAL,row-block>"*".+?"*"              { this.begin('row-block'); return 'i*'; }
+<INITIAL,row-block>"_".+?"_"\b            { this.begin('row-block'); return 'i_'; }
+<INITIAL,row-block>"`".+?"`"              { this.begin('row-block'); return '`'; }
+<INITIAL,row-block>[-+*]" "               { this.begin('row-block'); return 'ul'; }
+<INITIAL,row-block>[0-9]+\." "            { this.begin('row-block'); return 'ol'; }
+<INITIAL,row-block>"*"{1,2}               { this.begin('row-block'); return 'text'; }
+<INITIAL,row-block>.                      { this.begin('row-block'); return 'text'; }
 
 /lex
 
@@ -33,7 +40,7 @@ window.console.log("-----------------------------------------------");
 %left 'text'
 %left 'ul' 'ol'
 %left 'b*' 'i*' 'b_' 'i_' 'bi*' 'bi_' '`'
-%left 'header' 'nl' 'paragraph' 'br' 'blockquotes' 'hr'
+%left 'header' 'nl' 'paragraph' 'br' 'blockquotes' 'hr' 'cb-text'
 %left BOLD
 
 %start expressions
@@ -41,33 +48,61 @@ window.console.log("-----------------------------------------------");
 %% /* language grammar */
 
 expressions
-    : nl-lines EOF { return $1; }
+    : all-blocks EOF { return $1; }
     | EOF          { return null; }
     ;
 
-nl-lines
-    : nl-lines nl-line
-        {
+all-blocks
+    : all-blocks nl-line
+        { 
+          if ($1[$1.length - 1].type === 'row-block') {
+            const lastItem = $1[$1.length - 1];
             if ($2.type === 'nl') {
-                $1[$1.length - 1].nlCount += $2.nlCount;
+              lastItem.value[lastItem.value.length - 1].nlCount += $2.nlCount;
             } else {
-                if (
-                    $1[$1.length - 1].type === $2.type &&
-                    $1[$1.length - 1].nlCount === 1 &&
-                    ('length' in $2.value) &&
-                    (
-                        $2.type === 'ul' ||
-                        $2.type === 'ol'
-                    )
-                ) {
-                    $1[$1.length - 1].value.push(...$2.value);
-                } else {
-                    $1.push($2);
-                }
+              if (
+                lastItem.value[lastItem.value.length - 1].type === $2.type &&
+                lastItem.value[lastItem.value.length - 1].nlCount === 1 &&
+                ('length' in $2.value) &&
+                (
+                    $2.type === 'ul' ||
+                    $2.type === 'ol'
+                )
+              ) {
+                lastItem.value[lastItem.value.length - 1].value.push(...$2.value);
+              } else {
+                lastItem.value.push($2);
+              }
             }
-            $$ = $1;
+          } else {
+            $1.push({ type: 'row-block', value: [$2] });
+          }
+          $$ = $1;
         }
-    | nl-line { $$ = [ $1 ]; }
+    | all-blocks 'cb-text'
+        { 
+          if ($1[$1.length - 1].type === 'row-block') {
+            $1.push({ type: 'cb-block', value: $2 });
+          } else {
+            $1[$1.length - 1].value += $2;
+          }
+          $$ = $1;
+        }
+    | all-blocks 'cb-nl'
+        { 
+          if ($1[$1.length - 1].type === 'row-block') {
+            $1.push({ type: 'cb-block', value: $2 });
+          } else {
+            $1[$1.length - 1].value += $2;
+          }
+          $$ = $1;
+        }
+    | nl-line
+        { $$ = [{ type: 'row-block', value: [$1] }]; }
+    | 'cb-text'
+        { $$ = [{ type: 'cb-block', value: $1 }]; }
+    | 'cb-nl'
+        { $$ = [{ type: 'cb-block', value: $1 }]; }
     ;
 
 nl-line
