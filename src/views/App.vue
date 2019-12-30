@@ -29,7 +29,6 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import { Getter } from "vuex-class";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import Menu from "@/app/basic/menu/Menu.vue";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -116,10 +115,10 @@ export default class App extends Vue {
       (err, changeList) => {
         changeList.forEach(change => {
           if (change.changeType === "removed") {
-            const index = serverInfo.roomList.findIndex(
+            const index = serverInfo.roomList!.findIndex(
               (info: StoreUseData<ClientRoomInfo>) => info.id === change.id
             );
-            serverInfo.roomList.splice(index, 1, {
+            serverInfo.roomList!.splice(index, 1, {
               order: index,
               exclusionOwner: null,
               status: null,
@@ -129,7 +128,7 @@ export default class App extends Vue {
             });
           } else {
             const index = change.data!.order;
-            serverInfo.roomList.splice(index, 1, {
+            serverInfo.roomList!.splice(index, 1, {
               ...change.data!,
               id: change.id
             });

@@ -75,5 +75,11 @@ module.exports = {
       .use("raw-loader")
       .loader("raw-loader")
       .end();
+    config.module
+      .rule("jison")
+      .test(/\.jison$/)
+      .use("raw-loader")
+      .loader("raw-loader")
+      .end();
   }
 };

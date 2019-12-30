@@ -24,6 +24,7 @@ import AddMapMaskWindow from "@/app/basic/map-object/map-mask/AddMapMaskWindow.v
 import EditMapMaskWindow from "@/app/basic/map-object/map-mask/EditMapMaskWindow.vue";
 import AddChitWindow from "@/app/basic/map-object/chit/AddChitWindow.vue";
 import InputImagePasswordWindow from "@/app/core/component/InputImagePasswordWindow.vue";
+import { markdown } from "@/app/core/markdown/markdown";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -60,3 +61,5 @@ LanguageManager.instance.init().then((i18n: any) => {
   });
   app.$mount("#app");
 });
+
+window.console.log(markdown("# aaaaa\r\n"));
