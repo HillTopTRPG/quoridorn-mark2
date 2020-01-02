@@ -62,4 +62,4 @@ LanguageManager.instance.init().then((i18n: any) => {
   app.$mount("#app");
 });
 
-window.console.log(markdown("_a_ \r\n"));
+window.console.log(markdown(`_a_`));

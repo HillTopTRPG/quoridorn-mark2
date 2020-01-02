@@ -1,14 +1,20 @@
-/* lexical grammar */
+/*
+ * jisoのデバッガーは下記サイトが便利
+ * https://nolanlawson.github.io/jison-debugger/
+ */
 
+/* lexical grammar */
 %{
 console.log("------------");
-function lex(type, state) {
+lex = function(type, state) {
   if (state && this.conditionStack[this.conditionStack.length - 1] !== state) this.begin(state);
   else if (state === '') this.popState();
   return type;
 }
-function span(type, raw, regExp, func, connectable) {
-  const result = { type, value: raw.replace(regExp, func), raw };
+function span(type, raw, connectable, regExp, func) {
+  let value = raw;
+  if (regExp && func) value = raw.replace(regExp, func);
+  const result = { type, value, raw };
   if (connectable) result.connectable = true;
   return result;
 }
@@ -76,12 +82,16 @@ function fixSpans(spans, isRow) {
 %%
 
 <*><<EOF>>                 return lex.call(this, 'EOF');
+<INITIAL,SPAN>('{'.+?'}')?'['.+?']('.*')'
+                           return lex.call(this, 'select', 'SPAN');
+<INITIAL,SPAN>'['(' '|'x')']'
+                           return lex.call(this, 'check', 'SPAN');
 <INITIAL,SPAN>' '*'|'' '*  return lex.call(this, '|', 'SPAN');
+<INITIAL>' '*('*'|'-')' '  return lex.call(this, 'ul', 'SPAN');
+<INITIAL>' '*[0-9]+'.'' '  return lex.call(this, 'ol', 'SPAN');
 <INITIAL,SPAN>' '*':'?'-'+':'?' '*
                            return lex.call(this, '<->', 'SPAN');
 <INITIAL>' '*'>'           return lex.call(this, '>', 'SPAN');
-<INITIAL>' '*('*'|'-')' '* return lex.call(this, 'ul', 'SPAN');
-<INITIAL>' '*[0-9]+'.'' '* return lex.call(this, 'ol', 'SPAN');
 <INITIAL>' '*('***'|'---'|'+++'|'___')' '*\r?\n
                            return lex.call(this, 'hr');
 <INITIAL>'#'{1,6}.+?\r?\n  return lex.call(this, '#');
@@ -110,6 +120,8 @@ function fixSpans(spans, isRow) {
 %left 'hr' 'ul' 'ol' '>'
 %left 'bi' 'b' 'i' '`'
 %left '|' '<->'
+%left 'check'
+%left 'select'
 %left 'nl'
 %left 'EOF'
 
@@ -118,7 +130,8 @@ function fixSpans(spans, isRow) {
 %% /* language grammar */
 
 expressions
-    : 'EOF'       { return null; }
+    : 'EOF'
+      { return null; }
     | block 'EOF'
       { if ($1[$1.length - 1].type === 'UNKNOWN-BLOCK') {
           const lastBlock = $1[$1.length - 1];
@@ -184,7 +197,7 @@ block
             lastLine.nlCount += $2.nlCount;
             return;
           }
-          if ($2.type.startsWith('table-line') > -1) $1.push({ type: 'UNKNOWN-BLOCK', value: [], nlCount: 1 });
+          if ($2.type.startsWith('table-line')) $1.push({ type: 'UNKNOWN-BLOCK', value: [], nlCount: 1 });
           else if ($2.type === 'ul') $1.push({ type: 'UL-BLOCK', value: [], nlCount: 1 });
           else if ($2.type === 'ol') $1.push({ type: 'OL-BLOCK', value: [], nlCount: 1 });
         } else if (lastBlock.type === 'TABLE-BLOCK') {
@@ -202,7 +215,7 @@ block
               $2.type = 'table-line';
               $2.value = fixSpans($2.value, 2);
             }
-            if ($2.type === 'line') { /* TABLEのtbodyにはlineを許容 */ }
+            if ($2.type.indexOf('line') > -1) {}
             else if ($2.type === 'ul') $1.push({ type: 'UL-BLOCK', value: [], nlCount: 1 });
             else if ($2.type === 'ol') $1.push({ type: 'OL-BLOCK', value: [], nlCount: 1 });
             else $1.push({ type: 'RAW-BLOCK', value: [], nlCount: 1 });
@@ -244,9 +257,9 @@ line
     : '>' spans 'nl' { $$ = { type: '>', value: fixSpans($2, 1), raw: $1 + spansRaw($2), nlCount: 1 }; }
     | 'ul' spans 'nl' { $$ = { type: 'ul', value: fixSpans($2, 1), raw: $1 + spansRaw($2), nlCount: 1 }; }
     | 'ol' spans 'nl' { $$ = { type: 'ol', value: fixSpans($2, 1), raw: $1 + spansRaw($2), nlCount: 1 }; }
-    | '>' 'nl' { $$ = { type: 'line', value: [span('.', $1, /^.+$/, m => m)], raw: $1, nlCount: 1 }; }
-    | 'ul' 'nl' { $$ = { type: 'line', value: [span('.', $1, /^.+$/, m => m)], raw: $1, nlCount: 1 }; }
-    | 'ol' 'nl' { $$ = { type: 'line', value: [span('.', $1, /^.+$/, m => m)], raw: $1, nlCount: 1 }; }
+    | '>' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
+    | 'ul' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
+    | 'ol' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
     | '#' { $$ = { type: `h${$1.match(/^#+/)[0].length}`, value: $1.replace(/^#+ *(.+)$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
     | 'hr' { $$ = { type: 'hr', raw: $1, nlCount: 1 }; }
     | '```' { $$ = { type: '```', value: $1.replace(/^\`\`\`((?:.|\s)+?)\`\`\`$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
@@ -315,9 +328,19 @@ span
     ;
 
 text-span
-    : 'bi'  { $$ = span('bi', $1, /^(?:\*\*\*(.+?)\*\*\*)|(?:___(.+?)___)$/, (m, p1, p2) => p1 || p2, true); }
-    | 'b'   { $$ = span('b', $1, /^(?:\*\*(.+?)\*\*)|(?:__(.+?)__)$/, (m, p1, p2) => p1 || p2, true); }
-    | 'i'   { $$ = span('i', $1, /^(?:\*(.+?)\*)|(?:_(.+?)_)$/, (m, p1, p2) => p1 || p2, true); }
-    | '`'   { $$ = span('`', $1, /^(?:`(.+?)`)$/, (m, p1) => p1); }
-    | '.'   { $$ = span('.', $1, /^.$/, m => m, true); }
+    : 'select'
+      { $$ = span('select', $1, false);
+        const mr = $1.match(/^(?:{(.+?)})?\[(.+?)\]\((.*)\)$/);
+        if (mr) {
+          $$.title = mr[1];
+          $$.list = mr[2].split('|');
+          $$.value = mr[3];
+        }
+      }
+    | 'check' { $$ = span('check', $1, false, /^\[(.)\]$/, (m, p1) => p1 === 'x'); }
+    | 'bi'    { $$ = span('bi', $1, true, /^(?:\*\*\*(.+?)\*\*\*)|(?:___(.+?)___)$/, (m, p1, p2) => p1 || p2); }
+    | 'b'     { $$ = span('b', $1, true, /^(?:\*\*(.+?)\*\*)|(?:__(.+?)__)$/, (m, p1, p2) => p1 || p2); }
+    | 'i'     { $$ = span('i', $1, true, /^(?:\*(.+?)\*)|(?:_(.+?)_)$/, (m, p1, p2) => p1 || p2); }
+    | '`'     { $$ = span('`', $1, false, /^(?:`(.+?)`)$/, (m, p1) => p1); }
+    | '.'     { $$ = span('.', $1, true); }
     ;
