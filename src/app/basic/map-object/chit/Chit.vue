@@ -10,7 +10,6 @@
     @touchstart="leftDown"
     @mousedown.right.stop="rightDown"
     @contextmenu.prevent
-    :title="otherText"
     ref="component"
   ></div>
 </template>

@@ -18,9 +18,15 @@ import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({ components: { CtrlSelect } })
-export default class ImageTagSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class ImageTagSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   @Prop({ type: String, default: "label.image-tag" })
   protected defaultLabel!: string;
 

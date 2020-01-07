@@ -44,6 +44,8 @@
     - added-object
     - youtube-volume-change
     - youtube-mute-change
+    - other-text-view
+    - other-text-hide
 
 - taskAttribute:
     isIgniteWithParam: false

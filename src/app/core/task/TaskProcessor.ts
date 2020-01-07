@@ -17,6 +17,7 @@ const mounted: GenerateProcessInfo = {
     taskName?: string
   ) {
     if (!taskName) taskName = changeCase.paramCase(methodName);
+    if (!this.key) window.console.warn("Unset key: ", this.constructor.name);
     TaskManager.instance.addTaskListener(taskName!, func, this.key);
   }
 };

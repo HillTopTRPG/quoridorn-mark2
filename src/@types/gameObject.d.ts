@@ -96,3 +96,12 @@ type PropertySelectionStore = {
   label: string;
   value: string;
 };
+
+type OtherTextViewInfo = {
+  type: string;
+  docId: string;
+  text: string;
+  point: Point;
+  columns: number;
+  rows: number;
+};

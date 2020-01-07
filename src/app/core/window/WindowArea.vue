@@ -157,10 +157,3 @@ export default class WindowArea extends Vue {
   }
 }
 </script>
-
-<style scoped lang="scss">
-#window-area {
-  position: relative;
-  z-index: 10;
-}
-</style>

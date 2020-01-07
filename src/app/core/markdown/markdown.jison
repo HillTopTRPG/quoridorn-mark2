@@ -5,7 +5,7 @@
 
 /* lexical grammar */
 %{
-console.log("------------");
+console.log("-----------");
 lex = function(type, state) {
   if (state && this.conditionStack[this.conditionStack.length - 1] !== state) this.begin(state);
   else if (state === '') this.popState();
@@ -82,18 +82,18 @@ function fixSpans(spans, isRow) {
 %%
 
 <*><<EOF>>                 return lex.call(this, 'EOF');
-<INITIAL,SPAN>('{'.+?'}')?'['.+?']('.*')'
-                           return lex.call(this, 'select', 'SPAN');
 <INITIAL,SPAN>'['(' '|'x')']'
                            return lex.call(this, 'check', 'SPAN');
+<INITIAL,SPAN>('{'.+?'}')?'['[^\]]+?']('.*')'
+                           return lex.call(this, 'select', 'SPAN');
 <INITIAL,SPAN>' '*'|'' '*  return lex.call(this, '|', 'SPAN');
 <INITIAL>' '*('*'|'-')' '  return lex.call(this, 'ul', 'SPAN');
 <INITIAL>' '*[0-9]+'.'' '  return lex.call(this, 'ol', 'SPAN');
+<INITIAL>' '*('***'|'---'|'+++'|'___')' '*\r?\n
+                           return lex.call(this, 'hr');
 <INITIAL,SPAN>' '*':'?'-'+':'?' '*
                            return lex.call(this, '<->', 'SPAN');
 <INITIAL>' '*'>'           return lex.call(this, '>', 'SPAN');
-<INITIAL>' '*('***'|'---'|'+++'|'___')' '*\r?\n
-                           return lex.call(this, 'hr');
 <INITIAL>'#'{1,6}.+?\r?\n  return lex.call(this, '#');
 <INITIAL,SPAN>('***'.+?'***')|('___'.+?'___')
                            return lex.call(this, 'bi', 'SPAN');
@@ -140,6 +140,64 @@ expressions
           line.type = 'line';
           line.value = fixSpans(line.value, 1);
         }
+        let checkCount = 0;
+        let selectCount = 0;
+        $1.forEach(block => {
+          const blockType = block.type;
+          block.value.forEach(line => {
+            delete line.raw;
+            if (line.value && Array.isArray(line.value)) {
+              line.value.forEach(span => {
+                if (span.type === 'check') span.index = checkCount++;
+                if (span.type === 'select') span.index = selectCount++;
+                delete span.raw;
+                delete span.connectable;
+                delete span.isTableSpan;
+              });
+            }
+            if (blockType !== 'RAW-BLOCK') {
+              delete line.nlCount;
+            }
+          });
+          if (blockType === 'TABLE-BLOCK') {
+            // 両端の区切りは削除
+            block.value.forEach((line, idx) => {
+              const list = line.value;
+              if (list[0].type === '|') list.splice(0, 1);
+              if (list[list.length - 1].type === '|') list.splice(list.length - 1, 1);
+            });
+
+            // align定義の取得
+            let isLastDev = true;
+            const dec = [];
+            block.value[1].value.forEach(span => {
+              if (span.type === '|') {
+                if (isLastDev) dec.push(null);
+              } else dec.push(span.align);
+              isLastDev = span.type === '|';
+            });
+            block.value.splice(1, 1);
+            const table = [];
+            block.value.forEach((line, idx) => {
+              const decCopy = dec.concat();
+              const decItem = decCopy.shift();
+              table.push({ type: 'tr', value: [{ type: idx ? 'td' : 'th', value: [], align: decItem }] });
+              const list = line.value;
+              isLastDev = true;
+              list.forEach((span) => {
+                if (span.type === '|') {
+                  const decItem = decCopy.shift();
+                  table[table.length - 1].value.push({ type: idx ? 'td' : 'th', value: [], align: decItem });
+                } else {
+                  const lastCellList = table[table.length - 1].value;
+                  lastCellList[lastCellList.length - 1].value.push(span);
+                }
+                isLastDev = span.type === '|';
+              });
+            });
+            block.value = table;
+          }
+        });
         return $1;
       }
     ;
@@ -195,6 +253,7 @@ block
         } else if (lastBlock.type === 'RAW-BLOCK') {
           if ($2.type === 'nl') {
             lastLine.nlCount += $2.nlCount;
+            lastBlock.nlCount = lastLine.nlCount;
             return;
           }
           if ($2.type.startsWith('table-line')) $1.push({ type: 'UNKNOWN-BLOCK', value: [], nlCount: 1 });
@@ -222,7 +281,8 @@ block
           }
         } else if (lastBlock.type === 'UL-BLOCK') {
           if ($2.type === 'nl') {
-            lastBlock.nlCount += $2.nlCount;
+            lastLine.nlCount += $2.nlCount;
+            lastBlock.nlCount = lastLine.nlCount;
             return;
           }
           if ($2.type === 'ul') {
@@ -233,7 +293,8 @@ block
           else $1.push({ type: 'RAW-BLOCK', value: [], nlCount: 1 });
         } else if (lastBlock.type === 'OL-BLOCK') {
           if ($2.type === 'nl') {
-            lastBlock.nlCount += $2.nlCount;
+            lastLine.nlCount += $2.nlCount;
+            lastBlock.nlCount = lastLine.nlCount;
             return;
           }
           if ($2.type === 'ol') {
@@ -260,9 +321,9 @@ line
     | '>' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
     | 'ul' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
     | 'ol' 'nl' { $$ = { type: 'line', value: [span('.', $1, true)], raw: $1, nlCount: 1 }; }
-    | '#' { $$ = { type: `h${$1.match(/^#+/)[0].length}`, value: $1.replace(/^#+ *(.+)$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
+    | '#' { $$ = { type: `h${$1.match(/^#{1,6}/)[0].length}`, value: $1.replace(/^#{1,6} *(.+)\r?\n$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
     | 'hr' { $$ = { type: 'hr', raw: $1, nlCount: 1 }; }
-    | '```' { $$ = { type: '```', value: $1.replace(/^\`\`\`((?:.|\s)+?)\`\`\`$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
+    | '```' { $$ = { type: '```', value: $1.replace(/^```((?:.|\s)+?)```\r?\n$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
     | spans 'nl'
       { $$ = { type: 'line', value: fixSpans($1, 0), raw: spansRaw($1), nlCount: 1 };
         let nonCountDev = 0;
@@ -322,7 +383,6 @@ span
         if ($$.raw.trim().startsWith(':') && $$.raw.trim().endsWith(':')) $$.align = 'center';
         else if ($$.raw.trim().startsWith(':')) $$.align = 'left';
         else if ($$.raw.trim().endsWith(':')) $$.align = 'right';
-        else $$.align = 'none';
       }
     | '|'   { $$ = { type: '|', raw: $1, isTableSpan: true }; }
     ;
@@ -337,7 +397,10 @@ text-span
           $$.value = mr[3];
         }
       }
-    | 'check' { $$ = span('check', $1, false, /^\[(.)\]$/, (m, p1) => p1 === 'x'); }
+    | 'check'
+      { $$ = span('check', $1, false);
+        $$.value = $$.raw.match(/^\[(.)\]$/)[1] === 'x';
+      }
     | 'bi'    { $$ = span('bi', $1, true, /^(?:\*\*\*(.+?)\*\*\*)|(?:___(.+?)___)$/, (m, p1, p2) => p1 || p2); }
     | 'b'     { $$ = span('b', $1, true, /^(?:\*\*(.+?)\*\*)|(?:__(.+?)__)$/, (m, p1, p2) => p1 || p2); }
     | 'i'     { $$ = span('i', $1, true, /^(?:\*(.+?)\*)|(?:_(.+?)_)$/, (m, p1, p2) => p1 || p2); }

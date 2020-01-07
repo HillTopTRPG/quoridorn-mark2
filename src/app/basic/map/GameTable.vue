@@ -101,8 +101,8 @@ export default class GameTable extends AddressCalcMixin {
   private mapSetting: MapSetting | null = null;
   private isMounted: boolean = false;
 
-  private get gameTableElm(): HTMLElement {
-    return document.getElementById("gameTable")!;
+  private get appElm(): HTMLElement {
+    return document.getElementById("app")!;
   }
 
   private get gridPaperElm(): HTMLElement {
@@ -199,7 +199,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.totalColumn")
   private onChangeTotalColumn() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--totalColumn",
       this.mapSetting!.totalColumn!.toString(10)
     );
@@ -208,7 +208,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.totalRow")
   private onChangeTotalRow() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--totalRow",
       this.mapSetting!.totalRow!.toString(10)
     );
@@ -217,7 +217,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.gridSize")
   private onChangeGridSize() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--gridSize",
       this.mapSetting!.gridSize! + "px"
     );
@@ -226,7 +226,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.gridBorderColor")
   private onChangeGridBorderColor() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--gridBorderColor",
       this.mapSetting!.gridBorderColor!
     );
@@ -301,7 +301,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.margin.column")
   private onChangeMarginColumn() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--margin-column",
       this.mapSetting!.margin.column.toString(10)
     );
@@ -310,7 +310,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.margin.row")
   private onChangeMarginRow() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--margin-row",
       this.mapSetting!.margin.row.toString(10)
     );
@@ -319,7 +319,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.margin.borderWidth")
   private onChangeMarginBorderWidth() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--margin-border-width",
       this.mapSetting!.margin.borderWidth + "px"
     );
@@ -328,7 +328,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.margin.borderColor")
   private onChangeMarginBorderColor() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--margin-border-color",
       this.mapSetting!.margin.borderColor
     );
@@ -337,7 +337,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("mapSetting.margin.borderStyle")
   private onChangeMarginBorderStyle() {
-    this.gameTableElm.style.setProperty(
+    this.appElm.style.setProperty(
       "--margin-border-style",
       this.mapSetting!.margin.borderStyle
     );
@@ -346,10 +346,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("currentAngle")
   private onChangeCurrentAngle() {
-    this.gameTableElm.style.setProperty(
-      "--currentAngle",
-      this.currentAngle + "deg"
-    );
+    this.appElm.style.setProperty("--currentAngle", this.currentAngle + "deg");
   }
 
   @Watch("isMounted")
@@ -357,7 +354,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("pointDiff.x")
   private onChangeTotalLeftX() {
     const totalLeftX = this.point.x + this.pointDiff.x;
-    this.gameTableElm.style.setProperty("--totalLeftX", totalLeftX + "px");
+    this.appElm.style.setProperty("--totalLeftX", totalLeftX + "px");
   }
 
   @Watch("isMounted")
@@ -365,7 +362,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("pointDiff.y")
   private onChangeTotalLeftY() {
     const totalLeftY = this.point.y + this.pointDiff.y;
-    this.gameTableElm.style.setProperty("--totalLeftY", totalLeftY + "px");
+    this.appElm.style.setProperty("--totalLeftY", totalLeftY + "px");
   }
 
   @Watch("wheel")

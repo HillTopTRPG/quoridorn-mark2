@@ -15,6 +15,11 @@
       <context />
     </template>
     <window-area />
+    <other-text-frame
+      :otherTextViewInfo="otherTextViewInfo"
+      @hide="otherTextHide"
+      v-if="otherTextViewInfo"
+    />
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
     <div id="loadingCreateRoom" v-if="isCreatingRoomMode">
       <div class="message">お部屋を作成しています！</div>
@@ -55,9 +60,12 @@ import {
 import { StoreObj, StoreUseData } from "@/@types/store";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import BgmManager from "@/app/basic/music/BgmManager";
+import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
+import { OtherTextViewInfo } from "@/@types/gameObject";
 
 @Component({
   components: {
+    OtherTextFrame,
     RightPane,
     WindowArea,
     Context,
@@ -76,6 +84,7 @@ export default class App extends Vue {
   private isModal: boolean = false;
 
   private roomInfo: ClientRoomInfo | null = null;
+  private otherTextViewInfo: OtherTextViewInfo | null = null;
 
   private get elm(): HTMLElement {
     return document.getElementById("app") as HTMLElement;
@@ -105,6 +114,16 @@ export default class App extends Vue {
       "--background-background-image",
       "none"
     );
+
+    // // 検証用
+    // await TaskManager.instance.ignition<WindowOpenInfo<never>, never>({
+    //   type: "window-open",
+    //   owner: "Quoridorn",
+    //   value: {
+    //     type: "edit-other-text-window"
+    //   }
+    // });
+
     // ログイン画面の表示
     const serverInfo = await SocketFacade.instance.socketCommunication<
       string,
@@ -336,6 +355,18 @@ export default class App extends Vue {
     task.resolve();
   }
 
+  @TaskProcessor("other-text-view-finished")
+  private async otherTextView(
+    task: Task<OtherTextViewInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    this.otherTextViewInfo = task.value;
+    task.resolve();
+  }
+
+  private otherTextHide() {
+    this.otherTextViewInfo = null;
+  }
+
   @TaskProcessor("room-initialize-finished")
   private async roomInitializeFinished(
     task: Task<ClientRoomInfo, never>
@@ -475,6 +506,15 @@ hr {
 
 .public-memo-tile:hover + .public-memo-fukidashi {
   visibility: visible;
+}
+
+#window-area {
+  position: relative;
+  z-index: 10;
+}
+
+.other-text-frame {
+  z-index: 11;
 }
 
 #wheelMarker {

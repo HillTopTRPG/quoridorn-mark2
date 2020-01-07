@@ -25,6 +25,7 @@ import EditMapMaskWindow from "@/app/basic/map-object/map-mask/EditMapMaskWindow
 import AddChitWindow from "@/app/basic/map-object/chit/AddChitWindow.vue";
 import InputImagePasswordWindow from "@/app/core/component/InputImagePasswordWindow.vue";
 import { markdown } from "@/app/core/markdown/markdown";
+import EditOtherTextWindow from "@/app/basic/other-text/EditOtherTextWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -50,6 +51,7 @@ Vue.component("add-map-mask-window", AddMapMaskWindow);
 Vue.component("edit-map-mask-window", EditMapMaskWindow);
 Vue.component("add-chit-window", AddChitWindow);
 Vue.component("input-image-password-window", InputImagePasswordWindow);
+Vue.component("edit-other-text-window", EditOtherTextWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({
