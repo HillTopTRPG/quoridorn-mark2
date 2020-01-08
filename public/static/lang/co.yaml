@@ -103,6 +103,7 @@ label:
   version-compatible: 버전 호환성
   adequate: 적정
   inadequate: 부적정
+  background: 背景
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -192,6 +193,9 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: 전표 추가
+
+edit-chit-window:
+  window-title: チット編集
 
 input-image-password-window:
   window-title: 숨겨진 이미지 암호 입력

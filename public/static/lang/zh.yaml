@@ -103,6 +103,7 @@ label:
   version-compatible: 版本兼容性
   adequate: 适当的
   inadequate: 不当的
+  background: 背景
 
 message:
   copy-to-clipboard: 复制到剪贴板
@@ -192,6 +193,9 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: 添加聊天
+
+edit-chit-window:
+  window-title: チット編集
 
 input-image-password-window:
   window-title: 输入隐藏图片的密码

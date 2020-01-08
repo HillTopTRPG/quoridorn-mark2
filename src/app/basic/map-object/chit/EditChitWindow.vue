@@ -1,12 +1,7 @@
 <template>
   <div class="container" ref="window">
     <div class="chit-cell">
-      <div
-        class="chit"
-        ref="chit"
-        :draggable="!!imageDocId"
-        @dragstart="dragStart"
-      ></div>
+      <div class="chit" ref="chit" :draggable="false"></div>
     </div>
     <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
       <image-picker-component
@@ -82,6 +77,15 @@
         </td>
       </tr>
     </table>
+
+    <div class="button-area">
+      <ctrl-button @click="commit()">
+        <span v-t="'button.modify'"></span>
+      </ctrl-button>
+      <ctrl-button @click="rollback()">
+        <span v-t="'button.reject'"></span>
+      </ctrl-button>
+    </div>
   </div>
 </template>
 
@@ -91,11 +95,10 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import WindowVue from "../../../core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import VueEvent from "../../../core/decorator/VueEvent";
 import BaseInput from "../../../core/component/BaseInput.vue";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
-import { AddObjectInfo } from "@/@types/data";
+import { DataReference } from "@/@types/data";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
@@ -106,6 +109,8 @@ import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
 import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -117,9 +122,12 @@ import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.
     CtrlButton
   }
 })
-export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
-  WindowVue
-) {
+export default class EditChitWindow extends Mixins<
+  WindowVue<DataReference, never>
+>(WindowVue) {
+  private docId: string = "";
+  private cc: NekostoreCollectionController<ChitStore> | null = null;
+  private isProcessed: boolean = false;
   private imageList = GameObjectManager.instance.imageList;
   private otherText: string = "";
   private height: number = 1;
@@ -166,8 +174,72 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = LanguageManager.instance.getText("type.character");
     this.isMounted = true;
+    const type = this.windowInfo.args!.type;
+    this.docId = this.windowInfo.args!.docId;
+    this.cc = SocketFacade.instance.getCC(type);
+    const data = (await this.cc!.getData(this.docId))!;
+    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
+    if (backgroundInfo.backgroundType === "image") {
+      this.imageDocId = backgroundInfo.imageId;
+      this.imageTag = backgroundInfo.imageTag;
+      this.backgroundSize = backgroundInfo.backgroundSize;
+      this.direction = backgroundInfo.direction;
+    }
+    this.width = data.data!.columns;
+    this.height = data.data!.rows;
+    this.otherText = data.data!.otherText;
+    this.layerId = data.data!.layerId;
+    try {
+      await this.cc.touchModify(this.docId);
+    } catch (err) {
+      window.console.warn(err);
+      this.isProcessed = true;
+      await this.close();
+    }
+  }
+
+  @VueEvent
+  private async commit() {
+    const data = (await this.cc!.getData(this.docId))!;
+    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
+    if (backgroundInfo.backgroundType === "image") {
+      backgroundInfo.imageId = this.imageDocId!;
+      backgroundInfo.imageTag = this.imageTag!;
+      backgroundInfo.backgroundSize = this.backgroundSize;
+      backgroundInfo.direction = this.direction;
+    }
+    data.data!.rows = this.height;
+    data.data!.columns = this.width;
+    data.data!.otherText = this.otherText;
+    data.data!.layerId = this.layerId;
+    await this.cc!.update(this.docId, data.data!);
+    this.isProcessed = true;
+    await this.close();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value !== this.windowInfo.key) return;
+    if (!this.isProcessed) {
+      this.isProcessed = true;
+      await this.rollback();
+    }
+  }
+
+  @VueEvent
+  private async rollback() {
+    try {
+      await this.cc!.releaseTouch(this.docId);
+    } catch (err) {
+      // nothing
+    }
+    if (!this.isProcessed) {
+      this.isProcessed = true;
+      await this.close();
+    }
   }
 
   private getImageObj() {
@@ -197,51 +269,6 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
 
   private get chitElm(): HTMLElement {
     return this.$refs.chit as HTMLElement;
-  }
-
-  @VueEvent
-  private dragStart(event: DragEvent) {
-    event.dataTransfer!.setData("dropType", "chit");
-    event.dataTransfer!.setData("dropWindow", this.key);
-  }
-
-  @TaskProcessor("added-object-finished")
-  private async addedObjectFinished(
-    task: Task<AddObjectInfo, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value!.dropWindow !== this.key) return;
-    const point = task.value!.point;
-
-    const owner = GameObjectManager.instance.mySelfId;
-    const chitInfo: ChitStore = {
-      x: point.x,
-      y: point.y,
-      owner,
-      columns: this.width,
-      rows: this.height,
-      place: "field",
-      isHideBorder: false,
-      isHideHighlight: false,
-      isLock: false,
-      otherText: this.otherText,
-      layerId: this.layerId,
-      backgroundList: [
-        {
-          backgroundType: "image",
-          imageTag: this.imageTag!,
-          imageId: this.imageDocId!,
-          direction: this.direction,
-          backgroundSize: this.backgroundSize!
-        }
-      ],
-      useBackGround: 0,
-      angle: 0
-    };
-    const chitCC = SocketFacade.instance.chitCC();
-    const docId = await chitCC.touch();
-    await chitCC.add(docId, chitInfo);
-
-    task.resolve();
   }
 
   @Watch("isMounted")
@@ -306,23 +333,6 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   border-color: rgb(255, 255, 153);
   border-width: 3px;
   box-sizing: border-box;
-
-  &[draggable="false"] {
-    background-image: linear-gradient(
-        -45deg,
-        transparent calc(50% - 1px),
-        var(--uni-color-red) calc(50% - 1px),
-        var(--uni-color-red) calc(50% + 1px),
-        transparent calc(50% + 1px)
-      ),
-      linear-gradient(
-        45deg,
-        transparent calc(50% - 1px),
-        var(--uni-color-red) calc(50% - 1px),
-        var(--uni-color-red) calc(50% + 1px),
-        transparent calc(50% + 1px)
-      );
-  }
 }
 
 .value-width,
@@ -332,7 +342,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
 
 .container {
   display: grid;
-  grid-template-rows: 12em 1fr;
+  grid-template-rows: 12em 1fr calc(2em + 0.5rem);
   grid-template-columns: 12em 1fr;
   width: 100%;
   height: 100%;
@@ -392,6 +402,11 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
         margin: 0;
       }
     }
+  }
+
+  .button-area {
+    grid-row: 3 / 4;
+    grid-column: 1 / 3;
   }
 }
 </style>

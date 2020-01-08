@@ -103,6 +103,7 @@ label:
   version-compatible: Version Compatible
   adequate: Adequate
   inadequate: inadequate
+  background: Background
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -192,6 +193,9 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: チット追加
+
+edit-chit-window:
+  window-title: チット編集
 
 input-image-password-window:
   window-title: 隠し画像用パスワード入力

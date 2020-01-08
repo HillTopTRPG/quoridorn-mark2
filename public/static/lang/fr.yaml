@@ -101,6 +101,7 @@ label:
   version-compatible: Compatibilité des versions
   adequate: Bon
   inadequate: Incorrect
+  background: 背景
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -190,6 +191,9 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: Ajouter du chit
+
+edit-chit-window:
+  window-title: チット編集
 
 input-image-password-window:
   window-title: Entrez le mot de passe pour l'image cachée

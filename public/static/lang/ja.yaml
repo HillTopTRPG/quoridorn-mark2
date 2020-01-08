@@ -101,6 +101,7 @@ label:
   version-compatible: バージョン互換性
   adequate: 適正
   inadequate: 不適正
+  background: 背景
 
 
 message:
@@ -191,6 +192,9 @@ edit-map-mask-window:
 
 add-chit-window:
   window-title: チット追加
+
+edit-chit-window:
+  window-title: チット編集
 
 input-image-password-window:
   window-title: 隠し画像用パスワード入力

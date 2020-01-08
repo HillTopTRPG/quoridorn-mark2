@@ -67,6 +67,24 @@ map-mask:
       rhs: true
     taskArg:
       value: false
+  - text: context.hide-highlight
+    taskName: change-highlight-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideHighlight
+      rhs: false
+    taskArg:
+      value: true
+  - text: context.view-highlight
+    taskName: change-highlight-view
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isHideHighlight
+      rhs: true
+    taskArg:
+      value: false
 
 chit:
   - text: context.modify

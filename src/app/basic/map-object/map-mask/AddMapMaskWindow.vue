@@ -1,71 +1,87 @@
 <template>
   <div class="container" ref="window">
-    <table>
-      <tr>
-        <th>
-          <label
-            :for="`${key}-text`"
-            class="label-text label-input"
-            v-t="'label.text'"
-          ></label>
-        </th>
-        <td>
-          <base-input
-            :id="`${key}-text`"
-            class="value-text"
-            type="text"
-            :value="text"
-            @input="text = $event.target.value"
-          />
-        </td>
-        <td rowspan="7" class="map-mask-cell">
-          <div
-            class="map-mask"
-            ref="mapMask"
-            draggable="true"
-            @dragstart="dragStart"
-          >
-            {{ text }}
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <th>
-          <label
-            :for="`${key}-color`"
-            class="label-color label-input"
-            v-t="'label.background-color'"
-          ></label>
-        </th>
-        <td>
-          <color-picker-component
-            :id="`${key}-color`"
-            class="value-color"
-            v-model="color"
-          />
-        </td>
-      </tr>
-      <tr>
-        <th>
-          <label
-            :for="`${key}-alpha`"
-            class="label-alpha label-input"
-            v-t="'label.alpha'"
-          ></label>
-        </th>
-        <td>
-          <base-input
-            :id="`${key}-alpha`"
-            class="value-alpha"
-            type="range"
-            min="0"
-            max="1"
-            step="0.1"
-            :value="alpha"
-            @input="alpha = $event.target.value"
-          />
-        </td>
-      </tr>
+    <div class="map-mask-cell">
+      <div
+        class="map-mask"
+        ref="mapMask"
+        draggable="true"
+        @dragstart="dragStart"
+      >
+        {{ text }}
+      </div>
+    </div>
+    <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
+      <div v-if="currentTabInfo.target === 'background'">
+        <table>
+          <tr>
+            <th>
+              <label
+                :for="`${key}-text`"
+                class="label-text label-input"
+                v-t="'label.text'"
+              ></label>
+            </th>
+            <td>
+              <base-input
+                :id="`${key}-text`"
+                class="value-text"
+                type="text"
+                :value="text"
+                @input="text = $event.target.value"
+              />
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label
+                :for="`${key}-color`"
+                class="label-color label-input"
+                v-t="'label.background-color'"
+              ></label>
+            </th>
+            <td>
+              <color-picker-component
+                :id="`${key}-color`"
+                class="value-color"
+                v-model="color"
+              />
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <label
+                :for="`${key}-alpha`"
+                class="label-alpha label-input"
+                v-t="'label.alpha'"
+              ></label>
+            </th>
+            <td>
+              <base-input
+                :id="`${key}-alpha`"
+                class="value-alpha"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                :value="alpha"
+                @input="alpha = $event.target.value"
+              />
+            </td>
+          </tr>
+        </table>
+      </div>
+      <textarea
+        v-if="currentTabInfo.target === 'text'"
+        v-model="otherText"
+      ></textarea>
+      <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
+        <label>
+          <span v-t="'label.add-target'" class="label-input"></span>
+          <map-layer-select v-model="layerId" />
+        </label>
+      </div>
+    </simple-tab-component>
+    <table class="info-table">
       <tr>
         <th>
           <label
@@ -74,7 +90,7 @@
             v-t="'label.width'"
           ></label>
         </th>
-        <td>
+        <td class="value-cell">
           <base-input
             :id="`${key}-width`"
             class="value-width"
@@ -93,7 +109,7 @@
             v-t="'label.height'"
           ></label>
         </th>
-        <td>
+        <td class="value-cell">
           <base-input
             :id="`${key}-height`"
             class="value-height"
@@ -106,14 +122,16 @@
       </tr>
       <tr>
         <td colspan="2">
-          <label class="multi-create">
-            <base-input
-              type="checkbox"
-              :value="isMulti"
-              @input="isMulti = $event.target.value"
-            />
-            <span v-t="'label.multi-create'"></span>
-          </label>
+          <div>
+            <label class="multi-create">
+              <base-input
+                type="checkbox"
+                :value="isMulti"
+                @input="isMulti = $event.target.value"
+              />
+              <span v-t="'label.multi-create'"></span>
+            </label>
+          </div>
         </td>
       </tr>
     </table>
@@ -137,9 +155,20 @@ import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import LanguageManager from "@/LanguageManager";
+import { TabInfo } from "@/@types/window";
+import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
 
 @Component({
-  components: { ColorPickerComponent, BaseInput, SeekBarComponent, CtrlButton }
+  components: {
+    MapLayerSelect,
+    SimpleTabComponent,
+    ColorPickerComponent,
+    BaseInput,
+    SeekBarComponent,
+    CtrlButton
+  }
 })
 export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
@@ -154,6 +183,36 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   private layerId: string = GameObjectManager.instance.mapLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
+  private otherText: string = "";
+
+  private tabList: TabInfo[] = [
+    {
+      text: LanguageManager.instance.getText("label.background"),
+      target: "background"
+    },
+    {
+      text: LanguageManager.instance.getText("label.layer"),
+      target: "layer"
+    },
+    {
+      text: LanguageManager.instance.getText("label.other-text"),
+      target: "text"
+    }
+  ];
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+    this.tabList[0].text = getText("label.background");
+    this.tabList[1].text = getText("label.layer");
+    this.tabList[2].text = getText("label.other-text");
+    task.resolve();
+  }
+  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @LifeCycle
   public async mounted() {
@@ -191,7 +250,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
       isHideBorder: false,
       isHideHighlight: false,
       isLock: false,
-      otherText: "",
+      otherText: this.otherText,
       layerId: this.layerId,
       backgroundList: [
         {
@@ -251,53 +310,102 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
 @import "../../../../assets/common";
 
 .map-mask {
-  @include inline-flex-box(row, center, center);
+  @include flex-box(row, center, center);
   width: calc(var(--width-ratio) * 3em);
   height: calc(var(--height-ratio) * 3em);
   background-color: var(--back-color);
   color: var(--font-color);
-  white-space: pre-wrap;
+  white-space: normal;
+  box-sizing: border-box;
+  word-break: break-all;
+  text-align: center;
+}
+
+.value-alpha {
+  transform: rotate(180deg);
+  transform-origin: center;
+}
+
+.value-width,
+.value-height {
+  width: 3em;
 }
 
 .container {
+  display: grid;
+  grid-template-rows: 12em 1fr;
+  grid-template-columns: 12em 1fr;
   width: 100%;
   height: 100%;
 
-  table {
-    width: 100%;
-  }
+  .simple-tab-component {
+    grid-row: 1 / 3;
+    grid-column: 2 / 3;
 
-  th {
-    text-align: right;
-    padding: 0;
-  }
-
-  td {
-    text-align: left;
-    padding: 0;
-
-    label {
-      @include flex-box(row, flex-start, center);
-    }
-
-    input {
-      margin: 0;
-
-      &.value-width,
-      &.value-height {
-        width: 3em;
-      }
-
-      &.value-alpha {
-        transform: rotate(180deg);
-        transform-origin: center;
-      }
-    }
-
-    &.map-mask-cell {
+    > *:not(:first-child) {
       width: 100%;
-      text-align: center;
-      vertical-align: middle;
+      flex: 1;
+    }
+
+    table {
+      box-sizing: border-box;
+
+      th {
+        text-align: right;
+      }
+
+      td {
+        text-align: left;
+      }
+    }
+
+    > div:not(.image-picker-container) {
+      border: solid 1px gray;
+      box-sizing: border-box;
+      padding: 0.2rem;
+    }
+
+    textarea {
+      resize: none;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  }
+
+  .map-mask-cell {
+    grid-row: 1 / 2;
+    grid-column: 1 / 2;
+    @include flex-box(row, center, center);
+  }
+
+  > table {
+    grid-row: 2 / 3;
+    grid-column: 1 / 2;
+
+    th,
+    td {
+      > div {
+        @include flex-box(row, flex-start, center);
+      }
+      label {
+        @include inline-flex-box(row, flex-start, center);
+      }
+    }
+
+    th {
+      text-align: right;
+      padding: 0;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    td {
+      text-align: left;
+      padding: 0;
+
+      input {
+        margin: 0;
+      }
     }
   }
 }
