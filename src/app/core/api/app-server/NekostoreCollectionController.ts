@@ -159,7 +159,7 @@ export default class NekostoreCollectionController<T> {
     });
   }
 
-  public async update(id: string, data: T) {
+  public async update(id: string, data: T, continuous?: boolean) {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
     await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
@@ -167,7 +167,8 @@ export default class NekostoreCollectionController<T> {
       {
         collection: this.collectionName,
         id,
-        data
+        data,
+        continuous
       }
     );
   }

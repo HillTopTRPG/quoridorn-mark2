@@ -122,14 +122,7 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
 
   private async updateMap() {
     try {
-      await this.cc.touchModify(this.mapId!);
-    } catch (err) {
-      window.console.log("----------");
-      window.console.log(err);
-      return;
-    }
-    try {
-      await this.cc.update(this.mapId!, this.mapInfo!.data!);
+      await this.cc.update(this.mapId!, this.mapInfo!.data!, true);
     } catch (err) {
       window.console.log("==========");
       window.console.log(err);
@@ -178,6 +171,13 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     this.mainBgObj = getBgObj(this.mapInfo.data!.texture);
     this.marginBgObj = getBgObj(this.mapInfo.data!.margin.texture);
     this.backgroundBgObj = getBgObj(this.mapInfo.data!.background.texture);
+
+    try {
+      await this.cc.touchModify(this.mapId);
+    } catch (err) {
+      window.console.warn(err);
+      await this.close();
+    }
   }
 
   private static getBgObj(info: Texture): Texture {
