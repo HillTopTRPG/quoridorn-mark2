@@ -12,7 +12,7 @@
         :direction.sync="direction"
       />
       <textarea
-        v-if="currentTabInfo.target === 'text'"
+        v-if="currentTabInfo.target === 'other-text'"
         v-model="otherText"
       ></textarea>
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
@@ -143,33 +143,33 @@ export default class EditChitWindow extends Mixins<
   )[0].id!;
 
   private tabList: TabInfo[] = [
-    {
-      text: LanguageManager.instance.getText("label.image"),
-      target: "image"
-    },
-    {
-      text: LanguageManager.instance.getText("label.layer"),
-      target: "layer"
-    },
-    {
-      text: LanguageManager.instance.getText("label.other-text"),
-      target: "text"
-    }
+    { target: "image", text: "" },
+    { target: "layer", text: "" },
+    { target: "other-text", text: "" }
   ];
+  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @TaskProcessor("language-change-finished")
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
+    this.createTabInfoList();
+    task.resolve();
+  }
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+  }
+
+  private createTabInfoList() {
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    this.tabList[0].text = getText("label.image");
-    this.tabList[1].text = getText("label.layer");
-    this.tabList[2].text = getText("label.other-text");
-    task.resolve();
+    this.tabList.forEach(t => {
+      t.text = getText(`label.${t.target}`);
+    });
   }
-  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @LifeCycle
   public async mounted() {
@@ -179,8 +179,8 @@ export default class EditChitWindow extends Mixins<
     this.docId = this.windowInfo.args!.docId;
     this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "image") {
+    const backgroundInfo = data.data!.textures[data.data!.useBackGround];
+    if (backgroundInfo.type === "image") {
       this.imageDocId = backgroundInfo.imageId;
       this.imageTag = backgroundInfo.imageTag;
       this.backgroundSize = backgroundInfo.backgroundSize;
@@ -202,8 +202,8 @@ export default class EditChitWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "image") {
+    const backgroundInfo = data.data!.textures[data.data!.useBackGround];
+    if (backgroundInfo.type === "image") {
       backgroundInfo.imageId = this.imageDocId!;
       backgroundInfo.imageTag = this.imageTag!;
       backgroundInfo.backgroundSize = this.backgroundSize;

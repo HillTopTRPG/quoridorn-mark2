@@ -16,6 +16,7 @@ button:
   close: 閉じる
   logout: ログアウト
   exit-room: 退室
+  edit: 編集
 
 type:
   map-mask: マップマスク
@@ -41,6 +42,7 @@ context:
   hide-border: 枠線を非表示
   view-highlight: ハイライトを表示
   hide-highlight: ハイライトを非表示
+  edit-area-map: エリアマップ編集
 
 label:
   terms-of-use: 利用規約
@@ -102,6 +104,9 @@ label:
   adequate: 適正
   inadequate: 不適正
   background: 背景
+  main: メイン
+  margin: 余白
+  color: 色
 
 
 message:
@@ -199,3 +204,9 @@ edit-chit-window:
 input-image-password-window:
   window-title: 隠し画像用パスワード入力
   message: パスワードを入力することで、隠し画像を表示することができます。
+
+edit-area-map-window:
+  window-title: エリアマップ編集
+
+edit-map-window:
+  window-title: マップ編集

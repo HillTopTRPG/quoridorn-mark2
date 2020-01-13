@@ -10,18 +10,13 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { UserType } from "@/@types/socket";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
-
-type Item = {
-  val: UserType;
-  text: string;
-};
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -32,10 +27,15 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  private optionInfoList: any[] = [];
+  private optionInfoList: HtmlOptionInfo[] = [
+    { value: "", key: "user-type", text: "", disabled: true },
+    { value: "PL", key: "player", text: "", disabled: false },
+    { value: "GM", key: "gameMaster", text: "", disabled: false },
+    { value: "VISITOR", key: "visitor", text: "", disabled: false }
+  ];
 
-  @VueEvent
-  private mounted() {
+  @LifeCycle
+  private created() {
     this.createOptionInfoList();
   }
 
@@ -51,22 +51,8 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    const choice: Item[] = [
-      { val: "PL", text: getText("label.player") },
-      { val: "GM", text: getText("label.gameMaster") },
-      { val: "VISITOR", text: getText("label.visitor") }
-    ];
-    this.optionInfoList = choice.map((c: Item) => ({
-      key: c.val,
-      value: c.val,
-      text: c.text,
-      disabled: false
-    }));
-    this.optionInfoList.unshift({
-      key: null,
-      value: "",
-      text: LanguageManager.instance.getText("label.direction"),
-      disabled: true
+    this.optionInfoList.forEach(o => {
+      o.text = getText(`label.${o.key}`);
     });
   }
 

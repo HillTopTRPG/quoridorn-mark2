@@ -1,5 +1,5 @@
 import { Point } from "@/@types/address";
-import { ColorSpec, ImageSpec } from "@/@types/room";
+import { Texture } from "@/@types/room";
 
 type VolatileMapObject = {
   moveFrom: Point;
@@ -22,7 +22,7 @@ type MapObject = Point & {
   otherText: string;
   place: Place;
   layerId: string;
-  backgroundList: (ColorSpec | ImageSpec)[];
+  textures: Texture[];
   useBackGround: number;
   angle: number;
 };

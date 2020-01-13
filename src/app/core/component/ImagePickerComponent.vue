@@ -102,10 +102,10 @@ export default class ImagePickerComponent extends Vue {
   private rowImageList: StoreUseData<Image>[] = [];
   private useImageList: StoreUseData<Image>[] = [];
 
-  @Watch("windowKey", { immediate: true })
-  private onChangeKey() {
-    window.console.log(this.windowKey);
-  }
+  // @Watch("windowKey", { immediate: true })
+  // private onChangeKey() {
+  //   window.console.log(this.windowKey);
+  // }
 
   @Watch("isMounted")
   @Watch("selectImageTag")
@@ -139,7 +139,6 @@ export default class ImagePickerComponent extends Vue {
         args: this.password
       }
     });
-    window.console.log(imagePasswordList);
     if (imagePasswordList.length) this.password = imagePasswordList[0];
   }
 
@@ -167,13 +166,13 @@ export default class ImagePickerComponent extends Vue {
   }
 
   @Watch("selectImageTag")
-  private onChangeSelectImageTag(value: string) {
-    this.$emit("update:imageTag", value);
+  private onChangeSelectImageTag() {
+    this.$emit("update:imageTag", this.selectImageTag);
   }
 
   @Watch("direction")
-  private onChangeReverse(value: Direction) {
-    this.$emit("update:direction", value);
+  private onChangeReverse() {
+    this.$emit("update:direction", this.direction);
   }
 
   private get elm(): HTMLDivElement {

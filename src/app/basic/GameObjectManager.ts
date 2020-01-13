@@ -1,7 +1,7 @@
 import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import { StoreObj, StoreUseData } from "@/@types/store";
-import { MapAndLayer, MapLayer, UserData } from "@/@types/room";
+import { MapAndLayer, MapLayer, MapSetting, UserData } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
@@ -42,17 +42,33 @@ export default class GameObjectManager {
       await c.setCollectionSnapshot(
         "PlayerManager",
         (snapshot: QuerySnapshot<StoreObj<T>>) => {
+          let wantSort = false;
           snapshot.docs.forEach(doc => {
             const index = list.findIndex(p => p.id === doc.ref.id);
             if (doc.type === "removed") {
               list.splice(index, 1);
             } else {
-              list.splice(index, index < 0 ? 0 : 1, getStoreObj(doc)!);
+              const status = doc.data!.status;
+              if (
+                (status !== "initial-touched" && index === -1) ||
+                status === "added" ||
+                status === "modified"
+              ) {
+                list.splice(index, index < 0 ? 0 : 1, getStoreObj(doc)!);
+                wantSort = true;
+              }
             }
           });
+          if (wantSort)
+            list.sort((i1, i2) => {
+              if (i1.order < i2.order) return -1;
+              if (i1.order > i2.order) return 1;
+              return 0;
+            });
         }
       );
     };
+    await setBasicSnapShot(SocketFacade.instance.mapListCC(), this.mapList);
     await setBasicSnapShot(SocketFacade.instance.imageDataCC(), this.imageList);
     await setBasicSnapShot(
       SocketFacade.instance.imageTagCC(),
@@ -98,6 +114,7 @@ export default class GameObjectManager {
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
+  public readonly mapList: StoreUseData<MapSetting>[] = [];
   public readonly imageList: StoreUseData<Image>[] = [];
   public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly playerList: StoreUseData<UserData>[] = [];

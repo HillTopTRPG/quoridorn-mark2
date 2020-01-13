@@ -71,7 +71,7 @@
         </table>
       </div>
       <textarea
-        v-if="currentTabInfo.target === 'text'"
+        v-if="currentTabInfo.target === 'other-text'"
         v-model="otherText"
       ></textarea>
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
@@ -186,33 +186,33 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   private otherText: string = "";
 
   private tabList: TabInfo[] = [
-    {
-      text: LanguageManager.instance.getText("label.background"),
-      target: "background"
-    },
-    {
-      text: LanguageManager.instance.getText("label.layer"),
-      target: "layer"
-    },
-    {
-      text: LanguageManager.instance.getText("label.other-text"),
-      target: "text"
-    }
+    { target: "background", text: "" },
+    { target: "layer", text: "" },
+    { target: "other-text", text: "" }
   ];
+  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @TaskProcessor("language-change-finished")
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
+    this.createTabInfoList();
+    task.resolve();
+  }
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+  }
+
+  private createTabInfoList() {
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    this.tabList[0].text = getText("label.background");
-    this.tabList[1].text = getText("label.layer");
-    this.tabList[2].text = getText("label.other-text");
-    task.resolve();
+    this.tabList.forEach(t => {
+      t.text = getText(`label.${t.target}`);
+    });
   }
-  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @LifeCycle
   public async mounted() {
@@ -252,9 +252,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
       isLock: false,
       otherText: this.otherText,
       layerId: this.layerId,
-      backgroundList: [
+      textures: [
         {
-          backgroundType: "color",
+          type: "color",
           backgroundColor,
           fontColor,
           text: this.text

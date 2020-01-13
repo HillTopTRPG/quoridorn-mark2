@@ -16,6 +16,7 @@ button:
   close: 닫기
   logout: 로그 아웃
   exit-room: 퇴실
+  edit: 編集
 
 type:
   map-mask: 맵 마스크
@@ -41,6 +42,7 @@ context:
   hide-border: 테두리 숨기기
   view-highlight: 하이라이트 표시
   hide-highlight: 하이라이트 숨기기
+  edit-area-map: エリアマップ編集
 
 label:
   terms-of-use: 이용 약관
@@ -104,6 +106,8 @@ label:
   adequate: 적정
   inadequate: 부적정
   background: 背景
+  main: メイン
+  margin: 余白
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -200,3 +204,9 @@ edit-chit-window:
 input-image-password-window:
   window-title: 숨겨진 이미지 암호 입력
   message: 암호를 입력하면 숨겨진 이미지를 표시 할 수 있습니다
+
+edit-area-map-window:
+  window-title: エリアマップ編集
+
+edit-map-window:
+  window-title: マップ編集

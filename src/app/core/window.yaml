@@ -672,3 +672,69 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"edit-area-map-window":
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  minSize:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  maxSize:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+"edit-map-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  minSize:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  maxSize:
+    widthPx: 17
+    widthEm: 40
+    widthRem: 2.5
+    heightPx: 4
+    heightEm: 22
+    heightRem: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []

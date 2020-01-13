@@ -12,13 +12,13 @@ import SelectMixin from "./base/SelectMixin";
 
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -32,8 +32,8 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
 
   private optionInfoList: any[] = [];
 
-  @VueEvent
-  private mounted() {
+  @LifeCycle
+  private created() {
     this.createOptionInfoList();
   }
 

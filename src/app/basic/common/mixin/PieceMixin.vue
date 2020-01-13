@@ -175,10 +175,10 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("storeInfo.data.useBackGround")
   private onChangeBackground() {
     if (!this.isMounted) return;
-    const backgroundList = this.storeInfo!.data!.backgroundList;
+    const textures = this.storeInfo!.data!.textures;
     const useBackGround = this.storeInfo!.data!.useBackGround;
-    const backInfo = backgroundList[useBackGround];
-    if (backInfo.backgroundType === "color") {
+    const backInfo = textures[useBackGround];
+    if (backInfo.type === "color") {
       this.elm.style.setProperty(`--image`, ``);
       this.imageSrc = "";
       this.elm.style.setProperty(`--image-direction`, ``);

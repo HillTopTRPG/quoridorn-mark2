@@ -11,18 +11,13 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { BackgroundSize } from "@/@types/room";
-
-type Item = {
-  val: BackgroundSize;
-  text: string;
-};
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -33,10 +28,17 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  private optionInfoList: any[] = [];
+  private optionInfoList: HtmlOptionInfo[] = [
+    { value: "", key: "", text: "", disabled: true },
+    { value: "contain", key: "", text: "", disabled: false },
+    { value: "100%", key: "", text: "", disabled: false },
+    { value: "cover-start", key: "", text: "", disabled: false },
+    { value: "cover-center", key: "", text: "", disabled: false },
+    { value: "cover-end", key: "", text: "", disabled: false }
+  ];
 
-  @VueEvent
-  private mounted() {
+  @LifeCycle
+  private created() {
     this.createOptionInfoList();
   }
 
@@ -52,33 +54,10 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    const choice: Item[] = [
-      { val: "contain", text: getText("label.background-location-contain") },
-      { val: "100%", text: getText("label.background-location-100%") },
-      {
-        val: "cover-start",
-        text: getText("label.background-location-cover-start")
-      },
-      {
-        val: "cover-center",
-        text: getText("label.background-location-cover-center")
-      },
-      {
-        val: "cover-end",
-        text: getText("label.background-location-cover-end")
-      }
-    ];
-    this.optionInfoList = choice.map((c: Item) => ({
-      key: c.val,
-      value: c.val,
-      text: c.text,
-      disabled: false
-    }));
-    this.optionInfoList.unshift({
-      key: null,
-      value: "",
-      text: LanguageManager.instance.getText("label.background-location"),
-      disabled: true
+    this.optionInfoList.forEach(o => {
+      const suffix = o.value ? `-${o.value}` : "";
+      o.text = getText(`label.background-location${suffix}`);
+      o.key = o.value;
     });
   }
 

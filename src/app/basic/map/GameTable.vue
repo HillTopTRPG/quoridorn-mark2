@@ -58,14 +58,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import {
-  ColorSpec,
-  ImageSpec,
-  MapLayer,
-  MapSetting,
-  RoomData
-} from "@/@types/room";
-import { MapObject } from "@/@types/gameObject";
+import { MapLayer, MapSetting, RoomData, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
@@ -115,7 +108,7 @@ export default class GameTable extends AddressCalcMixin {
 
   @VueEvent
   private async mounted() {
-    const mapDataStore = SocketFacade.instance.mapListCC();
+    const mapListCC = SocketFacade.instance.mapListCC();
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData: StoreUseData<RoomData> = (await roomDataCC.getList(
       false
@@ -123,7 +116,12 @@ export default class GameTable extends AddressCalcMixin {
     if (!roomData) throw new ApplicationError("No such roomData.");
 
     this.mapId = roomData.data!.mapId;
-    const mapData = await mapDataStore.getData(this.mapId);
+    const mapData = await mapListCC.getData(this.mapId);
+    await mapListCC.setSnapshot(this.key, this.mapId, snapshot => {
+      if (snapshot.data!.status === "modified") {
+        this.mapSetting = snapshot.data!.data!;
+      }
+    });
     if (!mapData) throw new ApplicationError("No such mapData.");
     this.mapSetting = mapData.data!;
     this.useLayerList = await this.getMapLayerList();
@@ -133,33 +131,98 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   @Watch("isMounted")
-  @Watch("mapSetting.backgroundType")
-  @Watch("mapSetting.backgroundColor")
-  @Watch("mapSetting.imageId")
-  @Watch("mapSetting.rotate")
-  @Watch("mapSetting.reverse")
-  private async onChangeBackgroundType() {
-    await GameTable.setBackground("map-canvas-container", this.mapSetting!);
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.background.backgroundType")
-  @Watch("mapSetting.background.backgroundColor")
-  @Watch("mapSetting.background.imageId")
-  @Watch("mapSetting.background.rotate")
-  @Watch("mapSetting.background.reverse")
-  private async onChangeBackgroundBackgroundType() {
-    await GameTable.setBackground("back-screen", this.mapSetting!.background);
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.backgroundType")
-  @Watch("mapSetting.margin.backgroundColor")
-  @Watch("mapSetting.margin.imageId")
-  @Watch("mapSetting.margin.rotate")
-  @Watch("mapSetting.margin.reverse")
-  private async onChangeMarginBackgroundType() {
-    await GameTable.setBackground("table-background", this.mapSetting!.margin);
+  @Watch("mapSetting")
+  private async onChangeMap() {
+    await GameTable.setBackground(
+      "map-canvas-container",
+      this.mapSetting!.texture
+    );
+    await GameTable.setBackground(
+      "back-screen",
+      this.mapSetting!.background.texture
+    );
+    await GameTable.setBackground(
+      "table-background",
+      this.mapSetting!.margin.texture
+    );
+    this.appElm.style.setProperty(
+      "--totalColumn",
+      this.mapSetting!.totalColumn!.toString(10)
+    );
+    this.appElm.style.setProperty(
+      "--totalColumn",
+      this.mapSetting!.totalColumn!.toString(10)
+    );
+    this.appElm.style.setProperty(
+      "--totalRow",
+      this.mapSetting!.totalRow!.toString(10)
+    );
+    this.appElm.style.setProperty(
+      "--gridSize",
+      this.mapSetting!.gridSize! + "px"
+    );
+    this.appElm.style.setProperty(
+      "--gridBorderColor",
+      this.mapSetting!.gridBorderColor!
+    );
+    this.gridPaperElm.style.setProperty(
+      "--mask-color",
+      this.mapSetting!.margin.isUseMaskColor
+        ? this.mapSetting!.margin.maskColor
+        : "transparent"
+    );
+    this.tableBackElm.style.setProperty(
+      "--mask-blur",
+      this.mapSetting!.margin.maskBlur + "px"
+    );
+    document
+      .getElementById("back-screen")!
+      .style.setProperty(
+        "--mask-blur",
+        this.mapSetting!.background.maskBlur + "px"
+      );
+    if (this.mapSetting!.margin.isUseGridColor) {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-bold",
+        this.mapSetting!.margin.gridColorBold
+      );
+    } else {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-bold",
+        "transparent"
+      );
+    }
+    if (this.mapSetting!.margin.isUseGridColor) {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-thin",
+        this.mapSetting!.margin.gridColorThin
+      );
+    } else {
+      this.gridPaperElm.style.setProperty(
+        "--margin-grid-color-thin",
+        "transparent"
+      );
+    }
+    this.appElm.style.setProperty(
+      "--margin-column",
+      this.mapSetting!.margin.column.toString(10)
+    );
+    this.appElm.style.setProperty(
+      "--margin-row",
+      this.mapSetting!.margin.row.toString(10)
+    );
+    this.appElm.style.setProperty(
+      "--margin-border-width",
+      this.mapSetting!.margin.borderWidth + "px"
+    );
+    this.appElm.style.setProperty(
+      "--margin-border-color",
+      this.mapSetting!.margin.borderColor
+    );
+    this.appElm.style.setProperty(
+      "--margin-border-style",
+      this.mapSetting!.margin.borderStyle
+    );
   }
 
   public static changeImagePath(path: string) {
@@ -168,15 +231,12 @@ export default class GameTable extends AddressCalcMixin {
     return path;
   }
 
-  private static async setBackground(
-    targetId: string,
-    info: ColorSpec | ImageSpec
-  ) {
+  private static async setBackground(targetId: string, info: Texture) {
     const elm: HTMLElement = document.getElementById(targetId) as HTMLElement;
     let direction: string = "";
     let backgroundColor: string = "transparent";
     let backgroundImage: string = "none";
-    if (info.backgroundType === "color") {
+    if (info.type === "color") {
       backgroundColor = info.backgroundColor;
     } else {
       const imageData = await SocketFacade.instance
@@ -197,172 +257,25 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   @Watch("isMounted")
-  @Watch("mapSetting.totalColumn")
-  private onChangeTotalColumn() {
-    this.appElm.style.setProperty(
-      "--totalColumn",
-      this.mapSetting!.totalColumn!.toString(10)
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.totalRow")
-  private onChangeTotalRow() {
-    this.appElm.style.setProperty(
-      "--totalRow",
-      this.mapSetting!.totalRow!.toString(10)
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.gridSize")
-  private onChangeGridSize() {
-    this.appElm.style.setProperty(
-      "--gridSize",
-      this.mapSetting!.gridSize! + "px"
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.gridBorderColor")
-  private onChangeGridBorderColor() {
-    this.appElm.style.setProperty(
-      "--gridBorderColor",
-      this.mapSetting!.gridBorderColor!
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.isUseMaskColor")
-  @Watch("mapSetting.margin.maskColor")
-  private onChangeMaskColor() {
-    this.gridPaperElm.style.setProperty(
-      "--mask-color",
-      this.mapSetting!.margin.isUseMaskColor
-        ? this.mapSetting!.margin.maskColor
-        : "transparent"
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.maskBlur")
-  private onChangeMarginMaskBlur() {
-    this.tableBackElm.style.setProperty(
-      "--mask-blur",
-      this.mapSetting!.margin.maskBlur + "px"
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.background.maskBlur")
-  private onChangeBackgroundMaskBlur() {
-    document
-      .getElementById("back-screen")!
-      .style.setProperty(
-        "--mask-blur",
-        this.mapSetting!.background.maskBlur + "px"
-      );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.isUseGridColor")
-  @Watch("mapSetting.margin.gridColorBold")
-  private onChangeMarginGridColorBold() {
-    if (this.mapSetting!.margin.isUseGridColor) {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-bold",
-        this.mapSetting!.margin.gridColorBold
-      );
-    } else {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-bold",
-        "transparent"
-      );
-    }
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.isUseGridColor")
-  @Watch("mapSetting.margin.gridColorThin")
-  private onChangeMarginGridColorThin() {
-    if (this.mapSetting!.margin.isUseGridColor) {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-thin",
-        this.mapSetting!.margin.gridColorThin
-      );
-    } else {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-thin",
-        "transparent"
-      );
-    }
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.column")
-  private onChangeMarginColumn() {
-    this.appElm.style.setProperty(
-      "--margin-column",
-      this.mapSetting!.margin.column.toString(10)
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.row")
-  private onChangeMarginRow() {
-    this.appElm.style.setProperty(
-      "--margin-row",
-      this.mapSetting!.margin.row.toString(10)
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.borderWidth")
-  private onChangeMarginBorderWidth() {
-    this.appElm.style.setProperty(
-      "--margin-border-width",
-      this.mapSetting!.margin.borderWidth + "px"
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.borderColor")
-  private onChangeMarginBorderColor() {
-    this.appElm.style.setProperty(
-      "--margin-border-color",
-      this.mapSetting!.margin.borderColor
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("mapSetting.margin.borderStyle")
-  private onChangeMarginBorderStyle() {
-    this.appElm.style.setProperty(
-      "--margin-border-style",
-      this.mapSetting!.margin.borderStyle
-    );
-  }
-
-  @Watch("isMounted")
   @Watch("currentAngle")
   private onChangeCurrentAngle() {
     this.appElm.style.setProperty("--currentAngle", this.currentAngle + "deg");
   }
 
   @Watch("isMounted")
-  @Watch("point.x")
-  @Watch("pointDiff.x")
-  private onChangeTotalLeftX() {
-    const totalLeftX = this.point.x + this.pointDiff.x;
-    this.appElm.style.setProperty("--totalLeftX", totalLeftX + "px");
-  }
-
-  @Watch("isMounted")
-  @Watch("point.y")
-  @Watch("pointDiff.y")
-  private onChangeTotalLeftY() {
-    const totalLeftY = this.point.y + this.pointDiff.y;
-    this.appElm.style.setProperty("--totalLeftY", totalLeftY + "px");
+  @Watch("point", { deep: true })
+  @Watch("pointDiff", { deep: true })
+  private onChangeTotalLeft() {
+    if (this.setLocateId === null)
+      this.setLocateId = window.setTimeout(() => {
+        const totalLeftX = this.point.x + this.pointDiff.x;
+        this.appElm.style.setProperty("--totalLeftX", totalLeftX + "px");
+        const totalLeftY = this.point.y + this.pointDiff.y;
+        this.appElm.style.setProperty("--totalLeftY", totalLeftY + "px");
+        setTimeout(() => {
+          this.setLocateId = null;
+        }, 100);
+      });
   }
 
   @Watch("wheel")
@@ -449,8 +362,7 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   private mouseDown(button: string) {
-    this.pointDiff.x = 0;
-    this.pointDiff.y = 0;
+    this.pointDiff = createPoint(0, 0);
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.key,
       type: `button-${button}`
@@ -474,6 +386,8 @@ export default class GameTable extends AddressCalcMixin {
   private rotateFrom: number = 0;
   private rotateDiff: number = 0;
   private rotate: number = 0;
+
+  private setLocateId: number | null = null;
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
@@ -499,8 +413,10 @@ export default class GameTable extends AddressCalcMixin {
 
     if (button === "left") {
       const zoom = (1000 - this.wheel) / 1000;
-      this.pointDiff.x = (point.x - this.dragFrom.x) * zoom;
-      this.pointDiff.y = (point.y - this.dragFrom.y) * zoom;
+      this.pointDiff = createPoint(
+        (point.x - this.dragFrom.x) * zoom,
+        (point.y - this.dragFrom.y) * zoom
+      );
     }
     if (button === "right") {
       this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
@@ -521,8 +437,7 @@ export default class GameTable extends AddressCalcMixin {
     if (!param || param.key !== this.key) return;
     this.point.x += this.pointDiff.x;
     this.point.y += this.pointDiff.y;
-    this.pointDiff.x = 0;
-    this.pointDiff.y = 0;
+    this.pointDiff = createPoint(0, 0);
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -630,8 +545,8 @@ export default class GameTable extends AddressCalcMixin {
     (var(--totalColumn) + var(--margin-column) * 2) * var(--gridSize)
   );
   height: calc((var(--totalRow) + var(--margin-row) * 2) * var(--gridSize));
-  transform: translateY(var(--totalLeftY)) translateX(var(--totalLeftX))
-    rotateY(0deg) rotateX(0deg) rotateZ(var(--currentAngle));
+  transform: translate(var(--totalLeftX), var(--totalLeftY))
+    rotateZ(var(--currentAngle));
   filter: var(--filter);
 
   #table-background {

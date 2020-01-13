@@ -1096,11 +1096,7 @@ export default class LoginWindow extends Mixins<
     const mapListCC = SocketFacade.instance.mapListCC();
 
     const mapSetting: MapSetting = {
-      backgroundType: "image",
-      imageTag: imageList[0].tag,
-      imageId: imageId!,
-      direction: "none",
-      backgroundSize: "100%",
+      name: "A-1",
       shapeType: "square",
       totalColumn: 20,
       totalRow: 15,
@@ -1109,21 +1105,31 @@ export default class LoginWindow extends Mixins<
       isPourTile: false,
       isHexFirstCorner: false,
       isHexSecondSmall: false,
-      background: {
-        backgroundType: "image",
+      texture: {
+        type: "image",
         imageTag: imageList[0].tag,
         imageId: imageId!,
         direction: "none",
-        backgroundSize: "100%",
-        // , backgroundColor: "rgb(146, 168, 179)"
+        backgroundSize: "100%"
+      },
+      background: {
+        texture: {
+          type: "image",
+          imageTag: imageList[0].tag,
+          imageId: imageId!,
+          direction: "none",
+          backgroundSize: "100%"
+        },
         maskBlur: 3
       },
       margin: {
-        backgroundType: "image",
-        imageTag: imageList[0].tag,
-        imageId: imageId!,
-        direction: "none",
-        backgroundSize: "100%",
+        texture: {
+          type: "image",
+          imageTag: imageList[0].tag,
+          imageId: imageId!,
+          direction: "none",
+          backgroundSize: "100%"
+        },
         isUseGridColor: true,
         gridColorBold: "rgba(255, 255, 255, 0.3)",
         gridColorThin: "rgba(255, 255, 255, 0.1)",

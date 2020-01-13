@@ -32,10 +32,10 @@
 </template>
 
 <script lang="ts">
-import SelectMixin from "../../basic/common/components/select/base/SelectMixin";
-
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
+import { HtmlOptionInfo } from "@/@types/window";
+import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
 
 @Component
 export default class CtrlSelect extends SelectMixin {
@@ -43,7 +43,7 @@ export default class CtrlSelect extends SelectMixin {
   private disabled!: boolean;
 
   @Prop({ type: Array, required: true })
-  private optionInfoList!: any[];
+  private optionInfoList!: HtmlOptionInfo[];
 
   @Prop({ type: Number, default: 0 })
   private maxWidth!: number;
@@ -56,15 +56,15 @@ export default class CtrlSelect extends SelectMixin {
   }
 
   @Watch("optionInfoList", { immediate: true })
-  onChangeOptionInfoList(optionInfoList: any[]) {
+  onChangeOptionInfoList() {
     if (this["test"]) {
-      window.console.log(optionInfoList);
+      window.console.log(this.optionInfoList);
     }
   }
 
   @Watch("value", { immediate: true })
   onChangeValue(value: string | null) {
-    const optionInfo: any = this.optionInfoList.filter(
+    const optionInfo: HtmlOptionInfo = this.optionInfoList.filter(
       optionInfo => optionInfo.value === value
     )[0];
     this.fontColor = optionInfo && optionInfo.disabled ? "#999999" : "#000000";

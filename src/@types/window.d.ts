@@ -121,3 +121,10 @@ export type TabInfo = {
         to: number;
       };
 };
+
+export type HtmlOptionInfo = {
+  value: string;
+  text: string;
+  key: string;
+  disabled: boolean;
+};

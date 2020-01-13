@@ -16,8 +16,8 @@ type UserData = {
   login: number;
 };
 
-type ColorSpec = {
-  backgroundType: "color";
+type Color = {
+  type: "color";
   backgroundColor: string;
   fontColor: string;
   text: string;
@@ -30,13 +30,16 @@ type BackgroundSize =
   | "cover-end"
   | "100%";
 type Direction = "none" | "horizontal" | "vertical" | "180";
-type ImageSpec = {
-  backgroundType: "image";
+
+type Image = {
+  type: "image";
   imageTag: string;
   imageId: string;
   direction: Direction;
   backgroundSize: BackgroundSize;
 };
+
+type Texture = Color | Image;
 
 type ChatLinkable = {
   chatLinkage: number;
@@ -73,32 +76,35 @@ type MapAndLayer = {
   objectList: MapObjectLocation[];
 };
 
-type MapSetting = (ColorSpec | ImageSpec) &
-  ChatLinkable & {
-    shapeType: "square" | "hex-horizontal" | "hex-vertical";
-    totalColumn: number;
-    totalRow: number;
-    gridSize: number;
-    gridBorderColor: string;
-    isPourTile: boolean;
-    isHexFirstCorner: boolean;
-    isHexSecondSmall: boolean;
-    background: (ColorSpec | ImageSpec) & {
-      maskBlur: number;
-    };
-    margin: (ColorSpec | ImageSpec) & {
-      isUseGridColor: boolean;
-      gridColorBold: string;
-      gridColorThin: string;
-      column: number;
-      row: number;
-      isUseMaskColor: boolean;
-      maskColor: string;
-      maskBlur: number;
-      isUseImage: "none" | "same map" | "same background" | "original";
-      borderWidth: number;
-      borderColor: string;
-      borderStyle: "solid" | "ridge" | "double";
-    };
-    portTileMapping: string;
+type MapSetting = ChatLinkable & {
+  name: string;
+  shapeType: "square" | "hex-horizontal" | "hex-vertical";
+  totalColumn: number;
+  totalRow: number;
+  gridSize: number;
+  gridBorderColor: string;
+  isPourTile: boolean;
+  isHexFirstCorner: boolean;
+  isHexSecondSmall: boolean;
+  texture: Texture;
+  background: {
+    texture: Texture;
+    maskBlur: number;
   };
+  margin: {
+    texture: Texture;
+    isUseGridColor: boolean;
+    gridColorBold: string;
+    gridColorThin: string;
+    column: number;
+    row: number;
+    isUseMaskColor: boolean;
+    maskColor: string;
+    maskBlur: number;
+    isUseImage: "none" | "same map" | "same background" | "original";
+    borderWidth: number;
+    borderColor: string;
+    borderStyle: "solid" | "ridge" | "double";
+  };
+  portTileMapping: string;
+};

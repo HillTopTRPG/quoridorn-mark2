@@ -11,18 +11,13 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { Direction } from "@/@types/room";
-
-type Item = {
-  val: Direction;
-  text: string;
-};
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -33,10 +28,16 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  private optionInfoList: any[] = [];
+  private optionInfoList: HtmlOptionInfo[] = [
+    { value: "", key: "", text: "", disabled: true },
+    { value: "none", key: "", text: "", disabled: false },
+    { value: "horizontal", key: "", text: "", disabled: false },
+    { value: "vertical", key: "", text: "", disabled: false },
+    { value: "180", key: "", text: "", disabled: false }
+  ];
 
-  @VueEvent
-  private mounted() {
+  @LifeCycle
+  private created() {
     this.createOptionInfoList();
   }
 
@@ -52,23 +53,10 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    const choice: Item[] = [
-      { val: "none", text: getText("label.direction-none") },
-      { val: "horizontal", text: getText("label.direction-horizontal") },
-      { val: "vertical", text: getText("label.direction-vertical") },
-      { val: "180", text: getText("label.direction-180") }
-    ];
-    this.optionInfoList = choice.map((c: Item) => ({
-      key: c.val,
-      value: c.val,
-      text: c.text,
-      disabled: false
-    }));
-    this.optionInfoList.unshift({
-      key: null,
-      value: "",
-      text: LanguageManager.instance.getText("label.direction"),
-      disabled: true
+    this.optionInfoList.forEach(o => {
+      const suffix = o.value ? `-${o.value}` : "";
+      o.text = getText(`label.direction${suffix}`);
+      o.key = o.value;
     });
   }
 

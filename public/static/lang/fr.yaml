@@ -16,6 +16,7 @@ button:
   close: Fermer
   logout: Déconnexion
   exit-room: Quitter
+  edit: 編集
 
 type:
   map-mask: Masque de carte
@@ -41,6 +42,7 @@ context:
   hide-border: Masquer la bordure
   view-highlight: Afficher les temps forts
   hide-highlight: Masquer la surbrillance
+  edit-area-map: エリアマップ編集
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -102,6 +104,8 @@ label:
   adequate: Bon
   inadequate: Incorrect
   background: 背景
+  main: メイン
+  margin: 余白
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -198,3 +202,9 @@ edit-chit-window:
 input-image-password-window:
   window-title: Entrez le mot de passe pour l'image cachée
   message: En entrant le mot de passe, vous pouvez afficher l'image cachée.
+
+edit-area-map-window:
+  window-title: エリアマップ編集
+
+edit-map-window:
+  window-title: マップ編集

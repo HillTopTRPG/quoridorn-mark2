@@ -24,9 +24,10 @@ import AddMapMaskWindow from "@/app/basic/map-object/map-mask/AddMapMaskWindow.v
 import EditMapMaskWindow from "@/app/basic/map-object/map-mask/EditMapMaskWindow.vue";
 import AddChitWindow from "@/app/basic/map-object/chit/AddChitWindow.vue";
 import InputImagePasswordWindow from "@/app/core/component/InputImagePasswordWindow.vue";
-import { markdown } from "@/app/core/markdown/markdown";
 import EditOtherTextWindow from "@/app/basic/other-text/EditOtherTextWindow.vue";
 import EditChitWindow from "@/app/basic/map-object/chit/EditChitWindow.vue";
+import EditAreaMapWindow from "@/app/basic/map/EditAreaMapWindow.vue";
+import EditMapWindow from "@/app/basic/map/EditMapWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -54,6 +55,8 @@ Vue.component("add-chit-window", AddChitWindow);
 Vue.component("edit-chit-window", EditChitWindow);
 Vue.component("input-image-password-window", InputImagePasswordWindow);
 Vue.component("edit-other-text-window", EditOtherTextWindow);
+Vue.component("edit-area-map-window", EditAreaMapWindow);
+Vue.component("edit-map-window", EditMapWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({
@@ -65,5 +68,3 @@ LanguageManager.instance.init().then((i18n: any) => {
   });
   app.$mount("#app");
 });
-
-window.console.log(markdown(`_a_`));

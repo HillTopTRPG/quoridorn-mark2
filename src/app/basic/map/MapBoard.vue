@@ -165,13 +165,13 @@ export default class MapBoard extends Vue {
   private onChangeBackground() {
     let direction = "";
     let backColor = "transparent";
-    if (this.mapSetting.background.backgroundType === "image") {
-      const directionRow = this.mapSetting.background.direction;
+    if (this.mapSetting.background.texture.type === "image") {
+      const directionRow = this.mapSetting.background.texture.direction;
       if (directionRow === "horizontal") direction = "scale(-1, 1)";
       if (directionRow === "vertical") direction = "scale(1, -1)";
       if (directionRow === "180") direction = "rotate(180deg)";
     } else {
-      backColor = this.mapSetting.background.backgroundColor;
+      backColor = this.mapSetting.background.texture.backgroundColor;
     }
     this.elm.style.setProperty(`--image-direction`, direction);
     this.elm.style.setProperty(`--back-color`, backColor);

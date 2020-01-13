@@ -11,19 +11,15 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-
-type Item = {
-  val: string;
-  text: string;
-};
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -35,10 +31,10 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
   ComponentVue
 ) {
   private orderList: string[] = [];
-  private optionInfoList: any[] = [];
+  private optionInfoList: HtmlOptionInfo[] = [];
 
-  @VueEvent
-  private async mounted() {
+  @LifeCycle
+  private async created() {
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
     const mapId = roomData.data!.mapId;
@@ -66,7 +62,7 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    const choice: Item[] = GameObjectManager.instance.mapLayerList
+    this.optionInfoList = GameObjectManager.instance.mapLayerList
       .sort((ml1, ml2) => {
         const ml1Index = this.orderList.findIndex(o => o === ml1.id);
         const ml2Index = this.orderList.findIndex(o => o === ml2.id);
@@ -79,18 +75,14 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
         let text = ml.data!.name;
         if (ml.data!.type !== "other") text = getText(`type.${ml.data!.type}`);
         return {
-          val: ml.id!,
-          text: `${mlIndex + 1}：${text}`
+          key: ml.id!,
+          value: ml.id!,
+          text: `${mlIndex + 1}：${text}`,
+          disabled: false
         };
       });
-    this.optionInfoList = choice.map((c: Item) => ({
-      key: c.val,
-      value: c.val,
-      text: c.text,
-      disabled: false
-    }));
     this.optionInfoList.unshift({
-      key: null,
+      key: "",
       value: "",
       text: LanguageManager.instance.getText("label.layer"),
       disabled: true

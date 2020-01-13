@@ -66,7 +66,7 @@
         </table>
       </div>
       <textarea
-        v-if="currentTabInfo.target === 'text'"
+        v-if="currentTabInfo.target === 'other-text'"
         v-model="otherText"
       ></textarea>
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
@@ -181,33 +181,33 @@ export default class EditMapMaskWindow extends Mixins<
   private otherText: string = "";
 
   private tabList: TabInfo[] = [
-    {
-      text: LanguageManager.instance.getText("label.background"),
-      target: "background"
-    },
-    {
-      text: LanguageManager.instance.getText("label.layer"),
-      target: "layer"
-    },
-    {
-      text: LanguageManager.instance.getText("label.other-text"),
-      target: "text"
-    }
+    { target: "background", text: "" },
+    { target: "layer", text: "" },
+    { target: "other-text", text: "" }
   ];
+  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @TaskProcessor("language-change-finished")
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
+    this.createTabInfoList();
+    task.resolve();
+  }
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+  }
+
+  private createTabInfoList() {
     const getText = LanguageManager.instance.getText.bind(
       LanguageManager.instance
     );
-    this.tabList[0].text = getText("label.background");
-    this.tabList[1].text = getText("label.layer");
-    this.tabList[2].text = getText("label.other-text");
-    task.resolve();
+    this.tabList.forEach(t => {
+      t.text = getText(`label.${t.target}`);
+    });
   }
-  private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @LifeCycle
   public async mounted() {
@@ -217,10 +217,10 @@ export default class EditMapMaskWindow extends Mixins<
     this.docId = this.windowInfo.args!.docId;
     this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "color") {
-      this.text = backgroundInfo.text;
-      const colorObj = parseColor(backgroundInfo.backgroundColor);
+    const texture = data.data!.textures[data.data!.useBackGround];
+    if (texture.type === "color") {
+      this.text = texture.text;
+      const colorObj = parseColor(texture.backgroundColor);
       this.color = colorObj.getColorCode();
       this.alpha = colorObj.a;
     }
@@ -244,11 +244,11 @@ export default class EditMapMaskWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.backgroundList[data.data!.useBackGround];
-    if (backgroundInfo.backgroundType === "color") {
-      backgroundInfo.text = this.text;
-      backgroundInfo.backgroundColor = this.colorObj.getRGBA();
-      backgroundInfo.fontColor = this.colorObj.getRGBReverse();
+    const texture = data.data!.textures[data.data!.useBackGround];
+    if (texture.type === "color") {
+      texture.text = this.text;
+      texture.backgroundColor = this.colorObj.getRGBA();
+      texture.fontColor = this.colorObj.getRGBReverse();
     }
     data.data!.rows = this.height;
     data.data!.columns = this.width;

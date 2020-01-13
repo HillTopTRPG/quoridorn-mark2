@@ -134,7 +134,7 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      alert("有効なアプリケーションサーバに接続できませんでした。");
+      // alert("有効なアプリケーションサーバに接続できませんでした。");
       return;
     }
     await this.setAppServerUrl(serverInfo.url);

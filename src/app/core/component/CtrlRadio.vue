@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label v-for="optionInfo in optionInfoList" :key="optionInfo.value">
+    <label v-for="optionInfo in optionInfoList" :key="optionInfo.key">
       <input
         type="radio"
         :name="name"
@@ -8,24 +8,22 @@
         v-model="localValue"
         @keydown.enter.stop
         @keyup.enter.stop
+        ref="component"
+        :disabled="optionInfo.disabled"
       />
-      {{ optionInfo.label }}
+      {{ optionInfo.text }}
     </label>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-
-export type Option = {
-  value: string;
-  label: string;
-};
+import { HtmlOptionInfo } from "@/@types/window";
 
 @Component
 export default class CtrlRadio extends Vue {
   @Prop({ type: Array, required: true })
-  protected optionInfoList!: Option[];
+  protected optionInfoList!: HtmlOptionInfo[];
 
   @Prop({ type: String, required: true })
   protected name!: string;
@@ -49,6 +47,11 @@ export default class CtrlRadio extends Vue {
     if (this.test)
       window.console.log("return '" + value + "'", this.constructor.name);
     this.input(value);
+  }
+
+  public focus(): void {
+    const elm: HTMLElement = this.$refs.component as HTMLElement;
+    elm.focus();
   }
 }
 </script>
