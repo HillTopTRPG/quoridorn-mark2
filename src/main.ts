@@ -28,6 +28,7 @@ import EditOtherTextWindow from "@/app/basic/other-text/EditOtherTextWindow.vue"
 import EditChitWindow from "@/app/basic/map-object/chit/EditChitWindow.vue";
 import EditAreaMapWindow from "@/app/basic/map/EditAreaMapWindow.vue";
 import EditMapWindow from "@/app/basic/map/EditMapWindow.vue";
+import ChmodWindow from "@/app/basic/chmod/ChmodWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -57,6 +58,7 @@ Vue.component("input-image-password-window", InputImagePasswordWindow);
 Vue.component("edit-other-text-window", EditOtherTextWindow);
 Vue.component("edit-area-map-window", EditAreaMapWindow);
 Vue.component("edit-map-window", EditMapWindow);
+Vue.component("chmod-window", ChmodWindow);
 
 LanguageManager.instance.init().then((i18n: any) => {
   const app = new Vue({

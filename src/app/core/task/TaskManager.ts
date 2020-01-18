@@ -265,9 +265,10 @@ export default class TaskManager {
       );
       processList.splice(index, 1);
     };
-    const promiseList: Promise<TaskResult<U>>[] = processList.map(
-      (taskProcess: TaskProcess<T, U>) =>
-        taskProcess(task, param, processRemover(taskProcess))
+    const promiseList: Promise<
+      TaskResult<U>
+    >[] = processList.map((taskProcess: TaskProcess<T, U>) =>
+      taskProcess(task, param, processRemover(taskProcess))
     );
 
     // 登録された処理を全部非同期実行する

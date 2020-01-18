@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="ctrl-radio">
     <label v-for="optionInfo in optionInfoList" :key="optionInfo.key">
       <input
         type="radio"
@@ -55,3 +55,18 @@ export default class CtrlRadio extends Vue {
   }
 }
 </script>
+
+<style scoped lang="scss">
+@import "../../../assets/common";
+
+.ctrl-radio {
+  label {
+    @include inline-flex-box(row, flex-start, center);
+    height: 2em;
+
+    &:not(:first-child) {
+      margin-left: 0.5rem;
+    }
+  }
+}
+</style>

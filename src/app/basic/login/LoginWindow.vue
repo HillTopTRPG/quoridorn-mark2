@@ -151,7 +151,7 @@ import {
   getUrlParam
 } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
-import { MapLayer, MapSetting, RoomData } from "@/@types/room";
+import { MapLayer, Screen, RoomData } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
@@ -362,6 +362,8 @@ export default class LoginWindow extends Mixins<
               this.roomList!.splice(index, 1, {
                 order: index,
                 exclusionOwner: null,
+                owner: null,
+                permission: null,
                 status: null,
                 createTime: new Date(),
                 updateTime: null,
@@ -883,9 +885,9 @@ export default class LoginWindow extends Mixins<
           type: "user-login-window",
           args: {
             isSetting: false,
-            userNameList: (await SocketFacade.instance
-              .userCC()
-              .getList(false)).map(userData => userData.data!.userName),
+            userNameList: (
+              await SocketFacade.instance.userCC().getList(false)
+            ).map(userData => userData.data!.userName),
             userName: this.urlPlayerName
           }
         }
@@ -1093,18 +1095,17 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
-    const mapListCC = SocketFacade.instance.mapListCC();
+    const screenListCC = SocketFacade.instance.screenListCC();
 
-    const mapSetting: MapSetting = {
+    const screen: Screen = {
       name: "A-1",
-      shapeType: "square",
-      totalColumn: 20,
-      totalRow: 15,
+      columns: 20,
+      rows: 15,
       gridSize: 50,
-      gridBorderColor: "#000000",
-      isPourTile: false,
-      isHexFirstCorner: false,
-      isHexSecondSmall: false,
+      gridColor: "#000000",
+      fontColor: "#000000",
+      portTileMapping: "",
+      shapeType: "square",
       texture: {
         type: "image",
         imageTag: imageList[0].tag,
@@ -1123,6 +1124,7 @@ export default class LoginWindow extends Mixins<
         maskBlur: 3
       },
       margin: {
+        useTexture: "original",
         texture: {
           type: "image",
           imageTag: imageList[0].tag,
@@ -1130,26 +1132,25 @@ export default class LoginWindow extends Mixins<
           direction: "none",
           backgroundSize: "100%"
         },
-        isUseGridColor: true,
+        columns: 5,
+        rows: 5,
+        isUseGrid: true,
         gridColorBold: "rgba(255, 255, 255, 0.3)",
         gridColorThin: "rgba(255, 255, 255, 0.1)",
-        column: 5,
-        row: 5,
-        isUseMaskColor: true,
         maskColor: "rgba(20, 80, 20, 0.1)",
         maskBlur: 3,
-        isUseImage: "none",
-        borderWidth: 10,
-        borderColor: "gray",
-        borderStyle: "ridge"
+        border: {
+          width: 10,
+          color: "gray",
+          style: "ridge"
+        }
       },
       chatLinkage: 0,
-      chatLinkageSearch: "",
-      portTileMapping: ""
+      chatLinkageSearch: ""
     };
-    const mapDataDocId = await mapListCC.add(
-      await mapListCC.touch(),
-      mapSetting
+    const mapDataDocId = await screenListCC.add(
+      await screenListCC.touch(),
+      screen
     );
 
     /* --------------------------------------------------

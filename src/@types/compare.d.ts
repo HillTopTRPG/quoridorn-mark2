@@ -1,5 +1,6 @@
 export type Operand =
   | { refType: "db-id-exist" }
+  | { refType: "permission-check"; type: "view" | "edit" | "chmod" }
   | { refType: "db-search-exist"; searchProperty: string; searchValue: string }
   | { refType: "db-search-length"; searchProperty: string; searchValue: string }
   | { refType: "db-id-property"; property: string }

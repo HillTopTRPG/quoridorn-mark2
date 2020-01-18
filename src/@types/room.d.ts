@@ -56,10 +56,10 @@ type MapLayerType =
 
 type MapLayer = {
   type: MapLayerType;
-  defaultOrder: number;
-  deletable: boolean;
-  isDefault: boolean;
-  name?: string;
+  defaultOrder: number; // マップ設定をいじらなければこのオーダー順に従う(= z-index)
+  deletable: boolean; // システムレイヤーは削除させない
+  isDefault: boolean; // マップ追加時に自動的に紐づけられるレイヤーはtrue
+  name?: string; // ユーザが追加するレイヤーのみこのフィールドを使う
 };
 
 type MapObjectLocation = Point & {
@@ -76,35 +76,53 @@ type MapAndLayer = {
   objectList: MapObjectLocation[];
 };
 
-type MapSetting = ChatLinkable & {
+type Border = {
+  width: number;
+  color: string;
+  style:
+    | "solid"
+    | "groove"
+    | "ridge"
+    | "inset"
+    | "outset"
+    | "double"
+    | "dotted"
+    | "dashed";
+};
+
+type Screen = ChatLinkable & {
   name: string;
-  shapeType: "square" | "hex-horizontal" | "hex-vertical";
-  totalColumn: number;
-  totalRow: number;
+  columns: number;
+  rows: number;
   gridSize: number;
-  gridBorderColor: string;
-  isPourTile: boolean;
-  isHexFirstCorner: boolean;
-  isHexSecondSmall: boolean;
+  gridColor: string;
+  fontColor: string;
+  portTileMapping: string; // タイル番号の羅列
+  shapeType:
+    | "square"
+    | "hex-horizontal-slim"
+    | "hex-horizontal-fat"
+    | "hex-horizontal-start"
+    | "hex-horizontal-end"
+    | "hex-vertical-slim"
+    | "hex-vertical-fat"
+    | "hex-vertical-start"
+    | "hex-vertical-end";
   texture: Texture;
   background: {
     texture: Texture;
     maskBlur: number;
   };
   margin: {
+    useTexture: "original" | "same map" | "same background";
     texture: Texture;
-    isUseGridColor: boolean;
+    columns: number;
+    rows: number;
+    isUseGrid: boolean;
     gridColorBold: string;
     gridColorThin: string;
-    column: number;
-    row: number;
-    isUseMaskColor: boolean;
     maskColor: string;
     maskBlur: number;
-    isUseImage: "none" | "same map" | "same background" | "original";
-    borderWidth: number;
-    borderColor: string;
-    borderStyle: "solid" | "ridge" | "double";
+    border: Border;
   };
-  portTileMapping: string;
 };

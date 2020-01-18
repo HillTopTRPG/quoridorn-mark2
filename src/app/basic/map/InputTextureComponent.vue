@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="input-texture-component">
     <background-type-radio v-model="type" />
     <image-picker-component
       v-if="type === 'image'"
@@ -41,27 +41,7 @@
               :id="`${windowKey}-color`"
               class="value-color"
               v-model="color"
-            />
-          </td>
-        </tr>
-        <tr>
-          <th>
-            <label
-              :for="`${windowKey}-alpha`"
-              class="label-alpha label-input"
-              v-t="'label.alpha'"
-            ></label>
-          </th>
-          <td>
-            <base-input
-              :id="`${windowKey}-alpha`"
-              class="value-alpha"
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              :value="alpha"
-              @input="alpha = $event.target.value"
+              :use-alpha="true"
             />
           </td>
         </tr>
@@ -97,7 +77,7 @@ import { parseColor } from "@/app/core/Utility";
     CtrlButton
   }
 })
-export default class InputBackgroundComponent extends Vue {
+export default class InputTextureComponent extends Vue {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
@@ -113,8 +93,7 @@ export default class InputBackgroundComponent extends Vue {
   private direction: Direction = "none";
   private backgroundSize: BackgroundSize = "contain";
 
-  private color: string = "#880000";
-  private alpha: number = 1;
+  private color: string = "#ffffff";
   private text: string = "";
 
   private imageList = GameObjectManager.instance.imageList;
@@ -128,9 +107,7 @@ export default class InputBackgroundComponent extends Vue {
       this.direction = this.localValue.direction;
       this.backgroundSize = this.localValue.backgroundSize;
     } else {
-      const colorObj = parseColor(this.localValue.backgroundColor);
-      this.color = colorObj.getColorCode();
-      this.alpha = colorObj.a;
+      this.color = this.localValue.backgroundColor;
       this.text = this.localValue.text;
     }
   }
@@ -146,12 +123,6 @@ export default class InputBackgroundComponent extends Vue {
     this.input(value);
   }
 
-  private get colorObj() {
-    const colorObj = parseColor(this.color);
-    colorObj.a = this.alpha;
-    return colorObj;
-  }
-
   @Watch("type")
   private onChangeType(newValue: string | null, oldValue: string | null) {
     if (!this.type || !oldValue) return;
@@ -165,8 +136,9 @@ export default class InputBackgroundComponent extends Vue {
         backgroundSize: this.backgroundSize
       };
     } else {
-      const backgroundColor: string = this.colorObj.getRGBA();
-      const fontColor: string = this.colorObj.getRGBReverse();
+      const colorObj = parseColor(this.color);
+      const backgroundColor: string = colorObj.getRGBA();
+      const fontColor: string = colorObj.getRGBReverse();
       this.localValue = {
         type: "color",
         backgroundColor,
@@ -205,11 +177,11 @@ export default class InputBackgroundComponent extends Vue {
   }
 
   @Watch("color")
-  @Watch("alpha")
   private onChangeColor() {
     if (this.localValue.type === "color") {
-      const backgroundColor: string = this.colorObj.getRGBA();
-      const fontColor: string = this.colorObj.getRGBReverse();
+      const colorObj = parseColor(this.color);
+      const backgroundColor: string = colorObj.getRGBA();
+      const fontColor: string = colorObj.getRGBReverse();
       this.localValue.backgroundColor = backgroundColor;
       this.localValue.fontColor = fontColor;
     }
@@ -219,6 +191,10 @@ export default class InputBackgroundComponent extends Vue {
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
+.input-texture-component {
+  @include flex-box(column, stretch, flex-start);
+}
 
 .value-alpha {
   transform: rotate(180deg);
@@ -231,5 +207,9 @@ th {
 
 td {
   text-align: left;
+}
+
+.image-picker-container {
+  flex: 1;
 }
 </style>

@@ -1,38 +1,396 @@
 <template>
   <div class="container" ref="window">
     <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
-      <div class="main" v-if="currentTabInfo.target === 'main' && mainBgObj">
-        <input-background-component
-          :key="1"
-          v-model="mainBgObj"
-          :windowKey="key"
-          :defaultTag="defaultTag"
-        />
+      <!-- メイン -->
+      <div class="main" v-if="currentTabInfo.target === 'map' && screenData">
+        <div class="detail">
+          <table class="info-table">
+            <tr>
+              <th>
+                <label
+                  :for="`${key}-name`"
+                  class="label-name label-input"
+                  v-t="'label.name'"
+                ></label>
+              </th>
+              <td class="value-cell">
+                <base-input
+                  :id="`${key}-name`"
+                  class="value-name"
+                  type="text"
+                  :value="screenData.name"
+                  @input="screenData.name = $event.target.value"
+                />
+              </td>
+            </tr>
+          </table>
+
+          <fieldset>
+            <legend v-t="'label.size'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-columns`"
+                    class="label-columns label-input"
+                    v-t="'label.columns'"
+                  ></label>
+                </th>
+                <td class="value-cell">
+                  <base-input
+                    :id="`${key}-columns`"
+                    class="value-columns"
+                    type="number"
+                    :value="screenData.columns"
+                    @input="screenData.columns = $event.target.value"
+                    min="1"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-rows`"
+                    class="label-rows label-input"
+                    v-t="'label.rows'"
+                  ></label>
+                </th>
+                <td class="value-cell">
+                  <base-input
+                    :id="`${key}-rows`"
+                    class="value-rows"
+                    type="number"
+                    :value="screenData.rows"
+                    @input="screenData.rows = $event.target.value"
+                    min="1"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-grid-size`"
+                    class="label-grid-size label-input"
+                    v-t="'label.grid-size'"
+                  ></label>
+                </th>
+                <td class="value-cell">
+                  <base-input
+                    :id="`${key}-grid-size`"
+                    class="value-grid-size"
+                    type="number"
+                    :value="screenData.gridSize"
+                    @input="screenData.gridSize = $event.target.value"
+                    min="1"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+
+          <fieldset>
+            <legend v-t="'label.decoration'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-font-color`"
+                    class="label-font-color label-input"
+                    v-t="'label.font-color'"
+                  ></label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-font-color`"
+                    :id="`${key}-font-color`"
+                    class="value-font-color"
+                    v-model="screenData.fontColor"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-grid-color`"
+                    class="label-grid-color label-input"
+                    v-t="'label.grid-line-color'"
+                  ></label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-grid-color`"
+                    :id="`${key}-grid-color`"
+                    class="value-grid-color"
+                    v-model="screenData.gridColor"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+        </div>
+
+        <fieldset class="texture">
+          <legend v-t="'label.texture'"></legend>
+          <input-texture-component
+            :key="1"
+            v-model="screenData.texture"
+            :windowKey="key"
+            :defaultTag="defaultTag"
+          />
+        </fieldset>
       </div>
+
+      <!-- 余白 -->
       <div
         class="margin"
-        v-if="currentTabInfo.target === 'margin' && marginBgObj"
+        v-if="currentTabInfo.target === 'margin' && screenData"
       >
-        <input-background-component
-          :key="2"
-          v-model="marginBgObj"
-          :windowKey="key"
-          :defaultTag="defaultTag"
-        />
+        <div class="detail">
+          <fieldset>
+            <legend v-t="'label.size'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-margin-columns`"
+                    class="label-margin-columns label-input"
+                    v-t="'label.columns'"
+                  ></label>
+                </th>
+                <td class="value-cell">
+                  <base-input
+                    :id="`${key}-margin-columns`"
+                    class="value-margin-columns"
+                    type="number"
+                    :value="screenData.margin.columns"
+                    @input="screenData.margin.columns = $event.target.value"
+                    min="0"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-margin-rows`"
+                    class="label-margin-rows label-input"
+                    v-t="'label.rows'"
+                  ></label>
+                </th>
+                <td class="value-cell">
+                  <base-input
+                    :id="`${key}-margin-rows`"
+                    class="value-margin-rows"
+                    type="number"
+                    :value="screenData.margin.rows"
+                    @input="screenData.margin.rows = $event.target.value"
+                    min="0"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+
+          <fieldset>
+            <legend v-t="'label.grid-line'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-grid-check`"
+                    class="label-color label-input"
+                    v-t="'label.grid-line'"
+                  ></label>
+                </th>
+                <td>
+                  <base-input
+                    :id="`${key}-grid-check`"
+                    type="checkbox"
+                    :checked="screenData.margin.isUseGrid"
+                    @input="screenData.margin.isUseGrid = $event.target.checked"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-grid-color-main`"
+                    class="label-color label-input"
+                    v-t="'label.main'"
+                  >
+                  </label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-grid-color-main`"
+                    :id="`${key}-grid-color-main`"
+                    class="value-grid-color-main"
+                    v-model="screenData.margin.gridColorBold"
+                    :disabled="!screenData.margin.isUseGrid"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-grid-color-sub`"
+                    class="label-color label-input"
+                    v-t="'label.sub'"
+                  >
+                  </label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-grid-color-sub`"
+                    :id="`${key}-grid-color-sub`"
+                    class="value-grid-color-sub"
+                    v-model="screenData.margin.gridColorThin"
+                    :disabled="!screenData.margin.isUseGrid"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+
+          <fieldset>
+            <legend v-t="'label.mask'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-mask-color`"
+                    class="label-mask-color label-input"
+                    v-t="'label.color'"
+                  >
+                  </label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-mask-color`"
+                    :id="`${key}-mask-color`"
+                    class="value-mask-color"
+                    v-model="screenData.margin.maskColor"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-mask-blur`"
+                    class="label-mask-blur label-input"
+                    v-t="'label.blur'"
+                  ></label>
+                </th>
+                <td>
+                  <base-input
+                    :id="`${key}-mask-blur`"
+                    class="value-mask-blur"
+                    type="number"
+                    :value="screenData.margin.maskBlur"
+                    @input="screenData.margin.maskBlur = $event.target.value"
+                    min="0"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+
+          <fieldset>
+            <legend v-t="'label.frame-border'"></legend>
+            <table class="info-table">
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-border-width`"
+                    class="label-border-width label-input"
+                    v-t="'label.width'"
+                  ></label>
+                </th>
+                <td>
+                  <base-input
+                    :id="`${key}-border-width`"
+                    class="value-border-width"
+                    type="number"
+                    :value="screenData.margin.border.width"
+                    @input="
+                      screenData.margin.border.width = $event.target.value
+                    "
+                    min="0"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-border-color`"
+                    class="label-border-color label-input"
+                    v-t="'label.color'"
+                  >
+                  </label>
+                </th>
+                <td>
+                  <color-picker-component
+                    :key="`${key}-border-color`"
+                    :id="`${key}-border-color`"
+                    class="value-border-color"
+                    v-model="screenData.margin.border.color"
+                    :use-alpha="true"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label
+                    :for="`${key}-border-style`"
+                    class="label-border-style label-input"
+                    v-t="'label.style'"
+                  >
+                  </label>
+                </th>
+                <td>
+                  <border-style-select
+                    :id="`${key}-border-style`"
+                    v-model="screenData.margin.border.style"
+                  />
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+        </div>
+
+        <fieldset class="texture">
+          <legend v-t="'label.texture'"></legend>
+          <input-texture-component
+            :key="2"
+            v-model="screenData.margin.texture"
+            :windowKey="key"
+            :defaultTag="defaultTag"
+          />
+        </fieldset>
       </div>
+
+      <!-- 背景 -->
       <div
         class="background"
-        v-if="currentTabInfo.target === 'background' && backgroundBgObj"
+        v-if="currentTabInfo.target === 'background' && screenData"
       >
-        <input-background-component
-          :key="3"
-          v-model="backgroundBgObj"
-          :windowKey="key"
-          :defaultTag="defaultTag"
-        />
+        <fieldset class="texture">
+          <legend v-t="'label.texture'"></legend>
+          <input-texture-component
+            :key="3"
+            v-model="screenData.background.texture"
+            :windowKey="key"
+            :defaultTag="defaultTag"
+          />
+        </fieldset>
       </div>
+
+      <!-- レイヤー -->
       <div class="layer" v-if="currentTabInfo.target === 'layer'"></div>
-      <div class="authority" v-if="currentTabInfo.target === 'authority'"></div>
     </simple-tab-component>
   </div>
 </template>
@@ -57,13 +415,14 @@ import { Task, TaskResult } from "@/@types/task";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { StoreUseData } from "@/@types/store";
-import { MapSetting, Texture } from "@/@types/room";
-import InputBackgroundComponent from "@/app/basic/map/InputBackgroundComponent.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { Screen, Texture } from "@/@types/room";
+import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
+import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
 
 @Component({
   components: {
-    InputBackgroundComponent,
+    BorderStyleSelect,
+    InputTextureComponent,
     ImagePickerComponent,
     BackgroundTypeRadio,
     MapLayerSelect,
@@ -78,63 +437,49 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private isMounted: boolean = false;
-  private cc = SocketFacade.instance.mapListCC();
+  private cc = SocketFacade.instance.screenListCC();
   private imageList = GameObjectManager.instance.imageList;
-  private mapList = GameObjectManager.instance.mapList;
+  private screenList = GameObjectManager.instance.screenList;
 
   private mapId: string | null = null;
-  private mapInfo: StoreUseData<MapSetting> | null = null;
+  private screenInfo: StoreUseData<Screen> | null = null;
+  private screenData: Screen | null = null;
 
-  private mainBgObj: Texture | null = null;
-  private marginBgObj: Texture | null = null;
-  private backgroundBgObj: Texture | null = null;
   private defaultTag: string = LanguageManager.instance.getText("type.map");
 
-  @Watch("mainBgObj", { deep: true })
-  private async onChangeMainBg(newValue: Texture, oldValue: Texture | null) {
-    if (!oldValue) return;
-    window.console.log("main:", JSON.stringify(this.mainBgObj, null, "  "));
-    this.mapInfo!.data!.texture = newValue;
-    await this.updateMap();
-  }
+  @Watch("screenData", { deep: true })
+  private async onChangeMapData(newValue: Screen, oldValue: Screen | null) {
+    if (oldValue === null) return;
 
-  @Watch("marginBgObj", { deep: true })
-  private async onChangeMarginBg(newValue: Texture, oldValue: Texture | null) {
-    if (!oldValue) return;
-    window.console.log("margin:", JSON.stringify(this.marginBgObj, null, "  "));
-    this.mapInfo!.data!.margin.texture = newValue;
-    await this.updateMap();
-  }
-
-  @Watch("backgroundBgObj", { deep: true })
-  private async onChangeBackgroundBg(
-    newValue: Texture,
-    oldValue: Texture | null
-  ) {
-    if (!oldValue) return;
-    window.console.log(
-      "background:",
-      JSON.stringify(this.backgroundBgObj, null, "  ")
-    );
-    this.mapInfo!.data!.background.texture = newValue;
-    await this.updateMap();
-  }
-
-  private async updateMap() {
     try {
-      await this.cc.update(this.mapId!, this.mapInfo!.data!, true);
+      await this.cc.update(this.mapId!, this.screenData!, undefined, true);
     } catch (err) {
       window.console.log("==========");
       window.console.log(err);
     }
   }
 
+  // @Watch("marginRows")
+  // private async onChangeMarginRows(newValue: number, oldValue: number | null) {
+  //   if (oldValue === null) return;
+  //   this.mapInfo!.data!.margin.row = newValue;
+  //   await this.updateMap();
+  // }
+  //
+  // private async updateMap() {
+  //   try {
+  //     await this.cc.update(this.mapId!, this.screenData!, true);
+  //   } catch (err) {
+  //     window.console.log("==========");
+  //     window.console.log(err);
+  //   }
+  // }
+
   private tabList: TabInfo[] = [
-    { target: "main", text: "" },
+    { target: "map", text: "" },
     { target: "margin", text: "" },
     { target: "background", text: "" },
-    { target: "layer", text: "" },
-    { target: "authority", text: "" }
+    { target: "layer", text: "" }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 
@@ -165,12 +510,10 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     await this.init();
     this.isMounted = true;
     this.mapId = this.windowInfo.args!;
-    this.mapInfo = this.mapList.filter(map => map.id === this.mapId)[0];
+    this.screenInfo = this.screenList.filter(map => map.id === this.mapId)[0];
+    this.screenData = this.screenInfo.data!;
 
-    const getBgObj = EditMapWindow.getBgObj;
-    this.mainBgObj = getBgObj(this.mapInfo.data!.texture);
-    this.marginBgObj = getBgObj(this.mapInfo.data!.margin.texture);
-    this.backgroundBgObj = getBgObj(this.mapInfo.data!.background.texture);
+    // this.foreColor = screenData.gridBorderColor;
 
     try {
       await this.cc.touchModify(this.mapId);
@@ -220,12 +563,95 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   height: 100%;
 }
 
+.value-name {
+  width: 10em;
+}
+
+.value-rows,
+.value-columns,
+.value-grid-size,
+.value-margin-rows,
+.value-margin-columns,
+.value-border-width,
+.value-mask-blur {
+  width: 3.5em;
+}
+
 .simple-tab-component {
   height: 100%;
 
   > *:not(:first-child) {
     width: 100%;
     flex: 1;
+    border: 1px solid gray;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    overflow: auto;
+  }
+
+  table {
+    box-sizing: border-box;
+
+    th,
+    td {
+      box-sizing: border-box;
+      padding: 0;
+    }
+
+    th {
+      text-align: right;
+    }
+    td {
+      text-align: left;
+    }
+  }
+
+  input[type="checkbox"] {
+    display: inline-block;
+    margin: 0;
+    height: calc(2em - 2px);
+  }
+
+  fieldset {
+    margin: 0;
+    box-sizing: border-box;
+    padding: 0.25rem;
+    border: 1px solid lightgray;
+    overflow-x: auto;
+    overflow-y: auto;
+
+    > :not(legend) {
+      height: calc(100% - 1.5em);
+    }
+  }
+
+  .background {
+    width: 100%;
+    height: 100%;
+
+    .texture {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .main,
+  .margin {
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: auto 1fr;
+
+    .detail {
+      grid-row: 1 / 2;
+      grid-column: 1 / 2;
+      @include flex-box(column, flex-start, stretch);
+      margin-right: 0.5rem;
+    }
+
+    .texture {
+      grid-row: 1 / 2;
+      grid-column: 2 / 3;
+    }
   }
 }
 </style>

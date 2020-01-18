@@ -1,11 +1,13 @@
 <template>
-  <div class="color-picker-container" @contextmenu.prevent ref="elm">
+  <label class="color-picker-container" @contextmenu.prevent ref="elm">
     <input
+      :id="id"
       class="color-input"
       type="text"
-      :value="localValue"
-      @input="localValue = $event.target.value"
+      :value="colorCode"
+      @input="colorCode = $event.target.value"
       @change="onChange()"
+      :disabled="disabled"
       @keydown.enter.stop
       @keyup.enter.stop
       @keydown.229.stop
@@ -14,10 +16,29 @@
     <base-input
       class="color-pick"
       type="color"
-      :value="localValue"
-      @input="localValue = $event.target.value"
+      :value="colorCode"
+      @change="
+        colorCode = $event.target.value;
+        onChange();
+      "
+      :disabled="disabled"
     />
-  </div>
+    <input
+      class="value-alpha"
+      v-if="useAlpha"
+      type="range"
+      min="0"
+      max="1"
+      step="0.1"
+      :value="alpha"
+      @input="alpha = $event.target.value"
+      :disabled="disabled"
+      @keydown.enter.stop
+      @keyup.enter.stop
+      @keydown.229.stop
+      @keyup.229.stop
+    />
+  </label>
 </template>
 
 <script lang="ts">
@@ -35,7 +56,29 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 export default class ColorPickerComponent extends Vue {
   @Prop({ type: String, required: true })
   private value!: string;
+
+  @Prop({ type: String, default: null })
+  private id!: string | null;
+
+  @Prop({ type: Boolean, required: true })
+  private useAlpha!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private disabled!: boolean;
+
   private firstValue: string | null = null;
+
+  private isMounted: boolean = false;
+  private colorCode: string | null = null;
+  private alpha: number | null = null;
+
+  @LifeCycle
+  private created() {
+    const colorObj = parseColor(this.value);
+    this.colorCode = colorObj.getColorCode();
+    this.alpha = this.useAlpha ? colorObj.a : 1;
+    this.isMounted = true;
+  }
 
   @Watch("value", { immediate: true })
   private onChangeValue() {
@@ -45,11 +88,20 @@ export default class ColorPickerComponent extends Vue {
   }
 
   private get localValue(): string {
-    return this.value;
+    const colorObj = parseColor(this.colorCode!);
+    colorObj.a = this.alpha;
+    return this.useAlpha ? colorObj.getRGBA() : colorObj.getColorCode();
   }
 
   private set localValue(colorStr: string) {
     this.input(colorStr);
+  }
+
+  @Watch("isMounted")
+  @Watch("alpha")
+  private onChangeColor() {
+    if (!this.isMounted) return;
+    this.input(this.localValue);
   }
 
   public input(colorStr: string) {
@@ -59,20 +111,21 @@ export default class ColorPickerComponent extends Vue {
   @VueEvent
   private onChange() {
     try {
-      const colorObj = parseColor(this.localValue);
-      setTimeout(() => {
-        this.localValue = colorObj.getColorCode();
-      });
+      this.changeColorCode(this.colorCode!);
     } catch (err) {
-      window.console.warn(err);
-      setTimeout(() => {
-        this.localValue = this.firstValue || "";
-      });
+      this.changeColorCode(this.firstValue!);
     }
   }
 
-  @LifeCycle
-  private mounted() {}
+  private changeColorCode(colorCode: string) {
+    const colorObj = parseColor(colorCode);
+    if (!colorCode.trim().startsWith("rgba")) colorObj.a = this.alpha;
+    setTimeout(() => {
+      this.colorCode = colorObj.getColorCode();
+      if (!colorCode.trim().startsWith("rgba")) this.alpha = colorObj.a;
+      this.input(this.localValue);
+    });
+  }
 
   private get elm(): HTMLDivElement {
     return this.$refs.elm as HTMLDivElement;
@@ -84,7 +137,7 @@ export default class ColorPickerComponent extends Vue {
 @import "../../../assets/common";
 
 .color-picker-container {
-  @include flex-box(row, flex-start, center);
+  @include flex-box(row, flex-start, center, wrap);
 
   .color-input {
     width: 5em;
@@ -100,6 +153,12 @@ export default class ColorPickerComponent extends Vue {
   .color-pick {
     width: 2em;
     height: 2em;
+  }
+
+  .value-alpha {
+    transform: rotate(180deg);
+    transform-origin: center;
+    width: 10em;
   }
 }
 </style>

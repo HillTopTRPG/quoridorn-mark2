@@ -28,6 +28,8 @@ type:
   floor-tile: 地砖
   stand-image: 站立图片
   stand-image-diff: 站立图片差异
+  user: ユーザー
+  actor-group: アクターグループ
 
 context:
   bgm-setting: 音乐设定
@@ -43,6 +45,7 @@ context:
   view-highlight: 显示突出显示
   hide-highlight: 隐藏突出显示
   edit-area-map: エリアマップ編集
+  chmod: 権限変更
 
 label:
   terms-of-use: 使用条款
@@ -108,6 +111,36 @@ label:
   background: 背景
   main: メイン
   margin: 余白
+  texture: テクスチャ
+  rows: 行
+  columns: 列
+  name: 名前
+  fore-color: 前景色
+  grid-line: 方眼線
+  grid-line-color: 方眼線色
+  font-color: 文字色
+  sub: サブ
+  grid-size: マス(px)
+  border-style: 罫線のスタイル
+  blur: ぼかし
+  mask: マスク
+  frame-border: 枠線
+  size: サイズ
+  decoration: 装飾
+  style: スタイル
+  map: マップ
+  none: なし
+  allow: 許可
+  deny: 否認
+  permission-type: 権限種別
+  permission-node-type: 権限対象種別
+  owner: オーナー
+  user: ユーザー
+  character: キャラクター
+  group: グループ
+  permission-view: 閲覧権限
+  permission-edit: 編集権限
+  permission-chmod: 権限変更権限
 
 message:
   copy-to-clipboard: 复制到剪贴板

@@ -1,4 +1,5 @@
 import { Point } from "@/@types/address";
+import { Permission } from "@/@types/store";
 
 export type TouchRequest = {
   collection: string;
@@ -13,9 +14,12 @@ export type ReleaseTouchRequest = TouchModifyRequest & {
 
 export type CreateDataRequest = TouchModifyRequest & {
   data: any;
+  permission: Permission;
 };
 export type DeleteDataRequest = TouchModifyRequest;
-export type UpdateDataRequest = CreateDataRequest & {
+export type UpdateDataRequest = TouchModifyRequest & {
+  data: any;
+  permission?: Permission;
   continuous?: boolean;
 };
 

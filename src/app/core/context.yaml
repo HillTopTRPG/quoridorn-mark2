@@ -26,14 +26,42 @@ map:
 map-mask:
   - text: context.modify
     taskName: window-open
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       type: edit-map-mask-window
   - text: context.copy
     taskName: copy-object
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg: ~
   - text: context.delete
     taskName: delete-object
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg: ~
+  - text: context.chmod
+    taskName: window-open
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: chmod
+      rhs:
+        true
+    taskArg:
+      type: chmod-window
   - ~
   - text: context.fix
     taskName: lock-object
@@ -42,6 +70,12 @@ map-mask:
         refType: db-id-property
         property: isLock
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.un-fix
@@ -51,6 +85,12 @@ map-mask:
         refType: db-id-property
         property: isLock
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false
   - text: context.hide-border
@@ -60,6 +100,12 @@ map-mask:
         refType: db-id-property
         property: isHideBorder
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.view-border
@@ -69,6 +115,12 @@ map-mask:
         refType: db-id-property
         property: isHideBorder
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false
   - text: context.hide-highlight
@@ -78,6 +130,12 @@ map-mask:
         refType: db-id-property
         property: isHideHighlight
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.view-highlight
@@ -87,19 +145,43 @@ map-mask:
         refType: db-id-property
         property: isHideHighlight
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false
 
 chit:
   - text: context.modify
     taskName: window-open
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       type: edit-chit-window
   - text: context.copy
     taskName: copy-object
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg: ~
   - text: context.delete
     taskName: delete-object
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg: ~
   - ~
   - text: context.fix
@@ -109,6 +191,12 @@ chit:
         refType: db-id-property
         property: isLock
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.un-fix
@@ -118,6 +206,12 @@ chit:
         refType: db-id-property
         property: isLock
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false
   - text: context.hide-border
@@ -127,6 +221,12 @@ chit:
         refType: db-id-property
         property: isHideBorder
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.view-border
@@ -136,6 +236,12 @@ chit:
         refType: db-id-property
         property: isHideBorder
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false
   - text: context.hide-highlight
@@ -145,6 +251,12 @@ chit:
         refType: db-id-property
         property: isHideHighlight
       rhs: false
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: true
   - text: context.view-highlight
@@ -154,5 +266,11 @@ chit:
         refType: db-id-property
         property: isHideHighlight
       rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
     taskArg:
       value: false

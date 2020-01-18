@@ -103,7 +103,9 @@ import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue"
 import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import { ChitStore } from "@/@types/gameObject";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
@@ -179,6 +181,19 @@ export default class EditChitWindow extends Mixins<
     this.docId = this.windowInfo.args!.docId;
     this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
+
+    // 排他チェック
+    if (data.exclusionOwner) {
+      this.isProcessed = true;
+      await this.close();
+    }
+
+    // パーミッションチェック
+    if (!permissionCheck(data, "edit")) {
+      this.isProcessed = true;
+      await this.close();
+    }
+
     const backgroundInfo = data.data!.textures[data.data!.useBackGround];
     if (backgroundInfo.type === "image") {
       this.imageDocId = backgroundInfo.imageId;

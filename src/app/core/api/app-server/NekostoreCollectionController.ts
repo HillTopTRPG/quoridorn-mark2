@@ -4,7 +4,7 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { Permission, StoreObj, StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { SystemError } from "@/app/core/error/SystemError";
 import SocketFacade, {
@@ -146,7 +146,11 @@ export default class NekostoreCollectionController<T> {
     );
   }
 
-  public async add(id: string, data: T): Promise<string> {
+  public async add(
+    id: string,
+    data: T,
+    permission?: Permission
+  ): Promise<string> {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
     return await SocketFacade.instance.socketCommunication<
@@ -155,11 +159,30 @@ export default class NekostoreCollectionController<T> {
     >("create-data", {
       collection: this.collectionName,
       id,
-      data
+      data,
+      permission: permission || {
+        view: {
+          type: "none",
+          list: []
+        },
+        edit: {
+          type: "none",
+          list: []
+        },
+        chmod: {
+          type: "none",
+          list: []
+        }
+      }
     });
   }
 
-  public async update(id: string, data: T, continuous?: boolean) {
+  public async update(
+    id: string,
+    data: T,
+    permission?: Permission,
+    continuous?: boolean
+  ) {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
     await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
@@ -168,6 +191,7 @@ export default class NekostoreCollectionController<T> {
         collection: this.collectionName,
         id,
         data,
+        permission,
         continuous
       }
     );

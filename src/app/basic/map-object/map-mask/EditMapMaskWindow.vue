@@ -39,6 +39,7 @@
                 :id="`${key}-color`"
                 class="value-color"
                 v-model="color"
+                :use-alpha="false"
               />
             </td>
           </tr>
@@ -141,7 +142,9 @@ import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue"
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -217,6 +220,19 @@ export default class EditMapMaskWindow extends Mixins<
     this.docId = this.windowInfo.args!.docId;
     this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
+
+    // 排他チェック
+    if (data.exclusionOwner) {
+      this.isProcessed = true;
+      await this.close();
+    }
+
+    // パーミッションチェック
+    if (!permissionCheck(data, "edit")) {
+      this.isProcessed = true;
+      await this.close();
+    }
+
     const texture = data.data!.textures[data.data!.useBackGround];
     if (texture.type === "color") {
       this.text = texture.text;
@@ -243,18 +259,18 @@ export default class EditMapMaskWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    const texture = data.data!.textures[data.data!.useBackGround];
+    const data = (await this.cc!.getData(this.docId))!.data!;
+    const texture = data.textures[data.useBackGround];
     if (texture.type === "color") {
       texture.text = this.text;
       texture.backgroundColor = this.colorObj.getRGBA();
       texture.fontColor = this.colorObj.getRGBReverse();
     }
-    data.data!.rows = this.height;
-    data.data!.columns = this.width;
-    data.data!.otherText = this.otherText;
-    data.data!.layerId = this.layerId;
-    await this.cc!.update(this.docId, data.data!);
+    data.rows = this.height;
+    data.columns = this.width;
+    data.otherText = this.otherText;
+    data.layerId = this.layerId;
+    await this.cc!.update(this.docId, data);
     this.isProcessed = true;
     await this.close();
   }

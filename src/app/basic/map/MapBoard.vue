@@ -19,7 +19,7 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { drawLine, drawLine2 } from "@/app/core/CanvasDrawer";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { MapSetting, RoomData } from "@/@types/room";
+import { Screen, RoomData } from "@/@types/room";
 import { StoreUseData } from "@/@types/store";
 import SocketFacade, {
   getStoreObj
@@ -36,19 +36,19 @@ export default class MapBoard extends Vue {
   private isMapDraggingRight: boolean = false;
 
   @Prop({ type: Object, default: null })
-  private mapSetting!: MapSetting;
+  private screen!: Screen;
 
   private roomData: StoreUseData<RoomData> | null = null;
   private key = "map-board";
 
   private get mapCanvasSize(): Size {
-    if (!this.mapSetting) {
+    if (!this.screen) {
       return createSize(0, 0);
     }
-    const gridSize = this.mapSetting.gridSize;
+    const gridSize = this.screen.gridSize;
     return createSize(
-      gridSize * this.mapSetting.totalColumn,
-      gridSize * this.mapSetting.totalRow
+      gridSize * this.screen.columns,
+      gridSize * this.screen.rows
     );
   }
 
@@ -70,7 +70,7 @@ export default class MapBoard extends Vue {
   }
 
   private paint(): void {
-    if (!this.mapSetting) return;
+    if (!this.screen) return;
     const canvasElm: HTMLCanvasElement = document.getElementById(
       "map-canvas"
     ) as HTMLCanvasElement;
@@ -78,14 +78,14 @@ export default class MapBoard extends Vue {
 
     ctx.clearRect(0, 0, this.mapCanvasSize.width, this.mapCanvasSize.height);
 
-    const gridSize = this.mapSetting.gridSize;
+    const gridSize = this.screen.gridSize;
 
     // マス目の描画
     if (this.roomData!.data!.isDrawGridLine) {
-      ctx.strokeStyle = this.mapSetting.gridBorderColor;
+      ctx.strokeStyle = this.screen.gridColor;
       ctx.globalAlpha = 1;
-      for (let c = 0; c <= this.mapSetting.totalColumn; c++) {
-        for (let r = 0; r <= this.mapSetting.totalRow; r++) {
+      for (let c = 0; c <= this.screen.columns; c++) {
+        for (let r = 0; r <= this.screen.rows; r++) {
           // 横線
           drawLine(ctx, c * gridSize, r * gridSize, gridSize - 1, 0);
           // 縦線
@@ -94,7 +94,7 @@ export default class MapBoard extends Vue {
       }
 
       // マウス下のマスを強調表示
-      ctx.strokeStyle = this.mapSetting.gridBorderColor;
+      ctx.strokeStyle = this.screen.gridColor;
       ctx.strokeStyle = "red";
       ctx.globalAlpha = 1;
       window.console.warn(
@@ -139,12 +139,12 @@ export default class MapBoard extends Vue {
 
     // マス座標の描画
     if (this.roomData!.data!.isDrawGridId) {
-      ctx.fillStyle = this.mapSetting.gridBorderColor;
+      ctx.fillStyle = this.screen.fontColor;
       ctx.globalAlpha = 1;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      for (let c = 0; c <= this.mapSetting.totalColumn; c++) {
-        for (let r = 0; r <= this.mapSetting.totalRow; r++) {
+      for (let c = 0; c <= this.screen.columns; c++) {
+        for (let r = 0; r <= this.screen.rows; r++) {
           const text = c + 1 + "-" + (r + 1);
           const x = c * gridSize + (gridSize - 1) / 2;
           const y = r * gridSize + (gridSize - 1) / 2;
@@ -165,13 +165,13 @@ export default class MapBoard extends Vue {
   private onChangeBackground() {
     let direction = "";
     let backColor = "transparent";
-    if (this.mapSetting.background.texture.type === "image") {
-      const directionRow = this.mapSetting.background.texture.direction;
+    if (this.screen.background.texture.type === "image") {
+      const directionRow = this.screen.background.texture.direction;
       if (directionRow === "horizontal") direction = "scale(-1, 1)";
       if (directionRow === "vertical") direction = "scale(1, -1)";
       if (directionRow === "180") direction = "rotate(180deg)";
     } else {
-      backColor = this.mapSetting.background.texture.backgroundColor;
+      backColor = this.screen.background.texture.backgroundColor;
     }
     this.elm.style.setProperty(`--image-direction`, direction);
     this.elm.style.setProperty(`--back-color`, backColor);

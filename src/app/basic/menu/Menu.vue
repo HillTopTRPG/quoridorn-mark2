@@ -278,7 +278,7 @@ export default class Menu extends Vue {
   private isSelecting: boolean = false;
   private currentMenu: string = "";
   private userList: StoreUseData<UserData>[] =
-    GameObjectManager.instance.playerList;
+    GameObjectManager.instance.userList;
 
   public key: string = "menu";
 

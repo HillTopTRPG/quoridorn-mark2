@@ -12,6 +12,7 @@ export type ContextTextItem<T> = {
   text: string;
   taskArg: T;
   isViewCompare?: CompareInfo;
+  isDisabledCompare?: CompareInfo;
   children?: ContextItemDeclareInfo[];
 };
 

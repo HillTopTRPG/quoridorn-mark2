@@ -3,23 +3,24 @@
     <div class="area-map-container">
       <div
         class="area-map"
-        :class="{ selected: selectedMapId === map.id }"
-        v-for="map in mapList"
-        :key="map.id"
-        @click="selectAreaMap(map)"
-        ref="mapList"
+        :class="{ selected: selectedScreenId === screen.id }"
+        v-for="screen in screenList"
+        :key="screen.id"
+        @click="selectAreaMap(screen)"
+        @dblclick="editMap()"
+        ref="screen"
       ></div>
       <div class="area-map add" @click="createMap()">
         <span>＋</span>
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click="editMap()" :disabled="!selectedMapId">
+      <ctrl-button @click="editMap()" :disabled="!selectedScreenId">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
       <ctrl-button
         @click="deleteMap()"
-        :disabled="!selectedMapId || mapList.length <= 1"
+        :disabled="!selectedScreenId || screenList.length <= 1"
       >
         <span v-t="'button.delete'"></span>
       </ctrl-button>
@@ -42,7 +43,7 @@ import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import { StoreUseData } from "@/@types/store";
-import { MapSetting } from "@/@types/room";
+import { Screen } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 
@@ -60,10 +61,10 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private isMounted: boolean = false;
-  private cc = SocketFacade.instance.mapListCC();
+  private cc = SocketFacade.instance.screenListCC();
   private imageList = GameObjectManager.instance.imageList;
-  private mapList = GameObjectManager.instance.mapList;
-  private selectedMapId: string | null = null;
+  private screenList = GameObjectManager.instance.screenList;
+  private selectedScreenId: string | null = null;
 
   @LifeCycle
   private async mounted() {
@@ -72,44 +73,43 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @Watch("isMounted")
-  @Watch("mapList", { deep: true })
-  private onChangeMapList() {
-    const elmList: HTMLElement[] = this.$refs.mapList as HTMLElement[];
-    if (this.mapList.findIndex(map => !map.data) > -1) return;
+  @Watch("screenList", { deep: true })
+  private onChangeScreenList() {
+    const elmList: HTMLElement[] = this.$refs.screen as HTMLElement[];
+    if (this.screenList.findIndex(s => !s.data) > -1) return;
     // window.console.log(this.mapList[0].data.texture);
-    this.mapList
-      .map(map => map.data!)
-      .forEach(async (map, index) => {
+    this.screenList
+      .map(s => s.data!)
+      .forEach(async (s, index) => {
         // window.console.log(map.texture);
         const elm = elmList[index];
         let direction: string = "";
         let backgroundColor: string = "transparent";
         let backgroundImage: string = "none";
-        if (map.texture.type === "color") {
-          backgroundColor = map.texture.backgroundColor;
+        if (s.texture.type === "color") {
+          backgroundColor = s.texture.backgroundColor;
         } else {
           const imageData = await SocketFacade.instance
             .imageDataCC()
-            .getData(map.texture.imageId);
+            .getData(s.texture.imageId);
           if (imageData && imageData.data) {
             backgroundImage = `url("${GameTable.changeImagePath(
               imageData.data.data
             )}")`;
           }
-          if (map.texture.direction === "horizontal")
-            direction = "scale(-1, 1)";
-          if (map.texture.direction === "vertical") direction = "scale(1, -1)";
-          if (map.texture.direction === "180") direction = "rotate(180deg)";
+          if (s.texture.direction === "horizontal") direction = "scale(-1, 1)";
+          if (s.texture.direction === "vertical") direction = "scale(1, -1)";
+          if (s.texture.direction === "180") direction = "rotate(180deg)";
         }
         elm.style.setProperty("--background-color", backgroundColor);
         elm.style.setProperty("--background-image", backgroundImage);
         elm.style.setProperty("--image-direction", direction);
-        elm.style.setProperty("--name", `"${map.name}"`);
+        elm.style.setProperty("--name", `"${s.name}"`);
       });
   }
 
-  private selectAreaMap(map: StoreUseData<MapSetting>) {
-    this.selectedMapId = map.id;
+  private selectAreaMap(screen: StoreUseData<Screen>) {
+    this.selectedScreenId = screen.id;
   }
 
   private async editMap() {
@@ -118,14 +118,14 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       owner: "Quoridorn",
       value: {
         type: "edit-map-window",
-        args: this.selectedMapId!
+        args: this.selectedScreenId!
       }
     });
   }
 
   private async deleteMap() {
-    await this.cc.touchModify(this.selectedMapId!);
-    await this.cc.delete(this.selectedMapId!);
+    await this.cc.touchModify(this.selectedScreenId!);
+    await this.cc.delete(this.selectedScreenId!);
   }
 
   private async createMap() {
@@ -133,16 +133,15 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     const firstImage = this.imageList[0].data!;
     const firstImageId = this.imageList[0].id!;
 
-    const mapSetting: MapSetting = {
+    const mapSetting: Screen = {
       name: "New map",
-      shapeType: "square",
-      totalColumn: 20,
-      totalRow: 15,
+      columns: 20,
+      rows: 15,
       gridSize: 50,
-      gridBorderColor: "#000000",
-      isPourTile: false,
-      isHexFirstCorner: false,
-      isHexSecondSmall: false,
+      gridColor: "#000000",
+      fontColor: "#000000",
+      portTileMapping: "",
+      shapeType: "square",
       texture: {
         type: "image",
         imageTag: firstImage.tag,
@@ -161,6 +160,7 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
         maskBlur: 3
       },
       margin: {
+        useTexture: "original",
         texture: {
           type: "image",
           imageTag: firstImage.tag,
@@ -168,22 +168,21 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
           direction: "none",
           backgroundSize: "100%"
         },
-        isUseGridColor: true,
+        columns: 5,
+        rows: 5,
+        isUseGrid: true,
         gridColorBold: "rgba(255, 255, 255, 0.3)",
         gridColorThin: "rgba(255, 255, 255, 0.1)",
-        column: 5,
-        row: 5,
-        isUseMaskColor: true,
         maskColor: "rgba(20, 80, 20, 0.1)",
         maskBlur: 3,
-        isUseImage: "none",
-        borderWidth: 10,
-        borderColor: "gray",
-        borderStyle: "ridge"
+        border: {
+          width: 10,
+          color: "gray",
+          style: "ridge"
+        }
       },
       chatLinkage: 0,
-      chatLinkageSearch: "",
-      portTileMapping: ""
+      chatLinkageSearch: ""
     };
     const mapDataDocId = await this.cc.add(docId, mapSetting);
   }
@@ -220,10 +219,11 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     box-sizing: border-box;
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+    overflow-x: hidden;
 
     &:before {
       content: var(--name);
-      background-color: rgba(255, 255, 255, 0.4);
+      background-color: rgba(255, 255, 255, 0.7);
       @include flex-box(row, flex-start, center);
       position: absolute;
       top: 0;

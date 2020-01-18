@@ -712,29 +712,64 @@
   message: ""
   position: center
   size:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
-    heightPx: 4
-    heightEm: 22
-    heightRem: 2
+    # 2.5rem + 40em + 17px
+    widthPx: 532
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
   minSize:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
-    heightPx: 4
-    heightEm: 22
-    heightRem: 2
+    widthPx: 532
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
   maxSize:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
-    heightPx: 4
-    heightEm: 22
-    heightRem: 2
+    widthPx: 1032
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
   minimizable: true
   paneContainable: true
   closable: true
-  fontSizePickable: false
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"chmod-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 2.5rem + 40em + 17px
+    widthPx: 532
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
+  minSize:
+    widthPx: 532
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
+  maxSize:
+    widthPx: 1032
+    widthEm: 0
+    widthRem: 0
+    heightPx: 9
+    heightEm: 28
+    heightRem: 3
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
   resizable: true
   tableInfoList: []

@@ -20,7 +20,7 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board :mapSetting="mapSetting" />
+        <map-board :screen="screen" />
 
         <map-layer-component
           v-for="layer in useLayerList"
@@ -58,7 +58,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { MapLayer, MapSetting, RoomData, Texture } from "@/@types/room";
+import { MapLayer, Screen, RoomData, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
@@ -91,7 +91,7 @@ export default class GameTable extends AddressCalcMixin {
   private key = "game-table";
 
   private mapId: string | null = null;
-  private mapSetting: MapSetting | null = null;
+  private screen: Screen | null = null;
   private isMounted: boolean = false;
 
   private get appElm(): HTMLElement {
@@ -108,22 +108,22 @@ export default class GameTable extends AddressCalcMixin {
 
   @VueEvent
   private async mounted() {
-    const mapListCC = SocketFacade.instance.mapListCC();
+    const screenListCC = SocketFacade.instance.screenListCC();
     const roomDataCC = SocketFacade.instance.roomDataCC();
-    const roomData: StoreUseData<RoomData> = (await roomDataCC.getList(
-      false
-    ))[0];
+    const roomData: StoreUseData<RoomData> = (
+      await roomDataCC.getList(false)
+    )[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
     this.mapId = roomData.data!.mapId;
-    const mapData = await mapListCC.getData(this.mapId);
-    await mapListCC.setSnapshot(this.key, this.mapId, snapshot => {
+    const screenData = await screenListCC.getData(this.mapId);
+    await screenListCC.setSnapshot(this.key, this.mapId, snapshot => {
       if (snapshot.data!.status === "modified") {
-        this.mapSetting = snapshot.data!.data!;
+        this.screen = snapshot.data!.data!;
       }
     });
-    if (!mapData) throw new ApplicationError("No such mapData.");
-    this.mapSetting = mapData.data!;
+    if (!screenData) throw new ApplicationError("No such mapData.");
+    this.screen = screenData.data!;
     this.useLayerList = await this.getMapLayerList();
 
     this.isMounted = true;
@@ -131,60 +131,46 @@ export default class GameTable extends AddressCalcMixin {
   }
 
   @Watch("isMounted")
-  @Watch("mapSetting")
-  private async onChangeMap() {
-    await GameTable.setBackground(
-      "map-canvas-container",
-      this.mapSetting!.texture
-    );
+  @Watch("screen")
+  private async onChangeScreen() {
+    await GameTable.setBackground("map-canvas-container", this.screen!.texture);
     await GameTable.setBackground(
       "back-screen",
-      this.mapSetting!.background.texture
+      this.screen!.background.texture
     );
     await GameTable.setBackground(
       "table-background",
-      this.mapSetting!.margin.texture
+      this.screen!.margin.texture
     );
     this.appElm.style.setProperty(
       "--totalColumn",
-      this.mapSetting!.totalColumn!.toString(10)
-    );
-    this.appElm.style.setProperty(
-      "--totalColumn",
-      this.mapSetting!.totalColumn!.toString(10)
+      this.screen!.columns!.toString(10)
     );
     this.appElm.style.setProperty(
       "--totalRow",
-      this.mapSetting!.totalRow!.toString(10)
+      this.screen!.rows!.toString(10)
     );
-    this.appElm.style.setProperty(
-      "--gridSize",
-      this.mapSetting!.gridSize! + "px"
-    );
-    this.appElm.style.setProperty(
-      "--gridBorderColor",
-      this.mapSetting!.gridBorderColor!
-    );
+    this.appElm.style.setProperty("--gridSize", this.screen!.gridSize! + "px");
+    this.appElm.style.setProperty("--gridColor", this.screen!.gridColor!);
+    this.appElm.style.setProperty("--fontColor", this.screen!.fontColor!);
     this.gridPaperElm.style.setProperty(
       "--mask-color",
-      this.mapSetting!.margin.isUseMaskColor
-        ? this.mapSetting!.margin.maskColor
-        : "transparent"
+      this.screen!.margin.maskColor
     );
     this.tableBackElm.style.setProperty(
       "--mask-blur",
-      this.mapSetting!.margin.maskBlur + "px"
+      this.screen!.margin.maskBlur + "px"
     );
     document
       .getElementById("back-screen")!
       .style.setProperty(
         "--mask-blur",
-        this.mapSetting!.background.maskBlur + "px"
+        this.screen!.background.maskBlur + "px"
       );
-    if (this.mapSetting!.margin.isUseGridColor) {
+    if (this.screen!.margin.isUseGrid) {
       this.gridPaperElm.style.setProperty(
         "--margin-grid-color-bold",
-        this.mapSetting!.margin.gridColorBold
+        this.screen!.margin.gridColorBold
       );
     } else {
       this.gridPaperElm.style.setProperty(
@@ -192,10 +178,10 @@ export default class GameTable extends AddressCalcMixin {
         "transparent"
       );
     }
-    if (this.mapSetting!.margin.isUseGridColor) {
+    if (this.screen!.margin.isUseGrid) {
       this.gridPaperElm.style.setProperty(
         "--margin-grid-color-thin",
-        this.mapSetting!.margin.gridColorThin
+        this.screen!.margin.gridColorThin
       );
     } else {
       this.gridPaperElm.style.setProperty(
@@ -205,23 +191,23 @@ export default class GameTable extends AddressCalcMixin {
     }
     this.appElm.style.setProperty(
       "--margin-column",
-      this.mapSetting!.margin.column.toString(10)
+      this.screen!.margin.columns.toString(10)
     );
     this.appElm.style.setProperty(
       "--margin-row",
-      this.mapSetting!.margin.row.toString(10)
+      this.screen!.margin.rows.toString(10)
     );
     this.appElm.style.setProperty(
       "--margin-border-width",
-      this.mapSetting!.margin.borderWidth + "px"
+      this.screen!.margin.border.width + "px"
     );
     this.appElm.style.setProperty(
       "--margin-border-color",
-      this.mapSetting!.margin.borderColor
+      this.screen!.margin.border.color
     );
     this.appElm.style.setProperty(
       "--margin-border-style",
-      this.mapSetting!.margin.borderStyle
+      this.screen!.margin.border.style
     );
   }
 
@@ -553,15 +539,25 @@ export default class GameTable extends AddressCalcMixin {
     position: absolute;
     left: 0;
     top: 0;
-    background-image: var(--background-image);
-    background-color: var(--background-color);
-    background-size: cover;
-    background-position: center;
     width: 100%;
     height: 100%;
-    filter: blur(var(--mask-blur));
-    transform: var(--image-direction);
     z-index: 1;
+    overflow: hidden;
+
+    &:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-image: var(--background-image);
+      background-color: var(--background-color);
+      background-size: cover;
+      background-position: center;
+      filter: blur(var(--mask-blur));
+      transform: var(--image-direction);
+    }
   }
 
   #grid-paper {
@@ -624,19 +620,20 @@ export default class GameTable extends AddressCalcMixin {
         transparent
       );
 
+    /*
     &:after {
       content: "";
-      background: inherit; /*.bgImageで設定した背景画像を継承する*/
+      background: inherit;
       -webkit-filter: blur(10px);
       -ms-filter: blur(10px);
       filter: blur(10px);
       position: absolute;
-      /*ブラー効果で画像の端がボヤけた分だけ位置を調整*/
       top: -10px;
       left: -10px;
       right: -10px;
       bottom: -10px;
     }
+    */
   }
 
   #mapBoardFrame {

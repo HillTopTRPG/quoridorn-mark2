@@ -35,7 +35,7 @@ type DiceSymbolStore = {
   size: number;
   isHideBorder: boolean;
   isHideHighlight: boolean;
-  place: "field" | "graveyard" | "backstage";
+  place: Place;
   type: string;
   pips: number;
   faceNum: number;
@@ -49,6 +49,7 @@ type ExtraStore = {
 };
 
 type CharacterStore = MapObject & {
+  name: string;
   fontColorType: "owner" | "original";
   fontColor: string;
   status: string; // id

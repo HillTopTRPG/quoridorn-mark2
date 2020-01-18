@@ -2,7 +2,13 @@ import * as Socket from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import {
+  PermissionNode,
+  PermissionRule,
+  ActorGroup,
+  StoreObj,
+  StoreUseData
+} from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { ConnectInfo, Interoperability } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -16,7 +22,7 @@ import { Image } from "@/@types/image";
 import {
   MapAndLayer,
   MapLayer,
-  MapSetting,
+  Screen,
   RoomData,
   UserData
 } from "@/@types/room";
@@ -39,6 +45,7 @@ import {
   TargetVersion
 } from "@/app/core/api/Github";
 import yaml from "js-yaml";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -55,6 +62,58 @@ export function getStoreObj<T>(
   } else {
     return null;
   }
+}
+
+/**
+ * パーミッションチェックを行う。
+ * @param data
+ * @param type
+ * @return 許可されているならtrue
+ */
+export function permissionCheck(
+  data: StoreObj<unknown>,
+  type: "view" | "edit" | "chmod"
+): boolean {
+  let permissionRule: PermissionRule;
+  if (type === "view") permissionRule = data!.permission!.view;
+  else if (type === "edit") permissionRule = data!.permission!.edit;
+  else permissionRule = data!.permission!.chmod;
+
+  let result = permissionRule.type !== "allow";
+  if (permissionRule.list.length) {
+    const check = (pn: PermissionNode) => {
+      if (pn.type === "group") {
+        const roleGroup = GameObjectManager.instance.actorGroupList.filter(
+          r => r.id === pn.id
+        )[0];
+        if (!roleGroup) return false;
+        return (
+          roleGroup.data!.list.findIndex(member => {
+            const targetId =
+              member.type === "user"
+                ? SocketFacade.instance.userId
+                : SocketFacade.instance.characterId;
+            return member.id === targetId;
+          }) > -1
+        );
+      }
+      if (pn.type === "user") {
+        window.console.log(pn.id, SocketFacade.instance.userId);
+        if (pn.id === SocketFacade.instance.userId) return true;
+      }
+      if (pn.type === "character") {
+        window.console.log(pn.id, SocketFacade.instance.characterId);
+        if (pn.id === SocketFacade.instance.characterId) return true;
+      }
+      if (pn.type === "owner") {
+        window.console.log(data.owner, SocketFacade.instance.userId);
+        if (data.owner === SocketFacade.instance.userId) return true;
+      }
+      return false;
+    };
+    if (permissionRule.list.findIndex(check) > -1) result = !result;
+  }
+  return result;
 }
 
 export default class SocketFacade {
@@ -75,6 +134,7 @@ export default class SocketFacade {
   } = {};
   private __roomCollectionPrefix: string | null = null;
   private __userId: string | null = null;
+  private __characterId: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
   private __interoperability: Interoperability[] | null = null;
   private targetServer: TargetVersion = {
@@ -227,6 +287,14 @@ export default class SocketFacade {
     return this.__userId;
   }
 
+  public set characterId(val: string | null) {
+    this.__characterId = val;
+  }
+
+  public get characterId(): string | null {
+    return this.__characterId;
+  }
+
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
     if (this.socket) {
       return this.doSocketCommunication<T, U>(event, args);
@@ -267,6 +335,7 @@ export default class SocketFacade {
       const timeoutId = window.setTimeout(() => {
         socket.off("result-get-version");
         socket.disconnect();
+        window.console.warn("timeout");
         reject("not-quoridorn");
       }, this.__connectInfo!.socketTimeout + 100);
       socket.once(
@@ -282,12 +351,14 @@ export default class SocketFacade {
           // タイトルチェック（サーバ側で必ず値は設定してくる）
           const title: string = result.title;
           if (!title) {
+            window.console.warn("title-check");
             reject("not-quoridorn");
             return;
           }
 
           const serverVersion: string = result.version;
           if (!serverVersion || !serverVersion.startsWith("Quoridorn ")) {
+            window.console.warn("version format");
             reject("not-quoridorn");
             return;
           }
@@ -349,8 +420,8 @@ export default class SocketFacade {
     ));
   }
 
-  public mapListCC(): NekostoreCollectionController<MapSetting> {
-    return this.roomCollectionController<MapSetting>("map-list");
+  public screenListCC(): NekostoreCollectionController<Screen> {
+    return this.roomCollectionController<Screen>("screen-list");
   }
 
   public mapAndLayerCC(): NekostoreCollectionController<MapAndLayer> {
@@ -437,10 +508,14 @@ export default class SocketFacade {
     return this.roomCollectionController<MapLayer>("map-layer-list");
   }
 
+  public actorGroupCC(): NekostoreCollectionController<ActorGroup> {
+    return this.roomCollectionController<ActorGroup>("actor-group-list");
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
-      case "map-list":
-        return this.mapListCC();
+      case "screen-list":
+        return this.screenListCC();
       case "room-data":
         return this.roomDataCC();
       case "image-list":
@@ -479,6 +554,8 @@ export default class SocketFacade {
         return this.mapAndLayerCC();
       case "tag-note-list":
         return this.tagNoteCC();
+      case "role-group-list":
+        return this.actorGroupCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

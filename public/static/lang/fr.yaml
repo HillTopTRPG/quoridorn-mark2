@@ -28,6 +28,8 @@ type:
   floor-tile: Carrelage de sol
   stand-image: Image debout
   stand-image-diff: Différence d'image debout
+  user: ユーザー
+  actor-group: アクターグループ
 
 context:
   bgm-setting: Réglage BGM
@@ -43,6 +45,7 @@ context:
   view-highlight: Afficher les temps forts
   hide-highlight: Masquer la surbrillance
   edit-area-map: エリアマップ編集
+  chmod: 権限変更
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -106,6 +109,36 @@ label:
   background: 背景
   main: メイン
   margin: 余白
+  texture: テクスチャ
+  rows: 行
+  columns: 列
+  name: 名前
+  fore-color: 前景色
+  grid-line: 方眼線
+  grid-line-color: 方眼線色
+  font-color: 文字色
+  sub: サブ
+  grid-size: マス(px)
+  border-style: 罫線のスタイル
+  blur: ぼかし
+  mask: マスク
+  frame-border: 枠線
+  size: サイズ
+  decoration: 装飾
+  style: スタイル
+  map: マップ
+  none: なし
+  allow: 許可
+  deny: 否認
+  permission-type: 権限種別
+  permission-node-type: 権限対象種別
+  owner: オーナー
+  user: ユーザー
+  character: キャラクター
+  group: グループ
+  permission-view: 閲覧権限
+  permission-edit: 編集権限
+  permission-chmod: 権限変更権限
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.

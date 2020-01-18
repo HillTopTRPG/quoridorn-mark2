@@ -1,7 +1,7 @@
 import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import { MapAndLayer, MapLayer, MapSetting, UserData } from "@/@types/room";
+import { ActorGroup, StoreObj, StoreUseData } from "@/@types/store";
+import { MapAndLayer, MapLayer, Screen, UserData } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
@@ -68,13 +68,16 @@ export default class GameObjectManager {
         }
       );
     };
-    await setBasicSnapShot(SocketFacade.instance.mapListCC(), this.mapList);
+    await setBasicSnapShot(
+      SocketFacade.instance.screenListCC(),
+      this.screenList
+    );
     await setBasicSnapShot(SocketFacade.instance.imageDataCC(), this.imageList);
     await setBasicSnapShot(
       SocketFacade.instance.imageTagCC(),
       this.imageTagList
     );
-    await setBasicSnapShot(SocketFacade.instance.userCC(), this.playerList);
+    await setBasicSnapShot(SocketFacade.instance.userCC(), this.userList);
     await setBasicSnapShot(SocketFacade.instance.mapMaskCC(), this.mapMaskList);
     await setBasicSnapShot(SocketFacade.instance.chitCC(), this.chitList);
     await setBasicSnapShot(
@@ -111,13 +114,17 @@ export default class GameObjectManager {
       this.propertySelectionList
     );
     await setBasicSnapShot(SocketFacade.instance.tagNoteCC(), this.tagNoteList);
+    await setBasicSnapShot(
+      SocketFacade.instance.actorGroupCC(),
+      this.actorGroupList
+    );
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
-  public readonly mapList: StoreUseData<MapSetting>[] = [];
+  public readonly screenList: StoreUseData<Screen>[] = [];
   public readonly imageList: StoreUseData<Image>[] = [];
   public readonly imageTagList: StoreUseData<string>[] = [];
-  public readonly playerList: StoreUseData<UserData>[] = [];
+  public readonly userList: StoreUseData<UserData>[] = [];
   public readonly mapMaskList: StoreUseData<MapMaskStore>[] = [];
   public readonly chitList: StoreUseData<ChitStore>[] = [];
   public readonly floorTileList: StoreUseData<FloorTileStore>[] = [];
@@ -132,6 +139,7 @@ export default class GameObjectManager {
     PropertySelectionStore
   >[] = [];
   public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
+  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -148,7 +156,7 @@ export default class GameObjectManager {
   }
 
   public get mySelf(): StoreUseData<UserData> | null {
-    return this.playerList.filter(p => p.id === this.mySelfId)[0] || null;
+    return this.userList.filter(p => p.id === this.mySelfId)[0] || null;
   }
 
   public static filterPlaceList(
@@ -164,5 +172,45 @@ export default class GameObjectManager {
       throw new ApplicationError(`Illegal timing error.`);
     }
     return userId;
+  }
+
+  public getList(type: string): StoreUseData<unknown>[] | null {
+    switch (type) {
+      case "screen":
+        return this.screenList;
+      case "image":
+        return this.imageList;
+      case "image-tag":
+        return this.imageTagList;
+      case "user":
+        return this.userList;
+      case "map-mask":
+        return this.mapMaskList;
+      case "chit":
+        return this.chitList;
+      case "floor-tile":
+        return this.floorTileList;
+      case "dice-symbol":
+        return this.diceSymbolList;
+      case "extra":
+        return this.extraList;
+      case "character":
+        return this.characterList;
+      case "property-face":
+        return this.propertyFaceList;
+      case "map-layer":
+        return this.mapLayerList;
+      case "map-and-layer":
+        return this.mapAndLayerList;
+      case "property":
+        return this.propertyList;
+      case "property-selection":
+        return this.propertySelectionList;
+      case "tag-note":
+        return this.tagNoteList;
+      case "actor-group":
+        return this.actorGroupList;
+    }
+    return null;
   }
 }

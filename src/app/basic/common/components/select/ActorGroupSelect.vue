@@ -22,10 +22,7 @@ import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 @Component({
   components: { CtrlSelect }
 })
-export default class CharacterSelect extends Mixins<SelectMixin>(SelectMixin) {
-  @Prop({ type: Array, default: [] })
-  private placeList!: Place[];
-
+export default class ActorGroupSelect extends Mixins<SelectMixin>(SelectMixin) {
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
@@ -46,17 +43,11 @@ export default class CharacterSelect extends Mixins<SelectMixin>(SelectMixin) {
       LanguageManager.instance
     );
 
-    let characterList = GameObjectManager.instance.characterList;
-    if (this.placeList.length) {
-      characterList = characterList.filter(
-        c => this.placeList.findIndex(p => p === c.data!.place) > -1
-      );
-    }
-    this.optionInfoList = characterList.map(c => {
-      let text = c.data!.name;
+    this.optionInfoList = GameObjectManager.instance.actorGroupList.map(i => {
+      let text = i.data!.name;
       return {
-        key: c.id!,
-        value: c.id!,
+        key: i.id!,
+        value: i.id!,
         text,
         disabled: false
       };
@@ -64,7 +55,7 @@ export default class CharacterSelect extends Mixins<SelectMixin>(SelectMixin) {
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: getText("type.character"),
+      text: getText("type.actor-group"),
       disabled: true
     });
   }

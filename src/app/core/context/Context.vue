@@ -13,7 +13,8 @@
         :key="index"
         v-if="item.type !== 'hr'"
         class="item"
-        @click.left.stop="emitEvent(item.taskName, item.arg)"
+        :class="{ disabled: item.disabled }"
+        @click.left.stop="emitEvent(item.taskName, item.arg, item.disabled)"
         v-t="item.text"
       ></div>
     </template>
@@ -44,6 +45,7 @@ type Item = {
   text?: string;
   taskName?: string;
   arg?: any;
+  disabled?: boolean;
 };
 
 @Component
@@ -119,6 +121,13 @@ export default class Context extends Vue {
 
     // テキスト項目の追加
     if ("text" in contextItem) {
+      // 非活性の判定
+      const disabled = !(await judgeCompare(
+        contextItem.isDisabledCompare,
+        this.type,
+        this.target
+      ));
+
       const argObj = {
         type: this.type,
         docId: this.target
@@ -135,7 +144,8 @@ export default class Context extends Vue {
         type: "item",
         taskName: contextItem.taskName || "default",
         text: contextItem.text || "default",
-        arg: contextItem.taskArg
+        arg: contextItem.taskArg,
+        disabled
       });
       return;
     }
@@ -150,9 +160,11 @@ export default class Context extends Vue {
    * 項目選択
    * @param taskName
    * @param arg
+   * @param disabled
    */
   @VueEvent
-  private async emitEvent(taskName: string, arg: any) {
+  private async emitEvent(taskName: string, arg: any, disabled: boolean) {
+    if (disabled) return;
     this.hide();
     await TaskManager.instance.ignition<any, never>({
       type: taskName,

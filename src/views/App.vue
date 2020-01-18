@@ -140,6 +140,8 @@ export default class App extends Vue {
             serverInfo.roomList!.splice(index, 1, {
               order: index,
               exclusionOwner: null,
+              owner: null,
+              permission: null,
               status: null,
               createTime: new Date(),
               updateTime: null,

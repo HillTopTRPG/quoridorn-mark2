@@ -44,27 +44,7 @@
                 :id="`${key}-color`"
                 class="value-color"
                 v-model="color"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label
-                :for="`${key}-alpha`"
-                class="label-alpha label-input"
-                v-t="'label.alpha'"
-              ></label>
-            </th>
-            <td>
-              <base-input
-                :id="`${key}-alpha`"
-                class="value-alpha"
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                :value="alpha"
-                @input="alpha = $event.target.value"
+                :use-alpha="true"
               />
             </td>
           </tr>
@@ -174,10 +154,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private text: string = "";
-  private color: string = "#ff0000";
+  private color: string = "rgba(255, 0, 0, 1)";
   private height: number = 1;
   private width: number = 1;
-  private alpha: number = 1;
   private isMulti: boolean = false;
   private isMounted: boolean = false;
   private layerId: string = GameObjectManager.instance.mapLayerList.filter(
@@ -238,8 +217,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
 
     const owner = GameObjectManager.instance.mySelfId;
-    const backgroundColor = this.colorObj.getRGBA();
-    const fontColor = this.colorObj.getRGBReverse();
+    const colorObj = parseColor(this.color);
+    const backgroundColor = colorObj.getRGBA();
+    const fontColor = colorObj.getRGBReverse();
     const mapMaskInfo: MapMaskStore = {
       x: point.x,
       y: point.y,
@@ -289,19 +269,13 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
 
   @Watch("isMounted")
   @Watch("color")
-  @Watch("alpha")
   private onChangeColor() {
     if (!this.isMounted) return;
-    const backColor = this.colorObj.getRGBA();
-    this.mapMaskElm.style.setProperty("--back-color", backColor);
-    const fontColor = this.colorObj.getRGBReverse();
-    this.mapMaskElm.style.setProperty("--font-color", fontColor);
-  }
-
-  private get colorObj() {
     const colorObj = parseColor(this.color);
-    colorObj.a = this.alpha;
-    return colorObj;
+    const backColor = colorObj.getRGBA();
+    this.mapMaskElm.style.setProperty("--back-color", backColor);
+    const fontColor = colorObj.getRGBReverse();
+    this.mapMaskElm.style.setProperty("--font-color", fontColor);
   }
 }
 </script>
@@ -319,11 +293,6 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   box-sizing: border-box;
   word-break: break-all;
   text-align: center;
-}
-
-.value-alpha {
-  transform: rotate(180deg);
-  transform-origin: center;
 }
 
 .value-width,
