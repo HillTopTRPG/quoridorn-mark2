@@ -61,7 +61,7 @@ label:
   password-placeholder: (no password if empty)
   user-type: User type
   nameless: Nameless
-  authority: Authority
+  permission: Authority
   player: PL
   gameMaster: GM
   visitor: Visitor

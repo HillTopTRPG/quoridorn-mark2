@@ -511,7 +511,7 @@ export default class SocketFacade {
 
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
-      case "screen-list":
+      case "screen":
         return this.screenListCC();
       case "room-data":
         return this.roomDataCC();

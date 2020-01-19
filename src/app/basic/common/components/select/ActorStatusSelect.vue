@@ -33,9 +33,6 @@ export default class ActorStatusSelect extends Mixins<SelectMixin>(
   @Prop({ type: String, required: true })
   private actorKey!: string;
 
-  @Prop({ type: Boolean, default: false })
-  private disabled!: boolean;
-
   @Getter("getObj") private getObj: any;
 
   private get statusList(): any[] {

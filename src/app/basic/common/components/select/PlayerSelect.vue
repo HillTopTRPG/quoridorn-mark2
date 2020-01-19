@@ -4,17 +4,22 @@
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import SelectBase from "./base/SelectBase.vue";
 
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
-  components: { CtrlSelect, SelectBase }
+  components: { CtrlSelect }
 })
-export default class PlayerSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class PlayerSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   @Getter("playerList") private playerList: any;
 
   @VueEvent

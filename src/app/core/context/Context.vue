@@ -28,6 +28,7 @@ import {
   ContextDeclare,
   ContextDeclareInfo,
   ContextItemDeclare,
+  ContextItemDeclareBlock,
   ContextItemDeclareInfo,
   ContextTaskInfo
 } from "@/@types/context";
@@ -41,7 +42,7 @@ import { clone } from "@/app/core/Utility";
 import LanguageManager from "@/LanguageManager";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
-const contextItemInfo: ContextItemDeclareInfo = require("../context-item.yaml");
+const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
 
 type Item = {
   type: string;
@@ -101,7 +102,7 @@ export default class Context extends Vue {
 
     // 直列の非同期で全部実行する
     await itemInfo
-      .map((item: ContextItemDeclareInfo | null) => () => this.addItem(item))
+      .map((item: ContextItemDeclare | null) => () => this.addItem(item))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     task.resolve();
@@ -113,7 +114,7 @@ export default class Context extends Vue {
    */
   private async addItem(item: ContextItemDeclare | null) {
     const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
-      item && "ref" in item ? contextItemInfo[item.ref] : item
+      item && "ref" in item ? contextItemInfo![item!.ref] : item
     );
 
     // 要素がnullだったら区切り線

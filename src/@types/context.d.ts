@@ -25,6 +25,10 @@ export type Reference = {
   ref: string;
 };
 
+export type ContextItemDeclareBlock = {
+  [type in string]: ContextItemDeclareInfo;
+};
+
 export type ContextItemDeclareInfo =
   | ContextTextItem<any>
   | ContextHrItem

@@ -61,7 +61,7 @@ label:
   password-placeholder: (비어있는 경우 비밀번호 없음)
   user-type: 사용자 유형
   nameless: 무명
-  authority: 권한
+  permission: 권한
   player: PL
   gameMaster: GM
   visitor: 견학자

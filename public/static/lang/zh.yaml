@@ -61,7 +61,7 @@ label:
   password-placeholder: （如果为空，则没有密码）
   user-type: 用户类型
   nameless: 无名
-  authority: 权威
+  permission: 权威
   player: PL
   gameMaster: GM
   visitor: 参观者

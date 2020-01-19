@@ -108,7 +108,7 @@ export default class ChmodRuleEditComponent extends Vue {
       if (pr.type === "group") list = this.groupListInput;
       else if (pr.type === "user") list = this.userListInput;
       else if (pr.type === "character") list = this.characterListInput;
-      list.push(pr.id);
+      if (pr.id) list.push(pr.id);
     });
   }
 

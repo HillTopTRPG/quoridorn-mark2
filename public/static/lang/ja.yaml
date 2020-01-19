@@ -59,7 +59,7 @@ label:
   password-placeholder: (空ならパスワードなし)
   user-type: ユーザ種別
   nameless: ななし
-  authority: 権限
+  permission: 権限
   player: PL
   gameMaster: GM
   visitor: 見学者

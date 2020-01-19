@@ -14,12 +14,16 @@ import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class GroupChatTabSelect extends Mixins<SelectMixin>(
-  SelectMixin
+export default class GroupChatTabSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
 ) {
   @Getter("groupTargetTabListFiltered") private groupTargetTabListFiltered: any;
 

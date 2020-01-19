@@ -20,11 +20,17 @@ import { Task, TaskResult } from "@/@types/task";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class CharacterSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class CharacterSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   @Prop({ type: Array, default: [] })
   private placeList!: Place[];
 

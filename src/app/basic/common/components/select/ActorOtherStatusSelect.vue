@@ -13,21 +13,22 @@ import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class ActorOtherStatusSelect extends Mixins<SelectMixin>(
-  SelectMixin
+export default class ActorOtherStatusSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
 ) {
   @Prop({ type: Object, required: true })
   private actor!: any;
 
   @Prop({ type: String, required: true })
   private statusName!: any;
-
-  @Prop({ type: Boolean, default: false })
-  private disabled!: boolean;
 
   private get useStatusList(): any[] {
     return this.actor.statusList.filter(

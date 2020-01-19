@@ -15,11 +15,17 @@ import { Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class SelfActorSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   @Getter("getSelfActors") private getSelfActors: any;
 
   @Prop({ type: String, default: "アクター" })

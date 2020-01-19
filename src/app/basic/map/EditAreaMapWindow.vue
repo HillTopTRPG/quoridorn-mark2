@@ -4,8 +4,8 @@
       <div
         class="area-map"
         :class="{ selected: selectedScreenId === screen.id }"
-        v-for="screen in screenList"
-        :key="screen.id"
+        v-for="(screen, idx) in useScreenList"
+        :key="idx"
         @click="selectAreaMap(screen)"
         @dblclick="editMap()"
         ref="screen"
@@ -18,9 +18,12 @@
       <ctrl-button @click="editMap()" :disabled="!selectedScreenId">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
+      <ctrl-button @click="chmodMap()" :disabled="!selectedScreenId">
+        <span v-t="'context.chmod'"></span>
+      </ctrl-button>
       <ctrl-button
         @click="deleteMap()"
-        :disabled="!selectedScreenId || screenList.length <= 1"
+        :disabled="!selectedScreenId || useScreenList.length <= 1"
       >
         <span v-t="'button.delete'"></span>
       </ctrl-button>
@@ -38,7 +41,9 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
 import GameTable from "@/app/basic/map/GameTable.vue";
@@ -46,6 +51,8 @@ import { StoreUseData } from "@/@types/store";
 import { Screen } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { DataReference } from "@/@types/data";
 
 @Component({
   components: {
@@ -72,46 +79,54 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     this.isMounted = true;
   }
 
+  private get useScreenList() {
+    return this.screenList.filter(s => permissionCheck(s, "view"));
+  }
+
   @Watch("isMounted")
-  @Watch("screenList", { deep: true })
+  @Watch("useScreenList")
   private onChangeScreenList() {
     const elmList: HTMLElement[] = this.$refs.screen as HTMLElement[];
-    if (this.screenList.findIndex(s => !s.data) > -1) return;
+    if (this.useScreenList.findIndex(s => !s.data) > -1) return;
     // window.console.log(this.mapList[0].data.texture);
-    this.screenList
-      .map(s => s.data!)
-      .forEach(async (s, index) => {
-        // window.console.log(map.texture);
-        const elm = elmList[index];
-        let direction: string = "";
-        let backgroundColor: string = "transparent";
-        let backgroundImage: string = "none";
-        if (s.texture.type === "color") {
-          backgroundColor = s.texture.backgroundColor;
-        } else {
-          const imageData = await SocketFacade.instance
-            .imageDataCC()
-            .getData(s.texture.imageId);
-          if (imageData && imageData.data) {
-            backgroundImage = `url("${GameTable.changeImagePath(
-              imageData.data.data
-            )}")`;
+    setTimeout(() => {
+      this.useScreenList
+        .map(s => s.data!)
+        .forEach(async (s, index) => {
+          // window.console.log(map.texture);
+          const elm = elmList[index];
+          let direction: string = "";
+          let backgroundColor: string = "transparent";
+          let backgroundImage: string = "none";
+          if (s.texture.type === "color") {
+            backgroundColor = s.texture.backgroundColor;
+          } else {
+            const imageData = await SocketFacade.instance
+              .imageDataCC()
+              .getData(s.texture.imageId);
+            if (imageData && imageData.data) {
+              backgroundImage = `url("${GameTable.changeImagePath(
+                imageData.data.data
+              )}")`;
+            }
+            if (s.texture.direction === "horizontal")
+              direction = "scale(-1, 1)";
+            if (s.texture.direction === "vertical") direction = "scale(1, -1)";
+            if (s.texture.direction === "180") direction = "rotate(180deg)";
           }
-          if (s.texture.direction === "horizontal") direction = "scale(-1, 1)";
-          if (s.texture.direction === "vertical") direction = "scale(1, -1)";
-          if (s.texture.direction === "180") direction = "rotate(180deg)";
-        }
-        elm.style.setProperty("--background-color", backgroundColor);
-        elm.style.setProperty("--background-image", backgroundImage);
-        elm.style.setProperty("--image-direction", direction);
-        elm.style.setProperty("--name", `"${s.name}"`);
-      });
+          elm.style.setProperty("--background-color", backgroundColor);
+          elm.style.setProperty("--background-image", backgroundImage);
+          elm.style.setProperty("--image-direction", direction);
+          elm.style.setProperty("--name", `"${s.name}"`);
+        });
+    });
   }
 
   private selectAreaMap(screen: StoreUseData<Screen>) {
     this.selectedScreenId = screen.id;
   }
 
+  @VueEvent
   private async editMap() {
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
@@ -123,7 +138,24 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     });
   }
 
+  @VueEvent
+  private async chmodMap() {
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "chmod-window",
+        args: {
+          type: "screen",
+          docId: this.selectedScreenId!
+        }
+      }
+    });
+  }
+
   private async deleteMap() {
+    const result = window.confirm("本当に削除しますか？");
+    if (!result) return;
     await this.cc.touchModify(this.selectedScreenId!);
     await this.cc.delete(this.selectedScreenId!);
   }

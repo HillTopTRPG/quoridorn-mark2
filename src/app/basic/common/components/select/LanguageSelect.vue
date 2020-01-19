@@ -10,11 +10,17 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import SelectBase from "@/app/basic/common/components/select/base/SelectBase.vue";
 import { SupportLangInfo, supportLangList } from "@/LanguageManager";
+import ComponentVue from "@/app/core/window/ComponentVue";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
-  components: { CtrlSelect, SelectBase }
+  components: { CtrlSelect }
 })
-export default class LanguageSelect extends Mixins<SelectMixin>(SelectMixin) {
+export default class LanguageSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
   @VueEvent
   private get optionInfoList(): any[] {
     const resultList: any[] = supportLangList.map((info: SupportLangInfo) => {

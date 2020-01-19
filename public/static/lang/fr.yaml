@@ -59,7 +59,7 @@ label:
   password-placeholder: (pas de mot de passe si vide)
   user-type: Type d'utilisateur
   nameless: Sans nom
-  authority: Autorité
+  permission: Autorité
   player: PL
   gameMaster: GM
   visitor: Visiteur
