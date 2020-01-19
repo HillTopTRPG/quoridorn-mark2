@@ -2,6 +2,7 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
+    :test="test"
     ref="component"
   />
 </template>
@@ -28,7 +29,7 @@ export default class PermissionTypeSelect extends Mixins<MultiMixin>(
   ComponentVue
 ) {
   private optionInfoList: HtmlOptionInfo[] = [
-    { value: "permission-type", key: "", text: "", disabled: true },
+    { value: "", key: "", text: "", disabled: true },
     { value: "none", key: "", text: "", disabled: false },
     { value: "allow", key: "", text: "", disabled: false },
     { value: "deny", key: "", text: "", disabled: false }
@@ -52,9 +53,10 @@ export default class PermissionTypeSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.value}`);
+      if (o.value) o.text = getText(`label.${o.value}`);
       o.key = o.value;
     });
+    this.optionInfoList[0].text = getText("label.permission-type");
   }
 
   public focus() {

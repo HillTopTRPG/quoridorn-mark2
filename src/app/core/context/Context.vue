@@ -25,7 +25,9 @@
 import { Component } from "vue-mixin-decorator";
 import { Vue } from "vue-property-decorator";
 import {
+  ContextDeclare,
   ContextDeclareInfo,
+  ContextItemDeclare,
   ContextItemDeclareInfo,
   ContextTaskInfo
 } from "@/@types/context";
@@ -38,7 +40,8 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { clone } from "@/app/core/Utility";
 import LanguageManager from "@/LanguageManager";
 
-const contextInfo: ContextDeclareInfo = require("../context.yaml");
+const contextInfo: ContextDeclare = require("../context.yaml");
+const contextItemInfo: ContextItemDeclareInfo = require("../context-item.yaml");
 
 type Item = {
   type: string;
@@ -87,11 +90,17 @@ export default class Context extends Vue {
     this.itemList.length = 0;
 
     // 定義を元に要素を構築していく
-    const itemInfoList: ContextItemDeclareInfo[] = contextInfo[this.type!];
-    if (!itemInfoList) return;
+    let itemInfo: ContextDeclareInfo = contextInfo[this.type!];
+    if (!itemInfo) return;
+
+    const refFunc = (itemInfo: ContextDeclareInfo): ContextItemDeclare[] => {
+      if ("ref" in itemInfo) return refFunc(contextInfo[itemInfo.ref]);
+      return itemInfo;
+    };
+    itemInfo = refFunc(itemInfo);
 
     // 直列の非同期で全部実行する
-    await itemInfoList
+    await itemInfo
       .map((item: ContextItemDeclareInfo | null) => () => this.addItem(item))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
@@ -102,9 +111,9 @@ export default class Context extends Vue {
    * 項目追加
    * @param item
    */
-  private async addItem(item: ContextItemDeclareInfo | null) {
+  private async addItem(item: ContextItemDeclare | null) {
     const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
-      item
+      item && "ref" in item ? contextItemInfo[item.ref] : item
     );
 
     // 要素がnullだったら区切り線

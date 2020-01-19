@@ -26,251 +26,53 @@ map:
 map-mask:
   - text: context.modify
     taskName: window-open
-    isDisabledCompare:
+    isViewCompare:
       lhs:
         refType: permission-check
         type: edit
+      rhs:
+        true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
       rhs:
         true
     taskArg:
       type: edit-map-mask-window
-  - text: context.copy
-    taskName: copy-object
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg: ~
-  - text: context.delete
-    taskName: delete-object
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg: ~
-  - text: context.chmod
-    taskName: window-open
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: chmod
-      rhs:
-        true
-    taskArg:
-      type: chmod-window
-  - ~
-  - text: context.fix
-    taskName: lock-object
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isLock
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.un-fix
-    taskName: lock-object
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isLock
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
-  - text: context.hide-border
-    taskName: change-border-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideBorder
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.view-border
-    taskName: change-border-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideBorder
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
-  - text: context.hide-highlight
-    taskName: change-highlight-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideHighlight
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.view-highlight
-    taskName: change-highlight-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideHighlight
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod
+  - ref: hr-permission-check
+  - ref: object-fix
+  - ref: object-un-fix
+  - ref: object-hide-border
+  - ref: object-view-border
+  - ref: object-hide-highlight
+  - ref: object-view-highlight
 
 chit:
   - text: context.modify
     taskName: window-open
-    isDisabledCompare:
+    isViewCompare:
       lhs:
         refType: permission-check
         type: edit
+      rhs:
+        true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
       rhs:
         true
     taskArg:
       type: edit-chit-window
-  - text: context.copy
-    taskName: copy-object
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg: ~
-  - text: context.delete
-    taskName: delete-object
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg: ~
-  - ~
-  - text: context.fix
-    taskName: lock-object
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isLock
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.un-fix
-    taskName: lock-object
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isLock
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
-  - text: context.hide-border
-    taskName: change-border-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideBorder
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.view-border
-    taskName: change-border-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideBorder
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
-  - text: context.hide-highlight
-    taskName: change-highlight-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideHighlight
-      rhs: false
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: true
-  - text: context.view-highlight
-    taskName: change-highlight-view
-    isViewCompare:
-      lhs:
-        refType: db-id-property
-        property: isHideHighlight
-      rhs: true
-    isDisabledCompare:
-      lhs:
-        refType: permission-check
-        type: edit
-      rhs:
-        true
-    taskArg:
-      value: false
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod
+  - ref: hr-permission-check
+  - ref: object-fix
+  - ref: object-un-fix
+  - ref: object-hide-border
+  - ref: object-view-border
+  - ref: object-hide-highlight
+  - ref: object-view-highlight

@@ -6,6 +6,10 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
 const config = {};
 const math = create(all, config);
 
+export function listToEmpty(list: Array<unknown>) {
+  list.splice(0, list.length);
+}
+
 /**
  * URLパラメータ取得処理
  *

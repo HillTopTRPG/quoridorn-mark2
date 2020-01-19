@@ -66,13 +66,13 @@ type MapObjectLocation = Point & {
   objectId: string;
   status: "normal" | string;
   place: Place;
-  entering: "none" | string; // 入方方法
+  entering: "normal" | string; // 登場の仕方
 };
 
 type MapAndLayer = {
   mapId: string;
   layerId: string;
-  isTakeOver: boolean;
+  entering: "normal" | string; // 登場の仕方
   objectList: MapObjectLocation[];
 };
 

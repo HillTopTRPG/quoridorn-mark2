@@ -129,11 +129,10 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private async createMap() {
-    const docId = await this.cc.touch();
     const firstImage = this.imageList[0].data!;
     const firstImageId = this.imageList[0].id!;
 
-    const mapSetting: Screen = {
+    const screen: Screen = {
       name: "New map",
       columns: 20,
       rows: 15,
@@ -184,7 +183,7 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    const mapDataDocId = await this.cc.add(docId, mapSetting);
+    await SocketFacade.instance.addMap(screen);
   }
 }
 </script>

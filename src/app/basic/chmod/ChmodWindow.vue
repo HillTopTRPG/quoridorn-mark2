@@ -178,5 +178,16 @@ export default class ChmodWindow extends Mixins<
 .container {
   @include flex-box(column, stretch, center);
   overflow-y: auto;
+  height: 100%;
+
+  .simple-tab-component {
+    flex: 1;
+
+    > *:not(:first-child) {
+      border: 1px solid gray;
+      padding: 0.5rem;
+      box-sizing: border-box;
+    }
+  }
 }
 </style>

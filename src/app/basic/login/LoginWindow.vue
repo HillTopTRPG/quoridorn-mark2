@@ -151,7 +151,7 @@ import {
   getUrlParam
 } from "@/app/core/Utility";
 import { Image } from "@/@types/image";
-import { MapLayer, Screen, RoomData } from "@/@types/room";
+import { MapLayer, Screen, RoomData, MapLayerType } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
@@ -1061,42 +1061,23 @@ export default class LoginWindow extends Mixins<
      * マップレイヤーのプリセットデータ投入
      */
     const mapLayerCC = SocketFacade.instance.mapLayerCC();
-    await mapLayerCC.add(await mapLayerCC.touch(), {
-      type: "floor-tile",
-      defaultOrder: 1,
-      isDefault: true,
-      deletable: false
-    });
-    await mapLayerCC.add(await mapLayerCC.touch(), {
-      type: "map-mask",
-      defaultOrder: 2,
-      isDefault: true,
-      deletable: false
-    });
-    await mapLayerCC.add(await mapLayerCC.touch(), {
-      type: "map-marker",
-      defaultOrder: 3,
-      isDefault: true,
-      deletable: false
-    });
-    await mapLayerCC.add(await mapLayerCC.touch(), {
-      type: "dice-symbol",
-      defaultOrder: 4,
-      isDefault: true,
-      deletable: false
-    });
-    await mapLayerCC.add(await mapLayerCC.touch(), {
-      type: "character",
-      defaultOrder: 5,
-      isDefault: true,
-      deletable: false
-    });
+    const addMapLayer = async (type: MapLayerType, defaultOrder: number) => {
+      await mapLayerCC.add(await mapLayerCC.touch(), {
+        type,
+        defaultOrder,
+        isDefault: true,
+        deletable: false
+      });
+    };
+    await addMapLayer("floor-tile", 1);
+    await addMapLayer("map-mask", 2);
+    await addMapLayer("map-marker", 3);
+    await addMapLayer("dice-symbol", 4);
+    await addMapLayer("character", 5);
 
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
-    const screenListCC = SocketFacade.instance.screenListCC();
-
     const screen: Screen = {
       name: "A-1",
       columns: 20,
@@ -1148,32 +1129,7 @@ export default class LoginWindow extends Mixins<
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    const mapDataDocId = await screenListCC.add(
-      await screenListCC.touch(),
-      screen
-    );
-
-    /* --------------------------------------------------
-     * マップとレイヤーの紐づきのプリセットデータ投入
-     */
-    const mapAndLayerCC = SocketFacade.instance.mapAndLayerCC();
-
-    const addMapAndLayer = async (
-      ml: StoreUseData<MapLayer>
-    ): Promise<void> => {
-      await mapAndLayerCC.add(await mapAndLayerCC.touch(), {
-        mapId: mapDataDocId,
-        layerId: ml.id!,
-        isTakeOver: true,
-        objectList: []
-      });
-    };
-
-    // pushImageTagを直列の非同期で全部実行する
-    await (await mapLayerCC.getList(false))
-      .filter(ml => ml.data!.isDefault)
-      .map((ml: StoreUseData<MapLayer>) => () => addMapAndLayer(ml))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    const addMapResult = await SocketFacade.instance.addMap(screen);
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
@@ -1181,7 +1137,7 @@ export default class LoginWindow extends Mixins<
     const roomDataCC = SocketFacade.instance.roomDataCC();
 
     const roomData: RoomData = {
-      mapId: mapDataDocId,
+      mapId: addMapResult.mapId,
       isDrawGridLine: true,
       isDrawGridId: true,
       isFitGrid: true,

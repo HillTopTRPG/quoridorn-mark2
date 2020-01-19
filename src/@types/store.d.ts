@@ -27,8 +27,9 @@ export type PermissionNode = {
   id?: string;
 };
 
+export type PermissionRuleType = "none" | "allow" | "deny";
 export type PermissionRule = {
-  type: "none" | "allow" | "deny";
+  type: PermissionRuleType;
   list: PermissionNode[];
 };
 

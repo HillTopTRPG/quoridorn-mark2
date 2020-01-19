@@ -98,15 +98,12 @@ export function permissionCheck(
         );
       }
       if (pn.type === "user") {
-        window.console.log(pn.id, SocketFacade.instance.userId);
         if (pn.id === SocketFacade.instance.userId) return true;
       }
       if (pn.type === "character") {
-        window.console.log(pn.id, SocketFacade.instance.characterId);
         if (pn.id === SocketFacade.instance.characterId) return true;
       }
       if (pn.type === "owner") {
-        window.console.log(data.owner, SocketFacade.instance.userId);
         if (data.owner === SocketFacade.instance.userId) return true;
       }
       return false;
@@ -559,5 +556,46 @@ export default class SocketFacade {
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }
+  }
+
+  public async addMap(
+    screen: Screen
+  ): Promise<{ mapId: string; mapAndLayerIdList: string[] }> {
+    /* --------------------------------------------------
+     * マップデータのプリセットデータ投入
+     */
+    const screenListCC = SocketFacade.instance.screenListCC();
+    const mapId = await screenListCC.add(await screenListCC.touch(), screen);
+
+    /* --------------------------------------------------
+     * マップとレイヤーの紐づきのプリセットデータ投入
+     */
+    const mapAndLayerCC = SocketFacade.instance.mapAndLayerCC();
+
+    const mapAndLayerIdList: string[] = [];
+    const addMapAndLayer = async (
+      ml: StoreUseData<MapLayer>
+    ): Promise<void> => {
+      const mapAndLayerId = await mapAndLayerCC.touch();
+      mapAndLayerIdList.push(mapAndLayerId);
+      await mapAndLayerCC.add(mapAndLayerId, {
+        mapId,
+        layerId: ml.id!,
+        entering: "normal",
+        objectList: []
+      });
+    };
+
+    // pushImageTagを直列の非同期で全部実行する
+    const mapLayerCC = SocketFacade.instance.mapLayerCC();
+    await (await mapLayerCC.getList(false))
+      .filter(ml => ml.data!.isDefault)
+      .map((ml: StoreUseData<MapLayer>) => () => addMapAndLayer(ml))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    return {
+      mapId,
+      mapAndLayerIdList
+    };
   }
 }

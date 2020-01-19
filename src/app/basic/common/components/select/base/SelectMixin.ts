@@ -4,17 +4,23 @@ import { Component } from "vue-mixin-decorator";
 
 @Component
 export default class SelectMixin extends Vue {
-  @Prop({ type: String, default: "" })
-  public value!: string;
+  @Prop({ default: "" })
+  public value!: string | string[];
 
   @Prop({ type: String, default: null })
   public id!: string | null;
 
   @Prop({ type: Boolean, default: false })
+  protected multiple!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private disabled!: boolean;
+
+  @Prop({ type: Boolean, default: false })
   private test!: boolean;
 
   @Emit("input")
-  public input(value: string | null) {}
+  public input(value: string | string[] | null) {}
 
   public focus(): void {
     const elm: CtrlSelect = this.$refs.select as CtrlSelect;
@@ -22,13 +28,13 @@ export default class SelectMixin extends Vue {
     elm.focus();
   }
 
-  private get localValue(): string | null {
+  protected get localValue(): string | string[] | null {
     if (this.test)
       window.console.log("set '" + this.value + "'", this.constructor.name);
     return this.value || "";
   }
 
-  private set localValue(value: string | null) {
+  protected set localValue(value: string | string[] | null) {
     if (this.test)
       window.console.log("return '" + value + "'", this.constructor.name);
     this.input(value);

@@ -746,27 +746,26 @@
   message: ""
   position: center
   size:
-    # 2.5rem + 40em + 17px
-    widthPx: 532
+    widthPx: 400
     widthEm: 0
     widthRem: 0
-    heightPx: 9
-    heightEm: 28
-    heightRem: 3
+    heightPx: 0
+    heightEm: 30
+    heightRem: 0
   minSize:
-    widthPx: 532
+    widthPx: 300
     widthEm: 0
     widthRem: 0
-    heightPx: 9
-    heightEm: 28
-    heightRem: 3
+    heightPx: 0
+    heightEm: 20
+    heightRem: 0
   maxSize:
-    widthPx: 1032
+    widthPx: 800
     widthEm: 0
     widthRem: 0
-    heightPx: 9
-    heightEm: 28
-    heightRem: 3
+    heightPx: 0
+    heightEm: 50
+    heightRem: 0
   minimizable: true
   paneContainable: true
   closable: true

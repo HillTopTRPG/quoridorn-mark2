@@ -2,6 +2,8 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
+    :multiple="multiple"
+    :disabled="disabled"
     ref="component"
   />
 </template>

@@ -243,3 +243,6 @@ edit-area-map-window:
 
 edit-map-window:
   window-title: マップ編集
+
+chmod-window:
+  window-title: 権限変更

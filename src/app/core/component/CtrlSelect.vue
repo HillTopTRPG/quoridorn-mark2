@@ -1,5 +1,10 @@
 <template>
-  <div class="ctrl-select-wrapper" :disabled="disabled" @contextmenu.prevent>
+  <div
+    class="ctrl-select-wrapper"
+    :disabled="disabled"
+    @contextmenu.prevent
+    :class="{ multiple: multiple }"
+  >
     <select
       v-model="localValue"
       :id="id || undefined"
@@ -10,6 +15,8 @@
         mozTextFillColor: fontColor,
         maxWidth: maxWidth ? `${maxWidth}em` : undefined
       }"
+      :multiple="multiple"
+      @dblclick="onDblClick"
       @mousedown.stop
       @mouseup.stop
       @keydown.enter.stop
@@ -36,12 +43,10 @@ import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import { HtmlOptionInfo } from "@/@types/window";
 import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class CtrlSelect extends SelectMixin {
-  @Prop({ type: Boolean, default: false })
-  private disabled!: boolean;
-
   @Prop({ type: Array, required: true })
   private optionInfoList!: HtmlOptionInfo[];
 
@@ -55,6 +60,12 @@ export default class CtrlSelect extends SelectMixin {
     elm.focus();
   }
 
+  @VueEvent
+  private onDblClick() {
+    if (!this.multiple) return;
+    this.localValue = [];
+  }
+
   @Watch("optionInfoList", { immediate: true })
   onChangeOptionInfoList() {
     if (this["test"]) {
@@ -63,9 +74,12 @@ export default class CtrlSelect extends SelectMixin {
   }
 
   @Watch("value", { immediate: true })
-  onChangeValue(value: string | null) {
+  onChangeValue(value: string | string[]) {
     const optionInfo: HtmlOptionInfo = this.optionInfoList.filter(
-      optionInfo => optionInfo.value === value
+      optionInfo => {
+        if (typeof value === "string") return optionInfo.value === value;
+        else return value.findIndex(v => v === optionInfo.value) > -1;
+      }
     )[0];
     this.fontColor = optionInfo && optionInfo.disabled ? "#999999" : "#000000";
   }
@@ -75,7 +89,36 @@ export default class CtrlSelect extends SelectMixin {
 <style scoped lang="scss">
 @import "Ctrl";
 
-.ctrl-select-wrapper {
+.ctrl-select-wrapper:not(.multiple) {
   @include ctrl-select();
+}
+
+.ctrl-select-wrapper.multiple {
+  select {
+    display: inline-block;
+    font-size: inherit;
+    width: 99%;
+    height: 100%;
+    cursor: pointer;
+
+    &[disabled="disabled"] {
+      color: gray;
+      -webkit-text-fill-color: gray !important;
+      cursor: default;
+    }
+
+    option {
+      @include flex-box(row, flex-start, center);
+      font-size: inherit;
+      color: inherit;
+      -webkit-text-fill-color: inherit;
+      cursor: inherit;
+      height: 2em;
+    }
+
+    option[disabled="disabled"] {
+      display: none;
+    }
+  }
 }
 </style>

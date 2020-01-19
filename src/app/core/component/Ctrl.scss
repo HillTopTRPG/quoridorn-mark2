@@ -172,6 +172,11 @@ $background-area-active-background: linear-gradient(
       cursor: default;
     }
 
+    option[disabled="disabled"] {
+      cursor: default;
+      background-color: lightgray;
+    }
+
     &::-ms-expand {
       display: none;
     }

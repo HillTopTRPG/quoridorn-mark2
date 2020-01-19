@@ -28,7 +28,7 @@ export default class PermissionNodeTypeSelect extends Mixins<MultiMixin>(
   ComponentVue
 ) {
   private optionInfoList: HtmlOptionInfo[] = [
-    { value: "permission-node-type", key: "", text: "", disabled: true },
+    { value: "", key: "", text: "", disabled: true },
     { value: "group", key: "", text: "", disabled: false },
     { value: "user", key: "", text: "", disabled: false },
     { value: "character", key: "", text: "", disabled: false },
@@ -53,9 +53,10 @@ export default class PermissionNodeTypeSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.value}`);
+      if (o.value) o.text = getText(`label.${o.value}`);
       o.key = o.value;
     });
+    this.optionInfoList[0].text = getText("label.permission-node-type");
   }
 
   public focus() {
