@@ -22,8 +22,28 @@ export default class CssManager {
   public setGlobalCss() {
     this.cssInfoList.forEach(info => {
       const elm = document.documentElement;
+      if (info.property === "--scroll-bar-width")
+        info.value = CssManager.getScrollbarWidth() + "px";
       elm.style.setProperty(info.property, info.value);
     });
+  }
+
+  /** スクロールバーの幅 (ピクセル単位) を取得する */
+  private static getScrollbarWidth() {
+    document.documentElement.style.overflow = "scroll";
+    // スクロールバーの幅を取得するための要素を生成する
+    const scrollbarElem = document.createElement("div");
+    scrollbarElem.setAttribute(
+      "style",
+      "visibility: hidden; position: absolute; top: 0; left: 0; width: 100vw;"
+    );
+    document.body.appendChild(scrollbarElem);
+    const vw = parseInt(window.getComputedStyle(scrollbarElem).width);
+    scrollbarElem.style.width = "100%";
+    const pc = parseInt(window.getComputedStyle(scrollbarElem).width);
+    document.body.removeChild(scrollbarElem);
+    document.documentElement.style.overflow = "hidden";
+    return vw - pc;
   }
 
   public static getCss(name: string, elm?: HTMLElement) {

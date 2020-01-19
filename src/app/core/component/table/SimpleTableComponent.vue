@@ -650,6 +650,8 @@ export default class SimpleTableComponent extends Vue {
   width: 100%;
 
   table {
+    @include flex-box(column, flex-start, center);
+    box-sizing: border-box;
     position: relative;
     table-layout: fixed;
     border: 1px solid gray;
@@ -723,6 +725,7 @@ export default class SimpleTableComponent extends Vue {
       left: 0;
       right: 0;
       height: calc(var(--tableHeight) - var(--table-row-height));
+      outline: none;
       /*scroll-snap-type: y mandatory;*/
 
       tr {
