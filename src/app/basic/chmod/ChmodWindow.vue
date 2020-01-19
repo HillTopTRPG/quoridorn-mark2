@@ -116,12 +116,14 @@ export default class ChmodWindow extends Mixins<
     if (data.exclusionOwner) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     // パーミッションチェック
     if (!permissionCheck(data, "chmod")) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     try {

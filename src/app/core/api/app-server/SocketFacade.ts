@@ -74,6 +74,9 @@ export function permissionCheck(
   data: StoreObj<unknown>,
   type: "view" | "edit" | "chmod"
 ): boolean {
+  // GMはどんな設定でも許可
+  if (GameObjectManager.instance.isGm) return true;
+
   let permissionRule: PermissionRule;
   if (type === "view") permissionRule = data!.permission!.view;
   else if (type === "edit") permissionRule = data!.permission!.edit;

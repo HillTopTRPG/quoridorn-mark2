@@ -406,7 +406,9 @@ import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { TabInfo } from "@/@types/window";
 import LanguageManager from "@/LanguageManager";
@@ -438,6 +440,7 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private isMounted: boolean = false;
   private cc = SocketFacade.instance.screenListCC();
+  private isProcessed: boolean = false;
   private imageList = GameObjectManager.instance.imageList;
   private screenList = GameObjectManager.instance.screenList;
 
@@ -513,11 +516,26 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     this.screenInfo = this.screenList.filter(map => map.id === this.mapId)[0];
     this.screenData = this.screenInfo.data!;
 
+    // 排他チェック
+    if (this.screenInfo.exclusionOwner) {
+      this.isProcessed = true;
+      await this.close();
+      return;
+    }
+
+    // パーミッションチェック
+    if (!permissionCheck(this.screenInfo, "edit")) {
+      this.isProcessed = true;
+      await this.close();
+      return;
+    }
+
     // this.foreColor = screenData.gridBorderColor;
 
     try {
       await this.cc.touchModify(this.mapId);
     } catch (err) {
+      this.isProcessed = true;
       window.console.warn(err);
       await this.close();
     }
@@ -547,10 +565,12 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
-    try {
-      await this.cc!.releaseTouch(this.mapId!);
-    } catch (err) {
-      // nothing
+    if (!this.isProcessed) {
+      try {
+        await this.cc!.releaseTouch(this.mapId!);
+      } catch (err) {
+        // nothing
+      }
     }
   }
 }

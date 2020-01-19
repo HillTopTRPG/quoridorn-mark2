@@ -186,12 +186,14 @@ export default class EditChitWindow extends Mixins<
     if (data.exclusionOwner) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     // パーミッションチェック
     if (!permissionCheck(data, "edit")) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     const backgroundInfo = data.data!.textures[data.data!.useBackGround];

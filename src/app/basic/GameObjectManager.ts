@@ -159,6 +159,12 @@ export default class GameObjectManager {
     return this.userList.filter(p => p.id === this.mySelfId)[0] || null;
   }
 
+  public get isGm(): boolean {
+    return (
+      !!this.mySelf && !!this.mySelf.data && this.mySelf.data.userType === "GM"
+    );
+  }
+
   public static filterPlaceList(
     list: StoreUseData<MapObject>[],
     place: "field" | "graveyard" | "backstage"

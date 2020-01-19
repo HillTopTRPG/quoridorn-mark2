@@ -225,12 +225,14 @@ export default class EditMapMaskWindow extends Mixins<
     if (data.exclusionOwner) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     // パーミッションチェック
     if (!permissionCheck(data, "edit")) {
       this.isProcessed = true;
       await this.close();
+      return;
     }
 
     const texture = data.data!.textures[data.data!.useBackGround];
