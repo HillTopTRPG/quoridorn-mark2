@@ -1,6 +1,6 @@
 <template>
   <div id="map-canvas-container" ref="elm">
-    <div class="background"></div>
+    <div id="map-canvas-background"></div>
     <canvas
       id="map-canvas"
       :width="mapCanvasSize.width"
@@ -79,6 +79,9 @@ export default class MapBoard extends Vue {
     ctx.clearRect(0, 0, this.mapCanvasSize.width, this.mapCanvasSize.height);
 
     const gridSize = this.screen.gridSize;
+
+    const flg = false;
+    if (flg === true) return;
 
     // マス目の描画
     if (this.roomData!.data!.isDrawGridLine) {
@@ -184,8 +187,8 @@ export default class MapBoard extends Vue {
 
   @Watch("mapCanvasSize", { deep: true })
   private onChangeMapCanvasSize() {
-    this.elm.style.setProperty("--width", `${this.mapCanvasSize.width}px`);
-    this.elm.style.setProperty("--height", `${this.mapCanvasSize.height}px`);
+    this.elm.style.width = `${this.mapCanvasSize.width}px`;
+    this.elm.style.height = `${this.mapCanvasSize.height}px`;
   }
 
   private get elm(): HTMLDivElement {
@@ -197,38 +200,40 @@ export default class MapBoard extends Vue {
 <style scoped lang="scss">
 #map-canvas-container {
   position: absolute;
+  z-index: 0;
+}
+
+#map-canvas-background {
+  position: absolute;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 0;
+  margin: auto;
+  background-size: 100% 100%;
+  z-index: 1;
+  /* JavaScriptで設定されるプロパティ
+  width
+  height
+  background-color
+  background-image
+  transform
+  */
+}
 
-  > * {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    width: var(--width);
-    height: var(--height);
-  }
+#map-canvas {
+  display: block;
+  border: none;
+  box-sizing: border-box;
+  background-size: 100% 100%;
+  pointer-events: none;
+  z-index: 2;
 
-  .background {
-    background-color: var(--background-color);
-    background-image: var(--background-image);
-    background-size: 100% 100%;
-    transform: var(--image-direction);
-    z-index: 1;
-  }
-
-  #map-canvas {
-    display: block;
-    border: none;
-    box-sizing: border-box;
-    background-size: 100% 100%;
-    pointer-events: none;
-    z-index: 2;
-  }
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
 }
 </style>

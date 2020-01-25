@@ -42,7 +42,7 @@
             class="value-width"
             type="number"
             :value="width"
-            @input="width = $event.target.value"
+            @input="width = $event.target.valueAsNumber"
             min="1"
           />
         </td>
@@ -61,7 +61,7 @@
             class="value-height"
             type="number"
             :value="height"
-            @input="height = $event.target.value"
+            @input="height = $event.target.valueAsNumber"
             min="1"
           />
         </td>

@@ -16,11 +16,11 @@ import LifeCycle from "../../core/decorator/LifeCycle";
 import OtherTextComponent from "./OtherTextComponent.vue";
 import { Point } from "@/@types/address";
 import { OtherTextViewInfo } from "@/@types/gameObject";
-import { getCssPxNum } from "@/app/core/Css";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { MouseMoveParam } from "@/app/core/task/TaskManager";
+import CssManager from "@/app/core/css/CssManager";
 
 @Component({
   components: { OtherTextComponent }
@@ -36,11 +36,26 @@ export default class OtherTextFrame extends Vue {
   private isHover: boolean = false;
   private isChanged: boolean = false;
 
+  private wheel = 0;
+  private translateX = 0;
+  private translateY = 0;
+
   private key = "OtherTextFrame";
 
   @LifeCycle
   public async mounted() {
     this.isMounted = true;
+    this.wheel = CssManager.instance.propMap.wheel;
+  }
+
+  @TaskProcessor("action-wheel-finished")
+  private async actionWheelFinished(
+    task: Task<boolean, never>
+  ): Promise<TaskResult<never> | void> {
+    setTimeout(() => {
+      this.wheel = CssManager.instance.propMap.wheel;
+      this.elm.style.transform = `translate(${this.translateX}px, ${this.translateY}px) translateZ(${this.wheel}px)`;
+    });
   }
 
   @Watch("isMounted")
@@ -48,15 +63,22 @@ export default class OtherTextFrame extends Vue {
   private onChangeInfo() {
     this.rawText = this.otherTextViewInfo.text;
     if (!this.isMounted) return;
-    const gridSize = getCssPxNum(
-      "--gridSize",
-      document.getElementById("gameTable")!
-    );
+    const gridSize = CssManager.instance.propMap.gridSize;
     const info = this.otherTextViewInfo;
     const x = info.point.x + info.columns * gridSize;
     const y = info.point.y;
-    this.elm.style.setProperty(`--x`, `${x}px`);
-    this.elm.style.setProperty(`--y`, `${y}px`);
+
+    const marginColumns = CssManager.instance.propMap.marginColumn;
+    const marginRows = CssManager.instance.propMap.marginRow;
+    const totalLeftX = CssManager.instance.propMap.totalLeftX;
+    const totalLeftY = CssManager.instance.propMap.totalLeftY;
+    const marginBorderWidth = CssManager.instance.propMap.marginBorderWidth;
+
+    this.translateX =
+      x + marginColumns * gridSize + totalLeftX + marginBorderWidth;
+    this.translateY =
+      y + marginRows * gridSize + totalLeftY + marginBorderWidth;
+    this.elm.style.transform = `translate(${this.translateX}px, ${this.translateY}px) translateZ(${this.wheel}px)`;
   }
 
   @Watch("rawText")
@@ -126,15 +148,11 @@ export default class OtherTextFrame extends Vue {
   @include inline-flex-box(row, flex-start, flex-start);
   position: fixed;
   overflow: auto;
-  left: calc(
-    var(--x) + var(--margin-column) * var(--gridSize) + var(--totalLeftX) +
-      var(--margin-border-width)
-  );
-  top: calc(
-    var(--y) + var(--margin-row) * var(--gridSize) + var(--totalLeftY) +
-      var(--margin-border-width)
-  );
-  transform: translateZ(var(--wheel, 0));
+  left: 0;
+  top: 0;
   background-color: white;
+  /* JavaScriptで設定されるプロパティ
+  transform
+  */
 }
 </style>

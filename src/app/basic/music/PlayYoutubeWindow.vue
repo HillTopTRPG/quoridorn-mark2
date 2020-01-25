@@ -25,8 +25,8 @@
       <input type="range" v-model="volume" min="0" max="100" />
     </div>
     <div class="mute" @click="onChangeMute()">
-      <span class="icon-volume-high" v-if="!isMute"></span>
-      <span class="icon-volume-mute" v-else></span>
+      <span class="mute-icon icon-volume-high" v-if="!isMute"></span>
+      <span class="mute-icon icon-volume-mute" v-else></span>
     </div>
   </div>
 </template>
@@ -63,10 +63,12 @@ export default class PlayYoutubeWindow
   private maxVolume: number = 0;
   private fadeInTable: number[] = [];
   private fadeOutTable: number[] = [];
-  private isPlay: boolean = false;
+  // private isPlay: boolean = false;
   private duration: number = 0;
   private seek: number = 0;
   private isMute: boolean = false;
+
+  private isDeleted: boolean = false;
 
   @LifeCycle
   public async mounted() {
@@ -89,13 +91,8 @@ export default class PlayYoutubeWindow
       this.isMute = YoutubeManager.instance.isMuted(tag);
       return;
     }
-    await this.startPlay();
-
-    const player = YoutubeManager.instance.getPlayerInfo(this.bgmInfo!.tag);
-    if (player) return;
-    setTimeout(() => {
-      YoutubeManager.instance.open(this.youtubeElementId, this.bgmInfo!, this);
-    });
+    await this.dataSyncSetting();
+    YoutubeManager.instance.open(this.youtubeElementId, this.bgmInfo!, this);
   }
 
   @Watch("windowInfo.args", { immediate: true })
@@ -106,28 +103,33 @@ export default class PlayYoutubeWindow
     }
     if (!this.isMounted) return;
 
-    await this.initWindow();
+    // await this.initWindow();
     if (this.status !== "window") return;
-    await this.startPlay();
+    await this.dataSyncSetting();
   }
 
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing2(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
-    window.console.log("$$$ close");
     if (task.value !== this.windowInfo.key) return;
     if ("window" !== this.windowInfo.status) return;
+    window.console.log("$$$ window close");
     YoutubeManager.instance.pause(this.bgmInfo!.tag);
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
-    if (this.playListRemoveUnsubscribe) this.playListRemoveUnsubscribe();
-    try {
-      await privatePlayListCC.touchModify(this.windowInfo.args!);
-    } catch (err) {
-      window.console.warn(err);
-      return;
+    if (this.playListRemoveUnsubscribe) {
+      this.playListRemoveUnsubscribe();
+      this.playListRemoveUnsubscribe = null;
     }
-    await privatePlayListCC.delete(this.windowInfo.args!);
+    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
+    if (!this.isDeleted) {
+      try {
+        await privatePlayListCC.touchModify(this.windowInfo.args!);
+      } catch (err) {
+        window.console.warn(err);
+        return;
+      }
+      await privatePlayListCC.delete(this.windowInfo.args!);
+    }
   }
 
   private async initWindow() {
@@ -153,16 +155,20 @@ export default class PlayYoutubeWindow
 
   private playListRemoveUnsubscribe: (() => void) | null = null;
 
-  private async startPlay() {
+  private async dataSyncSetting() {
+    if (this.playListRemoveUnsubscribe) {
+      this.playListRemoveUnsubscribe();
+      this.playListRemoveUnsubscribe = null;
+    }
     const targetId = this.windowInfo.args!;
-    YoutubeManager.instance.loadVideoById(this.bgmInfo!);
     const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const unsubscribe = await privatePlayListCC.setCollectionSnapshot(
       this.key,
       snapshot => {
         snapshot.docs.forEach(async doc => {
           if (doc.type === "removed" && doc.ref.id === targetId) {
-            window.console.log("プレイリストから削除されたので画面閉じるっ！");
+            window.console.log("プレイリストから削除につき画面閉じる！🐧");
+            this.isDeleted = true;
             await this.close();
             unsubscribe();
           }
@@ -208,11 +214,13 @@ export default class PlayYoutubeWindow
     const windowTitle = LanguageManager.instance.getText(
       `${this.windowInfo.type}.window-title`
     );
-    this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
-    this.windowInfo.message = this.bgmInfo!.title;
-    YoutubeManager.instance.loadVideoById(this.bgmInfo!);
-    if (this.bgmInfo!.fadeIn > 1)
-      YoutubeManager.instance.setVolume(this.bgmInfo!.tag, 0);
+    setTimeout(() => {
+      this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
+      this.windowInfo.message = this.bgmInfo!.title;
+      if (this.bgmInfo!.fadeIn > 1)
+        YoutubeManager.instance.setVolume(this.bgmInfo!.tag, 0);
+      YoutubeManager.instance.loadVideoById(this.bgmInfo!);
+    });
   }
 
   public onError(error: any): void {
@@ -221,7 +229,7 @@ export default class PlayYoutubeWindow
 
   public onPaused(): void {
     window.console.log("onPaused");
-    this.isPlay = false;
+    // this.isPlay = false;
   }
 
   public async onPlaying(duration: number): Promise<void> {
@@ -232,7 +240,7 @@ export default class PlayYoutubeWindow
     data.data!.duration = duration;
     await privatePlayListCC.touchModify(targetId);
     await privatePlayListCC.update(targetId, data.data!);
-    this.isPlay = true;
+    // this.isPlay = true;
     window.console.log("onPlaying");
 
     this.fadeInTable = [];
@@ -276,6 +284,7 @@ export default class PlayYoutubeWindow
 
   public async timeUpdate(time: number): Promise<void> {
     if (time === undefined) return;
+    if (!this.bgmInfo) return;
     let isReturn = false;
     if (!this.isSeekToAfter) {
       if (this.seek > this.bgmEnd) {
@@ -347,6 +356,7 @@ export default class PlayYoutubeWindow
 
   private isSeekToBefore: boolean = false;
   private isSeekToAfter: boolean = false;
+
   @VueEvent
   private seekTo(seekStr: string, allowSeekAhead: boolean) {
     const seek = parseInt(seekStr, 10);
@@ -355,12 +365,12 @@ export default class PlayYoutubeWindow
     setTimeout(() => {
       YoutubeManager.instance.seekTo(this.bgmInfo!.tag, seek, allowSeekAhead);
       this.seek = seek;
+      if (allowSeekAhead) {
+        YoutubeManager.instance.play(this.bgmInfo!.tag);
+      } else {
+        YoutubeManager.instance.pause(this.bgmInfo!.tag);
+      }
     });
-    if (allowSeekAhead) {
-      YoutubeManager.instance.play(this.bgmInfo!.tag);
-    } else {
-      YoutubeManager.instance.pause(this.bgmInfo!.tag);
-    }
   }
 
   private get windowElm(): HTMLDivElement {
@@ -397,7 +407,7 @@ export default class PlayYoutubeWindow
   private async youtubeVolumeChange(
     task: Task<YoutubeVolumeChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (this.bgmInfo!.tag !== task.value!.tag) return;
+    if (!this.bgmInfo || this.bgmInfo.tag !== task.value!.tag) return;
     if (this.status === task.value!.windowStatus) return;
     if (this.volume !== task.value!.volume) this.volume = task.value!.volume;
     task.resolve();
@@ -430,7 +440,7 @@ export default class PlayYoutubeWindow
   private async youtubeMuteChange(
     task: Task<YoutubeMuteChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (this.bgmInfo!.tag !== task.value!.tag) return;
+    if (!this.bgmInfo || this.bgmInfo.tag !== task.value!.tag) return;
     if (this.status === task.value!.windowStatus) return;
     this.isMute = task.value!.isMute;
     task.resolve();
@@ -495,91 +505,91 @@ export default class PlayYoutubeWindow
   grid-template-columns: 1fr 2em;
   width: 100%;
   height: 100%;
+}
 
-  .youtube-container-outer {
+.youtube-container-outer {
+  display: block;
+  grid-row: 1 / 2;
+  grid-column: 1 / 2;
+  position: relative;
+  overflow: hidden;
+
+  img {
     display: block;
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-    position: relative;
-    overflow: hidden;
-
-    img {
-      display: block;
-    }
-
-    .youtube-container-transform {
-      display: block;
-      transform: scale(var(--youtube-size-ratio));
-      transform-origin: left top;
-
-      &.isResizing {
-        pointer-events: none;
-      }
-    }
   }
+}
 
-  .volume {
-    position: relative;
-    grid-row: 1 / 2;
-    grid-column: 2 / 2;
+.youtube-container-transform {
+  display: block;
+  transform: scale(var(--youtube-size-ratio));
+  transform-origin: left top;
 
-    input[type="range"] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      -webkit-appearance: none;
-      width: var(--volume-height);
-      font-size: 12px;
-      height: 2em;
-      padding: 0;
-      margin: 0;
-      transform: rotate(-90deg) translateX(calc(-100% + 2em));
-      transform-origin: 1em 1em;
-      outline: none;
-      cursor: pointer;
-      background: linear-gradient(
-        to right,
-        var(--volume-color) 0%,
-        var(--volume-color) var(--volume-per),
-        var(--volume-base-color) var(--volume-per),
-        var(--volume-base-color) 100%
-      );
-    }
-    input[type="range"]::-webkit-slider-runnable-track {
-      background: rgba(0, 0, 0, 0);
-      box-sizing: border-box;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      position: relative;
-      -webkit-appearance: none;
-      cursor: pointer;
-      box-sizing: border-box;
-      width: 2em;
-      height: 2em;
-      border: none;
-      background-color: var(--uni-color-black);
-    }
+  &.isResizing {
+    pointer-events: none;
   }
-  .mute {
-    @include flex-box(row, stretch, stretch);
-    position: relative;
-    grid-row: 2 / 2;
-    grid-column: 2 / 2;
+}
+
+.volume {
+  position: relative;
+  grid-row: 1 / 2;
+  grid-column: 2 / 2;
+
+  input[type="range"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    -webkit-appearance: none;
+    width: var(--volume-height);
+    font-size: 12px;
+    height: 2em;
+    padding: 0;
+    margin: 0;
+    transform: rotate(-90deg) translateX(calc(-100% + 2em));
+    transform-origin: 1em 1em;
+    outline: none;
     cursor: pointer;
-
-    > * {
-      @include flex-box(row, center, center);
-      flex: 1;
-      font-size: 1.5em;
-    }
-
-    .icon-volume-high {
-      background-color: var(--uni-color-skyblue);
-    }
-
-    .icon-volume-mute {
-      background-color: var(--uni-color-orange);
-    }
+    background: linear-gradient(
+      to right,
+      var(--volume-color) 0%,
+      var(--volume-color) var(--volume-per),
+      var(--volume-base-color) var(--volume-per),
+      var(--volume-base-color) 100%
+    );
   }
+  input[type="range"]::-webkit-slider-runnable-track {
+    background: rgba(0, 0, 0, 0);
+    box-sizing: border-box;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    position: relative;
+    -webkit-appearance: none;
+    cursor: pointer;
+    box-sizing: border-box;
+    width: 2em;
+    height: 2em;
+    border: none;
+    background-color: var(--uni-color-black);
+  }
+}
+
+.mute {
+  @include flex-box(row, stretch, stretch);
+  position: relative;
+  grid-row: 2 / 2;
+  grid-column: 2 / 2;
+  cursor: pointer;
+}
+.mute-icon {
+  @include flex-box(row, center, center);
+  flex: 1;
+  font-size: 1.5em;
+}
+
+.icon-volume-high {
+  background-color: var(--uni-color-skyblue);
+}
+
+.icon-volume-mute {
+  background-color: var(--uni-color-orange);
 }
 </style>

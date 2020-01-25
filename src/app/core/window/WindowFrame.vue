@@ -638,15 +638,10 @@ export default class WindowFrame extends Vue {
   box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.6);
   border: solid gray 1px;
   box-sizing: border-box;
-  left: var(--windowX);
-  top: var(--windowY);
-  /*
   left: 0;
   top: 0;
   -webkit-font-smoothing: subpixel-antialiased;
-  transform: translateX(var(--windowX)) translateY(var(--windowY)) translateZ(0)
-    scale(1, 1);
-  */
+  transform: translateX(var(--windowX)) translateY(var(--windowY)) translateZ(0);
   width: calc(
     var(--windowWidthPx) + var(--windowWidthEm) + var(--windowWidthRem) +
       var(--scroll-bar-width) + var(--window-padding) * 2 + 2px
@@ -661,14 +656,20 @@ export default class WindowFrame extends Vue {
   &.minimized {
     width: 100px !important;
     height: var(--window-title-height) !important;
-    top: calc(100% - var(--window-title-height)) !important;
-    left: calc(
-      100% - 100px * (var(--windowMinimizeLength) - var(--windowMinimizeIndex))
-    ) !important;
-    transition-property: width, height, top, left;
+    left: 100%;
+    top: 100%;
+    transform: translateX(
+        calc(
+          0px + -100% *
+            (var(--windowMinimizeLength) - var(--windowMinimizeIndex))
+        )
+      )
+      translateY(calc(-50%)) translateZ(0);
+    transition-property: all;
     transition-delay: 0ms;
+    transform-origin: right;
     transition-timing-function: linear;
-    transition-duration: 200ms;
+    transition-duration: 250ms;
 
     .window-title {
       cursor: default;
@@ -796,23 +797,6 @@ export default class WindowFrame extends Vue {
         -webkit-border-radius: 50%;
         border: 1px solid rgb(167, 167, 167);
       }
-    }
-  }
-
-  .title-icon-area i {
-    display: block;
-    padding: 3px;
-    font-size: 8px;
-    border: 2px solid rgba(0, 0, 0, 0.5);
-    color: rgba(0, 0, 0, 0.5);
-    transform-origin: right;
-    transform: scale(0.8) translateX(0);
-    cursor: pointer;
-    white-space: nowrap;
-
-    &:hover {
-      border-color: black;
-      color: black;
     }
   }
 }

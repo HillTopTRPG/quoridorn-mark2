@@ -112,18 +112,20 @@ export default class ChmodWindow extends Mixins<
     const data = (await this.cc!.getData(this.docId))!;
     this.permission = data.permission;
 
-    // 排他チェック
-    if (data.exclusionOwner) {
-      this.isProcessed = true;
-      await this.close();
-      return;
-    }
+    if (this.windowInfo.status === "window") {
+      // 排他チェック
+      if (data.exclusionOwner) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
 
-    // パーミッションチェック
-    if (!permissionCheck(data, "chmod")) {
-      this.isProcessed = true;
-      await this.close();
-      return;
+      // パーミッションチェック
+      if (!permissionCheck(data, "chmod")) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
     }
 
     try {

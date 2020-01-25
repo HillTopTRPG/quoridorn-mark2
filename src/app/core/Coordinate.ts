@@ -109,7 +109,8 @@ export function getPaneHeight(windowKey: string): number {
   //   const windowContentsHeight = getCssPxNum("height", windowContents);
   //   return windowContentsHeight + windowTitleHeight + windowPadding * 2;
   // }
-  throw new ApplicationError("ありえない分岐");
+  return 0;
+  // throw new ApplicationError("ありえない分岐");
 }
 
 export function getPageSize(): Size {

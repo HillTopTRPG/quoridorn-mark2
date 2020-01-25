@@ -19,6 +19,8 @@ export default class CssManager {
 
   private readonly cssInfoList = cssInfoList;
 
+  public readonly propMap: { [name: string]: number } = {};
+
   public setGlobalCss() {
     this.cssInfoList.forEach(info => {
       const elm = document.documentElement;

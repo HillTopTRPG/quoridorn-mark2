@@ -216,6 +216,10 @@ export default class Context extends Vue {
   left: var(--x);
   top: calc(var(--y) - 1.8em);
 
+  hr {
+    cursor: default;
+  }
+
   > * {
     display: block;
     min-width: 50px;
@@ -237,6 +241,7 @@ export default class Context extends Vue {
 
     &.disabled {
       background-color: lightgrey;
+      cursor: default;
     }
   }
 }

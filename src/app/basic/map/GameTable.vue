@@ -10,7 +10,9 @@
       @keydown.229.stop
       @keyup.229.stop
     >
-      <div id="table-background"></div>
+      <div id="table-background-container">
+        <div id="table-background"></div>
+      </div>
       <div id="grid-paper"></div>
 
       <div
@@ -62,6 +64,7 @@ import { MapLayer, Screen, RoomData, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
+import CssManager from "@/app/core/css/CssManager";
 
 @Component({
   components: {
@@ -98,12 +101,28 @@ export default class GameTable extends AddressCalcMixin {
     return document.getElementById("app")!;
   }
 
+  private get gameTableContainerElm(): HTMLElement {
+    return document.getElementById("gameTableContainer")!;
+  }
+
+  private get gameTableElm(): HTMLElement {
+    return document.getElementById("gameTable")!;
+  }
+
   private get gridPaperElm(): HTMLElement {
     return document.getElementById("grid-paper")!;
   }
 
   private get tableBackElm(): HTMLElement {
     return document.getElementById("table-background")!;
+  }
+
+  private get mapCanvasBackElm(): HTMLElement {
+    return document.getElementById("map-canvas-background")!;
+  }
+
+  private get backScreenElm(): HTMLElement {
+    return document.getElementById("back-screen")!;
   }
 
   @VueEvent
@@ -117,98 +136,76 @@ export default class GameTable extends AddressCalcMixin {
 
     this.mapId = roomData.data!.mapId;
     const screenData = await screenListCC.getData(this.mapId);
-    await screenListCC.setSnapshot(this.key, this.mapId, snapshot => {
+    await screenListCC.setSnapshot(this.key, this.mapId, async snapshot => {
       if (snapshot.data!.status === "modified") {
-        this.screen = snapshot.data!.data!;
+        const screen = snapshot.data!.data!;
+        CssManager.instance.propMap.totalColumn = screen.columns;
+        CssManager.instance.propMap.totalRow = screen.rows;
+        CssManager.instance.propMap.gridSize = screen.gridSize!;
+        CssManager.instance.propMap.marginColumn = screen.margin.columns;
+        CssManager.instance.propMap.marginRow = screen.margin.rows;
+        CssManager.instance.propMap.marginBorderWidth =
+          screen.margin.border.width;
+        await this.setCss(screen);
+        this.screen = screen;
       }
     });
     if (!screenData) throw new ApplicationError("No such mapData.");
     this.screen = screenData.data!;
+    CssManager.instance.propMap.totalColumn = this.screen!.columns;
+    CssManager.instance.propMap.totalRow = this.screen!.rows;
+    CssManager.instance.propMap.gridSize = this.screen!.gridSize!;
+    CssManager.instance.propMap.marginColumn = this.screen!.margin.columns;
+    CssManager.instance.propMap.marginRow = this.screen!.margin.rows;
+    CssManager.instance.propMap.marginBorderWidth = this.screen!.margin.border.width;
+    CssManager.instance.propMap.wheel = 0;
+    CssManager.instance.propMap.currentAngle = 0;
+    const totalLeftX = Math.round(this.point.x + this.pointDiff.x);
+    const totalLeftY = Math.round(this.point.y + this.pointDiff.y);
+    CssManager.instance.propMap.totalLeftX = totalLeftX;
+    CssManager.instance.propMap.totalLeftY = totalLeftY;
+
     this.useLayerList = await this.getMapLayerList();
 
     this.isMounted = true;
-    document.documentElement.style.setProperty("--wheel", `0px`);
+    this.gameTableContainerElm.style.transform = `translateZ(${0})`;
+    await this.setCss(this.screen);
   }
 
-  @Watch("isMounted")
-  @Watch("screen")
-  private async onChangeScreen() {
-    await GameTable.setBackground("map-canvas-container", this.screen!.texture);
-    await GameTable.setBackground(
-      "back-screen",
-      this.screen!.background.texture
-    );
-    await GameTable.setBackground(
-      "table-background",
-      this.screen!.margin.texture
-    );
-    this.appElm.style.setProperty(
-      "--totalColumn",
-      this.screen!.columns!.toString(10)
-    );
-    this.appElm.style.setProperty(
-      "--totalRow",
-      this.screen!.rows!.toString(10)
-    );
-    this.appElm.style.setProperty("--gridSize", this.screen!.gridSize! + "px");
-    this.appElm.style.setProperty("--gridColor", this.screen!.gridColor!);
-    this.appElm.style.setProperty("--fontColor", this.screen!.fontColor!);
+  private async setCss(screen: Screen) {
+    if (!this.isMounted) return;
+    const margin = screen.margin;
+    const background = screen.background;
+    await GameTable.setBackground(this.mapCanvasBackElm, screen.texture);
+    await GameTable.setBackground(this.backScreenElm, background.texture);
+    await GameTable.setBackground(this.tableBackElm, margin.texture);
+    this.gridPaperElm.style.backgroundSize = `${screen.gridSize!}px ${screen.gridSize!}px`;
+    this.gridPaperElm.style.backgroundColor = margin.maskColor;
+    this.tableBackElm.style.filter = `blur(${margin.maskBlur}px)`;
+    this.backScreenElm.style.filter = `blur(${background.maskBlur}px)`;
     this.gridPaperElm.style.setProperty(
-      "--mask-color",
-      this.screen!.margin.maskColor
+      "--margin-grid-color-bold",
+      margin.isUseGrid ? margin.gridColorBold : "transparent"
     );
-    this.tableBackElm.style.setProperty(
-      "--mask-blur",
-      this.screen!.margin.maskBlur + "px"
+    this.gridPaperElm.style.setProperty(
+      "--margin-grid-color-thin",
+      margin.isUseGrid ? margin.gridColorThin : "transparent"
     );
-    document
-      .getElementById("back-screen")!
-      .style.setProperty(
-        "--mask-blur",
-        this.screen!.background.maskBlur + "px"
-      );
-    if (this.screen!.margin.isUseGrid) {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-bold",
-        this.screen!.margin.gridColorBold
-      );
-    } else {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-bold",
-        "transparent"
-      );
-    }
-    if (this.screen!.margin.isUseGrid) {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-thin",
-        this.screen!.margin.gridColorThin
-      );
-    } else {
-      this.gridPaperElm.style.setProperty(
-        "--margin-grid-color-thin",
-        "transparent"
-      );
-    }
-    this.appElm.style.setProperty(
-      "--margin-column",
-      this.screen!.margin.columns.toString(10)
-    );
-    this.appElm.style.setProperty(
-      "--margin-row",
-      this.screen!.margin.rows.toString(10)
-    );
-    this.appElm.style.setProperty(
-      "--margin-border-width",
-      this.screen!.margin.border.width + "px"
-    );
-    this.appElm.style.setProperty(
-      "--margin-border-color",
-      this.screen!.margin.border.color
-    );
-    this.appElm.style.setProperty(
-      "--margin-border-style",
-      this.screen!.margin.border.style
-    );
+    const marginColumns = margin.columns;
+    const marginRows = margin.rows;
+    const columns = CssManager.instance.propMap.totalColumn;
+    const rows = CssManager.instance.propMap.totalRow;
+    const gridSize = CssManager.instance.propMap.gridSize;
+
+    const gameTableSizeW = (columns + marginColumns * 2) * gridSize;
+    const gameTableSizeH = (rows + marginRows * 2) * gridSize;
+    this.gameTableElm.style.width = `${gameTableSizeW}px`;
+    this.gameTableElm.style.height = `${gameTableSizeH}px`;
+    this.gridPaperElm.style.width = `${gameTableSizeW}px`;
+    this.gridPaperElm.style.height = `${gameTableSizeH}px`;
+    this.gameTableElm.style.borderWidth = `${margin.border.width}px`;
+    this.gameTableElm.style.borderColor = margin.border.color;
+    this.gameTableElm.style.borderStyle = margin.border.style;
   }
 
   public static changeImagePath(path: string) {
@@ -217,8 +214,7 @@ export default class GameTable extends AddressCalcMixin {
     return path;
   }
 
-  private static async setBackground(targetId: string, info: Texture) {
-    const elm: HTMLElement = document.getElementById(targetId) as HTMLElement;
+  private static async setBackground(elm: HTMLElement, info: Texture) {
     let direction: string = "";
     let backgroundColor: string = "transparent";
     let backgroundImage: string = "none";
@@ -237,31 +233,31 @@ export default class GameTable extends AddressCalcMixin {
       if (info.direction === "vertical") direction = "scale(1, -1)";
       if (info.direction === "180") direction = "rotate(180deg)";
     }
-    elm.style.setProperty("--background-color", backgroundColor);
-    elm.style.setProperty("--background-image", backgroundImage);
-    elm.style.setProperty("--image-direction", direction);
+    elm.style.backgroundColor = backgroundColor;
+    elm.style.backgroundImage = backgroundImage;
+    elm.style.transform = direction;
   }
 
   @Watch("isMounted")
   @Watch("currentAngle")
   private onChangeCurrentAngle() {
-    this.appElm.style.setProperty("--currentAngle", this.currentAngle + "deg");
+    const currentAngle = this.currentAngle;
+    CssManager.instance.propMap.currentAngle = currentAngle;
+    const totalLeftX = CssManager.instance.propMap.totalLeftX;
+    const totalLeftY = CssManager.instance.propMap.totalLeftY;
+    this.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
   }
 
   @Watch("isMounted")
   @Watch("point", { deep: true })
   @Watch("pointDiff", { deep: true })
   private onChangeTotalLeft() {
-    if (this.setLocateId === null)
-      this.setLocateId = window.setTimeout(() => {
-        const totalLeftX = this.point.x + this.pointDiff.x;
-        this.appElm.style.setProperty("--totalLeftX", totalLeftX + "px");
-        const totalLeftY = this.point.y + this.pointDiff.y;
-        this.appElm.style.setProperty("--totalLeftY", totalLeftY + "px");
-        setTimeout(() => {
-          this.setLocateId = null;
-        }, 100);
-      });
+    const totalLeftX = this.point.x + this.pointDiff.x;
+    const totalLeftY = this.point.y + this.pointDiff.y;
+    CssManager.instance.propMap.totalLeftX = totalLeftX;
+    CssManager.instance.propMap.totalLeftY = totalLeftY;
+    const currentAngle = CssManager.instance.propMap.currentAngle;
+    this.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
   }
 
   @Watch("wheel")
@@ -270,11 +266,11 @@ export default class GameTable extends AddressCalcMixin {
       this.wheel = oldValue;
       return;
     }
-    document.documentElement.style.setProperty("--wheel", `${wheel}px`);
+    CssManager.instance.propMap.wheel = wheel;
+    this.gameTableContainerElm.style.transform = `translateZ(${wheel}px)`;
   }
 
   @TaskProcessor("action-wheel-finished")
-  // @Logging
   private async actionWheelFinished(
     task: Task<boolean, never>
   ): Promise<TaskResult<never> | void> {
@@ -303,11 +299,10 @@ export default class GameTable extends AddressCalcMixin {
       this.wheelTimer = null;
     }, 600);
 
-    task.resolve();
+    // task.resolve();
   }
 
   @TaskProcessorSimple
-  @Logging
   private async item01EmitFinished(
     task: Task<number, never>
   ): Promise<TaskResult<never> | void> {
@@ -483,7 +478,7 @@ export default class GameTable extends AddressCalcMixin {
 
     // TODO isGridFit
     const isGridFit = true;
-    const gridSize = AddressCalcMixin.getMapGridSize();
+    const gridSize = CssManager.instance.propMap.gridSize;
     if (isGridFit) {
       locateOnCanvas.x = Math.floor(locateOnCanvas.x / gridSize) * gridSize;
       locateOnCanvas.y = Math.floor(locateOnCanvas.y / gridSize) * gridSize;
@@ -504,13 +499,14 @@ export default class GameTable extends AddressCalcMixin {
 </script>
 
 <style scoped lang="scss">
+@import "../../../assets/common";
+
 #gameTableContainer {
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  transform: translateZ(var(--wheel, 0)) rotateY(0deg) rotateX(0deg);
   z-index: 7;
 }
 
@@ -524,129 +520,114 @@ export default class GameTable extends AddressCalcMixin {
   z-index: -1;
   perspective: 1000px;
   overflow: visible;
-  border-width: var(--margin-border-width);
   border-style: var(--margin-border-style);
   border-color: var(--margin-border-color);
-  width: calc(
-    (var(--totalColumn) + var(--margin-column) * 2) * var(--gridSize)
-  );
-  height: calc((var(--totalRow) + var(--margin-row) * 2) * var(--gridSize));
-  transform: translate(var(--totalLeftX), var(--totalLeftY))
-    rotateZ(var(--currentAngle));
+  width: var(--grid-paper-width);
+  height: var(--grid-paper-height);
   filter: var(--filter);
+  /* JavaScriptで設定されるプロパティ
+  border-width
+  transform
+  */
+}
 
-  #table-background {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    overflow: hidden;
+#table-background-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  overflow: hidden;
+}
 
-    &:before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-image: var(--background-image);
-      background-color: var(--background-color);
-      background-size: cover;
-      background-position: center;
-      filter: blur(var(--mask-blur));
-      transform: var(--image-direction);
-    }
-  }
+#table-background {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--mask-blur));
+  /* JavaScriptで設定されるプロパティ
+  background-image
+  background-color
+  transform
+  */
+}
 
-  #grid-paper {
-    position: relative;
-    width: calc(
-      (var(--totalColumn) + var(--margin-column) * 2) * var(--gridSize)
+#grid-paper {
+  position: relative;
+  width: var(--grid-paper-width);
+  overflow: hidden;
+  z-index: 2;
+  height: var(--grid-paper-height);
+  background-position: 1px 1px;
+  background-size: var(--gridSize) var(--gridSize);
+  background-color: var(--mask-color);
+  background-image: linear-gradient(
+      0deg,
+      transparent -2px,
+      var(--margin-grid-color-bold) 2px,
+      var(--margin-grid-color-bold) 3%,
+      transparent 4%,
+      transparent 20%,
+      var(--margin-grid-color-thin) 21%,
+      var(--margin-grid-color-thin) 22%,
+      transparent 23%,
+      transparent 40%,
+      var(--margin-grid-color-thin) 41%,
+      var(--margin-grid-color-thin) 42%,
+      transparent 43%,
+      transparent 60%,
+      var(--margin-grid-color-thin) 61%,
+      var(--margin-grid-color-thin) 62%,
+      transparent 63%,
+      transparent 80%,
+      var(--margin-grid-color-thin) 81%,
+      var(--margin-grid-color-thin) 82%,
+      transparent 83%,
+      transparent
+    ),
+    linear-gradient(
+      270deg,
+      transparent -2px,
+      var(--margin-grid-color-bold) 2px,
+      var(--margin-grid-color-bold) 3%,
+      transparent 4%,
+      transparent 20%,
+      var(--margin-grid-color-thin) 21%,
+      var(--margin-grid-color-thin) 22%,
+      transparent 23%,
+      transparent 40%,
+      var(--margin-grid-color-thin) 41%,
+      var(--margin-grid-color-thin) 42%,
+      transparent 43%,
+      transparent 60%,
+      var(--margin-grid-color-thin) 61%,
+      var(--margin-grid-color-thin) 62%,
+      transparent 63%,
+      transparent 80%,
+      var(--margin-grid-color-thin) 81%,
+      var(--margin-grid-color-thin) 82%,
+      transparent 83%,
+      transparent
     );
-    overflow: hidden;
-    z-index: 2;
-    height: calc((var(--totalRow) + var(--margin-row) * 2) * var(--gridSize));
-    background-position: 1px 1px;
-    background-size: var(--gridSize) var(--gridSize);
-    background-color: var(--mask-color);
-    background-image: linear-gradient(
-        0deg,
-        transparent -2px,
-        var(--margin-grid-color-bold) 2px,
-        var(--margin-grid-color-bold) 3%,
-        transparent 4%,
-        transparent 20%,
-        var(--margin-grid-color-thin) 21%,
-        var(--margin-grid-color-thin) 22%,
-        transparent 23%,
-        transparent 40%,
-        var(--margin-grid-color-thin) 41%,
-        var(--margin-grid-color-thin) 42%,
-        transparent 43%,
-        transparent 60%,
-        var(--margin-grid-color-thin) 61%,
-        var(--margin-grid-color-thin) 62%,
-        transparent 63%,
-        transparent 80%,
-        var(--margin-grid-color-thin) 81%,
-        var(--margin-grid-color-thin) 82%,
-        transparent 83%,
-        transparent
-      ),
-      linear-gradient(
-        270deg,
-        transparent -2px,
-        var(--margin-grid-color-bold) 2px,
-        var(--margin-grid-color-bold) 3%,
-        transparent 4%,
-        transparent 20%,
-        var(--margin-grid-color-thin) 21%,
-        var(--margin-grid-color-thin) 22%,
-        transparent 23%,
-        transparent 40%,
-        var(--margin-grid-color-thin) 41%,
-        var(--margin-grid-color-thin) 42%,
-        transparent 43%,
-        transparent 60%,
-        var(--margin-grid-color-thin) 61%,
-        var(--margin-grid-color-thin) 62%,
-        transparent 63%,
-        transparent 80%,
-        var(--margin-grid-color-thin) 81%,
-        var(--margin-grid-color-thin) 82%,
-        transparent 83%,
-        transparent
-      );
+}
 
-    /*
-    &:after {
-      content: "";
-      background: inherit;
-      -webkit-filter: blur(10px);
-      -ms-filter: blur(10px);
-      filter: blur(10px);
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      right: -10px;
-      bottom: -10px;
-    }
-    */
-  }
-
-  #mapBoardFrame {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    box-sizing: border-box;
-    border: none;
-    text-align: center;
-    vertical-align: middle;
-    z-index: 3;
-  }
+#mapBoardFrame {
+  @include flex-box(row, center, center);
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  box-sizing: border-box;
+  border: none;
+  text-align: center;
+  vertical-align: middle;
+  z-index: 3;
 }
 </style>

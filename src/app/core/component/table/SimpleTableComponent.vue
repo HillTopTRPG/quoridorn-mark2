@@ -53,7 +53,7 @@
         </tr>
       </thead>
       <tbody @scroll="onWheelBody()" @keydown.enter="enter()" tabindex="0">
-        <template v-if="!isColWidthMoving">
+        <template v-if="!isColWidthMoving || true">
           <!-- 余白 -->
           <tr class="table-padding-top">
             <td
@@ -634,7 +634,7 @@ export default class SimpleTableComponent extends Vue {
   @Watch("isMounted")
   @Watch("tableDeclareInfo.height")
   private onChangeHeight() {
-    const height = this.tableDeclareInfo.height;
+    let height = this.tableDeclareInfo.height;
     this.elm.style.setProperty(
       "--tableHeight",
       height ? `calc(${height + 1} * var(--table-row-height))` : "auto"

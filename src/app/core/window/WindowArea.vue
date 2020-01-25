@@ -77,7 +77,6 @@ export default class WindowArea extends Vue {
   }
 
   @TaskProcessor("window-normalize-finished")
-  @Logging
   private async normalizeWindow(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {

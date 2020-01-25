@@ -92,7 +92,7 @@
             class="value-width"
             type="number"
             :value="width"
-            @input="width = $event.target.value"
+            @input="width = $event.target.valueAsNumber"
             min="1"
           />
         </td>
@@ -111,7 +111,7 @@
             class="value-height"
             type="number"
             :value="height"
-            @input="height = $event.target.value"
+            @input="height = $event.target.valueAsNumber"
             min="1"
           />
         </td>
@@ -221,18 +221,20 @@ export default class EditMapMaskWindow extends Mixins<
     this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
 
-    // 排他チェック
-    if (data.exclusionOwner) {
-      this.isProcessed = true;
-      await this.close();
-      return;
-    }
+    if (this.windowInfo.status === "window") {
+      // 排他チェック
+      if (data.exclusionOwner) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
 
-    // パーミッションチェック
-    if (!permissionCheck(data, "edit")) {
-      this.isProcessed = true;
-      await this.close();
-      return;
+      // パーミッションチェック
+      if (!permissionCheck(data, "edit")) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
     }
 
     const texture = data.data!.textures[data.data!.useBackGround];
@@ -246,12 +248,15 @@ export default class EditMapMaskWindow extends Mixins<
     this.height = data.data!.rows;
     this.otherText = data.data!.otherText;
     this.layerId = data.data!.layerId;
-    try {
-      await this.cc.touchModify(this.docId);
-    } catch (err) {
-      window.console.warn(err);
-      this.isProcessed = true;
-      await this.close();
+
+    if (this.windowInfo.status === "window") {
+      try {
+        await this.cc.touchModify(this.docId);
+      } catch (err) {
+        window.console.warn(err);
+        this.isProcessed = true;
+        await this.close();
+      }
     }
   }
 

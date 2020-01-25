@@ -133,40 +133,26 @@ export default class CutInSettingWindow extends Mixins<
       findIndexFunc: (play: StoreUseData<CutInPlayingInfo>) => boolean
     ) => {
       const index = list.findIndex(findIndexFunc);
-      if (index < 0) return;
+      if (index === -1) return;
       const id = list[index].id!;
-      window.console.log("!!!!! doDelete touchModify", id);
       try {
         await cc.touchModify(id);
+        await cc.delete(id);
+        window.console.log("!!! delete DB data", id);
       } catch (err) {
         window.console.log(err);
         return;
       }
-      window.console.log("!!!!! doDelete delete", id);
-      await cc.delete(id);
-      window.console.log("!!!!! doDelete finished", id);
     };
 
     const findIndexByTagFunc = (play: StoreUseData<CutInPlayingInfo>) => {
-      if (play.id === useId) return false;
+      if (play.id === useId) return true;
       const cutIn = this.cutInList.filter(cutIn => cutIn.id === play.id)[0];
       return cutIn.data!.tag === tag;
     };
-    // 同じタグのカットインが既に再生中の場合は削除
-    window.console.log("Delete tag 0");
+    // 同じIDもしくは同じタグのカットインが既に再生中の場合は削除
     await deleteCC(privatePlayList, privatePlayListCC, findIndexByTagFunc);
-    window.console.log("Delete tag 1");
     await deleteCC(playList, playListCC, findIndexByTagFunc);
-    window.console.log("Delete tag 2");
-
-    const findIndexByIdFunc = (play: StoreUseData<CutInPlayingInfo>) =>
-      play.id === useId;
-    // 既に対象のカットインを再生中
-    window.console.log("Delete id 0");
-    await deleteCC(privatePlayList, privatePlayListCC, findIndexByIdFunc);
-    window.console.log("Delete id 1");
-    await deleteCC(playList, playListCC, findIndexByIdFunc);
-    window.console.log("Delete id 2");
 
     const addCC = async (
       cc: NekostoreCollectionController<CutInPlayingInfo>

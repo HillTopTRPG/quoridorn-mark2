@@ -2,10 +2,18 @@
   <div id="app">
     <div id="back-screen"></div>
     <div id="YoutubePlayerContainer">
-      <div class="unUse"><div id="YoutubePlayer001"></div></div>
-      <div class="unUse"><div id="YoutubePlayer002"></div></div>
-      <div class="unUse"><div id="YoutubePlayer003"></div></div>
-      <div class="unUse"><div id="YoutubePlayer004"></div></div>
+      <div class="youtube-node unUse">
+        <div id="YoutubePlayer001" class="youtube-player"></div>
+      </div>
+      <div class="youtube-node unUse">
+        <div id="YoutubePlayer002" class="youtube-player"></div>
+      </div>
+      <div class="youtube-node unUse">
+        <div id="YoutubePlayer003" class="youtube-player"></div>
+      </div>
+      <div class="youtube-node unUse">
+        <div id="YoutubePlayer004" class="youtube-player"></div>
+      </div>
     </div>
 
     <template v-if="roomInitialized">
@@ -450,7 +458,7 @@ img {
 }
 
 div.img {
-  opacity: 0;
+  /*opacity: 0;*/
   background-size: contain;
   background: no-repeat center;
 }
@@ -460,7 +468,7 @@ hr {
 }
 
 .anime {
-  opacity: 0;
+  /*opacity: 0;*/
 }
 
 #app {
@@ -479,18 +487,20 @@ hr {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+}
 
-  #back-screen {
-    position: absolute;
-    background-image: var(--background-image);
-    background-color: var(--background-color);
-    background-size: cover;
-    background-position: center;
-    width: 100%;
-    height: 100%;
-    filter: blur(var(--mask-blur));
-    transform: var(--image-direction);
-  }
+#back-screen {
+  position: absolute;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100%;
+  filter: blur(var(--mask-blur));
+  /* JavaScriptで設定されるプロパティ
+  background-image
+  background-color
+  transform
+  */
 }
 
 .selectable {

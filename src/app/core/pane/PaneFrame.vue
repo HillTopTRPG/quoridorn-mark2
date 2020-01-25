@@ -8,14 +8,6 @@
       @touchstart.stop="leftDown"
       @contextmenu.prevent
     >
-      <!-- タイトル文言 -->
-      <div class="title-message-area">
-        <span>{{ windowInfo.title }}</span>
-        <span class="message" v-if="windowInfo.message">{{
-          windowInfo.message
-        }}</span>
-      </div>
-
       <!-- 最小化 -->
       <title-icon
         className="icon-minus"
@@ -32,6 +24,15 @@
         @emit="closeWindow"
         v-if="windowInfo.declare.closable"
       />
+
+      <!-- タイトル文言 -->
+      <div class="title-message-area">
+        <span v-if="windowInfo.title">{{ windowInfo.title }}</span>
+        <span v-else v-t="`${windowInfo.type}.window-title`"></span>
+        <span class="message" v-if="windowInfo.message">{{
+          windowInfo.message
+        }}</span>
+      </div>
     </div>
 
     <!-- コンテンツ -->
@@ -95,6 +96,7 @@ export default class PaneFrame extends Vue {
   @LifeCycle
   private mounted() {
     this.isMounted = true;
+    this.setMinWidth();
   }
   private get key(): string {
     return `right-pane-${this.windowInfo.key}`;
@@ -283,10 +285,9 @@ export default class PaneFrame extends Vue {
   }
 
   @Emit("changeMinMaxWidth")
-  @Watch("windowInfo.declare.minSize.width")
-  private onChangeMinWidth(width: number) {
-    if (this.windowInfo.widthPx >= width) return;
-    this.windowInfo.widthPx = width;
+  @Watch("windowInfo.declare.minSize.widthPx")
+  private onChangeMinWidth() {
+    this.setMinWidth();
   }
 
   @Emit("changeMinMaxWidth")
@@ -302,6 +303,12 @@ export default class PaneFrame extends Vue {
     if (!this.isMounted) return;
     const y = this.windowInfo.paneY;
     this.paneElm.style.setProperty("--paneY", `${y}px`);
+  }
+
+  private setMinWidth() {
+    if (!this.windowInfo.declare.minSize) return;
+    const widthPx = this.windowInfo.declare.minSize.widthPx;
+    this.paneElm.style.setProperty("--min-width", `${widthPx}px`);
   }
 }
 </script>
@@ -321,6 +328,7 @@ export default class PaneFrame extends Vue {
   left: 0;
   top: var(--paneY);
   width: 100%;
+  min-width: var(--min-width, auto);
   font-size: var(--windowFontSize);
   z-index: var(--windowOrder);
   scroll-snap-align: start;
@@ -342,7 +350,9 @@ export default class PaneFrame extends Vue {
   width: 100%;
   height: var(--window-title-height);
   background-color: var(--theme-color-accent);
+  border-top: solid gray 1px;
   border-bottom: solid gray 1px;
+  margin-top: -1px;
   cursor: move;
   font-size: 12px;
   font-weight: bold;

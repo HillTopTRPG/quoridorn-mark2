@@ -70,6 +70,11 @@ object-fix:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: true
 
@@ -90,6 +95,11 @@ object-un-fix:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: false
 
@@ -110,6 +120,11 @@ object-hide-border:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: true
 
@@ -130,6 +145,11 @@ object-view-border:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: false
 
@@ -150,6 +170,11 @@ object-hide-highlight:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: true
 
@@ -170,5 +195,10 @@ object-view-highlight:
           type: edit
         rhs:
           true
+  isDisabledCompare:
+    lhs:
+      refType: exclusion-check
+    rhs:
+      true
   taskArg:
     value: false

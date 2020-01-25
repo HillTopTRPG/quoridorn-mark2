@@ -27,41 +27,6 @@ export default class AddressCalcMixin extends Vue {
   @Getter("mapBorderWidth") protected mapBorderWidth: any;
   @Getter("mapWheel") protected mapWheel: any;
 
-  protected static getMapGridSize(): number {
-    return getCssPxNum("--gridSize", document.getElementById("gameTable")!);
-  }
-
-  protected static getMapRow(): number {
-    return parseInt(
-      CssManager.getCss("--totalRow", document.getElementById("gameTable")!),
-      10
-    );
-  }
-
-  protected static getMapColumn(): number {
-    return parseInt(
-      CssManager.getCss("--totalColumn", document.getElementById("gameTable")!),
-      10
-    );
-  }
-
-  protected static getMapMarginRow(): number {
-    return parseInt(
-      CssManager.getCss("--margin-row", document.getElementById("gameTable")!),
-      10
-    );
-  }
-
-  protected static getMapMarginColumn(): number {
-    return parseInt(
-      CssManager.getCss(
-        "--margin-column",
-        document.getElementById("gameTable")!
-      ),
-      10
-    );
-  }
-
   /**
    * 指定されたスクリーン座標を元に、座標計算を行う
    * @param mouse
@@ -74,7 +39,8 @@ export default class AddressCalcMixin extends Vue {
       .getElementById("map-canvas")!
       .getBoundingClientRect() as Rectangle;
 
-    const zoom = (getCssPxNum("--wheel") * -1 + 1000) / 1000;
+    const wheel = CssManager.instance.propMap.wheel;
+    const zoom = (wheel * -1 + 1000) / 1000;
     // canvasの中心点
     const canvasCenter: Point = calcCenter(canvasRectangle);
     // 中心点と指定された座標とを結ぶ線の角度を求める
@@ -91,9 +57,9 @@ export default class AddressCalcMixin extends Vue {
       x: planeLocateScreen.x - canvasCenter.x,
       y: planeLocateScreen.y - canvasCenter.y
     };
-    const gridSize = AddressCalcMixin.getMapGridSize();
-    const mapColumn = AddressCalcMixin.getMapColumn();
-    const mapRow = AddressCalcMixin.getMapRow();
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const mapColumn = CssManager.instance.propMap.totalColumn;
+    const mapRow = CssManager.instance.propMap.totalRow;
     const planeLocateCanvas: Point = {
       x: planeLocateCenter.x + (mapColumn / 2) * gridSize,
       y: planeLocateCenter.y + (mapRow / 2) * gridSize
@@ -155,7 +121,7 @@ export default class AddressCalcMixin extends Vue {
       oldAngle
     ).planeLocateCanvas;
 
-    const gridSize = AddressCalcMixin.getMapGridSize();
+    const gridSize = CssManager.instance.propMap.gridSize;
     // ドロップ先のマス座標を算出
     let column: number = Math.ceil(planeLocateCanvas.x / gridSize);
     let row: number = Math.ceil(planeLocateCanvas.y / gridSize);

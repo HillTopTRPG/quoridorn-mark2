@@ -15,11 +15,8 @@
 
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import ResizeKnob from "./ResizeKnob.vue";
 
-@Component({
-  components: { ResizeKnob }
-})
+@Component({ components: {} })
 export default class TitleIcon extends Vue {
   @Prop({ type: String, required: true })
   private className!: string;
@@ -32,20 +29,23 @@ export default class TitleIcon extends Vue {
 <style scoped lang="scss">
 @import "../../../assets/common";
 
-.title-icon-area i {
-  display: block;
-  padding: 3px;
-  font-size: 8px;
-  border: 2px solid rgba(0, 0, 0, 0.5);
-  color: rgba(0, 0, 0, 0.5);
-  transform-origin: right;
-  transform: scale(0.8) translateX(0);
-  cursor: pointer;
-  white-space: nowrap;
+.title-icon-area {
+  i {
+    display: block;
+    padding: 3px;
+    font-size: 8px;
+    border: 2px solid rgba(0, 0, 0, 0.5);
+    color: rgba(0, 0, 0, 0.5);
+    transform-origin: center;
+    transform: scale(0.8) translateX(0);
+    cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 
-  &:hover {
-    border-color: black;
-    color: black;
+    &:hover {
+      border-color: black;
+      color: black;
+    }
   }
 }
 </style>

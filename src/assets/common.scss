@@ -27,26 +27,28 @@
 @mixin basic-map-object() {
   @include flex-box(row, center, center);
   position: fixed;
-  left: calc(var(--x) + var(--margin-column) * var(--gridSize) - var(--inflate-width));
-  top: calc(var(--y) + var(--margin-row) * var(--gridSize) - var(--inflate-width));
-  width: calc(var(--columns) * var(--gridSize) + var(--inflate-width) * 2);
-  height: calc(var(--rows) * var(--gridSize) + var(--inflate-width) * 2);
-  transform: rotate(var(--angle));
+  left: 0;
+  top: 0;
   box-sizing: border-box;
   white-space: nowrap;
   font-size: 12px;
   cursor: crosshair;
-  z-index: var(--order);
-  outline-offset: calc((var(--isHideHighlight) - 1) * 6px);
-  outline: rgb(187, 187, 255) solid calc((var(--isHideHighlight) - 1) * -6px);
+  /* JavaScriptで設定されるプロパティ
+  width
+  height
+  transform
+  z-index
+  outline-offset
+  outline
+  */
 
   &.hover {
-    z-index: 599999999;
+    z-index: 599999999 !important;
   }
 
-  &.hover.moving,
+  &.moving,
   &.rolling {
-    z-index: 999999999;
+    z-index: 999999999 !important;
   }
 
   &:before {
@@ -77,7 +79,9 @@
     bottom: 0;
     top: 0;
     border-radius: 5px;
-    box-shadow: 0 0 0 calc((var(--isHideBorder) - 1) * -3px) var(--isLock);
+    /* JavaScriptで設定されるプロパティ
+    box-shadow
+    */
   }
 }
 

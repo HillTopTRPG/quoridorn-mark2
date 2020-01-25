@@ -27,7 +27,7 @@
 "cut-in-setting-window":
   parentTypeList: []
   isInputWindow: false
-  isMovingRendering: true
+  isMovingRendering: false
   message: ""
   position: center
   size:
@@ -97,7 +97,7 @@
 "login-window":
   parentTypeList: []
   isInputWindow: false
-  isMovingRendering: true
+  isMovingRendering: false
   message: ""
   position: center
   size:
@@ -679,23 +679,26 @@
   message: ""
   position: center
   size:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
+    # 17px + 40em + 2.5rem
+    widthPx: 532
+    widthEm: 0
+    widthRem: 0
     heightPx: 4
     heightEm: 22
     heightRem: 2
   minSize:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
+    # 17px + 20em + 1.5rem
+    widthPx: 278
+    widthEm: 0
+    widthRem: 0
     heightPx: 4
     heightEm: 22
     heightRem: 2
   maxSize:
-    widthPx: 17
-    widthEm: 40
-    widthRem: 2.5
+    # 17px + 60em + 3.5rem
+    widthPx: 786
+    widthEm: 0
+    widthRem: 0
     heightPx: 4
     heightEm: 22
     heightRem: 2

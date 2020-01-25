@@ -42,7 +42,7 @@
                     class="value-columns"
                     type="number"
                     :value="screenData.columns"
-                    @input="screenData.columns = $event.target.value"
+                    @input="screenData.columns = $event.target.valueAsNumber"
                     min="1"
                   />
                 </td>
@@ -61,7 +61,7 @@
                     class="value-rows"
                     type="number"
                     :value="screenData.rows"
-                    @input="screenData.rows = $event.target.value"
+                    @input="screenData.rows = $event.target.valueAsNumber"
                     min="1"
                   />
                 </td>
@@ -80,7 +80,7 @@
                     class="value-grid-size"
                     type="number"
                     :value="screenData.gridSize"
-                    @input="screenData.gridSize = $event.target.value"
+                    @input="screenData.gridSize = $event.target.valueAsNumber"
                     min="1"
                   />
                 </td>
@@ -165,7 +165,9 @@
                     class="value-margin-columns"
                     type="number"
                     :value="screenData.margin.columns"
-                    @input="screenData.margin.columns = $event.target.value"
+                    @input="
+                      screenData.margin.columns = $event.target.valueAsNumber
+                    "
                     min="0"
                   />
                 </td>
@@ -184,7 +186,9 @@
                     class="value-margin-rows"
                     type="number"
                     :value="screenData.margin.rows"
-                    @input="screenData.margin.rows = $event.target.value"
+                    @input="
+                      screenData.margin.rows = $event.target.valueAsNumber
+                    "
                     min="0"
                   />
                 </td>
@@ -291,7 +295,9 @@
                     class="value-mask-blur"
                     type="number"
                     :value="screenData.margin.maskBlur"
-                    @input="screenData.margin.maskBlur = $event.target.value"
+                    @input="
+                      screenData.margin.maskBlur = $event.target.valueAsNumber
+                    "
                     min="0"
                   />
                 </td>
@@ -317,7 +323,8 @@
                     type="number"
                     :value="screenData.margin.border.width"
                     @input="
-                      screenData.margin.border.width = $event.target.value
+                      screenData.margin.border.width =
+                        $event.target.valueAsNumber
                     "
                     min="0"
                   />
@@ -516,28 +523,32 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     this.screenInfo = this.screenList.filter(map => map.id === this.mapId)[0];
     this.screenData = this.screenInfo.data!;
 
-    // 排他チェック
-    if (this.screenInfo.exclusionOwner) {
-      this.isProcessed = true;
-      await this.close();
-      return;
-    }
+    if (this.windowInfo.status === "window") {
+      // 排他チェック
+      if (this.screenInfo.exclusionOwner) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
 
-    // パーミッションチェック
-    if (!permissionCheck(this.screenInfo, "edit")) {
-      this.isProcessed = true;
-      await this.close();
-      return;
+      // パーミッションチェック
+      if (!permissionCheck(this.screenInfo, "edit")) {
+        this.isProcessed = true;
+        await this.close();
+        return;
+      }
     }
 
     // this.foreColor = screenData.gridBorderColor;
 
-    try {
-      await this.cc.touchModify(this.mapId);
-    } catch (err) {
-      this.isProcessed = true;
-      window.console.warn(err);
-      await this.close();
+    if (this.windowInfo.status === "window") {
+      try {
+        await this.cc.touchModify(this.mapId);
+      } catch (err) {
+        this.isProcessed = true;
+        window.console.warn(err);
+        await this.close();
+      }
     }
   }
 

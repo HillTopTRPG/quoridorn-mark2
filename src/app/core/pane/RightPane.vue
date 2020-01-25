@@ -163,6 +163,7 @@ export default class RightPane extends Vue {
   private async windowMovingFinished(
     task: Task<WindowMoveInfo, never>
   ): Promise<TaskResult<never> | void> {
+    if (this.isMinimized) return;
     const point: Point = task.value!.point!;
     const paneRectangle = getRightPaneRectangle();
     this.isAnimationY = true;
@@ -307,9 +308,14 @@ export default class RightPane extends Vue {
       }
 
       // マウスカーソルが要素より下にある場合
-      const paneHeight = getPaneHeight(info.key);
-      if (info.paneY + paneHeight < mouseOnPane.y) {
-        order = i + 1;
+      let paneHeight = 0;
+      try {
+        paneHeight = getPaneHeight(info.key);
+        if (info.paneY + paneHeight < mouseOnPane.y) {
+          order = i + 1;
+          return;
+        }
+      } catch (err) {
         return;
       }
 
@@ -371,8 +377,9 @@ export default class RightPane extends Vue {
     const useList = this.filteredWindowInfoList.filter(
       info => info.declare.minSize
     );
-    if (!useList.length) return 50;
-    return Math.max(...useList.map(info => info.declare.minSize!.widthPx));
+    return 50;
+    // if (!useList.length) return 50;
+    // return Math.max(...useList.map(info => info.declare.minSize!.widthPx));
   }
 
   /**
@@ -382,8 +389,15 @@ export default class RightPane extends Vue {
     const useList = this.filteredWindowInfoList.filter(
       info => info.declare.maxSize
     );
-    if (!useList.length) return 50;
-    return Math.min(...useList.map(info => info.declare.maxSize!.widthPx));
+    if (!useList.length) return 2000;
+    return Math.max(
+      ...useList.map(info => {
+        const px = info.declare.maxSize!.widthPx;
+        const em = info.declare.maxSize!.widthEm;
+        const rem = info.declare.maxSize!.widthRem;
+        return px + em * this.fontSize + rem * 14;
+      })
+    );
   }
 
   @Watch("isMounted")

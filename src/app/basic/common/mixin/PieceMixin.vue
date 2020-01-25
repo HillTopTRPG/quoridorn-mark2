@@ -20,7 +20,6 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "@/@types/task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
-import { getCssPxNum } from "@/app/core/Css";
 import { ContextTaskInfo } from "@/@types/context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
@@ -59,19 +58,21 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     return `${this.type}-${this.docId}`;
   }
 
-  private async getStoreInfo(): Promise<StoreUseData<T> | null> {
+  private async getStoreInfo(): Promise<StoreUseData<T>> {
     try {
       this.cc = SocketFacade.instance.getCC(this.type);
     } catch (err) {
-      window.console.warn(err);
-      return null;
+      window.console.error(err);
+      throw err;
     }
     return (await this.cc!.getData(this.docId)) as StoreUseData<T>;
   }
 
   @LifeCycle
   protected async mounted() {
-    this.storeInfo = await this.getStoreInfo();
+    const storeInfo = await this.getStoreInfo();
+    this.setTransform(storeInfo);
+    this.storeInfo = storeInfo;
     await this.cc!.setSnapshot(this.docId, this.docId, snapshot => {
       if (!snapshot.data) return;
       if (snapshot.data.status === "modified") {
@@ -97,29 +98,32 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     return this.$refs.component as HTMLElement;
   }
 
-  private setCssProperty(property: string, failValue?: any, trueValue?: any) {
-    if (!this.isMounted) return;
-    const propertyValue = (this.storeInfo!.data! as any)[property];
-    const useValue = propertyValue
-      ? trueValue !== undefined
-        ? trueValue
-        : propertyValue
-      : failValue !== undefined
-      ? failValue
-      : propertyValue;
-    this.elm.style.setProperty(`--${property}`, useValue.toString());
-  }
+  private objX: number = 0;
+  private objY: number = 0;
 
   @Watch("isMounted")
-  @Watch("volatileInfo.moveDiff", { deep: true })
+  @Watch("volatileInfo.moveDiff")
   private onChangePoint() {
     if (!this.isMounted) return;
-    const x = this.storeInfo!.data!.x;
+    this.setTransform(this.storeInfo!);
+  }
+
+  private setTransform(storeInfo: StoreUseData<T>) {
+    const x = storeInfo.data!.x;
     const useX = this.isMoving ? x + this.volatileInfo.moveDiff.x : x;
-    this.elm.style.setProperty(`--x`, `${useX}px`);
-    const y = this.storeInfo!.data!.y;
+    const y = storeInfo.data!.y;
     const useY = this.isMoving ? y + this.volatileInfo.moveDiff.y : y;
-    this.elm.style.setProperty(`--y`, `${useY}px`);
+
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const inflateWidth = this.inflateWidth;
+    const marginColumns = CssManager.instance.propMap.marginColumn;
+    const marginRows = CssManager.instance.propMap.marginRow;
+
+    this.objX = useX + marginColumns * gridSize - inflateWidth;
+    this.objY = useY + marginRows * gridSize - inflateWidth;
+    this.elm.style.transform = `translate(${this.objX}px,${
+      this.objY
+    }px) rotate(${storeInfo.data!.angle}deg) translateZ(0)`;
   }
 
   @Watch("isMounted")
@@ -131,43 +135,63 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   @Watch("isMounted")
   @Watch("storeInfo.order")
   private onChangeOrder() {
-    this.elm.style.setProperty(`--order`, `${this.storeInfo!.order}`);
+    this.elm.style.zIndex = this.storeInfo!.order.toString(10);
   }
 
   @Watch("isMounted")
   @Watch("storeInfo.data.columns")
   private onChangeColumns() {
-    this.setCssProperty("columns", 0);
+    const columns = this.storeInfo!.data!.columns;
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const inflateWidth = this.inflateWidth;
+    const objW = columns * gridSize + inflateWidth * 2;
+    this.elm.style.width = `${objW}px`;
   }
 
   @Watch("isMounted")
   @Watch("storeInfo.data.rows")
   private onChangeRows() {
-    this.setCssProperty("rows", 0);
+    const rows = this.storeInfo!.data!.rows;
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const inflateWidth = this.inflateWidth;
+    const objH = rows * gridSize + inflateWidth * 2;
+    this.elm.style.height = `${objH}px`;
   }
+
+  private boxShadowWidth: number = 0;
 
   @Watch("isMounted")
   @Watch("storeInfo.data.isHideBorder")
   private onChangeIsHideBorder() {
-    this.setCssProperty("isHideBorder", 0, 1);
+    this.boxShadowWidth = this.storeInfo!.data!.isHideBorder ? 0 : 3;
+    this.elm.style.boxShadow = `0 0 0 ${this.boxShadowWidth}px ${this.boxShadowColor}`;
   }
 
   @Watch("isMounted")
   @Watch("storeInfo.data.isHideHighlight")
   private onChangeIsHideHighlight() {
-    this.setCssProperty("isHideHighlight", 0, 1);
+    const outlineWidth = this.storeInfo!.data!.isHideHighlight ? 0 : 6;
+    this.elm.style.outlineOffset = `-${outlineWidth}px`;
+    this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
   }
+
+  private boxShadowColor: string = "";
 
   @Watch("isMounted")
   @Watch("storeInfo.data.isLock")
   private onChangeIsLock() {
-    this.setCssProperty("isLock", "rgb(255, 255, 153)", "rgb(255, 153, 153)");
+    this.boxShadowColor = this.storeInfo!.data!.isLock
+      ? "rgb(255, 153, 153)"
+      : "rgb(255, 255, 153)";
+    this.elm.style.boxShadow = `0 0 0 ${this.boxShadowWidth}px ${this.boxShadowColor}`;
   }
 
   @Watch("isMounted")
   @Watch("storeInfo.data.angle")
   private onChangeAngle() {
-    this.setCssProperty("angle", "0deg", `${this.storeInfo!.data!.angle}deg`);
+    this.elm.style.transform = `translate(${this.objX}px,${
+      this.objY
+    }px) rotate(${this.storeInfo!.data!.angle}deg) translateZ(0)`;
   }
 
   @Watch("isMounted")
@@ -186,7 +210,6 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
-      // TODO 画像設定
       const imageObj = this.imageList.filter(
         obj => obj.id === backInfo.imageId
       )[0];
@@ -219,16 +242,8 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
       this.elm.style.setProperty(`--image-direction`, direction);
       this.elm.style.setProperty(`--back-color`, "transparent");
       this.elm.style.setProperty(`--font-color`, "transparent");
-      this.elm.style.setProperty(`--text`, `""`);
+      this.elm.style.setProperty(`--text`, `''`);
     }
-    this.setCssProperty("angle", 0);
-  }
-
-  @Watch("isMounted")
-  @Watch("inflateWidth")
-  private onChangeInflateWidth() {
-    if (!this.isMounted) return;
-    this.elm.style.setProperty(`--inflate-width`, `${this.inflateWidth}px`);
   }
 
   @TaskProcessor("mouse-moving-finished")
@@ -343,11 +358,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
   }
 
   private getPoint(point: Point) {
-    const currentAngleStr = CssManager.getCss(
-      "--currentAngle",
-      document.getElementById("gameTable")!
-    );
-    const currentAngle = parseInt(currentAngleStr.replace("deg", ""), 10);
+    const currentAngle = CssManager.instance.propMap.currentAngle;
     const calcResult = this.calcCoordinate(point, currentAngle);
     return calcResult.planeLocateScreen;
   }
@@ -379,7 +390,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     this.mouseDown("left");
   }
 
-  protected rightDown(event: MouseEvent): void {
+  protected rightDown(): void {
     window.console.log("rightDown");
     // if (this.isRolling) {
     //   this.$emit("rightDown");
@@ -417,10 +428,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
 
     const isGridFit = true;
     if (isGridFit) {
-      const gridSize = getCssPxNum(
-        "--gridSize",
-        document.getElementById("gameTable")!
-      );
+      const gridSize = CssManager.instance.propMap.gridSize;
       const relativeX = this.volatileInfo.moveFromPlaneRelative.x;
       const relativeY = this.volatileInfo.moveFromPlaneRelative.y;
       data.x =
@@ -492,7 +500,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     // });
   }
 
-  protected rollEnd(event: any) {
+  protected rollEnd() {
     // // window.console.log(`rollEnd`, event.pageX, event.pageY)
     // const mapObj: any = {
     //   rollObj: {
@@ -511,7 +519,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     // });
   }
 
-  protected rightUp(this: any, event: any): void {
+  protected rightUp(): void {
     // this.setProperty({ property: `map.isOverEvent`, value: true });
     // this.$emit("rightUp", event);
   }

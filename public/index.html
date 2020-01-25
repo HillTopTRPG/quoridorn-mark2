@@ -132,24 +132,24 @@
       flex-wrap: wrap;
       z-index: 8;
     }
-    #YoutubePlayerContainer > * {
+    .youtube-node {
       position: relative;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-items: flex-end;
     }
-    #YoutubePlayerContainer > * > * {
+    .youtube-player {
       width: 213px;
       height: 120px;
       transform-origin: right bottom;
       transition: all 0.2s ease-in;
     }
-    #YoutubePlayerContainer > *:hover > * {
+    .youtube-node:hover > .youtube-player {
       width: 426px;
       height: 240px;
     }
-    #YoutubePlayerContainer .unUse {
+    .youtube-node.unUse {
       display: none;
     }
   </style>

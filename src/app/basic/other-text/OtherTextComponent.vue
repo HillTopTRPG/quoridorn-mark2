@@ -200,7 +200,7 @@ export default class OtherTextComponent extends Vue {
     box-sizing: border-box;
   }
 
-  div.line {
+  .line {
     word-break: break-all;
     overflow-wrap: break-word;
     white-space: pre-wrap;
@@ -213,18 +213,18 @@ export default class OtherTextComponent extends Vue {
     td {
       border: 1px solid gray;
       padding: 0.2rem;
+    }
 
-      &.left {
-        text-align: left;
-      }
+    .left {
+      text-align: left;
+    }
 
-      &.right {
-        text-align: right;
-      }
+    .right {
+      text-align: right;
+    }
 
-      &.center {
-        text-align: center;
-      }
+    .center {
+      text-align: center;
     }
   }
 

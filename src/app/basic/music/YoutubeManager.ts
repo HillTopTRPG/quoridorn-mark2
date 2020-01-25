@@ -63,9 +63,10 @@ export default class YoutubeManager {
 
   public open(
     elementId: string,
-    { tag, url }: CutInDeclareInfo,
+    { tag, url, start, end }: CutInDeclareInfo,
     eventHandler: YoutubeEventHandler
   ) {
+    window.console.log("Youtube open!!!");
     let playerObj = this.playerMapping[tag];
     if (playerObj && playerObj.elementId === elementId) {
       // 全く同じプレイヤー要素
@@ -118,15 +119,21 @@ export default class YoutubeManager {
           // }
         },
         playerVars: {
-          origin: location.protocol + "//" + location.hostname + "/",
+          origin: location.protocol + "//" + location.hostname + ":8080/",
+          playlist: videoId,
           autoplay: 0, // 0:自動再生しない or 1:自動再生
           controls: 0, // 再生ボタンとか出さない
           disablekb: 1, // ショートカットキー無効
           enablejsapi: 1, // JavaScript API 有効
+          playsinline: 1,
+          fs: 0,
           list: "search", // 検索クエリ使用
           listType: "search", // 検索クエリ使用
-          loop: 1, // 0:ループしない or 1:ループする 後で再設定する
+          loop: 0, // 0:ループしない or 1:ループする 後で再設定する
           rel: 0, // 関連動画出さない
+          start,
+          end,
+          modestbranding: 1,
           showinfo: 0 // 動画名とか出さない
         }
       });
@@ -139,6 +146,19 @@ export default class YoutubeManager {
         timerReload: null
       };
       this.playerMapping[tag] = playerObj;
+
+      // 既にタイマーが張られていたら停止する
+      if (playerObj.timerReload !== null) {
+        clearTimeout(playerObj.timerReload);
+      }
+
+      // 1500ミリ秒経っても再生できてなければRejectする
+      // （通常に読み込めるときの時間は900msくらい）
+      playerObj.timerReload = window.setTimeout(() => {
+        this.playerMapping[tag].eventHandlers.forEach(eh => {
+          eh.onReject();
+        });
+      }, 1500);
     }
   }
 

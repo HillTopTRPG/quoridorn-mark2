@@ -114,6 +114,7 @@ export default class SeekBarComponent extends Vue {
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
 .seek-bar-area {
   position: relative;
   @include flex-box(row, center, flex-end);
@@ -143,6 +144,7 @@ input[type="range"] {
 }
 
 input[type="range"] {
+  width: 100%; /* 調整中 */
   height: 100%;
 }
 input[type="range"]::-webkit-slider-runnable-track {
