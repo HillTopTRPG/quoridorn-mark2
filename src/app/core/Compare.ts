@@ -3,6 +3,7 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 /**
  * オペランドの値を取得する
@@ -17,9 +18,10 @@ async function getOperandValue(
 ): Promise<any> {
   if (typeof o === "object") {
     if (o.refType === "db-id-exist") {
-      const cc = SocketFacade.instance.getCC(type!);
-      const data = await cc.getData(docId!);
-      return !!data;
+      const list = GameObjectManager.instance.getList(type!);
+      if (!list) throw new ApplicationError(`Un supported type='${type}'`);
+      const useData = list.filter(d => d.id === docId!)[0];
+      return !!useData;
     }
     if (o.refType === "db-search-exist") {
       const cc = SocketFacade.instance.getCC(type!);
@@ -32,9 +34,11 @@ async function getOperandValue(
       return dataList ? dataList.length : 0;
     }
     if (o.refType === "db-id-property") {
-      const cc = SocketFacade.instance.getCC(type!);
-      const data = await cc.getData(docId!);
-      return data ? data.data[o.property] : null;
+      const list = GameObjectManager.instance.getList(type!);
+      if (!list) throw new ApplicationError(`Un supported type='${type}'`);
+      const useData = list.filter(d => d.id === docId!)[0];
+      if (!useData) throw new ApplicationError(`Un supported docId='${docId}'`);
+      return useData.data ? (useData.data as any)[o.property] : null;
     }
     if (o.refType === "db-search-property") {
       const cc = SocketFacade.instance.getCC(type!);
@@ -42,14 +46,17 @@ async function getOperandValue(
       return dataList && dataList.length ? dataList[0].data[o.property] : null;
     }
     if (o.refType === "permission-check") {
-      const cc = SocketFacade.instance.getCC(type!);
-      const data = await cc.getData(docId!);
-      return permissionCheck(data!, o.type);
+      const list = GameObjectManager.instance.getList(type!);
+      if (!list) throw new ApplicationError(`Un supported type='${type}'`);
+      const useData = list.filter(d => d.id === docId!)[0];
+      if (!useData) throw new ApplicationError(`Un supported docId='${docId}'`);
+      return permissionCheck(useData!, o.type);
     }
     if (o.refType === "exclusion-check") {
-      const cc = SocketFacade.instance.getCC(type!);
-      const data = await cc.getData(docId!);
-      return data && !data.exclusionOwner;
+      const list = GameObjectManager.instance.getList(type!);
+      if (!list) throw new ApplicationError(`Un supported type='${type}'`);
+      const useData = list.filter(d => d.id === docId!)[0];
+      return useData && !useData.exclusionOwner;
     }
     throw new ApplicationError(`Un supported refType='${(<any>o).refType}'`);
   }
