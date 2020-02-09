@@ -14,10 +14,10 @@
 import { Component, Watch, Vue, Prop } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import OtherTextComponent from "./OtherTextComponent.vue";
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import { OtherTextViewInfo } from "@/@types/gameObject";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";

@@ -59,8 +59,6 @@ import CharacterSelect from "@/app/basic/common/components/select/CharacterSelec
 import UserSelect from "@/app/basic/common/components/select/UserSelect.vue";
 import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LanguageManager from "@/LanguageManager";
 import { listToEmpty } from "@/app/core/Utility";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 

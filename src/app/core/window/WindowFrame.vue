@@ -146,11 +146,11 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { WindowInfo, WindowMoveInfo, WindowResizeInfo } from "@/@types/window";
-import { Point, Rectangle, Size } from "@/@types/address";
+import { Point, Rectangle, Size } from "address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import {
   createPoint,
   createRectangle,

@@ -5,7 +5,7 @@ import {
   WindowTableInfo
 } from "@/@types/window";
 import { calcWindowPosition, createPoint, getWindowSize } from "../Coordinate";
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import { getCssPxNum } from "../Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import TaskManager from "@/app/core/task/TaskManager";

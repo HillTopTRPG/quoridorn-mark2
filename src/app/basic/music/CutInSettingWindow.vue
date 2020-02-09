@@ -69,6 +69,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { StoreUseData } from "@/@types/store";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import { CutInDeclareInfo, CutInPlayingInfo } from "@/@types/room";
 
 @Component({
   components: { TableComponent, CtrlButton },

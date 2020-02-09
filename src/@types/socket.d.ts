@@ -2,8 +2,14 @@ import { ChangeType } from "nekostore/lib/DocumentChange";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import { TargetVersion } from "@/app/core/api/Github";
 
+/**
+ * マップのデフォルト形状
+ */
 type MapShape = "square" | "horizontal-hex" | "vertical-hex";
 
+/**
+ * 部屋の追加情報
+ */
 export type RoomInfoExtend = {
   visitable: boolean;
   chatWindow: boolean;

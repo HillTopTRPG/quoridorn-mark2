@@ -4,7 +4,7 @@ import { WindowInfo } from "@/@types/window";
 import { Mixin } from "vue-mixin-decorator";
 import TaskManager from "@/app/core/task/TaskManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 
 // @ts-ignore
 @Mixin

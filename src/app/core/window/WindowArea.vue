@@ -15,7 +15,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import { WindowInfo } from "@/@types/window";
 import WindowFrame from "./WindowFrame.vue";
 import WindowManager from "./WindowManager";

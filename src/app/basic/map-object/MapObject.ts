@@ -1,4 +1,4 @@
-import { Point } from "@/@types/address";
+import { Point } from "address";
 
 type SetDataOrderArg = {
   key: string;

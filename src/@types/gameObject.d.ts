@@ -1,5 +1,13 @@
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import { Texture } from "@/@types/room";
+
+type MapObjectType =
+  | "character"
+  | "map-mask"
+  | "map-marker"
+  | "dice-symbol"
+  | "chit"
+  | "floor-tile";
 
 type VolatileMapObject = {
   moveFrom: Point;

@@ -9,9 +9,8 @@ import {
   calcDistance,
   createPoint
 } from "@/app/core/Coordinate";
-import { Matrix, Point, Rectangle } from "@/@types/address";
+import { Matrix, Point, Rectangle } from "address";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { getCssPxNum } from "@/app/core/Css";
 import CssManager from "@/app/core/css/CssManager";
 
 type Coordinates = {

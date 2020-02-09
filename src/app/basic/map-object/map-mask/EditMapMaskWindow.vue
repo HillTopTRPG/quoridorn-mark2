@@ -135,7 +135,7 @@ import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { DataReference } from "@/@types/data";
 import { MapMaskStore } from "@/@types/gameObject";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";

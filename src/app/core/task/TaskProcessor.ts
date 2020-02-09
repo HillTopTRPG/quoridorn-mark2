@@ -1,5 +1,5 @@
 import TaskManager from "./TaskManager";
-import { TaskProcess } from "@/@types/task";
+import { TaskProcess } from "task";
 import {
   generateMethodDecorator,
   generateMethodDecoratorFactory,

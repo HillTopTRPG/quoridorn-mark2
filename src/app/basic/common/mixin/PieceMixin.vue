@@ -15,12 +15,12 @@ import {
   OtherTextViewInfo,
   VolatileMapObject
 } from "@/@types/gameObject";
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
-import { ContextTaskInfo } from "@/@types/context";
+import { ContextTaskInfo } from "context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Mixin

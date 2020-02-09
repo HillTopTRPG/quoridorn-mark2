@@ -1,4 +1,4 @@
-import { Operand, CompareInfo, SimpleCompareInfo } from "@/@types/compare";
+import { Operand, CompareInfo, SimpleCompareInfo } from "compare";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import SocketFacade, {
   permissionCheck

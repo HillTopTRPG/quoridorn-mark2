@@ -1,7 +1,14 @@
 import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
-import { ActorGroup, StoreObj, StoreUseData } from "@/@types/store";
-import { MapAndLayer, MapLayer, Screen, UserData } from "@/@types/room";
+import { StoreObj, StoreUseData } from "@/@types/store";
+import {
+  MapAndLayer,
+  MapLayer,
+  Screen,
+  UserData,
+  Image,
+  ActorGroup
+} from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
@@ -18,8 +25,6 @@ import {
   TagNoteStore
 } from "@/@types/gameObject";
 import { ClientRoomInfo } from "@/@types/socket";
-import { Image } from "@/@types/image";
-import { ImageTagInfo } from "@/app/basic/image/store_public_image";
 
 export default class GameObjectManager {
   // シングルトン

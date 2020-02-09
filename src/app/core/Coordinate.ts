@@ -1,4 +1,4 @@
-import { Anchor, Point, Rectangle, Size } from "@/@types/address";
+import { Anchor, Point, Rectangle, Size } from "address";
 import { WindowSize } from "@/@types/window";
 import WindowManager from "@/app/core/window/WindowManager";
 import { getCssPxNum } from "@/app/core/Css";

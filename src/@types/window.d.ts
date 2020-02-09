@@ -1,4 +1,4 @@
-import { Anchor, Point, Size } from "@/@types/address";
+import { Anchor, Point, Size } from "address";
 
 export type WindowSize = {
   widthEm: number;

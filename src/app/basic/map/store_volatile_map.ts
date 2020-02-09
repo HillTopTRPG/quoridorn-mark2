@@ -1,4 +1,4 @@
-import { Matrix } from "@/@types/address";
+import { Matrix } from "address";
 
 export type State = {
   grid: Matrix;

@@ -24,7 +24,7 @@ import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import { DiceSystem } from "@/@types/bcdice";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";

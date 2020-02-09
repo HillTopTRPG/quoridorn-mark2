@@ -143,18 +143,24 @@ import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
 import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import { loadYaml } from "@/app/core/File";
 import {
   convertNumber,
   getFileNameArgList,
   getUrlParam
 } from "@/app/core/Utility";
-import { Image } from "@/@types/image";
-import { MapLayer, Screen, RoomData, MapLayerType } from "@/@types/room";
+import {
+  Screen,
+  RoomData,
+  MapLayerType,
+  Image,
+  CutInDeclareInfo
+} from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import { ModeInfo } from "mode";
 
 @Component({
   components: {

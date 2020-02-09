@@ -40,7 +40,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { TabInfo } from "@/@types/window";
 import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";

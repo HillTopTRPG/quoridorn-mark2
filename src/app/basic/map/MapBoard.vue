@@ -25,7 +25,7 @@ import SocketFacade, {
   getStoreObj
 } from "@/app/core/api/app-server/SocketFacade";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { Matrix, Size } from "@/@types/address";
+import { Matrix, Size } from "address";
 import { createSize } from "@/app/core/Coordinate";
 
 @Component

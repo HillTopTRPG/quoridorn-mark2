@@ -29,11 +29,11 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import ResizeKnob from "../window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import {
   createPoint,
   getEventPoint,

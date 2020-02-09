@@ -24,6 +24,7 @@ import { zeroPadding } from "@/app/core/Utility";
 import CssManager from "@/app/core/css/CssManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { CutInDeclareInfo } from "@/@types/room";
 
 @Component({
   components: { CtrlButton }

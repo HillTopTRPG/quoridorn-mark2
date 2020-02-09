@@ -1,5 +1,6 @@
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
+import { CutInDeclareInfo } from "@/@types/room";
 
 export default class BgmManager {
   // シングルトン

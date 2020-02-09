@@ -31,8 +31,8 @@ import {
   ContextItemDeclareBlock,
   ContextItemDeclareInfo,
   ContextTaskInfo
-} from "@/@types/context";
-import { Task, TaskResult } from "@/@types/task";
+} from "context";
+import { Task, TaskResult } from "task";
 import { judgeCompare } from "../Compare";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";

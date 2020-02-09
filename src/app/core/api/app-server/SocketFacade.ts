@@ -5,12 +5,10 @@ import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCo
 import {
   PermissionNode,
   PermissionRule,
-  ActorGroup,
   StoreObj,
   StoreUseData
 } from "@/@types/store";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { ConnectInfo, Interoperability } from "@/@types/connect";
 import TaskManager from "@/app/core/task/TaskManager";
 import {
   DefaultServerInfo,
@@ -18,13 +16,16 @@ import {
   ServerTestResult
 } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
-import { Image } from "@/@types/image";
 import {
   MapAndLayer,
   MapLayer,
   Screen,
   RoomData,
-  UserData
+  UserData,
+  Image,
+  ActorGroup,
+  CutInDeclareInfo,
+  CutInPlayingInfo
 } from "@/@types/room";
 import {
   CharacterStore,
@@ -48,6 +49,19 @@ import yaml from "js-yaml";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 const connectYamlPath = "/static/conf/connect.yaml";
+
+export type ConnectInfo = {
+  quoridornServer: string | string[];
+  bcdiceServer: string;
+  skywayApiKey: string;
+  skywayConnectType: string;
+  socketTimeout: number;
+};
+
+export type Interoperability = {
+  server: string;
+  client: string;
+};
 
 export function getStoreObj<T>(
   doc: DocumentSnapshot<StoreObj<T>>

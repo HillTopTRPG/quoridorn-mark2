@@ -49,13 +49,13 @@ import Context from "@/app/core/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
 import WindowArea from "@/app/core/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
-import { Point } from "@/@types/address";
+import { Point } from "address";
 import { createPoint, getEventPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
@@ -70,6 +70,8 @@ import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import BgmManager from "@/app/basic/music/BgmManager";
 import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
 import { OtherTextViewInfo } from "@/@types/gameObject";
+import { ModeInfo } from "mode";
+import { CutInPlayingInfo } from "@/@types/room";
 
 @Component({
   components: {

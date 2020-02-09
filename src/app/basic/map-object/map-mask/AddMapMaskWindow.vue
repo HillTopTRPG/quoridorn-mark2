@@ -122,7 +122,7 @@
 import { Component, Watch } from "vue-property-decorator";
 import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import { MapMaskStore } from "@/@types/gameObject";
 import { AddObjectInfo } from "@/@types/data";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";

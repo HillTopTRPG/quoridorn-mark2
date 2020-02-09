@@ -16,7 +16,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 

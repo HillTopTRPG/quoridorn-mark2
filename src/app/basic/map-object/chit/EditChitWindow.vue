@@ -97,7 +97,7 @@ import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import BaseInput from "../../../core/component/BaseInput.vue";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import { DataReference } from "@/@types/data";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction } from "@/@types/room";

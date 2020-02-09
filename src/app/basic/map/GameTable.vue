@@ -48,11 +48,10 @@ import {
   createPoint,
   getEventPoint
 } from "@/app/core/Coordinate";
-import { Point } from "@/@types/address";
-import { Task, TaskResult } from "@/@types/task";
+import { Point } from "address";
+import { Task, TaskResult } from "task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import Logging from "@/app/core/logger/Logging";
-import { ContextTaskInfo } from "@/@types/context";
+import { ContextTaskInfo } from "context";
 import TaskProcessor, {
   TaskProcessorSimple
 } from "@/app/core/task/TaskProcessor";
@@ -65,6 +64,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
+import { ModeInfo } from "mode";
 
 @Component({
   components: {

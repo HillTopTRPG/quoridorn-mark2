@@ -1,5 +1,5 @@
 import { all, create } from "mathjs";
-import { StandImageInfo } from "@/@types/image";
+import { StandImageInfo } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 

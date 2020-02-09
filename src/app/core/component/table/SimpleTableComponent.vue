@@ -144,8 +144,8 @@ import {
 } from "@/@types/window";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
-import { Point } from "@/@types/address";
+import { Task, TaskResult } from "task";
+import { Point } from "address";
 import {
   calcStrWidth,
   createPoint,

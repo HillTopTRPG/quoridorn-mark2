@@ -1,5 +1,6 @@
-import { Size } from "@/@types/address";
+import { Size } from "address";
 import { createSize } from "@/app/core/Coordinate";
+import { CutInDeclareInfo } from "@/@types/room";
 
 type PlayerInfo = {
   player: any;

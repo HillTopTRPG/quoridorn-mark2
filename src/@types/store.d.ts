@@ -1,3 +1,6 @@
+/**
+ * DBに格納されるデータのラッパー
+ */
 export type StoreObj<T> = {
   order: number;
   exclusionOwner: string | null; // 排他制御のオーナー
@@ -15,36 +18,50 @@ export type StoreObj<T> = {
   updateTime: Date | null;
 };
 
+/**
+ * DBのメタデータ
+ */
 type StoreMetaData = {
   id: string | null;
 };
 
+/**
+ * メタデータ付き、DBデータ
+ */
 export type StoreUseData<T> = StoreObj<T> & StoreMetaData;
 
+/**
+ * 権限対象の種別
+ */
 export type PermissionNodeType = "group" | "user" | "character" | "owner";
+
+/**
+ * 権限対象1件の表現
+ */
 export type PermissionNode = {
   type: PermissionNodeType;
   id?: string;
 };
 
+/**
+ * 権限のルールタイプ
+ */
 export type PermissionRuleType = "none" | "allow" | "deny";
+
+/**
+ * 権限のルール単位の表現
+ */
 export type PermissionRule = {
   type: PermissionRuleType;
   list: PermissionNode[];
 };
 
+/**
+ * 表示・編集・権限編集の3種の権限の集合体。
+ * これがDBデータ1件ごとに設定される
+ */
 export type Permission = {
   view: PermissionRule;
   edit: PermissionRule;
   chmod: PermissionRule;
-};
-
-export type ActorGroup = {
-  name: string;
-  isSystem: boolean;
-  isChatGroup: boolean;
-  list: {
-    type: "user" | "character";
-    id: string;
-  }[];
 };

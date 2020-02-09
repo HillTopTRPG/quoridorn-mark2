@@ -6,7 +6,7 @@ import {
   TaskListenerParameterContainer,
   TaskProcess,
   TaskResult
-} from "@/@types/task";
+} from "task";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 const uuid = require("uuid");

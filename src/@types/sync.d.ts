@@ -1,3 +1,7 @@
+/*
+ * このファイルは廃止予定
+ */
+
 type SyncObj = {
   key: string;
   name: string;

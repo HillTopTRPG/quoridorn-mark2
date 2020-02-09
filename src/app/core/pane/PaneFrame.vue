@@ -71,9 +71,9 @@ import {
   getRightPaneRectangle
 } from "../Coordinate";
 import { getCssPxNum } from "../Css";
-import { Point, Rectangle } from "@/@types/address";
+import { Point, Rectangle } from "address";
 import TaskProcessor from "../task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import TitleIcon from "../window/TitleIcon.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 

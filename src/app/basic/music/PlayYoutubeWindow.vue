@@ -48,8 +48,13 @@ import { getCssPxNum } from "@/app/core/Css";
 import CssManager from "@/app/core/css/CssManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import TaskManager from "@/app/core/task/TaskManager";
+import {
+  CutInDeclareInfo,
+  YoutubeMuteChangeInfo,
+  YoutubeVolumeChangeInfo
+} from "@/@types/room";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }

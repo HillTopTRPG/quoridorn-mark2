@@ -420,7 +420,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { TabInfo } from "@/@types/window";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "@/@types/task";
+import { Task, TaskResult } from "task";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { StoreUseData } from "@/@types/store";
