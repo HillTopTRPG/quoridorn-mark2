@@ -23,11 +23,29 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <map-layer-select v-model="layerId" />
+          <screen-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
     <table class="info-table">
+      <tr>
+        <th>
+          <label
+            :for="`${key}-name`"
+            class="label-name label-input"
+            v-t="'label.name'"
+          ></label>
+        </th>
+        <td class="value-cell">
+          <base-input
+            :id="`${key}-name`"
+            class="value-name"
+            type="text"
+            :value="name"
+            @input="name = $event.target.value"
+          />
+        </td>
+      </tr>
       <tr>
         <th>
           <label
@@ -100,16 +118,14 @@ import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue"
 import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { ChitStore } from "@/@types/gameObject";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 
 @Component({
   components: {
-    MapLayerSelect,
+    ScreenLayerSelect,
     BackgroundLocationSelect,
     SimpleTabComponent,
     ImagePickerComponent,
@@ -121,6 +137,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private imageList = GameObjectManager.instance.imageList;
+  private name: string = LanguageManager.instance.getText("type.chit");
   private otherText: string = "";
   private height: number = 1;
   private width: number = 1;
@@ -130,7 +147,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
     ml => ml.data!.type === "character"
   )[0].id!;
 
@@ -211,11 +228,16 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
   ): Promise<TaskResult<never> | void> {
     if (task.value!.dropWindow !== this.key) return;
     const point = task.value!.point;
+    const matrix = task.value!.matrix;
 
     const owner = GameObjectManager.instance.mySelfId;
-    const chitInfo: ChitStore = {
+    await GameObjectManager.instance.addScreenObject({
+      type: "chit",
+      name: this.name,
       x: point.x,
       y: point.y,
+      row: matrix.row,
+      column: matrix.column,
       owner,
       columns: this.width,
       rows: this.height,
@@ -234,12 +256,9 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
           backgroundSize: this.backgroundSize!
         }
       ],
-      useBackGround: 0,
+      textureIndex: 0,
       angle: 0
-    };
-    const chitCC = SocketFacade.instance.chitCC();
-    const docId = await chitCC.touch();
-    await chitCC.add(docId, chitInfo);
+    });
 
     task.resolve();
   }
@@ -328,6 +347,10 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
 .value-width,
 .value-height {
   width: 3em;
+}
+
+.value-name {
+  width: 100%;
 }
 
 .container {

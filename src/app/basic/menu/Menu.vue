@@ -264,15 +264,13 @@ export default class Menu extends Vue {
   @Prop({ type: Object, required: true })
   private roomInfo!: ClientRoomInfo;
 
-  @Action("windowOpen") private windowOpen: any;
-  @Action("setProperty") private setProperty: any;
-  @Action("doResetWindowLocate") private doResetWindowLocate: any;
-  @Action("exportStart") private exportStart: any;
-  @Action("addListObj") private addListObj: any;
-  @Action("saveChatLogHtml") private saveChatLogHtml: any;
-  @Getter("roomName") private roomName: any;
-  @Getter("peerId") private peerId: any;
-  @Getter("members") private members: any;
+  @Action("windowOpenDeprecated") private windowOpenDeprecated: any;
+  @Action("setPropertyDeprecated") private setPropertyDeprecated: any;
+  @Action("doResetWindowLocateDeprecated")
+  private doResetWindowLocateDeprecated: any;
+  @Action("exportStartDeprecated") private exportStartDeprecated: any;
+  @Action("addListObjDeprecated") private addListObjDeprecated: any;
+  @Action("saveChatLogHtmlDeprecated") private saveChatLogHtmlDeprecated: any;
 
   private isConnectHover: boolean = false;
   private isSelecting: boolean = false;
@@ -318,7 +316,7 @@ export default class Menu extends Vue {
   /** 共有メモボタン押下 */
   @VueEvent
   private clickPublicMemo() {
-    this.addListObj({
+    this.addListObjDeprecated({
       propName: "publicMemo",
       kind: "publicMemo",
       targetList: [],
@@ -338,24 +336,24 @@ export default class Menu extends Vue {
    * ----------------- */
   /** セーブ */
   clickExport(): void {
-    this.exportStart(true);
+    this.exportStartDeprecated(true);
     this.menuClick();
   }
 
   /** ロード */
   clickImport(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "ロード",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** チャットログ保存 */
   clickChatLog(): void {
-    this.saveChatLogHtml();
+    this.saveChatLogHtmlDeprecated();
     this.menuClick();
   }
 
@@ -364,18 +362,18 @@ export default class Menu extends Vue {
    * ----------------- */
   /** フォントサイズ調整 */
   clickSettingFontSize(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "フォントサイズ変更",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** ウィンドウ配置初期化 */
   clickResetWindowLocate(): void {
-    this.doResetWindowLocate();
+    this.doResetWindowLocateDeprecated();
     this.menuClick();
   }
 
@@ -384,24 +382,24 @@ export default class Menu extends Vue {
    * ----------------- */
   /** キャラクター追加 */
   clickAddCharacter(): void {
-    this.windowOpen("private.display.addCharacterSettingWindow");
+    this.windowOpenDeprecated("private.display.addCharacterSettingWindow");
     this.menuClick();
   }
 
   /** 範囲追加 */
   clickAddRange(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "範囲追加",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** チット作成 */
   clickAddChit(): void {
-    this.windowOpen("private.display.addChitWindow");
+    this.windowOpenDeprecated("private.display.addChitWindow");
     this.menuClick();
   }
 
@@ -422,52 +420,52 @@ export default class Menu extends Vue {
    * ----------------- */
   /** マップ変更 */
   clickChangeMap(): void {
-    this.windowOpen("private.display.editMapWindow");
+    this.windowOpenDeprecated("private.display.editMapWindow");
     this.menuClick();
   }
 
   /** フロアタイル追加 */
   clickAddFloorTile(): void {
-    this.windowOpen("private.display.addFloorTileWindow");
+    this.windowOpenDeprecated("private.display.addFloorTileWindow");
     this.menuClick();
   }
 
   /** マップマスク追加 */
   clickAddMapMask(): void {
-    this.windowOpen("private.display.addMapMaskWindow");
+    this.windowOpenDeprecated("private.display.addMapMaskWindow");
     this.menuClick();
   }
 
   /** 簡易マップ作成 */
   clickCreateEasyMap(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "簡易マップ",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** マップ状態保存 */
   clickSaveMap(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "マップ保存",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** マップ切り替え */
   clickSwitchMap(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "マップ切り替え",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
@@ -476,29 +474,29 @@ export default class Menu extends Vue {
    * ----------------- */
   /** ファイルアップローダー */
   clickFileUploader(): void {
-    this.windowOpen("private.display.fileUploaderWindow");
+    this.windowOpenDeprecated("private.display.fileUploaderWindow");
     this.menuClick();
   }
 
   /** タグ編集 */
   clickTagEdit(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "画像タグ編集",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** 画像削除 */
   clickDeleteImage(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "画像削除",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
@@ -507,24 +505,24 @@ export default class Menu extends Vue {
    * ----------------- */
   /** ようこそ */
   clickWelcome(): void {
-    this.windowOpen("private.display.welcomeWindow");
+    this.windowOpenDeprecated("private.display.welcomeWindow");
     this.menuClick();
   }
 
   /** バージョン */
   clickVersion(): void {
-    this.windowOpen("private.display.versionWindow");
+    this.windowOpenDeprecated("private.display.versionWindow");
     this.menuClick();
   }
 
   /** マニュアル */
   clickManual(): void {
-    this.setProperty({
+    this.setPropertyDeprecated({
       property: "private.display.unSupportWindow.title",
       value: "マニュアル",
       logOff: true
     });
-    this.windowOpen("private.display.unSupportWindow");
+    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
@@ -539,7 +537,7 @@ export default class Menu extends Vue {
    * ----------------- */
   /** 開発履歴 */
   clickDevHistory(): void {
-    this.windowOpen("private.display.devLogWindow");
+    this.windowOpenDeprecated("private.display.devLogWindow");
     this.menuClick();
   }
 

@@ -17,10 +17,9 @@
 <script lang="ts">
 import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 import { Component } from "vue-property-decorator";
-import { ChitStore } from "@/@types/gameObject";
 
 @Component
-export default class Chit extends PieceMixin<ChitStore> {}
+export default class Chit extends PieceMixin<"chit"> {}
 </script>
 
 <style scoped lang="scss">

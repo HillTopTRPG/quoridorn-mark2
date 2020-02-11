@@ -1,13 +1,13 @@
 import { UserType } from "@/@types/socket";
-import { MapObjectType, Place } from "@/@types/gameObject";
-import { Point } from "address";
+import { Place } from "@/@types/gameObject";
+import { Matrix, Point } from "address";
 
 /**
  * roomDataCCのデータ定義
  * 部屋1つに関する設定情報
  */
 type RoomData = {
-  mapId: string;
+  screenId: string;
   isDrawGridLine: boolean;
   isDrawGridId: boolean;
   isFitGrid: boolean;
@@ -77,7 +77,7 @@ type ChatLinkable = {
 /**
  * マップレイヤーの種別
  */
-type MapLayerType =
+type ScreenLayerType =
   | "floor-tile"
   | "map-mask"
   | "map-marker"
@@ -86,37 +86,41 @@ type MapLayerType =
   | "other";
 
 /**
- * mapLayerCCのデータ定義
+ * screenLayerCCのデータ定義
  * マップレイヤー1層の情報
  */
-type MapLayer = {
-  type: MapLayerType;
+type ScreenLayer = {
+  type: ScreenLayerType;
   defaultOrder: number; // マップ設定をいじらなければこのオーダー順に従う(= z-index)
-  deletable: boolean; // システムレイヤーは削除させない
-  isDefault: boolean; // マップ追加時に自動的に紐づけられるレイヤーはtrue
+  isSystem: boolean; // システムレイヤーは削除させない
   name?: string; // ユーザが追加するレイヤーのみこのフィールドを使う
 };
 
 /**
- * マップレイヤーが表示される際にオブジェクトに対して上書き設定する情報
+ * screenAndLayerCCのデータ定義
+ * マップとレイヤーの紐付き1本単位の情報
  */
-type MapObjectLocation = Point & {
-  objectId: string;
-  objectType: MapObjectType;
-  status: "normal" | string;
-  place: Place;
-  entering: "normal" | string; // 登場の仕方
+type ScreenAndLayer = {
+  screenId: string;
+  layerId: string;
+  isUse: boolean;
 };
 
 /**
- * mapAndLayerCCのデータ定義
- * マップとレイヤーの紐付き1本単位の情報
+ * screenAndObjectCCのデータ定義
+ * マップとオブジェクトの紐付き1本単位の情報
  */
-type MapAndLayer = {
-  mapId: string;
-  layerId: string;
+type ScreenAndObject = {
+  screenId: string;
+  objectId: string;
+  startTimeStatus: "normal" | string | null; // マップに同期切替した際に設定されるステータス（キャラクターのみ）
+  startTimePlace: Place | null; // マップに同期切替した際に設定される場所
+  startTimePoint: Point | null; // マップに同期切替した際に設定される座標
+  startTimeMatrix: Matrix | null; // マップに同期切替した際に設定される座標
+  isOriginalPoint: boolean; // マップ独自の座標を持つかどうか
+  originalPoint: Point | null; // 独自座標を持つならその座標
+  originalMatrix: Matrix | null; // 独自座標を持つならその座標
   entering: "normal" | string; // 登場の仕方
-  objectList: MapObjectLocation[];
 };
 
 /**

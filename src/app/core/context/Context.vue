@@ -40,6 +40,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { clone } from "@/app/core/Utility";
 import LanguageManager from "@/LanguageManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -81,7 +82,14 @@ export default class Context extends Vue {
     this.x = task.value!.x - 5;
     this.y = task.value!.y - 5;
 
-    this.title = LanguageManager.instance.getText(`type.${this.type}`);
+    const list = GameObjectManager.instance.getList(this.type)!;
+    const obj: any = list ? list.filter(o => o.id === this.target)[0] : null;
+    const name =
+      obj && obj.data && "name" in obj.data
+        ? "-" + obj.data.name.toString()
+        : "";
+
+    this.title = LanguageManager.instance.getText(`type.${this.type}`) + name;
 
     window.console.log(
       `【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`

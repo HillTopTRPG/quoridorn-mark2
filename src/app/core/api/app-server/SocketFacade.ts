@@ -17,23 +17,20 @@ import {
 } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import {
-  MapAndLayer,
-  MapLayer,
+  ScreenAndLayer,
+  ScreenLayer,
   Screen,
   RoomData,
   UserData,
   Image,
   ActorGroup,
   CutInDeclareInfo,
-  CutInPlayingInfo
+  CutInPlayingInfo,
+  ScreenAndObject
 } from "@/@types/room";
 import {
-  CharacterStore,
-  ChitStore,
-  DiceSymbolStore,
   ExtraStore,
-  FloorTileStore,
-  MapMaskStore,
+  ScreenObject,
   PropertyFaceStore,
   PropertySelectionStore,
   PropertyStore,
@@ -438,8 +435,24 @@ export default class SocketFacade {
     return this.roomCollectionController<Screen>("screen-list");
   }
 
-  public mapAndLayerCC(): NekostoreCollectionController<MapAndLayer> {
-    return this.roomCollectionController<MapAndLayer>("map-and-layer-list");
+  public screenLayerCC(): NekostoreCollectionController<ScreenLayer> {
+    return this.roomCollectionController<ScreenLayer>("screen-layer-list");
+  }
+
+  public screenObjectCC(): NekostoreCollectionController<ScreenObject> {
+    return this.roomCollectionController<ScreenObject>("screen-object-list");
+  }
+
+  public screenAndLayerCC(): NekostoreCollectionController<ScreenAndLayer> {
+    return this.roomCollectionController<ScreenAndLayer>(
+      "screen-and-layer-list"
+    );
+  }
+
+  public screenAndObjectCC(): NekostoreCollectionController<ScreenAndObject> {
+    return this.roomCollectionController<ScreenAndObject>(
+      "screen-and-object-list"
+    );
   }
 
   public tagNoteCC(): NekostoreCollectionController<TagNoteStore> {
@@ -494,32 +507,8 @@ export default class SocketFacade {
     );
   }
 
-  public characterCC(): NekostoreCollectionController<CharacterStore> {
-    return this.roomCollectionController<CharacterStore>("character-list");
-  }
-
   public extraCC(): NekostoreCollectionController<ExtraStore> {
     return this.roomCollectionController<ExtraStore>("extra-list");
-  }
-
-  public diceSymbolCC(): NekostoreCollectionController<DiceSymbolStore> {
-    return this.roomCollectionController<DiceSymbolStore>("dice-symbol-list");
-  }
-
-  public floorTileCC(): NekostoreCollectionController<FloorTileStore> {
-    return this.roomCollectionController<FloorTileStore>("floor-tile-list");
-  }
-
-  public chitCC(): NekostoreCollectionController<ChitStore> {
-    return this.roomCollectionController<ChitStore>("chit-list");
-  }
-
-  public mapMaskCC(): NekostoreCollectionController<MapMaskStore> {
-    return this.roomCollectionController<MapMaskStore>("map-mask-list");
-  }
-
-  public mapLayerCC(): NekostoreCollectionController<MapLayer> {
-    return this.roomCollectionController<MapLayer>("map-layer-list");
   }
 
   public actorGroupCC(): NekostoreCollectionController<ActorGroup> {
@@ -551,21 +540,17 @@ export default class SocketFacade {
       case "property-face-list":
         return this.propertyFaceCC();
       case "character":
-        return this.characterCC();
+      case "dice-symbol":
+      case "floor-tile":
+      case "chit":
+      case "map-mask":
+        return this.screenObjectCC();
       case "extra":
         return this.extraCC();
-      case "dice-symbol":
-        return this.diceSymbolCC();
-      case "floor-tile":
-        return this.floorTileCC();
-      case "chit":
-        return this.chitCC();
-      case "map-mask":
-        return this.mapMaskCC();
       case "map-layer":
-        return this.mapLayerCC();
+        return this.screenLayerCC();
       case "map-and-layer":
-        return this.mapAndLayerCC();
+        return this.screenAndLayerCC();
       case "tag-note-list":
         return this.tagNoteCC();
       case "role-group-list":
@@ -573,46 +558,5 @@ export default class SocketFacade {
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }
-  }
-
-  public async addMap(
-    screen: Screen
-  ): Promise<{ mapId: string; mapAndLayerIdList: string[] }> {
-    /* --------------------------------------------------
-     * マップデータのプリセットデータ投入
-     */
-    const screenListCC = SocketFacade.instance.screenListCC();
-    const mapId = await screenListCC.add(await screenListCC.touch(), screen);
-
-    /* --------------------------------------------------
-     * マップとレイヤーの紐づきのプリセットデータ投入
-     */
-    const mapAndLayerCC = SocketFacade.instance.mapAndLayerCC();
-
-    const mapAndLayerIdList: string[] = [];
-    const addMapAndLayer = async (
-      ml: StoreUseData<MapLayer>
-    ): Promise<void> => {
-      const mapAndLayerId = await mapAndLayerCC.touch();
-      mapAndLayerIdList.push(mapAndLayerId);
-      await mapAndLayerCC.add(mapAndLayerId, {
-        mapId,
-        layerId: ml.id!,
-        entering: "normal",
-        objectList: []
-      });
-    };
-
-    // pushImageTagを直列の非同期で全部実行する
-    const mapLayerCC = SocketFacade.instance.mapLayerCC();
-    await (await mapLayerCC.getList(false))
-      .filter(ml => ml.data!.isDefault)
-      .map((ml: StoreUseData<MapLayer>) => () => addMapAndLayer(ml))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-    return {
-      mapId,
-      mapAndLayerIdList
-    };
   }
 }

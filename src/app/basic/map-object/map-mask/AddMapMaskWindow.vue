@@ -57,11 +57,29 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <map-layer-select v-model="layerId" />
+          <screen-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
     <table class="info-table">
+      <tr>
+        <th>
+          <label
+            :for="`${key}-name`"
+            class="label-name label-input"
+            v-t="'label.name'"
+          ></label>
+        </th>
+        <td class="value-cell">
+          <base-input
+            :id="`${key}-name`"
+            class="value-name"
+            type="text"
+            :value="name"
+            @input="name = $event.target.value"
+          />
+        </td>
+      </tr>
       <tr>
         <th>
           <label
@@ -123,7 +141,6 @@ import { Component, Watch } from "vue-property-decorator";
 import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { MapMaskStore } from "@/@types/gameObject";
 import { AddObjectInfo } from "@/@types/data";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
@@ -134,15 +151,14 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
 import { TabInfo } from "@/@types/window";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 
 @Component({
   components: {
-    MapLayerSelect,
+    ScreenLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -153,13 +169,14 @@ import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.
 export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
+  private name: string = LanguageManager.instance.getText("type.map-mask");
   private text: string = "";
   private color: string = "rgba(255, 0, 0, 1)";
   private height: number = 1;
   private width: number = 1;
   private isMulti: boolean = false;
   private isMounted: boolean = false;
-  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
   private otherText: string = "";
@@ -215,17 +232,22 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   ): Promise<TaskResult<never> | void> {
     if (task.value!.dropWindow !== this.key) return;
     const point = task.value!.point;
+    const matrix = task.value!.matrix;
 
     const owner = GameObjectManager.instance.mySelfId;
     const colorObj = parseColor(this.color);
     const backgroundColor = colorObj.getRGBA();
     const fontColor = colorObj.getRGBReverse();
-    const mapMaskInfo: MapMaskStore = {
+    await GameObjectManager.instance.addScreenObject({
+      type: "map-mask",
+      name: this.name,
       x: point.x,
       y: point.y,
-      owner,
-      columns: this.width,
+      row: matrix.row,
+      column: matrix.column,
       rows: this.height,
+      columns: this.width,
+      owner,
       place: "field",
       isHideBorder: false,
       isHideHighlight: false,
@@ -240,12 +262,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
           text: this.text
         }
       ],
-      useBackGround: 0,
+      textureIndex: 0,
       angle: 0
-    };
-    const mapMaskCC = SocketFacade.instance.mapMaskCC();
-    const docId = await mapMaskCC.touch();
-    await mapMaskCC.add(docId, mapMaskInfo);
+    });
 
     if (!this.isMulti) await this.close();
     task.resolve();
@@ -298,6 +317,10 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
 .value-width,
 .value-height {
   width: 3em;
+}
+
+.value-name {
+  width: 100%;
 }
 
 .container {

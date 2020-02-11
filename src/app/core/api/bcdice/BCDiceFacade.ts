@@ -107,4 +107,37 @@ export default class BCDiceFacade {
     window.console.log(info);
     return info.name;
   }
+
+  /**
+   * ダイスコマンドを送信して結果を取得する
+   * @param system
+   * @param command
+   */
+  public static async sendBcdiceServer({
+    system,
+    command
+  }: {
+    system: string;
+    command: string;
+  }) {
+    return new Promise((resolve: Function, reject: Function) => {
+      const params: string = [
+        `system=${system}`,
+        `command=${encodeURIComponent(command)}`
+      ].join("&");
+      const url = `${SocketFacade.instance.connectInfo.bcdiceServer}/v1/diceroll?${params}`;
+
+      try {
+        fetch(url)
+          .then(response => response.json())
+          .then(json => {
+            resolve(json);
+          });
+        // .catch(err => { /* 無視 */ }); // reject(err)
+      } catch (error) {
+        window.console.error(error);
+        // 無視
+      }
+    });
+  }
 }

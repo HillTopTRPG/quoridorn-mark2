@@ -46,6 +46,7 @@
     - youtube-mute-change
     - other-text-view
     - other-text-hide
+    - change-focus-screen-object
 
 - taskAttribute:
     isIgniteWithParam: false

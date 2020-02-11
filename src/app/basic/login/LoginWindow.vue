@@ -153,7 +153,7 @@ import {
 import {
   Screen,
   RoomData,
-  MapLayerType,
+  ScreenLayerType,
   Image,
   CutInDeclareInfo
 } from "@/@types/room";
@@ -1064,24 +1064,6 @@ export default class LoginWindow extends Mixins<
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
-     * マップレイヤーのプリセットデータ投入
-     */
-    const mapLayerCC = SocketFacade.instance.mapLayerCC();
-    const addMapLayer = async (type: MapLayerType, defaultOrder: number) => {
-      await mapLayerCC.add(await mapLayerCC.touch(), {
-        type,
-        defaultOrder,
-        isDefault: true,
-        deletable: false
-      });
-    };
-    await addMapLayer("floor-tile", 1);
-    await addMapLayer("map-mask", 2);
-    await addMapLayer("map-marker", 3);
-    await addMapLayer("dice-symbol", 4);
-    await addMapLayer("character", 5);
-
-    /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
     const screen: Screen = {
@@ -1135,7 +1117,26 @@ export default class LoginWindow extends Mixins<
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    const addMapResult = await SocketFacade.instance.addMap(screen);
+    const addMapResult = await GameObjectManager.instance.addScreen(screen);
+
+    /* --------------------------------------------------
+     * マップレイヤーのプリセットデータ投入
+     */
+    const addScreenLayer = async (
+      type: ScreenLayerType,
+      defaultOrder: number
+    ) => {
+      await GameObjectManager.instance.addScreenLayer({
+        type,
+        defaultOrder,
+        isSystem: true
+      });
+    };
+    await addScreenLayer("floor-tile", 1);
+    await addScreenLayer("map-mask", 2);
+    await addScreenLayer("map-marker", 3);
+    await addScreenLayer("dice-symbol", 4);
+    await addScreenLayer("character", 5);
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
@@ -1143,7 +1144,7 @@ export default class LoginWindow extends Mixins<
     const roomDataCC = SocketFacade.instance.roomDataCC();
 
     const roomData: RoomData = {
-      mapId: addMapResult.mapId,
+      screenId: addMapResult.screenId,
       isDrawGridLine: true,
       isDrawGridId: true,
       isFitGrid: true,

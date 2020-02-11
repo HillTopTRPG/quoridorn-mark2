@@ -45,7 +45,7 @@ import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import { StoreUseData } from "@/@types/store";
 import { Screen } from "@/@types/room";
@@ -56,7 +56,7 @@ import { DataReference } from "@/@types/data";
 
 @Component({
   components: {
-    MapLayerSelect,
+    ScreenLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -215,7 +215,7 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    await SocketFacade.instance.addMap(screen);
+    await GameObjectManager.instance.addScreen(screen);
   }
 }
 </script>

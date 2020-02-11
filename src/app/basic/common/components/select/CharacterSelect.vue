@@ -54,21 +54,20 @@ export default class CharacterSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    let characterList = GameObjectManager.instance.characterList;
-    if (this.placeList.length) {
-      characterList = characterList.filter(
-        c => this.placeList.findIndex(p => p === c.data!.place) > -1
-      );
-    }
-    this.optionInfoList = characterList.map(c => {
-      let text = c.data!.name;
-      return {
+    this.optionInfoList = GameObjectManager.instance.screenObjectList
+      .filter(mo => {
+        if (!(mo.data!.type === "character")) return false;
+        return (
+          this.placeList.length === 0 ||
+          this.placeList.findIndex(p => p === mo.data!.place) > -1
+        );
+      })
+      .map(c => ({
         key: c.id!,
         value: c.id!,
-        text,
+        text: c.data!.name,
         disabled: false
-      };
-    });
+      }));
     this.optionInfoList.unshift({
       key: "",
       value: "",

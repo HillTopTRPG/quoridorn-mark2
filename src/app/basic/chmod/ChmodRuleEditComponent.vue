@@ -84,10 +84,6 @@ export default class ChmodRuleEditComponent extends Vue {
   private characterListInput: string[] = [];
   private isUseOwner: boolean = false;
 
-  private actorGroupList = GameObjectManager.instance.actorGroupList;
-  private userList = GameObjectManager.instance.userList;
-  private characterList = GameObjectManager.instance.characterList;
-
   public key: string = "ChmodRuleEditComponent";
 
   @LifeCycle
@@ -115,7 +111,6 @@ export default class ChmodRuleEditComponent extends Vue {
     if (type === "none") {
       listToEmpty(this.permissionRule.list);
       listToEmpty(this.groupListInput);
-      listToEmpty(this.userListInput);
       listToEmpty(this.userListInput);
       this.isUseOwner = false;
     }

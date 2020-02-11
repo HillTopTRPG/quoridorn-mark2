@@ -102,16 +102,14 @@
 import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 import SightField from "@/app/basic/sight-field/SightField.vue";
 
-import { Component, Watch } from "vue-property-decorator";
-import { Getter } from "vuex-class";
-import { ChitStore } from "@/@types/gameObject";
+import { Component } from "vue-property-decorator";
 
 @Component({
   components: {
     SightField
   }
 })
-export default class Character extends PieceMixin<ChitStore> {
+export default class Character extends PieceMixin<"character"> {
   // @Getter("imageList") private imageList: any;
   // @Getter("propertyList") private propertyList: any;
   // @Getter("isViewPieceRotateMarker") private isViewPieceRotateMarker: any;

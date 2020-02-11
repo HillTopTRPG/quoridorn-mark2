@@ -11,7 +11,8 @@ import SocketFacade, {
 import { StoreUseData } from "@/@types/store";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
-  MapObject,
+  ScreenObject,
+  ScreenObjectType,
   OtherTextViewInfo,
   VolatileMapObject
 } from "@/@types/gameObject";
@@ -24,7 +25,9 @@ import { ContextTaskInfo } from "context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Mixin
-export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
+export default class PieceMixin<
+  T extends ScreenObjectType
+> extends AddressCalcMixin {
   @Prop({ type: String, required: true })
   protected docId!: string;
 
@@ -33,12 +36,15 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
 
   protected isHover: boolean = false;
   protected isMoving: boolean = false;
+  protected isFocused: boolean = false;
   protected inflateWidth: number = 0;
-  protected cc: NekostoreCollectionController<T> | null = null;
+  protected cc: NekostoreCollectionController<
+    ScreenObject
+  > = SocketFacade.instance.screenObjectCC();
   private imageList = GameObjectManager.instance.imageList;
 
   protected isMounted: boolean = false;
-  protected storeInfo: StoreUseData<T> | null = null;
+  protected storeInfo: StoreUseData<ScreenObject> | null = null;
 
   // HTMLで参照する項目
   protected imageSrc: string = "";
@@ -58,26 +64,16 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     return `${this.type}-${this.docId}`;
   }
 
-  private async getStoreInfo(): Promise<StoreUseData<T>> {
-    try {
-      this.cc = SocketFacade.instance.getCC(this.type);
-    } catch (err) {
-      window.console.error(err);
-      throw err;
-    }
-    return (await this.cc!.getData(this.docId)) as StoreUseData<T>;
-  }
-
   @LifeCycle
   protected async mounted() {
-    const storeInfo = await this.getStoreInfo();
+    const storeInfo = (await this.cc!.getData(this.docId))!;
     this.setTransform(storeInfo);
     this.storeInfo = storeInfo;
     await this.cc!.setSnapshot(this.docId, this.docId, snapshot => {
       if (!snapshot.data) return;
       if (snapshot.data.status === "modified") {
         this.isMoving = false;
-        this.storeInfo = getStoreObj<T>(snapshot);
+        this.storeInfo = getStoreObj<ScreenObject>(snapshot);
         this.onChangePoint();
       }
     });
@@ -86,12 +82,14 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
 
   protected get basicClasses() {
     if (!this.isMounted) return [];
-    return [
+    const result = [
       this.storeInfo!.data!.isLock ? "lock" : "non-lock",
       this.isHover ? "hover" : "non-hover",
       this.isMoving ? "moving" : "non-moving",
       this.storeInfo!.data!.isHideBorder ? "border-hide" : "border-view"
     ];
+    if (this.isFocused) result.push("focus");
+    return result;
   }
 
   protected get elm(): HTMLElement {
@@ -108,7 +106,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     this.setTransform(this.storeInfo!);
   }
 
-  private setTransform(storeInfo: StoreUseData<T>) {
+  private setTransform(storeInfo: StoreUseData<ScreenObject>) {
     const x = storeInfo.data!.x;
     const useX = this.isMoving ? x + this.volatileInfo.moveDiff.x : x;
     const y = storeInfo.data!.y;
@@ -196,12 +194,12 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
 
   @Watch("isMounted")
   @Watch("storeInfo.data.backgroundList", { deep: true })
-  @Watch("storeInfo.data.useBackGround")
+  @Watch("storeInfo.data.textureIndex")
   private onChangeBackground() {
     if (!this.isMounted) return;
     const textures = this.storeInfo!.data!.textures;
-    const useBackGround = this.storeInfo!.data!.useBackGround;
-    const backInfo = textures[useBackGround];
+    const textureIndex = this.storeInfo!.data!.textureIndex;
+    const backInfo = textures[textureIndex];
     if (backInfo.type === "color") {
       this.elm.style.setProperty(`--image`, ``);
       this.imageSrc = "";
@@ -258,6 +256,14 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     const diffX = planeLocateScreen.x - this.volatileInfo.moveFromPlane.x;
     const diffY = planeLocateScreen.y - this.volatileInfo.moveFromPlane.y;
     this.volatileInfo.moveDiff = createPoint(diffX, diffY);
+  }
+
+  @TaskProcessor("change-focus-screen-object-finished")
+  private async changeFocusScreenObjectFinished(
+    task: Task<{ id: string; isFocus: boolean }, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.id !== this.docId) return;
+    this.isFocused = task.value!.isFocus;
   }
 
   @TaskProcessor("change-highlight-view-finished")
@@ -422,7 +428,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     if (!param || param.key !== this.docId) return;
 
     window.console.log("mouse-move-end-left-finished", param.key, param.type);
-    const data = JSON.parse(JSON.stringify(this.storeInfo!.data)) as T;
+    const data = JSON.parse(JSON.stringify(this.storeInfo!.data));
     data.x += this.volatileInfo.moveDiff.x;
     data.y += this.volatileInfo.moveDiff.y;
 
@@ -533,7 +539,7 @@ export default class PieceMixin<T extends MapObject> extends AddressCalcMixin {
     //     y: event.pageY
     //   },
     //   logOff: true
-    // }).then(() => this.windowOpen(contextProperty));
+    // }).then(() => this.windowOpenDeprecated(contextProperty));
   }
 
   protected async mouseover(): Promise<void> {

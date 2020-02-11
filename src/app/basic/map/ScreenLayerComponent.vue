@@ -1,14 +1,14 @@
 <template>
-  <div class="map-layer" :class="[className]" ref="elm">
+  <div class="screen-layer" :class="[className]" ref="elm">
     <map-mask
-      v-for="obj in getMapObjectList(mapMaskList, 'field')"
+      v-for="obj in getScreenObjectList('map-mask', 'field')"
       :key="obj.id"
       :docId="obj.id"
       type="map-mask"
     />
 
     <chit
-      v-for="obj in getMapObjectList(chitList, 'field')"
+      v-for="obj in getScreenObjectList('chit', 'field')"
       :key="obj.id"
       :docId="obj.id"
       type="chit"
@@ -22,10 +22,9 @@ import MapMask from "@/app/basic/map-object/map-mask/MapMask.vue";
 import Chit from "@/app/basic/map-object/chit/Chit.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
-import { MapObject } from "@/@types/gameObject";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { MapLayer } from "@/@types/room";
+import { ScreenLayer } from "@/@types/room";
 
 @Component({
   components: {
@@ -33,19 +32,18 @@ import { MapLayer } from "@/@types/room";
     Chit
   }
 })
-export default class MapLayerComponent extends Vue {
+export default class ScreenLayerComponent extends Vue {
   @Prop({ type: Object, required: true })
-  private layer!: StoreUseData<MapLayer>;
+  private layer!: StoreUseData<ScreenLayer>;
 
-  private mapMaskList = GameObjectManager.instance.mapMaskList;
-  private chitList = GameObjectManager.instance.chitList;
+  private screenObjectList = GameObjectManager.instance.screenObjectList;
 
   private isMounted: boolean = false;
 
   private get className(): string {
-    return this.layer.data!.deletable
-      ? this.layer.data!.name!
-      : this.layer.data!.type;
+    return this.layer.data!.isSystem
+      ? this.layer.data!.type
+      : this.layer.data!.name!;
   }
 
   @LifeCycle
@@ -60,12 +58,15 @@ export default class MapLayerComponent extends Vue {
   }
 
   @VueEvent
-  private getMapObjectList(
-    list: StoreUseData<MapObject>[],
+  private getScreenObjectList(
+    type: string,
     place: "field" | "graveyard" | "backstage"
   ) {
-    return GameObjectManager.filterPlaceList(list, place).filter(
-      o => o.data!.layerId === this.layer.id
+    return this.screenObjectList.filter(
+      mo =>
+        mo.data!.type === type &&
+        mo.data!.place === place &&
+        mo.data!.layerId === this.layer.id
     );
   }
 
@@ -76,7 +77,7 @@ export default class MapLayerComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.map-layer {
+.screen-layer {
   position: absolute;
   left: 0;
   top: 0;

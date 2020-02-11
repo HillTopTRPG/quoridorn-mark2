@@ -43,11 +43,9 @@
 import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 
 import { Component } from "vue-property-decorator";
-import { Getter } from "vuex-class";
-import { ChitStore } from "@/@types/gameObject";
 
 @Component({})
-export default class DiceSymbol extends PieceMixin<ChitStore> {
+export default class DiceSymbol extends PieceMixin<"dice-symbol"> {
   // @Getter("dicePipsImage") private dicePipsImage: any;
   // @Getter("playerKey") private playerKey: any;
   //

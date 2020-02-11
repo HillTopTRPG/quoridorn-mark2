@@ -34,11 +34,9 @@
 import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 
 import { Component } from "vue-property-decorator";
-import { Getter } from "vuex-class";
-import { ChitStore } from "@/@types/gameObject";
 
 @Component
-export default class FloorTile extends PieceMixin<ChitStore> {
+export default class FloorTile extends PieceMixin<"floor-tile"> {
   // @Getter("imageList") imageList: any;
   //
   // private get imageData() {

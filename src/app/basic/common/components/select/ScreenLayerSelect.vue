@@ -26,7 +26,7 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class MapLayerSelect extends Mixins<MultiMixin>(
+export default class ScreenLayerSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
@@ -37,9 +37,17 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
   private async created() {
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
-    const mapId = roomData.data!.mapId;
-    this.orderList = GameObjectManager.instance.mapAndLayerList
-      .filter(mal => mal.data!.mapId === mapId)
+    const screenId = roomData.data!.screenId;
+    GameObjectManager.instance.screenAndLayerList
+      .filter(mal => mal.data!.screenId === screenId)
+      .forEach(mal => {
+        const layerId = mal.data!.layerId;
+        const layer = GameObjectManager.instance.screenLayerList.filter(
+          sl => sl.id === layerId
+        )[0];
+      });
+    this.orderList = GameObjectManager.instance.screenAndLayerList
+      .filter(mal => mal.data!.screenId === screenId)
       .sort((mal1, mal2) => {
         if (mal1.order < mal2.order) return -1;
         if (mal1.order > mal2.order) return 1;
@@ -62,7 +70,7 @@ export default class MapLayerSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    this.optionInfoList = GameObjectManager.instance.mapLayerList
+    this.optionInfoList = GameObjectManager.instance.screenLayerList
       .sort((ml1, ml2) => {
         const ml1Index = this.orderList.findIndex(o => o === ml1.id);
         const ml2Index = this.orderList.findIndex(o => o === ml2.id);

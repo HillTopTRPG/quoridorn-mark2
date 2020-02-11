@@ -474,7 +474,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   minSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
@@ -482,7 +482,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   maxSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
@@ -490,7 +490,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   minimizable: true
   paneContainable: true
@@ -510,7 +510,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0.5
   minSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
@@ -518,7 +518,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0.5
   maxSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
@@ -526,7 +526,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0.5
   minimizable: true
   paneContainable: true
@@ -546,7 +546,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   minSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
@@ -554,7 +554,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   maxSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
@@ -562,7 +562,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0
   minimizable: true
   paneContainable: true
@@ -582,24 +582,24 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
-    heightRem: 0
+    heightEm: 22
+    heightRem: 0.5
   minSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
     widthPx: 404
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
-    heightRem: 0
+    heightEm: 22
+    heightRem: 0.5
   maxSize:
     # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
     widthPx: 644
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 18
-    heightRem: 0
+    heightEm: 22
+    heightRem: 0.5
   minimizable: true
   paneContainable: true
   closable: true

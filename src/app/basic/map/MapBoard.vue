@@ -30,9 +30,6 @@ import { createSize } from "@/app/core/Coordinate";
 
 @Component
 export default class MapBoard extends Vue {
-  // TODO Vuexからの脱出
-  @Getter("mapGrid") private mapGrid!: Matrix;
-  // @Getter("mouseOnCanvasLocate") private mouseOnCanvasLocate: any;
   private isMapDraggingRight: boolean = false;
 
   @Prop({ type: Object, default: null })
@@ -80,15 +77,12 @@ export default class MapBoard extends Vue {
 
     const gridSize = this.screen.gridSize;
 
-    const flg = false;
-    if (flg === true) return;
-
     // マス目の描画
     if (this.roomData!.data!.isDrawGridLine) {
       ctx.strokeStyle = this.screen.gridColor;
       ctx.globalAlpha = 1;
-      for (let c = 0; c <= this.screen.columns; c++) {
-        for (let r = 0; r <= this.screen.rows; r++) {
+      for (let r = 0; r <= this.screen.rows; r++) {
+        for (let c = 0; c <= this.screen.columns; c++) {
           // 横線
           drawLine(ctx, c * gridSize, r * gridSize, gridSize - 1, 0);
           // 縦線
@@ -100,16 +94,33 @@ export default class MapBoard extends Vue {
       ctx.strokeStyle = this.screen.gridColor;
       ctx.strokeStyle = "red";
       ctx.globalAlpha = 1;
-      window.console.warn(
-        `マウス升(${this.mapGrid.column}, ${this.mapGrid.row})`
-      );
+      const m: Matrix = {
+        row: 4,
+        column: 6
+      };
       ctx.rect(
-        (this.mapGrid.column - 1) * gridSize,
-        (this.mapGrid.row - 1) * gridSize,
+        (m.column - 1) * gridSize,
+        (m.row - 1) * gridSize,
         gridSize,
         gridSize
       );
       ctx.stroke();
+    }
+
+    // マス座標の描画
+    if (this.roomData!.data!.isDrawGridId) {
+      ctx.fillStyle = this.screen.fontColor;
+      ctx.globalAlpha = 1;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (let r = 0; r <= this.screen.rows; r++) {
+        for (let c = 0; c <= this.screen.columns; c++) {
+          const text = r + 1 + "-" + (c + 1);
+          const x = c * gridSize + (gridSize - 1) / 2;
+          const y = r * gridSize + (gridSize - 1) / 2;
+          ctx.fillText(text, x, y);
+        }
+      }
     }
 
     // 中心点の描画
@@ -139,23 +150,6 @@ export default class MapBoard extends Vue {
     drawLine(ctx, mouseMark.x + 20, mouseMark.y, -20, 20)
     // window.console.log(this.mouseOnCanvasLocate)
     */
-
-    // マス座標の描画
-    if (this.roomData!.data!.isDrawGridId) {
-      ctx.fillStyle = this.screen.fontColor;
-      ctx.globalAlpha = 1;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      for (let c = 0; c <= this.screen.columns; c++) {
-        for (let r = 0; r <= this.screen.rows; r++) {
-          const text = c + 1 + "-" + (r + 1);
-          const x = c * gridSize + (gridSize - 1) / 2;
-          const y = r * gridSize + (gridSize - 1) / 2;
-          ctx.fillText(text, x, y);
-          // window.console.log(`text:${text} (${x}, ${y})`)
-        }
-      }
-    }
   }
 
   @Watch("roomData.data.isDrawGridLine")

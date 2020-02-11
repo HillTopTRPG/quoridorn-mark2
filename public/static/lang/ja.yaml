@@ -140,6 +140,7 @@ label:
   permission-view: 閲覧権限
   permission-edit: 編集権限
   permission-chmod: 権限変更権限
+  map-object: マップオブジェクト
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

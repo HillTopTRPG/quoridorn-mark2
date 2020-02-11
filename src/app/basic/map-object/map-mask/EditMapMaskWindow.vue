@@ -73,11 +73,29 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <map-layer-select v-model="layerId" />
+          <screen-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
     <table class="info-table">
+      <tr>
+        <th>
+          <label
+            :for="`${key}-name`"
+            class="label-name label-input"
+            v-t="'label.name'"
+          ></label>
+        </th>
+        <td class="value-cell">
+          <base-input
+            :id="`${key}-name`"
+            class="value-name"
+            type="text"
+            :value="name"
+            @input="name = $event.target.value"
+          />
+        </td>
+      </tr>
       <tr>
         <th>
           <label
@@ -134,7 +152,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { DataReference } from "@/@types/data";
-import { MapMaskStore } from "@/@types/gameObject";
+import { ScreenObject } from "@/@types/gameObject";
 import { Task, TaskResult } from "task";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
@@ -152,11 +170,11 @@ import { TabInfo } from "@/@types/window";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 
 @Component({
   components: {
-    MapLayerSelect,
+    ScreenLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -168,8 +186,11 @@ export default class EditMapMaskWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docId: string = "";
-  private cc: NekostoreCollectionController<MapMaskStore> | null = null;
+  private cc: NekostoreCollectionController<
+    ScreenObject
+  > = SocketFacade.instance.screenObjectCC();
 
+  private name: string = "";
   private text: string = "";
   private color: string = "#ff0000";
   private height: number = 1;
@@ -178,7 +199,7 @@ export default class EditMapMaskWindow extends Mixins<
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;
-  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
   private otherText: string = "";
@@ -216,9 +237,7 @@ export default class EditMapMaskWindow extends Mixins<
   public async mounted() {
     await this.init();
     this.isMounted = true;
-    const type = this.windowInfo.args!.type;
     this.docId = this.windowInfo.args!.docId;
-    this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
 
     if (this.windowInfo.status === "window") {
@@ -237,13 +256,14 @@ export default class EditMapMaskWindow extends Mixins<
       }
     }
 
-    const texture = data.data!.textures[data.data!.useBackGround];
+    const texture = data.data!.textures[data.data!.textureIndex];
     if (texture.type === "color") {
       this.text = texture.text;
       const colorObj = parseColor(texture.backgroundColor);
       this.color = colorObj.getColorCode();
       this.alpha = colorObj.a;
     }
+    this.name = data.data!.name;
     this.width = data.data!.columns;
     this.height = data.data!.rows;
     this.otherText = data.data!.otherText;
@@ -267,12 +287,13 @@ export default class EditMapMaskWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!.data!;
-    const texture = data.textures[data.useBackGround];
+    const texture = data.textures[data.textureIndex];
     if (texture.type === "color") {
       texture.text = this.text;
       texture.backgroundColor = this.colorObj.getRGBA();
       texture.fontColor = this.colorObj.getRGBReverse();
     }
+    data.name = this.name;
     data.rows = this.height;
     data.columns = this.width;
     data.otherText = this.otherText;
@@ -364,6 +385,10 @@ export default class EditMapMaskWindow extends Mixins<
 .value-width,
 .value-height {
   width: 3em;
+}
+
+.value-name {
+  width: 100%;
 }
 
 .container {

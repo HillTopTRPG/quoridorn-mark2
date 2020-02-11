@@ -12,16 +12,10 @@
 <script lang="ts">
 import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 
-import { Prop, Watch } from "vue-property-decorator";
-import { Component, Mixins } from "vue-mixin-decorator";
-import { Getter } from "vuex-class";
-import { stroke } from "@/app/core/CanvasDrawer";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
-import { ChitStore } from "@/@types/gameObject";
+import { Component } from "vue-mixin-decorator";
 
 @Component
-export default class SightField extends PieceMixin<ChitStore> {
+export default class SightField extends PieceMixin<"chit"> {
   // @Getter("getAllObstacle") protected getAllObstacle: any;
   // @Getter("mapColumns") protected mapColumns: any;
   // @Getter("rows") protected rows: any;

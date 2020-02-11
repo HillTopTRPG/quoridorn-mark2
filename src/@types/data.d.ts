@@ -1,4 +1,4 @@
-import { Point } from "address";
+import { Matrix, Point } from "address";
 import { Permission } from "@/@types/store";
 
 export type TouchRequest = {
@@ -31,4 +31,5 @@ export type DataReference = {
 export type AddObjectInfo = {
   dropWindow: string;
   point: Point;
+  matrix: Matrix;
 };

@@ -18,11 +18,29 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <map-layer-select v-model="layerId" />
+          <screen-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
     <table class="info-table">
+      <tr>
+        <th>
+          <label
+            :for="`${key}-name`"
+            class="label-name label-input"
+            v-t="'label.name'"
+          ></label>
+        </th>
+        <td class="value-cell">
+          <base-input
+            :id="`${key}-name`"
+            class="value-name"
+            type="text"
+            :value="name"
+            @input="name = $event.target.value"
+          />
+        </td>
+      </tr>
       <tr>
         <th>
           <label
@@ -106,17 +124,17 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import { ChitStore } from "@/@types/gameObject";
+import { ScreenObject } from "@/@types/gameObject";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
-    MapLayerSelect,
+    ScreenLayerSelect,
     BackgroundLocationSelect,
     SimpleTabComponent,
     ImagePickerComponent,
@@ -128,7 +146,10 @@ export default class EditChitWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docId: string = "";
-  private cc: NekostoreCollectionController<ChitStore> | null = null;
+  private cc: NekostoreCollectionController<
+    ScreenObject
+  > = SocketFacade.instance.screenObjectCC();
+  private name: string = "";
   private isProcessed: boolean = false;
   private imageList = GameObjectManager.instance.imageList;
   private otherText: string = "";
@@ -140,7 +161,7 @@ export default class EditChitWindow extends Mixins<
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.mapLayerList.filter(
+  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
     ml => ml.data!.type === "character"
   )[0].id!;
 
@@ -177,9 +198,7 @@ export default class EditChitWindow extends Mixins<
   public async mounted() {
     await this.init();
     this.isMounted = true;
-    const type = this.windowInfo.args!.type;
     this.docId = this.windowInfo.args!.docId;
-    this.cc = SocketFacade.instance.getCC(type);
     const data = (await this.cc!.getData(this.docId))!;
 
     if (this.windowInfo.status === "window") {
@@ -198,13 +217,14 @@ export default class EditChitWindow extends Mixins<
       }
     }
 
-    const backgroundInfo = data.data!.textures[data.data!.useBackGround];
+    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
       this.imageDocId = backgroundInfo.imageId;
       this.imageTag = backgroundInfo.imageTag;
       this.backgroundSize = backgroundInfo.backgroundSize;
       this.direction = backgroundInfo.direction;
     }
+    this.name = data.data!.name;
     this.width = data.data!.columns;
     this.height = data.data!.rows;
     this.otherText = data.data!.otherText;
@@ -224,13 +244,14 @@ export default class EditChitWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.textures[data.data!.useBackGround];
+    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
       backgroundInfo.imageId = this.imageDocId!;
       backgroundInfo.imageTag = this.imageTag!;
       backgroundInfo.backgroundSize = this.backgroundSize;
       backgroundInfo.direction = this.direction;
     }
+    data.data!.name = this.name;
     data.data!.rows = this.height;
     data.data!.columns = this.width;
     data.data!.otherText = this.otherText;
@@ -360,6 +381,10 @@ export default class EditChitWindow extends Mixins<
 .value-width,
 .value-height {
   width: 3em;
+}
+
+.value-name {
+  width: 100%;
 }
 
 .container {

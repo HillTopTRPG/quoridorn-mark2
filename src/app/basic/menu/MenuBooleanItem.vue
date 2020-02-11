@@ -14,12 +14,12 @@ export default class MenuBooleanItem extends Vue {
   @Prop({ type: String, required: true })
   private property!: string;
 
-  @Action("reverseProperty") private reverseProperty: any;
-  @Getter("isWindowOpen") private isWindowOpen: any;
+  @Action("reversePropertyDeprecated") private reversePropertyDeprecated: any;
+  @Getter("isWindowOpenDeprecated") private isWindowOpenDeprecated: any;
 
   @Emit("click")
   private itemOnClick() {
-    this.reverseProperty({ property: this.property });
+    this.reversePropertyDeprecated({ property: this.property });
   }
 
   private mouseEnter(event: any) {
@@ -27,7 +27,7 @@ export default class MenuBooleanItem extends Vue {
   }
 
   private get propValue() {
-    return this.isWindowOpen(this.property);
+    return this.isWindowOpenDeprecated(this.property);
   }
 }
 </script>

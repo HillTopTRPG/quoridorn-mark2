@@ -26,7 +26,7 @@
     </div>
     <div class="mute" @click="onChangeMute()">
       <span class="mute-icon icon-volume-high" v-if="!isMute"></span>
-      <span class="mute-icon icon-volume-mute" v-else></span>
+      <span class="mute-icon icon-volume-mute2" v-else></span>
     </div>
   </div>
 </template>
@@ -594,7 +594,7 @@ export default class PlayYoutubeWindow
   background-color: var(--uni-color-skyblue);
 }
 
-.icon-volume-mute {
+.icon-volume-mute2 {
   background-color: var(--uni-color-orange);
 }
 </style>

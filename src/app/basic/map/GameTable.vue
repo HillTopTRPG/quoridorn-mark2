@@ -24,7 +24,7 @@
       >
         <map-board :screen="screen" />
 
-        <map-layer-component
+        <screen-layer-component
           v-for="layer in useLayerList"
           :key="layer.id"
           :layer="layer"
@@ -48,7 +48,7 @@ import {
   createPoint,
   getEventPoint
 } from "@/app/core/Coordinate";
-import { Point } from "address";
+import { Matrix, Point } from "address";
 import { Task, TaskResult } from "task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import { ContextTaskInfo } from "context";
@@ -59,32 +59,32 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { MapLayer, Screen, RoomData, Texture } from "@/@types/room";
+import { Screen, RoomData, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
-import MapLayerComponent from "@/app/basic/map/MapLayerComponent.vue";
+import ScreenLayerComponent from "@/app/basic/map/ScreenLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { ModeInfo } from "mode";
 
 @Component({
   components: {
-    MapLayerComponent,
+    ScreenLayerComponent,
     MapBoard,
     MapMask,
     Chit
   }
 })
 export default class GameTable extends AddressCalcMixin {
-  private mapLayerList = GameObjectManager.instance.mapLayerList;
-  private mapAndLayerList = GameObjectManager.instance.mapAndLayerList;
+  private screenLayerList = GameObjectManager.instance.screenLayerList;
+  private screenAndLayerList = GameObjectManager.instance.screenAndLayerList;
 
-  private useLayerList: StoreUseData<MapLayer>[] = [];
-
-  private getMapLayerList() {
-    return this.mapAndLayerList
-      .filter(mal => mal.data && mal.data.mapId === this.mapId)
+  private get useLayerList() {
+    return this.screenAndLayerList
+      .filter(
+        mal => mal.data && mal.data.screenId === this.screenId && mal.data.isUse
+      )
       .map(mal => mal.data!.layerId)
-      .map(layerId => this.mapLayerList.filter(ml => ml.id === layerId)[0])
+      .map(layerId => this.screenLayerList.filter(ml => ml.id === layerId)[0])
       .filter(ml => ml);
   }
 
@@ -93,7 +93,7 @@ export default class GameTable extends AddressCalcMixin {
 
   private key = "game-table";
 
-  private mapId: string | null = null;
+  private screenId: string | null = null;
   private screen: Screen | null = null;
   private isMounted: boolean = false;
 
@@ -134,9 +134,9 @@ export default class GameTable extends AddressCalcMixin {
     )[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
-    this.mapId = roomData.data!.mapId;
-    const screenData = await screenListCC.getData(this.mapId);
-    await screenListCC.setSnapshot(this.key, this.mapId, async snapshot => {
+    this.screenId = roomData.data!.screenId;
+    const screenData = await screenListCC.getData(this.screenId);
+    await screenListCC.setSnapshot(this.key, this.screenId, async snapshot => {
       if (snapshot.data!.status === "modified") {
         const screen = snapshot.data!.data!;
         CssManager.instance.propMap.totalColumn = screen.columns;
@@ -164,8 +164,6 @@ export default class GameTable extends AddressCalcMixin {
     const totalLeftY = Math.round(this.point.y + this.pointDiff.y);
     CssManager.instance.propMap.totalLeftX = totalLeftX;
     CssManager.instance.propMap.totalLeftY = totalLeftY;
-
-    this.useLayerList = await this.getMapLayerList();
 
     this.isMounted = true;
     this.gameTableContainerElm.style.transform = `translateZ(${0})`;
@@ -479,9 +477,13 @@ export default class GameTable extends AddressCalcMixin {
     // TODO isGridFit
     const isGridFit = true;
     const gridSize = CssManager.instance.propMap.gridSize;
+    const matrix: Matrix = {
+      column: Math.floor(locateOnCanvas.x / gridSize),
+      row: Math.floor(locateOnCanvas.y / gridSize)
+    };
     if (isGridFit) {
-      locateOnCanvas.x = Math.floor(locateOnCanvas.x / gridSize) * gridSize;
-      locateOnCanvas.y = Math.floor(locateOnCanvas.y / gridSize) * gridSize;
+      locateOnCanvas.x = matrix.column * gridSize;
+      locateOnCanvas.y = matrix.row * gridSize;
     }
 
     if (["map-mask", "chit"].findIndex(t => t === type) > -1) {
@@ -490,7 +492,8 @@ export default class GameTable extends AddressCalcMixin {
         owner: "Quoridorn",
         value: {
           dropWindow,
-          point: locateOnCanvas
+          point: locateOnCanvas,
+          matrix
         }
       });
     }

@@ -397,7 +397,61 @@
       </div>
 
       <!-- レイヤー -->
-      <div class="layer" v-if="currentTabInfo.target === 'layer'"></div>
+      <div class="layer" v-if="currentTabInfo.target === 'layer'">
+        <div class="layer-container">
+          <label v-t="'label.layer'"></label>
+          <div
+            class="layer-info"
+            :class="{
+              selected: selectedLayerId === layerInfo.id,
+              unuse: !mapAndLayerInfoList[index].data.isUse
+            }"
+            v-for="(layerInfo, index) in layerInfoList"
+            :key="index"
+            @click="selectedLayerId = layerInfo.id"
+          >
+            <label
+              class="view-check"
+              :class="[
+                mapAndLayerInfoList[index].data.isUse
+                  ? 'icon-eye'
+                  : 'icon-eye-blocked'
+              ]"
+            >
+              <input
+                type="checkbox"
+                :checked="mapAndLayerInfoList[index].data.isUse"
+                @change="
+                  changeLayerUse(
+                    mapAndLayerInfoList[index].id,
+                    $event.target.checked
+                  )
+                "
+              />
+            </label>
+            <template v-if="layerInfo.data.isSystem">
+              <span v-t="'type.' + layerInfo.data.type"></span>
+            </template>
+            <template v-else>
+              <span>{{ layerInfo.data.name }}</span>
+            </template>
+          </div>
+        </div>
+        <div class="map-object-container" v-if="selectedLayerId">
+          <label v-t="'label.map-object'"></label>
+          <div
+            class="map-object"
+            :class="{
+              selected: selectedScreenObjectId === mapObject.id
+            }"
+            v-for="mapObject in mapObjectInfoList"
+            :key="mapObject.key"
+            @click="selectedScreenObjectId = mapObject.id"
+          >
+            {{ mapObject.data.name }}
+          </div>
+        </div>
+      </div>
     </simple-tab-component>
   </div>
 </template>
@@ -412,7 +466,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import MapLayerSelect from "@/app/basic/common/components/select/MapLayerSelect.vue";
+import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
@@ -424,9 +478,10 @@ import { Task, TaskResult } from "task";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { StoreUseData } from "@/@types/store";
-import { Screen, Texture } from "@/@types/room";
+import { ScreenAndLayer, ScreenLayer, Screen, Texture } from "@/@types/room";
 import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
 import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
+import TaskManager from "@/app/core/task/TaskManager";
 
 @Component({
   components: {
@@ -434,7 +489,7 @@ import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleS
     InputTextureComponent,
     ImagePickerComponent,
     BackgroundTypeRadio,
-    MapLayerSelect,
+    ScreenLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -450,23 +505,76 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   private isProcessed: boolean = false;
   private imageList = GameObjectManager.instance.imageList;
   private screenList = GameObjectManager.instance.screenList;
+  private screenAndLayerList = GameObjectManager.instance.screenAndLayerList;
+  private layerList = GameObjectManager.instance.screenLayerList;
 
-  private mapId: string | null = null;
+  private screenId: string | null = null;
   private screenInfo: StoreUseData<Screen> | null = null;
   private screenData: Screen | null = null;
+  private screenAndLayerCC = SocketFacade.instance.screenAndLayerCC();
+  private mapAndLayerInfoList: StoreUseData<ScreenAndLayer>[] | null = null;
+  private layerInfoList: StoreUseData<ScreenLayer>[] | null = null;
+
+  private selectedLayerId: string = "";
+  private selectedScreenObjectId: string = "";
+
+  private screenObjectCC = SocketFacade.instance.screenObjectCC();
+  private screenObjectList = GameObjectManager.instance.screenObjectList;
 
   private defaultTag: string = LanguageManager.instance.getText("type.map");
+
+  @Watch("selectedLayerId")
+  private async onChangeSelectedLayerId() {
+    this.selectedScreenObjectId = "";
+  }
+
+  @Watch("selectedScreenObjectId")
+  private async onChangeSelectedScreenObjectId(newVal: string, oldVal: string) {
+    await EditMapWindow.changeFocus(oldVal, false);
+    await EditMapWindow.changeFocus(newVal, true);
+  }
+
+  @Watch("windowInfo.status")
+  private async onChangeWindowInfoStatus() {
+    await EditMapWindow.changeFocus(this.selectedScreenObjectId, false);
+    if (this.windowInfo.status === "window") {
+      setTimeout(async () => {
+        await EditMapWindow.changeFocus(this.selectedScreenObjectId, true);
+      });
+    }
+  }
+
+  private static async changeFocus(id: string, isFocus: boolean) {
+    if (!id) return;
+    await TaskManager.instance.ignition<
+      { id: string; isFocus: boolean },
+      never
+    >({
+      type: "change-focus-screen-object",
+      owner: "Quoridorn",
+      value: {
+        id,
+        isFocus
+      }
+    });
+  }
 
   @Watch("screenData", { deep: true })
   private async onChangeMapData(newValue: Screen, oldValue: Screen | null) {
     if (oldValue === null) return;
 
     try {
-      await this.cc.update(this.mapId!, this.screenData!, undefined, true);
+      await this.cc.update(this.screenId!, this.screenData!, undefined, true);
     } catch (err) {
       window.console.log("==========");
       window.console.log(err);
     }
+  }
+
+  private get mapObjectInfoList() {
+    return this.screenObjectList.filter(
+      mo => mo.data!.layerId === this.selectedLayerId
+    );
   }
 
   // @Watch("marginRows")
@@ -478,7 +586,7 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   //
   // private async updateMap() {
   //   try {
-  //     await this.cc.update(this.mapId!, this.screenData!, true);
+  //     await this.cc.update(this.screenId!, this.screenData!, true);
   //   } catch (err) {
   //     window.console.log("==========");
   //     window.console.log(err);
@@ -519,9 +627,21 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   private async mounted() {
     await this.init();
     this.isMounted = true;
-    this.mapId = this.windowInfo.args!;
-    this.screenInfo = this.screenList.filter(map => map.id === this.mapId)[0];
+    this.screenId = this.windowInfo.args!;
+    this.screenInfo = this.screenList.filter(
+      map => map.id === this.screenId
+    )[0];
     this.screenData = this.screenInfo.data!;
+    this.mapAndLayerInfoList = this.screenAndLayerList
+      .filter(map => map.data!.screenId === this.screenId)
+      .sort((m1, m2) => {
+        if (m1.order < m2.order) return -1;
+        if (m1.order > m2.order) return 1;
+        return 0;
+      });
+    this.layerInfoList = this.mapAndLayerInfoList
+      .map(ml => this.layerList.filter(l => l.id === ml.data!.layerId)[0])
+      .filter(l => l);
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -543,13 +663,22 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.mapId);
+        await this.cc.touchModify(this.screenId);
       } catch (err) {
         this.isProcessed = true;
         window.console.warn(err);
         await this.close();
       }
     }
+  }
+
+  private async changeLayerUse(mapAndKayerId: string, checked: boolean) {
+    await this.screenAndLayerCC.touchModify(mapAndKayerId);
+    let data = this.mapAndLayerInfoList!.filter(
+      ml => ml.id === mapAndKayerId
+    )[0].data!;
+    data.isUse = checked;
+    await this.screenAndLayerCC.update(mapAndKayerId, data);
   }
 
   private static getBgObj(info: Texture): Texture {
@@ -576,9 +705,12 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
+    if (this.selectedScreenObjectId) {
+      await EditMapWindow.changeFocus(this.selectedScreenObjectId, false);
+    }
     if (!this.isProcessed) {
       try {
-        await this.cc!.releaseTouch(this.mapId!);
+        await this.cc!.releaseTouch(this.screenId!);
       } catch (err) {
         // nothing
       }
@@ -608,10 +740,75 @@ export default class EditMapWindow extends Mixins<WindowVue<string, never>>(
   width: 3.5em;
 }
 
+.view-check {
+  @include flex-box(row, center, center);
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid black;
+  border-radius: 50%;
+  box-sizing: border-box;
+
+  input {
+    display: none !important;
+  }
+}
+
+$border-color: green;
+
+.layer-container,
+.map-object-container {
+  @include inline-flex-box(column, stretch, flex-start);
+  border: 1px solid $border-color;
+  margin-right: 1em;
+  overflow: visible;
+
+  > label {
+    background-color: $border-color;
+    color: white;
+    height: 2em;
+    line-height: 2em;
+    padding: 0 0.2rem;
+  }
+}
+
+.layer-info,
+.map-object {
+  @include flex-box(row, stretch, center);
+  background-color: white;
+  height: 2em;
+  line-height: 2em;
+  padding: 0 0.2rem;
+  position: relative;
+  border-bottom: 1px solid $border-color;
+
+  &.selected {
+    &:not(.unuse) {
+      background-color: lightyellow;
+    }
+
+    &:after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      transform: translateX(100%) translateY(-1px);
+      border: transparent calc(1em + 1px) solid;
+      border-left-color: $border-color;
+      box-sizing: border-box;
+    }
+  }
+
+  &.unuse {
+    background-color: lightgray;
+  }
+}
+
 .simple-tab-component {
   height: 100%;
 
   > *:not(:first-child) {
+    @include flex-box(row, flex-start, stretch);
     width: 100%;
     flex: 1;
     border: 1px solid gray;
