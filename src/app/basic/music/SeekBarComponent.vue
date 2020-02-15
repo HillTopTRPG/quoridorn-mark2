@@ -7,8 +7,8 @@
       :max="Math.round(duration * 100) / 100"
       step="0.01"
       v-model="useSeek"
-      @input="seekTo($event.target.value, false)"
-      @change="seekTo($event.target.value, true)"
+      @input="seekTo($event.target.valueAsNumber, false)"
+      @change="seekTo($event.target.valueAsNumber, true)"
     />
     <span class="seek-text">
       {{ time }}
@@ -74,7 +74,7 @@ export default class SeekBarComponent extends Vue {
   }
 
   @VueEvent
-  private seekTo(seek: string, allowSeekAhead: boolean) {
+  private seekTo(seek: number, allowSeekAhead: boolean) {
     this.$emit("seekTo", seek, allowSeekAhead);
     this.changePlay(true);
     this.isSeekInputting = !allowSeekAhead;

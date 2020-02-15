@@ -17,24 +17,26 @@ import {
 } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
 import {
-  ScreenAndLayer,
-  ScreenLayer,
-  Screen,
+  SceneAndLayer,
+  SceneLayer,
+  Scene,
   RoomData,
   UserData,
   Image,
   ActorGroup,
   CutInDeclareInfo,
   CutInPlayingInfo,
-  ScreenAndObject
+  SceneAndObject,
+  SocketUserData
 } from "@/@types/room";
 import {
   ExtraStore,
-  ScreenObject,
+  SceneObject,
   PropertyFaceStore,
   PropertySelectionStore,
   PropertyStore,
-  TagNoteStore
+  TagNoteStore,
+  ActorStatusStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -431,27 +433,29 @@ export default class SocketFacade {
     ));
   }
 
-  public screenListCC(): NekostoreCollectionController<Screen> {
-    return this.roomCollectionController<Screen>("screen-list");
+  public sceneListCC(): NekostoreCollectionController<Scene> {
+    return this.roomCollectionController<Scene>("scene-list");
   }
 
-  public screenLayerCC(): NekostoreCollectionController<ScreenLayer> {
-    return this.roomCollectionController<ScreenLayer>("screen-layer-list");
+  public sceneLayerCC(): NekostoreCollectionController<SceneLayer> {
+    return this.roomCollectionController<SceneLayer>("scene-layer-list");
   }
 
-  public screenObjectCC(): NekostoreCollectionController<ScreenObject> {
-    return this.roomCollectionController<ScreenObject>("screen-object-list");
+  public sceneObjectCC(): NekostoreCollectionController<SceneObject> {
+    return this.roomCollectionController<SceneObject>("scene-object-list");
   }
 
-  public screenAndLayerCC(): NekostoreCollectionController<ScreenAndLayer> {
-    return this.roomCollectionController<ScreenAndLayer>(
-      "screen-and-layer-list"
-    );
+  public actorStatusCC(): NekostoreCollectionController<ActorStatusStore> {
+    return this.roomCollectionController<ActorStatusStore>("status-list");
   }
 
-  public screenAndObjectCC(): NekostoreCollectionController<ScreenAndObject> {
-    return this.roomCollectionController<ScreenAndObject>(
-      "screen-and-object-list"
+  public sceneAndLayerCC(): NekostoreCollectionController<SceneAndLayer> {
+    return this.roomCollectionController<SceneAndLayer>("scene-and-layer-list");
+  }
+
+  public sceneAndObjectCC(): NekostoreCollectionController<SceneAndObject> {
+    return this.roomCollectionController<SceneAndObject>(
+      "scene-and-object-list"
     );
   }
 
@@ -489,6 +493,10 @@ export default class SocketFacade {
     return this.roomCollectionController<UserData>("user-list");
   }
 
+  public socketUserCC(): NekostoreCollectionController<SocketUserData> {
+    return this.roomCollectionController<SocketUserData>("socket-user-list");
+  }
+
   public propertyCC(): NekostoreCollectionController<PropertyStore> {
     return this.roomCollectionController<PropertyStore>("property-list");
   }
@@ -517,8 +525,8 @@ export default class SocketFacade {
 
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
-      case "screen":
-        return this.screenListCC();
+      case "scene":
+        return this.sceneListCC();
       case "room-data":
         return this.roomDataCC();
       case "image-list":
@@ -544,13 +552,13 @@ export default class SocketFacade {
       case "floor-tile":
       case "chit":
       case "map-mask":
-        return this.screenObjectCC();
+        return this.sceneObjectCC();
       case "extra":
         return this.extraCC();
       case "map-layer":
-        return this.screenLayerCC();
+        return this.sceneLayerCC();
       case "map-and-layer":
-        return this.screenAndLayerCC();
+        return this.sceneAndLayerCC();
       case "tag-note-list":
         return this.tagNoteCC();
       case "role-group-list":

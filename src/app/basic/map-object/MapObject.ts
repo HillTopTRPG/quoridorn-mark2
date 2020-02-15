@@ -11,7 +11,7 @@ abstract class DataStore {
   abstract setData(args: SetDataOrderArg): void;
 }
 
-export interface ScreenObject extends SyncObj, Point {
+export interface SceneObject extends SyncObj, Point {
   text: string;
   kind: string;
   columns: number;

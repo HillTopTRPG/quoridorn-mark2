@@ -1,6 +1,5 @@
 <script lang="ts">
 import AddressCalcMixin from "./AddressCalcMixin.vue";
-
 import { Prop, Watch } from "vue-property-decorator";
 import { Mixin } from "vue-mixin-decorator";
 import { createPoint, getEventPoint } from "@/app/core/Coordinate";
@@ -8,11 +7,10 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   getStoreObj
 } from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import {
-  ScreenObject,
-  ScreenObjectType,
+  SceneObject,
+  SceneObjectType,
   OtherTextViewInfo,
   VolatileMapObject
 } from "@/@types/gameObject";
@@ -23,10 +21,13 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import { ContextTaskInfo } from "context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { clone } from "@/app/core/Utility";
+import { SceneAndObject } from "@/@types/room";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 
 @Mixin
 export default class PieceMixin<
-  T extends ScreenObjectType
+  T extends SceneObjectType
 > extends AddressCalcMixin {
   @Prop({ type: String, required: true })
   protected docId!: string;
@@ -38,13 +39,53 @@ export default class PieceMixin<
   protected isMoving: boolean = false;
   protected isFocused: boolean = false;
   protected inflateWidth: number = 0;
-  protected cc: NekostoreCollectionController<
-    ScreenObject
-  > = SocketFacade.instance.screenObjectCC();
+  protected sceneObjectCC = SocketFacade.instance.sceneObjectCC();
+  protected sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
   private imageList = GameObjectManager.instance.imageList;
+  private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
+  private socketUserList = GameObjectManager.instance.socketUserList;
+  private userList = GameObjectManager.instance.userList;
 
   protected isMounted: boolean = false;
-  protected storeInfo: StoreUseData<ScreenObject> | null = null;
+  protected sceneObjectInfo: StoreUseData<SceneObject> | null = null;
+  protected sceneAndObjectInfo: StoreUseData<SceneAndObject> | null = null;
+
+  private get lockMessage() {
+    let result = "";
+    if (this.sceneObjectInfo && this.sceneObjectInfo.exclusionOwner) {
+      const userName = this.getUserName(this.sceneObjectInfo.exclusionOwner);
+      result = userName
+        ? `<span class="icon-lock"></span>sceneObject(${userName})`
+        : "";
+    }
+
+    let additional = "";
+    if (this.sceneAndObjectInfo && this.sceneAndObjectInfo.exclusionOwner) {
+      const userName = this.getUserName(this.sceneAndObjectInfo.exclusionOwner);
+      additional = userName
+        ? `<span class="icon-lock"></span>sceneAndObject(${userName})`
+        : "";
+    }
+
+    if (result && additional) {
+      result += "<br>" + additional;
+    } else if (additional) {
+      result = additional;
+    }
+
+    return result;
+  }
+
+  private getUserName(socketId: string) {
+    const socketUserInfo = this.socketUserList.filter(
+      su => su.data!.socketId === socketId
+    )[0];
+    if (!socketUserInfo) return "";
+    const userId = socketUserInfo.data!.userId;
+    const userInfo = this.userList.filter(u => u.id === userId)[0];
+    if (!userInfo) return "";
+    return userInfo.data!.userName;
+  }
 
   // HTMLで参照する項目
   protected imageSrc: string = "";
@@ -66,27 +107,45 @@ export default class PieceMixin<
 
   @LifeCycle
   protected async mounted() {
-    const storeInfo = (await this.cc!.getData(this.docId))!;
-    this.setTransform(storeInfo);
-    this.storeInfo = storeInfo;
-    await this.cc!.setSnapshot(this.docId, this.docId, snapshot => {
+    const sceneObjectInfo = (await this.sceneObjectCC!.getData(this.docId))!;
+    const sceneAndObjectInfo = (await this.sceneAndObjectCC!.find(
+      "data.objectId",
+      "==",
+      this.docId
+    ))![0];
+    this.setTransform(sceneObjectInfo);
+    this.sceneObjectInfo = sceneObjectInfo;
+    this.sceneAndObjectInfo = sceneAndObjectInfo;
+    await this.sceneObjectCC!.setSnapshot(this.docId, this.docId, snapshot => {
       if (!snapshot.data) return;
-      if (snapshot.data.status === "modified") {
+      const status = snapshot.data.status;
+      if (status === "modified" || status === "modify-touched") {
         this.isMoving = false;
-        this.storeInfo = getStoreObj<ScreenObject>(snapshot);
+        this.sceneObjectInfo = getStoreObj<SceneObject>(snapshot);
         this.onChangePoint();
       }
     });
+    await this.sceneAndObjectCC!.setSnapshot(
+      this.docId,
+      sceneAndObjectInfo.id!,
+      (snapshot: DocumentSnapshot<StoreObj<SceneAndObject>>) => {
+        if (!snapshot.data) return;
+        const status = snapshot.data.status;
+        if (status === "modified" || status === "modify-touched") {
+          this.sceneAndObjectInfo = getStoreObj<SceneAndObject>(snapshot);
+        }
+      }
+    );
     this.isMounted = true;
   }
 
   protected get basicClasses() {
     if (!this.isMounted) return [];
     const result = [
-      this.storeInfo!.data!.isLock ? "lock" : "non-lock",
+      this.sceneObjectInfo!.data!.isLock ? "lock" : "non-lock",
       this.isHover ? "hover" : "non-hover",
       this.isMoving ? "moving" : "non-moving",
-      this.storeInfo!.data!.isHideBorder ? "border-hide" : "border-view"
+      this.sceneObjectInfo!.data!.isHideBorder ? "border-hide" : "border-view"
     ];
     if (this.isFocused) result.push("focus");
     return result;
@@ -96,79 +155,83 @@ export default class PieceMixin<
     return this.$refs.component as HTMLElement;
   }
 
+  protected get lockInfoElm(): HTMLElement | null {
+    return this.$refs.lockInfo ? (this.$refs.lockInfo as HTMLElement) : null;
+  }
+
   private objX: number = 0;
   private objY: number = 0;
 
   @Watch("isMounted")
   @Watch("volatileInfo.moveDiff")
+  @Watch("inflateWidth")
   private onChangePoint() {
     if (!this.isMounted) return;
-    this.setTransform(this.storeInfo!);
+    this.setTransform(this.sceneObjectInfo!);
   }
 
-  private setTransform(storeInfo: StoreUseData<ScreenObject>) {
-    const x = storeInfo.data!.x;
+  private setTransform(sceneObjectInfo: StoreUseData<SceneObject>) {
+    const x = sceneObjectInfo.data!.x;
     const useX = this.isMoving ? x + this.volatileInfo.moveDiff.x : x;
-    const y = storeInfo.data!.y;
+    const y = sceneObjectInfo.data!.y;
     const useY = this.isMoving ? y + this.volatileInfo.moveDiff.y : y;
 
     const gridSize = CssManager.instance.propMap.gridSize;
-    const inflateWidth = this.inflateWidth;
     const marginColumns = CssManager.instance.propMap.marginColumn;
     const marginRows = CssManager.instance.propMap.marginRow;
 
-    this.objX = useX + marginColumns * gridSize - inflateWidth;
-    this.objY = useY + marginRows * gridSize - inflateWidth;
+    this.objX = useX + marginColumns * gridSize - this.inflateWidth;
+    this.objY = useY + marginRows * gridSize - this.inflateWidth;
     this.elm.style.transform = `translate(${this.objX}px,${
       this.objY
-    }px) rotate(${storeInfo.data!.angle}deg) translateZ(0)`;
+    }px) rotate(${sceneObjectInfo.data!.angle}deg) translateZ(0)`;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.otherText")
+  @Watch("sceneObjectInfo.data.otherText")
   private onChangeOtherText() {
-    this.otherText = this.storeInfo!.data!.otherText;
+    this.otherText = this.sceneObjectInfo!.data!.otherText;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.order")
+  @Watch("sceneAndObjectInfo.order")
   private onChangeOrder() {
-    this.elm.style.zIndex = this.storeInfo!.order.toString(10);
+    this.elm.style.zIndex = this.sceneAndObjectInfo!.order.toString(10);
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.columns")
+  @Watch("sceneObjectInfo.data.columns")
+  @Watch("inflateWidth")
   private onChangeColumns() {
-    const columns = this.storeInfo!.data!.columns;
+    const columns = this.sceneObjectInfo!.data!.columns;
     const gridSize = CssManager.instance.propMap.gridSize;
-    const inflateWidth = this.inflateWidth;
-    const objW = columns * gridSize + inflateWidth * 2;
+    const objW = columns * gridSize + this.inflateWidth * 2;
     this.elm.style.width = `${objW}px`;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.rows")
+  @Watch("sceneObjectInfo.data.rows")
+  @Watch("inflateWidth")
   private onChangeRows() {
-    const rows = this.storeInfo!.data!.rows;
+    const rows = this.sceneObjectInfo!.data!.rows;
     const gridSize = CssManager.instance.propMap.gridSize;
-    const inflateWidth = this.inflateWidth;
-    const objH = rows * gridSize + inflateWidth * 2;
+    const objH = rows * gridSize + this.inflateWidth * 2;
     this.elm.style.height = `${objH}px`;
   }
 
   private boxShadowWidth: number = 0;
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.isHideBorder")
+  @Watch("sceneObjectInfo.data.isHideBorder")
   private onChangeIsHideBorder() {
-    this.boxShadowWidth = this.storeInfo!.data!.isHideBorder ? 0 : 3;
+    this.boxShadowWidth = this.sceneObjectInfo!.data!.isHideBorder ? 0 : 3;
     this.elm.style.boxShadow = `0 0 0 ${this.boxShadowWidth}px ${this.boxShadowColor}`;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.isHideHighlight")
+  @Watch("sceneObjectInfo.data.isHideHighlight")
   private onChangeIsHideHighlight() {
-    const outlineWidth = this.storeInfo!.data!.isHideHighlight ? 0 : 6;
+    const outlineWidth = this.sceneObjectInfo!.data!.isHideHighlight ? 0 : 6;
     this.elm.style.outlineOffset = `-${outlineWidth}px`;
     this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
   }
@@ -176,29 +239,29 @@ export default class PieceMixin<
   private boxShadowColor: string = "";
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.isLock")
+  @Watch("sceneObjectInfo.data.isLock")
   private onChangeIsLock() {
-    this.boxShadowColor = this.storeInfo!.data!.isLock
+    this.boxShadowColor = this.sceneObjectInfo!.data!.isLock
       ? "rgb(255, 153, 153)"
       : "rgb(255, 255, 153)";
     this.elm.style.boxShadow = `0 0 0 ${this.boxShadowWidth}px ${this.boxShadowColor}`;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.angle")
+  @Watch("sceneObjectInfo.data.angle")
   private onChangeAngle() {
     this.elm.style.transform = `translate(${this.objX}px,${
       this.objY
-    }px) rotate(${this.storeInfo!.data!.angle}deg) translateZ(0)`;
+    }px) rotate(${this.sceneObjectInfo!.data!.angle}deg) translateZ(0)`;
   }
 
   @Watch("isMounted")
-  @Watch("storeInfo.data.backgroundList", { deep: true })
-  @Watch("storeInfo.data.textureIndex")
+  @Watch("sceneObjectInfo.data.backgroundList", { deep: true })
+  @Watch("sceneObjectInfo.data.textureIndex")
   private onChangeBackground() {
     if (!this.isMounted) return;
-    const textures = this.storeInfo!.data!.textures;
-    const textureIndex = this.storeInfo!.data!.textureIndex;
+    const textures = this.sceneObjectInfo!.data!.textures;
+    const textureIndex = this.sceneObjectInfo!.data!.textureIndex;
     const backInfo = textures[textureIndex];
     if (backInfo.type === "color") {
       this.elm.style.setProperty(`--image`, ``);
@@ -252,14 +315,14 @@ export default class PieceMixin<
     if (!param || param.key !== this.docId) return;
     if (!this.isMoving) return;
     const point = task.value!;
-    const planeLocateScreen = this.getPoint(point);
-    const diffX = planeLocateScreen.x - this.volatileInfo.moveFromPlane.x;
-    const diffY = planeLocateScreen.y - this.volatileInfo.moveFromPlane.y;
+    const planeLocateScene = this.getPoint(point);
+    const diffX = planeLocateScene.x - this.volatileInfo.moveFromPlane.x;
+    const diffY = planeLocateScene.y - this.volatileInfo.moveFromPlane.y;
     this.volatileInfo.moveDiff = createPoint(diffX, diffY);
   }
 
-  @TaskProcessor("change-focus-screen-object-finished")
-  private async changeFocusScreenObjectFinished(
+  @TaskProcessor("change-focus-scene-object-finished")
+  private async changeFocusSceneObjectFinished(
     task: Task<{ id: string; isFocus: boolean }, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value!.id !== this.docId) return;
@@ -277,10 +340,10 @@ export default class PieceMixin<
       `【highlight:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.cc!.touchModify(this.docId);
-      const data = (await this.cc!.getData(this.docId))!;
+      await this.sceneObjectCC!.touchModify(this.docId);
+      const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isHideHighlight = task.value.value;
-      await this.cc!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update(this.docId, data.data!);
     } catch (err) {
       window.console.warn(err);
     }
@@ -297,10 +360,10 @@ export default class PieceMixin<
       `【border:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.cc!.touchModify(this.docId);
-      const data = (await this.cc!.getData(this.docId))!;
+      await this.sceneObjectCC!.touchModify(this.docId);
+      const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isHideBorder = task.value.value;
-      await this.cc!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update(this.docId, data.data!);
     } catch (err) {
       window.console.warn(err);
     }
@@ -317,10 +380,10 @@ export default class PieceMixin<
       `【lock:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.cc!.touchModify(this.docId);
-      const data = (await this.cc!.getData(this.docId))!;
+      await this.sceneObjectCC!.touchModify(this.docId);
+      const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isLock = task.value.value;
-      await this.cc!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update(this.docId, data.data!);
     } catch (err) {
       window.console.warn(err);
     }
@@ -336,13 +399,9 @@ export default class PieceMixin<
     window.console.log(
       `【copy:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
-    try {
-      const newDocId = await this.cc!.touch();
-      const data = (await this.cc!.getData(this.docId))!;
-      await this.cc!.add(newDocId, data.data!);
-    } catch (err) {
-      window.console.warn(err);
-    }
+
+    const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
+    await GameObjectManager.instance.addSceneObject(data);
   }
 
   @TaskProcessor("delete-object-finished")
@@ -355,25 +414,21 @@ export default class PieceMixin<
     window.console.log(
       `【delete:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
-    try {
-      await this.cc!.touchModify(this.docId);
-      await this.cc!.delete(this.docId);
-    } catch (err) {
-      window.console.warn(err);
-    }
+
+    await GameObjectManager.instance.deleteSceneObject(this.docId);
   }
 
   private getPoint(point: Point) {
     const currentAngle = CssManager.instance.propMap.currentAngle;
     const calcResult = this.calcCoordinate(point, currentAngle);
-    return calcResult.planeLocateScreen;
+    return calcResult.planeLocateScene;
   }
 
   protected async leftDown(event: MouseEvent): Promise<void> {
-    if (this.storeInfo!.data!.isLock) return;
+    if (this.sceneObjectInfo!.data!.isLock) return;
     event.stopPropagation();
     try {
-      await this.cc!.touchModify(this.docId);
+      await this.sceneObjectCC!.touchModify(this.docId);
     } catch (err) {
       window.console.warn(err);
       return;
@@ -381,15 +436,15 @@ export default class PieceMixin<
     const clientRect = (event.target as any).getBoundingClientRect();
     const elmPoint = this.getPoint(createPoint(clientRect.x, clientRect.y));
     const point = getEventPoint(event);
-    const planeLocateScreen = this.getPoint(point);
+    const planeLocateScene = this.getPoint(point);
     this.volatileInfo.moveDiff = createPoint(0, 0);
     this.volatileInfo.moveFrom = createPoint(point.x, point.y);
     this.volatileInfo.moveFromPlane = createPoint(
-      planeLocateScreen.x,
-      planeLocateScreen.y
+      planeLocateScene.x,
+      planeLocateScene.y
     );
-    const relativeX = planeLocateScreen.x - elmPoint.x;
-    const relativeY = planeLocateScreen.y - elmPoint.y;
+    const relativeX = planeLocateScene.x - elmPoint.x;
+    const relativeY = planeLocateScene.y - elmPoint.y;
     this.volatileInfo.moveFromPlaneRelative = createPoint(relativeX, relativeY);
     this.isMoving = true;
     this.inflateWidth = 2;
@@ -428,25 +483,27 @@ export default class PieceMixin<
     if (!param || param.key !== this.docId) return;
 
     window.console.log("mouse-move-end-left-finished", param.key, param.type);
-    const data = JSON.parse(JSON.stringify(this.storeInfo!.data));
+    const data: SceneObject = clone(this.sceneObjectInfo!.data)!;
     data.x += this.volatileInfo.moveDiff.x;
     data.y += this.volatileInfo.moveDiff.y;
 
-    const isGridFit = true;
-    if (isGridFit) {
-      const gridSize = CssManager.instance.propMap.gridSize;
-      const relativeX = this.volatileInfo.moveFromPlaneRelative.x;
-      const relativeY = this.volatileInfo.moveFromPlaneRelative.y;
-      data.x =
-        (Math.floor((data.x + relativeX) / gridSize) -
-          Math.floor(relativeX / gridSize)) *
-        gridSize;
-      data.y =
-        (Math.floor((data.y + relativeY) / gridSize) -
-          Math.floor(relativeY / gridSize)) *
-        gridSize;
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const relativeX = this.volatileInfo.moveFromPlaneRelative.x;
+    const relativeY = this.volatileInfo.moveFromPlaneRelative.y;
+    data.column =
+      Math.floor((data.x + relativeX) / gridSize) -
+      Math.floor(relativeX / gridSize) +
+      1;
+    data.row =
+      Math.floor((data.y + relativeY) / gridSize) -
+      Math.floor(relativeY / gridSize) +
+      1;
+
+    if (GameObjectManager.instance.roomData.isFitGrid) {
+      data.x = (data.column - 1) * gridSize;
+      data.y = (data.row - 1) * gridSize;
     }
-    await this.cc!.update(this.docId, data);
+    await this.sceneObjectCC!.update(this.docId, data);
     this.inflateWidth = 0;
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -544,7 +601,7 @@ export default class PieceMixin<
 
   protected async mouseover(): Promise<void> {
     this.isHover = true;
-    const data = this.storeInfo!.data!;
+    const data = this.sceneObjectInfo!.data!;
     if (!data.otherText) return;
     await TaskManager.instance.ignition<OtherTextViewInfo, never>({
       type: "other-text-view",
@@ -562,7 +619,7 @@ export default class PieceMixin<
 
   protected async mouseout(): Promise<void> {
     this.isHover = false;
-    const data = this.storeInfo!.data!;
+    const data = this.sceneObjectInfo!.data!;
     if (!data.otherText) return;
     setTimeout(async () => {
       await TaskManager.instance.ignition<string, never>({

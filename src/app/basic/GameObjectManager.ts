@@ -2,26 +2,29 @@ import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
 import QuerySnapshot from "nekostore/lib/QuerySnapshot";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import {
-  ScreenAndLayer,
-  ScreenLayer,
-  Screen,
+  SceneAndLayer,
+  SceneLayer,
+  Scene,
   UserData,
   Image,
   ActorGroup,
-  ScreenAndObject
+  SceneAndObject,
+  RoomData,
+  SocketUserData
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
   ExtraStore,
-  ScreenObject,
-  Place,
+  SceneObject,
   PropertyFaceStore,
   PropertySelectionStore,
   PropertyStore,
-  TagNoteStore
+  TagNoteStore,
+  ActorStatusStore
 } from "@/@types/gameObject";
 import { ClientRoomInfo } from "@/@types/socket";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 
 export default class GameObjectManager {
   // シングルトン
@@ -51,12 +54,21 @@ export default class GameObjectManager {
               list.splice(index, 1);
             } else {
               const status = doc.data!.status;
+              // window.console.log(status, doc.ref.id);
               if (
                 (status !== "initial-touched" && index === -1) ||
                 status === "added" ||
                 status === "modified"
               ) {
-                list.splice(index, index < 0 ? 0 : 1, getStoreObj(doc)!);
+                const obj = getStoreObj(doc)!;
+                // if (obj && obj.data) {
+                //   const data: any = obj.data;
+                //   window.console.log(typeof data);
+                //   if ("name" in data) {
+                //     window.console.log(data.name);
+                //   }
+                // }
+                list.splice(index, index < 0 ? 0 : 1, obj);
                 wantSort = true;
               }
             }
@@ -70,16 +82,17 @@ export default class GameObjectManager {
         }
       );
     };
-    await setBasicSnapShot(
-      SocketFacade.instance.screenListCC(),
-      this.screenList
-    );
+    await setBasicSnapShot(SocketFacade.instance.sceneListCC(), this.sceneList);
     await setBasicSnapShot(SocketFacade.instance.imageDataCC(), this.imageList);
     await setBasicSnapShot(
       SocketFacade.instance.imageTagCC(),
       this.imageTagList
     );
     await setBasicSnapShot(SocketFacade.instance.userCC(), this.userList);
+    await setBasicSnapShot(
+      SocketFacade.instance.socketUserCC(),
+      this.socketUserList
+    );
     await setBasicSnapShot(SocketFacade.instance.extraCC(), this.extraList);
     await setBasicSnapShot(
       SocketFacade.instance.propertyFaceCC(),
@@ -90,20 +103,24 @@ export default class GameObjectManager {
       this.propertyList
     );
     await setBasicSnapShot(
-      SocketFacade.instance.screenLayerCC(),
-      this.screenLayerList
+      SocketFacade.instance.sceneLayerCC(),
+      this.sceneLayerList
     );
     await setBasicSnapShot(
-      SocketFacade.instance.screenAndLayerCC(),
-      this.screenAndLayerList
+      SocketFacade.instance.sceneAndLayerCC(),
+      this.sceneAndLayerList
     );
     await setBasicSnapShot(
-      SocketFacade.instance.screenAndObjectCC(),
-      this.screenAndObjectList
+      SocketFacade.instance.sceneAndObjectCC(),
+      this.sceneAndObjectList
     );
     await setBasicSnapShot(
-      SocketFacade.instance.screenObjectCC(),
-      this.screenObjectList
+      SocketFacade.instance.sceneObjectCC(),
+      this.sceneObjectList
+    );
+    await setBasicSnapShot(
+      SocketFacade.instance.actorStatusCC(),
+      this.actorStatusList
     );
     await setBasicSnapShot(
       SocketFacade.instance.propertySelectionCC(),
@@ -114,19 +131,42 @@ export default class GameObjectManager {
       SocketFacade.instance.actorGroupCC(),
       this.actorGroupList
     );
+
+    const roomDataCC = SocketFacade.instance.roomDataCC();
+    const roomData = (await roomDataCC.getList(false))[0];
+    Object.assign(this.roomData, roomData.data);
+
+    await roomDataCC.setSnapshot(
+      "GameObjectManager",
+      roomData.id!,
+      (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
+        if (snapshot.exists() && snapshot.data.status === "modified") {
+          Object.assign(this.roomData, snapshot.data.data);
+        }
+      }
+    );
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
-  public readonly screenList: StoreUseData<Screen>[] = [];
+  public readonly roomData: RoomData = {
+    sceneId: "",
+    isDrawGridLine: false,
+    isDrawGridId: false,
+    isFitGrid: false,
+    isUseRotateMarker: false
+  };
+  public readonly sceneList: StoreUseData<Scene>[] = [];
   public readonly imageList: StoreUseData<Image>[] = [];
   public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly userList: StoreUseData<UserData>[] = [];
+  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
   public readonly extraList: StoreUseData<ExtraStore>[] = [];
   public readonly propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
-  public readonly screenLayerList: StoreUseData<ScreenLayer>[] = [];
-  public readonly screenAndLayerList: StoreUseData<ScreenAndLayer>[] = [];
-  public readonly screenAndObjectList: StoreUseData<ScreenAndObject>[] = [];
-  public readonly screenObjectList: StoreUseData<ScreenObject>[] = [];
+  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
+  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
+  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
+  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
+  public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
   public readonly propertyList: StoreUseData<PropertyStore>[] = [];
   public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore
@@ -148,90 +188,153 @@ export default class GameObjectManager {
     await this.initialize();
   }
 
-  public async addScreen(
-    screen: Screen
-  ): Promise<{ screenId: string; mapAndLayerIdList: string[] }> {
+  public async addScene(
+    scene: Scene
+  ): Promise<{ sceneId: string; mapAndLayerIdList: string[] }> {
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
-    const screenListCC = SocketFacade.instance.screenListCC();
-    const screenId = await screenListCC.add(await screenListCC.touch(), screen);
+    const sceneListCC = SocketFacade.instance.sceneListCC();
+    const sceneId = await sceneListCC.add(await sceneListCC.touch(), scene);
 
     /* --------------------------------------------------
      * マップとレイヤーの紐づきのプリセットデータ投入
      */
-    const screenAndLayerCC = SocketFacade.instance.screenAndLayerCC();
+    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
     const mapAndLayerIdList: string[] = [];
-    const addScreenAndLayer = async (
-      sl: StoreUseData<ScreenLayer>
+    const addSceneAndLayer = async (
+      sl: StoreUseData<SceneLayer>
     ): Promise<void> => {
-      const mapAndLayerId = await screenAndLayerCC.touch();
+      const mapAndLayerId = await sceneAndLayerCC.touch();
       mapAndLayerIdList.push(mapAndLayerId);
-      await screenAndLayerCC.add(mapAndLayerId, {
-        screenId,
+      await sceneAndLayerCC.add(mapAndLayerId, {
+        sceneId,
         layerId: sl.id!,
         isUse: true
       });
     };
 
     // 直列の非同期で全部実行する
-    const screenLayerCC = SocketFacade.instance.screenLayerCC();
-    await (await screenLayerCC.getList(false))
-      .map((ml: StoreUseData<ScreenLayer>) => () => addScreenAndLayer(ml))
+    const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
+    await (await sceneLayerCC.getList(false))
+      .map((ml: StoreUseData<SceneLayer>) => () => addSceneAndLayer(ml))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     return {
-      screenId,
+      sceneId,
       mapAndLayerIdList
     };
   }
 
-  public async addScreenLayer(screenLayer: ScreenLayer) {
-    const screenLayerCC = SocketFacade.instance.screenLayerCC();
-    const layerId = await screenLayerCC.touch();
-    await screenLayerCC.add(layerId, screenLayer);
+  public async addSceneLayer(sceneLayer: SceneLayer) {
+    const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
+    const layerId = await sceneLayerCC.touch();
+    await sceneLayerCC.add(layerId, sceneLayer);
 
-    const screenAndLayerCC = SocketFacade.instance.screenAndLayerCC();
-    const addScreenAndLayer = async (
-      s: StoreUseData<Screen>
-    ): Promise<void> => {
-      const mapAndLayerId = await screenAndLayerCC.touch();
-      await screenAndLayerCC.add(mapAndLayerId, {
-        screenId: s.id!,
+    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
+    const addSceneAndLayer = async (s: StoreUseData<Scene>): Promise<void> => {
+      const mapAndLayerId = await sceneAndLayerCC.touch();
+      await sceneAndLayerCC.add(mapAndLayerId, {
+        sceneId: s.id!,
         layerId,
         isUse: true
       });
     };
 
     // 直列の非同期で全部実行する
-    const screenListCC = SocketFacade.instance.screenListCC();
-    await (await screenListCC.getList(false))
-      .map((s: StoreUseData<Screen>) => () => addScreenAndLayer(s))
+    const sceneListCC = SocketFacade.instance.sceneListCC();
+    await (await sceneListCC.getList(false))
+      .map((s: StoreUseData<Scene>) => () => addSceneAndLayer(s))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
-  public async addScreenObject(screenObject: ScreenObject) {
-    const screenObjectCC = SocketFacade.instance.screenObjectCC();
-    const objectId = await screenObjectCC.touch();
-    await screenObjectCC.add(objectId, screenObject);
+  public async addSceneObject(sceneObject: SceneObject) {
+    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
+    const objectId = await sceneObjectCC.touch();
+    await sceneObjectCC.add(objectId, sceneObject);
 
-    const screenAndObjectCC = SocketFacade.instance.screenAndObjectCC();
-    this.screenList.forEach(async s => {
-      const screenId = s.id!;
-      await screenAndObjectCC.add(await screenAndObjectCC.touch(), {
-        screenId,
+    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
+    this.sceneList.forEach(async s => {
+      const sceneId = s.id!;
+      await sceneAndObjectCC.add(await sceneAndObjectCC.touch(), {
+        sceneId,
         objectId,
-        startTimeStatus: null,
-        startTimePlace: null,
-        startTimePoint: null,
-        startTimeMatrix: null,
-        isOriginalPoint: false,
-        originalPoint: null,
-        originalMatrix: null,
+        // startTimeStatus: "",
+        // startTimePlace: "",
+        isOriginalAddress: false,
+        originalAddress: null,
         entering: "normal"
       });
     });
+  }
+
+  public async deleteSceneObject(id: string) {
+    const sceneAndObjectIdList: string[] = [];
+    const touchedList: string[] = [];
+    let error: boolean = false;
+
+    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
+    this.sceneList.forEach(async s => {
+      const sceneId = s.id!;
+      this.sceneAndLayerList
+        .filter(sao => sao.id === sceneId)
+        .forEach(async sao => {
+          sceneAndObjectIdList.push(sao.id!);
+        });
+    });
+
+    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
+      await sceneAndObjectCC!.releaseTouch(id);
+    };
+    const touchModifyFunc = async (id: string): Promise<void> => {
+      if (error) return;
+      try {
+        await sceneAndObjectCC!.touchModify(id);
+        touchedList.push(id);
+      } catch (err) {
+        error = true;
+
+        // 直列の非同期で全部実行する
+        await touchedList
+          .map((id: string) => () => releaseTouchModifyFunc(id))
+          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+      }
+    };
+
+    // 直列の非同期で全部実行する
+    await sceneAndObjectIdList
+      .map((id: string) => () => touchModifyFunc(id))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
+    try {
+      await sceneObjectCC!.touchModify(id);
+    } catch (err) {
+      window.console.warn(err);
+      error = true;
+
+      // 直列の非同期で全部実行する
+      await touchedList
+        .map((id: string) => () => releaseTouchModifyFunc(id))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    }
+
+    if (error) {
+      alert(
+        "Failure to delete object.\nAny data is locked.\nPlease try again latter."
+      );
+      return;
+    }
+
+    await sceneObjectCC!.delete(id);
+    const deleteFunc = async (id: string): Promise<void> => {
+      await sceneAndObjectCC!.delete(id);
+    };
+    // 直列の非同期で全部実行する
+    touchedList
+      .map((id: string) => () => deleteFunc(id))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
   public get mySelf(): StoreUseData<UserData> | null {
@@ -254,30 +357,34 @@ export default class GameObjectManager {
 
   public getList(type: string): StoreUseData<unknown>[] | null {
     switch (type) {
-      case "screen":
-        return this.screenList;
+      case "scene":
+        return this.sceneList;
       case "image":
         return this.imageList;
       case "image-tag":
         return this.imageTagList;
       case "user":
         return this.userList;
+      case "socket-user":
+        return this.socketUserList;
       case "map-mask":
       case "chit":
       case "floor-tile":
       case "dice-symbol":
       case "character":
-        return this.screenObjectList;
+        return this.sceneObjectList;
+      case "actor-status":
+        return this.actorStatusList;
       case "extra":
         return this.extraList;
       case "property-face":
         return this.propertyFaceList;
-      case "screen-layer":
-        return this.screenLayerList;
-      case "screen-and-layer":
-        return this.screenAndLayerList;
-      case "screen-and-object":
-        return this.screenAndObjectList;
+      case "scene-layer":
+        return this.sceneLayerList;
+      case "scene-and-layer":
+        return this.sceneAndLayerList;
+      case "scene-and-object":
+        return this.sceneAndObjectList;
       case "property":
         return this.propertyList;
       case "property-selection":

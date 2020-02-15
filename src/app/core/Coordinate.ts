@@ -146,11 +146,11 @@ export function calcWindowPosition(
   if (typeof position !== "string") return position;
 
   let point: Point = createPoint(0, 0);
-  const screenSize = getPageSize();
-  const screenCenter = calcCenter({
+  const sceneSize = getPageSize();
+  const sceneCenter = calcCenter({
     ...createPoint(0, menuHeight),
-    width: screenSize.width,
-    height: screenSize.height - menuHeight
+    width: sceneSize.width,
+    height: sceneSize.height - menuHeight
   });
   const windowCenter = calcCenter({
     ...createPoint(0, 0),
@@ -158,27 +158,27 @@ export function calcWindowPosition(
   });
 
   if (position === "center") {
-    point.x = screenCenter.x - windowCenter.x;
-    point.y = screenCenter.y - windowCenter.y;
+    point.x = sceneCenter.x - windowCenter.x;
+    point.y = sceneCenter.y - windowCenter.y;
   } else {
     const windowTitleHeight = getCssPxNum("--window-title-height");
     const windowPadding = getCssPxNum("--window-padding");
     const scrollBarWidth = getCssPxNum("--scroll-bar-width");
     const [h, v] = position.toString().split("-");
     if (h === "left") point.x = 0;
-    if (h === "center") point.x = screenCenter.x - windowCenter.x;
+    if (h === "center") point.x = sceneCenter.x - windowCenter.x;
     if (h === "right")
       point.x =
-        screenSize.width -
+        sceneSize.width -
         windowSize.width -
         windowPadding * 2 -
         scrollBarWidth -
         2;
     if (v === "top") point.y = menuHeight;
-    if (v === "center") point.y = screenCenter.y - windowCenter.y;
+    if (v === "center") point.y = sceneCenter.y - windowCenter.y;
     if (v === "bottom")
       point.y =
-        screenSize.height -
+        sceneSize.height -
         windowSize.height -
         windowPadding * 2 -
         windowTitleHeight;

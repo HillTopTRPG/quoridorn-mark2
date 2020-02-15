@@ -2,6 +2,7 @@
   <div class="root" ref="component">
     <div class="front">
       <input
+        type="text"
         class="text-input"
         :class="{ pending: isSelectMode }"
         v-model="inputText"
@@ -170,10 +171,10 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
 
   private updateLocation() {
     const rect = this.getRect();
-    const screenHeight = window.innerHeight;
+    const sceneHeight = window.innerHeight;
     const menuHeight = getCssPxNum("--menu-bar-height");
     const itemHeight = getCssPxNum("--select-item-height", this.elm);
-    const inputBottom = screenHeight - menuHeight - rect.y - rect.height;
+    const inputBottom = sceneHeight - menuHeight - rect.y - rect.height;
     const contentsHeight =
       Math.min(this.filteredSystemList.length, 10) * itemHeight;
     const y =

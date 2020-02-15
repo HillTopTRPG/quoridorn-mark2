@@ -42,6 +42,35 @@
   outline
   */
 
+  .tag {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateY(-100%);
+  }
+
+  .lock-info {
+    position: absolute;
+    outline-offset: 5px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    outline: 5px dashed green;
+  }
+
+  .lock-info-message {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: translateY(-100%);
+    border: 1px solid gray;
+    border-radius: 0.2rem 0.2rem 0 0;
+    background-color: white;
+    padding-left: 0.2rem;
+  }
+
   &.hover {
     z-index: 599999999 !important;
   }

@@ -3,27 +3,27 @@
     <div class="area-map-container">
       <div
         class="area-map"
-        :class="{ selected: selectedScreenId === screen.id }"
-        v-for="(screen, idx) in useScreenList"
+        :class="{ selected: selectedSceneId === scene.id }"
+        v-for="(scene, idx) in useSceneList"
         :key="idx"
-        @click="selectAreaMap(screen)"
+        @click="selectAreaMap(scene)"
         @dblclick="editMap()"
-        ref="screen"
+        ref="scene"
       ></div>
       <div class="area-map add" @click="createMap()">
         <span>＋</span>
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click="editMap()" :disabled="!selectedScreenId">
+      <ctrl-button @click="editMap()" :disabled="!selectedSceneId">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
-      <ctrl-button @click="chmodMap()" :disabled="!selectedScreenId">
+      <ctrl-button @click="chmodMap()" :disabled="!selectedSceneId">
         <span v-t="'context.chmod'"></span>
       </ctrl-button>
       <ctrl-button
         @click="deleteMap()"
-        :disabled="!selectedScreenId || useScreenList.length <= 1"
+        :disabled="!selectedSceneId || useSceneList.length <= 1"
       >
         <span v-t="'button.delete'"></span>
       </ctrl-button>
@@ -45,10 +45,10 @@ import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import GameTable from "@/app/basic/map/GameTable.vue";
 import { StoreUseData } from "@/@types/store";
-import { Screen } from "@/@types/room";
+import { Scene } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -56,7 +56,7 @@ import { DataReference } from "@/@types/data";
 
 @Component({
   components: {
-    ScreenLayerSelect,
+    SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -64,14 +64,14 @@ import { DataReference } from "@/@types/data";
     CtrlButton
   }
 })
-export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
+export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private isMounted: boolean = false;
-  private cc = SocketFacade.instance.screenListCC();
+  private cc = SocketFacade.instance.sceneListCC();
   private imageList = GameObjectManager.instance.imageList;
-  private screenList = GameObjectManager.instance.screenList;
-  private selectedScreenId: string | null = null;
+  private sceneList = GameObjectManager.instance.sceneList;
+  private selectedSceneId: string | null = null;
 
   @LifeCycle
   private async mounted() {
@@ -79,18 +79,18 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     this.isMounted = true;
   }
 
-  private get useScreenList() {
-    return this.screenList.filter(s => permissionCheck(s, "view"));
+  private get useSceneList() {
+    return this.sceneList.filter(s => permissionCheck(s, "view"));
   }
 
   @Watch("isMounted")
-  @Watch("useScreenList")
-  private onChangeScreenList() {
-    const elmList: HTMLElement[] = this.$refs.screen as HTMLElement[];
-    if (this.useScreenList.findIndex(s => !s.data) > -1) return;
+  @Watch("useSceneList")
+  private onChangeSceneList() {
+    const elmList: HTMLElement[] = this.$refs.scene as HTMLElement[];
+    if (this.useSceneList.findIndex(s => !s.data) > -1) return;
     // window.console.log(this.mapList[0].data.texture);
     setTimeout(() => {
-      this.useScreenList
+      this.useSceneList
         .map(s => s.data!)
         .forEach(async (s, index) => {
           // window.console.log(map.texture);
@@ -122,18 +122,19 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
     });
   }
 
-  private selectAreaMap(screen: StoreUseData<Screen>) {
-    this.selectedScreenId = screen.id;
+  private selectAreaMap(scene: StoreUseData<Scene>) {
+    this.selectedSceneId = scene.id;
   }
 
   @VueEvent
   private async editMap() {
+    await this.close();
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "edit-map-window",
-        args: this.selectedScreenId!
+        type: "edit-scene-window",
+        args: this.selectedSceneId!
       }
     });
   }
@@ -146,8 +147,8 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "screen",
-          docId: this.selectedScreenId!
+          type: "scene",
+          docId: this.selectedSceneId!
         }
       }
     });
@@ -156,15 +157,15 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
   private async deleteMap() {
     const result = window.confirm("本当に削除しますか？");
     if (!result) return;
-    await this.cc.touchModify(this.selectedScreenId!);
-    await this.cc.delete(this.selectedScreenId!);
+    await this.cc.touchModify(this.selectedSceneId!);
+    await this.cc.delete(this.selectedSceneId!);
   }
 
   private async createMap() {
     const firstImage = this.imageList[0].data!;
     const firstImageId = this.imageList[0].id!;
 
-    const screen: Screen = {
+    const scene: Scene = {
       name: "New map",
       columns: 20,
       rows: 15,
@@ -172,6 +173,14 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       gridColor: "#000000",
       fontColor: "#000000",
       portTileMapping: "",
+      switchBefore: {
+        priority: 1,
+        direction: "normal"
+      },
+      switchAfter: {
+        priority: 1,
+        direction: "normal"
+      },
       shapeType: "square",
       texture: {
         type: "image",
@@ -215,7 +224,7 @@ export default class EditAreaMapWindow extends Mixins<WindowVue<string, never>>(
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    await GameObjectManager.instance.addScreen(screen);
+    await GameObjectManager.instance.addScene(scene);
   }
 }
 </script>

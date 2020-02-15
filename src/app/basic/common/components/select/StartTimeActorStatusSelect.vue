@@ -2,39 +2,56 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :multiple="multiple"
-    :disabled="disabled"
+    :id="id"
     ref="component"
   />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
+
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Prop } from "vue-property-decorator";
-import { Place } from "@/@types/gameObject";
-import { HtmlOptionInfo } from "@/@types/window";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { Prop, Watch } from "vue-property-decorator";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class CharacterSelect extends Mixins<MultiMixin>(
+export default class StartTimeActorStatusSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  @Prop({ type: Array, default: [] })
-  private placeList!: Place[];
+  @Prop({ type: String, required: true })
+  private parentId!: string;
 
   private optionInfoList: HtmlOptionInfo[] = [];
+
+  private actorStatusList = GameObjectManager.instance.actorStatusList;
+
+  private get optionInfoContents(): HtmlOptionInfo[] {
+    return this.actorStatusList
+      .filter(s => s.data!.parentId === this.parentId)
+      .map(s => ({
+        key: s.id!,
+        value: s.id!,
+        text: s.data!.name,
+        disabled: false
+      }));
+  }
+
+  @Watch("optionInfoContents")
+  private onChangeOptionInfoContents() {
+    this.createOptionInfoList();
+  }
 
   @LifeCycle
   private async created() {
@@ -54,24 +71,11 @@ export default class CharacterSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    this.optionInfoList = GameObjectManager.instance.sceneObjectList
-      .filter(mo => {
-        if (!(mo.data!.type === "character")) return false;
-        return (
-          this.placeList.length === 0 ||
-          this.placeList.findIndex(p => p === mo.data!.place) > -1
-        );
-      })
-      .map(c => ({
-        key: c.id!,
-        value: c.id!,
-        text: c.data!.name,
-        disabled: false
-      }));
+    this.optionInfoList = this.optionInfoContents.concat();
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: getText("type.character"),
+      text: LanguageManager.instance.getText("label.actor-status"),
       disabled: true
     });
   }

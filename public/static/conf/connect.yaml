@@ -1,7 +1,7 @@
 ##[ Quoridornアプリケーションサーバ ]#############################################
 # ----- 変更時の選択肢を１つしか用意しない場合
-quoridornServer: "http://localhost:8000"
-# quoridornServer: "wss://quori-dev.onlinesession.app"
+# quoridornServer: "http://localhost:8000"
+quoridornServer: "wss://quori-dev.onlinesession.app"
 
 # ----- 変更時の選択肢を複数用意する場合
 #quoridornServer:

@@ -141,6 +141,15 @@ label:
   permission-view: 閲覧権限
   permission-edit: 編集権限
   permission-chmod: 権限変更権限
+  map-object: マップオブジェクト
+  place: 場所
+  field: フィールド
+  graveyard: 墓地
+  backstage: 控え室
+  actor-status: 状態
+  x: X
+  y: Y
+  original-address: 独自座標
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -238,11 +247,17 @@ input-image-password-window:
   window-title: 숨겨진 이미지 암호 입력
   message: 암호를 입력하면 숨겨진 이미지를 표시 할 수 있습니다
 
-edit-area-map-window:
+scene-list-window:
   window-title: エリアマップ編集
 
-edit-map-window:
-  window-title: マップ編集
+edit-scene-window:
+  window-title: シーン編集
+  message-select:
+    layer-view: レイヤーの表示・非表示を切り替えます。
+    object-order: ドラッグでオブジェクトの順番を入れ替えます。
+    object-order-mode-on: オブジェクトの順番を入れ替えるモードにします。
+    object-order-mode-off: 通常のモードに戻します。
+    original-address: 他のシーンと異なる座標を持つかの設定です。
 
 chmod-window:
   window-title: 権限変更

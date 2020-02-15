@@ -11,7 +11,14 @@
     @mousedown.right.stop="rightDown"
     @contextmenu.prevent
     ref="component"
-  ></div>
+  >
+    <span class="tag" v-if="sceneObjectInfo">
+      {{ sceneObjectInfo.data.name }} - {{ elm.style.zIndex }} - {{ docId }}
+    </span>
+    <div class="lock-info" v-if="lockMessage">
+      <span class="lock-info-message" v-html="lockMessage"></span>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

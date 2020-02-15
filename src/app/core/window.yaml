@@ -672,7 +672,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"edit-area-map-window":
+"scene-list-window":
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -708,7 +708,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
-"edit-map-window":
+"edit-scene-window":
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false

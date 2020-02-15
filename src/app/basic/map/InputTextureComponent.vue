@@ -58,7 +58,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
@@ -69,7 +69,7 @@ import { parseColor } from "@/app/core/Utility";
   components: {
     ImagePickerComponent,
     BackgroundTypeRadio,
-    ScreenLayerSelect,
+    SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,

@@ -23,6 +23,7 @@
         <label>
           <span class="label-input" v-t="'label.invite-url'"></span>
           <base-input
+            type="text"
             v-if="clientRoomInfo"
             :value="getInviteUrl()"
             tabindex="-1"
@@ -63,6 +64,7 @@
             <td class="center">{{ user.data.login }}</td>
             <td class="url">
               <base-input
+                type="text"
                 v-if="clientRoomInfo"
                 :value="getInviteUrl(user)"
                 tabindex="-1"

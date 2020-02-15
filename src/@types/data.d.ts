@@ -1,5 +1,5 @@
 import { Matrix, Point } from "address";
-import { Permission } from "@/@types/store";
+import { Permission, StoreObj } from "@/@types/store";
 
 export type TouchRequest = {
   collection: string;
@@ -9,7 +9,7 @@ export type TouchModifyRequest = TouchRequest & {
   id: string;
 };
 export type ReleaseTouchRequest = TouchModifyRequest & {
-  continuous?: boolean;
+  option?: { continuous?: boolean };
 };
 
 export type CreateDataRequest = TouchModifyRequest & {
@@ -19,8 +19,7 @@ export type CreateDataRequest = TouchModifyRequest & {
 export type DeleteDataRequest = TouchModifyRequest;
 export type UpdateDataRequest = TouchModifyRequest & {
   data: any;
-  permission?: Permission;
-  continuous?: boolean;
+  option?: Partial<StoreObj<unknown>> & { continuous?: boolean };
 };
 
 export type DataReference = {

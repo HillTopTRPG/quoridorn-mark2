@@ -57,7 +57,7 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <screen-layer-select v-model="layerId" />
+          <scene-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
@@ -125,7 +125,7 @@
               <base-input
                 type="checkbox"
                 :value="isMulti"
-                @input="isMulti = $event.target.value"
+                @input="isMulti = $event.target.checked"
               />
               <span v-t="'label.multi-create'"></span>
             </label>
@@ -154,11 +154,11 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
 import { TabInfo } from "@/@types/window";
-import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 
 @Component({
   components: {
-    ScreenLayerSelect,
+    SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -176,7 +176,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   private width: number = 1;
   private isMulti: boolean = false;
   private isMounted: boolean = false;
-  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
   private otherText: string = "";
@@ -238,7 +238,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
     const colorObj = parseColor(this.color);
     const backgroundColor = colorObj.getRGBA();
     const fontColor = colorObj.getRGBReverse();
-    await GameObjectManager.instance.addScreenObject({
+    await GameObjectManager.instance.addSceneObject({
       type: "map-mask",
       name: this.name,
       x: point.x,

@@ -140,7 +140,9 @@ export default class ChmodWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    await this.cc!.update(this.docId, data.data!, this.permission || undefined);
+    await this.cc!.update(this.docId, data.data!, {
+      permission: this.permission || undefined
+    });
     this.isProcessed = true;
     await this.close();
   }

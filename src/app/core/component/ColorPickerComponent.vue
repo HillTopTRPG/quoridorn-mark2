@@ -31,7 +31,7 @@
       max="1"
       step="0.1"
       :value="alpha"
-      @input="alpha = $event.target.value"
+      @input="alpha = $event.target.valueAsNumber"
       :disabled="disabled"
       @keydown.enter.stop
       @keyup.enter.stop

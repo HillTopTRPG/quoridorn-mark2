@@ -26,7 +26,7 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class ScreenLayerSelect extends Mixins<MultiMixin>(
+export default class SceneLayerSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
@@ -37,17 +37,17 @@ export default class ScreenLayerSelect extends Mixins<MultiMixin>(
   private async created() {
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
-    const screenId = roomData.data!.screenId;
-    GameObjectManager.instance.screenAndLayerList
-      .filter(mal => mal.data!.screenId === screenId)
+    const sceneId = roomData.data!.sceneId;
+    GameObjectManager.instance.sceneAndLayerList
+      .filter(mal => mal.data!.sceneId === sceneId)
       .forEach(mal => {
         const layerId = mal.data!.layerId;
-        const layer = GameObjectManager.instance.screenLayerList.filter(
+        const layer = GameObjectManager.instance.sceneLayerList.filter(
           sl => sl.id === layerId
         )[0];
       });
-    this.orderList = GameObjectManager.instance.screenAndLayerList
-      .filter(mal => mal.data!.screenId === screenId)
+    this.orderList = GameObjectManager.instance.sceneAndLayerList
+      .filter(mal => mal.data!.sceneId === sceneId)
       .sort((mal1, mal2) => {
         if (mal1.order < mal2.order) return -1;
         if (mal1.order > mal2.order) return 1;
@@ -70,7 +70,7 @@ export default class ScreenLayerSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    this.optionInfoList = GameObjectManager.instance.screenLayerList
+    this.optionInfoList = GameObjectManager.instance.sceneLayerList
       .sort((ml1, ml2) => {
         const ml1Index = this.orderList.findIndex(o => o === ml1.id);
         const ml2Index = this.orderList.findIndex(o => o === ml2.id);

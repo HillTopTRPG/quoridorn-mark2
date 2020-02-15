@@ -180,8 +180,7 @@ export default class NekostoreCollectionController<T> {
   public async update(
     id: string,
     data: T,
-    permission?: Permission,
-    continuous?: boolean
+    option?: Partial<StoreObj<unknown>> & { continuous?: boolean }
   ) {
     const index = this.touchList.findIndex(listId => listId === id);
     this.touchList.splice(index, 1);
@@ -191,8 +190,7 @@ export default class NekostoreCollectionController<T> {
         collection: this.collectionName,
         id,
         data,
-        permission,
-        continuous
+        option
       }
     );
   }

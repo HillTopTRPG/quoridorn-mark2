@@ -1,7 +1,7 @@
-import { Matrix, Point } from "address";
+import { Address, Point } from "address";
 import { Texture } from "@/@types/room";
 
-type ScreenObjectType =
+type SceneObjectType =
   | "character"
   | "map-mask"
   | "map-marker"
@@ -20,25 +20,24 @@ type VolatileMapObject = {
 };
 
 type Place = "field" | "graveyard" | "backstage";
-type ScreenObjectBase = Point &
-  Matrix & {
-    type: ScreenObjectType;
-    name: string;
-    owner: string; // id
-    rows: number;
-    columns: number;
-    isHideBorder: boolean;
-    isHideHighlight: boolean;
-    isLock: boolean;
-    otherText: string;
-    place: Place;
-    layerId: string;
-    textures: Texture[];
-    textureIndex: number;
-    angle: number;
-  };
+type SceneObjectBase = Address & {
+  type: SceneObjectType;
+  name: string;
+  owner: string; // id
+  rows: number;
+  columns: number;
+  isHideBorder: boolean;
+  isHideHighlight: boolean;
+  isLock: boolean;
+  otherText: string;
+  place: Place;
+  layerId: string;
+  textures: Texture[];
+  textureIndex: number;
+  angle: number;
+};
 
-type ScreenObject = ScreenObjectBase &
+type SceneObject = SceneObjectBase &
   (
     | MapMaskStore
     | MapMarkerStore
@@ -70,7 +69,7 @@ type CharacterStore = {
   type: "character";
   chatFontColorType: "owner" | "original"; // character
   chatFontColor: string; // character
-  status: string; // character(id)
+  actorStatusId: string; // character(id)
   isHide: boolean; // character
   url: string; // character
 };
@@ -79,7 +78,38 @@ type ExtraStore = {
   owner: string; // id
   chatFontColorType: "owner" | "original";
   chatFontColor: string;
-  status: string; // id
+  actorStatusId: string; // id
+};
+
+type ActorStatusStore = {
+  parentId: string;
+  name: string;
+  standImageInfoId: "" | string; // id
+  chatPaletteInfoId: "" | string; // id
+};
+
+// import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
+type StandImageDiffInfo = Point & {
+  imageId: string;
+  imageTag: string;
+  type: number;
+  time: [number, number];
+};
+
+type StandImageInfo = {
+  parentId: string;
+  baseImageId: string;
+  baseImageTag: string;
+  autoResize: boolean;
+  animationLength: number;
+  locate: number;
+  diffList: StandImageDiffInfo[];
+};
+
+// import { ChatPaletteInfo } from "@/app/basic/chat-palette/ChatPalette";
+type ChatPaletteInfo = {
+  parentId: string;
+  list: string[];
 };
 
 type TagNoteStore = {

@@ -363,8 +363,7 @@ export default class PlayYoutubeWindow
   private isSeekToAfter: boolean = false;
 
   @VueEvent
-  private seekTo(seekStr: string, allowSeekAhead: boolean) {
-    const seek = parseInt(seekStr, 10);
+  private seekTo(seek: number, allowSeekAhead: boolean) {
     this.isSeekToBefore = seek < this.bgmStart;
     this.isSeekToAfter = this.bgmEnd < seek;
     setTimeout(() => {

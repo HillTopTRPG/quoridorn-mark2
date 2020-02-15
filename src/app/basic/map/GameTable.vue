@@ -22,9 +22,9 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board :screen="screen" />
+        <map-board :scene="scene" />
 
-        <screen-layer-component
+        <scene-layer-component
           v-for="layer in useLayerList"
           :key="layer.id"
           :layer="layer"
@@ -59,32 +59,32 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { Screen, RoomData, Texture } from "@/@types/room";
+import { Scene, RoomData, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
-import ScreenLayerComponent from "@/app/basic/map/ScreenLayerComponent.vue";
+import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { ModeInfo } from "mode";
 
 @Component({
   components: {
-    ScreenLayerComponent,
+    SceneLayerComponent,
     MapBoard,
     MapMask,
     Chit
   }
 })
 export default class GameTable extends AddressCalcMixin {
-  private screenLayerList = GameObjectManager.instance.screenLayerList;
-  private screenAndLayerList = GameObjectManager.instance.screenAndLayerList;
+  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
+  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
 
   private get useLayerList() {
-    return this.screenAndLayerList
+    return this.sceneAndLayerList
       .filter(
-        mal => mal.data && mal.data.screenId === this.screenId && mal.data.isUse
+        mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
       )
       .map(mal => mal.data!.layerId)
-      .map(layerId => this.screenLayerList.filter(ml => ml.id === layerId)[0])
+      .map(layerId => this.sceneLayerList.filter(ml => ml.id === layerId)[0])
       .filter(ml => ml);
   }
 
@@ -93,8 +93,8 @@ export default class GameTable extends AddressCalcMixin {
 
   private key = "game-table";
 
-  private screenId: string | null = null;
-  private screen: Screen | null = null;
+  private sceneId: string | null = null;
+  private scene: Scene | null = null;
   private isMounted: boolean = false;
 
   private get appElm(): HTMLElement {
@@ -121,43 +121,43 @@ export default class GameTable extends AddressCalcMixin {
     return document.getElementById("map-canvas-background")!;
   }
 
-  private get backScreenElm(): HTMLElement {
-    return document.getElementById("back-screen")!;
+  private get backSceneElm(): HTMLElement {
+    return document.getElementById("back-scene")!;
   }
 
   @VueEvent
   private async mounted() {
-    const screenListCC = SocketFacade.instance.screenListCC();
+    const sceneListCC = SocketFacade.instance.sceneListCC();
     const roomDataCC = SocketFacade.instance.roomDataCC();
     const roomData: StoreUseData<RoomData> = (
       await roomDataCC.getList(false)
     )[0];
     if (!roomData) throw new ApplicationError("No such roomData.");
 
-    this.screenId = roomData.data!.screenId;
-    const screenData = await screenListCC.getData(this.screenId);
-    await screenListCC.setSnapshot(this.key, this.screenId, async snapshot => {
+    this.sceneId = roomData.data!.sceneId;
+    const sceneData = await sceneListCC.getData(this.sceneId);
+    await sceneListCC.setSnapshot(this.key, this.sceneId, async snapshot => {
       if (snapshot.data!.status === "modified") {
-        const screen = snapshot.data!.data!;
-        CssManager.instance.propMap.totalColumn = screen.columns;
-        CssManager.instance.propMap.totalRow = screen.rows;
-        CssManager.instance.propMap.gridSize = screen.gridSize!;
-        CssManager.instance.propMap.marginColumn = screen.margin.columns;
-        CssManager.instance.propMap.marginRow = screen.margin.rows;
+        const scene = snapshot.data!.data!;
+        CssManager.instance.propMap.totalColumn = scene.columns;
+        CssManager.instance.propMap.totalRow = scene.rows;
+        CssManager.instance.propMap.gridSize = scene.gridSize!;
+        CssManager.instance.propMap.marginColumn = scene.margin.columns;
+        CssManager.instance.propMap.marginRow = scene.margin.rows;
         CssManager.instance.propMap.marginBorderWidth =
-          screen.margin.border.width;
-        await this.setCss(screen);
-        this.screen = screen;
+          scene.margin.border.width;
+        await this.setCss(scene);
+        this.scene = scene;
       }
     });
-    if (!screenData) throw new ApplicationError("No such mapData.");
-    this.screen = screenData.data!;
-    CssManager.instance.propMap.totalColumn = this.screen!.columns;
-    CssManager.instance.propMap.totalRow = this.screen!.rows;
-    CssManager.instance.propMap.gridSize = this.screen!.gridSize!;
-    CssManager.instance.propMap.marginColumn = this.screen!.margin.columns;
-    CssManager.instance.propMap.marginRow = this.screen!.margin.rows;
-    CssManager.instance.propMap.marginBorderWidth = this.screen!.margin.border.width;
+    if (!sceneData) throw new ApplicationError("No such mapData.");
+    this.scene = sceneData.data!;
+    CssManager.instance.propMap.totalColumn = this.scene!.columns;
+    CssManager.instance.propMap.totalRow = this.scene!.rows;
+    CssManager.instance.propMap.gridSize = this.scene!.gridSize!;
+    CssManager.instance.propMap.marginColumn = this.scene!.margin.columns;
+    CssManager.instance.propMap.marginRow = this.scene!.margin.rows;
+    CssManager.instance.propMap.marginBorderWidth = this.scene!.margin.border.width;
     CssManager.instance.propMap.wheel = 0;
     CssManager.instance.propMap.currentAngle = 0;
     const totalLeftX = Math.round(this.point.x + this.pointDiff.x);
@@ -167,20 +167,20 @@ export default class GameTable extends AddressCalcMixin {
 
     this.isMounted = true;
     this.gameTableContainerElm.style.transform = `translateZ(${0})`;
-    await this.setCss(this.screen);
+    await this.setCss(this.scene);
   }
 
-  private async setCss(screen: Screen) {
+  private async setCss(scene: Scene) {
     if (!this.isMounted) return;
-    const margin = screen.margin;
-    const background = screen.background;
-    await GameTable.setBackground(this.mapCanvasBackElm, screen.texture);
-    await GameTable.setBackground(this.backScreenElm, background.texture);
+    const margin = scene.margin;
+    const background = scene.background;
+    await GameTable.setBackground(this.mapCanvasBackElm, scene.texture);
+    await GameTable.setBackground(this.backSceneElm, background.texture);
     await GameTable.setBackground(this.tableBackElm, margin.texture);
-    this.gridPaperElm.style.backgroundSize = `${screen.gridSize!}px ${screen.gridSize!}px`;
+    this.gridPaperElm.style.backgroundSize = `${scene.gridSize!}px ${scene.gridSize!}px`;
     this.gridPaperElm.style.backgroundColor = margin.maskColor;
     this.tableBackElm.style.filter = `blur(${margin.maskBlur}px)`;
-    this.backScreenElm.style.filter = `blur(${background.maskBlur}px)`;
+    this.backSceneElm.style.filter = `blur(${background.maskBlur}px)`;
     this.gridPaperElm.style.setProperty(
       "--margin-grid-color-bold",
       margin.isUseGrid ? margin.gridColorBold : "transparent"

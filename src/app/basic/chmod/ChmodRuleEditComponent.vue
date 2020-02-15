@@ -36,7 +36,7 @@
         <base-input
           type="checkbox"
           :value="isUseOwner"
-          @input="isUseOwner = $event.target.value"
+          @input="isUseOwner = $event.target.checked"
           :disabled="permissionRule.type === 'none'"
         />
       </label>

@@ -86,10 +86,12 @@ export default class Context extends Vue {
     const obj: any = list ? list.filter(o => o.id === this.target)[0] : null;
     const name =
       obj && obj.data && "name" in obj.data
-        ? "-" + obj.data.name.toString()
+        ? " " + obj.data.name.toString()
         : "";
 
-    this.title = LanguageManager.instance.getText(`type.${this.type}`) + name;
+    this.title = `(${LanguageManager.instance.getText(
+      `type.${this.type}`
+    )})${name}`;
 
     window.console.log(
       `【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`

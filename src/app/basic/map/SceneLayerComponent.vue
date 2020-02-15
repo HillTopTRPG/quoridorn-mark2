@@ -1,18 +1,20 @@
 <template>
-  <div class="screen-layer" :class="[className]" ref="elm">
-    <map-mask
-      v-for="obj in getScreenObjectList('map-mask', 'field')"
-      :key="obj.id"
-      :docId="obj.id"
-      type="map-mask"
-    />
+  <div class="scene-layer" :class="[className]" ref="elm">
+    <template v-for="sceneObject in useSceneObjectList">
+      <map-mask
+        v-if="sceneObject.data.type === 'map-mask'"
+        :key="sceneObject.id"
+        :docId="sceneObject.id"
+        type="map-mask"
+      />
 
-    <chit
-      v-for="obj in getScreenObjectList('chit', 'field')"
-      :key="obj.id"
-      :docId="obj.id"
-      type="chit"
-    />
+      <chit
+        v-if="sceneObject.data.type === 'chit'"
+        :key="sceneObject.id"
+        :docId="sceneObject.id"
+        type="chit"
+      />
+    </template>
   </div>
 </template>
 
@@ -24,7 +26,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { ScreenLayer } from "@/@types/room";
+import { SceneLayer } from "@/@types/room";
 
 @Component({
   components: {
@@ -32,11 +34,12 @@ import { ScreenLayer } from "@/@types/room";
     Chit
   }
 })
-export default class ScreenLayerComponent extends Vue {
+export default class SceneLayerComponent extends Vue {
   @Prop({ type: Object, required: true })
-  private layer!: StoreUseData<ScreenLayer>;
+  private layer!: StoreUseData<SceneLayer>;
 
-  private screenObjectList = GameObjectManager.instance.screenObjectList;
+  private sceneObjectList = GameObjectManager.instance.sceneObjectList;
+  private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   private isMounted: boolean = false;
 
@@ -58,16 +61,15 @@ export default class ScreenLayerComponent extends Vue {
   }
 
   @VueEvent
-  private getScreenObjectList(
-    type: string,
-    place: "field" | "graveyard" | "backstage"
-  ) {
-    return this.screenObjectList.filter(
-      mo =>
-        mo.data!.type === type &&
-        mo.data!.place === place &&
-        mo.data!.layerId === this.layer.id
-    );
+  private get useSceneObjectList() {
+    return this.sceneAndObjectList
+      .map(
+        sao =>
+          this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
+      )
+      .filter(
+        mo => mo.data!.place === "field" && mo.data!.layerId === this.layer.id
+      );
   }
 
   private get elm(): HTMLElement {
@@ -77,7 +79,7 @@ export default class ScreenLayerComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-.screen-layer {
+.scene-layer {
   position: absolute;
   left: 0;
   top: 0;

@@ -60,7 +60,7 @@
                 max="1"
                 step="0.1"
                 :value="alpha"
-                @input="alpha = $event.target.value"
+                @input="alpha = $event.target.valueAsNumber"
               />
             </td>
           </tr>
@@ -73,7 +73,7 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <screen-layer-select v-model="layerId" />
+          <scene-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
@@ -152,7 +152,7 @@ import { Component, Watch } from "vue-property-decorator";
 import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { DataReference } from "@/@types/data";
-import { ScreenObject } from "@/@types/gameObject";
+import { SceneObject } from "@/@types/gameObject";
 import { Task, TaskResult } from "task";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
@@ -170,11 +170,11 @@ import { TabInfo } from "@/@types/window";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 
 @Component({
   components: {
-    ScreenLayerSelect,
+    SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
     BaseInput,
@@ -187,8 +187,8 @@ export default class EditMapMaskWindow extends Mixins<
 >(WindowVue) {
   private docId: string = "";
   private cc: NekostoreCollectionController<
-    ScreenObject
-  > = SocketFacade.instance.screenObjectCC();
+    SceneObject
+  > = SocketFacade.instance.sceneObjectCC();
 
   private name: string = "";
   private text: string = "";
@@ -199,7 +199,7 @@ export default class EditMapMaskWindow extends Mixins<
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;
-  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
   private otherText: string = "";

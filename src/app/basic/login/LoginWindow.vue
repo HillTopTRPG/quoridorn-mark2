@@ -151,9 +151,9 @@ import {
   getUrlParam
 } from "@/app/core/Utility";
 import {
-  Screen,
+  Scene,
   RoomData,
-  ScreenLayerType,
+  SceneLayerType,
   Image,
   CutInDeclareInfo
 } from "@/@types/room";
@@ -161,6 +161,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 import { ModeInfo } from "mode";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 
 @Component({
   components: {
@@ -1066,7 +1067,7 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入
      */
-    const screen: Screen = {
+    const scene: Scene = {
       name: "A-1",
       columns: 20,
       rows: 15,
@@ -1074,6 +1075,14 @@ export default class LoginWindow extends Mixins<
       gridColor: "#000000",
       fontColor: "#000000",
       portTileMapping: "",
+      switchBefore: {
+        priority: 1,
+        direction: "normal"
+      },
+      switchAfter: {
+        priority: 1,
+        direction: "normal"
+      },
       shapeType: "square",
       texture: {
         type: "image",
@@ -1117,26 +1126,26 @@ export default class LoginWindow extends Mixins<
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    const addMapResult = await GameObjectManager.instance.addScreen(screen);
+    const addMapResult = await GameObjectManager.instance.addScene(scene);
 
     /* --------------------------------------------------
      * マップレイヤーのプリセットデータ投入
      */
-    const addScreenLayer = async (
-      type: ScreenLayerType,
+    const addSceneLayer = async (
+      type: SceneLayerType,
       defaultOrder: number
     ) => {
-      await GameObjectManager.instance.addScreenLayer({
+      await GameObjectManager.instance.addSceneLayer({
         type,
         defaultOrder,
         isSystem: true
       });
     };
-    await addScreenLayer("floor-tile", 1);
-    await addScreenLayer("map-mask", 2);
-    await addScreenLayer("map-marker", 3);
-    await addScreenLayer("dice-symbol", 4);
-    await addScreenLayer("character", 5);
+    await addSceneLayer("floor-tile", 1);
+    await addSceneLayer("map-mask", 2);
+    await addSceneLayer("map-marker", 3);
+    await addSceneLayer("dice-symbol", 4);
+    await addSceneLayer("character", 5);
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
@@ -1144,13 +1153,27 @@ export default class LoginWindow extends Mixins<
     const roomDataCC = SocketFacade.instance.roomDataCC();
 
     const roomData: RoomData = {
-      screenId: addMapResult.screenId,
+      sceneId: addMapResult.sceneId,
       isDrawGridLine: true,
       isDrawGridId: true,
       isFitGrid: true,
       isUseRotateMarker: true
     };
-    await roomDataCC.add(await roomDataCC.touch(), roomData);
+    Object.assign(GameObjectManager.instance.roomData, roomData);
+    const roomDataId = await roomDataCC.touch();
+    await roomDataCC.add(roomDataId, roomData);
+    await roomDataCC.setSnapshot(
+      this.key,
+      roomDataId,
+      (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
+        if (snapshot.exists() && snapshot.data.status === "modified") {
+          Object.assign(
+            GameObjectManager.instance.roomData,
+            snapshot.data.data
+          );
+        }
+      }
+    );
   }
 }
 </script>

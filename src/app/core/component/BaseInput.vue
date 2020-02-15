@@ -22,7 +22,7 @@ export default class BaseInput extends Vue {
     };
   }
 
-  private get elm(): HTMLInputElement {
+  public get elm(): HTMLInputElement {
     return this.$refs.component as HTMLInputElement;
   }
 
@@ -53,6 +53,10 @@ input {
 
   &:read-only {
     outline: none;
+  }
+
+  &:disabled {
+    background-color: lightgray;
   }
 }
 </style>

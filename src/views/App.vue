@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div id="back-screen"></div>
+    <div id="back-scene"></div>
     <div id="YoutubePlayerContainer">
       <div class="youtube-node unUse">
         <div id="YoutubePlayer001" class="youtube-player"></div>
@@ -473,6 +473,10 @@ hr {
   /*opacity: 0;*/
 }
 
+label {
+  cursor: inherit;
+}
+
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -491,7 +495,7 @@ hr {
   -ms-user-select: none;
 }
 
-#back-screen {
+#back-scene {
   position: absolute;
   background-size: cover;
   background-position: center;

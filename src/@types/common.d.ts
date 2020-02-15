@@ -13,9 +13,6 @@ declare module "escape-html";
 declare module "vue-password-strength-meter";
 declare function parseInt(s: string, radix?: number): number;
 declare module "socket.io";
-interface HTMLElementEvent<T extends HTMLElement> extends Event {
-  target: T;
-}
 declare var YT: any;
 
 declare module "address" {
@@ -35,6 +32,8 @@ declare module "address" {
     column: number;
     row: number;
   };
+
+  type Address = Point & Matrix;
 
   type Anchor =
     | "left-top"
@@ -152,11 +151,6 @@ declare module "task" {
     resolve: (resultList?: U[]) => void;
     reject: (reason?: any) => void;
   }
-
-  type TaskPromiseExecutor<U> = (
-    resolve: (resultList?: U[]) => void,
-    reject: (reason?: any) => void
-  ) => void;
 
   type TaskResult<U> = {
     nextStatus?: string;

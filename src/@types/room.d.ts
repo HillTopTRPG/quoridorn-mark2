@@ -1,13 +1,12 @@
 import { UserType } from "@/@types/socket";
-import { Place } from "@/@types/gameObject";
-import { Matrix, Point } from "address";
+import { Address, Point } from "address";
 
 /**
  * roomDataCCのデータ定義
  * 部屋1つに関する設定情報
  */
 type RoomData = {
-  screenId: string;
+  sceneId: string;
   isDrawGridLine: boolean;
   isDrawGridId: boolean;
   isFitGrid: boolean;
@@ -22,6 +21,15 @@ type UserData = {
   userName: string;
   userType: UserType;
   login: number;
+};
+
+/**
+ * socketCCのデータ定義
+ * 通信1本に関する情報
+ */
+type SocketUserData = {
+  userId: string;
+  socketId: string;
 };
 
 /**
@@ -77,7 +85,7 @@ type ChatLinkable = {
 /**
  * マップレイヤーの種別
  */
-type ScreenLayerType =
+type SceneLayerType =
   | "floor-tile"
   | "map-mask"
   | "map-marker"
@@ -86,40 +94,37 @@ type ScreenLayerType =
   | "other";
 
 /**
- * screenLayerCCのデータ定義
+ * sceneLayerCCのデータ定義
  * マップレイヤー1層の情報
  */
-type ScreenLayer = {
-  type: ScreenLayerType;
+type SceneLayer = {
+  type: SceneLayerType;
   defaultOrder: number; // マップ設定をいじらなければこのオーダー順に従う(= z-index)
   isSystem: boolean; // システムレイヤーは削除させない
   name?: string; // ユーザが追加するレイヤーのみこのフィールドを使う
 };
 
 /**
- * screenAndLayerCCのデータ定義
+ * sceneAndLayerCCのデータ定義
  * マップとレイヤーの紐付き1本単位の情報
  */
-type ScreenAndLayer = {
-  screenId: string;
+type SceneAndLayer = {
+  sceneId: string;
   layerId: string;
   isUse: boolean;
 };
 
 /**
- * screenAndObjectCCのデータ定義
+ * sceneAndObjectCCのデータ定義
  * マップとオブジェクトの紐付き1本単位の情報
  */
-type ScreenAndObject = {
-  screenId: string;
+type SceneAndObject = {
+  sceneId: string;
   objectId: string;
-  startTimeStatus: "normal" | string | null; // マップに同期切替した際に設定されるステータス（キャラクターのみ）
-  startTimePlace: Place | null; // マップに同期切替した際に設定される場所
-  startTimePoint: Point | null; // マップに同期切替した際に設定される座標
-  startTimeMatrix: Matrix | null; // マップに同期切替した際に設定される座標
-  isOriginalPoint: boolean; // マップ独自の座標を持つかどうか
-  originalPoint: Point | null; // 独自座標を持つならその座標
-  originalMatrix: Matrix | null; // 独自座標を持つならその座標
+  // startTimeStatus: "" | "normal" | string; // マップに同期切替した際に設定されるステータス（キャラクターのみ）
+  // startTimePlace: "" | Place; // マップに同期切替した際に設定される場所
+  isOriginalAddress: boolean; // マップ独自の座標を持つかどうか
+  originalAddress: Address | null; // 独自座標を持つならその座標
   entering: "normal" | string; // 登場の仕方
 };
 
@@ -141,10 +146,18 @@ type Border = {
 };
 
 /**
- * screenListCCのデータ定義
+ * 画面を切替える際の演出の選定情報
+ */
+type SceneSwitch = {
+  priority: number; // 優先順位。１が最も優先。
+  direction: "normal" | ""; // 演出方法
+};
+
+/**
+ * sceneListCCのデータ定義
  * 1画面の情報
  */
-type Screen = ChatLinkable & {
+type Scene = ChatLinkable & {
   name: string;
   columns: number;
   rows: number;
@@ -152,6 +165,8 @@ type Screen = ChatLinkable & {
   gridColor: string;
   fontColor: string;
   portTileMapping: string; // タイル番号の羅列
+  switchBefore: SceneSwitch;
+  switchAfter: SceneSwitch;
   shapeType:
     | "square"
     | "hex-horizontal-slim"

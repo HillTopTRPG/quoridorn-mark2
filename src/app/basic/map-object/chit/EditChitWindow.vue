@@ -18,7 +18,7 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
         <label>
           <span v-t="'label.add-target'" class="label-input"></span>
-          <screen-layer-select v-model="layerId" />
+          <scene-layer-select v-model="layerId" />
         </label>
       </div>
     </simple-tab-component>
@@ -124,17 +124,17 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import { ScreenObject } from "@/@types/gameObject";
+import { SceneObject } from "@/@types/gameObject";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
-import ScreenLayerSelect from "@/app/basic/common/components/select/ScreenLayerSelect.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
-    ScreenLayerSelect,
+    SceneLayerSelect,
     BackgroundLocationSelect,
     SimpleTabComponent,
     ImagePickerComponent,
@@ -147,8 +147,8 @@ export default class EditChitWindow extends Mixins<
 >(WindowVue) {
   private docId: string = "";
   private cc: NekostoreCollectionController<
-    ScreenObject
-  > = SocketFacade.instance.screenObjectCC();
+    SceneObject
+  > = SocketFacade.instance.sceneObjectCC();
   private name: string = "";
   private isProcessed: boolean = false;
   private imageList = GameObjectManager.instance.imageList;
@@ -161,7 +161,7 @@ export default class EditChitWindow extends Mixins<
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.screenLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "character"
   )[0].id!;
 
