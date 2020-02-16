@@ -56,7 +56,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
 
 @Component({ components: { BaseInput, draggable } })
-export default class SceneObjectComponent extends Mixins<ComponentVue>(
+export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })

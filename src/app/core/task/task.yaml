@@ -47,6 +47,8 @@
     - other-text-view
     - other-text-hide
     - change-focus-scene-object
+    - resize
+    - throw-parabola
 
 - taskAttribute:
     isIgniteWithParam: false

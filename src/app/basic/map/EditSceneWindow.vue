@@ -238,12 +238,12 @@
 
       <!-- レイヤー -->
       <div class="layer" v-if="currentTabInfo.target === 'layer'">
-        <scene-layer-chooser-component
+        <edit-scene-layer-chooser-component
           :sceneId="sceneId"
           v-model="selectedLayerId"
           @hover="onHoverLayerView"
         />
-        <scene-object-chooser-component
+        <edit-scene-object-chooser-component
           :sceneId="sceneId"
           :selectedLayerId="selectedLayerId"
           v-model="selectedSceneObjectId"
@@ -283,22 +283,22 @@ import { Scene, SceneAndLayer, SceneLayer, Texture } from "@/@types/room";
 import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
 import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
-import SceneLayerChooserComponent from "@/app/basic/map/SceneLayerChooserComponent.vue";
 import AddressInput from "@/app/basic/common/components/AddressInput.vue";
-import SceneObjectChooserComponent from "@/app/basic/map/SceneObjectChooserComponent.vue";
 import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
 import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
 import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import EditSceneLayerChooserComponent from "@/app/basic/map/EditSceneLayerChooserComponent.vue";
+import EditSceneObjectChooserComponent from "@/app/basic/map/EditSceneObjectChooserComponent.vue";
 
 @Component({
   components: {
+    EditSceneObjectChooserComponent,
+    EditSceneLayerChooserComponent,
     ColorPickerTrComponent,
     NumberInputTrComponent,
     StringInputTrComponent,
-    SceneObjectChooserComponent,
     AddressInput,
-    SceneLayerChooserComponent,
     BorderStyleSelect,
     InputTextureComponent,
     ImagePickerComponent,

@@ -16,7 +16,6 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 import { drawLine, drawLine2 } from "@/app/core/CanvasDrawer";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { Scene, RoomData } from "@/@types/room";

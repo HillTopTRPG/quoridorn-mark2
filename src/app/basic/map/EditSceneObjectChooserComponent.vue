@@ -18,7 +18,7 @@
       @sort="onSortOrderChange()"
       @end="changeOrderId = ''"
     >
-      <scene-object-component
+      <edit-scene-object-component
         v-for="sceneObject in sceneObjectInfoList"
         :key="sceneObject.id"
         :sceneObject="sceneObject"
@@ -54,13 +54,13 @@ import { SceneObject } from "@/@types/gameObject";
 import { Address } from "address";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
-import SceneObjectComponent from "@/app/basic/map/SceneObjectComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import EditSceneObjectComponent from "@/app/basic/map/EditSceneObjectComponent.vue";
 
-@Component({ components: { SceneObjectComponent, BaseInput, draggable } })
-export default class EditSceneWindow extends Mixins<ComponentVue>(
+@Component({ components: { EditSceneObjectComponent, BaseInput, draggable } })
+export default class EditSceneObjectChooserComponent extends Mixins<
   ComponentVue
-) {
+>(ComponentVue) {
   @Prop({ type: String, required: true })
   private sceneId!: string;
 

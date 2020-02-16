@@ -1,34 +1,33 @@
 <template>
   <div id="app">
+    <!-- 最も後ろの背景 (z-index: 0) -->
     <div id="back-scene"></div>
-    <div id="YoutubePlayerContainer">
-      <div class="youtube-node unUse">
-        <div id="YoutubePlayer001" class="youtube-player"></div>
-      </div>
-      <div class="youtube-node unUse">
-        <div id="YoutubePlayer002" class="youtube-player"></div>
-      </div>
-      <div class="youtube-node unUse">
-        <div id="YoutubePlayer003" class="youtube-player"></div>
-      </div>
-      <div class="youtube-node unUse">
-        <div id="YoutubePlayer004" class="youtube-player"></div>
-      </div>
-    </div>
 
     <template v-if="roomInitialized">
+      <!-- プレイマット (z-index: 7) -->
       <game-table ref="gameTable" />
+      <!-- メニュー (z-index: 9) -->
       <Menu :roomInfo="roomInfo" />
+      <!-- 右ペイン (z-index: 10) -->
       <right-pane />
+      <!-- 右クリックメニュー (z-index: 11) -->
       <context />
     </template>
+    <!-- 小画面エリア (z-index: 10) -->
     <window-area />
+    <!-- その他欄 (z-index: 11) -->
     <other-text-frame
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
+    <!-- 放物線シミュレータ (z-index: 12) -->
+    <throw-parabola-simulator v-if="throwParabola" />
+    <!-- 放物線シミュレータ (z-index: 13) -->
+    <throw-parabola-container />
+    <!-- 拡大縮小の中心点描画 (z-index: 14) -->
     <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
+    <!-- お部屋作成中 (z-index: 15) -->
     <div id="loadingCreateRoom" v-if="isCreatingRoomMode">
       <div class="message">お部屋を作成しています！</div>
       <img
@@ -49,8 +48,8 @@ import Context from "@/app/core/context/Context.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
 import WindowArea from "@/app/core/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
-import { Point } from "address";
-import { createPoint, getEventPoint } from "@/app/core/Coordinate";
+import { Point, Size } from "address";
+import { createPoint, createSize, getEventPoint } from "@/app/core/Coordinate";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
@@ -72,9 +71,13 @@ import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
 import { OtherTextViewInfo } from "@/@types/gameObject";
 import { ModeInfo } from "mode";
 import { CutInPlayingInfo } from "@/@types/room";
+import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
+import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
 
 @Component({
   components: {
+    ThrowParabolaContainer,
+    ThrowParabolaSimulator,
     OtherTextFrame,
     RightPane,
     WindowArea,
@@ -95,6 +98,7 @@ export default class App extends Vue {
 
   private roomInfo: ClientRoomInfo | null = null;
   private otherTextViewInfo: OtherTextViewInfo | null = null;
+  private throwParabola: boolean = false;
 
   private get elm(): HTMLElement {
     return document.getElementById("app") as HTMLElement;
@@ -260,6 +264,18 @@ export default class App extends Vue {
   }
 
   /**
+   * 画面サイズ変更イベント
+   */
+  @EventProcessor("resize", window)
+  private async resize() {
+    await TaskManager.instance.ignition<Size, never>({
+      type: "resize",
+      owner: "Quoridorn",
+      value: createSize(window.innerWidth, window.innerHeight)
+    });
+  }
+
+  /**
    * キーダウンイベント
    * @param event
    */
@@ -284,8 +300,37 @@ export default class App extends Vue {
         owner: "Quoridorn",
         value: null
       });
+      return;
     }
+
+    if (event.key === "Shift") {
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "throw-parabola",
+          value: this.throwParabola ? "off" : "on"
+        }
+      });
+      return;
+    }
+    // window.console.log(event.key);
   }
+
+  // @EventProcessor("keyup")
+  // private async keyUp(event: KeyboardEvent) {
+  //   if (event.key === "Shift") {
+  //     await TaskManager.instance.ignition<ModeInfo, never>({
+  //       type: "mode-change",
+  //       owner: "Quoridorn",
+  //       value: {
+  //         type: "throw-parabola",
+  //         value: "off"
+  //       }
+  //     });
+  //     return;
+  //   }
+  // }
 
   /**
    * ホイールイベント
@@ -404,8 +449,12 @@ export default class App extends Vue {
       this.isCreatingRoomMode = value === "on";
       task.resolve();
     }
-    if (task.value!.type === "modal") {
-      this.isModal = task.value!.value === "on";
+    if (type === "modal") {
+      this.isModal = value === "on";
+      task.resolve();
+    }
+    if (type === "throw-parabola") {
+      this.throwParabola = value === "on";
       task.resolve();
     }
   }
@@ -502,6 +551,7 @@ label {
   width: 100%;
   height: 100%;
   filter: blur(var(--mask-blur));
+  z-index: 0;
   /* JavaScriptで設定されるプロパティ
   background-image
   background-color
@@ -543,7 +593,7 @@ label {
   right: 0;
   bottom: 0;
   transition: all 0.3s linear;
-  z-index: 12;
+  z-index: 14;
 
   &.hide {
     opacity: 0;
@@ -577,6 +627,7 @@ label {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
+  z-index: 15;
 
   img {
     width: 200px;

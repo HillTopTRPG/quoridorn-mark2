@@ -13,6 +13,7 @@ declare module "escape-html";
 declare module "vue-password-strength-meter";
 declare function parseInt(s: string, radix?: number): number;
 declare module "socket.io";
+declare module "create-keyframe-animation";
 declare var YT: any;
 
 declare module "address" {
@@ -88,7 +89,11 @@ declare module "compare" {
 }
 
 declare module "mode" {
-  type ModeInfo = WheelModeInfo | ModalModeInfo | CreateRoomModeInfo;
+  type ModeInfo =
+    | WheelModeInfo
+    | ModalModeInfo
+    | CreateRoomModeInfo
+    | ThrowParabolaModeInfo;
 
   type WheelModeInfo = {
     type: "wheel";
@@ -103,6 +108,21 @@ declare module "mode" {
   type CreateRoomModeInfo = {
     type: "create-room";
     value: "on" | "off";
+  };
+
+  type ThrowParabolaModeInfo = {
+    type: "throw-parabola";
+    value: "on" | "off";
+  };
+}
+
+declare module "task-info" {
+  import { Point } from "address";
+
+  type ThrowParabolaInfo = {
+    key?: string;
+    char: string;
+    list: Point[];
   };
 }
 

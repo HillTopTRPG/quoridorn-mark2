@@ -8,7 +8,7 @@
         unuse: !sceneAndLayerInfoList[index].data.isUse
       }"
       v-for="(layerInfo, index) in layerInfoList"
-      :key="index"
+      :key="layerInfo.id"
       @click="localValue = layerInfo.id"
     >
       <span
@@ -51,7 +51,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: {} })
-export default class SceneLayerChooserComponent extends Vue {
+export default class EditSceneLayerChooserComponent extends Vue {
   @Prop({ type: String, required: true })
   private sceneId!: string;
 
