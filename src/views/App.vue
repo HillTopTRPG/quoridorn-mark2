@@ -62,6 +62,7 @@ import {
   GetRoomListResponse,
   LoginWindowInput,
   RoomViewResponse,
+  SendDataRequest,
   ServerTestResult
 } from "@/@types/socket";
 import { StoreObj, StoreUseData } from "@/@types/store";
@@ -73,6 +74,7 @@ import { ModeInfo } from "mode";
 import { CutInPlayingInfo } from "@/@types/room";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
+import { ThrowParabolaInfo } from "task-info";
 
 @Component({
   components: {
@@ -137,6 +139,18 @@ export default class App extends Vue {
     //     type: "edit-other-text-window"
     //   }
     // });
+    SocketFacade.instance.socketOn<SendDataRequest<any>>(
+      "send-data",
+      async (err, data) => {
+        if (data.dataType === "throw-parabola") {
+          await TaskManager.instance.ignition<ThrowParabolaInfo, never>({
+            type: "throw-parabola",
+            owner: data.owner,
+            value: data.data as ThrowParabolaInfo
+          });
+        }
+      }
+    );
 
     // ログイン画面の表示
     const serverInfo = await SocketFacade.instance.socketCommunication<

@@ -130,3 +130,10 @@ export type VersionWindowInfo = {
   message: Message;
   version: string;
 };
+
+export type SendDataRequest<T> = {
+  targetList: string[];
+  dataType: string;
+  owner: string;
+  data: T;
+};

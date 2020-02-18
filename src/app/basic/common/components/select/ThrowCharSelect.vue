@@ -35,7 +35,6 @@ export default class ThrowCharSelect extends Mixins<MultiMixin>(
 
   @LifeCycle
   private mounted() {
-    window.console.log("mounted");
     this.createOptionInfoList();
   }
 
@@ -43,13 +42,11 @@ export default class ThrowCharSelect extends Mixins<MultiMixin>(
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    window.console.log("languageChangeFinished");
     this.createOptionInfoList();
     task.resolve();
   }
 
   private createOptionInfoList() {
-    window.console.log("createOptionInfoList");
     this.optionInfoList = this.chars.map((c: string, idx: number) => ({
       value: c,
       key: idx.toString(10),
@@ -62,7 +59,6 @@ export default class ThrowCharSelect extends Mixins<MultiMixin>(
       text: LanguageManager.instance.getText("label.char"),
       disabled: true
     });
-    window.console.log(JSON.stringify(this.optionInfoList, null, "  "));
   }
 
   public focus() {

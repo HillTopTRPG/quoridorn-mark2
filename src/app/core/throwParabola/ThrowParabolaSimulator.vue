@@ -38,6 +38,9 @@ import {
   getDistance
 } from "@/app/core/throwParabola/parabolaUtil";
 import ThrowCharSelect from "@/app/basic/common/components/select/ThrowCharSelect.vue";
+import { SendDataRequest } from "@/@types/socket";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 @Component({
   components: { ThrowCharSelect }
 })
@@ -101,10 +104,14 @@ export default class ThrowParabolaSimulator extends Vue {
 
   private async paint(createAnimation: boolean = false): Promise<void> {
     if (createAnimation) {
-      await TaskManager.instance.ignition<ThrowParabolaInfo, never>({
-        type: "throw-parabola",
-        owner: "Quoridorn",
-        value: {
+      await SocketFacade.instance.socketCommunication<
+        SendDataRequest<ThrowParabolaInfo>,
+        void
+      >("send-data", {
+        targetList: GameObjectManager.instance.userList.map(u => u.id!),
+        dataType: "throw-parabola",
+        owner: GameObjectManager.instance.mySelfId,
+        data: {
           char: this.char,
           radius: this.inputRad,
           ratio: this.inputRatio
