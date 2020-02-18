@@ -148,6 +148,7 @@ label:
   x: X
   y: Y
   original-address: 独自座標
+  char: 文字
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.

@@ -122,7 +122,8 @@ declare module "task-info" {
   type ThrowParabolaInfo = {
     key?: string;
     char: string;
-    list: Point[];
+    radius: number;
+    ratio: number;
   };
 }
 

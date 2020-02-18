@@ -150,6 +150,7 @@ label:
   x: X
   y: Y
   original-address: 独自座標
+  char: 文字
 
 message:
   copy-to-clipboard: 复制到剪贴板
