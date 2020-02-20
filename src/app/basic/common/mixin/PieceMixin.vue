@@ -120,9 +120,11 @@ export default class PieceMixin<
       if (!snapshot.data) return;
       const status = snapshot.data.status;
       if (status === "modified" || status === "modify-touched") {
-        this.isMoving = false;
         this.sceneObjectInfo = getStoreObj<SceneObject>(snapshot);
-        this.onChangePoint();
+        if (status === "modified") {
+          this.isMoving = false;
+          this.onChangePoint();
+        }
       }
     });
     await this.sceneAndObjectCC!.setSnapshot(
