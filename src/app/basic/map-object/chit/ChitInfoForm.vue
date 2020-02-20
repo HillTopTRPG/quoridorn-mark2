@@ -414,21 +414,31 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   border-width: 3px;
   box-sizing: border-box;
 
-  &.type-add[draggable="false"] {
-    background-image: linear-gradient(
-        -45deg,
-        transparent calc(50% - 1px),
-        var(--uni-color-red) calc(50% - 1px),
-        var(--uni-color-red) calc(50% + 1px),
-        transparent calc(50% + 1px)
-      ),
-      linear-gradient(
-        45deg,
-        transparent calc(50% - 1px),
-        var(--uni-color-red) calc(50% - 1px),
-        var(--uni-color-red) calc(50% + 1px),
-        transparent calc(50% + 1px)
-      );
+  &.type-add {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &[draggable="false"] {
+      cursor: not-allowed;
+
+      background-image: linear-gradient(
+          -45deg,
+          transparent calc(50% - 1px),
+          var(--uni-color-red) calc(50% - 1px),
+          var(--uni-color-red) calc(50% + 1px),
+          transparent calc(50% + 1px)
+        ),
+        linear-gradient(
+          45deg,
+          transparent calc(50% - 1px),
+          var(--uni-color-red) calc(50% - 1px),
+          var(--uni-color-red) calc(50% + 1px),
+          transparent calc(50% + 1px)
+        );
+    }
   }
 }
 

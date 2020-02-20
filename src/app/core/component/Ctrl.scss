@@ -69,10 +69,10 @@ $background-area-active-background: linear-gradient(
 @mixin ctrl-button() {
   @include ctrl-base();
 
-  cursor: pointer;
-
   &[disabled="disabled"] {
-    cursor: default;
+    input {
+      cursor: default;
+    }
   }
 
   .front-area {
@@ -99,6 +99,7 @@ $background-area-active-background: linear-gradient(
     border-radius: 5px;
     z-index: 3;
     opacity: 0;
+    cursor: pointer;
 
     &:focus ~ .background-area {
       outline-offset: 0;

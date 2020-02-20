@@ -157,12 +157,14 @@ export default class ColorPickerComponent extends Vue {
   .color-pick {
     width: 2em;
     height: 2em;
+    cursor: pointer;
   }
 
   .value-alpha {
     transform: rotate(180deg);
     transform-origin: center;
     width: 10em;
+    cursor: pointer;
   }
 }
 </style>

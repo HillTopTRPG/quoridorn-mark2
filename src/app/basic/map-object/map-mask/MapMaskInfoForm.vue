@@ -337,6 +337,14 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   box-sizing: border-box;
   word-break: break-all;
   text-align: center;
+
+  &.type-add {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
 }
 
 .simple-tab-component {

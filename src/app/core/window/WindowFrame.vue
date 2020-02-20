@@ -778,10 +778,10 @@ export default class WindowFrame extends Vue {
       border: 1px solid rgb(167, 167, 167);
       border-top: 1px solid rgb(105, 110, 106);
       box-sizing: border-box;
+      cursor: pointer;
 
       &::-webkit-slider-thumb {
         -webkit-appearance: none;
-        cursor: pointer;
         position: relative;
         width: 1em;
         height: 1em;
