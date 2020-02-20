@@ -168,11 +168,9 @@ export default class SocketFacade {
   }
 
   // コンストラクタの隠蔽
-  private constructor() {
-    this.asyncConstructor().then();
-  }
+  private constructor() {}
 
-  private async asyncConstructor() {
+  public async init() {
     this.__connectInfo = await loadYaml(connectYamlPath);
 
     // 相互運用性チェック

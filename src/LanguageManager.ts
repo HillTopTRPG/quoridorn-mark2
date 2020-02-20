@@ -58,7 +58,7 @@ export default class LanguageManager {
     return langInfo ? langInfo.lang : navigator.language;
   }
 
-  public async init() {
+  public async init(): Promise<VueI18n> {
     const loadLanguages = async () => {
       supportLangList.push(
         ...((await loadYaml(

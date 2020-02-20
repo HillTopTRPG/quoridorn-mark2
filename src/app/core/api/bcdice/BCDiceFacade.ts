@@ -15,7 +15,9 @@ export default class BCDiceFacade {
   private __isReady: boolean = false;
 
   // コンストラクタの隠蔽
-  private constructor() {
+  private constructor() {}
+
+  public async init() {
     BCDiceFacade.getBcdiceSystemList().then(async list => {
       this.diceInfoList = list;
       this.__isReady = true;

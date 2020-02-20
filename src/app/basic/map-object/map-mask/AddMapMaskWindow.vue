@@ -1,223 +1,59 @@
 <template>
   <div class="container" ref="window">
-    <div class="map-mask-cell">
-      <div
-        class="map-mask"
-        ref="mapMask"
-        draggable="true"
-        @dragstart="dragStart"
-      >
-        {{ text }}
-      </div>
-    </div>
-    <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
-      <div v-if="currentTabInfo.target === 'background'">
-        <table>
-          <tr>
-            <th>
-              <label
-                :for="`${key}-text`"
-                class="label-text label-input"
-                v-t="'label.text'"
-              ></label>
-            </th>
-            <td>
-              <base-input
-                :id="`${key}-text`"
-                class="value-text"
-                type="text"
-                :value="text"
-                @input="text = $event.target.value"
-              />
-            </td>
-          </tr>
-          <tr>
-            <th>
-              <label
-                :for="`${key}-color`"
-                class="label-color label-input"
-                v-t="'label.background-color'"
-              ></label>
-            </th>
-            <td>
-              <color-picker-component
-                :id="`${key}-color`"
-                class="value-color"
-                v-model="color"
-                :use-alpha="true"
-              />
-            </td>
-          </tr>
-        </table>
-      </div>
-      <textarea
-        v-if="currentTabInfo.target === 'other-text'"
-        v-model="otherText"
-      ></textarea>
-      <div class="layer-block" v-if="currentTabInfo.target === 'layer'">
-        <label>
-          <span v-t="'label.add-target'" class="label-input"></span>
-          <scene-layer-select v-model="layerId" />
-        </label>
-      </div>
-    </simple-tab-component>
-    <table class="info-table">
-      <tr>
-        <th>
-          <label
-            :for="`${key}-name`"
-            class="label-name label-input"
-            v-t="'label.name'"
-          ></label>
-        </th>
-        <td class="value-cell">
-          <base-input
-            :id="`${key}-name`"
-            class="value-name"
-            type="text"
-            :value="name"
-            @input="name = $event.target.value"
-          />
-        </td>
-      </tr>
-      <tr>
-        <th>
-          <label
-            :for="`${key}-width`"
-            class="label-width label-input"
-            v-t="'label.width'"
-          ></label>
-        </th>
-        <td class="value-cell">
-          <base-input
-            :id="`${key}-width`"
-            class="value-width"
-            type="number"
-            :value="width"
-            @input="width = $event.target.valueAsNumber"
-            min="1"
-          />
-        </td>
-      </tr>
-      <tr>
-        <th>
-          <label
-            :for="`${key}-height`"
-            class="label-height label-input"
-            v-t="'label.height'"
-          ></label>
-        </th>
-        <td class="value-cell">
-          <base-input
-            :id="`${key}-height`"
-            class="value-height"
-            type="number"
-            :value="height"
-            @input="height = $event.target.valueAsNumber"
-            min="1"
-          />
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <div>
-            <label class="multi-create">
-              <base-input
-                type="checkbox"
-                :value="isMulti"
-                @input="isMulti = $event.target.checked"
-              />
-              <span v-t="'label.multi-create'"></span>
-            </label>
-          </div>
-        </td>
-      </tr>
-    </table>
+    <map-mask-info-form
+      :isAdd="true"
+      initTabTarget="background"
+      :name.sync="name"
+      :text.sync="text"
+      :color.sync="color"
+      :tag.sync="tag"
+      :otherText.sync="otherText"
+      :width.sync="width"
+      :height.sync="height"
+      :layerId.sync="layerId"
+      @drag-start="dragStart"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { AddObjectInfo } from "@/@types/data";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
-import { TabInfo } from "@/@types/window";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import MapMaskInfoForm from "@/app/basic/map-object/map-mask/MapMaskInfoForm.vue";
 
 @Component({
   components: {
-    SceneLayerSelect,
-    SimpleTabComponent,
-    ColorPickerComponent,
-    BaseInput,
-    SeekBarComponent,
-    CtrlButton
+    MapMaskInfoForm
   }
 })
 export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private name: string = LanguageManager.instance.getText("type.map-mask");
+  private tag: string = "";
   private text: string = "";
   private color: string = "rgba(255, 0, 0, 1)";
   private height: number = 1;
   private width: number = 1;
-  private isMulti: boolean = false;
   private isMounted: boolean = false;
   private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "map-mask"
   )[0].id!;
   private otherText: string = "";
 
-  private tabList: TabInfo[] = [
-    { target: "background", text: "" },
-    { target: "layer", text: "" },
-    { target: "other-text", text: "" }
-  ];
-  private currentTabInfo: TabInfo | null = this.tabList[0];
-
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    this.createTabInfoList();
-    task.resolve();
-  }
-
-  @LifeCycle
-  private async created() {
-    this.createTabInfoList();
-  }
-
-  private createTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-    this.tabList.forEach(t => {
-      t.text = getText(`label.${t.target}`);
-    });
-  }
-
   @LifeCycle
   public async mounted() {
     await this.init();
     this.isMounted = true;
-  }
-
-  private get mapMaskElm(): HTMLElement {
-    return this.$refs.mapMask as HTMLElement;
   }
 
   @VueEvent
@@ -240,6 +76,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
     const fontColor = colorObj.getRGBReverse();
     await GameObjectManager.instance.addSceneObject({
       type: "map-mask",
+      tag: this.tag,
       name: this.name,
       x: point.x,
       y: point.y,
@@ -266,35 +103,7 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
       angle: 0
     });
 
-    if (!this.isMulti) await this.close();
     task.resolve();
-  }
-
-  @Watch("isMounted")
-  @Watch("width")
-  @Watch("height")
-  private onChangeWidth() {
-    if (!this.isMounted) return;
-    let ratio: number = Math.min(4 / this.width, 4 / this.height, 1);
-    this.mapMaskElm.style.setProperty(
-      "--width-ratio",
-      (this.width * ratio).toString()
-    );
-    this.mapMaskElm.style.setProperty(
-      "--height-ratio",
-      (this.height * ratio).toString()
-    );
-  }
-
-  @Watch("isMounted")
-  @Watch("color")
-  private onChangeColor() {
-    if (!this.isMounted) return;
-    const colorObj = parseColor(this.color);
-    const backColor = colorObj.getRGBA();
-    this.mapMaskElm.style.setProperty("--back-color", backColor);
-    const fontColor = colorObj.getRGBReverse();
-    this.mapMaskElm.style.setProperty("--font-color", fontColor);
   }
 }
 </script>
@@ -302,103 +111,11 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
 <style scoped lang="scss">
 @import "../../../../assets/common";
 
-.map-mask {
-  @include flex-box(row, center, center);
-  width: calc(var(--width-ratio) * 3em);
-  height: calc(var(--height-ratio) * 3em);
-  background-color: var(--back-color);
-  color: var(--font-color);
-  white-space: normal;
-  box-sizing: border-box;
-  word-break: break-all;
-  text-align: center;
-}
-
-.value-width,
-.value-height {
-  width: 3em;
-}
-
-.value-name {
-  width: 100%;
-}
-
 .container {
   display: grid;
   grid-template-rows: 12em 1fr;
   grid-template-columns: 12em 1fr;
   width: 100%;
   height: 100%;
-
-  .simple-tab-component {
-    grid-row: 1 / 3;
-    grid-column: 2 / 3;
-
-    > *:not(:first-child) {
-      width: 100%;
-      flex: 1;
-    }
-
-    table {
-      box-sizing: border-box;
-
-      th {
-        text-align: right;
-      }
-
-      td {
-        text-align: left;
-      }
-    }
-
-    > div:not(.image-picker-container) {
-      border: solid 1px gray;
-      box-sizing: border-box;
-      padding: 0.2rem;
-    }
-
-    textarea {
-      resize: none;
-      padding: 0;
-      box-sizing: border-box;
-    }
-  }
-
-  .map-mask-cell {
-    grid-row: 1 / 2;
-    grid-column: 1 / 2;
-    @include flex-box(row, center, center);
-  }
-
-  > table {
-    grid-row: 2 / 3;
-    grid-column: 1 / 2;
-
-    th,
-    td {
-      > div {
-        @include flex-box(row, flex-start, center);
-      }
-      label {
-        @include inline-flex-box(row, flex-start, center);
-      }
-    }
-
-    th {
-      text-align: right;
-      padding: 0;
-      white-space: nowrap;
-      width: 1px;
-    }
-
-    td {
-      text-align: left;
-      padding: 0;
-
-      input {
-        margin: 0;
-      }
-    }
-  }
 }
 </style>

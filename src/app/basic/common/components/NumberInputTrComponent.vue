@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="number-input-tr-component">
     <th>
       <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
     </th>
@@ -41,15 +41,13 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
-  @Prop({ type: Number, default: 0 })
-  private widthEm!: number;
+  @Prop({ type: String, default: "" })
+  private inputWidth!: string;
 
   private mounted() {
-    const unitList = [];
-    if (this.widthEm) unitList.push(`${this.widthEm}em`);
-    if (unitList.length) {
-      const elm = this.$refs.inputElm as BaseInput;
-      elm.elm.style.width = `calc(${unitList.join(" + ")})`;
+    if (this.inputWidth) {
+      const inputElm = this.$refs.inputElm as BaseInput;
+      inputElm.elm.style.width = this.inputWidth;
     }
   }
 
@@ -67,10 +65,15 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+th,
+td {
+  padding: 0;
+}
+
 th {
   text-align: right;
 }
+
 tr {
   display: contents;
 }

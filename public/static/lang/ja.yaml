@@ -79,7 +79,6 @@ label:
   height: 高さ
   width: 幅
   alpha: 透過度
-  multi-create: 複数作成
   tag: タグ
   direction: 向き
   direction-none: そのまま
@@ -150,6 +149,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
+  additional-info: 付加情報
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

@@ -77,6 +77,10 @@ export default class ColorPickerComponent extends Vue {
     const colorObj = parseColor(this.value);
     this.colorCode = colorObj.getColorCode();
     this.alpha = this.useAlpha ? colorObj.a : 1;
+  }
+
+  @LifeCycle
+  private mounted() {
     this.isMounted = true;
   }
 

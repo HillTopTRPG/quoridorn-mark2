@@ -22,6 +22,7 @@ type VolatileMapObject = {
 type Place = "field" | "graveyard" | "backstage";
 type SceneObjectBase = Address & {
   type: SceneObjectType;
+  tag: string;
   name: string;
   owner: string; // id
   rows: number;

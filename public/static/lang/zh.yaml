@@ -81,7 +81,6 @@ label:
   height: 身高
   width: 幅宽
   alpha: 透过率
-  multi-create: 创建多个
   tag: 标签
   direction: 方向
   direction-none: 照原样
@@ -151,6 +150,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
+  additional-info: 付加情報
 
 message:
   copy-to-clipboard: 复制到剪贴板

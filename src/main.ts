@@ -34,33 +34,35 @@ Vue.config.productionTip = false;
 Vue.use(ImageDirective);
 Vue.use(VueI18n);
 
-SocketFacade.instance;
-BCDiceFacade.instance;
-YoutubeManager.instance;
+async function main(): Promise<void> {
+  await SocketFacade.instance.init();
+  await BCDiceFacade.instance.init();
+  YoutubeManager.init();
 
-Vue.component("cut-in-setting-window", CutInSettingWindow);
-Vue.component("play-youtube-window", PlayYoutubeWindow);
-Vue.component("login-window", LoginWindow);
-Vue.component("create-new-room-window", CreateNewRoomWindow);
-Vue.component("user-login-window", UserLoginWindow);
-Vue.component("app-server-setting-window", AppServerSettingWindow);
-Vue.component("terms-of-use-window", TermsOfUseWindow);
-Vue.component("delete-room-window", DeleteRoomWindow);
-Vue.component("confirm-window", ConfirmWindow);
-Vue.component("login-room-window", LoginRoomWindow);
-Vue.component("version-info-window", VersionInfoWindow);
-Vue.component("room-info-window", RoomInfoWindow);
-Vue.component("add-map-mask-window", AddMapMaskWindow);
-Vue.component("edit-map-mask-window", EditMapMaskWindow);
-Vue.component("add-chit-window", AddChitWindow);
-Vue.component("edit-chit-window", EditChitWindow);
-Vue.component("input-image-password-window", InputImagePasswordWindow);
-Vue.component("edit-other-text-window", EditOtherTextWindow);
-Vue.component("scene-list-window", SceneListWindow);
-Vue.component("edit-scene-window", EditSceneWindow);
-Vue.component("chmod-window", ChmodWindow);
+  Vue.component("cut-in-setting-window", CutInSettingWindow);
+  Vue.component("play-youtube-window", PlayYoutubeWindow);
+  Vue.component("login-window", LoginWindow);
+  Vue.component("create-new-room-window", CreateNewRoomWindow);
+  Vue.component("user-login-window", UserLoginWindow);
+  Vue.component("app-server-setting-window", AppServerSettingWindow);
+  Vue.component("terms-of-use-window", TermsOfUseWindow);
+  Vue.component("delete-room-window", DeleteRoomWindow);
+  Vue.component("confirm-window", ConfirmWindow);
+  Vue.component("login-room-window", LoginRoomWindow);
+  Vue.component("version-info-window", VersionInfoWindow);
+  Vue.component("room-info-window", RoomInfoWindow);
+  Vue.component("add-map-mask-window", AddMapMaskWindow);
+  Vue.component("edit-map-mask-window", EditMapMaskWindow);
+  Vue.component("add-chit-window", AddChitWindow);
+  Vue.component("edit-chit-window", EditChitWindow);
+  Vue.component("input-image-password-window", InputImagePasswordWindow);
+  Vue.component("edit-other-text-window", EditOtherTextWindow);
+  Vue.component("scene-list-window", SceneListWindow);
+  Vue.component("edit-scene-window", EditSceneWindow);
+  Vue.component("chmod-window", ChmodWindow);
 
-LanguageManager.instance.init().then((i18n: any) => {
+  const i18n: VueI18n = await LanguageManager.instance.init();
+
   const app = new Vue({
     // @ts-ignore
     router,
@@ -69,4 +71,5 @@ LanguageManager.instance.init().then((i18n: any) => {
     render: (h: any) => h(MainVue)
   });
   app.$mount("#app");
-});
+}
+main().then();

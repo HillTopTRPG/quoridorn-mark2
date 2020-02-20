@@ -28,19 +28,22 @@ export default class YoutubeManager {
 
   // シングルトン
   public static get instance(): YoutubeManager {
-    if (!YoutubeManager._instance) {
+    if (!YoutubeManager._instance)
       YoutubeManager._instance = new YoutubeManager();
-
-      const script = document.createElement("script");
-      script.src = "https://www.youtube.com/player_api";
-      const firstScript: HTMLScriptElement = document.getElementsByTagName(
-        "script"
-      )[0] as HTMLScriptElement;
-      firstScript.parentNode!.insertBefore(script, firstScript);
-    }
     return YoutubeManager._instance;
   }
   private static _instance: YoutubeManager;
+
+  public static init() {
+    const script = document.createElement("script");
+    script.src = "https://www.youtube.com/player_api";
+    const firstScript: HTMLScriptElement = document.getElementsByTagName(
+      "script"
+    )[0] as HTMLScriptElement;
+    firstScript.parentNode!.insertBefore(script, firstScript);
+    if (!YoutubeManager._instance)
+      YoutubeManager._instance = new YoutubeManager();
+  }
 
   // コンストラクタの隠蔽
   private constructor() {}

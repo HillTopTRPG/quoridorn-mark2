@@ -69,7 +69,6 @@ export default class ThrowParabolaSimulator extends Vue {
 
   @LifeCycle
   private async mounted() {
-    window.console.log("ThrowParabolaSimulator mounted.");
     this.isMounted = true;
 
     const val =
@@ -79,11 +78,6 @@ export default class ThrowParabolaSimulator extends Vue {
     ThrowParabolaSimulator.canvasElm.width = window.innerWidth;
     ThrowParabolaSimulator.canvasElm.height = window.innerHeight;
     await this.paint();
-  }
-
-  @LifeCycle
-  private destroyed() {
-    window.console.log("ThrowParabolaSimulator destroyed.");
   }
 
   @TaskProcessor("resize-finished")
@@ -180,7 +174,7 @@ export default class ThrowParabolaSimulator extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "../../../assets/common";
 
 #throw-parabola-simulator {

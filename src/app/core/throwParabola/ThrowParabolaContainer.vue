@@ -86,7 +86,7 @@ export default class ThrowParabolaContainer extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "../../../assets/common";
 
 #throw-parabola-container {

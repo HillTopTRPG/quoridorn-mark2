@@ -61,7 +61,7 @@ export default class SimpleTabComponent extends Vue {
       rgba(200, 200, 200, 1)
     );
     border: 1px solid gray;
-    box-sizing: content-box;
+    box-sizing: border-box;
     cursor: pointer;
     border-bottom-width: 0;
     border-radius: 5px 5px 0 0;

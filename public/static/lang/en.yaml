@@ -81,7 +81,6 @@ label:
   height: Height
   width: Width
   alpha: Transmittance
-  multi-create: Create multiple
   tag: Tag
   direction: Direction
   direction-none: As it is
@@ -151,6 +150,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
+  additional-info: 付加情報
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

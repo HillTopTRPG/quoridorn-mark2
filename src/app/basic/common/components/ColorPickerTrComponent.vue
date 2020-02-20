@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr class="color-picker-tr-component">
     <th>
       <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
     </th>
@@ -47,10 +47,10 @@ export default class StringInputTrComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
 th {
   text-align: right;
 }
+
 tr {
   display: contents;
 }

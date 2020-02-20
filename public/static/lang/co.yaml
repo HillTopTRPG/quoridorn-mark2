@@ -81,7 +81,6 @@ label:
   height: 높이
   width: 폭
   alpha: 투과도
-  multi-create: 여러 작성
   tag: 태그
   direction: 방향
   direction-none: 그대로
@@ -151,6 +150,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
+  additional-info: 付加情報
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다

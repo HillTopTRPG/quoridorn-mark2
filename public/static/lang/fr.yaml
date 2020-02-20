@@ -79,7 +79,6 @@ label:
   height: La hauteur
   width: Largeur
   alpha: Transmittance
-  multi-create: Créer plusieurs
   tag: Tag
   direction: Orientation
   direction-none: Comme c'est
@@ -149,6 +148,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
+  additional-info: 付加情報
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.

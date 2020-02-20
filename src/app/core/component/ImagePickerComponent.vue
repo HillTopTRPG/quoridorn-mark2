@@ -73,6 +73,8 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
+import { Mixins } from "vue-mixin-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
   components: {
@@ -83,7 +85,9 @@ import { WindowOpenInfo } from "@/@types/window";
     BaseInput
   }
 })
-export default class ImagePickerComponent extends Vue {
+export default class ImagePickerComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
@@ -195,6 +199,11 @@ export default class ImagePickerComponent extends Vue {
 
   table {
     width: 100%;
+
+    th,
+    td {
+      padding: 0;
+    }
 
     th {
       width: 1px;
