@@ -18,6 +18,8 @@ export type YoutubeEventHandler = {
   onError: (error: any) => void;
   onPaused: () => void;
   onReject: () => void;
+  setVolume: (volume: number) => void;
+  setIsMute: (isMute: boolean) => void;
 };
 
 /**

@@ -117,13 +117,19 @@ declare module "mode" {
 }
 
 declare module "task-info" {
-  import { Point } from "address";
-
   type ThrowParabolaInfo = {
     key?: string;
     char: string;
     radius: number;
     ratio: number;
+  };
+
+  type BgmPlayInfo = {
+    id: string;
+  };
+
+  type BgmStandByInfo = {
+    id: string;
   };
 }
 

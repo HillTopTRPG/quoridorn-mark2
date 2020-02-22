@@ -98,13 +98,8 @@ export default class ThrowParabolaSimulator extends Vue {
 
   private async paint(createAnimation: boolean = false): Promise<void> {
     if (createAnimation) {
-      await SocketFacade.instance.socketCommunication<
-        SendDataRequest<ThrowParabolaInfo>,
-        void
-      >("send-data", {
-        targetList: GameObjectManager.instance.userList.map(u => u.id!),
+      await SocketFacade.instance.sendData<ThrowParabolaInfo>({
         dataType: "throw-parabola",
-        owner: GameObjectManager.instance.mySelfId,
         data: {
           char: this.char,
           radius: this.inputRad,

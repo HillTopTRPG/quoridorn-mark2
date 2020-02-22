@@ -65,16 +65,15 @@ import {
   SendDataRequest,
   ServerTestResult
 } from "@/@types/socket";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import QuerySnapshot from "nekostore/lib/QuerySnapshot";
+import { StoreUseData } from "@/@types/store";
 import BgmManager from "@/app/basic/music/BgmManager";
 import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
 import { OtherTextViewInfo } from "@/@types/gameObject";
 import { ModeInfo } from "mode";
-import { CutInPlayingInfo } from "@/@types/room";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
-import { ThrowParabolaInfo } from "task-info";
+import { BgmPlayInfo, ThrowParabolaInfo } from "task-info";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: {
@@ -142,11 +141,38 @@ export default class App extends Vue {
     SocketFacade.instance.socketOn<SendDataRequest<any>>(
       "send-data",
       async (err, data) => {
-        if (data.dataType === "throw-parabola") {
+        const dataType = data.dataType;
+        if (dataType === "throw-parabola") {
+          // 投射通知
           await TaskManager.instance.ignition<ThrowParabolaInfo, never>({
             type: "throw-parabola",
             owner: data.owner,
             value: data.data as ThrowParabolaInfo
+          });
+        } else if (dataType === "bgm-stand-by") {
+          // BGMスタンバイ通知
+        } else if (dataType === "bgm-play") {
+          // BGM再生通知
+          const info = data.data as BgmPlayInfo;
+          const targetId = info.id;
+          const tag = await BgmManager.getTargetTag(targetId);
+          const playingInfo = GameObjectManager.instance.playingBgmList.filter(
+            b => b.targetId === targetId || b.tag === tag
+          )[0];
+          if (playingInfo) {
+            await TaskManager.instance.ignition<string, never>({
+              type: "window-close",
+              owner: "Quoridorn",
+              value: playingInfo.windowKey
+            });
+          }
+          await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+            type: "window-open",
+            owner: "Quoridorn",
+            value: {
+              type: "play-youtube-window",
+              args: targetId
+            }
           });
         }
       }
@@ -209,72 +235,6 @@ export default class App extends Vue {
       }
     });
     this.isMounted = true;
-  }
-
-  private async cutInDbInspection() {
-    /* カットインを再生処理 */
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
-
-    const playCutIn = async (targetId: string) => {
-      try {
-        const data = await privatePlayListCC.getData(targetId);
-        if (!data) {
-          await privatePlayListCC.touch(targetId);
-          await privatePlayListCC.add(targetId, {
-            duration: 0
-          });
-        }
-        const cutInDataCC = SocketFacade.instance.cutInDataCC();
-        const cutInData = await cutInDataCC.getData(targetId);
-        if (BgmManager.isYoutube(cutInData!.data!)) {
-          // カットインがYoutube動画だったらYoutube動画再生する
-          await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
-            type: "window-open",
-            owner: "Quoridorn",
-            value: {
-              type: "play-youtube-window",
-              args: targetId
-            }
-          });
-        }
-      } catch (err) {
-        window.console.warn(err);
-      }
-    };
-
-    (await privatePlayListCC.getList(false)).forEach(async item => {
-      await playCutIn(item.id!);
-    });
-    const playListCC = SocketFacade.instance.playListCC();
-    await playListCC.setCollectionSnapshot(
-      "App",
-      (snapshot: QuerySnapshot<StoreObj<CutInPlayingInfo>>) => {
-        snapshot.docs.forEach(async doc => {
-          const targetId = doc.ref.id;
-          if (doc.type === "modified") {
-            const status = doc.data!.status;
-            if (
-              status === "added" ||
-              status === "modified" ||
-              status === "touched-released"
-            )
-              await playCutIn(targetId);
-          }
-          if (doc.type === "removed") {
-            const privatePlayData = await privatePlayListCC.getData(targetId);
-            if (privatePlayData) {
-              try {
-                await privatePlayListCC.touchModify(targetId);
-              } catch (err) {
-                window.console.warn(err);
-                return;
-              }
-              await privatePlayListCC.delete(targetId);
-            }
-          }
-        });
-      }
-    );
   }
 
   /**
@@ -445,7 +405,6 @@ export default class App extends Vue {
     // 部屋に接続できた
     this.roomInitialized = true;
     this.roomInfo = task.value!;
-    await this.cutInDbInspection();
     task.resolve();
   }
 

@@ -13,6 +13,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import {
   DefaultServerInfo,
   GetVersionResponse,
+  SendDataRequest,
   ServerTestResult
 } from "@/@types/socket";
 import { loadYaml } from "@/app/core/File";
@@ -46,6 +47,7 @@ import {
 } from "@/app/core/api/Github";
 import yaml from "js-yaml";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { BgmStandByInfo } from "task-info";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -321,6 +323,18 @@ export default class SocketFacade {
     }
   }
 
+  public async sendData<T>(args: Partial<SendDataRequest<T>>) {
+    if (!args.data) args.data = null;
+    if (!args.targetList)
+      args.targetList = GameObjectManager.instance.userList.map(u => u.id!);
+    if (!args.dataType) args.dataType = "general-data";
+    if (!args.owner) args.owner = GameObjectManager.instance.mySelfId;
+    await this.socketCommunication<SendDataRequest<T>, void>(
+      "send-data",
+      args as SendDataRequest<T>
+    );
+  }
+
   private async doSocketCommunication<T, U>(
     event: string,
     args?: T
@@ -477,14 +491,8 @@ export default class SocketFacade {
     return this.roomCollectionController<CutInDeclareInfo>("cut-in-list");
   }
 
-  public playListCC(): NekostoreCollectionController<CutInPlayingInfo> {
-    return this.roomCollectionController<CutInPlayingInfo>("play-list");
-  }
-
-  public privatePlayListCC(): NekostoreCollectionController<CutInPlayingInfo> {
-    return this.roomCollectionController<CutInPlayingInfo>(
-      `${this.userId}-play-list`
-    );
+  public bgmStandByCC(): NekostoreCollectionController<BgmStandByInfo> {
+    return this.roomCollectionController<BgmStandByInfo>("bgm-stand-by-list");
   }
 
   public userCC(): NekostoreCollectionController<UserData> {
@@ -533,10 +541,8 @@ export default class SocketFacade {
         return this.imageTagCC();
       case "cut-in-list":
         return this.cutInDataCC();
-      case "play-list":
-        return this.playListCC();
-      case "private-play-list":
-        return this.privatePlayListCC();
+      case "bgm-stand-by-list":
+        return this.bgmStandByCC();
       case "user-list":
         return this.userCC();
       case "property-list":

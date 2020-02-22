@@ -135,5 +135,5 @@ export type SendDataRequest<T> = {
   targetList: string[];
   dataType: string;
   owner: string;
-  data: T;
+  data: T | null;
 };

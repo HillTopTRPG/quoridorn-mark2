@@ -46,7 +46,6 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import LanguageManager from "@/LanguageManager";
 import { getCssPxNum } from "@/app/core/Css";
 import CssManager from "@/app/core/css/CssManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -55,6 +54,7 @@ import {
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
+import BgmManager from "@/app/basic/music/BgmManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -88,16 +88,31 @@ export default class PlayYoutubeWindow
     );
     this.isMounted = true;
 
-    await this.initWindow();
-    const tag = this.bgmInfo!.tag;
-    if (this.status !== "window") {
-      YoutubeManager.instance.addEventHandler(tag, this);
-      this.volume = YoutubeManager.instance.getVolume(tag);
-      this.isMute = YoutubeManager.instance.isMuted(tag);
-      return;
-    }
-    await this.dataSyncSetting();
-    YoutubeManager.instance.open(this.youtubeElementId, this.bgmInfo!, this);
+    const targetId = this.windowInfo.args!;
+
+    this.bgmInfo =
+      (await BgmManager.playBgm(
+        targetId,
+        this.windowKey,
+        this.windowInfo.status,
+        this.youtubeElementId,
+        this
+      )) || null;
+    if (!this.bgmInfo) return;
+    this.maxVolume = this.bgmInfo.volume;
+    this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.bgmInfo.url}`;
+    this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
+      "v",
+      this.bgmInfo.url
+    )}/default.jpg`;
+  }
+
+  public setVolume(volume: number) {
+    this.volume = volume;
+  }
+
+  public setIsMute(isMute: boolean) {
+    this.isMute = isMute;
   }
 
   @Watch("windowInfo.args", { immediate: true })
@@ -107,10 +122,6 @@ export default class PlayYoutubeWindow
       return;
     }
     if (!this.isMounted) return;
-
-    // await this.initWindow();
-    if (this.status !== "window") return;
-    await this.dataSyncSetting();
   }
 
   @TaskProcessor("window-close-closing")
@@ -119,77 +130,10 @@ export default class PlayYoutubeWindow
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if ("window" !== this.windowInfo.status) return;
-    window.console.log("$$$ window close");
     YoutubeManager.instance.pause(this.bgmInfo!.tag);
-    if (this.playListRemoveUnsubscribe) {
-      this.playListRemoveUnsubscribe();
-      this.playListRemoveUnsubscribe = null;
-    }
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
-    if (!this.isDeleted) {
-      try {
-        await privatePlayListCC.touchModify(this.windowInfo.args!);
-      } catch (err) {
-        window.console.warn(err);
-        return;
-      }
-      await privatePlayListCC.delete(this.windowInfo.args!);
-    }
-  }
 
-  private async initWindow() {
     const targetId = this.windowInfo.args!;
-    const cutInDataCC = SocketFacade.instance.cutInDataCC();
-    const cutInData = await cutInDataCC.getData(targetId);
-    this.bgmInfo = cutInData!.data!;
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
-    const privatePlayInfo = await privatePlayListCC.getData(targetId);
-    this.duration = privatePlayInfo!.data!.duration;
-
-    if (this.bgmInfo!.fadeIn < 2) this.volume = this.bgmInfo!.volume;
-    this.maxVolume = this.bgmInfo!.volume;
-    if (!this.bgmInfo) return;
-    let title = `【タイトル】\n${this.bgmInfo.title}`;
-    title += `\n\n【URL】\n${this.bgmInfo.url}`;
-    this.thumbnailText = title;
-    this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
-      "v",
-      this.bgmInfo.url
-    )}/default.jpg`;
-  }
-
-  private playListRemoveUnsubscribe: (() => void) | null = null;
-
-  private async dataSyncSetting() {
-    if (this.playListRemoveUnsubscribe) {
-      this.playListRemoveUnsubscribe();
-      this.playListRemoveUnsubscribe = null;
-    }
-    const targetId = this.windowInfo.args!;
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
-    const unsubscribe = await privatePlayListCC.setCollectionSnapshot(
-      this.key,
-      snapshot => {
-        snapshot.docs.forEach(async doc => {
-          if (doc.type === "removed" && doc.ref.id === targetId) {
-            window.console.log("プレイリストから削除につき画面閉じる！🐧");
-            this.isDeleted = true;
-            await this.close();
-            unsubscribe();
-          }
-          if (
-            doc.type === "modified" &&
-            doc.ref.id === targetId &&
-            doc.data &&
-            doc.data.data &&
-            doc.data.status === "modified"
-          ) {
-            this.duration = doc.data.data.duration;
-          }
-        });
-      }
-    );
-    this.playListRemoveUnsubscribe = unsubscribe;
+    BgmManager.closeBgm(targetId);
   }
 
   private get youtubeElementId() {
@@ -239,12 +183,8 @@ export default class PlayYoutubeWindow
 
   public async onPlaying(duration: number): Promise<void> {
     if (this.status !== "window") return;
-    const privatePlayListCC = SocketFacade.instance.privatePlayListCC();
     const targetId = this.windowInfo.args!;
-    const data = (await privatePlayListCC.getData(targetId))!;
-    data.data!.duration = duration;
-    await privatePlayListCC.touchModify(targetId);
-    await privatePlayListCC.update(targetId, data.data!);
+    if (!this.duration) this.duration = duration;
     // this.isPlay = true;
     window.console.log("onPlaying");
 
