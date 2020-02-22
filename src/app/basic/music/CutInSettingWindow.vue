@@ -70,6 +70,7 @@ import { StoreUseData } from "@/@types/store";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { CutInDeclareInfo } from "@/@types/room";
 import { BgmPlayInfo } from "task-info";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -105,13 +106,11 @@ export default class CutInSettingWindow extends Mixins<
   WindowVue<number, never>
 >(WindowVue) {
   private selectedCutInId: string | null = null;
-  private cutInDataCC = SocketFacade.instance.cutInDataCC();
-  private cutInList: StoreUseData<CutInDeclareInfo>[] = [];
+  private cutInList = GameObjectManager.instance.cutInList;
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.cutInList = await this.cutInDataCC.getList(true);
   }
 
   @VueEvent

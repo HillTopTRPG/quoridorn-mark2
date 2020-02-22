@@ -1,5 +1,4 @@
-import SocketFacade, { getStoreObj } from "../core/api/app-server/SocketFacade";
-import QuerySnapshot from "nekostore/lib/QuerySnapshot";
+import SocketFacade from "../core/api/app-server/SocketFacade";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   SceneAndLayer,
@@ -10,10 +9,10 @@ import {
   ActorGroup,
   SceneAndObject,
   RoomData,
-  SocketUserData
+  SocketUserData,
+  CutInDeclareInfo
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import {
   ExtraStore,
   SceneObject,
@@ -27,6 +26,7 @@ import { ClientRoomInfo } from "@/@types/socket";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Point } from "address";
 import { createPoint } from "@/app/core/Coordinate";
+import { BgmStandByInfo } from "task-info";
 
 export default class GameObjectManager {
   // シングルトン
@@ -42,99 +42,27 @@ export default class GameObjectManager {
   private constructor() {}
 
   private async initialize() {
-    const setBasicSnapShot = async <T>(
-      c: NekostoreCollectionController<T>,
-      list: StoreUseData<T>[]
-    ) => {
-      await c.setCollectionSnapshot(
-        "PlayerManager",
-        (snapshot: QuerySnapshot<StoreObj<T>>) => {
-          let wantSort = false;
-          snapshot.docs.forEach(doc => {
-            const index = list.findIndex(p => p.id === doc.ref.id);
-            if (doc.type === "removed") {
-              list.splice(index, 1);
-            } else {
-              const status = doc.data!.status;
-              // window.console.log(status, doc.ref.id);
-              if (
-                (status !== "initial-touched" && index === -1) ||
-                status === "added" ||
-                status === "modified"
-              ) {
-                const obj = getStoreObj(doc)!;
-                // if (obj && obj.data) {
-                //   const data: any = obj.data;
-                //   window.console.log(typeof data);
-                //   if ("name" in data) {
-                //     window.console.log(data.name);
-                //   }
-                // }
-                list.splice(index, index < 0 ? 0 : 1, obj);
-                wantSort = true;
-              }
-            }
-          });
-          if (wantSort)
-            list.sort((i1, i2) => {
-              if (i1.order < i2.order) return -1;
-              if (i1.order > i2.order) return 1;
-              return 0;
-            });
-        }
-      );
-    };
-    await setBasicSnapShot(SocketFacade.instance.sceneListCC(), this.sceneList);
-    await setBasicSnapShot(SocketFacade.instance.imageDataCC(), this.imageList);
-    await setBasicSnapShot(
-      SocketFacade.instance.imageTagCC(),
-      this.imageTagList
-    );
-    await setBasicSnapShot(SocketFacade.instance.userCC(), this.userList);
-    await setBasicSnapShot(
-      SocketFacade.instance.socketUserCC(),
-      this.socketUserList
-    );
-    await setBasicSnapShot(SocketFacade.instance.extraCC(), this.extraList);
-    await setBasicSnapShot(
-      SocketFacade.instance.propertyFaceCC(),
-      this.propertyFaceList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.propertyCC(),
-      this.propertyList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.sceneLayerCC(),
-      this.sceneLayerList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.sceneAndLayerCC(),
-      this.sceneAndLayerList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.sceneAndObjectCC(),
-      this.sceneAndObjectList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.sceneObjectCC(),
-      this.sceneObjectList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.actorStatusCC(),
-      this.actorStatusList
-    );
-    await setBasicSnapShot(
-      SocketFacade.instance.propertySelectionCC(),
-      this.propertySelectionList
-    );
-    await setBasicSnapShot(SocketFacade.instance.tagNoteCC(), this.tagNoteList);
-    await setBasicSnapShot(
-      SocketFacade.instance.actorGroupCC(),
-      this.actorGroupList
-    );
+    const sf = SocketFacade.instance;
+    this.sceneList = await sf.sceneListCC().getList(true);
+    this.imageList = await sf.imageDataCC().getList(true);
+    this.imageTagList = await sf.imageTagCC().getList(true);
+    this.userList = await sf.userCC().getList(true);
+    this.cutInList = await sf.cutInDataCC().getList(true);
+    this.bgmStandByList = await sf.bgmStandByCC().getList(true);
+    this.socketUserList = await sf.socketUserCC().getList(true);
+    this.extraList = await sf.extraCC().getList(true);
+    this.propertyFaceList = await sf.propertyFaceCC().getList(true);
+    this.propertyList = await sf.propertyCC().getList(true);
+    this.sceneLayerList = await sf.sceneLayerCC().getList(true);
+    this.sceneAndLayerList = await sf.sceneAndLayerCC().getList(true);
+    this.sceneAndObjectList = await sf.sceneAndObjectCC().getList(true);
+    this.sceneObjectList = await sf.sceneObjectCC().getList(true);
+    this.actorStatusList = await sf.actorStatusCC().getList(true);
+    this.propertySelectionList = await sf.propertySelectionCC().getList(true);
+    this.tagNoteList = await sf.tagNoteCC().getList(true);
+    this.actorGroupList = await sf.actorGroupCC().getList(true);
 
-    const roomDataCC = SocketFacade.instance.roomDataCC();
+    const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
     Object.assign(this.roomData, roomData.data);
 
@@ -157,25 +85,30 @@ export default class GameObjectManager {
     isFitGrid: false,
     isUseRotateMarker: false
   };
+  public readonly playingBgmList: {
+    targetId: string;
+    tag: string;
+    windowKey: string;
+  }[] = [];
   public readonly throwEndPoint: Point = createPoint(0, 0);
-  public readonly sceneList: StoreUseData<Scene>[] = [];
-  public readonly imageList: StoreUseData<Image>[] = [];
-  public readonly imageTagList: StoreUseData<string>[] = [];
-  public readonly userList: StoreUseData<UserData>[] = [];
-  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
-  public readonly extraList: StoreUseData<ExtraStore>[] = [];
-  public readonly propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
-  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
-  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
-  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
-  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
-  public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
-  public readonly propertyList: StoreUseData<PropertyStore>[] = [];
-  public readonly propertySelectionList: StoreUseData<
-    PropertySelectionStore
-  >[] = [];
-  public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
-  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
+  public sceneList: StoreUseData<Scene>[] = [];
+  public cutInList: StoreUseData<CutInDeclareInfo>[] = [];
+  public bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
+  public imageList: StoreUseData<Image>[] = [];
+  public imageTagList: StoreUseData<string>[] = [];
+  public userList: StoreUseData<UserData>[] = [];
+  public socketUserList: StoreUseData<SocketUserData>[] = [];
+  public extraList: StoreUseData<ExtraStore>[] = [];
+  public propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
+  public sceneLayerList: StoreUseData<SceneLayer>[] = [];
+  public sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
+  public sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
+  public sceneObjectList: StoreUseData<SceneObject>[] = [];
+  public actorStatusList: StoreUseData<ActorStatusStore>[] = [];
+  public propertyList: StoreUseData<PropertyStore>[] = [];
+  public propertySelectionList: StoreUseData<PropertySelectionStore>[] = [];
+  public tagNoteList: StoreUseData<TagNoteStore>[] = [];
+  public actorGroupList: StoreUseData<ActorGroup>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -263,8 +196,6 @@ export default class GameObjectManager {
       await sceneAndObjectCC.add(await sceneAndObjectCC.touch(), {
         sceneId,
         objectId,
-        // startTimeStatus: "",
-        // startTimePlace: "",
         isOriginalAddress: false,
         originalAddress: null,
         entering: "normal"
@@ -366,6 +297,8 @@ export default class GameObjectManager {
         return this.imageList;
       case "image-tag":
         return this.imageTagList;
+      case "bgm-stand-by":
+        return this.bgmStandByList;
       case "user":
         return this.userList;
       case "socket-user":

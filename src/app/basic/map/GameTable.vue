@@ -57,9 +57,8 @@ import TaskProcessor, {
 } from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { Scene, RoomData, Texture } from "@/@types/room";
+import { Scene, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
@@ -128,13 +127,9 @@ export default class GameTable extends AddressCalcMixin {
   @VueEvent
   private async mounted() {
     const sceneListCC = SocketFacade.instance.sceneListCC();
-    const roomDataCC = SocketFacade.instance.roomDataCC();
-    const roomData: StoreUseData<RoomData> = (
-      await roomDataCC.getList(false)
-    )[0];
-    if (!roomData) throw new ApplicationError("No such roomData.");
+    const roomData = GameObjectManager.instance.roomData;
 
-    this.sceneId = roomData.data!.sceneId;
+    this.sceneId = roomData.sceneId;
     const sceneData = await sceneListCC.getData(this.sceneId);
     await sceneListCC.setSnapshot(this.key, this.sceneId, async snapshot => {
       if (snapshot.data!.status === "modified") {

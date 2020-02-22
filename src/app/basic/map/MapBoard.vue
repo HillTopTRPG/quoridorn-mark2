@@ -19,13 +19,9 @@ import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import { drawLine, drawLine2 } from "@/app/core/CanvasDrawer";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { Scene, RoomData } from "@/@types/room";
-import { StoreUseData } from "@/@types/store";
-import SocketFacade, {
-  getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { Matrix, Size } from "address";
 import { createSize } from "@/app/core/Coordinate";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component
 export default class MapBoard extends Vue {
@@ -34,7 +30,7 @@ export default class MapBoard extends Vue {
   @Prop({ type: Object, default: null })
   private scene!: Scene;
 
-  private roomData: StoreUseData<RoomData> | null = null;
+  private roomData: RoomData = GameObjectManager.instance.roomData;
   private key = "map-board";
 
   private get mapCanvasSize(): Size {
@@ -46,18 +42,6 @@ export default class MapBoard extends Vue {
       gridSize * this.scene.columns,
       gridSize * this.scene.rows
     );
-  }
-
-  @LifeCycle
-  private async beforeCreate(): Promise<void> {
-    const roomDataCC = SocketFacade.instance.roomDataCC();
-    this.roomData = (await roomDataCC.getList(false))[0];
-    if (!this.roomData) throw new ApplicationError("No such roomData.");
-    await roomDataCC.setSnapshot(this.key, this.roomData.id!, snapshot => {
-      if (snapshot.data && snapshot.data.status === "modified") {
-        this.roomData = getStoreObj(snapshot);
-      }
-    });
   }
 
   @LifeCycle
@@ -77,7 +61,7 @@ export default class MapBoard extends Vue {
     const gridSize = this.scene.gridSize;
 
     // マス目の描画
-    if (this.roomData!.data!.isDrawGridLine) {
+    if (this.roomData.isDrawGridLine) {
       ctx.strokeStyle = this.scene.gridColor;
       ctx.globalAlpha = 1;
       for (let c = 0; c <= this.scene.columns; c++) {
@@ -107,7 +91,7 @@ export default class MapBoard extends Vue {
     }
 
     // マス座標の描画
-    if (this.roomData!.data!.isDrawGridId) {
+    if (this.roomData.isDrawGridId) {
       ctx.fillStyle = this.scene.fontColor;
       ctx.globalAlpha = 1;
       ctx.textAlign = "center";
@@ -151,7 +135,7 @@ export default class MapBoard extends Vue {
     */
   }
 
-  @Watch("roomData.data.isDrawGridLine")
+  @Watch("roomData.isDrawGridLine")
   private onChangeIsDrawGridLine() {
     window.console.log("isDrawGridLine from paint");
     this.paint();

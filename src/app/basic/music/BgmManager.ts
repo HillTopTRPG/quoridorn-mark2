@@ -15,9 +15,7 @@ export default class BgmManager {
   private static _instance: BgmManager;
 
   // コンストラクタの隠蔽
-  private constructor() {
-    this.asyncConstructor().then();
-  }
+  private constructor() {}
 
   public static async playBgm(
     targetId: string,
@@ -62,18 +60,10 @@ export default class BgmManager {
     return cutInInfo ? cutInInfo.tag : null;
   }
 
-  private async asyncConstructor() {
-    this._bgmList = await SocketFacade.instance.cutInDataCC().getList(true);
-  }
-
-  private _bgmList: StoreUseData<CutInDeclareInfo>[] = [];
-
-  public get bgmList() {
-    return this._bgmList;
-  }
-
   private getInfo(id: string | null) {
-    return this._bgmList.filter(info => info.id === id)[0];
+    return GameObjectManager.instance.cutInList.filter(
+      info => info.id === id
+    )[0];
   }
 
   private static getUrl(target: string | CutInDeclareInfo): string | null {

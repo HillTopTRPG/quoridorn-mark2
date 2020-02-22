@@ -35,9 +35,8 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
 
   @LifeCycle
   private async created() {
-    const roomDataCC = SocketFacade.instance.roomDataCC();
-    const roomData = (await roomDataCC.getList(false))[0];
-    const sceneId = roomData.data!.sceneId;
+    const roomData = GameObjectManager.instance.roomData;
+    const sceneId = roomData.sceneId;
     GameObjectManager.instance.sceneAndLayerList
       .filter(mal => mal.data!.sceneId === sceneId)
       .forEach(mal => {
