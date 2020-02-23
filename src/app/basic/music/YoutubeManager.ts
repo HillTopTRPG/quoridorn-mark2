@@ -51,11 +51,11 @@ export default class YoutubeManager {
   private constructor() {}
 
   private playerMapping: {
-    [tag: string]: PlayerInfo;
+    [key: string]: PlayerInfo;
   } = {};
 
-  public getPlayerInfo(tag: string) {
-    return this.playerMapping[tag];
+  public getPlayerInfo(key: string) {
+    return this.playerMapping[key];
   }
 
   private static getUrlParam(name: string, url: string) {
@@ -69,18 +69,18 @@ export default class YoutubeManager {
 
   public open(
     elementId: string,
-    { tag, url, start, end }: CutInDeclareInfo,
+    { url, start, end }: CutInDeclareInfo,
     eventHandler: YoutubeEventHandler
   ) {
     window.console.log("Youtube open!!!");
-    let playerObj = this.playerMapping[tag];
+    let playerObj = this.playerMapping[elementId];
     if (playerObj && playerObj.elementId === elementId) {
       // 全く同じプレイヤー要素
     } else {
       // プレイヤー要素の切替の場合は以前のプレイヤーを破棄する
       if (playerObj) {
         window.console.log("destroy player", elementId);
-        this.destroyed(tag);
+        this.destroyed(elementId);
       }
       const videoId = YoutubeManager.getUrlParam("v", url);
 
@@ -90,38 +90,38 @@ export default class YoutubeManager {
         height: YoutubeManager.playerElementSize.height,
         videoId,
         events: {
-          onReady: () => this.eventHandler.onReady(tag),
+          onReady: () => this.eventHandler.onReady(elementId),
           onStateChange: (event: any) => {
             switch (event.data) {
               case YT.PlayerState.ENDED:
-                this.eventHandler.onEnded(tag);
+                this.eventHandler.onEnded(elementId);
                 break;
               case YT.PlayerState.PLAYING:
-                this.eventHandler.onPlaying(tag, event);
+                this.eventHandler.onPlaying(elementId, event);
                 break;
               case YT.PlayerState.PAUSED:
-                this.eventHandler.onPaused(tag);
+                this.eventHandler.onPaused(elementId);
                 break;
               // case YT.PlayerState.BUFFERING:
-              //   this.eventHandler.onBuffering(tag);
+              //   this.eventHandler.onBuffering(elementId);
               //   break;
               // case YT.PlayerState.CUED:
-              //   this.eventHandler.onCued(tag);
+              //   this.eventHandler.onCued(elementId);
               //   break;
               default:
             }
           },
           onError: (event: any) => {
-            this.eventHandler.onError(tag, event);
+            this.eventHandler.onError(elementId, event);
           }
           // onPlaybackQualityChange: (suggestedQuality: string) => {
-          //   this.eventHandler.onPlaybackQualityChange(tag, suggestedQuality);
+          //   this.eventHandler.onPlaybackQualityChange(elementId, suggestedQuality);
           // },
           // onPlaybackRateChange: (event: any) => {
-          //   this.eventHandler.onPlaybackRateChange(tag, event);
+          //   this.eventHandler.onPlaybackRateChange(elementId, event);
           // },
           // onApiChange: (event: any) => {
-          //   this.eventHandler.onApiChange(tag);
+          //   this.eventHandler.onApiChange(elementId);
           // }
         },
         playerVars: {
@@ -151,7 +151,7 @@ export default class YoutubeManager {
         timeUpdateTimer: null,
         timerReload: null
       };
-      this.playerMapping[tag] = playerObj;
+      this.playerMapping[elementId] = playerObj;
 
       // 既にタイマーが張られていたら停止する
       if (playerObj.timerReload !== null) {
@@ -161,19 +161,19 @@ export default class YoutubeManager {
       // 1500ミリ秒経っても再生できてなければRejectする
       // （通常に読み込めるときの時間は900msくらい）
       playerObj.timerReload = window.setTimeout(() => {
-        this.playerMapping[tag].eventHandlers.forEach(eh => {
+        this.playerMapping[elementId].eventHandlers.forEach(eh => {
           eh.onReject();
         });
       }, 1500);
     }
   }
 
-  public addEventHandler(tag: string, eventHandler: YoutubeEventHandler) {
-    this.playerMapping[tag].eventHandlers.push(eventHandler);
+  public addEventHandler(elementId: string, eventHandler: YoutubeEventHandler) {
+    this.playerMapping[elementId].eventHandlers.push(eventHandler);
   }
 
-  public destroyed(tag: string) {
-    let playerObj = this.playerMapping[tag];
+  public destroyed(elementId: string) {
+    let playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
 
     // 既にタイマーが張られていたら停止する
@@ -186,7 +186,7 @@ export default class YoutubeManager {
       playerObj.timeUpdateTimer = null;
     }
 
-    delete this.playerMapping[tag];
+    delete this.playerMapping[elementId];
   }
 
   /**
@@ -208,14 +208,15 @@ export default class YoutubeManager {
 
   /** IDを指定して読み込ませる */
   public loadVideoById(
-    { tag, url, start, end }: CutInDeclareInfo,
+    elementId: string,
+    { url, start, end }: CutInDeclareInfo,
     suggestedQuality: string = "small"
   ) {
-    let playerObj = this.playerMapping[tag];
+    let playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
 
     const videoId = YoutubeManager.getUrlParam("v", url);
-    this.playerMapping[tag].player.loadVideoById({
+    this.playerMapping[elementId].player.loadVideoById({
       videoId,
       startSeconds: start,
       endSeconds: end,
@@ -230,60 +231,60 @@ export default class YoutubeManager {
     // 1500ミリ秒経っても再生できてなければRejectする
     // （通常に読み込めるときの時間は900msくらい）
     playerObj.timerReload = window.setTimeout(() => {
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onReject();
       });
     }, 1500);
   }
 
   /** 再生する */
-  public play(tag: string) {
-    this.doPlayerMethod("playVideo", tag);
+  public play(elementId: string) {
+    this.doPlayerMethod("playVideo", elementId);
   }
 
   /** 一時停止する */
-  public pause(tag: string) {
-    this.doPlayerMethod("pauseVideo", tag);
+  public pause(elementId: string) {
+    this.doPlayerMethod("pauseVideo", elementId);
   }
 
   /** 再生経過時間の設定 */
-  public seekTo(tag: string, seconds: number, allowSeekAhead: boolean) {
-    this.doPlayerMethod("seekTo", tag, seconds, allowSeekAhead);
+  public seekTo(elementId: string, seconds: number, allowSeekAhead: boolean) {
+    this.doPlayerMethod("seekTo", elementId, seconds, allowSeekAhead);
   }
 
   /** ミュート設定 */
-  public mute(tag: string) {
-    this.doPlayerMethod("mute", tag);
+  public mute(elementId: string) {
+    this.doPlayerMethod("mute", elementId);
   }
 
   /** ミュート解除 */
-  public unMute(tag: string) {
-    this.doPlayerMethod("unMute", tag);
+  public unMute(elementId: string) {
+    this.doPlayerMethod("unMute", elementId);
   }
 
   /** ミュート状態の取得 */
-  public isMuted(tag: string): boolean {
-    return this.doPlayerMethod("isMuted", tag);
+  public isMuted(elementId: string): boolean {
+    return this.doPlayerMethod("isMuted", elementId);
   }
 
   /** 音量設定 */
-  public setVolume(tag: string, volume: number) {
-    this.doPlayerMethod("setVolume", tag, volume);
+  public setVolume(elementId: string, volume: number) {
+    this.doPlayerMethod("setVolume", elementId, volume);
   }
 
   /** 音量取得 */
-  public getVolume(tag: string): number {
-    return this.doPlayerMethod("getVolume", tag);
+  public getVolume(elementId: string): number {
+    return this.doPlayerMethod("getVolume", elementId);
   }
 
   /** ループ状態の設定 */
-  public setLoop(tag: string) {
-    this.doPlayerMethod("setLoop", tag);
+  public setLoop(elementId: string) {
+    this.doPlayerMethod("setLoop", elementId);
   }
 
   /** プレーヤーがバッファ済みの動画の割合を 0～1 の数値で取得 */
-  public getVideoLoadedFraction(tag: string) {
-    this.doPlayerMethod("getVideoLoadedFraction", tag);
+  public getVideoLoadedFraction(elementId: string) {
+    this.doPlayerMethod("getVideoLoadedFraction", elementId);
   }
 
   /**
@@ -294,13 +295,13 @@ export default class YoutubeManager {
    * YT.PlayerState.BUFFERING
    * YT.PlayerState.CUED
    */
-  public getPlayerState(tag: string) {
-    this.doPlayerMethod("getPlayerState", tag);
+  public getPlayerState(elementId: string) {
+    this.doPlayerMethod("getPlayerState", elementId);
   }
 
   /** 動画の再生を開始してからの経過時間を秒数で取得 */
-  public getCurrentTime(tag: string) {
-    this.doPlayerMethod("getCurrentTime", tag);
+  public getCurrentTime(elementId: string) {
+    this.doPlayerMethod("getCurrentTime", elementId);
   }
 
   /**
@@ -312,33 +313,33 @@ export default class YoutubeManager {
    * hd1080
    * highres
    */
-  public getPlaybackQuality(tag: string): string {
-    return this.doPlayerMethod("getPlaybackQuality", tag);
+  public getPlaybackQuality(elementId: string): string {
+    return this.doPlayerMethod("getPlaybackQuality", elementId);
   }
 
   /** 現在の動画の推奨画質を設定 */
-  public setPlaybackQuality(tag: string, suggestedQuality: string): void {
-    this.doPlayerMethod("setPlaybackQuality", tag, suggestedQuality);
+  public setPlaybackQuality(elementId: string, suggestedQuality: string): void {
+    this.doPlayerMethod("setPlaybackQuality", elementId, suggestedQuality);
   }
 
   /** 現在の動画で有効な画質のセットを取得 */
-  public getAvailableQualityLevels(tag: string): string {
-    return this.doPlayerMethod("getAvailableQualityLevels", tag);
+  public getAvailableQualityLevels(elementId: string): string {
+    return this.doPlayerMethod("getAvailableQualityLevels", elementId);
   }
 
   /** 再生中の動画の長さを秒数で取得 */
-  public getDuration(tag: string): number {
-    return this.doPlayerMethod("getDuration", tag);
+  public getDuration(elementId: string): number {
+    return this.doPlayerMethod("getDuration", elementId);
   }
 
   /** 読み込み済みまたは再生中の動画の YouTube.com URLを取得 */
-  public getVideoUrl(tag: string): string {
-    return this.doPlayerMethod("getVideoUrl", tag);
+  public getVideoUrl(elementId: string): string {
+    return this.doPlayerMethod("getVideoUrl", elementId);
   }
 
   /** 埋め込まれた <iframe> に対する DOM ノードを取得 */
-  public getIframe(tag: string): HTMLElement {
-    return this.doPlayerMethod("getIframe", tag);
+  public getIframe(elementId: string): HTMLElement {
+    return this.doPlayerMethod("getIframe", elementId);
   }
 
   /**
@@ -346,7 +347,7 @@ export default class YoutubeManager {
    * サポートするYoutubeイベント
    */
   // private callEventHandler = (
-  //   tag: string,
+  //   elementId: string,
   //   eventName: string,
   //   ...args: any[]
   // ) => {
@@ -354,7 +355,7 @@ export default class YoutubeManager {
   //     // window.console.log(`--- ${eventName} => ${index}`, ...args)
   //   }
   //
-  //   const playerObj = this.playerMapping[tag];
+  //   const playerObj = this.playerMapping[elementId];
   //   if (!playerObj) return;
   //
   //   const eventHandler = playerObj.eventHandler[eventName];
@@ -371,19 +372,19 @@ export default class YoutubeManager {
   // };
 
   private eventHandler = {
-    onReady: (tag: string) => {
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+    onReady: (elementId: string) => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onReady();
       });
     },
-    onEnded: (tag: string) => {
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+    onEnded: (elementId: string) => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onEnded();
       });
     },
-    onPlaying: (tag: string, event: any) => {
+    onPlaying: (elementId: string, event: any) => {
       try {
-        let playerObj = this.playerMapping[tag];
+        let playerObj = this.playerMapping[elementId];
         if (!playerObj) return;
 
         // 既にタイマーが張られていたら停止する
@@ -398,19 +399,19 @@ export default class YoutubeManager {
 
         // 100ミリ秒毎に現在の再生経過時間を通知する
         playerObj.timeUpdateTimer = window.setInterval(() => {
-          this.playerMapping[tag].eventHandlers.forEach(eh => {
+          this.playerMapping[elementId].eventHandlers.forEach(eh => {
             eh.timeUpdate(event.target!.getCurrentTime());
           });
         }, 100);
       } catch (error) {
         window.console.error(error);
       }
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onPlaying(event.target.getDuration(), event.target);
       });
     },
-    onPaused: (tag: string) => {
-      let playerObj = this.playerMapping[tag];
+    onPaused: (elementId: string) => {
+      let playerObj = this.playerMapping[elementId];
       if (!playerObj) return;
 
       // 既にタイマーが張られていたら停止する
@@ -423,17 +424,17 @@ export default class YoutubeManager {
         playerObj.timerReload = null;
       }
 
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onPaused();
       });
     },
-    onError: (tag: string, event: any) => {
-      this.playerMapping[tag].eventHandlers.forEach(eh => {
+    onError: (elementId: string, event: any) => {
+      this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onError(event);
       });
     }
-    // onBuffering: (tag: string) => {
-    //   let playerObj = this.playerMapping[tag];
+    // onBuffering: (elementId: string) => {
+    //   let playerObj = this.playerMapping[elementId];
     //   if (!playerObj) return;
     //
     //   // 既にタイマーが張られていたら停止する
@@ -442,21 +443,21 @@ export default class YoutubeManager {
     //     playerObj.timeUpdateTimer = null;
     //   }
     //
-    //   this.playerMapping[tag].eventHandler.onBuffering();
+    //   this.playerMapping[elementId].eventHandler.onBuffering();
     // },
-    // onCued: (tag: string) => {
-    //   this.playerMapping[tag].eventHandler.onCued();
+    // onCued: (elementId: string) => {
+    //   this.playerMapping[elementId].eventHandler.onCued();
     // },
-    // onPlaybackQualityChange: (tag: string, suggestedQuality: string) => {
-    //   this.playerMapping[tag].eventHandler.onPlaybackQualityChange(
+    // onPlaybackQualityChange: (elementId: string, suggestedQuality: string) => {
+    //   this.playerMapping[elementId].eventHandler.onPlaybackQualityChange(
     //     suggestedQuality
     //   );
     // },
-    // onPlaybackRateChange: (tag: string, event: any) => {
-    //   this.playerMapping[tag].eventHandler.onPlaybackRateChange(event);
+    // onPlaybackRateChange: (elementId: string, event: any) => {
+    //   this.playerMapping[elementId].eventHandler.onPlaybackRateChange(event);
     // },
-    // onApiChange: (tag: string) => {
-    //   this.playerMapping[tag].eventHandler.onApiChange();
+    // onApiChange: (elementId: string) => {
+    //   this.playerMapping[elementId].eventHandler.onApiChange();
     // }
   };
 }

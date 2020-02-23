@@ -786,21 +786,21 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   maxSize:
     widthPx: 600
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   minimizable: true
   paneContainable: true
@@ -819,21 +819,21 @@
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   minSize:
     widthPx: 300
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   maxSize:
     widthPx: 600
     widthEm: 0
     widthRem: 0
     heightPx: 2
-    heightEm: 26
+    heightEm: 28
     heightRem: 2
   minimizable: true
   paneContainable: true

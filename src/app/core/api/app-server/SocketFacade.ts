@@ -490,10 +490,6 @@ export default class SocketFacade {
     return this.roomCollectionController<CutInDeclareInfo>("cut-in-list");
   }
 
-  public bgmStandByCC(): NekostoreCollectionController<BgmStandByInfo> {
-    return this.roomCollectionController<BgmStandByInfo>("bgm-stand-by-list");
-  }
-
   public userCC(): NekostoreCollectionController<UserData> {
     return this.roomCollectionController<UserData>("user-list");
   }
@@ -540,8 +536,6 @@ export default class SocketFacade {
         return this.imageTagCC();
       case "cut-in-list":
         return this.cutInDataCC();
-      case "bgm-stand-by-list":
-        return this.bgmStandByCC();
       case "user-list":
         return this.userCC();
       case "property-list":

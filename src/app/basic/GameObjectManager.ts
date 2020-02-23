@@ -62,7 +62,6 @@ export default class GameObjectManager {
     this.imageTagList = await sf.imageTagCC().getList(true);
     this.userList = await sf.userCC().getList(true);
     this.cutInList = await sf.cutInDataCC().getList(true);
-    this.bgmStandByList = await sf.bgmStandByCC().getList(true);
     this.socketUserList = await sf.socketUserCC().getList(true);
     this.extraList = await sf.extraCC().getList(true);
     this.propertyFaceList = await sf.propertyFaceCC().getList(true);

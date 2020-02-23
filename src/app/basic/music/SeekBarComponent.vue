@@ -1,5 +1,5 @@
 <template>
-  <div class="seek-bar-area" @contextmenu.prevent ref="elm">
+  <label class="seek-bar-area" @contextmenu.prevent ref="elm">
     <input
       class="seek-bar"
       type="range"
@@ -9,11 +9,15 @@
       v-model="useSeek"
       @input="seekTo($event.target.valueAsNumber, false)"
       @change="seekTo($event.target.valueAsNumber, true)"
+      @keydown.enter.stop
+      @keyup.enter.stop
+      @keydown.229.stop
+      @keyup.229.stop
     />
     <span class="seek-text">
       {{ time }}
     </span>
-  </div>
+  </label>
 </template>
 
 <script lang="ts">
@@ -45,10 +49,9 @@ export default class SeekBarComponent extends Vue {
 
   private get time() {
     const isHour = this.duration >= 3600;
-    const seek = Math.round(this.seek);
-    const duration = Math.round(this.duration);
 
     const getTime = (num: number): string => {
+      num = Math.round(num);
       const hour = Math.floor(num / 3600);
       const minute = Math.floor((num % 3600) / 60);
       const second = num % 60;
@@ -56,7 +59,7 @@ export default class SeekBarComponent extends Vue {
       if (isHour) result = `${hour}:` + result;
       return result;
     };
-    return `${getTime(seek)}/${getTime(duration)}`;
+    return `${getTime(this.seek)}/${getTime(this.duration)}`;
   }
 
   @LifeCycle

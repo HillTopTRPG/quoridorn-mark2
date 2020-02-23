@@ -25,8 +25,8 @@ export default class BgmManager {
     const tag = cutInInfo.tag;
 
     let matchAndContinue = false;
-    if (!tag) {
-      // タグが空の曲は窓を何個でも開く
+    if (cutInInfo.isForceNew) {
+      // 窓を何個でも開く
     } else {
       GameObjectManager.instance.playingBgmList
         .filter(b => b.targetId === targetId || b.tag === tag)
@@ -67,9 +67,9 @@ export default class BgmManager {
       if (cutInInfo.fadeIn < 2) playerHandler.setVolume(cutInInfo.volume);
       const tag = cutInInfo.tag;
       if (windowStatus !== "window") {
-        YoutubeManager.instance.addEventHandler(tag, playerHandler);
-        playerHandler.setVolume(YoutubeManager.instance.getVolume(tag));
-        playerHandler.setIsMute(YoutubeManager.instance.isMuted(tag));
+        YoutubeManager.instance.addEventHandler(playElmId, playerHandler);
+        playerHandler.setVolume(YoutubeManager.instance.getVolume(playElmId));
+        playerHandler.setIsMute(YoutubeManager.instance.isMuted(playElmId));
       } else {
         YoutubeManager.instance.open(playElmId, cutInInfo, playerHandler);
         GameObjectManager.instance.playingBgmList.push({
