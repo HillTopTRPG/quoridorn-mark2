@@ -47,8 +47,13 @@ export default class StringInputTrComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
+.color-picker-tr-component {
+  display: contents;
+}
 th {
   text-align: right;
+  width: 1px;
+  white-space: nowrap;
 }
 
 tr {

@@ -5,12 +5,11 @@ import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Permission, StoreObj, StoreUseData } from "@/@types/store";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { SystemError } from "@/app/core/error/SystemError";
 import SocketFacade, {
   getStoreObj
 } from "@/app/core/api/app-server/SocketFacade";
 import {
+  AddDirectRequest,
   CreateDataRequest,
   DeleteDataRequest,
   ReleaseTouchRequest,
@@ -18,6 +17,7 @@ import {
   TouchRequest,
   UpdateDataRequest
 } from "@/@types/data";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 export default class NekostoreCollectionController<T> {
   constructor(
@@ -48,23 +48,12 @@ export default class NekostoreCollectionController<T> {
     return this.nekostore.collection<StoreObj<T>>(this.collectionName);
   }
 
-  private async getDocSnap(
-    id: string,
-    collection?: CollectionReference<StoreObj<T>>
-  ): Promise<DocumentSnapshot<StoreObj<T>>> {
-    return await (collection || this.getCollection()).doc(id).get();
-  }
-
-  private checkOneDoc(order: number, docs: DocumentSnapshot<StoreObj<T>>[]) {
-    if (!docs.length)
-      throw new SystemError(
-        `No such object info. Please touch. order=${order}`
-      );
-    if (docs.length > 1)
-      throw new ApplicationError(
-        `Duplicate object info. Please report to server administrator. order=${order}`
-      );
-  }
+  // private async getDocSnap(
+  //   id: string,
+  //   collection?: CollectionReference<StoreObj<T>>
+  // ): Promise<DocumentSnapshot<StoreObj<T>>> {
+  //   return await (collection || this.getCollection()).doc(id).get();
+  // }
 
   public async getList(
     isSync: boolean,
@@ -78,7 +67,7 @@ export default class NekostoreCollectionController<T> {
     await this.setCollectionSnapshot(
       "NekostoreCollectionController",
       (snapshot: QuerySnapshot<StoreObj<T>>) => {
-        snapshot.docs.forEach(doc => {
+        snapshot.docs.forEach(() => {
           let wantSort = false;
           snapshot.docs.forEach(doc => {
             const index = list.findIndex(p => p.id === doc.ref.id);
@@ -129,13 +118,20 @@ export default class NekostoreCollectionController<T> {
       .map(item => getStoreObj(item)!);
   }
 
-  public async touch(createId?: string): Promise<string> {
+  public async touch(option?: Partial<StoreUseData<any>>): Promise<string> {
+    let id: string | undefined = undefined;
+    let owner: string = GameObjectManager.instance.mySelfId;
+    if (option) {
+      id = option.id || undefined;
+      if (option.owner) owner = option.owner;
+    }
     const docId = await SocketFacade.instance.socketCommunication<
       TouchRequest,
       string
     >("touch-data", {
       collection: this.collectionName,
-      id: createId
+      id,
+      owner
     });
     this.touchList.push(docId);
     return docId;
@@ -179,20 +175,28 @@ export default class NekostoreCollectionController<T> {
       collection: this.collectionName,
       id,
       data,
-      permission: permission || {
-        view: {
-          type: "none",
-          list: []
-        },
-        edit: {
-          type: "none",
-          list: []
-        },
-        chmod: {
-          type: "none",
-          list: []
-        }
-      }
+      permission: permission || GameObjectManager.DEFAULT_PERMISSION
+    });
+  }
+
+  public async addDirect(
+    dataList: T[],
+    option?: Partial<StoreObj<any>>
+  ): Promise<string[]> {
+    let permission: Permission = GameObjectManager.DEFAULT_PERMISSION;
+    let owner: string = GameObjectManager.instance.mySelfId;
+    if (option) {
+      if (option.permission) permission = option.permission;
+      if (option.owner) owner = option.owner;
+    }
+    return await SocketFacade.instance.socketCommunication<
+      AddDirectRequest,
+      string[]
+    >("add-direct", {
+      collection: this.collectionName,
+      dataList,
+      permission,
+      owner
     });
   }
 
@@ -237,8 +241,8 @@ export default class NekostoreCollectionController<T> {
     const unsubscribe = await target.onSnapshot(onNext);
     if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
-    return () => {
-      unsubscribe();
+    return async () => {
+      await unsubscribe();
       delete this.snapshotMap[ownerKey];
     };
   }
@@ -251,8 +255,8 @@ export default class NekostoreCollectionController<T> {
     const unsubscribe = await target.onSnapshot(onNext);
     if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;
-    return () => {
-      unsubscribe();
+    return async () => {
+      await unsubscribe();
       delete this.snapshotMap[ownerKey];
     };
   }

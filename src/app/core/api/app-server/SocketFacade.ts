@@ -26,7 +26,6 @@ import {
   Image,
   ActorGroup,
   CutInDeclareInfo,
-  CutInPlayingInfo,
   SceneAndObject,
   SocketUserData
 } from "@/@types/room";
@@ -207,7 +206,7 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      // alert("有効なアプリケーションサーバに接続できませんでした。");
+      // window.console.error("有効なアプリケーションサーバに接続できませんでした。");
       return;
     }
     await this.setAppServerUrl(serverInfo.url);
@@ -265,7 +264,7 @@ export default class SocketFacade {
     try {
       resp = await this.testServer(url);
     } catch (err) {
-      window.console.warn(`${err}. url:${url}`);
+      window.console.error(`${err}. url:${url}`);
       return;
     }
     this.appServerUrlList.push({
@@ -312,7 +311,7 @@ export default class SocketFacade {
     if (this.socket) {
       return this.doSocketCommunication<T, U>(event, args);
     } else {
-      return new Promise<U>((resolve, reject) => {
+      return new Promise<U>(resolve => {
         const intervalId = window.setInterval(async () => {
           if (this.socket) {
             clearInterval(intervalId);
@@ -411,7 +410,7 @@ export default class SocketFacade {
           });
         }
       );
-      socket.on("connect_error", async (err: any) => {
+      socket.on("connect_error", async () => {
         socket.disconnect();
         reject("no-such-server");
       });

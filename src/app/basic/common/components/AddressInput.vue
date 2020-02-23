@@ -3,14 +3,14 @@
     <table v-if="localValue">
       <tr>
         <number-input-tr-component
-          :propName="'columns'"
+          propName="columns"
           :disabled="!roomData.isFitGrid"
           v-model="localValue.column"
           :widthEm="5"
           @input="onInputValue()"
         />
         <number-input-tr-component
-          :propName="'rows'"
+          propName="rows"
           :disabled="!roomData.isFitGrid"
           v-model="localValue.row"
           :widthEm="5"
@@ -19,14 +19,14 @@
       </tr>
       <tr>
         <number-input-tr-component
-          :propName="'x'"
+          propName="x"
           :disabled="roomData.isFitGrid"
           v-model="localValue.x"
           :widthEm="5"
           @input="onInputValue()"
         />
         <number-input-tr-component
-          :propName="'y'"
+          propName="y"
           :disabled="roomData.isFitGrid"
           v-model="localValue.y"
           :widthEm="5"

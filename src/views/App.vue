@@ -73,7 +73,6 @@ import { ModeInfo } from "mode";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
 import { BgmPlayInfo, ThrowParabolaInfo } from "task-info";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: {
@@ -154,25 +153,9 @@ export default class App extends Vue {
         } else if (dataType === "bgm-play") {
           // BGM再生通知
           const info = data.data as BgmPlayInfo;
-          const targetId = info.id;
-          const tag = await BgmManager.getTargetTag(targetId);
-          const playingInfo = GameObjectManager.instance.playingBgmList.filter(
-            b => b.targetId === targetId || b.tag === tag
-          )[0];
-          if (playingInfo) {
-            await TaskManager.instance.ignition<string, never>({
-              type: "window-close",
-              owner: "Quoridorn",
-              value: playingInfo.windowKey
-            });
-          }
-          await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
-            type: "window-open",
-            owner: "Quoridorn",
-            value: {
-              type: "play-youtube-window",
-              args: targetId
-            }
+          await BgmManager.callBgm({
+            targetId: info.id,
+            data: null
           });
         }
       }

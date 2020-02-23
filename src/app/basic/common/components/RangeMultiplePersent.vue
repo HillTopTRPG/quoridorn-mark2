@@ -1,7 +1,7 @@
 <template>
   <vue-slider
     v-model="localValue"
-    :width="'100%'"
+    width="100%"
     :dotSize="10"
     :min="0"
     :max="100"
@@ -9,7 +9,7 @@
     :piecewiseLabel="true"
     :enableCross="false"
     tooltip="always"
-    :tooltipDir="'top'"
+    tooltipDir="top"
     formatter="{value}%"
     mergeFormatter="{value1}% ~ {value2}%"
     :tooltipStyle="{

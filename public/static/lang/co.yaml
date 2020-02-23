@@ -151,6 +151,26 @@ label:
   original-address: 独自座標
   char: 文字
   additional-info: 付加情報
+  repeat: リピート
+  stand-by: スタンバイ
+  force-continue: 多重再生時は既存再生を優先する
+  force-new: 強制新規再生
+  chat-linkage: チャット連動
+  chat-linkage-type: 連動方法
+  chat-linkage-type-last: 末尾
+  chat-linkage-type-regexp: 正規表現
+  chat-linkage-target: チャット連動対象
+  javascript-regexp: Javascriptの正規表現
+  last-str: 末尾の文字列
+  fade-in: フェードイン
+  fade-out: フェードアウト
+  volume: 音量
+  url: URL
+  title: タイトル
+  play-start: 再生開始
+  play-end: 再生終了
+  second: 秒
+  url-placeholder: 指定なしで「停止」の指定
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -262,3 +282,9 @@ edit-scene-window:
 
 chmod-window:
   window-title: 権限変更
+
+add-bgm-window:
+  window-title: BGM追加
+
+edit-bgm-window:
+  window-title: BGM編集

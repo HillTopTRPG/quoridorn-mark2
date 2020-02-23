@@ -235,18 +235,20 @@ export type ActorGroup = {
  * cutInDataCCのデータ定義
  */
 type CutInDeclareInfo = {
-  title: string;
   url: string;
+  title: string;
   tag: string;
-  chatLinkage: 0 | 1 | 2;
-  chatLinkageSearch: string;
-  forceReset: boolean;
+  isRepeat: boolean;
+  fadeIn: number;
+  fadeOut: number;
   start: number;
   end: number;
   volume: number;
-  isLoop: boolean;
-  fadeIn: number;
-  fadeOut: number;
+  chatLinkageType: "none" | "last" | "regexp";
+  chatLinkageTarget: string;
+  isStandBy: boolean;
+  isForceNew: boolean;
+  isForceContinue: boolean;
 };
 
 /**

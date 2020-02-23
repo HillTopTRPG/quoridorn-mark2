@@ -11,8 +11,11 @@
         :disabled="disabled"
         @input="localValue = $event.target.valueAsNumber"
         :min="min"
+        :max="max"
+        :step="step"
         ref="inputElm"
       />
+      <span v-if="unitLabel" v-t="`label.${unitLabel}`"></span>
     </td>
   </tr>
 </template>
@@ -33,7 +36,13 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
   private labelName!: string;
 
   @Prop({ type: Number })
+  private step: number | undefined;
+
+  @Prop({ type: Number })
   private min: number | undefined;
+
+  @Prop({ type: Number })
+  private max: number | undefined;
 
   @Prop({ type: Number, required: true })
   private value!: number;
@@ -43,6 +52,9 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: "" })
   private inputWidth!: string;
+
+  @Prop({ type: String, default: "" })
+  private unitLabel!: string;
 
   private mounted() {
     if (this.inputWidth) {
@@ -65,6 +77,9 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
+.color-picker-tr-component {
+  display: contents;
+}
 th,
 td {
   padding: 0;
@@ -72,6 +87,8 @@ td {
 
 th {
   text-align: right;
+  width: 1px;
+  white-space: nowrap;
 }
 
 tr {

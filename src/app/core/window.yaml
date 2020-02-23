@@ -775,3 +775,69 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"add-bgm-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  maxSize:
+    widthPx: 600
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"edit-bgm-window":
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  maxSize:
+    widthPx: 600
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 26
+    heightRem: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

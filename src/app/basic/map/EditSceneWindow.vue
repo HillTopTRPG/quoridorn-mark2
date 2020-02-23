@@ -8,9 +8,8 @@
             <tr>
               <string-input-tr-component
                 class="value-name"
-                :labelName="'name'"
-                :value="sceneData.name"
-                @input="v => (sceneData.name = v)"
+                labelName="name"
+                v-model="sceneData.name"
               />
             </tr>
           </table>
@@ -21,28 +20,25 @@
               <tr>
                 <number-input-tr-component
                   class="value-columns"
-                  :labelName="'columns'"
-                  :value="sceneData.columns"
+                  labelName="columns"
+                  v-model="sceneData.columns"
                   :min="1"
-                  @input="v => (sceneData.columns = v)"
                 />
               </tr>
               <tr>
                 <number-input-tr-component
                   class="value-columns"
-                  :labelName="'columns'"
-                  :value="sceneData.rows"
+                  labelName="columns"
+                  v-model="sceneData.rows"
                   :min="1"
-                  @input="v => (sceneData.rows = v)"
                 />
               </tr>
               <tr>
                 <number-input-tr-component
                   class="value-grid-size"
-                  :labelName="'grid-size'"
-                  :value="sceneData.gridSize"
+                  labelName="grid-size"
+                  v-model="sceneData.gridSize"
                   :min="1"
-                  @input="v => (sceneData.gridSize = v)"
                 />
               </tr>
             </table>
@@ -54,14 +50,14 @@
               <tr>
                 <color-picker-tr-component
                   class="value-font-color"
-                  :labelName="'font-color'"
+                  labelName="font-color"
                   v-model="sceneData.fontColor"
                 />
               </tr>
               <tr>
                 <color-picker-tr-component
                   class="value-grid-color"
-                  :labelName="'grid-line-color'"
+                  labelName="grid-line-color"
                   v-model="sceneData.gridColor"
                 />
               </tr>
@@ -92,19 +88,17 @@
               <tr>
                 <number-input-tr-component
                   class="value-margin-columns"
-                  :labelName="'columns'"
-                  :value="sceneData.margin.columns"
+                  labelName="columns"
+                  v-model="sceneData.margin.columns"
                   :min="0"
-                  @input="v => (sceneData.margin.columns = v)"
                 />
               </tr>
               <tr>
                 <number-input-tr-component
                   class="value-margin-rows"
-                  :labelName="'rows'"
-                  :value="sceneData.margin.rows"
+                  labelName="rows"
+                  v-model="sceneData.margin.rows"
                   :min="0"
-                  @input="v => (sceneData.margin.rows = v)"
                 />
               </tr>
             </table>
@@ -133,14 +127,14 @@
               <tr>
                 <color-picker-tr-component
                   class="value-grid-color-main"
-                  :labelName="'main'"
+                  labelName="main"
                   v-model="sceneData.margin.gridColorBold"
                 />
               </tr>
               <tr>
                 <color-picker-tr-component
                   class="value-grid-color-sub"
-                  :labelName="'sub'"
+                  labelName="sub"
                   v-model="sceneData.margin.gridColorThin"
                   :disabled="!sceneData.margin.isUseGrid"
                 />
@@ -154,17 +148,16 @@
               <tr>
                 <color-picker-tr-component
                   class="value-mask-color"
-                  :labelName="'color'"
+                  labelName="color"
                   v-model="sceneData.margin.maskColor"
                 />
               </tr>
               <tr>
                 <number-input-tr-component
                   class="value-mask-blur"
-                  :labelName="'blur'"
-                  :value="sceneData.margin.maskBlur"
+                  labelName="blur"
+                  v-model="sceneData.margin.maskBlur"
                   :min="0"
-                  @input="v => (sceneData.margin.maskBlur = v)"
                 />
               </tr>
             </table>
@@ -176,16 +169,15 @@
               <tr>
                 <number-input-tr-component
                   class="value-border-width"
-                  :labelName="'width'"
-                  :value="sceneData.margin.border.width"
+                  labelName="width"
+                  v-model="sceneData.margin.border.width"
                   :min="0"
-                  @input="v => (sceneData.margin.border.width = v)"
                 />
               </tr>
               <tr>
                 <color-picker-tr-component
                   class="value-border-color"
-                  :labelName="'color'"
+                  labelName="color"
                   v-model="sceneData.margin.border.color"
                 />
               </tr>

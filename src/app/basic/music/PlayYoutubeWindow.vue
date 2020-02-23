@@ -55,12 +55,14 @@ import {
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
 import BgmManager from "@/app/basic/music/BgmManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { PlayBgmInfo } from "window-info";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
 })
 export default class PlayYoutubeWindow
-  extends Mixins<WindowVue<string, never>>(WindowVue)
+  extends Mixins<WindowVue<PlayBgmInfo, never>>(WindowVue)
   implements YoutubeEventHandler {
   private bgmInfo: CutInDeclareInfo | null = null;
   private volume: number = 0;
@@ -88,17 +90,23 @@ export default class PlayYoutubeWindow
     );
     this.isMounted = true;
 
-    const targetId = this.windowInfo.args!;
+    let { targetId, data } = this.windowInfo.args!;
 
-    this.bgmInfo =
-      (await BgmManager.playBgm(
-        targetId,
-        this.windowKey,
-        this.windowInfo.status,
-        this.youtubeElementId,
-        this
-      )) || null;
+    if (!data) {
+      const cutInDataCC = SocketFacade.instance.cutInDataCC();
+      data = (await cutInDataCC.getData(targetId!))!.data!;
+    }
+    this.bgmInfo = data;
     if (!this.bgmInfo) return;
+
+    await BgmManager.playBgm(
+      targetId || null,
+      this.bgmInfo,
+      this.windowKey,
+      this.windowInfo.status,
+      this.youtubeElementId,
+      this
+    );
     this.maxVolume = this.bgmInfo.volume;
     this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.bgmInfo.url}`;
     this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
@@ -132,8 +140,7 @@ export default class PlayYoutubeWindow
     if ("window" !== this.windowInfo.status) return;
     YoutubeManager.instance.pause(this.bgmInfo!.tag);
 
-    const targetId = this.windowInfo.args!;
-    BgmManager.closeBgm(targetId);
+    BgmManager.closeBgm(this.windowInfo.args!);
   }
 
   private get youtubeElementId() {
@@ -233,7 +240,7 @@ export default class PlayYoutubeWindow
     let isReturn = false;
     if (!this.isSeekToAfter) {
       if (this.seek > this.bgmEnd) {
-        if (this.bgmInfo!.isLoop) {
+        if (this.bgmInfo!.isRepeat) {
           this.seek = this.bgmStart;
           YoutubeManager.instance.seekTo(
             this.bgmInfo!.tag,
@@ -245,6 +252,7 @@ export default class PlayYoutubeWindow
           window.console.log(
             "ループ再生でないし再生位置が範囲外になったから閉じる！"
           );
+          BgmManager.closeBgm(this.windowInfo.args!);
           await this.close();
           return;
         }
@@ -280,7 +288,7 @@ export default class PlayYoutubeWindow
   public onEnded(): void {
     if (this.status !== "window") return;
     window.console.log("onEnded");
-    if (this.bgmInfo!.isLoop) {
+    if (this.bgmInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(this.bgmInfo!.tag, this.bgmStart, true);
       if (this.bgmInfo!.fadeIn > 1) this.volume = 0;
@@ -288,6 +296,7 @@ export default class PlayYoutubeWindow
       this.isSeekToBefore = false;
     } else {
       window.console.log("再生終了だしループじゃないから閉じるっ！");
+      BgmManager.closeBgm(this.windowInfo.args!);
       this.close().then();
     }
   }

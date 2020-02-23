@@ -29,6 +29,8 @@ import EditChitWindow from "@/app/basic/map-object/chit/EditChitWindow.vue";
 import SceneListWindow from "@/app/basic/map/SceneListWindow.vue";
 import EditSceneWindow from "@/app/basic/map/EditSceneWindow.vue";
 import ChmodWindow from "@/app/basic/chmod/ChmodWindow.vue";
+import AddBgmWindow from "@/app/basic/music/AddBgmWindow.vue";
+import EditBgmWindow from "@/app/basic/music/EditBgmWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -60,6 +62,8 @@ async function main(): Promise<void> {
   Vue.component("scene-list-window", SceneListWindow);
   Vue.component("edit-scene-window", EditSceneWindow);
   Vue.component("chmod-window", ChmodWindow);
+  Vue.component("add-bgm-window", AddBgmWindow);
+  Vue.component("edit-bgm-window", EditBgmWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

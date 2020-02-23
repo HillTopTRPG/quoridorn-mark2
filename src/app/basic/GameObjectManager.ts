@@ -1,5 +1,5 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { Permission, StoreObj, StoreUseData } from "@/@types/store";
 import {
   SceneAndLayer,
   SceneLayer,
@@ -37,6 +37,20 @@ export default class GameObjectManager {
   }
 
   private static _instance: GameObjectManager;
+  public static readonly DEFAULT_PERMISSION: Permission = {
+    view: {
+      type: "none",
+      list: []
+    },
+    edit: {
+      type: "none",
+      list: []
+    },
+    chmod: {
+      type: "none",
+      list: []
+    }
+  };
 
   // コンストラクタの隠蔽
   private constructor() {}
@@ -86,7 +100,7 @@ export default class GameObjectManager {
     isUseRotateMarker: false
   };
   public readonly playingBgmList: {
-    targetId: string;
+    targetId: string | null;
     tag: string;
     windowKey: string;
   }[] = [];
@@ -131,31 +145,24 @@ export default class GameObjectManager {
      * マップデータのプリセットデータ投入
      */
     const sceneListCC = SocketFacade.instance.sceneListCC();
-    const sceneId = await sceneListCC.add(await sceneListCC.touch(), scene);
+    const sceneId = (await sceneListCC.addDirect([scene]))[0];
 
     /* --------------------------------------------------
      * マップとレイヤーの紐づきのプリセットデータ投入
      */
-    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
-
-    const mapAndLayerIdList: string[] = [];
-    const addSceneAndLayer = async (
-      sl: StoreUseData<SceneLayer>
-    ): Promise<void> => {
-      const mapAndLayerId = await sceneAndLayerCC.touch();
-      mapAndLayerIdList.push(mapAndLayerId);
-      await sceneAndLayerCC.add(mapAndLayerId, {
-        sceneId,
-        layerId: sl.id!,
-        isUse: true
-      });
-    };
-
-    // 直列の非同期で全部実行する
     const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
-    await (await sceneLayerCC.getList(false))
-      .map((ml: StoreUseData<SceneLayer>) => () => addSceneAndLayer(ml))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    const sceneAndLayerList: SceneAndLayer[] = (
+      await sceneLayerCC.getList(false)
+    ).map(sl => ({
+      sceneId,
+      layerId: sl.id!,
+      isUse: true
+    }));
+
+    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
+    const mapAndLayerIdList: string[] = await sceneAndLayerCC.addDirect(
+      sceneAndLayerList
+    );
 
     return {
       sceneId,
@@ -163,44 +170,37 @@ export default class GameObjectManager {
     };
   }
 
-  public async addSceneLayer(sceneLayer: SceneLayer) {
+  public async addSceneLayer(sceneLayer: SceneLayer): Promise<void> {
     const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
-    const layerId = await sceneLayerCC.touch();
-    await sceneLayerCC.add(layerId, sceneLayer);
+    const layerId = (await sceneLayerCC.addDirect([sceneLayer]))[0];
+
+    const sceneListCC = SocketFacade.instance.sceneListCC();
+    const sceneAndLayerList: SceneAndLayer[] = (
+      await sceneListCC.getList(false)
+    ).map((s: StoreUseData<Scene>) => ({
+      sceneId: s.id!,
+      layerId,
+      isUse: true
+    }));
 
     const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
-    const addSceneAndLayer = async (s: StoreUseData<Scene>): Promise<void> => {
-      const mapAndLayerId = await sceneAndLayerCC.touch();
-      await sceneAndLayerCC.add(mapAndLayerId, {
-        sceneId: s.id!,
-        layerId,
-        isUse: true
-      });
-    };
-
-    // 直列の非同期で全部実行する
-    const sceneListCC = SocketFacade.instance.sceneListCC();
-    await (await sceneListCC.getList(false))
-      .map((s: StoreUseData<Scene>) => () => addSceneAndLayer(s))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await sceneAndLayerCC.addDirect(sceneAndLayerList);
   }
 
   public async addSceneObject(sceneObject: SceneObject) {
     const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
-    const objectId = await sceneObjectCC.touch();
-    await sceneObjectCC.add(objectId, sceneObject);
+    const objectId = (await sceneObjectCC.addDirect([sceneObject]))[0];
+
+    const sceneAndObjectList: SceneAndObject[] = this.sceneList.map(s => ({
+      sceneId: s.id!,
+      objectId,
+      isOriginalAddress: false,
+      originalAddress: null,
+      entering: "normal"
+    }));
 
     const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-    this.sceneList.forEach(async s => {
-      const sceneId = s.id!;
-      await sceneAndObjectCC.add(await sceneAndObjectCC.touch(), {
-        sceneId,
-        objectId,
-        isOriginalAddress: false,
-        originalAddress: null,
-        entering: "normal"
-      });
-    });
+    await sceneAndObjectCC.addDirect(sceneAndObjectList);
   }
 
   public async deleteSceneObject(id: string) {

@@ -1021,32 +1021,15 @@ export default class LoginWindow extends Mixins<
      * 画像タグのプリセットデータ投入
      */
     const imageTagCC = SocketFacade.instance.imageTagCC();
-
-    const pushImageTag = async (imageTag: string): Promise<void> => {
-      await imageTagCC.add(await imageTagCC.touch(), imageTag);
-    };
-
-    // pushImageTagを直列の非同期で全部実行する
-    await imageTagList
-      .map((imageTag: string) => () => pushImageTag(imageTag))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await imageTagCC.addDirect(imageTagList);
 
     /* --------------------------------------------------
      * 画像データのプリセットデータ投入
      */
     const imageDataCC = SocketFacade.instance.imageDataCC();
+    const docIdList = await imageDataCC.addDirect(imageList);
 
-    let imageId: string | null = null;
-    const pushImage = async (image: Image): Promise<void> => {
-      const docId = await imageDataCC.touch();
-      if (!imageId) imageId = docId;
-      await imageDataCC.add(docId, image);
-    };
-
-    // pushImageを直列の非同期で全部実行する
-    await imageList
-      .map((image: Image) => () => pushImage(image))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    const imageId: string = docIdList[0];
 
     /* --------------------------------------------------
      * BGMデータのプリセットデータ投入
@@ -1054,15 +1037,7 @@ export default class LoginWindow extends Mixins<
     const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
     const cutInDataCC = SocketFacade.instance.cutInDataCC();
 
-    const pushBgm = async (bgm: CutInDeclareInfo): Promise<void> => {
-      const docId = await cutInDataCC.touch();
-      await cutInDataCC.add(docId, bgm);
-    };
-
-    // pushBgmを直列の非同期で全部実行する
-    await bgmList
-      .map((bgm: CutInDeclareInfo) => () => pushBgm(bgm))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await cutInDataCC.addDirect(bgmList);
 
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入
@@ -1160,8 +1135,7 @@ export default class LoginWindow extends Mixins<
       isUseRotateMarker: true
     };
     Object.assign(GameObjectManager.instance.roomData, roomData);
-    const roomDataId = await roomDataCC.touch();
-    await roomDataCC.add(roomDataId, roomData);
+    const roomDataId = (await roomDataCC.addDirect([roomData]))[0];
     await roomDataCC.setSnapshot(
       this.key,
       roomDataId,

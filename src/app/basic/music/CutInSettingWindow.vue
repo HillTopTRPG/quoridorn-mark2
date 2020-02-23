@@ -21,7 +21,10 @@
     >
       <template #contents="{ colDec, data, index }">
         <template v-if="index === 0">
-          <span v-if="data.data.chatLinkage > 0" v-t="'label.exist'"></span>
+          <span
+            v-if="data.data.chatLinkageType !== 'none'"
+            v-t="'label.exist'"
+          ></span>
           <span v-else v-t="'label.not-exist'"></span>
         </template>
         <template v-else-if="index === 2">
@@ -29,8 +32,8 @@
         </template>
         <template v-else-if="index === 4">{{ data | time }}</template>
         <template v-else-if="index === 5">
-          <i class="icon-loop" v-if="data.data.url && data.data.isLoop"></i>
-          {{ data | isLoop }}
+          <i class="icon-loop" v-if="data.data.url && data.data.isRepeat"></i>
+          {{ data | isRepeat }}
         </template>
         <template v-else-if="index === 6">{{ data | volume }}</template>
         <template v-else-if="index === 7">{{ data | fade }}</template>
@@ -44,7 +47,7 @@
       <ctrl-button @click="addMusic">
         <span v-t="'button.add'"></span>
       </ctrl-button>
-      <ctrl-button @click="editMusic">
+      <ctrl-button @click="editMusic" :disabled="!selectedCutInId">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="copyMusic">
@@ -71,6 +74,9 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { CutInDeclareInfo } from "@/@types/room";
 import { BgmPlayInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
+import { DataReference } from "@/@types/data";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -89,8 +95,8 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
       if (data.data!.end) return `〜${data.data!.end}`;
       return "All";
     },
-    isLoop: (data: StoreUseData<CutInDeclareInfo>) =>
-      data.data!.url && data.data!.isLoop ? "" : "-",
+    isRepeat: (data: StoreUseData<CutInDeclareInfo>) =>
+      data.data!.url && data.data!.isRepeat ? "" : "-",
     volume: (data: StoreUseData<CutInDeclareInfo>) =>
       data.data!.url ? data.data!.volume : "-",
     fade: (data: StoreUseData<CutInDeclareInfo>) => {
@@ -140,13 +146,30 @@ export default class CutInSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private addMusic() {
-    window.console.log("addMusic");
+  private async addMusic() {
+    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "add-bgm-window"
+      }
+    });
   }
 
   @VueEvent
-  private editMusic() {
-    window.console.log("editMusic");
+  private async editMusic() {
+    if (!this.selectedCutInId) return;
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "edit-bgm-window",
+        args: {
+          type: "bgm",
+          docId: this.selectedCutInId
+        }
+      }
+    });
   }
 
   @VueEvent

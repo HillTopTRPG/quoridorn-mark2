@@ -48,6 +48,20 @@ declare module "address" {
     | "right-bottom";
 }
 
+declare module "window-info" {
+  import { CutInDeclareInfo } from "@/@types/room";
+
+  type PlayBgmInfo =
+    | {
+        targetId: string;
+        data: null;
+      }
+    | {
+        targetId: null;
+        data: CutInDeclareInfo;
+      };
+}
+
 declare module "compare" {
   type Operand =
     | { refType: "db-id-exist" }
