@@ -2,7 +2,7 @@
   <label class="color-picker-container" @contextmenu.prevent ref="elm">
     <input
       :id="id"
-      class="color-input"
+      class="input color-input"
       type="text"
       :value="colorCode"
       @input="colorCode = $event.target.value"
@@ -24,7 +24,7 @@
       :disabled="disabled"
     />
     <input
-      class="value-alpha"
+      class="input value-alpha"
       v-if="useAlpha"
       type="range"
       min="0"
@@ -42,18 +42,21 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { parseColor } from "../Utility";
 import LifeCycle from "../decorator/LifeCycle";
 import VueEvent from "../decorator/VueEvent";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { BaseInput, CtrlButton }
 })
-export default class ColorPickerComponent extends Vue {
+export default class ColorPickerComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private value!: string;
 

@@ -13,6 +13,7 @@
       <label :key="idx" v-if="span.type === 'check'">
         <input
           type="checkbox"
+          class="input"
           :checked="span.value"
           @change="onChangeChecked(span.index, $event.target.checked)"
         />

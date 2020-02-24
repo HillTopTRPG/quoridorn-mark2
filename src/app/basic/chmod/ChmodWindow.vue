@@ -1,6 +1,10 @@
 <template>
   <div class="container" ref="window" v-if="permission">
-    <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+    >
       <chmod-rule-edit-component
         v-if="currentTabInfo.target === 'view'"
         :key="1"

@@ -3,7 +3,7 @@
     <div class="front">
       <input
         type="text"
-        class="text-input"
+        class="input text-input"
         :class="{ pending: isSelectMode }"
         v-model="inputText"
         @input.prevent="onTextInput($event.target.value)"

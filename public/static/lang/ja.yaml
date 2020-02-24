@@ -171,6 +171,8 @@ label:
   play-end: 再生終了
   second: 秒
   url-placeholder: 指定なしで「停止」の指定
+  editing: 編集中
+  unknown: [不明]
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

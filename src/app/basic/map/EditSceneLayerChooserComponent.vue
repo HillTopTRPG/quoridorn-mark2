@@ -28,6 +28,7 @@
       >
         <input
           type="checkbox"
+          class="input"
           :checked="sceneAndLayerInfoList[index].data.isUse"
           @change="
             changeLayerUse(

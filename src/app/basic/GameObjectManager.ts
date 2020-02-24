@@ -27,6 +27,7 @@ import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Point } from "address";
 import { createPoint } from "@/app/core/Coordinate";
 import { BgmStandByInfo } from "task-info";
+import LanguageManager from "@/LanguageManager";
 
 export default class GameObjectManager {
   // シングルトン
@@ -131,6 +132,18 @@ export default class GameObjectManager {
       );
     }
     return this.__clientRoomInfo;
+  }
+
+  public getExclusionOwnerName(socketId: string) {
+    const unknown = LanguageManager.instance.getText("label.unknown");
+    const socketUserInfo = this.socketUserList.filter(
+      su => su.data!.socketId === socketId
+    )[0];
+    if (!socketUserInfo) return unknown;
+    const userId = socketUserInfo.data!.userId;
+    const userInfo = this.userList.filter(u => u.id === userId)[0];
+    if (!userInfo) return unknown;
+    return userInfo.data!.userName;
   }
 
   public async setClientRoomInfo(info: ClientRoomInfo) {

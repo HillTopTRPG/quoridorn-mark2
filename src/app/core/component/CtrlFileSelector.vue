@@ -6,6 +6,7 @@
   >
     <input
       type="file"
+      class="input"
       :disabled="disabled"
       @change.stop.prevent="fileOnChange"
       multiple

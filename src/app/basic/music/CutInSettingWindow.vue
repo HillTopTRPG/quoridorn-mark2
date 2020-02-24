@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="window-container">
     <div class="button-area space-between margin-none">
       <ctrl-button @click="play()" :disabled="!selectedCutInId">
         <span v-t="'button.send'"></span>
@@ -16,6 +16,7 @@
       :status="status"
       :dataList="cutInList"
       keyProp="id"
+      :rowClassGetter="getRowClasses"
       v-model="selectedCutInId"
       @doubleClick="play"
       @adjustWidth="adjustWidth"
@@ -48,16 +49,16 @@
       <ctrl-button @click="addMusic">
         <span v-t="'button.add'"></span>
       </ctrl-button>
-      <ctrl-button @click="editMusic" :disabled="!selectedCutInId">
+      <ctrl-button @click="editMusic" :disabled="isEditBan">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
-      <ctrl-button @click="chmodMusic" :disabled="!selectedCutInId">
+      <ctrl-button @click="chmodMusic" :disabled="isChmodBan">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
       <ctrl-button @click="copyMusic" :disabled="!selectedCutInId">
         <span v-t="'button.copy'"></span>
       </ctrl-button>
-      <ctrl-button @click="deleteMusic" :disabled="!selectedCutInId">
+      <ctrl-button @click="deleteMusic" :disabled="isEditBan">
         <span v-t="'button.delete'"></span>
       </ctrl-button>
     </div>
@@ -74,14 +75,20 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
 import { StoreUseData } from "@/@types/store";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import { CutInDeclareInfo } from "@/@types/room";
 import { BgmPlayInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
+import { WindowOpenInfo, WindowResizeInfo } from "@/@types/window";
 import { DataReference } from "@/@types/data";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import { getCssPxNum } from "@/app/core/Css";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -121,6 +128,11 @@ export default class CutInSettingWindow extends Mixins<
   private cc: NekostoreCollectionController<
     CutInDeclareInfo
   > = SocketFacade.instance.cutInDataCC();
+  private fontSize: number = 12;
+
+  private get elm(): HTMLElement {
+    return this.$refs["window-container"] as HTMLElement;
+  }
 
   @LifeCycle
   public async mounted() {
@@ -144,12 +156,68 @@ export default class CutInSettingWindow extends Mixins<
     return this.cutInList.filter(c => c.id === this.selectedCutInId)[0];
   }
 
+  private get isEditBan(): boolean {
+    if (!this.cutInInfo) return true;
+    if (this.cutInInfo.exclusionOwner) return true;
+    return !permissionCheck(this.cutInInfo, "edit");
+  }
+
+  private get isChmodBan(): boolean {
+    if (!this.cutInInfo) return true;
+    return !permissionCheck(this.cutInInfo, "chmod");
+  }
+
+  @VueEvent
+  private getRowClasses(
+    data: StoreUseData<CutInDeclareInfo>,
+    trElm: HTMLTableRowElement | null
+  ): string[] {
+    const classList: string[] = [];
+    if (data.exclusionOwner) {
+      classList.push("isEditing");
+      const userName = GameObjectManager.instance.getExclusionOwnerName(
+        data.exclusionOwner
+      );
+
+      if (trElm) {
+        trElm.style.setProperty(
+          "--msg-locked",
+          `"${LanguageManager.instance.getText("label.editing")}(${userName})"`
+        );
+      }
+    }
+    return classList;
+  }
+
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
     if (this.windowInfo.declare.minSize)
       this.windowInfo.declare.minSize.widthPx = totalWidth;
     if (this.windowInfo.declare.maxSize)
       this.windowInfo.declare.maxSize.widthPx = totalWidth;
+  }
+
+  @TaskProcessor("window-font-size-finished")
+  private async windowFontSizeFinished(
+    task: Task<{ key: string; size: number }, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.key !== this.windowInfo.key) return;
+    this.fontSize = task.value!.size;
+  }
+
+  @TaskProcessor("window-resize-finished")
+  private async windowResizeFinished(
+    task: Task<WindowResizeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.key !== this.windowKey) return;
+    const remSize = getCssPxNum("font-size");
+    const fontSize = this.fontSize;
+    const heightPx = this.windowInfo.heightPx;
+    const heightDiffPx = this.windowInfo.diffRect.height;
+    const initHeightPx = this.windowInfo.declare.size.heightPx;
+    let rowNum = (heightPx + heightDiffPx - initHeightPx) / (fontSize * 2);
+    rowNum = Math.floor(rowNum) + 10;
+    this.windowInfo.declare.tableInfoList[0].height = rowNum;
   }
 
   @VueEvent

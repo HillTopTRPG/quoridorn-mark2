@@ -1,7 +1,7 @@
 <template>
   <label class="seek-bar-area" @contextmenu.prevent ref="elm">
     <input
-      class="seek-bar"
+      class="seek-bar input"
       type="range"
       min="0"
       :max="Math.round(duration * 100) / 100"

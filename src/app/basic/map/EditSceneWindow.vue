@@ -1,6 +1,10 @@
 <template>
   <div class="container" ref="window">
-    <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+    >
       <!-- メイン -->
       <div class="main" v-if="currentTabInfo.target === 'map' && sceneData">
         <div class="detail">

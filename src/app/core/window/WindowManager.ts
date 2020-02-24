@@ -5,7 +5,12 @@ import {
   WindowSize,
   WindowTableInfo
 } from "@/@types/window";
-import { calcWindowPosition, createPoint, getWindowSize } from "../Coordinate";
+import {
+  calcWindowPosition,
+  createPoint,
+  createRectangle,
+  getWindowSize
+} from "../Coordinate";
 import { Point } from "address";
 import { getCssPxNum } from "../Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
@@ -107,6 +112,7 @@ export default class WindowManager {
       type,
       declare: declareInfo,
       ...point,
+      diffRect: createRectangle(0, 0, 0, 0),
       ...windowSize,
       order: this.__windowInfoList.length,
       paneOrder: this.__windowInfoList.length,

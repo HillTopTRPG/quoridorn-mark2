@@ -1,4 +1,4 @@
-import { Anchor, Point, Size } from "address";
+import { Anchor, Point, Rectangle } from "address";
 
 export type WindowSize = {
   widthEm: number;
@@ -20,7 +20,7 @@ export type WindowTableColumn = {
 
 export type WindowTableDeclareInfo = {
   readonly type: "free" | "fix-on-side" | "fix-on-right";
-  readonly height?: number;
+  height?: number;
   readonly classificationProp: string;
   readonly classificationType: "string" | "range";
   readonly classificationOrdinal?: number;
@@ -102,6 +102,7 @@ export interface WindowInfo<T>
   title: string;
   status: WindowStatus;
   message: string;
+  diffRect: Rectangle;
   args?: T;
   order: number;
   paneY: number;

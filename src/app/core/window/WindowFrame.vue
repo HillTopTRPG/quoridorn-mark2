@@ -61,6 +61,7 @@
       <label class="fontSizeSlider" @click.prevent>
         <input
           type="range"
+          class="input"
           min="10"
           max="18"
           v-model="fontSize"
@@ -181,9 +182,8 @@ export default class WindowFrame extends Vue {
   private status!: string;
 
   private dragFrom: Point = createPoint(0, 0);
-  private diff: Rectangle = createRectangle(0, 0, 0, 0);
 
-  private fontSize: number = 12;
+  protected fontSize: number = 12;
   private standImageSize: string = "192*256";
   private standImageWidth: number = 192;
   private standImageHeight: number = 256;
@@ -280,15 +280,15 @@ export default class WindowFrame extends Vue {
   ): Promise<TaskResult<never> | void> {
     const point = task.value!;
 
-    this.windowInfo.x += this.diff.x;
-    this.windowInfo.y += this.diff.y;
-    this.windowInfo.widthPx += this.diff.width;
-    this.windowInfo.heightPx += this.diff.height;
+    this.windowInfo.x += this.windowInfo.diffRect.x;
+    this.windowInfo.y += this.windowInfo.diffRect.y;
+    this.windowInfo.widthPx += this.windowInfo.diffRect.width;
+    this.windowInfo.heightPx += this.windowInfo.diffRect.height;
 
-    this.diff.x = 0;
-    this.diff.y = 0;
-    this.diff.width = 0;
-    this.diff.height = 0;
+    this.windowInfo.diffRect.x = 0;
+    this.windowInfo.diffRect.y = 0;
+    this.windowInfo.diffRect.width = 0;
+    this.windowInfo.diffRect.height = 0;
 
     this.isResizing = false;
 
@@ -322,10 +322,10 @@ export default class WindowFrame extends Vue {
 
     // 移動
     if (!param.type) {
-      this.diff.x = point.x - this.dragFrom.x;
-      this.diff.y = point.y - this.dragFrom.y;
-      this.diff.width = 0;
-      this.diff.height = 0;
+      this.windowInfo.diffRect.x = point.x - this.dragFrom.x;
+      this.windowInfo.diffRect.y = point.y - this.dragFrom.y;
+      this.windowInfo.diffRect.width = 0;
+      this.windowInfo.diffRect.height = 0;
 
       this.isMoving = true;
 
@@ -348,28 +348,28 @@ export default class WindowFrame extends Vue {
       return;
     }
 
-    this.diff.x = 0;
-    this.diff.y = 0;
-    this.diff.width = 0;
-    this.diff.height = 0;
+    this.windowInfo.diffRect.x = 0;
+    this.windowInfo.diffRect.y = 0;
+    this.windowInfo.diffRect.width = 0;
+    this.windowInfo.diffRect.height = 0;
     if (param.type.indexOf("left") > -1) {
-      this.diff.width = this.dragFrom.x - point.x;
-      this.diff.x = -this.diff.width;
+      this.windowInfo.diffRect.width = this.dragFrom.x - point.x;
+      this.windowInfo.diffRect.x = -this.windowInfo.diffRect.width;
     }
     if (param.type.indexOf("right") > -1) {
-      this.diff.width = point.x - this.dragFrom.x;
+      this.windowInfo.diffRect.width = point.x - this.dragFrom.x;
     }
     if (param.type.indexOf("top") > -1) {
-      this.diff.height = this.dragFrom.y - point.y;
-      this.diff.y = -this.diff.height;
+      this.windowInfo.diffRect.height = this.dragFrom.y - point.y;
+      this.windowInfo.diffRect.y = -this.windowInfo.diffRect.height;
     }
     if (param.type.indexOf("bottom") > -1) {
-      this.diff.height = point.y - this.dragFrom.y;
+      this.windowInfo.diffRect.height = point.y - this.dragFrom.y;
     }
 
     const simulationSize: Size = getWindowSize(this.windowInfo, this.windowElm);
-    simulationSize.width += this.diff.width;
-    simulationSize.height += this.diff.height;
+    simulationSize.width += this.windowInfo.diffRect.width;
+    simulationSize.height += this.windowInfo.diffRect.height;
 
     const correctSize: Size = {
       width: 0,
@@ -394,10 +394,12 @@ export default class WindowFrame extends Vue {
           getWindowSize(maxSize, this.windowElm).height - simulationSize.height;
     }
 
-    if (param.type.indexOf("left") > -1) this.diff.x -= correctSize.width;
-    if (param.type.indexOf("top") > -1) this.diff.y -= correctSize.height;
-    this.diff.width += correctSize.width;
-    this.diff.height += correctSize.height;
+    if (param.type.indexOf("left") > -1)
+      this.windowInfo.diffRect.x -= correctSize.width;
+    if (param.type.indexOf("top") > -1)
+      this.windowInfo.diffRect.y -= correctSize.height;
+    this.windowInfo.diffRect.width += correctSize.width;
+    this.windowInfo.diffRect.height += correctSize.height;
 
     task.resolve();
   }
@@ -539,33 +541,33 @@ export default class WindowFrame extends Vue {
   }
 
   @Watch("isMounted")
-  @Watch("diff.x")
+  @Watch("windowInfo.diffRect.x")
   @Watch("windowInfo.x")
-  @Watch("diff.y")
+  @Watch("windowInfo.diffRect.y")
   @Watch("windowInfo.y")
   private onChangeWindowLocation() {
     if (!this.isMounted) return;
-    const x = this.windowInfo.x + this.diff.x;
+    const x = this.windowInfo.x + this.windowInfo.diffRect.x;
     // this.windowElm.style.setProperty("--windowX", `${x}px`);
-    const y = this.windowInfo.y + this.diff.y;
+    const y = this.windowInfo.y + this.windowInfo.diffRect.y;
     // this.windowElm.style.setProperty("--windowY", `${y}px`);
     this.windowElm.style.transform = `translate(${x}px, ${y}px)`;
   }
 
   @Watch("isMounted")
-  @Watch("diff.y")
+  @Watch("windowInfo.diffRect.y")
   @Watch("windowInfo.y")
   private onChangeWindowY() {
     if (!this.isMounted) return;
   }
 
   @Watch("isMounted")
-  @Watch("diff.width")
+  @Watch("windowInfo.diffRect.width")
   @Watch("windowInfo.widthPx")
   private async onChangeWindowWidth() {
     if (!this.isMounted) return;
     const scrollBarWidth = getCssPxNum("--scroll-bar-width");
-    const widthPx = this.windowInfo.widthPx + this.diff.width;
+    const widthPx = this.windowInfo.widthPx + this.windowInfo.diffRect.width;
     const widthEm = this.windowInfo.widthEm;
     const widthRem = this.windowInfo.widthRem;
     const widthScrollBar = this.windowInfo.widthScrollBar * scrollBarWidth;
@@ -587,13 +589,13 @@ export default class WindowFrame extends Vue {
   }
 
   @Watch("isMounted")
-  @Watch("diff.height")
+  @Watch("windowInfo.diffRect.height")
   @Watch("windowInfo.heightPx")
   @Watch("windowInfo.heightEm")
   private async onChangeWindowHeight() {
     if (!this.isMounted) return;
     const scrollBarWidth = getCssPxNum("--scroll-bar-width");
-    const heightPx = this.windowInfo.heightPx + this.diff.height;
+    const heightPx = this.windowInfo.heightPx + this.windowInfo.diffRect.height;
     const heightEm = this.windowInfo.heightEm;
     const heightRem = this.windowInfo.heightRem;
     const heightScrollBar = this.windowInfo.heightScrollBar * scrollBarWidth;

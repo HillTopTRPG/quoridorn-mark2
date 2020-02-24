@@ -53,7 +53,9 @@ export default class PieceMixin<
   private get lockMessage() {
     let result = "";
     if (this.sceneObjectInfo && this.sceneObjectInfo.exclusionOwner) {
-      const userName = this.getUserName(this.sceneObjectInfo.exclusionOwner);
+      const userName = GameObjectManager.instance.getExclusionOwnerName(
+        this.sceneObjectInfo.exclusionOwner
+      );
       result = userName
         ? `<span class="icon-lock"></span>sceneObject(${userName})`
         : "";
@@ -61,7 +63,9 @@ export default class PieceMixin<
 
     let additional = "";
     if (this.sceneAndObjectInfo && this.sceneAndObjectInfo.exclusionOwner) {
-      const userName = this.getUserName(this.sceneAndObjectInfo.exclusionOwner);
+      const userName = GameObjectManager.instance.getExclusionOwnerName(
+        this.sceneAndObjectInfo.exclusionOwner
+      );
       additional = userName
         ? `<span class="icon-lock"></span>sceneAndObject(${userName})`
         : "";
@@ -74,17 +78,6 @@ export default class PieceMixin<
     }
 
     return result;
-  }
-
-  private getUserName(socketId: string) {
-    const socketUserInfo = this.socketUserList.filter(
-      su => su.data!.socketId === socketId
-    )[0];
-    if (!socketUserInfo) return "";
-    const userId = socketUserInfo.data!.userId;
-    const userInfo = this.userList.filter(u => u.id === userId)[0];
-    if (!userInfo) return "";
-    return userInfo.data!.userName;
   }
 
   // HTMLで参照する項目

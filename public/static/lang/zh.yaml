@@ -17,6 +17,7 @@ button:
   logout: 登出
   exit-room: 退出
   edit: 編集
+  chmod: 権限変更
 
 type:
   map-mask: 地图遮罩
@@ -171,6 +172,7 @@ label:
   play-end: 再生終了
   second: 秒
   url-placeholder: 指定なしで「停止」の指定
+  locking: ロック中
 
 message:
   copy-to-clipboard: 复制到剪贴板

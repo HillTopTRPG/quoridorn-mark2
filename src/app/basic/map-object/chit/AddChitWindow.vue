@@ -1,6 +1,7 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <chit-info-form
+      :windowKey="windowKey"
       :isAdd="true"
       initTabTarget="image"
       :name.sync="name"

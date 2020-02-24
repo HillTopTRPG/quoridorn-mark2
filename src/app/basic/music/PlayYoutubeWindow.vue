@@ -25,7 +25,7 @@
       v-if="bgmInfo"
     />
     <label class="volume" ref="volumeContainer">
-      <input type="range" v-model="volume" min="0" max="100" />
+      <input type="range" class="input" v-model="volume" min="0" max="100" />
     </label>
     <div class="mute" @click="onChangeMute()">
       <span class="mute-icon icon-volume-high" v-if="!isMute"></span>

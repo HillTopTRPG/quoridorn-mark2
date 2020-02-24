@@ -3,6 +3,7 @@
     <span v-if="label && labelSide === 'left'">{{ label }}</span>
     <input
       type="checkbox"
+      class="input"
       v-model="value"
       @change.stop="event => onChange(event.target.checked)"
       :style="{ backgroundColor: value ? color : 'white' }"

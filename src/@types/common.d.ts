@@ -149,6 +149,11 @@ declare module "task-info" {
   type StandByReturnInfo = {
     windowKey: string;
   };
+
+  type TabMoveInfo = {
+    windowKey: string;
+    addIndex: 1 | -1;
+  };
 }
 
 declare module "task" {

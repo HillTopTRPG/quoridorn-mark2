@@ -33,7 +33,11 @@
       </tr>
     </table>
 
-    <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+    >
       <!-- 背景タブ -->
       <div v-if="currentTabInfo.target === 'background'">
         <table>
@@ -92,6 +96,7 @@
 
       <!-- その他欄タブ -->
       <textarea
+        class="input"
         v-if="currentTabInfo.target === 'other-text'"
         v-model="otherTextVolatile"
       ></textarea>
@@ -136,6 +141,9 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   ComponentVue
 ) {
+  @Prop({ type: String, required: true })
+  private windowKey!: string;
+
   @Prop({ type: String, default: "image" })
   private initTabTarget!: string;
 

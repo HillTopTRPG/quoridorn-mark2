@@ -1,5 +1,9 @@
 <template>
-  <simple-tab-component :tabList="tabList" v-model="currentTabInfo">
+  <simple-tab-component
+    :windowKey="windowInfo.key"
+    :tabList="tabList"
+    v-model="currentTabInfo"
+  >
     <simple-table-component
       :tableIndex="tableIndex"
       :status="status"
@@ -159,17 +163,7 @@ export default class TableComponent extends Vue {
               to: Math.min(current + useChoice - 1, list.length - 1)
             }
           };
-          if (
-            !this.currentTabInfo ||
-            (isFirst &&
-              (this.currentTabInfo.text !== tabInfo.text ||
-                (typeof this.currentTabInfo.target !== "string" &&
-                  typeof tabInfo.target !== "string" &&
-                  this.currentTabInfo.target.from !== tabInfo.target.from) ||
-                (typeof this.currentTabInfo.target !== "string" &&
-                  typeof tabInfo.target !== "string" &&
-                  this.currentTabInfo.target.to !== tabInfo.target.to)))
-          ) {
+          if (!this.currentTabInfo) {
             this.currentTabInfo = tabInfo;
           }
           tabList.push(tabInfo);

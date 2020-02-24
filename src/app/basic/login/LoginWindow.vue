@@ -454,15 +454,12 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private async deleteRoom(order: number) {
-    if (this.selectedRoomNo === null) {
-      alert("部屋を選択してください。");
-      return;
-    }
+    window.console.log(this.selectedRoomNo, order);
 
     this.isInputtingRoomInfo = true;
 
     // タッチ
-    if (!(await this.touchRoom(true))) {
+    if (!(await this.touchRoom(true, order))) {
       this.isInputtingRoomInfo = false;
       return;
     }
@@ -488,14 +485,14 @@ export default class LoginWindow extends Mixins<
       confirmResult = confirmResultList[0];
     } catch (err) {
       window.console.warn(err);
-      await this.releaseTouchRoom();
+      await this.releaseTouchRoom(order);
       this.isInputtingRoomInfo = false;
       return;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!confirmResult) {
-      await this.releaseTouchRoom();
+      await this.releaseTouchRoom(order);
       this.isInputtingRoomInfo = false;
       return;
     }
@@ -516,7 +513,7 @@ export default class LoginWindow extends Mixins<
       deleteRoomInput = deleteRoomInputList[0];
     } catch (err) {
       window.console.warn(err);
-      await this.releaseTouchRoom();
+      await this.releaseTouchRoom(order);
       return;
     } finally {
       this.isInputtingRoomInfo = false;
@@ -524,7 +521,7 @@ export default class LoginWindow extends Mixins<
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!deleteRoomInput) {
-      await this.releaseTouchRoom();
+      await this.releaseTouchRoom(order);
       return;
     }
 
@@ -535,13 +532,13 @@ export default class LoginWindow extends Mixins<
         DeleteRoomRequest,
         boolean
       >("delete-room", {
-        roomId: this.roomList![this.selectedRoomNo].id!,
-        roomNo: this.selectedRoomNo,
+        roomId: this.roomList![order].id!,
+        roomNo: order,
         ...deleteRoomInput
       });
     } catch (err) {
       window.console.warn(err);
-      await this.releaseTouchRoom();
+      await this.releaseTouchRoom(order);
       this.isInputtingRoomInfo = false;
       return;
     }
@@ -561,13 +558,16 @@ export default class LoginWindow extends Mixins<
     return classList;
   }
 
-  private async touchRoom(isModify: boolean): Promise<boolean> {
+  private async touchRoom(
+    isModify: boolean,
+    roomNo?: number | null
+  ): Promise<boolean> {
+    if (!roomNo) roomNo = this.selectedRoomNo;
+    if (roomNo === null) return false;
     try {
       await SocketFacade.instance.socketCommunication<TouchRequest, never>(
         isModify ? "touch-room-modify" : "touch-room",
-        {
-          roomNo: this.selectedRoomNo!
-        }
+        { roomNo }
       );
       return true;
     } catch (err) {
@@ -576,14 +576,13 @@ export default class LoginWindow extends Mixins<
     }
   }
 
-  private async releaseTouchRoom() {
-    if (this.selectedRoomNo === null) return;
-    if (!this.roomList![this.selectedRoomNo].exclusionOwner) return;
+  private async releaseTouchRoom(roomNo?: number | null) {
+    if (!roomNo) roomNo = this.selectedRoomNo;
+    if (roomNo === null) return;
+    if (!this.roomList![roomNo].exclusionOwner) return;
     await SocketFacade.instance.socketCommunication<ReleaseTouchRequest, never>(
       "release-touch-room",
-      {
-        roomNo: this.selectedRoomNo
-      }
+      { roomNo }
     );
   }
 
@@ -679,6 +678,7 @@ export default class LoginWindow extends Mixins<
       }
     });
 
+    window.console.log(this.selectedRoomNo);
     const roomId = this.roomList![this.selectedRoomNo].id!;
 
     /* ----------------------------------------------------------------------
@@ -1264,58 +1264,6 @@ export default class LoginWindow extends Mixins<
         }
       }
     }
-  }
-}
-</style>
-
-<style lang="scss">
-@import "../../../assets/common";
-.isCreating {
-  position: relative;
-  pointer-events: none;
-
-  &.isSelected:before {
-    outline: 2px solid var(--uni-color-red);
-    outline-offset: -2px;
-  }
-
-  &:before {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    background-image: linear-gradient(
-      -45deg,
-      var(--uni-color-cream) 25%,
-      var(--uni-color-light-pink) 25%,
-      var(--uni-color-light-pink) 50%,
-      var(--uni-color-cream) 50%,
-      var(--uni-color-cream) 75%,
-      var(--uni-color-light-pink) 75%,
-      var(--uni-color-light-pink)
-    );
-    background-size: 1em 1em;
-    background-attachment: local;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 9999999998;
-  }
-
-  &:after {
-    content: var(--msg-creating, "さくせいちゅう");
-    @include inline-flex-box(row, center, center);
-    position: absolute;
-    left: 50%;
-    padding: 0.2em 0.6em;
-    top: 0;
-    bottom: 0;
-    height: 1em;
-    margin: auto;
-    background-color: var(--uni-color-white);
-    color: var(--uni-color-black);
-    transform: translateX(-50%);
-    z-index: 9999999999;
   }
 }
 </style>

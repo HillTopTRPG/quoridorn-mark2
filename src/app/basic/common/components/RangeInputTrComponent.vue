@@ -7,6 +7,7 @@
       <input
         :id="key"
         type="range"
+        class="input"
         :value="localValue"
         :disabled="disabled"
         @input="localValue = $event.target.valueAsNumber"

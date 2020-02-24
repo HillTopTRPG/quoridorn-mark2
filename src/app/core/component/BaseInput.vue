@@ -1,5 +1,6 @@
 <template>
   <component
+    class="input"
     v-bind:is="'input'"
     v-bind="$attrs"
     v-on="listeners"

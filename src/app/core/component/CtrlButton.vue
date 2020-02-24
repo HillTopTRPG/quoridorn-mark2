@@ -2,6 +2,7 @@
   <label class="ctrl-button-wrapper" :disabled="disabled" @contextmenu.prevent>
     <input
       type="button"
+      class="input"
       ref="button"
       :disabled="disabled"
       @click.left.stop.prevent="buttonOnClickLeft"
@@ -20,11 +21,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import { Component, Emit, Prop } from "vue-property-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class CtrlButton extends Vue {
+export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 

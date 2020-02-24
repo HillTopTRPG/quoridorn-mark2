@@ -72,7 +72,7 @@ import { OtherTextViewInfo } from "@/@types/gameObject";
 import { ModeInfo } from "mode";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
-import { BgmPlayInfo, ThrowParabolaInfo } from "task-info";
+import { BgmPlayInfo, TabMoveInfo, ThrowParabolaInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
 
@@ -271,6 +271,22 @@ export default class App extends Vue {
    */
   @EventProcessor("keydown")
   private async keyDown(event: KeyboardEvent) {
+    if (event.metaKey || event.ctrlKey) {
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+        event.preventDefault();
+        const activeWindowInfo = WindowManager.instance.activeWindow;
+        if (activeWindowInfo) {
+          await TaskManager.instance.ignition<TabMoveInfo, never>({
+            type: "tab-move",
+            owner: "Quoridorn",
+            value: {
+              windowKey: activeWindowInfo.key,
+              addIndex: event.key === "ArrowRight" ? 1 : -1
+            }
+          });
+        }
+      }
+    }
     if (event.key === "Escape") {
       // Escが押下されたとき、入力画面がアクティブ画面だったら、それを閉じる
       const activeWindowInfo = WindowManager.instance.activeWindow;

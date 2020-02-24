@@ -35,7 +35,7 @@
   maxSize:
     widthPx: 271
     heightPx: 5
-    heightEm: 34
+    heightEm: 48
     heightRem: 1
   minimizable: true
   paneContainable: true

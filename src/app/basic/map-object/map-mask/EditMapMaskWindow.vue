@@ -1,6 +1,7 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <map-mask-info-form
+      :windowKey="windowKey"
       v-if="isMounted"
       :isAdd="false"
       initTabTarget="background"

@@ -6,6 +6,7 @@
     :class="{ multiple: multiple }"
   >
     <select
+      class="input"
       v-model="localValue"
       :id="id || undefined"
       ref="component"

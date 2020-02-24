@@ -2,6 +2,7 @@
   <label @contextmenu.prevent>
     <input
       type="text"
+      class="input"
       list="actorStatus"
       placeholder="状態"
       :value="localValue"

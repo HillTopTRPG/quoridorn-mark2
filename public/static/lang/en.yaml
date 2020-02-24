@@ -17,6 +17,7 @@ button:
   logout: Logout
   exit-room: Exit
   edit: 編集
+  chmod: 権限変更
 
 type:
   map-mask: Map mask
@@ -171,6 +172,7 @@ label:
   play-end: 再生終了
   second: 秒
   url-placeholder: 指定なしで「停止」の指定
+  locking: ロック中
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

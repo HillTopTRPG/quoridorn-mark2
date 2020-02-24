@@ -3,6 +3,7 @@
     <label v-for="optionInfo in optionInfoList" :key="optionInfo.key">
       <input
         type="radio"
+        class="input"
         :name="name"
         :value="optionInfo.value"
         v-model="localValue"

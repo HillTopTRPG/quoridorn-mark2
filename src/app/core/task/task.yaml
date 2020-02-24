@@ -50,6 +50,7 @@
     - resize
     - throw-parabola
     - stand-by-return
+    - tab-move
 
 - taskAttribute:
     isIgniteWithParam: false

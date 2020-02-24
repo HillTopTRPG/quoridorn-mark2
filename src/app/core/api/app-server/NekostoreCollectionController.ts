@@ -81,7 +81,8 @@ export default class NekostoreCollectionController<T> {
               if (
                 (status !== "initial-touched" && index === -1) ||
                 status === "added" ||
-                status === "modified"
+                status === "modified" ||
+                status === "modify-touched"
               ) {
                 const obj = getStoreObj(doc)!;
                 argList!.splice(index, index < 0 ? 0 : 1, obj);
