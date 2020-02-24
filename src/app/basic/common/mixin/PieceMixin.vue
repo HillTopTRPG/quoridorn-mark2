@@ -57,7 +57,7 @@ export default class PieceMixin<
         this.sceneObjectInfo.exclusionOwner
       );
       result = userName
-        ? `<span class="icon-lock"></span>sceneObject(${userName})`
+        ? `<span class="icon-lock"></span>sceneObject(${escape(userName)})`
         : "";
     }
 
@@ -67,7 +67,7 @@ export default class PieceMixin<
         this.sceneAndObjectInfo.exclusionOwner
       );
       additional = userName
-        ? `<span class="icon-lock"></span>sceneAndObject(${userName})`
+        ? `<span class="icon-lock"></span>sceneAndObject(${escape(userName)})`
         : "";
     }
 

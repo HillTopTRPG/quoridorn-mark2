@@ -15,6 +15,8 @@
     <span class="tag" v-if="sceneObjectInfo">
       {{ sceneObjectInfo.data.name }} - {{ elm.style.zIndex }} - {{ docId }}
     </span>
+
+    <!-- HTMLインジェクション対策済み -->
     <div class="lock-info" v-if="lockMessage">
       <span class="lock-info-message" v-html="lockMessage"></span>
     </div>

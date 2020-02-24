@@ -27,6 +27,7 @@
         </div>
         <ul>
           <li v-for="(description, index) in message.descriptions" :key="index">
+            <!-- HTMLインジェクション対策済み -->
             <span v-html="toHtml(description)"></span>
           </li>
         </ul>
@@ -199,7 +200,7 @@ export default class LoginWindow extends Mixins<
   private message: Message | null = null;
   private serverTestResult: ServerTestResult | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
-    "\\[([^\\]]+)]\\(([^)]+)\\)",
+    '\\[([^\\"<>]]+)]\\(([^)"<>]+)\\)',
     "g"
   );
   private language: string = LanguageManager.instance.defaultLanguage;

@@ -284,7 +284,6 @@ export default class App extends Vue {
         }
         return;
       }
-      window.console.log(event.key);
       if (event.key === "ArrowUp" || event.key === "ArrowDown") {
         event.preventDefault();
         const activeWindowInfo = WindowManager.instance.activeWindow;
@@ -323,7 +322,7 @@ export default class App extends Vue {
       return;
     }
 
-    if (event.key === "Shift") {
+    if (event.key === "Shift" && event.ctrlKey) {
       await TaskManager.instance.ignition<ModeInfo, never>({
         type: "mode-change",
         owner: "Quoridorn",
