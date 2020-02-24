@@ -1,15 +1,16 @@
 <template>
   <div>
     <div class="button-area space-between margin-none">
-      <ctrl-button @click="play()">
-        <span>{{ $t("button.send") }}</span>
+      <ctrl-button @click="play()" :disabled="!selectedCutInId">
+        <span v-t="'button.send'"></span>
       </ctrl-button>
-      <ctrl-button @click="preview">
+      <ctrl-button @click="preview" :disabled="!selectedCutInId">
         <span v-t="'button.preview'"></span>
       </ctrl-button>
     </div>
 
     <table-component
+      class="table-component"
       :windowInfo="windowInfo"
       :tableIndex="0"
       :status="status"
@@ -50,10 +51,13 @@
       <ctrl-button @click="editMusic" :disabled="!selectedCutInId">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
-      <ctrl-button @click="copyMusic">
+      <ctrl-button @click="chmodMusic" :disabled="!selectedCutInId">
+        <span v-t="'button.chmod'"></span>
+      </ctrl-button>
+      <ctrl-button @click="copyMusic" :disabled="!selectedCutInId">
         <span v-t="'button.copy'"></span>
       </ctrl-button>
-      <ctrl-button @click="deleteMusic">
+      <ctrl-button @click="deleteMusic" :disabled="!selectedCutInId">
         <span v-t="'button.delete'"></span>
       </ctrl-button>
     </div>
@@ -64,7 +68,7 @@
 import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
+import TableComponent from "@/app/core/component/table/TableComponent.vue";
 import BgmManager from "@/app/basic/music/BgmManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -77,6 +81,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { DataReference } from "@/@types/data";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -113,6 +118,9 @@ export default class CutInSettingWindow extends Mixins<
 >(WindowVue) {
   private selectedCutInId: string | null = null;
   private cutInList = GameObjectManager.instance.cutInList;
+  private cc: NekostoreCollectionController<
+    CutInDeclareInfo
+  > = SocketFacade.instance.cutInDataCC();
 
   @LifeCycle
   public async mounted() {
@@ -132,6 +140,10 @@ export default class CutInSettingWindow extends Mixins<
     });
   }
 
+  private get cutInInfo(): StoreUseData<CutInDeclareInfo> | null {
+    return this.cutInList.filter(c => c.id === this.selectedCutInId)[0];
+  }
+
   @Emit("adjustWidth")
   private adjustWidth(totalWidth: number) {
     if (this.windowInfo.declare.minSize)
@@ -141,8 +153,12 @@ export default class CutInSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private preview() {
+  private async preview() {
     window.console.log("preview");
+    await BgmManager.instance.callBgm({
+      targetId: this.selectedCutInId!,
+      data: null
+    });
   }
 
   @VueEvent
@@ -173,17 +189,39 @@ export default class CutInSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private copyMusic() {
-    window.console.log("copyMusic");
+  private async chmodMusic() {
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "chmod-window",
+        args: {
+          type: "cut-in",
+          docId: this.selectedCutInId!
+        }
+      }
+    });
   }
 
   @VueEvent
-  private deleteMusic() {
-    window.console.log("deleteMusic");
+  private async copyMusic() {
+    if (!this.cutInInfo) return;
+    await this.cc.addDirect([this.cutInInfo.data!]);
+  }
+
+  @VueEvent
+  private async deleteMusic() {
+    await this.cc.touchModify(this.selectedCutInId!);
+    await this.cc.delete(this.selectedCutInId!);
+    this.selectedCutInId = null;
   }
 }
 </script>
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
+.table-component {
+  margin-top: 0.5rem;
+}
 </style>

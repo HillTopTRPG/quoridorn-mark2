@@ -17,6 +17,7 @@ button:
   logout: ログアウト
   exit-room: 退室
   edit: 編集
+  chmod: 権限変更
 
 type:
   map-mask: マップマスク

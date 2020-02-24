@@ -25,18 +25,18 @@
   size:
     widthPx: 271
     heightPx: 5
-    heightEm: 26
-    heightRem: 0.5
+    heightEm: 28
+    heightRem: 1
   minSize:
     widthPx: 271
     heightPx: 5
-    heightEm: 26
-    heightRem: 0.5
+    heightEm: 28
+    heightRem: 1
   maxSize:
     widthPx: 271
     heightPx: 5
-    heightEm: 32
-    heightRem: 0.5
+    heightEm: 34
+    heightRem: 1
   minimizable: true
   paneContainable: true
   closable: true
@@ -45,7 +45,7 @@
   tableInfoList:
     - type: free
       height: 10
-      classificationProp: tag
+      classificationProp: data.tag
       classificationType: string
       columnList:
         - width: 28

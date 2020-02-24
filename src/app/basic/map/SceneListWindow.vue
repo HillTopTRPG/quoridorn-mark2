@@ -19,7 +19,7 @@
         <span v-t="'button.edit'"></span>
       </ctrl-button>
       <ctrl-button @click="chmodMap()" :disabled="!selectedSceneId">
-        <span v-t="'context.chmod'"></span>
+        <span v-t="'button.chmod'"></span>
       </ctrl-button>
       <ctrl-button
         @click="deleteMap()"

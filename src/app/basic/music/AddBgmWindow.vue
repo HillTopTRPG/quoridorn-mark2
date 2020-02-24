@@ -87,8 +87,7 @@ export default class AddBgmWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async commit() {
-    const docId = await this.cc!.touch();
-    await this.cc!.add(docId, this.cutInData);
+    await this.cc!.addDirect([this.cutInData]);
     await this.close();
   }
 

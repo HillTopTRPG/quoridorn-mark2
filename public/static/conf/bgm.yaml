@@ -341,7 +341,7 @@
   # リピート再生(true: リピートする, false: リピートしない)
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
+  isStandBy: true
   # 多重再生時は既存再生を優先する（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）

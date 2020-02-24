@@ -1,5 +1,5 @@
 <template>
-  <div class="table-container" ref="tableContainer">
+  <div class="simple-table-container" ref="tableContainer">
     <table
       ref="table"
       :class="{
@@ -309,7 +309,6 @@ export default class SimpleTableComponent extends Vue {
 
   @Watch("isMounted")
   @Watch("viewRowFirstIndex")
-  @Watch("tabInfo")
   @Watch("viewRowLastIndex")
   @Watch("dataList")
   private onChangeDataList() {
@@ -321,17 +320,24 @@ export default class SimpleTableComponent extends Vue {
         data
       };
     });
-    if (this.tabInfo) {
-      if (typeof this.tabInfo.target === "string") {
-        const targetProp = this.tableDeclareInfo.classificationProp;
-        const target = this.tabInfo.target;
-        rowList = rowList.filter((row: any) => row[targetProp] === target);
-      } else {
-        const from = this.tabInfo.target.from;
-        const to = this.tabInfo.target.to;
-        rowList = rowList.filter((row, index) => from <= index && index <= to);
-      }
-    }
+    // if (this.tabInfo) {
+    //   if (typeof this.tabInfo.target === "string") {
+    //     const targetProp = this.tableDeclareInfo.classificationProp;
+    //     const propList = targetProp.split(".");
+    //     const getTargetValue = (data: any, propList: string[]): any => {
+    //       const value: any = data[propList.shift()!];
+    //       return propList.length ? getTargetValue(value, propList) : value;
+    //     };
+    //     const target = this.tabInfo.target;
+    //     rowList = rowList.filter(
+    //       (row: any) => getTargetValue(row.data, propList.concat()) === target
+    //     );
+    //   } else {
+    //     const from = this.tabInfo.target.from;
+    //     const to = this.tabInfo.target.to;
+    //     rowList = rowList.filter((row, index) => from <= index && index <= to);
+    //   }
+    // }
     if (this.isMounted) {
       // this.elm.style.setProperty(
       //   "--table-padding-bottom-rows",
@@ -646,7 +652,7 @@ export default class SimpleTableComponent extends Vue {
 <style lang="scss">
 @import "../../../../assets/common";
 
-.table-container {
+.simple-table-container {
   width: 100%;
 
   table {

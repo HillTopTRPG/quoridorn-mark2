@@ -88,6 +88,8 @@ export function permissionCheck(
   data: StoreObj<unknown>,
   type: "view" | "edit" | "chmod"
 ): boolean {
+  if (!data!.permission) return true;
+
   // GMはどんな設定でも許可
   if (GameObjectManager.instance.isGm) return true;
 
@@ -534,7 +536,7 @@ export default class SocketFacade {
         return this.imageDataCC();
       case "image-tag-list":
         return this.imageTagCC();
-      case "cut-in-list":
+      case "cut-in":
         return this.cutInDataCC();
       case "user-list":
         return this.userCC();
