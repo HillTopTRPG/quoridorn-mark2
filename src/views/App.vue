@@ -25,8 +25,6 @@
     <throw-parabola-simulator v-if="throwParabola" />
     <!-- 放物線シミュレータ (z-index: 8) -->
     <throw-parabola-container />
-    <!-- 拡大縮小の中心点描画 (z-index: 9) -->
-    <div id="wheel-marker" :class="{ hide: !isMapWheeling }"></div>
     <!-- お部屋作成中 (z-index: 10) -->
     <div id="loading-create-room" v-if="isCreatingRoomMode">
       <div class="message">お部屋を作成しています！</div>
@@ -91,7 +89,6 @@ import { CutInDeclareInfo } from "@/@types/room";
 })
 export default class App extends Vue {
   private readonly key = "App";
-  private isMapWheeling: boolean = false;
   private roomInitialized: boolean = false;
   private isCreatingRoomMode: boolean = false;
   private isMounted: boolean = false;
@@ -463,10 +460,6 @@ export default class App extends Vue {
   ): Promise<TaskResult<never> | void> {
     const type: string = task.value!.type;
     const value: string = task.value!.value;
-    if (type === "wheel") {
-      this.isMapWheeling = value === "on";
-      task.resolve();
-    }
     if (type === "create-room") {
       this.isCreatingRoomMode = value === "on";
       task.resolve();
@@ -631,40 +624,6 @@ label {
 
 #throw-parabola-container {
   z-index: 8;
-}
-
-#wheel-marker {
-  pointer-events: none;
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  transition: all 0.3s linear;
-  z-index: 9;
-
-  &.hide {
-    opacity: 0;
-  }
-
-  &:before,
-  &:after {
-    position: absolute;
-    content: "";
-    display: block;
-  }
-  &:before {
-    top: calc(50% - 1px);
-    left: calc(50% - 15px);
-    right: calc(50% - 15px);
-    border-top: 2px rgba(0, 0, 0, 0.8) dotted;
-  }
-  &:after {
-    left: calc(50% - 1px);
-    top: calc(50% - 15px);
-    bottom: calc(50% - 15px);
-    border-left: 2px rgba(0, 0, 0, 0.8) dotted;
-  }
 }
 
 #loading-create-room {

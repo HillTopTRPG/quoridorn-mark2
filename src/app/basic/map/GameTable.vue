@@ -63,7 +63,6 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
-import { ModeInfo } from "mode";
 
 @Component({
   components: {
@@ -87,7 +86,6 @@ export default class GameTable extends AddressCalcMixin {
       .filter(ml => ml);
   }
 
-  private wheelTimer: number | null = null;
   private wheel: number = 0;
 
   private key = "game-table";
@@ -96,31 +94,27 @@ export default class GameTable extends AddressCalcMixin {
   private scene: Scene | null = null;
   private isMounted: boolean = false;
 
-  private get appElm(): HTMLElement {
-    return document.getElementById("app")!;
-  }
-
-  private get gameTableContainerElm(): HTMLElement {
+  private static get gameTableContainerElm(): HTMLElement {
     return document.getElementById("gameTableContainer")!;
   }
 
-  private get gameTableElm(): HTMLElement {
+  private static get gameTableElm(): HTMLElement {
     return document.getElementById("gameTable")!;
   }
 
-  private get gridPaperElm(): HTMLElement {
+  private static get gridPaperElm(): HTMLElement {
     return document.getElementById("grid-paper")!;
   }
 
-  private get tableBackElm(): HTMLElement {
+  private static get tableBackElm(): HTMLElement {
     return document.getElementById("table-background")!;
   }
 
-  private get mapCanvasBackElm(): HTMLElement {
+  private static get mapCanvasBackElm(): HTMLElement {
     return document.getElementById("map-canvas-background")!;
   }
 
-  private get backSceneElm(): HTMLElement {
+  private static get backSceneElm(): HTMLElement {
     return document.getElementById("back-scene")!;
   }
 
@@ -161,7 +155,7 @@ export default class GameTable extends AddressCalcMixin {
     CssManager.instance.propMap.totalLeftY = totalLeftY;
 
     this.isMounted = true;
-    this.gameTableContainerElm.style.transform = `translateZ(${0})`;
+    GameTable.gameTableContainerElm.style.transform = `translateZ(${0})`;
     await this.setCss(this.scene);
   }
 
@@ -169,18 +163,18 @@ export default class GameTable extends AddressCalcMixin {
     if (!this.isMounted) return;
     const margin = scene.margin;
     const background = scene.background;
-    await GameTable.setBackground(this.mapCanvasBackElm, scene.texture);
-    await GameTable.setBackground(this.backSceneElm, background.texture);
-    await GameTable.setBackground(this.tableBackElm, margin.texture);
-    this.gridPaperElm.style.backgroundSize = `${scene.gridSize!}px ${scene.gridSize!}px`;
-    this.gridPaperElm.style.backgroundColor = margin.maskColor;
-    this.tableBackElm.style.filter = `blur(${margin.maskBlur}px)`;
-    this.backSceneElm.style.filter = `blur(${background.maskBlur}px)`;
-    this.gridPaperElm.style.setProperty(
+    await GameTable.setBackground(GameTable.mapCanvasBackElm, scene.texture);
+    await GameTable.setBackground(GameTable.backSceneElm, background.texture);
+    await GameTable.setBackground(GameTable.tableBackElm, margin.texture);
+    GameTable.gridPaperElm.style.backgroundSize = `${scene.gridSize!}px ${scene.gridSize!}px`;
+    GameTable.gridPaperElm.style.backgroundColor = margin.maskColor;
+    GameTable.tableBackElm.style.filter = `blur(${margin.maskBlur}px)`;
+    GameTable.backSceneElm.style.filter = `blur(${background.maskBlur}px)`;
+    GameTable.gridPaperElm.style.setProperty(
       "--margin-grid-color-bold",
       margin.isUseGrid ? margin.gridColorBold : "transparent"
     );
-    this.gridPaperElm.style.setProperty(
+    GameTable.gridPaperElm.style.setProperty(
       "--margin-grid-color-thin",
       margin.isUseGrid ? margin.gridColorThin : "transparent"
     );
@@ -192,13 +186,13 @@ export default class GameTable extends AddressCalcMixin {
 
     const gameTableSizeW = (columns + marginColumns * 2) * gridSize;
     const gameTableSizeH = (rows + marginRows * 2) * gridSize;
-    this.gameTableElm.style.width = `${gameTableSizeW}px`;
-    this.gameTableElm.style.height = `${gameTableSizeH}px`;
-    this.gridPaperElm.style.width = `${gameTableSizeW}px`;
-    this.gridPaperElm.style.height = `${gameTableSizeH}px`;
-    this.gameTableElm.style.borderWidth = `${margin.border.width}px`;
-    this.gameTableElm.style.borderColor = margin.border.color;
-    this.gameTableElm.style.borderStyle = margin.border.style;
+    GameTable.gameTableElm.style.width = `${gameTableSizeW}px`;
+    GameTable.gameTableElm.style.height = `${gameTableSizeH}px`;
+    GameTable.gridPaperElm.style.width = `${gameTableSizeW}px`;
+    GameTable.gridPaperElm.style.height = `${gameTableSizeH}px`;
+    GameTable.gameTableElm.style.borderWidth = `${margin.border.width}px`;
+    GameTable.gameTableElm.style.borderColor = margin.border.color;
+    GameTable.gameTableElm.style.borderStyle = margin.border.style;
   }
 
   public static changeImagePath(path: string) {
@@ -238,7 +232,7 @@ export default class GameTable extends AddressCalcMixin {
     CssManager.instance.propMap.currentAngle = currentAngle;
     const totalLeftX = CssManager.instance.propMap.totalLeftX;
     const totalLeftY = CssManager.instance.propMap.totalLeftY;
-    this.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
+    GameTable.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
   }
 
   @Watch("isMounted")
@@ -250,49 +244,37 @@ export default class GameTable extends AddressCalcMixin {
     CssManager.instance.propMap.totalLeftX = totalLeftX;
     CssManager.instance.propMap.totalLeftY = totalLeftY;
     const currentAngle = CssManager.instance.propMap.currentAngle;
-    this.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
+    GameTable.gameTableElm.style.transform = `translate(${totalLeftX}px, ${totalLeftY}px) rotateZ(${currentAngle}deg)`;
   }
 
   @Watch("wheel")
   private onChangeWheel(wheel: number, oldValue: number) {
-    if (wheel < -2400 || wheel > 800) {
-      this.wheel = oldValue;
-      return;
-    }
+    const wheelDiff = wheel - oldValue;
     CssManager.instance.propMap.wheel = wheel;
-    this.gameTableContainerElm.style.transform = `translateZ(${wheel}px)`;
+    GameTable.gameTableContainerElm.style.transform = `translateZ(${wheel}px)`;
+
+    // マウス座標を中心にして拡大縮小させているように見せるため、マップの座標を補正する
+    const mouse =
+      TaskManager.instance.getLastValue<Point>("mouse-moving") ||
+      createPoint(0, 0);
+
+    const diffCenter = createPoint(
+      ((mouse.x - window.innerWidth / 2) * wheelDiff) / 1000,
+      ((mouse.y - window.innerHeight / 2) * wheelDiff) / 1000
+    );
+
+    this.point.x -= diffCenter.x;
+    this.point.y -= diffCenter.y;
   }
 
   @TaskProcessor("action-wheel-finished")
   private async actionWheelFinished(
     task: Task<boolean, never>
   ): Promise<TaskResult<never> | void> {
-    this.wheel += 100 * (task!.value || false ? 1 : -1);
-
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "wheel",
-        value: "on"
-      }
-    });
-    if (this.wheelTimer !== null) {
-      window.clearTimeout(this.wheelTimer);
-    }
-    this.wheelTimer = window.setTimeout(async () => {
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "wheel",
-          value: "off"
-        }
-      });
-      this.wheelTimer = null;
-    }, 600);
-
-    // task.resolve();
+    const isPlus = task!.value || false;
+    const add = 100 * (isPlus ? 1 : -1);
+    if (isPlus && this.wheel < 800) this.wheel += add;
+    if (!isPlus && this.wheel > -2400) this.wheel += add;
   }
 
   @TaskProcessorSimple
@@ -361,14 +343,12 @@ export default class GameTable extends AddressCalcMixin {
   private rotateDiff: number = 0;
   private rotate: number = 0;
 
-  private setLocateId: number | null = null;
-
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (param.key !== this.key) return;
+    if (!param || param.key !== this.key) return;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
     const point = task.value!;
 
@@ -505,7 +485,6 @@ export default class GameTable extends AddressCalcMixin {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 7;
 }
 
 #gameTable {

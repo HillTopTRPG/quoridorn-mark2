@@ -103,16 +103,7 @@ declare module "compare" {
 }
 
 declare module "mode" {
-  type ModeInfo =
-    | WheelModeInfo
-    | ModalModeInfo
-    | CreateRoomModeInfo
-    | ThrowParabolaModeInfo;
-
-  type WheelModeInfo = {
-    type: "wheel";
-    value: "on" | "off";
-  };
+  type ModeInfo = ModalModeInfo | CreateRoomModeInfo | ThrowParabolaModeInfo;
 
   type ModalModeInfo = {
     type: "modal";
