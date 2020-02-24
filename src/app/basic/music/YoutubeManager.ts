@@ -168,7 +168,9 @@ export default class YoutubeManager {
   }
 
   public addEventHandler(elementId: string, eventHandler: YoutubeEventHandler) {
-    this.playerMapping[elementId].eventHandlers.push(eventHandler);
+    let playerObj = this.playerMapping[elementId];
+    if (!playerObj) return;
+    playerObj.eventHandlers.push(eventHandler);
   }
 
   public destroyed(elementId: string) {

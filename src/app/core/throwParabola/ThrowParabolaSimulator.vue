@@ -175,7 +175,6 @@ export default class ThrowParabolaSimulator extends Vue {
 #throw-parabola-simulator {
   width: 100%;
   height: 100%;
-  z-index: 12;
   user-select: none;
   font-size: 300%;
 }

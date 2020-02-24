@@ -154,6 +154,11 @@ declare module "task-info" {
     windowKey: string;
     addIndex: 1 | -1;
   };
+
+  type RowSelectInfo = {
+    windowKey: string;
+    addIndex: 1 | -1;
+  };
 }
 
 declare module "task" {

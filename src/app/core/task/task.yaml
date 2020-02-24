@@ -51,6 +51,7 @@
     - throw-parabola
     - stand-by-return
     - tab-move
+    - row-select
 
 - taskAttribute:
     isIgniteWithParam: false
@@ -83,7 +84,7 @@
     - window-close
 
 - taskAttribute:
-    isIgniteWithParam: true
+    isIgniteWithParam: false
     isLastValueCapture: true
     isTraceFinally: false
     isTest: false

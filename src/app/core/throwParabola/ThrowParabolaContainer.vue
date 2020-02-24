@@ -92,7 +92,6 @@ export default class ThrowParabolaContainer extends Vue {
 #throw-parabola-container {
   width: 0;
   height: 0;
-  z-index: 13;
 }
 
 .object {

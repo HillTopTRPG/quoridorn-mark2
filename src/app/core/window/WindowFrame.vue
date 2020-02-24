@@ -317,7 +317,7 @@ export default class WindowFrame extends Vue {
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (param.key !== this.key) return;
+    if (!param || param.key !== this.key) return;
     const point = task.value!;
 
     // 移動
@@ -352,19 +352,22 @@ export default class WindowFrame extends Vue {
     this.windowInfo.diffRect.y = 0;
     this.windowInfo.diffRect.width = 0;
     this.windowInfo.diffRect.height = 0;
-    if (param.type.indexOf("left") > -1) {
-      this.windowInfo.diffRect.width = this.dragFrom.x - point.x;
-      this.windowInfo.diffRect.x = -this.windowInfo.diffRect.width;
-    }
-    if (param.type.indexOf("right") > -1) {
-      this.windowInfo.diffRect.width = point.x - this.dragFrom.x;
-    }
-    if (param.type.indexOf("top") > -1) {
-      this.windowInfo.diffRect.height = this.dragFrom.y - point.y;
-      this.windowInfo.diffRect.y = -this.windowInfo.diffRect.height;
-    }
-    if (param.type.indexOf("bottom") > -1) {
-      this.windowInfo.diffRect.height = point.y - this.dragFrom.y;
+
+    if (param.type) {
+      if (param.type.indexOf("left") > -1) {
+        this.windowInfo.diffRect.width = this.dragFrom.x - point.x;
+        this.windowInfo.diffRect.x = -this.windowInfo.diffRect.width;
+      }
+      if (param.type.indexOf("right") > -1) {
+        this.windowInfo.diffRect.width = point.x - this.dragFrom.x;
+      }
+      if (param.type.indexOf("top") > -1) {
+        this.windowInfo.diffRect.height = this.dragFrom.y - point.y;
+        this.windowInfo.diffRect.y = -this.windowInfo.diffRect.height;
+      }
+      if (param.type.indexOf("bottom") > -1) {
+        this.windowInfo.diffRect.height = point.y - this.dragFrom.y;
+      }
     }
 
     const simulationSize: Size = getWindowSize(this.windowInfo, this.windowElm);
@@ -394,10 +397,12 @@ export default class WindowFrame extends Vue {
           getWindowSize(maxSize, this.windowElm).height - simulationSize.height;
     }
 
-    if (param.type.indexOf("left") > -1)
-      this.windowInfo.diffRect.x -= correctSize.width;
-    if (param.type.indexOf("top") > -1)
-      this.windowInfo.diffRect.y -= correctSize.height;
+    if (param.type) {
+      if (param.type.indexOf("left") > -1)
+        this.windowInfo.diffRect.x -= correctSize.width;
+      if (param.type.indexOf("top") > -1)
+        this.windowInfo.diffRect.y -= correctSize.height;
+    }
     this.windowInfo.diffRect.width += correctSize.width;
     this.windowInfo.diffRect.height += correctSize.height;
 

@@ -52,7 +52,7 @@
           />
         </tr>
       </thead>
-      <tbody @scroll="onWheelBody()" @keydown.enter="enter()" tabindex="0">
+      <tbody @scroll="onWheelBody()" @keydown.enter="enter()">
         <template v-if="!isColWidthMoving || true">
           <!-- 余白 -->
           <tr class="table-padding-top">
@@ -154,6 +154,7 @@ import {
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { getCssPxNum } from "@/app/core/Css";
+import { RowSelectInfo } from "task-info";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -404,18 +405,20 @@ export default class SimpleTableComponent extends Vue {
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
 
-    const leftIndex = parseInt(param.type!.replace("div-", ""), 10) - 1;
-    const point = task.value!;
-    const diffX = point.x - this.dragFrom.x;
+    if (param.type) {
+      const leftIndex = parseInt(param.type.replace("div-", ""), 10) - 1;
+      const point = task.value!;
+      const diffX = point.x - this.dragFrom.x;
 
-    this.adjust(
-      leftIndex + (this.status !== "right-pane" ? 0 : 1),
-      leftIndex + (this.status !== "right-pane" ? 1 : 0),
-      this.fromLeftWidth + diffX * (this.status !== "right-pane" ? 1 : -1),
-      this.fromRightWidth,
-      this.fromLastWidth,
-      diffX
-    );
+      this.adjust(
+        leftIndex + (this.status !== "right-pane" ? 0 : 1),
+        leftIndex + (this.status !== "right-pane" ? 1 : 0),
+        this.fromLeftWidth + diffX * (this.status !== "right-pane" ? 1 : -1),
+        this.fromRightWidth,
+        this.fromLastWidth,
+        diffX
+      );
+    }
 
     task.resolve();
   }
@@ -651,6 +654,34 @@ export default class SimpleTableComponent extends Vue {
       "--tableHeight",
       height ? `calc(${height + 1} * var(--table-row-height))` : "auto"
     );
+  }
+
+  @TaskProcessor("row-select-finished")
+  private async rowSelectFinished(
+    task: Task<RowSelectInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.windowKey !== this.windowInfo.key) return;
+    const addIndex = task.value!.addIndex;
+    this.rowSelect(addIndex);
+  }
+
+  private rowSelect(addIndex: number) {
+    let idx = this.rowList.findIndex(
+      row => row.data[this.keyProp] === this.localValue
+    );
+    if (idx === -1) {
+      idx = addIndex < 0 ? this.rowList.length - 1 : 0;
+    } else {
+      this.rowList[idx].isSelected = false;
+      idx += addIndex;
+      if (idx === -1) idx = this.rowList.length - 1;
+      if (idx >= this.rowList.length) idx = 0;
+    }
+    this.rowList[idx].isSelected = true;
+    this.localValue = this.rowList[idx].data[this.keyProp];
+    const rowElmList = this.$refs[`row-${idx}`] as HTMLTableRowElement[];
+    const rowElm = rowElmList ? rowElmList[0] : null;
+    if (rowElm) rowElm.scrollIntoView(true);
   }
 }
 </script>

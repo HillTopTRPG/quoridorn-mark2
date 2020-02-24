@@ -1,6 +1,6 @@
 <template>
   <div
-    class="other-text-frame"
+    id="other-text-frame"
     @mouseover="onMouseOver"
     @mouseleave="onMouseOut"
     @wheel.stop
@@ -144,7 +144,7 @@ export default class OtherTextFrame extends Vue {
 <style scoped lang="scss">
 @import "../../../assets/common";
 
-.other-text-frame {
+#other-text-frame {
   @include inline-flex-box(row, flex-start, flex-start);
   position: fixed;
   overflow: auto;

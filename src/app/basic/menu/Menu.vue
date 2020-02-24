@@ -551,6 +551,7 @@ export default class Menu extends Vue {
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
 #menu {
   @include flex-box(row, flex-start, center);
   position: fixed;
@@ -562,13 +563,13 @@ export default class Menu extends Vue {
   border-bottom: solid gray 1px;
   padding: 0 1rem;
   box-sizing: border-box;
-  z-index: 9;
   filter: var(--filter);
 
   > *:not(:first-child) {
     margin-left: 1em;
   }
 }
+
 .span-group {
   display: flex;
   flex-direction: row;

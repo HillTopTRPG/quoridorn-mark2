@@ -107,7 +107,7 @@ export default class RightPane extends Vue {
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (param.key !== this.key) return;
+    if (!param || param.key !== this.key) return;
     const point = task.value!;
 
     let diff = point.x - this.dragFrom;
@@ -446,69 +446,68 @@ export default class RightPane extends Vue {
   bottom: var(--window-title-height);
   right: 0;
   font-size: var(--fontSize);
-  z-index: 10;
   transition-property: right;
   transition-delay: 0ms;
   transition-timing-function: linear;
   transition-duration: 200ms;
+}
 
-  &.minimized {
-    right: calc(
-      var(--right-pane-width) * -1 - var(--scroll-bar-width) -
-        var(--window-padding) * 2 - 5px
-    );
+.minimized {
+  right: calc(
+    var(--right-pane-width) * -1 - var(--scroll-bar-width) -
+      var(--window-padding) * 2 - 5px
+  );
+}
+
+.isAnimationY .pane-frame {
+  transition-property: top;
+  transition-delay: 0ms;
+  transition-timing-function: linear;
+  transition-duration: 200ms;
+}
+
+.v-scroll {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+.pane-knob {
+  position: absolute;
+  @include flex-box(row, center, center);
+  height: 100px;
+  width: 20px;
+  top: 5px;
+  right: 100%;
+  border-style: solid;
+  border-width: 1px;
+  border-color: inherit;
+  background-color: inherit;
+  background-image: radial-gradient(
+      circle,
+      var(--theme-color-accent) 30%,
+      transparent 31%
+    ),
+    radial-gradient(circle, var(--theme-color-accent) 30%, transparent 31%);
+  background-position: 0 0, 7px 7px;
+  background-size: 15px 15px;
+  background-attachment: local;
+  box-sizing: border-box;
+  vertical-align: middle;
+  cursor: pointer;
+  z-index: 2;
+  font-size: 14px;
+
+  .icon-arrow-left {
+    justify-self: flex-start;
   }
 
-  .isAnimationY .pane-frame {
-    transition-property: top;
-    transition-delay: 0ms;
-    transition-timing-function: linear;
-    transition-duration: 200ms;
-  }
-
-  .v-scroll {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    overflow-y: scroll;
-    scroll-snap-type: y mandatory;
-  }
-
-  .pane-knob {
-    position: absolute;
-    @include flex-box(row, center, center);
-    height: 100px;
-    width: 20px;
-    top: 5px;
-    right: 100%;
-    border-style: solid;
-    border-width: 1px;
-    border-color: inherit;
-    background-color: inherit;
-    background-image: radial-gradient(
-        circle,
-        var(--theme-color-accent) 30%,
-        transparent 31%
-      ),
-      radial-gradient(circle, var(--theme-color-accent) 30%, transparent 31%);
-    background-position: 0 0, 7px 7px;
-    background-size: 15px 15px;
-    background-attachment: local;
-    box-sizing: border-box;
-    vertical-align: middle;
-    cursor: pointer;
-    z-index: 2;
-    font-size: 14px;
-
-    .icon-arrow-left {
-      justify-self: flex-start;
-    }
-
-    .icon-arrow-right {
-      justify-self: flex-end;
-    }
+  .icon-arrow-right {
+    justify-self: flex-end;
   }
 }
 

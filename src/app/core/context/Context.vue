@@ -1,6 +1,6 @@
 <template>
   <div
-    class="context"
+    id="context"
     v-if="type"
     @mouseleave.prevent="hide"
     @contextmenu.prevent
@@ -214,9 +214,8 @@ export default class Context extends Vue {
 </script>
 
 <style lang="scss">
-.context {
+#context {
   position: fixed;
-  z-index: 11;
   padding: 0;
   min-width: 50px;
   background-color: white;

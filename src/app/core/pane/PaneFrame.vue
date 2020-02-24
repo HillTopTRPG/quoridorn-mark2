@@ -131,7 +131,7 @@ export default class PaneFrame extends Vue {
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (param.key !== this.key) return;
+    if (!param || param.key !== this.key) return;
     const point = task.value!;
 
     // 移動

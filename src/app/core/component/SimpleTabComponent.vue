@@ -2,7 +2,7 @@
   <div class="simple-tab-component" ref="elm">
     <div class="tab-area">
       <div
-        class="tab"
+        class="tab index"
         v-for="(tab, index) in tabList"
         :class="{ isActive: tab.text === localValue.text }"
         :key="index"

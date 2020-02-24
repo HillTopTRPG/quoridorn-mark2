@@ -4,31 +4,31 @@
     <div id="back-scene"></div>
 
     <template v-if="roomInitialized">
-      <!-- プレイマット (z-index: 7) -->
+      <!-- プレイマット (z-index: 1) -->
       <game-table ref="gameTable" />
-      <!-- メニュー (z-index: 9) -->
+      <!-- メニュー (z-index: 5) -->
       <Menu :roomInfo="roomInfo" />
-      <!-- 右ペイン (z-index: 10) -->
+      <!-- 右ペイン (z-index: 2) -->
       <right-pane />
-      <!-- 右クリックメニュー (z-index: 11) -->
+      <!-- 右クリックメニュー (z-index: 4) -->
       <context />
     </template>
-    <!-- 小画面エリア (z-index: 10) -->
+    <!-- 小画面エリア (z-index: 3) -->
     <window-area />
-    <!-- その他欄 (z-index: 11) -->
+    <!-- その他欄 (z-index: 6) -->
     <other-text-frame
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
-    <!-- 放物線シミュレータ (z-index: 12) -->
+    <!-- 放物線シミュレータ (z-index: 7) -->
     <throw-parabola-simulator v-if="throwParabola" />
-    <!-- 放物線シミュレータ (z-index: 13) -->
+    <!-- 放物線シミュレータ (z-index: 8) -->
     <throw-parabola-container />
-    <!-- 拡大縮小の中心点描画 (z-index: 14) -->
-    <div id="wheelMarker" :class="{ hide: !isMapWheeling }"></div>
-    <!-- お部屋作成中 (z-index: 15) -->
-    <div id="loadingCreateRoom" v-if="isCreatingRoomMode">
+    <!-- 拡大縮小の中心点描画 (z-index: 9) -->
+    <div id="wheel-marker" :class="{ hide: !isMapWheeling }"></div>
+    <!-- お部屋作成中 (z-index: 10) -->
+    <div id="loading-create-room" v-if="isCreatingRoomMode">
       <div class="message">お部屋を作成しています！</div>
       <img
         src="http://quoridorn.com/img/mascot/struggle/mascot_struggle.png"
@@ -285,6 +285,23 @@ export default class App extends Vue {
             }
           });
         }
+        return;
+      }
+      window.console.log(event.key);
+      if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        event.preventDefault();
+        const activeWindowInfo = WindowManager.instance.activeWindow;
+        if (activeWindowInfo) {
+          await TaskManager.instance.ignition<TabMoveInfo, never>({
+            type: "row-select",
+            owner: "Quoridorn",
+            value: {
+              windowKey: activeWindowInfo.key,
+              addIndex: event.key === "ArrowDown" ? 1 : -1
+            }
+          });
+        }
+        return;
       }
     }
     if (event.key === "Escape") {
@@ -549,21 +566,6 @@ label {
   -ms-user-select: none;
 }
 
-#back-scene {
-  position: absolute;
-  background-size: cover;
-  background-position: center;
-  width: 100%;
-  height: 100%;
-  filter: blur(var(--mask-blur));
-  z-index: 0;
-  /* JavaScriptで設定されるプロパティ
-  background-image
-  background-color
-  transform
-  */
-}
-
 .selectable {
   user-select: text;
   -ms-user-select: text;
@@ -581,16 +583,57 @@ label {
   visibility: visible;
 }
 
+#back-scene {
+  position: absolute;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  height: 100%;
+  filter: blur(var(--mask-blur));
+  z-index: 0;
+  /* JavaScriptで設定されるプロパティ
+  background-image
+  background-color
+  transform
+  */
+}
+
+#gameTableContainer {
+  z-index: 1;
+}
+
+#menu {
+  z-index: 5;
+}
+
+#right-pane {
+  z-index: 2;
+}
+
+#context {
+  z-index: 4;
+}
+
 #window-area {
-  position: relative;
-  z-index: 10;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 3;
 }
 
 .other-text-frame {
-  z-index: 11;
+  z-index: 6;
 }
 
-#wheelMarker {
+#throw-parabola-simulator {
+  z-index: 7;
+}
+
+#throw-parabola-container {
+  z-index: 8;
+}
+
+#wheel-marker {
   pointer-events: none;
   position: fixed;
   left: 0;
@@ -598,7 +641,7 @@ label {
   right: 0;
   bottom: 0;
   transition: all 0.3s linear;
-  z-index: 14;
+  z-index: 9;
 
   &.hide {
     opacity: 0;
@@ -624,7 +667,7 @@ label {
   }
 }
 
-#loadingCreateRoom {
+#loading-create-room {
   @include flex-box(column, center, center);
   position: fixed;
   left: 0;
@@ -632,7 +675,7 @@ label {
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  z-index: 15;
+  z-index: 10;
 
   img {
     width: 200px;
