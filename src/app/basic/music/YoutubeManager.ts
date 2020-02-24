@@ -72,7 +72,6 @@ export default class YoutubeManager {
     { url, start, end }: CutInDeclareInfo,
     eventHandler: YoutubeEventHandler
   ) {
-    window.console.log("Youtube open!!!");
     let playerObj = this.playerMapping[elementId];
     if (playerObj && playerObj.elementId === elementId) {
       // 全く同じプレイヤー要素

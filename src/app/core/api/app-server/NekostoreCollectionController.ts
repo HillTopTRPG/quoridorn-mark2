@@ -57,22 +57,25 @@ export default class NekostoreCollectionController<T> {
 
   public async getList(
     isSync: boolean,
+    argList?: StoreUseData<T>[],
     column?: string
   ): Promise<StoreUseData<T>[]> {
     const c = this.getCollection();
     const sortColumn = column || "order";
+    if (!argList) argList = [];
     const list = (await c.orderBy(sortColumn).get()).docs
       .filter(doc => doc.exists() && doc.data.data)
       .map(doc => getStoreObj<T>(doc)!);
+    argList.push(...list);
     await this.setCollectionSnapshot(
       "NekostoreCollectionController",
       (snapshot: QuerySnapshot<StoreObj<T>>) => {
         snapshot.docs.forEach(() => {
           let wantSort = false;
           snapshot.docs.forEach(doc => {
-            const index = list.findIndex(p => p.id === doc.ref.id);
+            const index = argList!.findIndex(p => p.id === doc.ref.id);
             if (doc.type === "removed") {
-              list.splice(index, 1);
+              argList!.splice(index, 1);
             } else {
               const status = doc.data!.status;
               if (
@@ -81,13 +84,13 @@ export default class NekostoreCollectionController<T> {
                 status === "modified"
               ) {
                 const obj = getStoreObj(doc)!;
-                list.splice(index, index < 0 ? 0 : 1, obj);
+                argList!.splice(index, index < 0 ? 0 : 1, obj);
                 wantSort = true;
               }
             }
           });
           if (wantSort)
-            list.sort((i1: any, i2: any) => {
+            argList!.sort((i1: any, i2: any) => {
               if (i1[sortColumn] < i2[sortColumn]) return -1;
               if (i1[sortColumn] > i2[sortColumn]) return 1;
               return 0;
@@ -95,7 +98,7 @@ export default class NekostoreCollectionController<T> {
         });
       }
     );
-    return list;
+    return argList!;
   }
 
   public async getData(id: string): Promise<StoreUseData<T> | null> {

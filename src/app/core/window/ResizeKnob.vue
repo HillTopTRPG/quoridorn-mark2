@@ -1,6 +1,9 @@
 <template>
   <div
-    :class="`knob-${side}`"
+    :class="[
+      fontSizeChangeBan ? 'fontSizeChangeBan' : undefined,
+      `knob-${side}`
+    ]"
     @mousedown.left.stop="leftDown($event, side)"
     @touchstart.stop="leftDown($event, side)"
     @contextmenu.prevent
@@ -14,6 +17,9 @@ import { Component, Emit, Prop, Vue } from "vue-property-decorator";
 export default class ResizeKnob extends Vue {
   @Prop({ type: String, required: true })
   private side!: string;
+
+  @Prop({ type: Boolean, default: false })
+  private fontSizeChangeBan!: boolean;
 
   @Emit("leftDown")
   private leftDown(event: MouseEvent | TouchEvent, side: string): void {}
@@ -37,16 +43,26 @@ export default class ResizeKnob extends Vue {
 
 .knob-left,
 .knob-right {
-  top: 8px;
+  top: 10px;
   width: 10px;
-  height: calc(100% - 12px);
+  height: calc(100% - 20px);
 }
 
 .knob-top,
 .knob-bottom {
-  left: 8px;
+  left: 10px;
   height: 10px;
-  width: calc(100% - 12px);
+  width: calc(100% - 20px);
+}
+
+.knob-top:not(.fontSizeChangeBan) {
+  left: calc(10px + 8rem);
+  width: calc(100% - 20px - 8rem);
+}
+
+.knob-bottom {
+  left: 10px;
+  width: calc(100% - 20px);
 }
 
 .knob-left-top,

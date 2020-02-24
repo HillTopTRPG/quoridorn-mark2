@@ -393,6 +393,8 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   th,
   td {
+    padding: 0;
+
     > div {
       @include flex-box(row, flex-start, center);
     }

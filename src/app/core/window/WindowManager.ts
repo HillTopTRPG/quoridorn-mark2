@@ -2,6 +2,7 @@ import {
   WindowDeclareInfo,
   WindowInfo,
   WindowOpenInfo,
+  WindowSize,
   WindowTableInfo
 } from "@/@types/window";
 import { calcWindowPosition, createPoint, getWindowSize } from "../Coordinate";
@@ -9,6 +10,7 @@ import { Point } from "address";
 import { getCssPxNum } from "../Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import TaskManager from "@/app/core/task/TaskManager";
+import { clone } from "@/app/core/Utility";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -64,7 +66,21 @@ export default class WindowManager {
     if (!declareInfo) {
       throw new ApplicationError(`No such window type='${type}'`);
     }
-    declareInfo = JSON.parse(JSON.stringify(declareInfo)) as WindowDeclareInfo;
+    declareInfo = clone(declareInfo)!;
+    const setDefault = (size: WindowSize | undefined) => {
+      if (!size) return;
+      size.widthPx = size.widthPx || 0;
+      size.widthEm = size.widthEm || 0;
+      size.widthRem = size.widthRem || 0;
+      size.widthScrollBar = size.widthScrollBar || 0;
+      size.heightPx = size.heightPx || 0;
+      size.heightEm = size.heightEm || 0;
+      size.heightRem = size.heightRem || 0;
+      size.heightScrollBar = size.heightScrollBar || 0;
+    };
+    setDefault(declareInfo.size);
+    setDefault(declareInfo.minSize);
+    setDefault(declareInfo.maxSize);
     const tableInfoList: WindowTableInfo[] = declareInfo.tableInfoList.map(
       tableInfo => ({
         selectLineKey: null,
@@ -77,11 +93,8 @@ export default class WindowManager {
     const windowSize = declareInfo.size;
     const position = declareInfo.position;
     const menuHeight = getCssPxNum("--menu-bar-height");
-    const point = calcWindowPosition(
-      position,
-      getWindowSize(windowSize),
-      menuHeight
-    );
+    const windowSizePx = getWindowSize(windowSize);
+    const point = calcWindowPosition(position, windowSizePx, menuHeight);
 
     const key = `window-${this.keyCount++}`;
     this.__windowInfoList.push({
@@ -108,10 +121,21 @@ export default class WindowManager {
     return key;
   }
 
-  public arrangePoint(targetKey: string) {
+  public arrangePoint(targetKey: string, flg: boolean = false) {
     const target = this.__windowInfoList.filter(
       info => info.key === targetKey
     )[0];
+    const position = target.declare.position;
+    if (flg) {
+      const menuHeight = getCssPxNum("--menu-bar-height");
+      const point = calcWindowPosition(
+        position,
+        getWindowSize(target),
+        menuHeight
+      );
+      target.x = point.x;
+      target.y = point.y;
+    }
     this.__windowInfoList.forEach(info => {
       if (info.key === targetKey) return;
       if (info.isMinimized) return;
@@ -121,14 +145,13 @@ export default class WindowManager {
       const arrangeDistance = getCssPxNum("--window-title-height");
       const arrange: Point = createPoint(arrangeDistance, arrangeDistance);
 
-      const position = target.declare.position;
       if (typeof position === "string") {
         if (position.toString().indexOf("right") > -1) arrange.x *= -1;
         if (position.toString().indexOf("bottom") > -1) arrange.y *= -1;
       }
       target.x += arrange.x;
       target.y += arrange.y;
-      this.arrangePoint(targetKey);
+      this.arrangePoint(targetKey, false);
     });
   }
 

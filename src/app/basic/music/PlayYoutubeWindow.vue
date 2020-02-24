@@ -1,7 +1,10 @@
 <template>
   <div class="container" ref="window">
     <div class="youtube-container-outer" v-if="status === 'window'">
-      <div class="youtube-container-transform" :class="{ isResizing }">
+      <div
+        class="youtube-container-transform"
+        :class="{ isResizing, isWindowMoving }"
+      >
         <div :id="youtubeElementId" class="youtube"></div>
       </div>
     </div>
@@ -57,6 +60,9 @@ import {
 import BgmManager from "@/app/basic/music/BgmManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { PlayBgmInfo } from "window-info";
+import { StandByReturnInfo } from "task-info";
+import WindowManager from "@/app/core/window/WindowManager";
+import { WindowMoveInfo } from "@/@types/window";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -65,7 +71,9 @@ export default class PlayYoutubeWindow
   extends Mixins<WindowVue<PlayBgmInfo, never>>(WindowVue)
   implements YoutubeEventHandler {
   private bgmInfo: CutInDeclareInfo | null = null;
+  private targetId: string | null = null;
   private volume: number = 0;
+  private isWindowMoving = false;
 
   private maxVolume: number = 0;
   private fadeInTable: number[] = [];
@@ -74,10 +82,30 @@ export default class PlayYoutubeWindow
   private duration: number = 0;
   private seek: number = 0;
   private isMute: boolean = false;
+  private isFirstOnReady = true;
+
+  @TaskProcessor("window-moving-finished")
+  private async windowMovingFinished(
+    task: Task<WindowMoveInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.windowKey !== this.windowKey) return;
+    this.isWindowMoving = true;
+    task.resolve();
+  }
+
+  @TaskProcessor("window-move-end-finished")
+  private async windowMoveEndFinished(
+    task: Task<WindowMoveInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.windowKey !== this.windowKey) return;
+    this.isWindowMoving = false;
+    task.resolve();
+  }
 
   @LifeCycle
   public async mounted() {
     await this.init();
+    this.windowFrameElm.style.visibility = "hidden";
     this.volumeContainerElm.style.setProperty(
       "--volume-base-color",
       CssManager.getCss("--uni-color-gray")
@@ -89,13 +117,21 @@ export default class PlayYoutubeWindow
     this.isMounted = true;
 
     let { targetId, data } = this.windowInfo.args!;
+    this.targetId = targetId;
 
     if (!data) {
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
       data = (await cutInDataCC.getData(targetId!))!.data!;
     }
     this.bgmInfo = data;
-    if (!this.bgmInfo) return;
+
+    if (this.isStandByBgm) {
+      this.windowInfo.x = -300;
+      this.windowInfo.y = -300;
+      this.windowInfo.widthPx = 50;
+      this.windowInfo.heightPx = 50;
+      WindowManager.instance.arrangePoint(this.windowKey);
+    }
 
     await BgmManager.playBgm(
       targetId || null,
@@ -111,6 +147,10 @@ export default class PlayYoutubeWindow
       "v",
       this.bgmInfo.url
     )}/default.jpg`;
+  }
+
+  private get isStandByBgm(): boolean {
+    return (this.targetId && this.bgmInfo!.isStandBy) as boolean;
   }
 
   public setVolume(volume: number) {
@@ -142,6 +182,19 @@ export default class PlayYoutubeWindow
     BgmManager.closeBgm(this.windowInfo.args!);
   }
 
+  @TaskProcessor("stand-by-return-finished")
+  private async standByReturnFinished(
+    task: Task<StandByReturnInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value!.windowKey !== this.windowKey) return;
+    this.windowInfo.widthPx = this.windowInfo.declare.size.widthPx;
+    this.windowInfo.heightPx = this.windowInfo.declare.size.heightPx;
+    WindowManager.instance.arrangePoint(this.windowKey, true);
+    setTimeout(() => {
+      YoutubeManager.instance.play(this.youtubeElementId);
+    });
+  }
+
   private get youtubeElementId() {
     return `${this.windowKey}-${this.status}-youtube`;
   }
@@ -159,13 +212,11 @@ export default class PlayYoutubeWindow
   @LifeCycle
   private destroyed() {
     if (this.status !== "window") return;
-    window.console.log("Youtube destroyed.");
     YoutubeManager.instance.destroyed(this.youtubeElementId);
   }
 
   public onReady(): void {
     if (this.status !== "window") return;
-    window.console.log("youtube ready");
     const windowTitle = LanguageManager.instance.getText(
       `${this.windowInfo.type}.window-title`
     );
@@ -174,11 +225,32 @@ export default class PlayYoutubeWindow
       this.windowInfo.message = this.bgmInfo!.title;
       if (this.bgmInfo!.fadeIn > 1)
         YoutubeManager.instance.setVolume(this.youtubeElementId, 0);
-      YoutubeManager.instance.loadVideoById(
-        this.youtubeElementId,
-        this.bgmInfo!
-      );
+
+      this.playStart();
+      this.isFirstOnReady = false;
+
+      // 可視化
+      this.windowFrameElm.style.visibility = "visible";
+
+      if (this.isStandByBgm) {
+        BgmManager.instance.notifyOpenedStandByWindow(
+          this.targetId!,
+          this.windowKey
+        );
+        setTimeout(() => {
+          YoutubeManager.instance.seekTo(
+            this.youtubeElementId,
+            this.bgmInfo!.start,
+            true
+          );
+          YoutubeManager.instance.pause(this.youtubeElementId);
+        }, 100);
+      }
     });
+  }
+
+  private playStart() {
+    YoutubeManager.instance.loadVideoById(this.youtubeElementId, this.bgmInfo!);
   }
 
   public onError(error: any): void {
@@ -186,7 +258,6 @@ export default class PlayYoutubeWindow
   }
 
   public onPaused(): void {
-    window.console.log("onPaused");
     // this.isPlay = false;
   }
 
@@ -194,7 +265,6 @@ export default class PlayYoutubeWindow
     if (this.status !== "window") return;
     if (!this.duration) this.duration = duration;
     // this.isPlay = true;
-    window.console.log("onPlaying");
 
     this.fadeInTable = [];
     for (let i = 0; i <= this.bgmInfo!.fadeIn; i++) {
@@ -207,24 +277,24 @@ export default class PlayYoutubeWindow
     }
   }
 
-  private get bgmStart(this: any): number {
+  private get bgmStart(): number {
     let start = 0;
-    if (this.bgmInfo.start > 0) {
-      start = this.bgmInfo.start;
-    } else if (this.bgmInfo.start < 0) {
-      start = this.duration + this.bgmInfo.start;
+    if (this.bgmInfo!.start > 0) {
+      start = this.bgmInfo!.start;
+    } else if (this.bgmInfo!.start < 0) {
+      start = this.duration + this.bgmInfo!.start;
     }
     if (start > this.duration) start = this.duration;
     if (start < 0) start = 0;
     return start;
   }
 
-  private get bgmEnd(this: any): number {
+  private get bgmEnd(): number {
     let end = this.duration;
-    if (this.bgmInfo.end > 0) {
-      end = this.bgmInfo.end;
-    } else if (this.bgmInfo.end < 0) {
-      end = this.duration + this.bgmInfo.end;
+    if (this.bgmInfo!.end > 0) {
+      end = this.bgmInfo!.end;
+    } else if (this.bgmInfo!.end < 0) {
+      end = this.duration + this.bgmInfo!.end;
     }
     if (end > this.duration) end = this.duration;
     if (end < 0) end = 0;
@@ -232,7 +302,7 @@ export default class PlayYoutubeWindow
   }
 
   public onReject(): void {
-    window.console.log("onReject");
+    // nothing
   }
 
   public async timeUpdate(time: number): Promise<void> {
@@ -250,9 +320,6 @@ export default class PlayYoutubeWindow
           );
           this.isSeekToBefore = false;
         } else {
-          window.console.log(
-            "ループ再生でないし再生位置が範囲外になったから閉じる！"
-          );
           BgmManager.closeBgm(this.windowInfo.args!);
           await this.close();
           return;
@@ -300,7 +367,6 @@ export default class PlayYoutubeWindow
       this.isSeekToAfter = false;
       this.isSeekToBefore = false;
     } else {
-      window.console.log("再生終了だしループじゃないから閉じるっ！");
       BgmManager.closeBgm(this.windowInfo.args!);
       this.close().then();
     }
@@ -462,6 +528,7 @@ export default class PlayYoutubeWindow
 @import "../../../assets/common";
 
 .container {
+  visibility: inherit;
   display: grid;
   grid-template-rows: 1fr 2em;
   grid-template-columns: 1fr 2em;
@@ -487,6 +554,9 @@ export default class PlayYoutubeWindow
   transform-origin: left top;
 
   &.isResizing {
+    pointer-events: none;
+  }
+  &.isWindowMoving {
     pointer-events: none;
   }
 }

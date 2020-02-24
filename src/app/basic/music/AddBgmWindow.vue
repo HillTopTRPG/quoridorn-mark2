@@ -79,7 +79,7 @@ export default class AddBgmWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async preview() {
-    await BgmManager.callBgm({
+    await BgmManager.instance.callBgm({
       targetId: null,
       data: this.cutInData
     });

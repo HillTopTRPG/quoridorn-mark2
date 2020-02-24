@@ -49,6 +49,7 @@
     - change-focus-scene-object
     - resize
     - throw-parabola
+    - stand-by-return
 
 - taskAttribute:
     isIgniteWithParam: false

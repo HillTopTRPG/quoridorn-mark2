@@ -56,24 +56,25 @@ export default class GameObjectManager {
   private constructor() {}
 
   private async initialize() {
+    window.console.log("GameObjectManager#initialize");
     const sf = SocketFacade.instance;
-    this.sceneList = await sf.sceneListCC().getList(true);
-    this.imageList = await sf.imageDataCC().getList(true);
-    this.imageTagList = await sf.imageTagCC().getList(true);
-    this.userList = await sf.userCC().getList(true);
-    this.cutInList = await sf.cutInDataCC().getList(true);
-    this.socketUserList = await sf.socketUserCC().getList(true);
-    this.extraList = await sf.extraCC().getList(true);
-    this.propertyFaceList = await sf.propertyFaceCC().getList(true);
-    this.propertyList = await sf.propertyCC().getList(true);
-    this.sceneLayerList = await sf.sceneLayerCC().getList(true);
-    this.sceneAndLayerList = await sf.sceneAndLayerCC().getList(true);
-    this.sceneAndObjectList = await sf.sceneAndObjectCC().getList(true);
-    this.sceneObjectList = await sf.sceneObjectCC().getList(true);
-    this.actorStatusList = await sf.actorStatusCC().getList(true);
-    this.propertySelectionList = await sf.propertySelectionCC().getList(true);
-    this.tagNoteList = await sf.tagNoteCC().getList(true);
-    this.actorGroupList = await sf.actorGroupCC().getList(true);
+    await sf.sceneListCC().getList(true, this.sceneList);
+    await sf.imageDataCC().getList(true, this.imageList);
+    await sf.imageTagCC().getList(true, this.imageTagList);
+    await sf.userCC().getList(true, this.userList);
+    await sf.cutInDataCC().getList(true, this.cutInList);
+    await sf.socketUserCC().getList(true, this.socketUserList);
+    await sf.extraCC().getList(true, this.extraList);
+    await sf.propertyFaceCC().getList(true, this.propertyFaceList);
+    await sf.propertyCC().getList(true, this.propertyList);
+    await sf.sceneLayerCC().getList(true, this.sceneLayerList);
+    await sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList);
+    await sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList);
+    await sf.sceneObjectCC().getList(true, this.sceneObjectList);
+    await sf.actorStatusCC().getList(true, this.actorStatusList);
+    await sf.propertySelectionCC().getList(true, this.propertySelectionList);
+    await sf.tagNoteCC().getList(true, this.tagNoteList);
+    await sf.actorGroupCC().getList(true, this.actorGroupList);
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];

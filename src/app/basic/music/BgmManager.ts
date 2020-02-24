@@ -7,6 +7,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import TaskManager from "@/app/core/task/TaskManager";
 import { PlayBgmInfo } from "window-info";
 import { WindowOpenInfo } from "@/@types/window";
+import { StandByReturnInfo } from "task-info";
 
 export default class BgmManager {
   // シングルトン
@@ -15,11 +16,37 @@ export default class BgmManager {
     return BgmManager._instance;
   }
   private static _instance: BgmManager;
+  public standByWindowList: {
+    targetId: string;
+    windowKeyList: (string | null)[];
+  }[] = [];
 
-  // コンストラクタの隠蔽
-  private constructor() {}
+  public static async openStandByWindow(targetId: string) {
+    TaskManager.instance
+      .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "play-youtube-window",
+          args: {
+            targetId,
+            data: null
+          }
+        }
+      })
+      .then();
+  }
 
-  public static async callBgm(playBgmInfo: PlayBgmInfo) {
+  public notifyOpenedStandByWindow(targetId: string, windowKey: string) {
+    const windowKeyList = this.standByWindowList.filter(
+      s => s.targetId === targetId
+    )[0].windowKeyList;
+    const idx = windowKeyList.findIndex(wk => !wk);
+    windowKeyList[idx] = windowKey;
+    window.console.log(JSON.stringify(windowKeyList));
+  }
+
+  public async callBgm(playBgmInfo: PlayBgmInfo) {
     const targetId = playBgmInfo.targetId;
     const cutInInfo = BgmManager.getCutInInfo(playBgmInfo);
     const tag = cutInInfo.tag;
@@ -32,27 +59,64 @@ export default class BgmManager {
         .filter(b => b.targetId === targetId || b.tag === tag)
         .forEach(async b => {
           if (b.targetId === targetId && cutInInfo.isForceContinue) {
-            window.console.log("###### Don't CLOSE");
+            window.console.log("## Don't CLOSE");
             matchAndContinue = true;
           } else if (b.targetId === targetId || b.tag === tag) {
-            window.console.log("###### CLOSE");
-            await TaskManager.instance.ignition<string, never>({
-              type: "window-close",
-              owner: "Quoridorn",
-              value: b.windowKey
-            });
+            window.console.log("## CLOSE");
+            TaskManager.instance
+              .ignition<string, never>({
+                type: "window-close",
+                owner: "Quoridorn",
+                value: b.windowKey
+              })
+              .then();
           }
         });
     }
-    if (!matchAndContinue)
-      await TaskManager.instance.ignition<WindowOpenInfo<PlayBgmInfo>, never>({
-        type: "window-open",
-        owner: "Quoridorn",
-        value: {
-          type: "play-youtube-window",
-          args: playBgmInfo
-        }
-      });
+    if (!matchAndContinue) {
+      if (targetId && cutInInfo.isStandBy) {
+        const standByWindowInfo = this.standByWindowList.filter(
+          sbw => sbw.targetId === targetId
+        )[0];
+        const windowKeyList = standByWindowInfo.windowKeyList;
+        let intervalId: number | null;
+
+        const func = (): boolean => {
+          const idx = windowKeyList.findIndex(wk => wk);
+          if (idx >= 0) {
+            if (intervalId) clearInterval(intervalId);
+            window.console.log("⭕️");
+            const windowKey = windowKeyList[idx]!;
+            windowKeyList[idx] = null;
+            TaskManager.instance
+              .ignition<StandByReturnInfo, never>({
+                type: "stand-by-return",
+                owner: "Quoridorn",
+                value: { windowKey }
+              })
+              .then();
+            setTimeout(() => {
+              BgmManager.openStandByWindow(targetId).then();
+            });
+            return true;
+          }
+          window.console.log("❌");
+          return false;
+        };
+        if (!func()) intervalId = window.setInterval(func, 10);
+      } else {
+        TaskManager.instance
+          .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
+            type: "window-open",
+            owner: "Quoridorn",
+            value: {
+              type: "play-youtube-window",
+              args: playBgmInfo
+            }
+          })
+          .then();
+      }
+    }
   }
 
   public static async playBgm(

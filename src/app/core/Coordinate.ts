@@ -13,13 +13,22 @@ export function createSize(width: number, height: number): Size {
 }
 
 export function getWindowSize(s: WindowSize, elm?: HTMLElement): Size {
+  const scrollBarWidth = getCssPxNum("--scroll-bar-width");
   const rootFontSize = getCssPxNum("font-size");
   const elmFontSize = elm ? getCssPxNum("font-size", elm) : 12;
   const getEmSize = (n: number) => n * elmFontSize;
   const getRemSize = (n: number) => n * rootFontSize;
   return {
-    width: s.widthPx + getEmSize(s.widthEm) + getRemSize(s.widthRem),
-    height: s.heightPx + getEmSize(s.heightEm) + getRemSize(s.heightRem)
+    width:
+      s.widthPx +
+      getEmSize(s.widthEm) +
+      getRemSize(s.widthRem) +
+      scrollBarWidth * s.widthScrollBar,
+    height:
+      s.heightPx +
+      getEmSize(s.heightEm) +
+      getRemSize(s.heightRem) +
+      scrollBarWidth * s.heightScrollBar
   };
 }
 

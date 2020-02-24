@@ -6,18 +6,10 @@
   position: right-bottom
   size:
     widthPx: 426
-    widthEm: 0
-    widthRem: 0
     heightPx: 256
-    heightEm: 0
-    heightRem: 0
   minSize:
     widthPx: 160
-    widthEm: 0
-    widthRem: 0
     heightPx: 106
-    heightEm: 0
-    heightRem: 0
   minimizable: true
   paneContainable: true
   closable: true
@@ -32,24 +24,18 @@
   position: center
   size:
     widthPx: 271
-    widthEm: 0
-    widthRem: 0
     heightPx: 5
     heightEm: 26
     heightRem: 0.5
   minSize:
     widthPx: 271
-    widthEm: 0
-    widthRem: 0
     heightPx: 5
     heightEm: 26
     heightRem: 0.5
   maxSize:
     widthPx: 271
-    widthEm: 0
-    widthRem: 0
     heightPx: 5
-    heightEm: 26
+    heightEm: 32
     heightRem: 0.5
   minimizable: true
   paneContainable: true
@@ -469,26 +455,10 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個 + 20px(スクロールバー１本分)
-    widthPx: 452
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 16
-    heightRem: 0
-  minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
-    widthPx: 404
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 16
-    heightRem: 0
-  maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
-    widthPx: 644
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 17em(カラーピッカー) + 5em(ラベル)
+    widthPx: 4
+    widthEm: 34
+    widthRem: 0.4
     heightPx: 2
     heightEm: 16
     heightRem: 0
@@ -496,7 +466,7 @@
   paneContainable: true
   closable: true
   fontSizePickable: true
-  resizable: true
+  resizable: false
   tableInfoList: []
 "edit-map-mask-window":
   parentTypeList: []
@@ -505,26 +475,10 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個 + 20px(スクロールバー１本分)
-    widthPx: 452
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 18
-    heightRem: 0.5
-  minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
-    widthPx: 404
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 18
-    heightRem: 0.5
-  maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
-    widthPx: 644
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 17em(カラーピッカー) + 5em(ラベル)
+    widthPx: 4
+    widthEm: 34
+    widthRem: 0.4
     heightPx: 2
     heightEm: 18
     heightRem: 0.5
@@ -532,7 +486,7 @@
   paneContainable: true
   closable: true
   fontSizePickable: true
-  resizable: true
+  resizable: false
   tableInfoList: []
 "add-chit-window":
   parentTypeList: []
@@ -541,29 +495,29 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個 + 20px(スクロールバー１本分)
-    widthPx: 452
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
     heightPx: 4
     heightEm: 18
-    heightRem: 0
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
-    widthPx: 404
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
     heightPx: 4
     heightEm: 18
-    heightRem: 0
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
-    widthPx: 644
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 6em(行数) + 4em(選択画像サイズ) * 6個
     heightPx: 4
-    heightEm: 18
-    heightRem: 0
+    heightEm: 30
   minimizable: true
   paneContainable: true
   closable: true
@@ -577,28 +531,31 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個 + 20px(スクロールバー１本分)
-    widthPx: 452
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
     heightPx: 4
     heightEm: 20
     heightRem: 0.5
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 5個 + 20px(スクロールバー１本分)
-    widthPx: 404
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
     heightPx: 4
     heightEm: 20
     heightRem: 0.5
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個 + 20px(スクロールバー１本分)
-    widthPx: 644
-    widthEm: 0
-    widthRem: 0
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 8em(行数) + 4em(選択画像サイズ) * 6個
     heightPx: 4
-    heightEm: 20
+    heightEm: 32
     heightRem: 0.5
   minimizable: true
   paneContainable: true

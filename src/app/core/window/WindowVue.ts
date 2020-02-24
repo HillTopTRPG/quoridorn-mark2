@@ -19,6 +19,7 @@ export default class WindowVue<T, U> extends Vue {
   private finalized: boolean = false;
 
   public async init() {
+    this.windowFrameElm.style.visibility = "visible";
     if (this.status === "window") {
       await TaskManager.instance.ignition<string, never>({
         type: "window-active",
@@ -68,11 +69,14 @@ export default class WindowVue<T, U> extends Vue {
     return this.windowInfo.key;
   }
 
+  public get windowFrameElm(): HTMLElement {
+    return document.getElementById(this.windowKey) as HTMLElement;
+  }
+
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
-    // TODO
     if (task.value !== this.windowInfo.key) return;
     if (this.windowInfo.declare.isInputWindow) {
       await this.finally(undefined, true);

@@ -73,6 +73,8 @@ import { ModeInfo } from "mode";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
 import { BgmPlayInfo, ThrowParabolaInfo } from "task-info";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { CutInDeclareInfo } from "@/@types/room";
 
 @Component({
   components: {
@@ -100,7 +102,9 @@ export default class App extends Vue {
   private otherTextViewInfo: OtherTextViewInfo | null = null;
   private throwParabola: boolean = false;
 
-  private get elm(): HTMLElement {
+  private cutInList = GameObjectManager.instance.cutInList;
+
+  private static get elm(): HTMLElement {
     return document.getElementById("app") as HTMLElement;
   }
 
@@ -153,7 +157,7 @@ export default class App extends Vue {
         } else if (dataType === "bgm-play") {
           // BGM再生通知
           const info = data.data as BgmPlayInfo;
-          await BgmManager.callBgm({
+          await BgmManager.instance.callBgm({
             targetId: info.id,
             data: null
           });
@@ -218,6 +222,35 @@ export default class App extends Vue {
       }
     });
     this.isMounted = true;
+  }
+
+  @Watch("cutInList", { deep: true, immediate: true })
+  private async onChangeCutInList() {
+    const openWindowFunc = async (
+      c: StoreUseData<CutInDeclareInfo>
+    ): Promise<void> => {
+      const targetId = c.id!;
+      const windowKeyList: (string | null)[] = [];
+      BgmManager.instance.standByWindowList.push({
+        targetId,
+        windowKeyList
+      });
+      for (let i = 0; i < 3; i++) {
+        windowKeyList.push(null);
+        await BgmManager.openStandByWindow(targetId);
+      }
+    };
+
+    await this.cutInList
+      .filter(c => c.data!.isStandBy)
+      .filter(
+        c =>
+          !BgmManager.instance.standByWindowList.filter(
+            s => s.targetId === c.id
+          )[0]
+      )
+      .map((c: StoreUseData<CutInDeclareInfo>) => () => openWindowFunc(c))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
   /**
@@ -358,7 +391,7 @@ export default class App extends Vue {
   @Watch("isMounted")
   @Watch("isModal")
   private onChangeIsModal() {
-    this.elm.style.setProperty("--filter", this.isModal ? "blur(3px)" : "none");
+    App.elm.style.setProperty("--filter", this.isModal ? "blur(3px)" : "none");
   }
 
   @TaskProcessor("socket-connect-finished")

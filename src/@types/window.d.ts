@@ -4,9 +4,11 @@ export type WindowSize = {
   widthEm: number;
   widthRem: number;
   widthPx: number;
+  widthScrollBar: number;
   heightEm: number;
   heightRem: number;
   heightPx: number;
+  heightScrollBar: number;
 };
 
 export type WindowTableColumn = {
@@ -61,7 +63,6 @@ export type WindowOpenInfo<T> = {
 export type WindowResizeInfo = {
   key: string;
   status: string;
-  size: Size;
 };
 
 export type WindowTableInfo = {

@@ -47,7 +47,7 @@ export default class SightField extends PieceMixin<"chit"> {
   //   this.paint();
   // }
   //
-  // private paint(this: any) {
+  // private paint() {
   //   let canvas: HTMLCanvasElement = this.$refs.canvas as HTMLCanvasElement;
   //   const ctx: CanvasRenderingContext2D = canvas.getContext(
   //     "2d"
@@ -574,7 +574,7 @@ export default class SightField extends PieceMixin<"chit"> {
   //     transform: transform
   //   };
   // }
-  // get tableSize(this: any): any {
+  // get tableSize(): any {
   //   const marginColumn = AddressCalcMixin.getMapMarginColumn();
   //   const marginRow = AddressCalcMixin.getMapMarginRow();
   //   return {

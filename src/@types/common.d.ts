@@ -145,6 +145,10 @@ declare module "task-info" {
   type BgmStandByInfo = {
     id: string;
   };
+
+  type StandByReturnInfo = {
+    windowKey: string;
+  };
 }
 
 declare module "task" {

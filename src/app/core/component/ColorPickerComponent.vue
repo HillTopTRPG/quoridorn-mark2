@@ -140,6 +140,11 @@ export default class ColorPickerComponent extends Vue {
 <style scoped lang="scss">
 @import "../../../assets/common";
 
+input {
+  font-size: 1em;
+  margin: 0;
+}
+
 .color-picker-container {
   @include flex-box(row, flex-start, center, wrap);
 

@@ -44,7 +44,7 @@ import {
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import moment from "moment/moment";
+import { getCssPxNum } from "@/app/core/Css";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -390,12 +390,14 @@ export default class RightPane extends Vue {
       info => info.declare.maxSize
     );
     if (!useList.length) return 2000;
+    const scrollBarWidth = getCssPxNum("--scroll-bar-width");
     return Math.max(
       ...useList.map(info => {
         const px = info.declare.maxSize!.widthPx;
         const em = info.declare.maxSize!.widthEm;
         const rem = info.declare.maxSize!.widthRem;
-        return px + em * this.fontSize + rem * 14;
+        const sc = info.declare.maxSize!.widthScrollBar * scrollBarWidth;
+        return px + sc + em * this.fontSize + rem * 14;
       })
     );
   }

@@ -172,17 +172,19 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     await this.init();
     this.clientRoomInfo = GameObjectManager.instance.clientRoomInfo;
 
+    const declareObj = this.windowInfo.declare;
+
     const heightEm = this.userList.length * 2 + 10;
     this.windowInfo.heightEm = heightEm;
-    this.windowInfo.declare.size.heightEm = heightEm;
-    this.windowInfo.declare.minSize!.heightEm = heightEm;
-    this.windowInfo.declare.maxSize!.heightEm = heightEm;
+    declareObj.size.heightEm = heightEm;
+    declareObj.minSize!.heightEm = heightEm;
+    declareObj.maxSize!.heightEm = heightEm;
 
     const heightPx = this.userList.length + 3;
     this.windowInfo.heightPx = heightPx;
-    this.windowInfo.declare.size.heightPx = heightPx;
-    this.windowInfo.declare.minSize!.heightPx = heightPx;
-    this.windowInfo.declare.maxSize!.heightPx = heightPx;
+    declareObj.size.heightPx = heightPx;
+    declareObj.minSize!.heightPx = heightPx;
+    declareObj.maxSize!.heightPx = heightPx;
   }
 
   @VueEvent
