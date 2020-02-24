@@ -5,7 +5,7 @@
     :class="{ minimized: windowInfo.isMinimized }"
     @mousedown.left.stop="activeWindow()"
     @touchstart.stop="activeWindow()"
-    ref="window"
+    ref="window-frame"
   >
     <!-- タイトルバー -->
     <div
@@ -405,7 +405,7 @@ export default class WindowFrame extends Vue {
   }
 
   private get windowElm(): HTMLDivElement {
-    return this.$refs.window as HTMLDivElement;
+    return this.$refs["window-frame"] as HTMLDivElement;
   }
 
   @Watch("standImageSize", { immediate: true })

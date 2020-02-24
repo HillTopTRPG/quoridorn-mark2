@@ -43,7 +43,6 @@ export default class BgmManager {
     )[0].windowKeyList;
     const idx = windowKeyList.findIndex(wk => !wk);
     windowKeyList[idx] = windowKey;
-    window.console.log(JSON.stringify(windowKeyList));
   }
 
   public async callBgm(playBgmInfo: PlayBgmInfo) {
@@ -52,6 +51,22 @@ export default class BgmManager {
     const tag = cutInInfo.tag;
 
     let matchAndContinue = false;
+
+    // URLが空だったら同じタブを全て閉じる
+    if (!cutInInfo.url) {
+      GameObjectManager.instance.playingBgmList
+        .filter(b => b.tag === tag)
+        .forEach(async b => {
+          TaskManager.instance
+            .ignition<string, never>({
+              type: "window-close",
+              owner: "Quoridorn",
+              value: b.windowKey
+            })
+            .then();
+        });
+      return;
+    }
     if (cutInInfo.isForceNew) {
       // 窓を何個でも開く
     } else {
@@ -59,10 +74,8 @@ export default class BgmManager {
         .filter(b => b.targetId === targetId || b.tag === tag)
         .forEach(async b => {
           if (b.targetId === targetId && cutInInfo.isForceContinue) {
-            window.console.log("## Don't CLOSE");
             matchAndContinue = true;
           } else if (b.targetId === targetId || b.tag === tag) {
-            window.console.log("## CLOSE");
             TaskManager.instance
               .ignition<string, never>({
                 type: "window-close",
@@ -85,7 +98,6 @@ export default class BgmManager {
           const idx = windowKeyList.findIndex(wk => wk);
           if (idx >= 0) {
             if (intervalId) clearInterval(intervalId);
-            window.console.log("⭕️");
             const windowKey = windowKeyList[idx]!;
             windowKeyList[idx] = null;
             TaskManager.instance
@@ -100,7 +112,6 @@ export default class BgmManager {
             });
             return true;
           }
-          window.console.log("❌");
           return false;
         };
         if (!func()) intervalId = window.setInterval(func, 10);
@@ -136,11 +147,13 @@ export default class BgmManager {
         playerHandler.setIsMute(YoutubeManager.instance.isMuted(playElmId));
       } else {
         YoutubeManager.instance.open(playElmId, cutInInfo, playerHandler);
-        GameObjectManager.instance.playingBgmList.push({
-          targetId,
-          tag,
-          windowKey
-        });
+        if (!cutInInfo.isStandBy) {
+          GameObjectManager.instance.playingBgmList.push({
+            targetId,
+            tag,
+            windowKey
+          });
+        }
       }
     }
   }

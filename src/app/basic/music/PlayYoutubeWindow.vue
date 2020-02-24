@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <div class="youtube-container-outer" v-if="status === 'window'">
       <div
         class="youtube-container-transform"
@@ -63,6 +63,7 @@ import { PlayBgmInfo } from "window-info";
 import { StandByReturnInfo } from "task-info";
 import WindowManager from "@/app/core/window/WindowManager";
 import { WindowMoveInfo } from "@/@types/window";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -190,6 +191,11 @@ export default class PlayYoutubeWindow
     this.windowInfo.widthPx = this.windowInfo.declare.size.widthPx;
     this.windowInfo.heightPx = this.windowInfo.declare.size.heightPx;
     WindowManager.instance.arrangePoint(this.windowKey, true);
+    GameObjectManager.instance.playingBgmList.push({
+      targetId: this.targetId,
+      tag: this.bgmInfo!.tag,
+      windowKey: this.windowKey
+    });
     setTimeout(() => {
       YoutubeManager.instance.play(this.youtubeElementId);
     });
@@ -402,7 +408,7 @@ export default class PlayYoutubeWindow
   }
 
   private get windowElm(): HTMLDivElement {
-    return this.$refs.window as HTMLDivElement;
+    return this.$refs["window-container"] as HTMLDivElement;
   }
 
   private get volumeContainerElm(): HTMLDivElement {

@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <bgm-info-form
       v-if="isMounted"
       :url.sync="url"

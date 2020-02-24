@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <div class="area-map-container">
       <div
         class="area-map"

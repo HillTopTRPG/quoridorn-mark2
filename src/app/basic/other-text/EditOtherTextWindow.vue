@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <textarea class="input raw" v-model="rawText"></textarea>
     <other-text-component v-model="rawText" />
   </div>

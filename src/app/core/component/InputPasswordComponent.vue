@@ -2,7 +2,7 @@
   <div class="password-component" ref="component">
     <password
       :id="compKey"
-      class="input"
+      defaultClass="Password__field input"
       v-model="localValue"
       :secureLength="10"
       :toggle="!disabled"

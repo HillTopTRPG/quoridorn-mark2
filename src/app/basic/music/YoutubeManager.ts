@@ -372,12 +372,16 @@ export default class YoutubeManager {
 
   private eventHandler = {
     onReady: (elementId: string) => {
-      this.playerMapping[elementId].eventHandlers.forEach(eh => {
+      let playerObj = this.playerMapping[elementId];
+      if (!playerObj) return;
+      playerObj.eventHandlers.forEach(eh => {
         eh.onReady();
       });
     },
     onEnded: (elementId: string) => {
-      this.playerMapping[elementId].eventHandlers.forEach(eh => {
+      let playerObj = this.playerMapping[elementId];
+      if (!playerObj) return;
+      playerObj.eventHandlers.forEach(eh => {
         eh.onEnded();
       });
     },

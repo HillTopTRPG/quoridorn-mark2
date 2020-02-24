@@ -1,5 +1,5 @@
 <template>
-  <div class="container" ref="window">
+  <div class="container" ref="window-container">
     <simple-tab-component
       :windowKey="windowKey"
       :tabList="tabList"

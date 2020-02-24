@@ -1,7 +1,7 @@
 object-copy:
   text: context.copy
   taskName: copy-object
-  isViewCompare:
+  isDisabledCompare:
     lhs:
       refType: permission-check
       type: edit
@@ -12,33 +12,35 @@ object-copy:
 object-delete:
   text: context.delete
   taskName: delete-object
-  isViewCompare:
-    lhs:
-      refType: permission-check
-      type: edit
-    rhs:
-      true
   isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
   taskArg: ~
 
 object-chmod:
   text: context.chmod
   taskName: window-open
-  isViewCompare:
-    lhs:
-      refType: permission-check
-      type: chmod
-    rhs:
-      true
   isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: chmod
+        rhs:
+          true
   taskArg:
     type: chmod-window
 
@@ -46,8 +48,7 @@ hr-permission-check:
   isViewCompare:
     operator: and
     list:
-      -
-        lhs:
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
@@ -57,24 +58,22 @@ object-fix:
   text: context.fix
   taskName: lock-object
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isLock
+    rhs: false
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isLock
-        rhs: false
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: true
 
@@ -82,24 +81,22 @@ object-un-fix:
   text: context.un-fix
   taskName: lock-object
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isLock
+    rhs: true
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isLock
-        rhs: true
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: false
 
@@ -107,24 +104,22 @@ object-hide-border:
   text: context.hide-border
   taskName: change-border-view
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isHideBorder
+    rhs: false
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isHideBorder
-        rhs: false
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: true
 
@@ -132,24 +127,22 @@ object-view-border:
   text: context.view-border
   taskName: change-border-view
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isHideBorder
+    rhs: true
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isHideBorder
-        rhs: true
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: false
 
@@ -157,24 +150,22 @@ object-hide-highlight:
   text: context.hide-highlight
   taskName: change-highlight-view
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isHideHighlight
+    rhs: false
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isHideHighlight
-        rhs: false
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: true
 
@@ -182,23 +173,21 @@ object-view-highlight:
   text: context.view-highlight
   taskName: change-highlight-view
   isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: isHideHighlight
+    rhs: true
+  isDisabledCompare:
     operator: and
     list:
-      -
-        lhs:
-          refType: db-id-property
-          property: isHideHighlight
-        rhs: true
-      -
-        lhs:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
           refType: permission-check
           type: edit
         rhs:
           true
-  isDisabledCompare:
-    lhs:
-      refType: exclusion-check
-    rhs:
-      true
   taskArg:
     value: false

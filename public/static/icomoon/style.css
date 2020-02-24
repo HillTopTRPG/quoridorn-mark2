@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?zh36a2');
-  src:  url('fonts/icomoon.eot?zh36a2#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?zh36a2') format('truetype'),
-    url('fonts/icomoon.woff?zh36a2') format('woff'),
-    url('fonts/icomoon.svg?zh36a2#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?jf7pne');
+  src:  url('fonts/icomoon.eot?jf7pne#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?jf7pne') format('truetype'),
+    url('fonts/icomoon.woff?jf7pne') format('woff'),
+    url('fonts/icomoon.svg?jf7pne#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -180,6 +180,9 @@
 }
 .icon-safari:before {
   content: "\eadd";
+}
+.icon-price-tags:before {
+  content: "\e936";
 }
 .icon-lock:before {
   content: "\e98f";
