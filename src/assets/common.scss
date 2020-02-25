@@ -75,6 +75,10 @@
     transition: transform 0.3s linear;
   }
 
+  &.transitioning {
+    pointer-events: none;
+  }
+
   &.hover {
     z-index: 599999999 !important;
   }

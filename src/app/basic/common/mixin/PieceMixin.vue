@@ -49,6 +49,8 @@ export default class PieceMixin<
   protected isMounted: boolean = false;
   protected sceneObjectInfo: StoreUseData<SceneObject> | null = null;
   protected sceneAndObjectInfo: StoreUseData<SceneAndObject> | null = null;
+  private otherLockTimeoutId: number | null = null;
+  private isTransitioning: boolean = false;
 
   private get lockMessage() {
     let result = "";
@@ -134,12 +136,17 @@ export default class PieceMixin<
     this.isMounted = true;
   }
 
+  private get isOtherLastModify(): boolean {
+    if (!this.sceneObjectInfo) return false;
+    const lastExclusionOwner = this.sceneObjectInfo.lastExclusionOwner;
+    const lastExclusionOwnerId = GameObjectManager.instance.getExclusionOwnerId(
+      lastExclusionOwner
+    );
+    return lastExclusionOwnerId !== GameObjectManager.instance.mySelfId;
+  }
+
   protected get basicClasses() {
     if (!this.isMounted || !this.sceneObjectInfo) return [];
-    const isLastModifyIsOtherPlayer =
-      GameObjectManager.instance.getExclusionOwnerId(
-        this.sceneObjectInfo.lastExclusionOwner
-      ) !== GameObjectManager.instance.mySelfId;
     const result = [
       this.sceneObjectInfo.data!.isLock ? "lock" : "non-lock",
       this.isHover ? "hover" : "non-hover",
@@ -147,7 +154,8 @@ export default class PieceMixin<
       this.sceneObjectInfo.data!.isHideBorder ? "border-hide" : "border-view"
     ];
     if (this.isFocused) result.push("focus");
-    if (isLastModifyIsOtherPlayer) result.push("other-player-last-modify");
+    if (this.isOtherLastModify) result.push("other-player-last-modify");
+    if (this.isTransitioning) result.push("transitioning");
     return result;
   }
 
@@ -179,6 +187,17 @@ export default class PieceMixin<
     const gridSize = CssManager.instance.propMap.gridSize;
     const marginColumns = CssManager.instance.propMap.marginColumn;
     const marginRows = CssManager.instance.propMap.marginRow;
+
+    if (this.isOtherLastModify) {
+      if (this.otherLockTimeoutId !== null)
+        clearTimeout(this.otherLockTimeoutId);
+
+      this.isTransitioning = true;
+      // other-player-last-modifyに設定されている「transition」の0.3sに合わせている
+      this.otherLockTimeoutId = window.setTimeout(() => {
+        this.isTransitioning = false;
+      }, 300);
+    }
 
     this.objX = useX + marginColumns * gridSize - this.inflateWidth;
     this.objY = useY + marginRows * gridSize - this.inflateWidth;
