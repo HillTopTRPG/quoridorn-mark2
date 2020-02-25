@@ -71,6 +71,10 @@
     padding-left: 0.2rem;
   }
 
+  &.other-player-last-modify {
+    transition: transform 0.3s linear;
+  }
+
   &.hover {
     z-index: 599999999 !important;
   }

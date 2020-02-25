@@ -134,16 +134,20 @@ export default class GameObjectManager {
     return this.__clientRoomInfo;
   }
 
-  public getExclusionOwnerName(socketId: string) {
-    const unknown = LanguageManager.instance.getText("label.unknown");
+  public getExclusionOwnerId(socketId: string | null): string | null {
     const socketUserInfo = this.socketUserList.filter(
       su => su.data!.socketId === socketId
     )[0];
-    if (!socketUserInfo) return unknown;
-    const userId = socketUserInfo.data!.userId;
+    if (!socketUserInfo) return null;
+    return socketUserInfo.data!.userId;
+  }
+
+  public getExclusionOwnerName(socketId: string): string {
+    const userId = this.getExclusionOwnerId(socketId);
     const userInfo = this.userList.filter(u => u.id === userId)[0];
-    if (!userInfo) return unknown;
-    return userInfo.data!.userName;
+    return !userInfo
+      ? LanguageManager.instance.getText("label.unknown")
+      : userInfo.data!.userName;
   }
 
   public async setClientRoomInfo(info: ClientRoomInfo) {

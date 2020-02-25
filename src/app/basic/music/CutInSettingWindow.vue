@@ -139,6 +139,14 @@ export default class CutInSettingWindow extends Mixins<
     await this.init();
   }
 
+  @TaskProcessor("global-enter-finished")
+  private async globalEnterFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    await this.play();
+    task.resolve();
+  }
+
   @VueEvent
   private async play(cutInId?: string) {
     const useId = cutInId || this.selectedCutInId;

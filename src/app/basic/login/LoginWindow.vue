@@ -33,10 +33,6 @@
         </ul>
       </div>
     </div>
-    <label class="language-select">
-      <span class="label-input">Language</span>
-      <language-select v-model="language" />
-    </label>
     <keep-alive>
       <table-component
         :windowInfo="windowInfo"
@@ -76,6 +72,7 @@
           <template v-else-if="index === 6">{{ data | updateDate }}</template>
           <template v-else-if="index === 7">
             <ctrl-button
+              :focusable="false"
               @click.stop="deleteRoom(data.order)"
               @dblclick.stop
               :disabled="data | deleteButtonDisabled"
@@ -95,6 +92,10 @@
         />
       </template>
     </keep-alive>
+    <label class="language-select">
+      <span class="label-input">Language</span>
+      <language-select v-model="language" />
+    </label>
     <div class="button-area">
       <ctrl-button @click="createRoom()" :disabled="disabledCreate">
         <span v-t="'button.create-new'"></span>
@@ -200,7 +201,7 @@ export default class LoginWindow extends Mixins<
   private message: Message | null = null;
   private serverTestResult: ServerTestResult | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
-    '\\[([^\\"<>]]+)]\\(([^)"<>]+)\\)',
+    '\\[([^"<>]]+)]\\(([^)"<>]+)\\)',
     "g"
   );
   private language: string = LanguageManager.instance.defaultLanguage;
@@ -277,6 +278,14 @@ export default class LoginWindow extends Mixins<
       "--msg-creating",
       `"${LanguageManager.instance.getText("label.creating")}"`
     );
+    task.resolve();
+  }
+
+  @TaskProcessor("global-enter-finished")
+  private async globalEnterFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    await this.playRoom();
     task.resolve();
   }
 
@@ -370,6 +379,7 @@ export default class LoginWindow extends Mixins<
               this.roomList!.splice(index, 1, {
                 order: index,
                 exclusionOwner: null,
+                lastExclusionOwner: null,
                 owner: null,
                 permission: null,
                 status: null,
@@ -440,7 +450,7 @@ export default class LoginWindow extends Mixins<
   }
 
   @VueEvent
-  private async playRoom(order?: number) {
+  private async playRoom() {
     if (!this.disabledLogin) await this.login();
     if (!this.disabledCreate) await this.createRoom();
   }

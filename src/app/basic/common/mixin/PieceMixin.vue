@@ -135,14 +135,19 @@ export default class PieceMixin<
   }
 
   protected get basicClasses() {
-    if (!this.isMounted) return [];
+    if (!this.isMounted || !this.sceneObjectInfo) return [];
+    const isLastModifyIsOtherPlayer =
+      GameObjectManager.instance.getExclusionOwnerId(
+        this.sceneObjectInfo.lastExclusionOwner
+      ) !== GameObjectManager.instance.mySelfId;
     const result = [
-      this.sceneObjectInfo!.data!.isLock ? "lock" : "non-lock",
+      this.sceneObjectInfo.data!.isLock ? "lock" : "non-lock",
       this.isHover ? "hover" : "non-hover",
       this.isMoving ? "moving" : "non-moving",
-      this.sceneObjectInfo!.data!.isHideBorder ? "border-hide" : "border-view"
+      this.sceneObjectInfo.data!.isHideBorder ? "border-hide" : "border-view"
     ];
     if (this.isFocused) result.push("focus");
+    if (isLastModifyIsOtherPlayer) result.push("other-player-last-modify");
     return result;
   }
 

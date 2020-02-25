@@ -4,6 +4,7 @@
 export type StoreObj<T> = {
   order: number;
   exclusionOwner: string | null; // 排他制御のオーナー
+  lastExclusionOwner: string | null; // 排他制御のオーナー
   owner: string | null; // 部屋データに含まれるデータのオーナー。部屋データにはオーナーは存在しない
   data?: T;
   permission: Permission | null; // 通常はnullではない

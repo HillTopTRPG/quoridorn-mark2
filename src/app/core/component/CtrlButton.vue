@@ -2,7 +2,8 @@
   <label class="ctrl-button-wrapper" :disabled="disabled" @contextmenu.prevent>
     <input
       type="button"
-      class="input"
+      :class="{ input: focusable }"
+      :tabindex="focusable ? 0 : -1"
       ref="button"
       :disabled="disabled"
       @click.left.stop.prevent="buttonOnClickLeft"
@@ -30,6 +31,9 @@ import { Mixins } from "vue-mixin-decorator";
 export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
+
+  @Prop({ type: Boolean, default: true })
+  private focusable!: boolean;
 
   @Emit("click")
   private buttonOnClickLeft(event: any) {}
