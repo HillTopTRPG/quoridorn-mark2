@@ -9,6 +9,7 @@
   justify-content: if($direction == row, $horizontal, $vertical);
   align-items: if($direction == row, $vertical, $horizontal);
   flex-wrap: $wrap;
+  align-content: flex-start;
 }
 
 @mixin inline-flex-box(
@@ -22,11 +23,12 @@
   justify-content: if($direction == row, $horizontal, $vertical);
   align-items: if($direction == row, $vertical, $horizontal);
   flex-wrap: $wrap;
+  align-content: flex-start;
 }
 
 @mixin basic-map-object() {
   @include flex-box(row, center, center);
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
   box-sizing: border-box;

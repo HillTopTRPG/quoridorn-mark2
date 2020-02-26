@@ -238,7 +238,7 @@ export default class NekostoreCollectionController<T> {
     ownerKey: string,
     docId: string,
     onNext: (snapshot: DocumentSnapshot<StoreObj<T>>) => void
-  ): Promise<() => void> {
+  ): Promise<Unsubscribe> {
     let target: DocumentReference<StoreObj<T>> = this.getCollection().doc(
       docId
     );
@@ -254,7 +254,7 @@ export default class NekostoreCollectionController<T> {
   public async setCollectionSnapshot(
     ownerKey: string,
     onNext: (snapshot: QuerySnapshot<StoreObj<T>>) => void
-  ): Promise<() => void> {
+  ): Promise<Unsubscribe> {
     let target: CollectionReference<StoreObj<T>> = this.getCollection();
     const unsubscribe = await target.onSnapshot(onNext);
     if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();

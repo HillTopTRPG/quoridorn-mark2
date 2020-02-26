@@ -22,13 +22,7 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board :scene="scene" />
-
-        <scene-layer-component
-          v-for="layer in useLayerList"
-          :key="layer.id"
-          :layer="layer"
-        />
+        <map-board :scene="sceneInfo" :sceneId="sceneId" />
       </div>
     </div>
   </div>
@@ -57,7 +51,6 @@ import TaskProcessor, {
 } from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { Scene, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
@@ -73,8 +66,17 @@ import CssManager from "@/app/core/css/CssManager";
   }
 })
 export default class GameTable extends AddressCalcMixin {
+  private sceneList = GameObjectManager.instance.sceneList;
   private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
+  private roomData = GameObjectManager.instance.roomData;
+  private sceneId: string | null = null;
+  private sceneInfo: Scene | null = null;
+
+  @Watch("roomData", { immediate: true, deep: true })
+  private onChangeRoomData() {
+    this.sceneId = this.roomData.sceneId || null;
+  }
 
   private get useLayerList() {
     return this.sceneAndLayerList
@@ -90,8 +92,6 @@ export default class GameTable extends AddressCalcMixin {
 
   private key = "game-table";
 
-  private sceneId: string | null = null;
-  private scene: Scene | null = null;
   private isMounted: boolean = false;
 
   private static get gameTableContainerElm(): HTMLElement {
@@ -120,47 +120,41 @@ export default class GameTable extends AddressCalcMixin {
 
   @VueEvent
   private async mounted() {
-    const sceneListCC = SocketFacade.instance.sceneListCC();
-    const roomData = GameObjectManager.instance.roomData;
-
-    this.sceneId = roomData.sceneId;
-    const sceneData = await sceneListCC.getData(this.sceneId);
-    await sceneListCC.setSnapshot(this.key, this.sceneId, async snapshot => {
-      if (snapshot.data!.status === "modified") {
-        const scene = snapshot.data!.data!;
-        CssManager.instance.propMap.totalColumn = scene.columns;
-        CssManager.instance.propMap.totalRow = scene.rows;
-        CssManager.instance.propMap.gridSize = scene.gridSize!;
-        CssManager.instance.propMap.marginColumn = scene.margin.columns;
-        CssManager.instance.propMap.marginRow = scene.margin.rows;
-        CssManager.instance.propMap.marginBorderWidth =
-          scene.margin.border.width;
-        await this.setCss(scene);
-        this.scene = scene;
-      }
-    });
-    if (!sceneData) throw new ApplicationError("No such mapData.");
-    this.scene = sceneData.data!;
-    CssManager.instance.propMap.totalColumn = this.scene!.columns;
-    CssManager.instance.propMap.totalRow = this.scene!.rows;
-    CssManager.instance.propMap.gridSize = this.scene!.gridSize!;
-    CssManager.instance.propMap.marginColumn = this.scene!.margin.columns;
-    CssManager.instance.propMap.marginRow = this.scene!.margin.rows;
-    CssManager.instance.propMap.marginBorderWidth = this.scene!.margin.border.width;
+    this.isMounted = true;
     CssManager.instance.propMap.wheel = 0;
+    this.wheel = 0;
+    GameTable.gameTableContainerElm.style.transform = `translateZ(${this.wheel})`;
+    await this.updateScreen();
+  }
+
+  @Watch("sceneId")
+  private async onChangeSceneId() {
+    await this.updateScreen();
+  }
+
+  @Watch("sceneList", { deep: true })
+  private async updateScreen() {
+    if (!this.isMounted) return;
+    const sceneData = this.sceneList.filter(s => s.id === this.sceneId)[0];
+    this.sceneInfo = sceneData ? sceneData.data! : null;
+    if (this.sceneInfo) {
+      CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;
+      CssManager.instance.propMap.totalRow = this.sceneInfo.rows;
+      CssManager.instance.propMap.gridSize = this.sceneInfo.gridSize!;
+      CssManager.instance.propMap.marginColumn = this.sceneInfo.margin.columns;
+      CssManager.instance.propMap.marginRow = this.sceneInfo.margin.rows;
+      CssManager.instance.propMap.marginBorderWidth = this.sceneInfo.margin.border.width;
+    }
     CssManager.instance.propMap.currentAngle = 0;
     const totalLeftX = Math.round(this.point.x + this.pointDiff.x);
     const totalLeftY = Math.round(this.point.y + this.pointDiff.y);
     CssManager.instance.propMap.totalLeftX = totalLeftX;
     CssManager.instance.propMap.totalLeftY = totalLeftY;
-
-    this.isMounted = true;
-    GameTable.gameTableContainerElm.style.transform = `translateZ(${0})`;
-    await this.setCss(this.scene);
+    await this.setCss(this.sceneInfo);
   }
 
-  private async setCss(scene: Scene) {
-    if (!this.isMounted) return;
+  private async setCss(scene: Scene | null) {
+    if (!this.isMounted || !scene) return;
     const margin = scene.margin;
     const background = scene.background;
     await GameTable.setBackground(GameTable.mapCanvasBackElm, scene.texture);

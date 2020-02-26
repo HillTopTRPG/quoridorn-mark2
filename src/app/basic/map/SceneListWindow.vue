@@ -1,5 +1,13 @@
 <template>
   <div class="container" ref="window-container">
+    <div class="button-area space-between margin-bottom">
+      <ctrl-button @click="send()" :disabled="!selectedSceneId">
+        <span v-t="'button.send'"></span>
+      </ctrl-button>
+      <ctrl-button @click="preview" :disabled="!selectedSceneId">
+        <span v-t="'button.preview'"></span>
+      </ctrl-button>
+    </div>
     <div class="area-map-container">
       <div
         class="area-map"
@@ -81,6 +89,19 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
 
   private get useSceneList() {
     return this.sceneList.filter(s => permissionCheck(s, "view"));
+  }
+
+  @VueEvent
+  private async send() {
+    if (!this.selectedSceneId) return;
+    await GameObjectManager.instance.updateRoomData({
+      sceneId: this.selectedSceneId
+    });
+  }
+
+  @VueEvent
+  private preview() {
+    window.console.log("preview");
   }
 
   @Watch("isMounted")
@@ -234,7 +255,8 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
 
 .container {
   @include flex-box(column, stretch, center);
-  overflow-y: auto;
+  width: 100%;
+  height: 100%;
 }
 
 .area-map-container {
@@ -243,8 +265,8 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   padding-left: 0.5rem;
   border: 1px solid black;
   box-sizing: border-box;
-  height: calc(20em + 1.5rem + 2px);
-  overflow-y: auto;
+  overflow-y: scroll;
+  flex: 1;
 
   .area-map {
     position: relative;

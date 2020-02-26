@@ -60,29 +60,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 import { StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { Direction, Image } from "@/@types/room";
-import ImageSelector from "@/app/basic/common/components/ImageSelector.vue";
-import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
+import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
-    DirectionTypeSelect,
     CtrlButton,
     ImageTagSelect,
-    ImageSelector,
-    BaseInput
+    DirectionTypeSelect
   }
 })
 export default class ImagePickerComponent extends Mixins<ComponentVue>(
@@ -104,11 +99,6 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   private rowImageList: StoreUseData<Image>[] = [];
   private useImageList: StoreUseData<Image>[] = [];
-
-  // @Watch("windowKey", { immediate: true })
-  // private onChangeKey() {
-  //   window.console.log(this.windowKey);
-  // }
 
   @Watch("isMounted")
   @Watch("selectImageTag")
@@ -214,7 +204,6 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   .choseImage {
     @include flex-box(row, flex-start, flex-start, wrap);
-    align-content: flex-start;
     overflow-y: scroll;
     flex: 1;
     border: solid gray 1px;

@@ -184,10 +184,6 @@ export default class PieceMixin<
     const y = sceneObjectInfo.data!.y;
     const useY = this.isMoving ? y + this.volatileInfo.moveDiff.y : y;
 
-    const gridSize = CssManager.instance.propMap.gridSize;
-    const marginColumns = CssManager.instance.propMap.marginColumn;
-    const marginRows = CssManager.instance.propMap.marginRow;
-
     if (this.isOtherLastModify) {
       if (this.otherLockTimeoutId !== null)
         clearTimeout(this.otherLockTimeoutId);
@@ -199,8 +195,8 @@ export default class PieceMixin<
       }, 300);
     }
 
-    this.objX = useX + marginColumns * gridSize - this.inflateWidth;
-    this.objY = useY + marginRows * gridSize - this.inflateWidth;
+    this.objX = useX - this.inflateWidth;
+    this.objY = useY - this.inflateWidth;
     this.elm.style.transform = `translate(${this.objX}px,${
       this.objY
     }px) rotate(${sceneObjectInfo.data!.angle}deg) translateZ(0)`;

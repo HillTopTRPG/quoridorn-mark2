@@ -79,20 +79,59 @@ export default class GameObjectManager {
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
-    Object.assign(this.roomData, roomData.data);
+    this.roomDataId = roomData.id!;
+
+    // Object.assign()
+    this.roomData.sceneId = roomData.data!.sceneId;
+    this.roomData.isFitGrid = roomData.data!.isFitGrid;
+    this.roomData.isDrawGridId = roomData.data!.isDrawGridId;
+    this.roomData.isDrawGridLine = roomData.data!.isDrawGridLine;
+    this.roomData.isUseRotateMarker = roomData.data!.isUseRotateMarker;
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
-      roomData.id!,
+      this.roomDataId,
       (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
-          Object.assign(this.roomData, snapshot.data.data);
+          const d = snapshot.data.data!;
+          // Object.assign()
+          this.roomData.sceneId = d.sceneId;
+          this.roomData.isFitGrid = d.isFitGrid;
+          this.roomData.isDrawGridId = d.isDrawGridId;
+          this.roomData.isDrawGridLine = d.isDrawGridLine;
+          this.roomData.isUseRotateMarker = d.isUseRotateMarker;
         }
       }
     );
   }
 
+  public async updateRoomData(data: Partial<RoomData>): Promise<void> {
+    if (!this.roomDataId)
+      throw new ApplicationError("Illegal timing error(roomDataId is null).");
+    const cc = SocketFacade.instance.roomDataCC();
+
+    try {
+      await cc.touchModify(this.roomDataId);
+    } catch (err) {
+      // nothing.
+      window.console.error(err);
+      return;
+    }
+
+    // Object.assign()
+    if (data.sceneId !== undefined) this.roomData.sceneId = data.sceneId;
+    if (data.isDrawGridId !== undefined)
+      this.roomData.isDrawGridId = data.isDrawGridId;
+    if (data.isDrawGridLine !== undefined)
+      this.roomData.isDrawGridLine = data.isDrawGridLine;
+    if (data.isFitGrid !== undefined) this.roomData.isFitGrid = data.isFitGrid;
+    if (data.isUseRotateMarker !== undefined)
+      this.roomData.isUseRotateMarker = data.isUseRotateMarker;
+    await cc.update(this.roomDataId, this.roomData);
+  }
+
   private __clientRoomInfo: ClientRoomInfo | null = null;
+  private roomDataId: string | null = null;
   public readonly roomData: RoomData = {
     sceneId: "",
     isDrawGridLine: false,

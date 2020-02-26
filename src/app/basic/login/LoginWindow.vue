@@ -1145,20 +1145,7 @@ export default class LoginWindow extends Mixins<
       isFitGrid: true,
       isUseRotateMarker: true
     };
-    Object.assign(GameObjectManager.instance.roomData, roomData);
-    const roomDataId = (await roomDataCC.addDirect([roomData]))[0];
-    await roomDataCC.setSnapshot(
-      this.key,
-      roomDataId,
-      (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
-        if (snapshot.exists() && snapshot.data.status === "modified") {
-          Object.assign(
-            GameObjectManager.instance.roomData,
-            snapshot.data.data
-          );
-        }
-      }
-    );
+    await roomDataCC.addDirect([roomData]);
   }
 }
 </script>

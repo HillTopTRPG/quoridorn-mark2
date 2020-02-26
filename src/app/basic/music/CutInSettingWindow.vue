@@ -1,7 +1,7 @@
 <template>
   <div ref="window-container">
-    <div class="button-area space-between margin-none">
-      <ctrl-button @click="play()" :disabled="!selectedCutInId">
+    <div class="button-area space-between margin-bottom">
+      <ctrl-button @click="send()" :disabled="!selectedCutInId">
         <span v-t="'button.send'"></span>
       </ctrl-button>
       <ctrl-button @click="preview" :disabled="!selectedCutInId">
@@ -18,7 +18,7 @@
       keyProp="id"
       :rowClassGetter="getRowClasses"
       v-model="selectedCutInId"
-      @doubleClick="play"
+      @doubleClick="send"
       @adjustWidth="adjustWidth"
     >
       <template #contents="{ colDec, data, index }">
@@ -143,12 +143,12 @@ export default class CutInSettingWindow extends Mixins<
   private async globalEnterFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    await this.play();
+    await this.send();
     task.resolve();
   }
 
   @VueEvent
-  private async play(cutInId?: string) {
+  private async send(cutInId?: string) {
     const useId = cutInId || this.selectedCutInId;
     if (!useId) return;
 
@@ -296,8 +296,4 @@ export default class CutInSettingWindow extends Mixins<
 
 <style scoped lang="scss">
 @import "../../../assets/common";
-
-.table-component {
-  margin-top: 0.5rem;
-}
 </style>

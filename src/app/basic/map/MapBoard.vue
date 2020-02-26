@@ -11,6 +11,12 @@
       @keyup.229.stop
     >
     </canvas>
+
+    <scene-layer-component
+      v-for="layer in useLayerList"
+      :key="layer.id"
+      :layer="layer"
+    />
   </div>
 </template>
 
@@ -22,16 +28,50 @@ import { Scene, RoomData } from "@/@types/room";
 import { Matrix, Size } from "address";
 import { createSize } from "@/app/core/Coordinate";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-
-@Component
+import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
+@Component({
+  components: { SceneLayerComponent }
+})
 export default class MapBoard extends Vue {
   private isMapDraggingRight: boolean = false;
 
+  @Prop({ type: String, required: true })
+  private sceneId!: string;
+
   @Prop({ type: Object, default: null })
-  private scene!: Scene;
+  private scene!: Scene | null;
 
   private roomData: RoomData = GameObjectManager.instance.roomData;
   private key = "map-board";
+  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
+  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
+
+  private isMounted: boolean = false;
+
+  private get useLayerList() {
+    return this.sceneAndLayerList
+      .filter(
+        mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
+      )
+      .map(mal => mal.data!.layerId)
+      .map(layerId => this.sceneLayerList.filter(ml => ml.id === layerId)[0])
+      .filter(ml => ml);
+  }
+
+  @LifeCycle
+  private mounted() {
+    this.isMounted = true;
+    setTimeout(() => {
+      this.paint();
+    });
+  }
+
+  @Watch("isMounted")
+  @Watch("scene", { deep: true })
+  private onChangeScene() {
+    if (!this.isMounted) return;
+    this.paint();
+  }
 
   private get mapCanvasSize(): Size {
     if (!this.scene) {
@@ -42,11 +82,6 @@ export default class MapBoard extends Vue {
       gridSize * this.scene.columns,
       gridSize * this.scene.rows
     );
-  }
-
-  @LifeCycle
-  private updated(): void {
-    this.paint();
   }
 
   private paint(): void {
@@ -135,14 +170,10 @@ export default class MapBoard extends Vue {
     */
   }
 
-  @Watch("roomData.isDrawGridLine")
-  private onChangeIsDrawGridLine() {
-    window.console.log("isDrawGridLine from paint");
-    this.paint();
-  }
-
-  @Watch("mapSetting.background", { deep: true })
+  @Watch("isMounted")
+  @Watch("scene.background", { deep: true })
   private onChangeBackground() {
+    if (!this.scene) return;
     let direction = "";
     let backColor = "transparent";
     if (this.scene.background.texture.type === "image") {
@@ -162,6 +193,7 @@ export default class MapBoard extends Vue {
   //   this.paint();
   // }
 
+  @Watch("isMounted")
   @Watch("mapCanvasSize", { deep: true })
   private onChangeMapCanvasSize() {
     this.elm.style.width = `${this.mapCanvasSize.width}px`;

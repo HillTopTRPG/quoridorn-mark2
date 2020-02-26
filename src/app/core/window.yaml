@@ -636,29 +636,29 @@
   message: ""
   position: center
   size:
-    # 17px + 40em + 2.5rem
-    widthPx: 532
-    widthEm: 0
-    widthRem: 0
+    widthPx: 4
+    widthEm: 40
+    widthRem: 2.5
+    widthScrollBar: 1
     heightPx: 4
-    heightEm: 22
-    heightRem: 2
+    heightEm: 24
+    heightRem: 2.5
   minSize:
-    # 17px + 20em + 1.5rem
-    widthPx: 278
-    widthEm: 0
-    widthRem: 0
+    widthPx: 4
+    widthEm: 30
+    widthRem: 2
+    widthScrollBar: 1
     heightPx: 4
-    heightEm: 22
+    heightEm: 14
     heightRem: 2
   maxSize:
-    # 17px + 60em + 3.5rem
-    widthPx: 786
-    widthEm: 0
-    widthRem: 0
+    widthPx: 4
+    widthEm: 60
+    widthRem: 3.5
+    widthScrollBar: 1
     heightPx: 4
-    heightEm: 22
-    heightRem: 2
+    heightEm: 44
+    heightRem: 3.5
   minimizable: true
   paneContainable: true
   closable: true

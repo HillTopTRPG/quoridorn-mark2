@@ -134,8 +134,6 @@ export default class ImageSelector extends Vue {
   border: solid gray 1px;
   display: flex;
   align-items: flex-start;
-  justify-content: flex-start;
-  align-content: flex-start;
   flex-wrap: wrap;
 
   img {
