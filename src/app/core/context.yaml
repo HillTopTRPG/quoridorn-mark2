@@ -1,5 +1,5 @@
 map:
-  - text: context.edit-area-map
+  - text: context.view-scene-list
     taskName: window-open
     taskArg:
       type: scene-list-window

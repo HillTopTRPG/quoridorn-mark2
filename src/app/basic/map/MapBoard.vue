@@ -220,7 +220,7 @@ export default class MapBoard extends Vue {
   bottom: 0;
   margin: auto;
   background-size: 100% 100%;
-  z-index: 1;
+  z-index: -2;
   /* JavaScriptで設定されるプロパティ
   width
   height
@@ -236,7 +236,7 @@ export default class MapBoard extends Vue {
   box-sizing: border-box;
   background-size: 100% 100%;
   pointer-events: none;
-  z-index: 2;
+  z-index: -1;
 
   position: absolute;
   left: 0;

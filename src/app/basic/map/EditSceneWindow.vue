@@ -237,16 +237,17 @@
         <edit-scene-layer-chooser-component
           :sceneId="sceneId"
           v-model="selectedLayerId"
-          @hover="onHoverLayerView"
+          @hoverView="onHoverLayerView"
+          @hoverOrder="onHoverOrderLayer"
+          @hoverOrderMode="onHoverLayerOrderMode"
         />
         <edit-scene-object-chooser-component
           :sceneId="sceneId"
           :selectedLayerId="selectedLayerId"
           v-model="selectedSceneObjectId"
           @hoverAddress="onHoverAddress"
-          @hoverOrder="onHoverOrder"
-          @hoverOrderMode="onHoverOrderMode"
-          @onChangeDragMode="onChangeDragMode"
+          @hoverOrder="onHoverOrderObject"
+          @hoverOrderMode="onHoverObjectOrderMode"
         />
       </div>
     </simple-tab-component>
@@ -286,6 +287,7 @@ import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrC
 import VueEvent from "@/app/core/decorator/VueEvent";
 import EditSceneLayerChooserComponent from "@/app/basic/map/EditSceneLayerChooserComponent.vue";
 import EditSceneObjectChooserComponent from "@/app/basic/map/EditSceneObjectChooserComponent.vue";
+import { SceneObject } from "@/@types/gameObject";
 
 @Component({
   components: {
@@ -313,21 +315,61 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
   private sceneId: string | null = null;
+  private oldSceneId: string | null = null;
   private defaultTag: string = LanguageManager.instance.getText("type.map");
 
   private sceneList = GameObjectManager.instance.sceneList;
   private layerList = GameObjectManager.instance.sceneLayerList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
+  private sceneObjectList = GameObjectManager.instance.sceneObjectList;
 
   private cc = SocketFacade.instance.sceneListCC();
 
   private sceneInfo: StoreUseData<Scene> | null = null;
   private sceneData: Scene | null = null;
   private sceneAndLayerInfoList: StoreUseData<SceneAndLayer>[] | null = null;
+  private sceneObjectInfoList: StoreUseData<SceneObject>[] | null = null;
   private layerInfoList: StoreUseData<SceneLayer>[] | null = null;
 
   private selectedLayerId: string = "";
   private selectedSceneObjectId: string = "";
+
+  @Watch("sceneObjectList", { deep: true })
+  @Watch("selectedLayerId")
+  private async onChangeSceneObjectInfoList() {
+    setTimeout(async () => {
+      type SceneObjectList = StoreUseData<SceneObject>[];
+      const oldList: SceneObjectList = [];
+
+      if (this.sceneObjectInfoList) {
+        oldList.push(...this.sceneObjectInfoList.concat());
+      }
+      this.sceneObjectInfoList = this.sceneObjectList.filter(
+        mo => mo.data!.layerId === this.selectedLayerId
+      );
+
+      const clearFocusList: SceneObjectList = oldList.filter(
+        o => this.sceneObjectInfoList!.findIndex(so => so.id === o.id) < 0
+      );
+      const setFocusList: SceneObjectList = this.sceneObjectInfoList!.filter(
+        so => oldList.findIndex(o => o.id === so.id) < 0
+      );
+
+      const focusFunc = async (id: string, isFocus: boolean): Promise<void> => {
+        await EditSceneWindow.changeFocus(id, isFocus);
+      };
+
+      // 直列の非同期で全部実行する
+      await clearFocusList
+        .map(obj => () => focusFunc(obj.id!, false))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+      // 直列の非同期で全部実行する
+      await setFocusList
+        .map(obj => () => focusFunc(obj.id!, true))
+        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    });
+  }
 
   @Watch("selectedLayerId")
   private async onChangeSelectedLayerId() {
@@ -336,18 +378,64 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 
   @Watch("selectedSceneObjectId")
   private async onChangeSelectedSceneObjectId(newVal: string, oldVal: string) {
-    await EditSceneWindow.changeFocus(oldVal, false);
-    await EditSceneWindow.changeFocus(newVal, true);
+    const focusFunc = async (id: string, isFocus: boolean): Promise<void> => {
+      await EditSceneWindow.changeFocus(id, isFocus);
+    };
+
+    await focusFunc(oldVal, false);
+
+    if (!this.sceneObjectInfoList) {
+      await focusFunc(newVal, true);
+      return;
+    }
+
+    type SceneObjectList = StoreUseData<SceneObject>[];
+
+    const clearFocusList: SceneObjectList = this.sceneObjectInfoList.filter(
+      so => so.id !== newVal
+    );
+
+    // 直列の非同期で全部実行する
+    await clearFocusList
+      .map(obj => () => focusFunc(obj.id!, false))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    if (this.sceneObjectInfoList.findIndex(so => so.id === newVal) < 0) {
+      await focusFunc(newVal, true);
+    }
+
+    this.sceneObjectInfoList = null;
   }
 
   @Watch("windowInfo.status")
   private async onChangeWindowInfoStatus() {
-    await EditSceneWindow.changeFocus(this.selectedSceneObjectId, false);
+    await this.focusAll(false);
     if (this.windowInfo.status === "window") {
       setTimeout(async () => {
-        await EditSceneWindow.changeFocus(this.selectedSceneObjectId, true);
+        await this.focusAll(true);
       });
     }
+  }
+
+  @Watch("currentTabInfo.target")
+  private async onChangeTabTarget() {
+    if (this.currentTabInfo && this.currentTabInfo.target !== "layer") {
+      await this.focusAll(false);
+    } else {
+      this.selectedLayerId = "";
+    }
+  }
+
+  private async focusAll(isFocus: boolean) {
+    const targetList: string[] = this.sceneObjectInfoList
+      ? this.sceneObjectInfoList.map(so => so.id!)
+      : [];
+    if (this.selectedSceneObjectId) targetList.push(this.selectedSceneObjectId);
+
+    // 直列の非同期で全部実行する
+    await targetList
+      .map(id => () => EditSceneWindow.changeFocus(id, isFocus))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
   private static async changeFocus(id: string, isFocus: boolean) {
@@ -432,6 +520,14 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     this.sceneId = this.windowInfo.args!;
     this.sceneInfo = this.sceneList.filter(map => map.id === this.sceneId)[0];
     this.sceneData = this.sceneInfo.data!;
+
+    this.oldSceneId = GameObjectManager.instance.roomData.sceneId;
+    GameObjectManager.instance.roomData.sceneId = this.sceneId;
+
+    setTimeout(() => {
+      GameObjectManager.instance.isSceneEditing = true;
+    });
+
     this.sceneAndLayerInfoList = this.sceneAndLayerList
       .filter(map => map.data!.sceneId === this.sceneId)
       .sort((m1, m2) => {
@@ -496,9 +592,12 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
-    if (this.selectedSceneObjectId) {
-      await EditSceneWindow.changeFocus(this.selectedSceneObjectId, false);
-    }
+    await this.focusAll(false);
+    GameObjectManager.instance.isSceneEditing = false;
+
+    GameObjectManager.instance.roomData.sceneId =
+      GameObjectManager.instance.sceneEditingUpdateSceneId || this.oldSceneId!;
+    GameObjectManager.instance.sceneEditingUpdateSceneId = null;
     if (!this.isProcessed) {
       try {
         await this.cc!.releaseTouch(this.sceneId!);
@@ -508,53 +607,44 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     }
   }
 
-  @VueEvent
-  private onHoverLayerView(isHover: boolean) {
+  private setHoverWindowMessage(isHover: boolean, messageType: string) {
     this.windowInfo.message = isHover
       ? LanguageManager.instance.getText(
-          `${this.windowInfo.type}.message-select.layer-view`
+          `${this.windowInfo.type}.message-select.${messageType}`
         )
       : "";
+  }
+
+  @VueEvent
+  private onHoverLayerView(isHover: boolean) {
+    this.setHoverWindowMessage(isHover, "layer-view");
   }
 
   @VueEvent
   private onHoverAddress(isHover: boolean) {
-    this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `${this.windowInfo.type}.message-select.original-address`
-        )
-      : "";
+    this.setHoverWindowMessage(isHover, "original-address");
   }
 
   @VueEvent
-  private onHoverOrder(isHover: boolean) {
-    this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `${this.windowInfo.type}.message-select.object-order`
-        )
-      : "";
+  private onHoverOrderLayer(isHover: boolean) {
+    this.setHoverWindowMessage(isHover, "layer-order");
   }
 
   @VueEvent
-  private onHoverOrderMode(isHover: boolean, dragMode: boolean) {
-    this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `${this.windowInfo.type}.message-select.${
-            dragMode ? "object-order-mode-off" : "object-order-mode-on"
-          }`
-        )
-      : "";
+  private onHoverOrderObject(isHover: boolean) {
+    this.setHoverWindowMessage(isHover, "object-order");
   }
 
   @VueEvent
-  private onChangeDragMode(dragMode: boolean) {
-    this.windowInfo.message = this.windowInfo.message
-      ? LanguageManager.instance.getText(
-          `${this.windowInfo.type}.message-select.${
-            dragMode ? "object-order-mode-off" : "object-order-mode-on"
-          }`
-        )
-      : "";
+  private onHoverLayerOrderMode(isHover: boolean, dragMode: boolean) {
+    const messageType = `layer-order-mode-${dragMode ? "off" : "on"}`;
+    this.setHoverWindowMessage(isHover, messageType);
+  }
+
+  @VueEvent
+  private onHoverObjectOrderMode(isHover: boolean, dragMode: boolean) {
+    const messageType = `object-order-mode-${dragMode ? "off" : "on"}`;
+    this.setHoverWindowMessage(isHover, messageType);
   }
 }
 </script>

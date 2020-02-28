@@ -11,13 +11,18 @@
     <div class="area-map-container">
       <div
         class="area-map"
-        :class="{ selected: selectedSceneId === scene.id }"
+        :class="{
+          selected: selectedSceneId === scene.id,
+          'lock-info': scene.exclusionOwner
+        }"
         v-for="(scene, idx) in useSceneList"
         :key="idx"
         @click="selectAreaMap(scene)"
-        @dblclick="editMap()"
+        @dblclick="send()"
         ref="scene"
-      ></div>
+      >
+        <div class="title">{{ scene.data.name }}</div>
+      </div>
       <div class="area-map add" @click="createMap()">
         <span>＋</span>
       </div>
@@ -61,6 +66,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: {
@@ -91,6 +97,60 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
     return this.sceneList.filter(s => permissionCheck(s, "view"));
   }
 
+  @Watch("isMounted")
+  @Watch("useSceneList")
+  private onChangeSceneList() {
+    const elmList: HTMLElement[] = this.$refs.scene as HTMLElement[];
+    if (this.useSceneList.findIndex(s => !s.data) > -1) return;
+    // window.console.log(this.mapList[0].data.texture);
+    setTimeout(() => {
+      this.useSceneList.forEach(async (s, index) => {
+        // window.console.log(map.texture);
+        const elm = elmList[index];
+        let direction: string = "";
+        let backgroundColor: string = "transparent";
+        let backgroundImage: string = "none";
+
+        const texture = s.data!.texture;
+        if (texture.type === "color") {
+          backgroundColor = texture.backgroundColor;
+        } else {
+          const imageData = await SocketFacade.instance
+            .imageDataCC()
+            .getData(texture.imageId);
+          if (imageData && imageData.data) {
+            backgroundImage = `url("${GameTable.changeImagePath(
+              imageData.data.data
+            )}")`;
+          }
+          if (texture.direction === "horizontal") direction = "scale(-1, 1)";
+          if (texture.direction === "vertical") direction = "scale(1, -1)";
+          if (texture.direction === "180") direction = "rotate(180deg)";
+        }
+        elm.style.setProperty("--background-color", backgroundColor);
+        elm.style.setProperty("--background-image", backgroundImage);
+        elm.style.setProperty("--image-direction", direction);
+
+        let userName = "";
+        if (s.exclusionOwner) {
+          userName = GameObjectManager.instance.getExclusionOwnerName(
+            s.exclusionOwner
+          );
+          elm.style.setProperty(
+            "--msg-locked",
+            `'${LanguageManager.instance.getText(
+              "label.editing"
+            )}(${userName})'`
+          );
+        }
+      });
+    });
+  }
+
+  private selectAreaMap(scene: StoreUseData<Scene>) {
+    this.selectedSceneId = scene.id;
+  }
+
   @VueEvent
   private async send() {
     if (!this.selectedSceneId) return;
@@ -101,67 +161,27 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private preview() {
-    window.console.log("preview");
-  }
-
-  @Watch("isMounted")
-  @Watch("useSceneList")
-  private onChangeSceneList() {
-    const elmList: HTMLElement[] = this.$refs.scene as HTMLElement[];
-    if (this.useSceneList.findIndex(s => !s.data) > -1) return;
-    // window.console.log(this.mapList[0].data.texture);
-    setTimeout(() => {
-      this.useSceneList
-        .map(s => s.data!)
-        .forEach(async (s, index) => {
-          // window.console.log(map.texture);
-          const elm = elmList[index];
-          let direction: string = "";
-          let backgroundColor: string = "transparent";
-          let backgroundImage: string = "none";
-          if (s.texture.type === "color") {
-            backgroundColor = s.texture.backgroundColor;
-          } else {
-            const imageData = await SocketFacade.instance
-              .imageDataCC()
-              .getData(s.texture.imageId);
-            if (imageData && imageData.data) {
-              backgroundImage = `url("${GameTable.changeImagePath(
-                imageData.data.data
-              )}")`;
-            }
-            if (s.texture.direction === "horizontal")
-              direction = "scale(-1, 1)";
-            if (s.texture.direction === "vertical") direction = "scale(1, -1)";
-            if (s.texture.direction === "180") direction = "rotate(180deg)";
-          }
-          elm.style.setProperty("--background-color", backgroundColor);
-          elm.style.setProperty("--background-image", backgroundImage);
-          elm.style.setProperty("--image-direction", direction);
-          elm.style.setProperty("--name", `"${s.name}"`);
-        });
-    });
-  }
-
-  private selectAreaMap(scene: StoreUseData<Scene>) {
-    this.selectedSceneId = scene.id;
+    if (!this.selectedSceneId) return;
+    GameObjectManager.instance.roomData.sceneId = this.selectedSceneId;
   }
 
   @VueEvent
   private async editMap() {
+    if (!this.selectedSceneId) return;
     await this.close();
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "edit-scene-window",
-        args: this.selectedSceneId!
+        args: this.selectedSceneId
       }
     });
   }
 
   @VueEvent
   private async chmodMap() {
+    if (!this.selectedSceneId) return;
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -169,17 +189,20 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         type: "chmod-window",
         args: {
           type: "scene",
-          docId: this.selectedSceneId!
+          docId: this.selectedSceneId
         }
       }
     });
   }
 
   private async deleteMap() {
-    const result = window.confirm("本当に削除しますか？");
+    if (!this.selectedSceneId) return;
+    const result = window.confirm(
+      LanguageManager.instance.getText("label.really-delete")
+    );
     if (!result) return;
-    await this.cc.touchModify(this.selectedSceneId!);
-    await this.cc.delete(this.selectedSceneId!);
+    await this.cc.touchModify(this.selectedSceneId);
+    await this.cc.delete(this.selectedSceneId);
   }
 
   private async createMap() {
@@ -259,6 +282,26 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   height: 100%;
 }
 
+.lock-info {
+  @include lock-view();
+}
+
+.lock-info:after {
+  content: var(--msg-locked, "ロック中");
+}
+
+.title {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  background-color: white;
+  border: 1px solid gray;
+  border-top-width: 0;
+  border-left-width: 0;
+  padding: 0 0.2rem;
+}
+
 .area-map-container {
   @include flex-box(row, flex-start, flex-start, wrap);
   padding-top: 0.5rem;
@@ -282,16 +325,6 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
     overflow-x: hidden;
-
-    &:before {
-      content: var(--name);
-      background-color: rgba(255, 255, 255, 0.7);
-      @include flex-box(row, flex-start, center);
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 0 0.3rem;
-    }
 
     &.selected {
       border-color: red;

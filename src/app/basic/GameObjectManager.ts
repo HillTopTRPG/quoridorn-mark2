@@ -131,6 +131,9 @@ export default class GameObjectManager {
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
+  public isSceneEditing: boolean = false;
+  // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
+  public sceneEditingUpdateSceneId: string | null = null;
   private roomDataId: string | null = null;
   public readonly roomData: RoomData = {
     sceneId: "",

@@ -6,7 +6,7 @@
       orderChanging: isOrderChanging,
       dragMode: dragMode
     }"
-    @click="onClick()"
+    @click="$emit('onClick')"
     @mouseenter="!dragMode || $emit('onMouseHoverOrder', true)"
     @mouseleave="!dragMode || $emit('onMouseHoverOrder', false)"
     @mousedown="!dragMode || $emit('onMouseDown')"
@@ -24,7 +24,11 @@
         v-t="'label.original-address'"
         class="original-address-label"
         @mouseenter="$emit('onMouseHoverAddress', true)"
-        @mouseleave="$emit('onMouseHoverAddress', false)"
+        @mouseleave="
+          dragMode
+            ? $emit('onMouseHoverOrder', true)
+            : $emit('onMouseHoverAddress', false)
+        "
         :class="{
           checked: sceneAndObject.data.isOriginalAddress
         }"
@@ -73,10 +77,6 @@ export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   private dragMode!: boolean;
-
-  private onClick() {
-    this.$emit("onClick");
-  }
 }
 </script>
 
@@ -131,6 +131,7 @@ $border-color: green;
   &.selected {
     background-color: lightyellow;
   }
+
   &.dragMode {
     cursor: grab;
 
@@ -138,6 +139,7 @@ $border-color: green;
       visibility: visible;
     }
   }
+
   &.orderChanging {
     background-color: lightpink;
     cursor: grabbing;

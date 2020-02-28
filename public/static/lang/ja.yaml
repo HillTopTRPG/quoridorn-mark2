@@ -45,7 +45,7 @@ context:
   hide-border: 枠線を非表示
   view-highlight: ハイライトを表示
   hide-highlight: ハイライトを非表示
-  edit-area-map: エリアマップ編集
+  view-scene-list: シーン一覧表示
   chmod: 権限変更
 
 label:
@@ -173,6 +173,7 @@ label:
   url-placeholder: 指定なしで「停止」の指定
   editing: 編集中
   unknown: [不明]
+  really-delete: 本当に削除しますか？
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -271,16 +272,19 @@ input-image-password-window:
   message: パスワードを入力することで、隠し画像を表示することができます。
 
 scene-list-window:
-  window-title: エリアマップ編集
+  window-title: シーン一覧
 
 edit-scene-window:
   window-title: シーン編集
   message-select:
     layer-view: レイヤーの表示・非表示を切り替えます。
-    object-order: ドラッグでオブジェクトの順番を入れ替えます。
+    layer-order-mode-on: レイヤーの順番を入れ替えるモードにします。
+    layer-order-mode-off: 通常のモードに戻します。
+    layer-order: ドラッグでレイヤーの順番を入れ替えます。
+    original-address: 他のシーンと異なる座標を持つかの設定です。
     object-order-mode-on: オブジェクトの順番を入れ替えるモードにします。
     object-order-mode-off: 通常のモードに戻します。
-    original-address: 他のシーンと異なる座標を持つかの設定です。
+    object-order: ドラッグでオブジェクトの順番を入れ替えます。
 
 chmod-window:
   window-title: 権限変更

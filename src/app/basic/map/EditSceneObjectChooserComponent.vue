@@ -108,7 +108,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
       .filter(mo => mo.data!.layerId === this.selectedLayerId);
   }
 
-  @Watch("sceneAndObjectList")
+  @Watch("sceneAndObjectList", { deep: true })
   private async onChangeSceneAndObjectInfoList() {
     if (this.dragMode) {
       const touchModifyFunc = async (id: string): Promise<void> => {
@@ -176,13 +176,18 @@ export default class EditSceneObjectChooserComponent extends Mixins<
 
   @Watch("dragMode")
   private async onChangeDragMode() {
-    this.$emit("onChangeDragMode", this.dragMode);
-
     const releaseTouchModifyFunc = async (id: string): Promise<void> => {
       await this.sceneAndObjectCC.releaseTouch(id);
     };
 
-    const idList: string[] = this.sceneAndObjectList.map(sao => sao.id!);
+    const idList: string[] = this.sceneAndObjectList
+      .filter(
+        sao =>
+          this.sceneObjectInfoList.findIndex(
+            so => so.id === sao.data!.objectId
+          ) > -1
+      )
+      .map(sao => sao.id!);
     if (this.dragMode) {
       let error: boolean = false;
       const touchedList: string[] = [];
@@ -200,6 +205,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
             .map((id: string) => () => releaseTouchModifyFunc(id))
             .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
+          window.console.error(err);
           alert("Failure to get sceneAndObjectList's lock.\nPlease try again.");
         }
       };

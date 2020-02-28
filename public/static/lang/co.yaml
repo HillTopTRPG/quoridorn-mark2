@@ -45,7 +45,7 @@ context:
   hide-border: 테두리 숨기기
   view-highlight: 하이라이트 표시
   hide-highlight: 하이라이트 숨기기
-  edit-area-map: エリアマップ編集
+  view-scene-list: シーン一覧表示
   chmod: 権限変更
 
 label:
@@ -55,8 +55,6 @@ label:
   not-exist: 없음
   possible: 수
   creating: 작성 중
-  terms-of-use-web-server: Web 서버 약관
-  terms-of-use-app-server: Application 서버 약관
   user-name: 사용자 이름
   password: 비밀번호
   password-placeholder: (비어있는 경우 비밀번호 없음)
@@ -111,6 +109,7 @@ label:
   background: 背景
   main: メイン
   margin: 余白
+  color: 色
   texture: テクスチャ
   rows: 行
   columns: 列
@@ -172,7 +171,9 @@ label:
   play-end: 再生終了
   second: 秒
   url-placeholder: 指定なしで「停止」の指定
-  locking: ロック中
+  editing: 編集中
+  unknown: [不明]
+  really-delete: 本当に削除しますか？
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -271,7 +272,7 @@ input-image-password-window:
   message: 암호를 입력하면 숨겨진 이미지를 표시 할 수 있습니다
 
 scene-list-window:
-  window-title: エリアマップ編集
+  window-title: シーン一覧
 
 edit-scene-window:
   window-title: シーン編集
@@ -280,6 +281,8 @@ edit-scene-window:
     object-order: ドラッグでオブジェクトの順番を入れ替えます。
     object-order-mode-on: オブジェクトの順番を入れ替えるモードにします。
     object-order-mode-off: 通常のモードに戻します。
+    layer-order-mode-on: レイヤーの順番を入れ替えるモードにします。
+    layer-order-mode-off: 通常のモードに戻します。
     original-address: 他のシーンと異なる座標を持つかの設定です。
 
 chmod-window:

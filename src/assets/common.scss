@@ -91,7 +91,7 @@
   }
 
   &.focus:after {
-    outline: dashed 5px red;
+    outline: dotted 5px red;
     outline-offset: 3px;
     animation: blink-focus 1s ease-in-out infinite alternate;
   }
@@ -127,6 +127,50 @@
     /* JavaScriptで設定されるプロパティ
     box-shadow
     */
+  }
+}
+
+@mixin lock-view() {
+  position: relative;
+
+  &:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    background-image: linear-gradient(
+      -45deg,
+      transparent 25%,
+      var(--uni-color-light-pink) 25%,
+      var(--uni-color-light-pink) 50%,
+      transparent 50%,
+      transparent 75%,
+      var(--uni-color-light-pink) 75%,
+      var(--uni-color-light-pink)
+    );
+    opacity: 0.4;
+    background-size: 1em 1em;
+    background-attachment: local;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 9999999998;
+  }
+
+  &:after {
+    @include inline-flex-box(row, center, center);
+    outline: 1px solid var(--uni-color-black);
+    outline-offset: -1px;
+    position: absolute;
+    left: 0.2em;
+    padding: 0.2em 0.6em;
+    top: 0;
+    bottom: 0;
+    height: 1em;
+    margin: auto;
+    background-color: var(--uni-color-white);
+    color: var(--uni-color-black);
+    z-index: 9999999999;
   }
 }
 

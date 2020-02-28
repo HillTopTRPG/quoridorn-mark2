@@ -845,58 +845,14 @@ tfoot {
 
 .isCreating,
 .isEditing {
-  position: relative;
-
-  &:before {
-    content: "";
-    display: inline-block;
-    position: absolute;
-    background-image: linear-gradient(
-      -45deg,
-      var(--uni-color-cream) 25%,
-      var(--uni-color-light-pink) 25%,
-      var(--uni-color-light-pink) 50%,
-      var(--uni-color-cream) 50%,
-      var(--uni-color-cream) 75%,
-      var(--uni-color-light-pink) 75%,
-      var(--uni-color-light-pink)
-    );
-    opacity: 0.3;
-    background-size: 1em 1em;
-    background-attachment: local;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 9999999998;
-  }
-
-  &:after {
-    @include inline-flex-box(row, center, center);
-    outline: 1px solid var(--uni-color-black);
-    outline-offset: -1px;
-    position: absolute;
-    left: 0.2em;
-    padding: 0.2em 0.6em;
-    top: 0;
-    bottom: 0;
-    height: 1em;
-    margin: auto;
-    background-color: var(--uni-color-white);
-    color: var(--uni-color-black);
-    z-index: 9999999999;
-  }
+  @include lock-view();
 }
 
-.isCreating {
-  &:after {
-    content: var(--msg-creating, "作成中");
-  }
+.isCreating:after {
+  content: var(--msg-creating, "作成中");
 }
 
-.isEditing {
-  &:after {
-    content: var(--msg-locked, "ロック中");
-  }
+.isEditing:after {
+  content: var(--msg-locked, "ロック中");
 }
 </style>

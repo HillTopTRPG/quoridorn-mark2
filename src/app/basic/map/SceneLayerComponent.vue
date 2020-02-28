@@ -19,14 +19,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import MapMask from "@/app/basic/map-object/map-mask/MapMask.vue";
 import Chit from "@/app/basic/map-object/chit/Chit.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { SceneLayer } from "@/@types/room";
+import { SceneAndLayer, SceneLayer } from "@/@types/room";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import SocketFacade, {
+  getStoreObj
+} from "@/app/core/api/app-server/SocketFacade";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
@@ -34,14 +40,20 @@ import { SceneLayer } from "@/@types/room";
     Chit
   }
 })
-export default class SceneLayerComponent extends Vue {
+export default class SceneLayerComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private layer!: StoreUseData<SceneLayer>;
 
+  private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
+
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
+  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   private isMounted: boolean = false;
+  private sceneAndLayerInfo: StoreUseData<SceneAndLayer> | null = null;
 
   private get className(): string {
     return this.layer.data!.isSystem
@@ -51,13 +63,30 @@ export default class SceneLayerComponent extends Vue {
 
   @LifeCycle
   private async mounted() {
+    const sceneAndLayerInfo = (await this.sceneAndLayerCC!.find(
+      "data.layerId",
+      "==",
+      this.layer.id!
+    ))![0];
+    this.sceneAndLayerInfo = sceneAndLayerInfo;
+    await this.sceneAndLayerCC!.setSnapshot(
+      this.key,
+      sceneAndLayerInfo.id!,
+      (snapshot: DocumentSnapshot<StoreObj<SceneAndLayer>>) => {
+        if (!snapshot.data) return;
+        const status = snapshot.data.status;
+        if (status === "modified" || status === "modify-touched") {
+          this.sceneAndLayerInfo = getStoreObj<SceneAndLayer>(snapshot);
+        }
+      }
+    );
     this.isMounted = true;
   }
 
   @Watch("isMounted")
-  @Watch("layer", { deep: true })
-  private onChangeLayer() {
-    this.elm.style.setProperty("--z-index", (this.layer.order + 1).toString());
+  @Watch("sceneAndLayerInfo.order")
+  private onChangeOrder() {
+    this.elm.style.zIndex = this.sceneAndLayerInfo!.order.toString(10);
   }
 
   @VueEvent

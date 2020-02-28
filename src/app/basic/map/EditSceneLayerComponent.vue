@@ -3,10 +3,17 @@
     class="layer-info"
     :class="{
       selected: localValue === layerInfo.id,
-      unuse: !sceneAndLayerInfoList[index].data.isUse
+      unuse: !sceneAndLayerInfo(layerInfo.id).data.isUse,
+      orderChanging: isOrderChanging,
+      dragMode
     }"
+    @mouseenter="!dragMode || $emit('onMouseHoverOrder', true)"
+    @mouseleave="!dragMode || $emit('onMouseHoverOrder', false)"
+    @mousedown="!dragMode || $emit('onMouseDown')"
+    @mouseup="!dragMode || $emit('onMouseUp')"
     @click="localValue = layerInfo.id"
   >
+    <span class="icon-menu drag-mark"></span>
     <span
       v-t="'type.' + layerInfo.data.type"
       v-if="layerInfo.data.isSystem"
@@ -14,23 +21,28 @@
     <span v-else>{{ layerInfo.data.name }}</span>
     <label
       class="view-check"
+      @mouseenter="$emit('onMouseHoverView', true)"
+      @mouseleave="
+        dragMode
+          ? $emit('onMouseHoverOrder', true)
+          : $emit('onMouseHoverView', false)
+      "
       :class="[
-        sceneAndLayerInfoList[index].data.isUse
+        sceneAndLayerInfo(layerInfo.id).data.isUse
           ? 'icon-eye'
           : 'icon-eye-blocked'
       ]"
-      @mouseenter="onMouseHover(true)"
-      @mouseleave="onMouseHover(false)"
     >
       <input
         type="checkbox"
         class="input"
-        :checked="sceneAndLayerInfoList[index].data.isUse"
+        :checked="sceneAndLayerInfo(layerInfo.id).data.isUse"
         @change="
-          changeLayerUse(
-            sceneAndLayerInfoList[index].id,
-            $event.target.checked
-          ).then()
+          $emit(
+            'onChangeLayerUse',
+            sceneAndLayerInfo(layerInfo.id).id,
+            !sceneAndLayerInfo(layerInfo.id).data.isUse
+          )
         "
       />
     </label>
@@ -47,15 +59,18 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: {} })
-export default class EditSceneLayerChooserComponent extends Vue {
+export default class EditSceneLayerComponent extends Vue {
   @Prop({ type: Object, required: true })
   private layerInfo!: SceneLayer;
 
-  @Prop({ type: String, required: true })
-  private sceneId!: string;
+  @Prop({ type: Boolean, required: true })
+  private dragMode!: boolean;
 
   @Prop({ type: String, default: "" })
   private value!: string; // selectedLayerId
+
+  @Prop({ type: Boolean, required: true })
+  private isOrderChanging!: boolean;
 
   public input(value: string) {
     this.$emit("input", value);
@@ -69,46 +84,19 @@ export default class EditSceneLayerChooserComponent extends Vue {
     this.input(value);
   }
 
-  private sceneAndLayerInfoList: StoreUseData<SceneAndLayer>[] | null = null;
-  private layerInfoList: StoreUseData<SceneLayer>[] | null = null;
-  private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
+  private get sceneAndLayerInfo(): (id: string) => StoreUseData<SceneAndLayer> {
+    return (id: string) =>
+      this.sceneAndLayerList.filter(sal => sal.data!.layerId === id)[0];
+  }
 
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
-  private layerList = GameObjectManager.instance.sceneLayerList;
-
-  @VueEvent
-  private async changeLayerUse(mapAndKayerId: string, checked: boolean) {
-    await this.sceneAndLayerCC.touchModify(mapAndKayerId);
-    let data = this.sceneAndLayerInfoList!.filter(
-      ml => ml.id === mapAndKayerId
-    )[0].data!;
-    data.isUse = checked;
-    await this.sceneAndLayerCC.update(mapAndKayerId, data);
-  }
-
-  @LifeCycle
-  private async mounted() {
-    this.sceneAndLayerInfoList = this.sceneAndLayerList
-      .filter(map => map.data!.sceneId === this.sceneId)
-      .sort((m1, m2) => {
-        if (m1.order < m2.order) return -1;
-        if (m1.order > m2.order) return 1;
-        return 0;
-      });
-    this.layerInfoList = this.sceneAndLayerInfoList
-      .map(ml => this.layerList.filter(l => l.id === ml.data!.layerId)[0])
-      .filter(l => l);
-  }
-
-  @VueEvent
-  private onMouseHover(isMouseOn: boolean) {
-    this.$emit("hover", isMouseOn);
-  }
 }
 </script>
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
+$border-color: green;
 
 .view-check {
   @include flex-box(row, center, center);
@@ -124,21 +112,8 @@ export default class EditSceneLayerChooserComponent extends Vue {
   }
 }
 
-$border-color: green;
-
-.layer-container {
-  @include inline-flex-box(column, stretch, flex-start);
-  border: 1px solid $border-color;
-  margin-right: 1em;
-  overflow: visible;
-
-  > label {
-    background-color: $border-color;
-    color: white;
-    height: 2em;
-    line-height: 2em;
-    padding: 0 0.2rem;
-  }
+.drag-mark {
+  visibility: hidden;
 }
 
 .layer-info {
@@ -152,9 +127,7 @@ $border-color: green;
   cursor: pointer;
 
   &.selected {
-    &:not(.unuse) {
-      background-color: lightyellow;
-    }
+    background-color: lightyellow;
 
     &:after {
       content: "";
@@ -167,6 +140,19 @@ $border-color: green;
       border-left-color: $border-color;
       box-sizing: border-box;
     }
+  }
+
+  &.dragMode {
+    cursor: grab;
+
+    .drag-mark {
+      visibility: visible;
+    }
+  }
+
+  &.orderChanging {
+    background-color: lightpink;
+    cursor: grabbing;
   }
 
   &.unuse {

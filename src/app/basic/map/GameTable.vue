@@ -75,7 +75,12 @@ export default class GameTable extends AddressCalcMixin {
 
   @Watch("roomData", { immediate: true, deep: true })
   private onChangeRoomData() {
-    this.sceneId = this.roomData.sceneId || null;
+    const sceneId = this.roomData.sceneId || null;
+    if (GameObjectManager.instance.isSceneEditing) {
+      GameObjectManager.instance.sceneEditingUpdateSceneId = sceneId;
+    } else {
+      this.sceneId = sceneId;
+    }
   }
 
   private get useLayerList() {

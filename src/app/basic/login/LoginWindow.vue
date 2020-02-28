@@ -201,7 +201,7 @@ export default class LoginWindow extends Mixins<
   private message: Message | null = null;
   private serverTestResult: ServerTestResult | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
-    '\\[([^"<>]]+)]\\(([^)"<>]+)\\)',
+    '\\[([^"<>\\]]+)]\\(([^)"<>]+)\\)',
     "g"
   );
   private language: string = LanguageManager.instance.defaultLanguage;
