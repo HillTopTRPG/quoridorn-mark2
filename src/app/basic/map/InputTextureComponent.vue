@@ -11,39 +11,18 @@
     <div v-else>
       <table>
         <tr>
-          <th>
-            <label
-              :for="`${windowKey}-text`"
-              class="label-text label-input"
-              v-t="'label.text'"
-            ></label>
-          </th>
-          <td>
-            <base-input
-              :id="`${windowKey}-text`"
-              class="value-text"
-              type="text"
-              :value="text"
-              @input="text = $event.target.value"
-            />
-          </td>
+          <string-input-tr-component
+            labelName="text"
+            width="100%"
+            v-model="text"
+          />
         </tr>
-        <tr>
-          <th>
-            <label
-              :for="`${windowKey}-color`"
-              class="label-color label-input"
-              v-t="'label.background-color'"
-            ></label>
-          </th>
-          <td>
-            <color-picker-component
-              :id="`${windowKey}-color`"
-              class="value-color"
-              v-model="color"
-              :use-alpha="true"
-            />
-          </td>
+        <tr v-if="isMounted">
+          <color-picker-tr-component
+            class="value-color"
+            labelName="background-color"
+            v-model="color"
+          />
         </tr>
       </table>
     </div>
@@ -51,7 +30,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Vue, Emit } from "vue-property-decorator";
+import { Component, Prop, Watch, Vue } from "vue-property-decorator";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -59,14 +38,17 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction, Texture } from "@/@types/room";
 import { parseColor } from "@/app/core/Utility";
+import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
+import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrComponent.vue";
 
 @Component({
   components: {
+    ColorPickerTrComponent,
+    StringInputTrComponent,
     ImagePickerComponent,
     BackgroundTypeRadio,
     SceneLayerSelect,
@@ -87,6 +69,8 @@ export default class InputTextureComponent extends Vue {
   @Prop({ type: Object, required: true })
   private value!: Texture;
 
+  private isMounted: boolean = false;
+
   private type: "image" | "color" | null = null;
   private imageId: string = "";
   private imageTag: string = "";
@@ -95,8 +79,6 @@ export default class InputTextureComponent extends Vue {
 
   private color: string = "#ffffff";
   private text: string = "";
-
-  private imageList = GameObjectManager.instance.imageList;
 
   @LifeCycle
   private async mounted() {
@@ -110,10 +92,12 @@ export default class InputTextureComponent extends Vue {
       this.color = this.localValue.backgroundColor;
       this.text = this.localValue.text;
     }
+    this.isMounted = true;
   }
 
-  @Emit("input")
-  public input(value: Texture) {}
+  public input(value: Texture) {
+    this.$emit("input", value);
+  }
 
   private get localValue(): Texture {
     return this.value;
@@ -125,8 +109,8 @@ export default class InputTextureComponent extends Vue {
 
   @Watch("type")
   private onChangeType(newValue: string | null, oldValue: string | null) {
-    if (!this.type || !oldValue) return;
-    if (this.type === "image") {
+    if (!newValue || !oldValue) return;
+    if (newValue === "image") {
       if (!this.imageTag) this.imageTag = this.defaultTag;
       this.localValue = {
         type: "image",
