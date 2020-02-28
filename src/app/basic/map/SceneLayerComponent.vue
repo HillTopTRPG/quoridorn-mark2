@@ -43,6 +43,9 @@ import { Mixins } from "vue-mixin-decorator";
 export default class SceneLayerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
+  @Prop({ type: String, required: true })
+  private sceneId!: string;
+
   @Prop({ type: Object, required: true })
   private layer!: StoreUseData<SceneLayer>;
 
@@ -63,11 +66,13 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
 
   @LifeCycle
   private async mounted() {
-    const sceneAndLayerInfo = (await this.sceneAndLayerCC!.find(
-      "data.layerId",
-      "==",
-      this.layer.id!
-    ))![0];
+    const sceneAndLayerInfo = (await this.sceneAndLayerCC!.find([
+      {
+        property: "data.layerId",
+        operand: "==",
+        value: this.layer.id!
+      }
+    ]))![0];
     this.sceneAndLayerInfo = sceneAndLayerInfo;
     await this.sceneAndLayerCC!.setSnapshot(
       this.key,
@@ -92,12 +97,13 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   @VueEvent
   private get useSceneObjectList() {
     return this.sceneAndObjectList
+      .filter(sao => sao.data!.sceneId === this.sceneId)
       .map(
         sao =>
           this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
       )
       .filter(
-        mo => mo.data!.place === "field" && mo.data!.layerId === this.layer.id
+        so => so.data!.place === "field" && so.data!.layerId === this.layer.id
       );
   }
 

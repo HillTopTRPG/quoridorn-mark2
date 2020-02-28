@@ -15,6 +15,7 @@
     <scene-layer-component
       v-for="layer in useLayerList"
       :key="layer.id"
+      :sceneId="sceneId"
       :layer="layer"
     />
   </div>

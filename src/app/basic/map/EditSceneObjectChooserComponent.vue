@@ -101,11 +101,12 @@ export default class EditSceneObjectChooserComponent extends Mixins<
   @Watch("selectedLayerId")
   private onChangeSceneObjectInfoList() {
     this.sceneObjectInfoList = this.sceneAndObjectList
+      .filter(sao => sao.data!.sceneId === this.sceneId)
       .map(
         sao =>
           this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
       )
-      .filter(mo => mo.data!.layerId === this.selectedLayerId);
+      .filter(so => so.data!.layerId === this.selectedLayerId);
   }
 
   @Watch("sceneAndObjectList", { deep: true })

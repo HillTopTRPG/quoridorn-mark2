@@ -1,4 +1,4 @@
-import { Anchor, Point, Rectangle, Size } from "address";
+import { Address, Anchor, Matrix, Point, Rectangle, Size } from "address";
 import { WindowSize } from "@/@types/window";
 import WindowManager from "@/app/core/window/WindowManager";
 import { getCssPxNum } from "@/app/core/Css";
@@ -6,6 +6,17 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 export function createPoint(x: number, y: number): Point {
   return { x, y };
+}
+
+export function createMatrix(column: number, row: number): Matrix {
+  return { column, row };
+}
+
+export function copyAddress(from: Address, to: Address) {
+  to.x = from.x;
+  to.y = from.y;
+  to.column = from.column;
+  to.row = from.row;
 }
 
 export function createSize(width: number, height: number): Size {

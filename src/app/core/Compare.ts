@@ -25,12 +25,24 @@ async function getOperandValue(
     }
     if (o.refType === "db-search-exist") {
       const cc = SocketFacade.instance.getCC(type!);
-      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      const dataList = await cc.find([
+        {
+          property: o.searchProperty,
+          operand: "==",
+          value: o.searchValue
+        }
+      ]);
       return dataList && dataList.length > 0;
     }
     if (o.refType === "db-search-length") {
       const cc = SocketFacade.instance.getCC(type!);
-      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      const dataList = await cc.find([
+        {
+          property: o.searchProperty,
+          operand: "==",
+          value: o.searchValue
+        }
+      ]);
       return dataList ? dataList.length : 0;
     }
     if (o.refType === "db-id-property") {
@@ -42,7 +54,13 @@ async function getOperandValue(
     }
     if (o.refType === "db-search-property") {
       const cc = SocketFacade.instance.getCC(type!);
-      const dataList = await cc.find(o.searchProperty, "==", o.searchValue);
+      const dataList = await cc.find([
+        {
+          property: o.searchProperty,
+          operand: "==",
+          value: o.searchValue
+        }
+      ]);
       return dataList && dataList.length ? dataList[0].data[o.property] : null;
     }
     if (o.refType === "permission-check") {

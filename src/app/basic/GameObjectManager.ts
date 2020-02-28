@@ -201,13 +201,13 @@ export default class GameObjectManager {
     scene: Scene
   ): Promise<{ sceneId: string; mapAndLayerIdList: string[] }> {
     /* --------------------------------------------------
-     * マップデータのプリセットデータ投入
+     * シーンの登録
      */
     const sceneListCC = SocketFacade.instance.sceneListCC();
     const sceneId = (await sceneListCC.addDirect([scene]))[0];
 
     /* --------------------------------------------------
-     * マップとレイヤーの紐づきのプリセットデータ投入
+     * シーンとレイヤーの紐づきの登録
      */
     const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
     const sceneAndLayerList: SceneAndLayer[] = (
@@ -222,6 +222,23 @@ export default class GameObjectManager {
     const mapAndLayerIdList: string[] = await sceneAndLayerCC.addDirect(
       sceneAndLayerList
     );
+
+    /* --------------------------------------------------
+     * シーンとオブジェクトの紐づきの登録
+     */
+    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
+    const sceneAndObjectList: SceneAndObject[] = (
+      await sceneObjectCC.getList(false)
+    ).map(so => ({
+      sceneId,
+      objectId: so.id!,
+      isOriginalAddress: false,
+      originalAddress: null,
+      entering: "normal"
+    }));
+
+    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
+    await sceneAndObjectCC.addDirect(sceneAndObjectList);
 
     return {
       sceneId,

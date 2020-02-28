@@ -18,6 +18,7 @@ import {
   UpdateDataRequest
 } from "@/@types/data";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import Query from "nekostore/lib/Query";
 
 export default class NekostoreCollectionController<T> {
   constructor(
@@ -110,12 +111,13 @@ export default class NekostoreCollectionController<T> {
   }
 
   public async find(
-    property: string,
-    operand: "==",
-    value: any
+    options: { property: string; operand: "=="; value: any }[]
   ): Promise<StoreUseData<T>[] | null> {
-    const c = this.getCollection();
-    const docs = (await c.where(property, operand, value).get()).docs;
+    let c: Query<StoreObj<T>> = this.getCollection();
+    options.forEach(o => {
+      c = c.where(o.property, o.operand, o.value);
+    });
+    const docs = (await c.get()).docs;
     if (!docs) return null;
     return docs
       .filter(item => item && item.exists())
