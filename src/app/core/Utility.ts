@@ -2,12 +2,23 @@ import { all, create } from "mathjs";
 import { StandImageInfo } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import urljoin from "url-join";
 
 const config = {};
 const math = create(all, config);
 
 export function listToEmpty(list: Array<unknown>) {
   list.splice(0, list.length);
+}
+
+export function getSrc(path: string): string {
+  if (path.startsWith("http")) return path;
+  if (path.startsWith("data:")) return path;
+  if (path.startsWith(".")) path = path.replace(/^\./, "");
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  const baseUrl = process.env.BASE_URL;
+  return urljoin(protocol, host, baseUrl, path);
 }
 
 /**

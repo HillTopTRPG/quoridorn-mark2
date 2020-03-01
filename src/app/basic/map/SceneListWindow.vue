@@ -59,7 +59,6 @@ import SocketFacade, {
 } from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import GameTable from "@/app/basic/map/GameTable.vue";
 import { StoreUseData } from "@/@types/store";
 import { Scene } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -67,6 +66,7 @@ import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
 import LanguageManager from "@/LanguageManager";
+import { getSrc } from "@/app/core/Utility";
 
 @Component({
   components: {
@@ -119,9 +119,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
             .imageDataCC()
             .getData(texture.imageId);
           if (imageData && imageData.data) {
-            backgroundImage = `url("${GameTable.changeImagePath(
-              imageData.data.data
-            )}")`;
+            backgroundImage = `url("${getSrc(imageData.data.data)}")`;
           }
           if (texture.direction === "horizontal") direction = "scale(-1, 1)";
           if (texture.direction === "vertical") direction = "scale(1, -1)";
@@ -195,6 +193,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
     });
   }
 
+  @VueEvent
   private async deleteMap() {
     if (!this.selectedSceneId) return;
     const result = window.confirm(

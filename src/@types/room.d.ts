@@ -210,7 +210,7 @@ type StandImageInfo = Point & {
  * imageDataCCのデータ定義
  * 画像1件の情報
  */
-type Image = {
+type ImageInfo = {
   tag: string;
   data: string;
   password: string;

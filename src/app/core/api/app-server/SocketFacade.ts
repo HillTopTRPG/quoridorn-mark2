@@ -23,7 +23,7 @@ import {
   Scene,
   RoomData,
   UserData,
-  Image,
+  ImageInfo,
   ActorGroup,
   CutInDeclareInfo,
   SceneAndObject,
@@ -46,7 +46,6 @@ import {
 } from "@/app/core/api/Github";
 import yaml from "js-yaml";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { BgmStandByInfo } from "task-info";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -480,8 +479,8 @@ export default class SocketFacade {
     return this.roomCollectionController<RoomData>("room-data");
   }
 
-  public imageDataCC(): NekostoreCollectionController<Image> {
-    return this.roomCollectionController<Image>("image-list");
+  public imageDataCC(): NekostoreCollectionController<ImageInfo> {
+    return this.roomCollectionController<ImageInfo>("image-list");
   }
 
   public imageTagCC(): NekostoreCollectionController<string> {

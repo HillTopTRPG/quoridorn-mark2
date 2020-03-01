@@ -26,7 +26,7 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import { ContextTaskInfo } from "context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { clone } from "@/app/core/Utility";
+import { clone, getSrc } from "@/app/core/Utility";
 import { SceneAndObject } from "@/@types/room";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -340,8 +340,8 @@ export default class PieceMixin<
       const imageObj = this.imageList.filter(
         obj => obj.id === backInfo.imageId
       )[0];
-      this.elm.style.setProperty(`--image`, `url(${imageObj.data!.data})`);
-      this.imageSrc = imageObj.data!.data;
+      this.imageSrc = getSrc(imageObj.data!.data);
+      this.elm.style.setProperty(`--image`, `url(${this.imageSrc})`);
       let direction = "";
       if (backInfo.direction === "horizontal") direction = "scale(-1, 1)";
       if (backInfo.direction === "vertical") direction = "scale(1, -1)";

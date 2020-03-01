@@ -39,7 +39,6 @@
 <script lang="ts">
 import vueSlider from "vue-slider-component";
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

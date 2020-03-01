@@ -156,7 +156,7 @@ import {
   Scene,
   RoomData,
   SceneLayerType,
-  Image,
+  ImageInfo,
   CutInDeclareInfo
 } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -731,15 +731,6 @@ export default class LoginWindow extends Mixins<
       window.console.warn(err);
       alert("ログイン失敗");
       SocketFacade.instance.roomCollectionPrefix = null;
-
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "create-room",
-          value: "off"
-        }
-      });
       return;
     }
     SocketFacade.instance.userId = userLoginResponse.userId;
@@ -758,14 +749,14 @@ export default class LoginWindow extends Mixins<
 
     await this.addPresetData();
 
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "create-room",
-        value: "off"
-      }
-    });
+    // await TaskManager.instance.ignition<ModeInfo, never>({
+    //   type: "mode-change",
+    //   owner: "Quoridorn",
+    //   value: {
+    //     type: "create-room",
+    //     value: "off"
+    //   }
+    // });
 
     const loginResult: ClientRoomInfo = {
       name: createRoomInput.name,
@@ -801,7 +792,7 @@ export default class LoginWindow extends Mixins<
       if (this.urlPlayerName) {
         const roomId = this.roomList.filter(r => r.order === no)[0].id;
         const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
-        window.console.log(`token: ${cookieToken}`);
+        // window.console.log(`token: ${cookieToken}`);
       } else {
         if (!this.disabledLogin) await this.login();
       }
@@ -951,14 +942,14 @@ export default class LoginWindow extends Mixins<
       return;
     } finally {
       this.isInputtingRoomInfo = false;
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "create-room",
-          value: "off"
-        }
-      });
+      // await TaskManager.instance.ignition<ModeInfo, never>({
+      //   type: "mode-change",
+      //   owner: "Quoridorn",
+      //   value: {
+      //     type: "create-room",
+      //     value: "off"
+      //   }
+      // });
     }
     SocketFacade.instance.userId = userLoginResponse.userId;
     Cookies.set(
@@ -973,7 +964,6 @@ export default class LoginWindow extends Mixins<
      * 部屋の使用準備
      */
     await this.close();
-
     const loginResult: ClientRoomInfo = this.roomList![this.selectedRoomNo]
       .data!;
     loginResult.roomNo = this.selectedRoomNo;
@@ -992,13 +982,13 @@ export default class LoginWindow extends Mixins<
   }
 
   private async addPresetData() {
-    const imageList: Image[] = await loadYaml<Image[]>(
+    const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
       "./static/conf/image.yaml"
     );
     const imageTagList: string[] = await loadYaml<string[]>(
       "./static/conf/imageTag.yaml"
     );
-    imageList.forEach((image: Image) => {
+    imageList.forEach((image: ImageInfo) => {
       if (!image.tag)
         image.tag = imageTagList.length ? imageTagList[0] : "default";
       if (image.standImageInfo) {

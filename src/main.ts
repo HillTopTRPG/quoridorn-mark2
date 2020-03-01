@@ -37,10 +37,28 @@ Vue.config.productionTip = false;
 Vue.use(ImageDirective);
 Vue.use(VueI18n);
 
+let isYoutubeApiReady = false;
+
+(window as any).onYouTubeIframeAPIReady = () => {
+  isYoutubeApiReady = true;
+};
+
+async function init(): Promise<void> {
+  return new Promise(async resolve => {
+    await SocketFacade.instance.init();
+    await BCDiceFacade.instance.init();
+    YoutubeManager.init();
+
+    const intervalId = window.setInterval(() => {
+      if (!isYoutubeApiReady) return;
+      clearInterval(intervalId);
+      resolve();
+    }, 100);
+  });
+}
+
 async function main(): Promise<void> {
-  await SocketFacade.instance.init();
-  await BCDiceFacade.instance.init();
-  YoutubeManager.init();
+  await init();
 
   Vue.component("cut-in-setting-window", CutInSettingWindow);
   Vue.component("play-youtube-window", PlayYoutubeWindow);

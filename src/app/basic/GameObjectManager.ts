@@ -5,12 +5,12 @@ import {
   SceneLayer,
   Scene,
   UserData,
-  Image,
   ActorGroup,
   SceneAndObject,
   RoomData,
   SocketUserData,
-  CutInDeclareInfo
+  CutInDeclareInfo,
+  ImageInfo
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -28,6 +28,7 @@ import { Point } from "address";
 import { createPoint } from "@/app/core/Coordinate";
 import { BgmStandByInfo } from "task-info";
 import LanguageManager from "@/LanguageManager";
+import { getSrc } from "@/app/core/Utility";
 
 export default class GameObjectManager {
   // シングルトン
@@ -57,7 +58,6 @@ export default class GameObjectManager {
   private constructor() {}
 
   private async initialize() {
-    window.console.log("GameObjectManager#initialize");
     const sf = SocketFacade.instance;
     await sf.sceneListCC().getList(true, this.sceneList);
     await sf.imageDataCC().getList(true, this.imageList);
@@ -103,6 +103,15 @@ export default class GameObjectManager {
         }
       }
     );
+
+    // 画像のプリロード
+    this.imageList.forEach(image => {
+      const src = getSrc(image.data!.data);
+      if (!src.startsWith("data")) {
+        const imgElm = document.createElement("img");
+        imgElm.src = src;
+      }
+    });
   }
 
   public async updateRoomData(data: Partial<RoomData>): Promise<void> {
@@ -151,7 +160,7 @@ export default class GameObjectManager {
   public sceneList: StoreUseData<Scene>[] = [];
   public cutInList: StoreUseData<CutInDeclareInfo>[] = [];
   public bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
-  public imageList: StoreUseData<Image>[] = [];
+  public imageList: StoreUseData<ImageInfo>[] = [];
   public imageTagList: StoreUseData<string>[] = [];
   public userList: StoreUseData<UserData>[] = [];
   public socketUserList: StoreUseData<SocketUserData>[] = [];
