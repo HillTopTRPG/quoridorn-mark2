@@ -8,8 +8,8 @@
           type="text"
           :value="name"
           @input="name = $event.target.value"
+          :class="{ pending: !name }"
           :placeholder="$t('label.room-name-placeholder')"
-          ref="firstFocus"
         />
       </label>
       <label>
@@ -18,15 +18,17 @@
           :comp-key="`${key}-password`"
           v-model="password"
           :setting="true"
-          ref="firstFocus"
+          :isPending="!name"
         />
       </label>
       <label>
-        <span class="label-input" v-t="'label.game-system'"></span>
+        <span class="label-input" v-t="'label.game-system-input'"></span>
         <dice-bot-input
           v-model="system"
-          ref="firstFocus"
+          :url.sync="url"
+          :isPending="!name"
           :windowInfo="windowInfo"
+          @onMouseEnterUrl="onMouseEnterUrl"
         />
       </label>
     </div>
@@ -42,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
@@ -56,6 +58,7 @@ import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import DiceBotInput from "@/app/basic/common/components/DiceBotInput.vue";
 import { DiceSystem } from "@/@types/bcdice";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -74,6 +77,7 @@ export default class CreateNewRoomWindow extends Mixins<
   private password: string = "";
   /** 選択されているシステム */
   private system: DiceSystem = { system: "DiceBot", name: "DiceBot" };
+  private url: string = SocketFacade.instance.connectInfo.bcdiceServer;
 
   @LifeCycle
   public async mounted() {
@@ -82,10 +86,16 @@ export default class CreateNewRoomWindow extends Mixins<
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
   }
 
+  @Watch("url")
+  private onChangeUrl() {
+    this.system = { system: "DiceBot", name: "DiceBot" };
+  }
+
   @VueEvent
   private async commit() {
     await this.finally({
       name: this.name || LanguageManager.instance.getText(""),
+      bcdiceServer: this.url,
       system: this.system.system,
       roomPassword: this.password
     });
@@ -94,6 +104,12 @@ export default class CreateNewRoomWindow extends Mixins<
   @VueEvent
   private async rollback() {
     await this.finally();
+  }
+
+  private onMouseEnterUrl(isHover: boolean) {
+    this.windowInfo.message = isHover
+      ? LanguageManager.instance.getText("label.input-bcdice-url")
+      : "";
   }
 }
 </script>

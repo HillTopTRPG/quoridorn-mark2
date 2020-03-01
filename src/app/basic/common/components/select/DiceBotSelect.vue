@@ -29,6 +29,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({ components: { CtrlSelect } })
 export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
@@ -52,7 +53,7 @@ export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
   @LifeCycle
   private mounted() {
     if (BCDiceFacade.instance.isReady()) {
-      BCDiceFacade.instance.getDiceSystemList().forEach(info => {
+      BCDiceFacade.instance.diceSystemList.forEach(info => {
         this.diceSystemList.push(info);
       });
     }
@@ -75,7 +76,7 @@ export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
   private async bcdiceReadyFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    BCDiceFacade.instance.getDiceSystemList().forEach(info => {
+    BCDiceFacade.instance.diceSystemList.forEach(info => {
       this.diceSystemList.push(info);
     });
   }
@@ -117,7 +118,10 @@ export default class DiceBotSelect extends Mixins<ComponentVue>(ComponentVue) {
       if (!currentSystem) return;
 
       try {
-        const info: any = await BCDiceFacade.getBcdiceSystemInfo(currentSystem);
+        const info: any = await BCDiceFacade.getBcdiceSystemInfo(
+          currentSystem,
+          SocketFacade.instance.connectInfo.bcdiceServer
+        );
         this.helpMessage =
           this.baseHelpMessage +
           `==【${info.name}専用】====================\n` +

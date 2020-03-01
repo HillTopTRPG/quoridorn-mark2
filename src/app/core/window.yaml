@@ -1,4 +1,5 @@
 "play-youtube-window":
+  icon: youtube2
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -17,6 +18,7 @@
   resizable: true
   tableInfoList: []
 "cut-in-setting-window":
+  icon: tv
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -81,6 +83,7 @@
           align: center
           target: fade
 "login-window":
+  icon: home3
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -152,6 +155,7 @@
           align: center
           target: ""
 "create-new-room-window":
+  icon: home3
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -185,6 +189,7 @@
   resizable: true
   tableInfoList: []
 "user-login-window":
+  icon: home3
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -218,6 +223,41 @@
   resizable: true
   tableInfoList: []
 "app-server-setting-window":
+  icon: cloud
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 350
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  maxSize:
+    widthPx: 500
+    widthEm: 0
+    widthRem: 0
+    heightPx: 26
+    heightEm: 8.5
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: false
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"bcdice-api-server-setting-window":
+  icon: cloud
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -251,6 +291,7 @@
   resizable: true
   tableInfoList: []
 "terms-of-use-window":
+  icon: warning
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -284,6 +325,7 @@
   resizable: true
   tableInfoList: []
 "delete-room-window":
+  icon: bin1
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -317,6 +359,7 @@
   resizable: true
   tableInfoList: []
 "confirm-window":
+  icon: checkmark
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -350,6 +393,7 @@
   resizable: true
   tableInfoList: []
 "login-room-window":
+  icon: home3
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -383,6 +427,7 @@
   resizable: true
   tableInfoList: []
 "version-info-window":
+  info: notification
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -416,6 +461,7 @@
   resizable: true
   tableInfoList: []
 "room-info-window":
+  icon: notification
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -449,6 +495,7 @@
   resizable: true
   tableInfoList: []
 "add-map-mask-window":
+  icon: plus
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -469,6 +516,7 @@
   resizable: false
   tableInfoList: []
 "edit-map-mask-window":
+  icon: pencil
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -489,6 +537,7 @@
   resizable: false
   tableInfoList: []
 "add-chit-window":
+  icon: plus
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -525,6 +574,7 @@
   resizable: true
   tableInfoList: []
 "edit-chit-window":
+  icon: pencil
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -564,6 +614,7 @@
   resizable: true
   tableInfoList: []
 "input-image-password-window":
+  icon: key2
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -597,6 +648,7 @@
   resizable: true
   tableInfoList: []
 "edit-other-text-window":
+  icon: pencil
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -630,6 +682,7 @@
   resizable: true
   tableInfoList: []
 "scene-list-window":
+  icon: display
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -666,6 +719,7 @@
   resizable: true
   tableInfoList: []
 "edit-scene-window":
+  icon: pencil
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -700,6 +754,7 @@
   resizable: true
   tableInfoList: []
 "chmod-window":
+  icon: user-tie
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -733,6 +788,7 @@
   resizable: true
   tableInfoList: []
 "add-bgm-window":
+  icon: plus
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -766,6 +822,7 @@
   resizable: true
   tableInfoList: []
 "edit-bgm-window":
+  icon: pencil
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false

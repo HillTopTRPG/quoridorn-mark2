@@ -108,6 +108,7 @@ import { UserData } from "@/@types/room";
 import { execCopy } from "@/app/core/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -134,7 +135,10 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @Watch("systemId")
   private async onChangeSystemId() {
-    this.systemName = await BCDiceFacade.getBcdiceSystemName(this.systemId);
+    this.systemName = await BCDiceFacade.getBcdiceSystemName(
+      SocketFacade.instance.connectInfo.bcdiceServer,
+      this.systemId
+    );
   }
 
   private get useUserList(): StoreUseData<UserData>[] {

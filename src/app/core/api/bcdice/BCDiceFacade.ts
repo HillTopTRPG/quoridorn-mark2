@@ -1,4 +1,8 @@
-import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
+import {
+  BcdiceSystemInfo,
+  BcdiceVersionInfo,
+  DiceSystem
+} from "@/@types/bcdice";
 import TaskManager from "@/app/core/task/TaskManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LanguageManager from "@/LanguageManager";
@@ -11,15 +15,15 @@ export default class BCDiceFacade {
   }
 
   private static _instance: BCDiceFacade;
-  private diceInfoList: DiceSystem[] = [];
+  public readonly diceSystemList: DiceSystem[] = [];
   private __isReady: boolean = false;
 
   // コンストラクタの隠蔽
   private constructor() {}
 
   public async init() {
-    BCDiceFacade.getBcdiceSystemList().then(async list => {
-      this.diceInfoList = list;
+    BCDiceFacade.initBcdiceSystemList().then(async list => {
+      this.diceSystemList.push(...list);
       this.__isReady = true;
       await TaskManager.instance.ignition<never, never>({
         type: "bcdice-ready",
@@ -33,24 +37,26 @@ export default class BCDiceFacade {
     return this.__isReady;
   }
 
-  public getDiceSystemList(): DiceSystem[] {
-    return this.diceInfoList;
-  }
-
   /**
    * BCDice-APIからシステム一覧を取得する
    */
-  private static async getBcdiceSystemList(): Promise<DiceSystem[]> {
+  private static async initBcdiceSystemList(): Promise<DiceSystem[]> {
     if (SocketFacade.instance.connectInfo) {
-      return this.doGetBcdiceSystemList();
+      return await BCDiceFacade.getBcdiceSystemList(
+        SocketFacade.instance.connectInfo.bcdiceServer
+      );
     } else {
-      return new Promise((resolve: Function, reject: Function) => {
+      return new Promise((resolve: Function) => {
         const intervalId = window.setInterval(async () => {
           if (SocketFacade.instance.connectInfo) {
             clearInterval(intervalId);
-            resolve(await this.doGetBcdiceSystemList());
+            resolve(
+              await BCDiceFacade.getBcdiceSystemList(
+                SocketFacade.instance.connectInfo.bcdiceServer
+              )
+            );
           }
-        });
+        }, 50);
       });
     }
   }
@@ -58,9 +64,28 @@ export default class BCDiceFacade {
   /**
    * BCDice-APIからシステム一覧を取得する
    */
-  private static async doGetBcdiceSystemList(): Promise<DiceSystem[]> {
+  public static async getBcdiceVersionInfo(
+    baseUrl: string
+  ): Promise<BcdiceVersionInfo> {
+    const url = `${baseUrl}/v1/version`;
     return new Promise((resolve: Function, reject: Function) => {
-      const url = `${SocketFacade.instance.connectInfo.bcdiceServer}/v1/names`;
+      fetch(url)
+        .then(response => response.json())
+        .then((json: any) => {
+          resolve(json as BcdiceVersionInfo);
+        })
+        .catch(err => reject(err));
+    });
+  }
+
+  /**
+   * BCDice-APIからシステム一覧を取得する
+   */
+  public static async getBcdiceSystemList(
+    baseUrl: string
+  ): Promise<DiceSystem[]> {
+    const url = `${baseUrl}/v1/names`;
+    return new Promise((resolve: Function, reject: Function) => {
       fetch(url)
         .then(response => response.json())
         .then((json: any) => {
@@ -78,14 +103,13 @@ export default class BCDiceFacade {
   }
 
   public static async getBcdiceSystemInfo(
+    baseUrl: string,
     system: string
   ): Promise<BcdiceSystemInfo> {
     return new Promise((resolve: Function, reject: Function) => {
       const params = new URLSearchParams();
       params.append("system", system);
-      const url = `${
-        SocketFacade.instance.connectInfo.bcdiceServer
-      }/v1/systeminfo?${params.toString()}`;
+      const url = `${baseUrl}/v1/systeminfo?${params.toString()}`;
       fetch(url)
         .then(response => response.json())
         .then(json => {
@@ -100,12 +124,13 @@ export default class BCDiceFacade {
   }
 
   public static async getBcdiceSystemName(
+    baseUrl: string,
     system: string | null
   ): Promise<string | null> {
     if (!system) return null;
     if (system === "DiceBot")
       return LanguageManager.instance.getText("label.default-dicebot");
-    const info = await BCDiceFacade.getBcdiceSystemInfo(system);
+    const info = await BCDiceFacade.getBcdiceSystemInfo(baseUrl, system);
     window.console.log(info);
     return info.name;
   }

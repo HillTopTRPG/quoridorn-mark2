@@ -1,27 +1,28 @@
 <template>
   <div class="root" ref="component">
-    <div class="front">
+    <label class="front">
       <input
         type="text"
         class="input text-input"
-        :class="{ pending: isSelectMode }"
+        :class="{ pending: isPending || isSelectMode }"
         v-model="inputText"
         @input.prevent="onTextInput($event.target.value)"
         @keydown.up.self.prevent="onKeyDown(-1)"
         @keydown.down.self.prevent="onKeyDown(1)"
-        @keydown.esc="onEscInput($event)"
+        @keydown.esc="onEscInput"
         @keydown.229.stop
         @keyup.229.stop
         ref="input"
       />
-      <div
+      <span
         class="select-button"
         @click="openSelection()"
         v-if="!isSelectMode"
-      ></div>
-    </div>
+      ></span>
+    </label>
     <div class="item-container" v-if="isSelectMode">
       <div
+        class="dice-bot-item"
         v-for="(info, index) in filteredSystemList"
         :key="index"
         @click="selectItem(info)"
@@ -42,7 +43,7 @@
       :value="JSON.stringify(localValue)"
       @input="val => (localValue = JSON.parse(val))"
       :optionInfoList="
-        systemList.map((systemObj, index) => ({
+        systemList.map(systemObj => ({
           key: systemObj.system,
           value: JSON.stringify(systemObj),
           text: systemObj.name,
@@ -54,11 +55,17 @@
       :disabled="true"
       class="base"
     />
+    <span
+      class="icon-sphere"
+      @mouseenter="$emit('onMouseEnterUrl', true)"
+      @mouseleave="$emit('onMouseEnterUrl', false)"
+      @click="onClickUrlSetting()"
+    ></span>
   </div>
 </template>
 
 <script lang="ts">
-import { Emit, Prop, Watch } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
 import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
@@ -72,9 +79,12 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Point, Rectangle, Size } from "address";
 import { createPoint, createRectangle } from "@/app/core/Coordinate";
-import { WindowInfo, WindowMoveInfo } from "@/@types/window";
+import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import { getCssPxNum } from "@/app/core/Css";
+import TaskManager from "@/app/core/task/TaskManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { clone } from "@/app/core/Utility";
 
 type FilterInfo = {
   list: DiceSystem[];
@@ -86,10 +96,19 @@ type FilterInfo = {
 export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<any>;
+
   @Prop({ type: Object, required: true })
   private value!: DiceSystem;
+
+  @Prop({ type: String, required: true })
+  private url!: string;
+
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private isPending!: boolean;
+
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
 
@@ -98,10 +117,12 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
 
   private isSelectMode: boolean = false;
   private isMounted: boolean = false;
+  private localUrl: string = "";
 
   public get localValue(): DiceSystem {
     return this.value;
   }
+
   public set localValue(value: DiceSystem) {
     this.input(value);
     for (let i: number = 0; i < this.filteredSystemList.length; i++) {
@@ -113,6 +134,16 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
         break;
       }
     }
+  }
+
+  @Watch("url", { immediate: true })
+  private onChangeUrl(value: string) {
+    this.localUrl = value;
+  }
+
+  @Watch("localUrl")
+  private onChangeLocalUrl(value: string) {
+    this.$emit("update:url", value);
   }
 
   @VueEvent
@@ -127,8 +158,9 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     });
   }
 
-  @Emit("input")
-  input(system: DiceSystem) {}
+  input(system: DiceSystem) {
+    this.$emit("input", system);
+  }
 
   private systemList: DiceSystem[] = [];
   private noTarget: string = LanguageManager.instance.getText(
@@ -140,7 +172,8 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
   private mounted() {
     this.isMounted = true;
     if (BCDiceFacade.instance.isReady()) {
-      BCDiceFacade.instance.getDiceSystemList().forEach((info, index) => {
+      BCDiceFacade.instance.diceSystemList.forEach(info => {
+        info = clone(info)!;
         if (info.system === "DiceBot") info.name = this.noTarget;
         this.systemList.push(info);
         if (info.system === this.localValue.system) {
@@ -148,7 +181,7 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
         }
       });
     }
-    const rect = this.getRect();
+    const rect = DiceBotInput2.getRect(this.inputElm);
     this.selectionPoint = createPoint(rect.x, rect.y + rect.height);
   }
 
@@ -170,21 +203,29 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   private updateLocation() {
-    const rect = this.getRect();
+    const inputElmRect = DiceBotInput2.getRect(this.inputElm);
+    const windowRect = DiceBotInput2.getRect(
+      document.getElementById(this.windowInfo.key)
+    );
     const sceneHeight = window.innerHeight;
     const menuHeight = getCssPxNum("--menu-bar-height");
     const itemHeight = getCssPxNum("--select-item-height", this.elm);
-    const inputBottom = sceneHeight - menuHeight - rect.y - rect.height;
+    const inputBottom =
+      sceneHeight - menuHeight - inputElmRect.y - inputElmRect.height;
     const contentsHeight =
       Math.min(this.filteredSystemList.length, 10) * itemHeight;
     const y =
       inputBottom >= contentsHeight
-        ? rect.y + rect.height - 2
-        : rect.y - contentsHeight + 1;
+        ? inputElmRect.y + inputElmRect.height - 2
+        : inputElmRect.y - contentsHeight + 1;
 
-    this.selectionPoint = createPoint(rect.x, rect.y + rect.height - 1);
+    this.selectionPoint = createPoint(
+      inputElmRect.x - windowRect.x,
+      y - windowRect.y
+    );
+
     this.elm.style.setProperty("--point-x", `${this.selectionPoint.x}px`);
-    this.elm.style.setProperty("--point-y", `${y}px`);
+    this.elm.style.setProperty("--point-y", `${this.selectionPoint.y}px`);
     this.elm.style.setProperty("--rect-height", `${contentsHeight}px`);
     this.elm.style.setProperty(
       "--item-width",
@@ -199,7 +240,6 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     if (task.value!.windowKey !== this.windowInfo.key) return;
     if (!this.isMounted) return;
     this.updateLocation();
-    // this.updated();
   }
 
   @TaskProcessor("window-font-size-finished")
@@ -215,15 +255,15 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     return this.$refs.input;
   }
 
-  private getRect(): Rectangle {
-    if ("getBoundingClientRect" in this.inputElm) {
-      const b: any = this.inputElm.getBoundingClientRect();
+  private static getRect(elm: any): Rectangle {
+    if ("getBoundingClientRect" in elm) {
+      const b: any = elm.getBoundingClientRect();
       return createRectangle(b.x, b.y, b.width, b.height);
     }
     return createRectangle(0, 0, 0, 0);
   }
 
-  private async setInputValue(text: string) {
+  private setInputValue(text: string) {
     this.inputText = text;
     this.inputElm.focus();
   }
@@ -245,6 +285,7 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
 
     try {
       const info: BcdiceSystemInfo = await BCDiceFacade.getBcdiceSystemInfo(
+        SocketFacade.instance.connectInfo.bcdiceServer,
         system
       );
       this.helpMessage =
@@ -267,8 +308,11 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private onKeyDown(direction: number) {
-    if (!this.isSelectMode) return;
     if (!this.filteredSystemList.length) return;
+    if (!this.isSelectMode) {
+      this.openSelection();
+      return;
+    }
     let index: number = 0;
     if (this.volatileItem) {
       index = this.filteredSystemList.findIndex(
@@ -374,6 +418,21 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
     this.mounted();
+    task.resolve();
+  }
+
+  @VueEvent
+  private async onClickUrlSetting() {
+    this.localUrl = (
+      await TaskManager.instance.ignition<WindowOpenInfo<string>, string>({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "bcdice-api-server-setting-window",
+          args: this.url
+        }
+      })
+    )[0];
   }
 
   /*
@@ -417,11 +476,12 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   .front {
+    display: inline-block;
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
-    width: 100%;
+    right: calc(2em + 0.5rem);
     z-index: 3;
 
     .text-input {
@@ -440,7 +500,7 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
       right: 0;
       top: 0;
       bottom: 0;
-      width: 20px;
+      width: 2em;
       border: 1px solid rgb(169, 169, 169);
       border-left-color: rgba(0, 0, 0, 0.2);
       box-sizing: border-box;
@@ -471,6 +531,26 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     }
   }
 
+  .icon-sphere {
+    @include inline-flex-box(row, center, center);
+    width: 2em;
+    height: 2em;
+    border-radius: 50%;
+    margin-left: 0.5rem;
+    border: 1px dotted gray;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: white;
+
+    &:hover {
+      background-color: var(--uni-color-light-skyblue);
+    }
+
+    &:active {
+      background-color: var(--uni-color-skyblue);
+    }
+  }
+
   .item-container {
     @include inline-flex-box(column, flex-start, flex-start);
     position: fixed;
@@ -483,21 +563,27 @@ export default class DiceBotInput2 extends Mixins<ComponentVue>(ComponentVue) {
     overflow-y: auto;
     border: 1px solid gray;
     box-sizing: border-box;
+  }
 
-    > * {
-      @include inline-flex-box(row, flex-start, center);
-      width: 100%;
-      background-color: white;
-      height: var(--select-item-height);
-      min-height: var(--select-item-height);
+  .dice-bot-item {
+    @include inline-flex-box(row, flex-start, center);
+    width: 100%;
+    background-color: white;
+    height: var(--select-item-height);
+    min-height: var(--select-item-height);
+    outline: none;
+    cursor: pointer;
 
-      &:focus {
-        background-color: var(--uni-color-light-green);
-      }
+    &:hover {
+      background-color: var(--uni-color-light-skyblue);
+    }
 
-      &:not(:first-child) {
-        border-top: none;
-      }
+    &:focus {
+      background-color: var(--uni-color-skyblue);
+    }
+
+    &:not(:first-child) {
+      border-top: none;
     }
   }
 }

@@ -59,14 +59,16 @@ label:
   password: Password
   password-placeholder: (no password if empty)
   user-type: User type
-  nameless: Nameless
+  nameless: Nameless (required item)
   permission: Authority
   player: PL
   gameMaster: GM
   visitor: Visitor
   room-name: Playroom name
   room-name-placeholder: Room name (required item)
-  game-system: Game system (Can be input)
+  bcdice-api-url: BCDice-APIのURL
+  game-system-input: Game system (Can be input)
+  game-system-view: Game system
   no-target: unspecified
   participant: Participant
   version-info: Version information
@@ -174,6 +176,7 @@ label:
   editing: 編集中
   unknown: [不明]
   really-delete: 本当に削除しますか？
+  input-bcdice-url: BCDice-APIサーバーのURLを設定します
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -221,6 +224,14 @@ user-login-window:
   window-title: User Login
   message: Please enter your user information.
 
+bcdice-api-server-setting-window:
+  window-title: BCDice-APIサーバ設定
+  message: BCDice-APIサーバに関する設定
+  success: 接続成功
+  error: 接続失敗
+  error-messages:
+    connect-error: 接続に失敗しました。
+
 app-server-setting-window:
   window-title: Application Server Settings
   message: Application server settings
@@ -257,12 +268,17 @@ room-info-window:
 
 add-map-mask-window:
   window-title: マップマスク追加
+  message-list:
+    drag-piece: マップにドラッグすると追加できます。
 
 edit-map-mask-window:
   window-title: マップマスク編集
 
 add-chit-window:
   window-title: チット追加
+  message-list:
+    choose-image: 画像を選択してください。
+    drag-piece: マップにドラッグすると追加できます。
 
 edit-chit-window:
   window-title: チット編集

@@ -10,7 +10,6 @@
           :setting="false"
           @keydown.enter.stop="commit()"
           @keyup.enter.stop
-          ref="firstFocus"
         />
       </label>
     </div>

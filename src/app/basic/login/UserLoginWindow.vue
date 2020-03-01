@@ -8,17 +8,17 @@
           type="text"
           :value="name"
           @input="name = $event.target.value"
+          :class="{ pending: !name }"
           :placeholder="$t('label.nameless')"
           :list="`${key}-user-list`"
-          ref="firstFocus"
         />
         <datalist :id="`${key}-user-list`">
           <option
-            :value="userName"
-            v-for="userName in userNameList"
-            :key="userName"
+            v-for="user in userList"
+            :key="user.id"
+            :value="user.data.userName"
           >
-            {{ userName }}
+            {{ user.data.userName }}
           </option>
         </datalist>
       </label>
@@ -27,17 +27,17 @@
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"
+          :isPending="!name"
           :setting="isSetting"
-          ref="firstFocus"
         />
       </label>
       <label>
         <span class="label-input" v-t="'label.user-type'"></span>
-        <user-type-select v-model="userType" ref="firstFocus" />
+        <user-type-select v-model="userType" :isPending="!name" />
       </label>
     </div>
     <div class="button-area">
-      <ctrl-button @click.stop="commit()">
+      <ctrl-button @click.stop="commit()" :disabled="!name">
         <span v-t="'button.login'"></span>
       </ctrl-button>
       <ctrl-button @click.stop="rollback()">
@@ -65,6 +65,9 @@ import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { StoreUseData } from "@/@types/store";
+import { UserData } from "@/@types/room";
 
 @Component({
   components: {
@@ -83,7 +86,7 @@ export default class UserLoginWindow extends Mixins<
   private password: string = "";
   private userType: UserType = "PL";
   private isSetting: boolean = false;
-  private userNameList: string[] = [];
+  private userList: StoreUseData<UserData>[] | null = null;
 
   @LifeCycle
   public async mounted() {
@@ -91,7 +94,7 @@ export default class UserLoginWindow extends Mixins<
     this.inputEnter(".base-area select", this.commit);
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
     this.isSetting = this.windowInfo.args!.isSetting;
-    this.userNameList = this.windowInfo.args!.userNameList;
+    this.userList = await SocketFacade.instance.userCC().getList(true);
     this.name = this.windowInfo.args!.userName || "";
     if (!this.isSetting) {
       this.windowInfo.heightEm = 9.5;
@@ -99,6 +102,12 @@ export default class UserLoginWindow extends Mixins<
       this.windowInfo.declare.minSize!.heightEm = 9.5;
       this.windowInfo.declare.maxSize!.heightEm = 9.5;
     }
+  }
+
+  @Watch("name")
+  private onChangeName() {
+    const idx = this.userList!.findIndex(u => u.data!.userName === this.name);
+    if (idx >= 0) this.userType = this.userList![idx]!.data!.userType;
   }
 
   @Watch("currentDiceBotSystem")

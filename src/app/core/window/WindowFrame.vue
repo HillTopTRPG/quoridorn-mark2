@@ -17,9 +17,19 @@
     >
       <!-- タイトル文言 -->
       <div class="title-message-area">
-        <span v-if="windowInfo.title">{{ windowInfo.title }}</span>
-        <span v-else v-t="`${windowInfo.type}.window-title`"></span>
-        <span class="message" v-if="windowInfo.message">{{
+        <span
+          class="window-icon"
+          :class="`icon-${windowInfo.declare.icon}`"
+        ></span>
+        <span class="window-title-text" v-if="windowInfo.title">{{
+          windowInfo.title
+        }}</span>
+        <span
+          v-else
+          class="window-title-text"
+          v-t="`${windowInfo.type}.window-title`"
+        ></span>
+        <span class="window-message" v-if="windowInfo.message">{{
           windowInfo.message
         }}</span>
       </div>
@@ -849,21 +859,21 @@ export default class WindowFrame extends Vue {
     );
   }
 
-  > div {
-    > span:not(:first-child) {
-      margin-left: 0.5em;
-      padding: 0 0.5em;
-      font-style: italic;
-      text-underline: #444444;
-      border-radius: 0.3em;
-      background-color: white;
-    }
-  }
-
   .title-message-area {
     overflow-x: hidden;
     text-overflow: ellipsis;
     margin-right: auto;
+
+    > * {
+      margin-left: 0.5em;
+    }
+
+    .window-message {
+      padding: 0 0.5em;
+      font-style: italic;
+      text-underline: #444444;
+      background-color: white;
+    }
   }
 
   &:hover + .window-info-balloon {

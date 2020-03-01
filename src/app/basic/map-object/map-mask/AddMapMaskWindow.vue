@@ -55,6 +55,9 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
   public async mounted() {
     await this.init();
     this.isMounted = true;
+    this.windowInfo.message = LanguageManager.instance.getText(
+      `${this.windowInfo.type}.message-list.drag-piece`
+    );
   }
 
   @VueEvent

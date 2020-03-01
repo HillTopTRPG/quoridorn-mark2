@@ -9,17 +9,7 @@
             type="text"
             :value="url"
             @input="url = $event.target.value"
-            list="urlList"
           />
-          <datalist id="urlList" v-if="originalUrlList.length > 1">
-            <option
-              v-for="(urlInfo, index) in originalUrlList"
-              :key="index"
-              :value="urlInfo.url"
-            >
-              {{ urlInfo.title }}
-            </option>
-          </datalist>
         </label>
         <ctrl-button @click.stop="test()">TEST</ctrl-button>
       </div>
@@ -32,25 +22,13 @@
         v-if="testStatus"
       >
         <span v-t="`${windowInfo.type}.${testStatus}`"></span>
-        <template v-if="testStatus === 'testing'">
+        <template v-if="testStatus === 'error'">
           <span class="icon-hour-glass"></span>
         </template>
-        <template v-if="testStatus === 'not-quoridorn'">
-          <span class="icon-confused"></span>
-        </template>
-        <template v-if="testStatus === 'no-such-server'">
-          <span class="icon-wondering"></span>
-        </template>
-        <template v-if="testStatus === 'internal-server-error'">
-          <span class="icon-warning"></span>
-        </template>
         <template v-if="testStatus === 'success'">
-          <span class="icon-grin"></span>
-          ：<span class="selectable">{{ testServerTitle }}</span>
-          <br />
-          （
-          <span class="selectable">{{ testServerVersion }}</span>
-          ）
+          <span class="icon-grin"></span><br />
+          API：<span class="selectable api">{{ apiVersion }}</span>
+          BCDice：<span class="selectable">{{ bcdiceVersion }}</span>
         </template>
       </div>
     </div>
@@ -77,25 +55,26 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { AppServerSettingInput, DefaultServerInfo } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import { BcdiceVersionInfo } from "@/@types/bcdice";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
 })
-export default class AppServerSettingWindow extends Mixins<
-  WindowVue<never, AppServerSettingInput>
+export default class BcdiceApiServerSettingWindow extends Mixins<
+  WindowVue<string, string>
 >(WindowVue) {
   private url: string = "";
-  private readonly originalUrlList: DefaultServerInfo[] =
-    SocketFacade.instance.appServerUrlList;
   private testMessage: string = "";
   private testStatus: string = "";
-  private testServerTitle: string = "";
-  private testServerVersion: string = "";
+  private apiVersion: string = "";
+  private bcdiceVersion: string = "";
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.url = SocketFacade.instance.appServerUrl;
+    this.url = this.windowInfo.args!;
   }
 
   @Watch("currentDiceBotSystem")
@@ -108,35 +87,23 @@ export default class AppServerSettingWindow extends Mixins<
     window.console.log("test");
     this.testStatus = "testing";
     try {
-      const info = await SocketFacade.instance.testServer(this.url);
-      this.testServerTitle = info.title;
-      this.testServerVersion = info.serverVersion;
+      const info: BcdiceVersionInfo = await BCDiceFacade.getBcdiceVersionInfo(
+        this.url
+      );
+      this.apiVersion = info.api;
+      this.bcdiceVersion = info.bcdice;
       this.testStatus = "success";
     } catch (err) {
-      switch (err) {
-        case "internal-server-error":
-          this.testMessage = "サーバ内でエラーが発生しました";
-          break;
-        case "not-quoridorn":
-          this.testMessage = "Quoridornサーバではありません";
-          break;
-        case "no-such-server":
-          this.testMessage = "接続できませんでした";
-          break;
-        case "un-match-version":
-          this.testMessage = "互換性の無いバージョンのサーバです";
-          break;
-        default:
-      }
-      this.testStatus = err;
+      this.testMessage = LanguageManager.instance.getText(
+        `${this.windowInfo.key}.error-messages.connect-error`
+      );
+      this.testStatus = "error";
     }
   }
 
   @VueEvent
   private async commit() {
-    await this.finally({
-      url: this.url
-    });
+    await this.finally(this.url);
   }
 
   @VueEvent
@@ -182,5 +149,8 @@ export default class AppServerSettingWindow extends Mixins<
       width: 10px;
     }
   }
+}
+.api {
+  margin-right: 2rem;
 }
 </style>

@@ -3,6 +3,11 @@ export type DiceSystem = {
   name: string;
 };
 
+export type BcdiceVersionInfo = {
+  api: string;
+  bcdice: string;
+};
+
 export type BcdiceSystemInfo = {
   name: string;
   gameType: string;

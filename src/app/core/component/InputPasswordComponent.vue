@@ -2,7 +2,7 @@
   <div class="password-component" ref="component">
     <password
       :id="compKey"
-      defaultClass="Password__field input"
+      :defaultClass="`Password__field input${isPending ? ' pending' : ''}`"
       v-model="localValue"
       :secureLength="10"
       :toggle="!disabled"
@@ -12,16 +12,13 @@
       :showStrengthMeter="setting"
       :badge="setting"
       :disabled="disabled"
-      @score="showScore"
-      @feedback="showFeedback"
     />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Emit, Prop, Watch } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import Password from "vue-password-strength-meter";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 
@@ -31,12 +28,18 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 export default class InputPasswordComponent extends Vue {
   @Prop({ type: String, required: true })
   public value!: string;
+
   @Prop({ type: String, required: true })
   public compKey!: string;
+
   @Prop({ type: Boolean, required: true })
   public setting!: boolean;
+
   @Prop({ type: Boolean, required: false, default: false })
   public disabled!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  public isPending!: boolean;
 
   private isMounted: boolean = false;
 
@@ -45,8 +48,9 @@ export default class InputPasswordComponent extends Vue {
     this.isMounted = true;
   }
 
-  @Emit("input")
-  public input(password: string) {}
+  public input(password: string) {
+    this.$emit("input", password);
+  }
 
   public get localValue(): string {
     return this.value;
@@ -68,23 +72,6 @@ export default class InputPasswordComponent extends Vue {
   @Watch("setting")
   private onChangeIsSetting() {
     this.elm.style.setProperty("--height", this.setting ? "2.5em" : "2em");
-  }
-
-  @VueEvent
-  showFeedback({
-    suggestions,
-    warning
-  }: {
-    suggestions: string;
-    warning: string;
-  }) {
-    // window.console.log("🙏", suggestions);
-    // window.console.log("⚠", warning);
-  }
-
-  @VueEvent
-  showScore(score: string) {
-    // window.console.log("💯", score);
   }
 }
 </script>

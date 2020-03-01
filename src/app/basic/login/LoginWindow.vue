@@ -769,6 +769,7 @@ export default class LoginWindow extends Mixins<
 
     const loginResult: ClientRoomInfo = {
       name: createRoomInput.name,
+      bcdiceServer: SocketFacade.instance.connectInfo.bcdiceServer,
       system: createRoomInput.system,
       extend: createRoomInput.extend,
       memberNum: 0,
@@ -904,7 +905,7 @@ export default class LoginWindow extends Mixins<
           args: {
             isSetting: false,
             userNameList: (
-              await SocketFacade.instance.userCC().getList(false)
+              await SocketFacade.instance.userCC().getList(true)
             ).map(userData => userData.data!.userName),
             userName: this.urlPlayerName
           }

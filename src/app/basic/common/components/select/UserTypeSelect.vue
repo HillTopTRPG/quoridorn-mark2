@@ -2,6 +2,7 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
+    :isPending="isPending"
     ref="component"
   />
 </template>

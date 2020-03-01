@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import WindowVue from "../../../core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
@@ -60,6 +60,15 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     await this.init();
     this.imageTag = LanguageManager.instance.getText("type.character");
     this.isMounted = true;
+  }
+
+  @Watch("imageDocId", { immediate: true })
+  private onChangeImageDocId() {
+    this.windowInfo.message = LanguageManager.instance.getText(
+      `${this.windowInfo.type}.message-list.${
+        this.imageDocId ? "drag-piece" : "choose-image"
+      }`
+    );
   }
 
   @VueEvent

@@ -59,14 +59,16 @@ label:
   password: Mot de passe
   password-placeholder: (pas de mot de passe si vide)
   user-type: Type d'utilisateur
-  nameless: Sans nom
+  nameless: Sans nom (élément obligatoire)
   permission: Autorité
   player: PL
   gameMaster: GM
   visitor: Visiteur
   room-name: Nom de la salle de jeux
   room-name-placeholder: Nom de la chambre (élément obligatoire)
-  game-system: Système de jeu (Peut être entré)
+  bcdice-api-url: BCDice-APIのURL
+  game-system-input: Système de jeu (Peut être entré)
+  game-system-view: Système de jeu
   no-target: Non spécifié
   participant: Participant
   version-info: Informations sur la version
@@ -174,6 +176,7 @@ label:
   editing: 編集中
   unknown: [不明]
   really-delete: 本当に削除しますか？
+  input-bcdice-url: BCDice-APIサーバーのURLを設定します
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -221,6 +224,14 @@ user-login-window:
   window-title: Login utilisateur
   message: S'il vous plaît entrer vos informations d'utilisateur.
 
+bcdice-api-server-setting-window:
+  window-title: BCDice-APIサーバ設定
+  message: BCDice-APIサーバに関する設定
+  success: 接続成功
+  error: 接続失敗
+  error-messages:
+    connect-error: 接続に失敗しました。
+
 app-server-setting-window:
   window-title: Paramètres du serveur d'applications
   message: Paramètres du serveur d'applications
@@ -257,12 +268,17 @@ room-info-window:
 
 add-map-mask-window:
   window-title: Ajouter un masque de carte
+  message-list:
+    drag-piece: マップにドラッグすると追加できます。
 
 edit-map-mask-window:
   window-title: Modifier le masque de carte
 
 add-chit-window:
   window-title: Ajouter du chit
+  message-list:
+    choose-image: 画像を選択してください。
+    drag-piece: マップにドラッグすると追加できます。
 
 edit-chit-window:
   window-title: チット編集

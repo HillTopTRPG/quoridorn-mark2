@@ -126,8 +126,12 @@ $border-color: green;
   border-bottom: 1px solid $border-color;
   cursor: pointer;
 
+  &:hover {
+    background-color: var(--uni-color-light-skyblue);
+  }
+
   &.selected {
-    background-color: lightyellow;
+    background-color: var(--uni-color-skyblue);
 
     &:after {
       content: "";

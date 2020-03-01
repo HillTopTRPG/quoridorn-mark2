@@ -291,7 +291,7 @@ $backColorUnSelect: #c0d0c0;
       transform: translateX(0);
 
       &:hover {
-        background-color: lightyellow;
+        background-color: var(--uni-color-light-skyblue);
         color: red;
       }
     }

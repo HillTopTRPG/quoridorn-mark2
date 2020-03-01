@@ -65,7 +65,8 @@
     </div>
     <!-- ログアウト -->
     <div class="menu-button" @click="clickLogOut">
-      ログアウト
+      <span class="icon-switch"></span>
+      <span>ログアウト</span>
     </div>
 
     <!--------------------------------------------------
@@ -287,7 +288,7 @@ export default class Menu extends Vue {
     this.isSelecting = !this.isSelecting;
   }
 
-  isShow(this: any, ...props: any[]): any {
+  isShow(...props: any[]): any {
     return (
       this.isSelecting && props.filter(prop => prop === this.currentMenu)[0]
     );
@@ -614,7 +615,7 @@ export default class Menu extends Vue {
 }
 .hoverMenu {
   position: fixed;
-  top: calc(2.5em - 1px);
+  top: calc(var(--menu-bar-height) / 2 + 0.9rem - 1px);
   background: white;
   border: solid gray 1px;
   box-sizing: border-box;
@@ -651,7 +652,7 @@ export default class Menu extends Vue {
   left: 24em;
 }
 .hoverMenu8 {
-  left: calc(25em - 1px);
+  left: calc(24em - 1px);
 }
 .hoverMenu9 {
   left: 29em;

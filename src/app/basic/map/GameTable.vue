@@ -448,14 +448,13 @@ export default class GameTable extends AddressCalcMixin {
     );
     const locateOnCanvas = canvasAddress.locateOnCanvas;
 
-    // TODO isGridFit
-    const isGridFit = true;
+    const isFitGrid = this.roomData.isFitGrid;
     const gridSize = CssManager.instance.propMap.gridSize;
     const matrix: Matrix = {
       column: Math.floor(locateOnCanvas.x / gridSize),
       row: Math.floor(locateOnCanvas.y / gridSize)
     };
-    if (isGridFit) {
+    if (isFitGrid) {
       locateOnCanvas.x = matrix.column * gridSize;
       locateOnCanvas.y = matrix.row * gridSize;
     }

@@ -3,10 +3,11 @@
     class="ctrl-select-wrapper"
     :disabled="disabled"
     @contextmenu.prevent
-    :class="{ multiple: multiple }"
+    :class="{ multiple }"
   >
     <select
       class="input"
+      :class="{ pending: isPending }"
       v-model="localValue"
       :id="id || undefined"
       ref="component"

@@ -8,7 +8,6 @@
           type="password"
           :value="password"
           @input="password = $event.target.value"
-          ref="firstFocus"
         />
       </label>
     </div>

@@ -29,6 +29,7 @@ export type RoomInfoExtend = {
 
 type BaseRoomInfo = {
   name: string;
+  bcdiceServer: string;
   system: string;
   extend?: RoomInfoExtend; // 一時的措置
 };
