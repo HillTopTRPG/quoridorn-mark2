@@ -6,7 +6,7 @@
         v-for="image in useImageList"
         :class="{ active: value === image.id }"
         :key="image.id"
-        :src="image.data.data"
+        :src="getSrc(image.data.data)"
         alt=""
         @click="localValue = image.id"
         draggable="false"
@@ -64,7 +64,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
 import { StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { Direction, Image } from "@/@types/room";
+import { Direction, ImageInfo } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { Mixins } from "vue-mixin-decorator";
@@ -72,6 +72,8 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
 import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import { getSrc } from "@/app/core/Utility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -97,8 +99,13 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   private password: string = "";
   private direction: Direction = "none";
 
-  private rowImageList: StoreUseData<Image>[] = [];
-  private useImageList: StoreUseData<Image>[] = [];
+  private rowImageList: StoreUseData<ImageInfo>[] = [];
+  private useImageList: StoreUseData<ImageInfo>[] = [];
+
+  @VueEvent
+  private getSrc(data: string) {
+    return getSrc(data);
+  }
 
   @Watch("isMounted")
   @Watch("selectImageTag")

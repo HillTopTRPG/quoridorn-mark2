@@ -7,7 +7,6 @@ type PlayerInfo = {
   elementId: string;
   eventHandlers: YoutubeEventHandler[];
   timeUpdateTimer: number | null;
-  timerReload: number | null;
 };
 
 export type YoutubeEventHandler = {
@@ -17,7 +16,6 @@ export type YoutubeEventHandler = {
   onEnded: () => void;
   onError: (error: any) => void;
   onPaused: () => void;
-  onReject: () => void;
   setVolume: (volume: number) => void;
   setIsMute: (isMute: boolean) => void;
 };
@@ -126,7 +124,7 @@ export default class YoutubeManager {
         playerVars: {
           origin: location.protocol + "//" + location.hostname + ":8080/",
           playlist: videoId,
-          autoplay: 0, // 0:自動再生しない or 1:自動再生
+          autoplay: 1, // 0:自動再生しない or 1:自動再生
           controls: 0, // 再生ボタンとか出さない
           disablekb: 1, // ショートカットキー無効
           enablejsapi: 1, // JavaScript API 有効
@@ -147,23 +145,9 @@ export default class YoutubeManager {
         player,
         elementId,
         eventHandlers: [eventHandler],
-        timeUpdateTimer: null,
-        timerReload: null
+        timeUpdateTimer: null
       };
       this.playerMapping[elementId] = playerObj;
-
-      // 既にタイマーが張られていたら停止する
-      if (playerObj.timerReload !== null) {
-        clearTimeout(playerObj.timerReload);
-      }
-
-      // 1500ミリ秒経っても再生できてなければRejectする
-      // （通常に読み込めるときの時間は900msくらい）
-      playerObj.timerReload = window.setTimeout(() => {
-        this.playerMapping[elementId].eventHandlers.forEach(eh => {
-          eh.onReject();
-        });
-      }, 1500);
     }
   }
 
@@ -176,12 +160,6 @@ export default class YoutubeManager {
   public destroyed(elementId: string) {
     let playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
-
-    // 既にタイマーが張られていたら停止する
-    if (playerObj.timerReload !== null) {
-      clearTimeout(playerObj.timerReload);
-      playerObj.timerReload = null;
-    }
     if (playerObj.timeUpdateTimer !== null) {
       clearInterval(playerObj.timeUpdateTimer);
       playerObj.timeUpdateTimer = null;
@@ -217,25 +195,17 @@ export default class YoutubeManager {
     if (!playerObj) return;
 
     const videoId = YoutubeManager.getUrlParam("v", url);
-    this.playerMapping[elementId].player.loadVideoById({
-      videoId,
-      startSeconds: start,
-      endSeconds: end,
-      suggestedQuality
-    });
-
-    // 既にタイマーが張られていたら停止する
-    if (playerObj.timerReload !== null) {
-      clearTimeout(playerObj.timerReload);
-    }
-
-    // 1500ミリ秒経っても再生できてなければRejectする
-    // （通常に読み込めるときの時間は900msくらい）
-    playerObj.timerReload = window.setTimeout(() => {
-      this.playerMapping[elementId].eventHandlers.forEach(eh => {
-        eh.onReject();
+    try {
+      window.console.warn(typeof playerObj.player.loadVideoById, elementId);
+      playerObj.player.loadVideoById({
+        videoId,
+        startSeconds: start,
+        endSeconds: end,
+        suggestedQuality
       });
-    }, 1500);
+    } catch (err) {
+      window.console.log(err);
+    }
   }
 
   /** 再生する */
@@ -297,12 +267,12 @@ export default class YoutubeManager {
    * YT.PlayerState.CUED
    */
   public getPlayerState(elementId: string) {
-    this.doPlayerMethod("getPlayerState", elementId);
+    return this.doPlayerMethod("getPlayerState", elementId);
   }
 
   /** 動画の再生を開始してからの経過時間を秒数で取得 */
   public getCurrentTime(elementId: string) {
-    this.doPlayerMethod("getCurrentTime", elementId);
+    return this.doPlayerMethod("getCurrentTime", elementId);
   }
 
   /**
@@ -397,10 +367,6 @@ export default class YoutubeManager {
           clearInterval(playerObj.timeUpdateTimer);
           playerObj.timeUpdateTimer = null;
         }
-        if (playerObj.timerReload !== null) {
-          clearTimeout(playerObj.timerReload);
-          playerObj.timerReload = null;
-        }
 
         // 100ミリ秒毎に現在の再生経過時間を通知する
         playerObj.timeUpdateTimer = window.setInterval(() => {
@@ -423,10 +389,6 @@ export default class YoutubeManager {
       if (playerObj.timeUpdateTimer !== null) {
         clearInterval(playerObj.timeUpdateTimer);
         playerObj.timeUpdateTimer = null;
-      }
-      if (playerObj.timerReload !== null) {
-        clearTimeout(playerObj.timerReload);
-        playerObj.timerReload = null;
       }
 
       this.playerMapping[elementId].eventHandlers.forEach(eh => {

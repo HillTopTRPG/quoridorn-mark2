@@ -30,6 +30,8 @@ import { Matrix, Size } from "address";
 import { createSize } from "@/app/core/Coordinate";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { ModeInfo } from "mode";
 @Component({
   components: { SceneLayerComponent }
 })
@@ -62,8 +64,16 @@ export default class MapBoard extends Vue {
   @LifeCycle
   private mounted() {
     this.isMounted = true;
-    setTimeout(() => {
+    setTimeout(async () => {
       this.paint();
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "create-room",
+          value: "off"
+        }
+      });
     });
   }
 
@@ -210,6 +220,11 @@ export default class MapBoard extends Vue {
 <style scoped lang="scss">
 #map-canvas-container {
   position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
   z-index: 0;
 }
 

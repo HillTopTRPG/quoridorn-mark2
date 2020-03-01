@@ -56,6 +56,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
+import { getSrc } from "@/app/core/Utility";
 
 @Component({
   components: {
@@ -194,12 +195,6 @@ export default class GameTable extends AddressCalcMixin {
     GameTable.gameTableElm.style.borderStyle = margin.border.style;
   }
 
-  public static changeImagePath(path: string) {
-    if (path.startsWith("/")) return `..${path}`;
-    if (path.startsWith("./")) return `.${path}`;
-    return path;
-  }
-
   private static async setBackground(elm: HTMLElement, info: Texture) {
     let direction: string = "";
     let backgroundColor: string = "transparent";
@@ -211,9 +206,7 @@ export default class GameTable extends AddressCalcMixin {
         .imageDataCC()
         .getData(info.imageId);
       if (imageData && imageData.data) {
-        backgroundImage = `url("${GameTable.changeImagePath(
-          imageData.data.data
-        )}")`;
+        backgroundImage = `url("${getSrc(imageData.data.data)}")`;
       }
       if (info.direction === "horizontal") direction = "scale(-1, 1)";
       if (info.direction === "vertical") direction = "scale(1, -1)";
@@ -498,6 +491,10 @@ export default class GameTable extends AddressCalcMixin {
   overflow: visible;
   border-style: var(--margin-border-style);
   border-color: var(--margin-border-color);
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: var(--grid-paper-width);
   height: var(--grid-paper-height);
   filter: var(--filter);
@@ -535,7 +532,9 @@ export default class GameTable extends AddressCalcMixin {
 }
 
 #grid-paper {
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
   width: var(--grid-paper-width);
   overflow: hidden;
   z-index: 2;

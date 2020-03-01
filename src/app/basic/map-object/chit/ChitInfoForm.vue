@@ -129,6 +129,7 @@ import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSel
 import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
 import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import { getSrc } from "@/app/core/Utility";
 
 @Component({
   components: {
@@ -333,7 +334,7 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
       obj => obj.id === this.imageDocId
     )[0];
     if (!imageObj) return;
-    this.imageSrc = imageObj.data!.data;
+    this.imageSrc = getSrc(imageObj.data!.data);
     this.objectElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
     let direction = "";
     if (this.direction === "horizontal") direction = "scale(-1, 1)";

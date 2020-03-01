@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @scroll.prevent.stop>
     <!-- 最も後ろの背景 (z-index: 0) -->
     <div id="back-scene"></div>
 
@@ -73,6 +73,7 @@ import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContai
 import { BgmPlayInfo, TabMoveInfo, ThrowParabolaInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
+import { disableBodyScroll } from "body-scroll-lock";
 
 @Component({
   components: {
@@ -121,6 +122,7 @@ export default class App extends Vue {
 
   @LifeCycle
   public async mounted() {
+    disableBodyScroll();
     document.documentElement.style.setProperty(
       "--background-background-color",
       "transparent"
@@ -504,6 +506,11 @@ export default class App extends Vue {
 
 html,
 body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   padding: 0;
   margin: 0;
   width: 100%;
@@ -545,7 +552,11 @@ label {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  position: relative;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
   height: 100%;
   perspective: 1000px;
@@ -577,9 +588,11 @@ label {
 }
 
 #back-scene {
-  position: absolute;
+  position: fixed;
   background-size: cover;
   background-position: center;
+  left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   filter: blur(var(--mask-blur));
