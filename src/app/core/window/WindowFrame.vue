@@ -2,7 +2,7 @@
   <div
     :id="key"
     class="window-frame"
-    :class="{ minimized: windowInfo.isMinimized }"
+    :class="[windowInfo.isMinimized ? 'minimized' : undefined, windowInfo.type]"
     @mousedown.left.stop="activeWindow()"
     @touchstart.stop="activeWindow()"
     ref="window-frame"

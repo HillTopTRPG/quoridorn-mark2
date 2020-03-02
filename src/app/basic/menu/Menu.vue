@@ -61,7 +61,8 @@
     </div>
     <!-- 共有メモ -->
     <div class="menu-button" @click="clickPublicMemo">
-      共有メモ
+      <span class="icon-file-text"></span>
+      <span>共有メモ</span>
     </div>
     <!-- ログアウト -->
     <div class="menu-button" @click="clickLogOut">

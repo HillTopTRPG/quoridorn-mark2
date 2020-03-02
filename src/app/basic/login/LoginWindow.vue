@@ -134,7 +134,8 @@ import {
   RoomLoginRequest,
   UserLoginResponse,
   LoginWindowInput,
-  ServerTestResult
+  ServerTestResult,
+  RoomInfoExtend
 } from "@/@types/socket";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -163,7 +164,6 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 import { ModeInfo } from "mode";
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 
 @Component({
   components: {
@@ -465,8 +465,6 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private async deleteRoom(order: number) {
-    window.console.log(this.selectedRoomNo, order);
-
     this.isInputtingRoomInfo = true;
 
     // タッチ
@@ -660,6 +658,7 @@ export default class LoginWindow extends Mixins<
           type: "user-login-window",
           args: {
             isSetting: true,
+            visitable: createRoomInput.extend.visitable,
             userNameList: [],
             userName: ""
           }
@@ -689,7 +688,6 @@ export default class LoginWindow extends Mixins<
       }
     });
 
-    window.console.log(this.selectedRoomNo);
     const roomId = this.roomList![this.selectedRoomNo].id!;
 
     /* ----------------------------------------------------------------------
@@ -747,7 +745,7 @@ export default class LoginWindow extends Mixins<
      */
     await this.close();
 
-    await this.addPresetData();
+    await this.addPresetData(createRoomInput.extend);
 
     // await TaskManager.instance.ignition<ModeInfo, never>({
     //   type: "mode-change",
@@ -981,7 +979,7 @@ export default class LoginWindow extends Mixins<
     });
   }
 
-  private async addPresetData() {
+  private async addPresetData(extendInfo: RoomInfoExtend) {
     const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
       "./static/conf/image.yaml"
     );
@@ -1131,10 +1129,7 @@ export default class LoginWindow extends Mixins<
 
     const roomData: RoomData = {
       sceneId: addMapResult.sceneId,
-      isDrawGridLine: true,
-      isDrawGridId: true,
-      isFitGrid: true,
-      isUseRotateMarker: true
+      settings: extendInfo
     };
     await roomDataCC.addDirect([roomData]);
   }

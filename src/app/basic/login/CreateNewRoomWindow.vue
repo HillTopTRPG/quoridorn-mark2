@@ -52,7 +52,7 @@ import { Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { CreateRoomInput } from "@/@types/socket";
+import { CreateRoomInput, RoomInfoExtend } from "@/@types/socket";
 import LanguageManager from "@/LanguageManager";
 import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -78,6 +78,24 @@ export default class CreateNewRoomWindow extends Mixins<
   /** 選択されているシステム */
   private system: DiceSystem = { system: "DiceBot", name: "DiceBot" };
   private url: string = SocketFacade.instance.connectInfo.bcdiceServer;
+  private extendInfo: RoomInfoExtend = {
+    visitable: true,
+    isFitGrid: true,
+    isViewDice: true,
+    isViewCutIn: true,
+    isDrawGridId: true,
+    mapRotatable: true,
+    isDrawGridLine: true,
+    isShowStandImage: true,
+    isShowRotateMarker: true,
+    windowSettings: {
+      chat: "free",
+      resource: "free",
+      initiative: "free",
+      chatPalette: "free",
+      counterRemocon: "free"
+    }
+  };
 
   @LifeCycle
   public async mounted() {
@@ -97,7 +115,8 @@ export default class CreateNewRoomWindow extends Mixins<
       name: this.name || LanguageManager.instance.getText(""),
       bcdiceServer: this.url,
       system: this.system.system,
-      roomPassword: this.password
+      roomPassword: this.password,
+      extend: this.extendInfo
     });
   }
 

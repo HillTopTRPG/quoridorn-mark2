@@ -18,6 +18,7 @@ import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { Prop } from "vue-property-decorator";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -28,6 +29,9 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
+  @Prop({ type: Boolean, required: true })
+  private visitable!: boolean;
+
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "user-type", text: "", disabled: true },
     { value: "PL", key: "player", text: "", disabled: false },
@@ -54,6 +58,7 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
     );
     this.optionInfoList.forEach(o => {
       o.text = getText(`label.${o.key}`);
+      if (o.value === "VISITOR" && !this.visitable) o.disabled = true;
     });
   }
 

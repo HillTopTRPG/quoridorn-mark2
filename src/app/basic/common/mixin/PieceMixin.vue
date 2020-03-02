@@ -589,7 +589,7 @@ export default class PieceMixin<
       Math.floor(relativeY / gridSize) +
       1;
 
-    if (GameObjectManager.instance.roomData.isFitGrid) {
+    if (GameObjectManager.instance.roomData.settings.isFitGrid) {
       address.x = (address.column - 1) * gridSize;
       address.y = (address.row - 1) * gridSize;
     }

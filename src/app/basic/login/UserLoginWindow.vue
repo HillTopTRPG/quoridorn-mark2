@@ -33,7 +33,11 @@
       </label>
       <label>
         <span class="label-input" v-t="'label.user-type'"></span>
-        <user-type-select v-model="userType" :isPending="!name" />
+        <user-type-select
+          v-model="userType"
+          :isPending="!name"
+          :visitable="visitable"
+        />
       </label>
     </div>
     <div class="button-area">
@@ -86,6 +90,7 @@ export default class UserLoginWindow extends Mixins<
   private password: string = "";
   private userType: UserType = "PL";
   private isSetting: boolean = false;
+  private visitable: boolean = false;
   private userList: StoreUseData<UserData>[] | null = null;
 
   @LifeCycle
@@ -94,6 +99,7 @@ export default class UserLoginWindow extends Mixins<
     this.inputEnter(".base-area select", this.commit);
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
     this.isSetting = this.windowInfo.args!.isSetting;
+    this.visitable = this.windowInfo.args!.visitable;
     this.userList = await SocketFacade.instance.userCC().getList(true);
     this.name = this.windowInfo.args!.userName || "";
     if (!this.isSetting) {

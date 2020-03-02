@@ -32,6 +32,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+
 @Component({
   components: { SceneLayerComponent }
 })
@@ -107,7 +108,7 @@ export default class MapBoard extends Vue {
     const gridSize = this.scene.gridSize;
 
     // マス目の描画
-    if (this.roomData.isDrawGridLine) {
+    if (this.roomData.settings.isDrawGridLine) {
       ctx.strokeStyle = this.scene.gridColor;
       ctx.globalAlpha = 1;
       for (let c = 0; c <= this.scene.columns; c++) {
@@ -137,7 +138,7 @@ export default class MapBoard extends Vue {
     }
 
     // マス座標の描画
-    if (this.roomData.isDrawGridId) {
+    if (this.roomData.settings.isDrawGridId) {
       ctx.fillStyle = this.scene.fontColor;
       ctx.globalAlpha = 1;
       ctx.textAlign = "center";

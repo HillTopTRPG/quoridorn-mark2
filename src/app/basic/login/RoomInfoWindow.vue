@@ -16,7 +16,11 @@
         </label>
       </div>
       <label>
-        <span class="label-input" v-t="'label.game-system'"></span>
+        <span class="label-input" v-t="'label.bcdice-api-url'"></span>
+        <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
+      </label>
+      <label>
+        <span class="label-input" v-t="'label.game-system-view'"></span>
         <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
       </label>
       <div class="invite">
@@ -175,10 +179,11 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   public async mounted() {
     await this.init();
     this.clientRoomInfo = GameObjectManager.instance.clientRoomInfo;
+    SocketFacade.instance.connectInfo.bcdiceServer;
 
     const declareObj = this.windowInfo.declare;
 
-    const heightEm = this.userList.length * 2 + 10;
+    const heightEm = this.userList.length * 2 + 12;
     this.windowInfo.heightEm = heightEm;
     declareObj.size.heightEm = heightEm;
     declareObj.minSize!.heightEm = heightEm;

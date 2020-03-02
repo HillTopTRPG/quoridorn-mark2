@@ -10,7 +10,8 @@ import {
   RoomData,
   SocketUserData,
   CutInDeclareInfo,
-  ImageInfo
+  ImageInfo,
+  PartialRoomData
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -22,7 +23,11 @@ import {
   TagNoteStore,
   ActorStatusStore
 } from "@/@types/gameObject";
-import { ClientRoomInfo } from "@/@types/socket";
+import {
+  ClientRoomInfo,
+  RoomInfoExtend,
+  WindowSettings
+} from "@/@types/socket";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Point } from "address";
 import { createPoint } from "@/app/core/Coordinate";
@@ -82,11 +87,24 @@ export default class GameObjectManager {
     this.roomDataId = roomData.id!;
 
     // Object.assign()
+    const writeSettings = (from: RoomInfoExtend, to: RoomInfoExtend) => {
+      to.visitable = from.visitable;
+      to.isFitGrid = from.isFitGrid;
+      to.isViewDice = from.isViewDice;
+      to.isViewCutIn = from.isViewCutIn;
+      to.isDrawGridId = from.isDrawGridId;
+      to.mapRotatable = from.mapRotatable;
+      to.isDrawGridLine = from.isDrawGridLine;
+      to.isShowStandImage = from.isShowStandImage;
+      to.isShowRotateMarker = from.isShowRotateMarker;
+      to.windowSettings.chat = from.windowSettings.chat;
+      to.windowSettings.resource = from.windowSettings.resource;
+      to.windowSettings.initiative = from.windowSettings.initiative;
+      to.windowSettings.chatPalette = from.windowSettings.chatPalette;
+      to.windowSettings.counterRemocon = from.windowSettings.counterRemocon;
+    };
     this.roomData.sceneId = roomData.data!.sceneId;
-    this.roomData.isFitGrid = roomData.data!.isFitGrid;
-    this.roomData.isDrawGridId = roomData.data!.isDrawGridId;
-    this.roomData.isDrawGridLine = roomData.data!.isDrawGridLine;
-    this.roomData.isUseRotateMarker = roomData.data!.isUseRotateMarker;
+    writeSettings(roomData.data!.settings, this.roomData.settings);
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
@@ -96,10 +114,7 @@ export default class GameObjectManager {
           const d = snapshot.data.data!;
           // Object.assign()
           this.roomData.sceneId = d.sceneId;
-          this.roomData.isFitGrid = d.isFitGrid;
-          this.roomData.isDrawGridId = d.isDrawGridId;
-          this.roomData.isDrawGridLine = d.isDrawGridLine;
-          this.roomData.isUseRotateMarker = d.isUseRotateMarker;
+          writeSettings(d.settings, this.roomData.settings);
         }
       }
     );
@@ -114,7 +129,7 @@ export default class GameObjectManager {
     });
   }
 
-  public async updateRoomData(data: Partial<RoomData>): Promise<void> {
+  public async updateRoomData(data: PartialRoomData): Promise<void> {
     if (!this.roomDataId)
       throw new ApplicationError("Illegal timing error(roomDataId is null).");
     const cc = SocketFacade.instance.roomDataCC();
@@ -129,13 +144,36 @@ export default class GameObjectManager {
 
     // Object.assign()
     if (data.sceneId !== undefined) this.roomData.sceneId = data.sceneId;
-    if (data.isDrawGridId !== undefined)
-      this.roomData.isDrawGridId = data.isDrawGridId;
-    if (data.isDrawGridLine !== undefined)
-      this.roomData.isDrawGridLine = data.isDrawGridLine;
-    if (data.isFitGrid !== undefined) this.roomData.isFitGrid = data.isFitGrid;
-    if (data.isUseRotateMarker !== undefined)
-      this.roomData.isUseRotateMarker = data.isUseRotateMarker;
+    const settings = data.settings;
+    if (settings) {
+      const copyParam = <T extends keyof RoomInfoExtend>(param: T) => {
+        if (settings[param] !== undefined)
+          this.roomData.settings[param] = settings[param];
+      };
+      copyParam("visitable");
+      copyParam("isFitGrid");
+      copyParam("isViewDice");
+      copyParam("isViewCutIn");
+      copyParam("isDrawGridId");
+      copyParam("mapRotatable");
+      copyParam("isDrawGridLine");
+      copyParam("isShowStandImage");
+      copyParam("isShowRotateMarker");
+
+      const windowSettings = settings.windowSettings;
+      if (windowSettings) {
+        const copyWindow = <T extends keyof WindowSettings>(param: T) => {
+          if (windowSettings[param] !== undefined)
+            this.roomData.settings.windowSettings[param] =
+              windowSettings[param];
+        };
+        copyWindow("chat");
+        copyWindow("resource");
+        copyWindow("initiative");
+        copyWindow("chatPalette");
+        copyWindow("counterRemocon");
+      }
+    }
     await cc.update(this.roomDataId, this.roomData);
   }
 
@@ -146,10 +184,24 @@ export default class GameObjectManager {
   private roomDataId: string | null = null;
   public readonly roomData: RoomData = {
     sceneId: "",
-    isDrawGridLine: false,
-    isDrawGridId: false,
-    isFitGrid: false,
-    isUseRotateMarker: false
+    settings: {
+      visitable: true,
+      isFitGrid: true,
+      isViewDice: true,
+      isViewCutIn: true,
+      isDrawGridId: true,
+      mapRotatable: true,
+      isDrawGridLine: true,
+      isShowStandImage: true,
+      isShowRotateMarker: true,
+      windowSettings: {
+        chat: "free",
+        resource: "free",
+        initiative: "free",
+        chatPalette: "free",
+        counterRemocon: "free"
+      }
+    }
   };
   public readonly playingBgmList: {
     targetId: string | null;

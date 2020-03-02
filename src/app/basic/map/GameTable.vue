@@ -84,16 +84,6 @@ export default class GameTable extends AddressCalcMixin {
     }
   }
 
-  private get useLayerList() {
-    return this.sceneAndLayerList
-      .filter(
-        mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
-      )
-      .map(mal => mal.data!.layerId)
-      .map(layerId => this.sceneLayerList.filter(ml => ml.id === layerId)[0])
-      .filter(ml => ml);
-  }
-
   private wheel: number = 0;
 
   private key = "game-table";
@@ -294,7 +284,18 @@ export default class GameTable extends AddressCalcMixin {
   @VueEvent
   private leftDown(event: MouseEvent | TouchEvent): void {
     this.dragFrom = getEventPoint(event);
-    this.mouseDown("left");
+    this.pointDiff = createPoint(0, 0);
+    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
+      key: this.key,
+      type: `button-left`
+    });
+    TaskManager.instance.setTaskParam<MouseMoveParam>(
+      "mouse-move-end-left-finished",
+      {
+        key: this.key,
+        type: `left-click`
+      }
+    );
   }
 
   /**
@@ -302,26 +303,25 @@ export default class GameTable extends AddressCalcMixin {
    */
   @VueEvent
   private rightDown(event: MouseEvent | TouchEvent): void {
-    const mouse = getEventPoint(event);
-    const calcResult = this.calcCoordinate(mouse, this.currentAngle);
-    this.dragFrom = mouse;
-    this.rotateFrom = calcResult.angle;
-    this.mouseDown("right");
-  }
-
-  private mouseDown(button: string) {
-    this.pointDiff = createPoint(0, 0);
-    TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
-      key: this.key,
-      type: `button-${button}`
-    });
+    if (this.roomData.settings.mapRotatable) {
+      const mouse = getEventPoint(event);
+      const calcResult = this.calcCoordinate(mouse, this.currentAngle);
+      this.dragFrom = mouse;
+      this.rotateFrom = calcResult.angle;
+      this.pointDiff = createPoint(0, 0);
+      TaskManager.instance.setTaskParam<MouseMoveParam>(
+        "mouse-moving-finished",
+        {
+          key: this.key,
+          type: "button-right"
+        }
+      );
+    }
     TaskManager.instance.setTaskParam<MouseMoveParam>(
-      button === "right"
-        ? "mouse-move-end-right-finished"
-        : `mouse-move-end-left-finished`,
+      "mouse-move-end-right-finished",
       {
         key: this.key,
-        type: `${button}-click`
+        type: "right-click"
       }
     );
   }
@@ -364,7 +364,7 @@ export default class GameTable extends AddressCalcMixin {
         (point.y - this.dragFrom.y) * zoom
       );
     }
-    if (button === "right") {
+    if (button === "right" && this.roomData.settings.mapRotatable) {
       this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
     }
 
@@ -441,7 +441,7 @@ export default class GameTable extends AddressCalcMixin {
     );
     const locateOnCanvas = canvasAddress.locateOnCanvas;
 
-    const isFitGrid = this.roomData.isFitGrid;
+    const isFitGrid = this.roomData.settings.isFitGrid;
     const gridSize = CssManager.instance.propMap.gridSize;
     const matrix: Matrix = {
       column: Math.floor(locateOnCanvas.x / gridSize),

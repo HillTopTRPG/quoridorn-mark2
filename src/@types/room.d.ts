@@ -1,4 +1,8 @@
-import { UserType } from "@/@types/socket";
+import {
+  PartialRoomInfoExtend,
+  RoomInfoExtend,
+  UserType
+} from "@/@types/socket";
 import { Address, Point } from "address";
 
 /**
@@ -7,10 +11,11 @@ import { Address, Point } from "address";
  */
 type RoomData = {
   sceneId: string;
-  isDrawGridLine: boolean;
-  isDrawGridId: boolean;
-  isFitGrid: boolean;
-  isUseRotateMarker: boolean;
+  settings: RoomInfoExtend;
+};
+
+type PartialRoomData = Partial<RoomData> & {
+  settings?: PartialRoomInfoExtend;
 };
 
 /**
