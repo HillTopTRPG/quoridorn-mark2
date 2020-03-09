@@ -26,24 +26,18 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { LoginRoomInput } from "@/@types/socket";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
-    InputPasswordComponent,
-    DiceBotSelect,
-    BaseInput,
-    TableComponent,
-    CtrlButton
+    CtrlButton,
+    InputPasswordComponent
   }
 })
 export default class LoginRoomWindow extends Mixins<

@@ -40,7 +40,7 @@ type BaseRoomInfo = {
   name: string;
   bcdiceServer: string;
   system: string;
-  extend: RoomInfoExtend; // 一時的措置
+  extend: RoomInfoExtend;
 };
 
 export type RoomLoginInfo = {
@@ -54,14 +54,14 @@ export type UserType = "GM" | "PL" | "VISITOR";
 export type UserLoginWindowInput = {
   isSetting: boolean;
   visitable: boolean;
-  userNameList: string[];
-  userName: string | null;
+  nameList: string[];
+  name: string | null;
 };
 
 export type UserLoginInput = {
-  userName: string;
-  userType?: UserType;
-  userPassword: string;
+  name: string;
+  type?: UserType;
+  password: string;
 };
 export type UserLoginRequest = UserLoginInput;
 

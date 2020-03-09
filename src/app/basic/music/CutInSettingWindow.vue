@@ -183,14 +183,14 @@ export default class CutInSettingWindow extends Mixins<
     const classList: string[] = [];
     if (data.exclusionOwner) {
       classList.push("isEditing");
-      const userName = GameObjectManager.instance.getExclusionOwnerName(
+      const name = GameObjectManager.instance.getExclusionOwnerName(
         data.exclusionOwner
       );
 
       if (trElm) {
         trElm.style.setProperty(
           "--msg-locked",
-          `"${LanguageManager.instance.getText("label.editing")}(${userName})"`
+          `"${LanguageManager.instance.getText("label.editing")}(${name})"`
         );
       }
     }

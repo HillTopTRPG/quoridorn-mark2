@@ -14,3 +14,15 @@ export type BcdiceSystemInfo = {
   prefixs: string[];
   info: string;
 };
+
+export type DiceResult = {
+  faces: number;
+  value: number;
+};
+
+export type BcdiceDiceRollInfo = {
+  ok: string;
+  result?: string;
+  secret?: boolean;
+  dices?: DiceResult[];
+};

@@ -67,19 +67,20 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { AppServerSettingInput, DefaultServerInfo } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
-  components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
+  components: {
+    CtrlButton,
+    BaseInput
+  }
 })
 export default class AppServerSettingWindow extends Mixins<
   WindowVue<never, AppServerSettingInput>

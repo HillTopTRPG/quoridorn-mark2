@@ -58,10 +58,5 @@ export default class PermissionTypeSelect extends Mixins<MultiMixin>(
     });
     this.optionInfoList[0].text = getText("label.permission-type");
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

@@ -23,7 +23,7 @@
       </label>
       <label>
         <span class="label-input" v-t="'label.game-system-input'"></span>
-        <dice-bot-input
+        <bcdice-system-input
           v-model="system"
           :url.sync="url"
           :isPending="!name"
@@ -45,29 +45,24 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { CreateRoomInput, RoomInfoExtend } from "@/@types/socket";
 import LanguageManager from "@/LanguageManager";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import DiceBotInput from "@/app/basic/common/components/DiceBotInput.vue";
-import { DiceSystem } from "@/@types/bcdice";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
-    DiceBotInput,
+    CtrlButton,
+    BcdiceSystemInput,
     InputPasswordComponent,
-    DiceBotSelect,
-    BaseInput,
-    TableComponent,
-    CtrlButton
+    BaseInput
   }
 })
 export default class CreateNewRoomWindow extends Mixins<
@@ -76,7 +71,7 @@ export default class CreateNewRoomWindow extends Mixins<
   private name: string = "";
   private password: string = "";
   /** 選択されているシステム */
-  private system: DiceSystem = { system: "DiceBot", name: "DiceBot" };
+  private system: string = "DiceBot";
   private url: string = SocketFacade.instance.connectInfo.bcdiceServer;
   private extendInfo: RoomInfoExtend = {
     visitable: true,
@@ -106,7 +101,7 @@ export default class CreateNewRoomWindow extends Mixins<
 
   @Watch("url")
   private onChangeUrl() {
-    this.system = { system: "DiceBot", name: "DiceBot" };
+    this.system = "DiceBot";
   }
 
   @VueEvent
@@ -114,7 +109,7 @@ export default class CreateNewRoomWindow extends Mixins<
     await this.finally({
       name: this.name || LanguageManager.instance.getText(""),
       bcdiceServer: this.url,
-      system: this.system.system,
+      system: this.system,
       roomPassword: this.password,
       extend: this.extendInfo
     });

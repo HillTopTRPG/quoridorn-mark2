@@ -2,59 +2,75 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :test="test"
-    :disabled="disabled"
-  >
-    <option
-      v-for="status in statusList"
-      :key="status.name"
-      :value="status.name"
-    >
-      {{ status.name }}
-    </option>
-  </ctrl-select>
+    ref="component"
+  />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
-
-import { Prop } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LanguageManager from "@/LanguageManager";
+import { Task, TaskResult } from "task";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import { Prop, Watch } from "vue-property-decorator";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class ActorStatusSelect extends Mixins<SelectMixin>(
-  SelectMixin
+export default class ActorStatusSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
 ) {
   @Prop({ type: String, required: true })
-  private actorKey!: string;
+  private actorId!: string;
 
-  @Getter("getObj") private getObj: any;
+  private optionInfoList: HtmlOptionInfo[] = [];
 
-  private get statusList(): any[] {
-    const actor = this.getObj(this.actorKey);
-    return actor ? actor.statusList : [];
+  private statusList = GameObjectManager.instance.actorStatusList;
+
+  @LifeCycle
+  @Watch("actorId")
+  @Watch("statusList", { deep: true })
+  private async created() {
+    this.createOptionInfoList();
   }
 
-  @VueEvent
-  private get optionInfoList(): any[] {
-    const resultList = this.statusList.map(status => ({
-      key: status.name,
-      value: status.name,
-      text: status.name,
-      disabled: false
-    }));
-    resultList.unshift({
-      key: null,
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
+  }
+
+  private createOptionInfoList() {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+
+    this.optionInfoList = this.statusList
+      .filter(s => s.owner === this.actorId)
+      .map(s => {
+        return {
+          key: s.id!,
+          value: s.id!,
+          text: s.data!.name,
+          disabled: false
+        };
+      });
+    this.optionInfoList.unshift({
+      key: "",
       value: "",
-      text: "状態",
+      text: getText("label.status"),
       disabled: true
     });
-    return resultList;
   }
 }
 </script>

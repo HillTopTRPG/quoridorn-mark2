@@ -1,8 +1,11 @@
 import { all, create } from "mathjs";
-import { StandImageInfo } from "@/@types/room";
+import { ChatInfo, CustomDiceBotInfo, StandImageInfo } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import urljoin from "url-join";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 const config = {};
 const math = create(all, config);
@@ -391,8 +394,11 @@ export function zeroPadding(num: number | string, length: number): string {
   return ("0".repeat(length) + num).slice(-length);
 }
 
-export function conversion(num: number, unitName: string): any {
-  const convertTable = [
+export function conversion(
+  num: number,
+  unitName: string
+): { value: number; name: string; unit: string }[] | null {
+  const convertTable: { name: string[]; base: string }[] = [
     {
       name: ["mm", "mm", "millimeter", "㍉", "㍉㍍", "ミリメートル"],
       base: "Length"
@@ -520,9 +526,11 @@ export function conversion(num: number, unitName: string): any {
     }
   ];
 
-  const getUnit: Function = (unitName: string): any => {
+  const getUnit: Function = (
+    unitName: string
+  ): { name: string[]; base: string } => {
     return convertTable.filter(
-      (unit: any) => unit.name.filter((name: string) => name === unitName)[0]
+      unit => unit.name.filter((name: string) => name === unitName)[0]
     )[0];
   };
   const filteredUnit = getUnit(unitName);
@@ -535,8 +543,8 @@ export function conversion(num: number, unitName: string): any {
 
   return (
     convertTable
-      .filter((unit: any) => unit.base === base && unit.name[0] !== name)
-      .map((targetUnit: any) => targetUnit.name[0])
+      .filter(unit => unit.base === base && unit.name[0] !== name)
+      .map(targetUnit => targetUnit.name[0])
       .map((unit: string) => `${num}${name} to ${unit}`)
       // .map((unit: string) => {
       //   window.console.log(unit);
@@ -548,7 +556,7 @@ export function conversion(num: number, unitName: string): any {
         const mr: any = result.match(/([^ ]+) (.+)/);
         const floatValue: number = parseFloat(mr[1]);
         const unitStr: string = mr[2];
-        const unit: any = getUnit(unitStr);
+        const unit = getUnit(unitStr);
         return {
           value: floatValue,
           name: unit.name[unit.name.length - 1],
@@ -1007,4 +1015,281 @@ export function convertNumber(str: string | null): number | null {
 export function clone<T>(obj: T | null): T | null {
   if (!obj) return obj;
   return JSON.parse(JSON.stringify(obj)) as T;
+}
+
+// 名前空間を汚さないように3つの正規表現オブジェクトを初期化
+const { borderStyleRegExp, styleRegExp, lineRegExp } = (() => {
+  const colorFormat = "#[0-9a-f]+|rgba? *\\([0-9., ]+\\)|[a-z]+";
+  const lineStyleFormat = "solid|double|dotted|dashed|wavy";
+  const colorAndLineFormat = `(${lineStyleFormat}|${colorFormat})`;
+  const styleRegExpList = [
+    `(b?c)(?: *{ *)(${colorFormat})(?: *})`,
+    `([uo])(?: *{ *)${colorAndLineFormat}(?: *\\| *${colorAndLineFormat})?(?: *})`,
+    "(b)",
+    "(i)",
+    "(lt)",
+    "(r)(?: *{ *)([^}]+)(?: *})"
+  ];
+  const styleRegExpStr = `(?:: *)(?:${styleRegExpList.join("|")})`;
+
+  const regExpStr = `\\[\\[ *style((?: *${styleRegExpStr})*) *]]`;
+
+  const borderStyleRegExp = new RegExp(lineStyleFormat, "gi");
+  const styleRegExp = new RegExp(styleRegExpStr, "gi");
+  const lineRegExp = new RegExp(regExpStr, "gi");
+
+  return {
+    borderStyleRegExp,
+    styleRegExp,
+    lineRegExp
+  };
+})();
+
+export function transText(text: string) {
+  text = text
+    .replace(/\[\[quot]]/g, "&quot;")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/'/g, "&#39;")
+    .replace(/\n/g, "<br />");
+
+  const matchInfoList: any[] = [];
+  let matchResult = null;
+  while ((matchResult = lineRegExp.exec(text)) !== null) {
+    const styleStr = matchResult[1];
+    const startIndex = matchResult.index;
+    const contentsIndex = matchResult.index + matchResult[0].length;
+    matchInfoList.push({
+      styleStr,
+      startIndex,
+      contentsIndex
+    });
+  }
+
+  if (!matchInfoList.length) return text;
+
+  matchInfoList.push({ startIndex: text.length });
+  const resultTexts: string[] = [];
+  resultTexts.push(text.substring(0, matchInfoList[0].startIndex));
+
+  for (let i = 0; i < matchInfoList.length - 1; i++) {
+    const styleStr: string = matchInfoList[i]!.styleStr;
+    const startIndex: number = matchInfoList[i]!.contentsIndex;
+    const endIndex: number = matchInfoList[i + 1]!.startIndex;
+    const contentsStr = text.substring(startIndex, endIndex);
+
+    const style: string[] = [];
+    const textDecoration: string[] = [];
+    let rubyText: string = "";
+    let matchResult = null;
+    while ((matchResult = styleRegExp.exec(styleStr)) !== null) {
+      if (matchResult[1] === "c") style.push(`color: ${matchResult[2]}`);
+      if (matchResult[1] === "bc")
+        style.push(`background-color: ${matchResult[2]}`);
+      if (matchResult[3] === "u" || matchResult[3] === "o") {
+        const lineObj: any = {
+          type: matchResult[3] === "u" ? "underline" : "overline",
+          style: "",
+          color: ""
+        };
+        const setFunc: Function = (str: string): void => {
+          if (str) {
+            if (borderStyleRegExp.test(str)) lineObj.style = ` ${str}`;
+            else lineObj.color = ` ${str}`;
+          }
+        };
+        setFunc(matchResult[4]);
+        setFunc(matchResult[5]);
+
+        textDecoration.push(`${lineObj.type}${lineObj.style}${lineObj.color}`);
+      }
+      if (matchResult[6] === "b") style.push("font-weight: bold");
+      if (matchResult[7] === "i") style.push("font-style: italic");
+      if (matchResult[8] === "lt") textDecoration.push("line-through");
+      if (matchResult[9] === "r") rubyText = matchResult[10];
+    }
+    if (textDecoration.length) {
+      style.push(`text-decoration: ${textDecoration.join(" ")}`);
+    }
+
+    const styleText: string = style.join(";");
+    const styleAttrStr: string = styleText ? ` style="${styleText};"` : "";
+    let contentsText: string = contentsStr;
+    if (rubyText) {
+      contentsText = `<ruby><rb${styleAttrStr}>${contentsText}</rb><rp>（</rp><rt${styleAttrStr}>${rubyText}</rt><rp>）</rp></ruby>`;
+    } else {
+      if (styleText) {
+        contentsText = `<span${styleAttrStr}>${contentsText}</span>`;
+      }
+    }
+    resultTexts.push(contentsText);
+  }
+  return resultTexts.join("");
+}
+
+type SendChatInfo = {
+  actorId: string;
+  text: string;
+  tabId: string | null;
+  statusId: string | null;
+  targetId: string | null;
+  system: string | null;
+};
+
+export async function addChatLog(chatInfo: ChatInfo) {
+  window.console.log(JSON.stringify(chatInfo, null, "  "));
+  await SocketFacade.instance.chatListCC().addDirect([chatInfo], {
+    permission: {
+      view: {
+        type: "none",
+        list: []
+      },
+      edit: {
+        type: "allow",
+        list: [
+          {
+            type: "owner"
+          }
+        ]
+      },
+      chmod: {
+        type: "none",
+        list: []
+      }
+    }
+  });
+}
+
+export async function sendChatLog(
+  payload: SendChatInfo,
+  subCustomDiceBotList: CustomDiceBotInfo[]
+) {
+  const actorId =
+    payload.actorId || GameObjectManager.instance.chatPublicInfo.actorId;
+  const targetId =
+    payload.targetId ||
+    GameObjectManager.instance.groupChatTabList.filter(
+      gct => gct.data!.isSystem
+    )[0].id!;
+
+  const actorInfo = GameObjectManager.instance.actorList.filter(
+    actor => actor.id === actorId
+  )[0];
+  const actorStatus = GameObjectManager.instance.actorStatusList.filter(
+    as => as.id === actorInfo.data!.statusId
+  )[0];
+  const groupChatTabInfo = GameObjectManager.instance.groupChatTabList.filter(
+    gct => gct.id === targetId
+  )[0];
+
+  const chatInfo: ChatInfo = {
+    actorId,
+    text: payload.text,
+    diceRollResult: null,
+    customDiceBotResult: null,
+    isSecret: false,
+    dices: [],
+    targetId,
+    tabId:
+      groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
+        ? groupChatTabInfo.data!.outputChatTabId
+        : payload.tabId || GameObjectManager.instance.chatPublicInfo.tabId,
+    statusId: payload.statusId || actorStatus!.id!,
+    targetType: groupChatTabInfo ? "group" : "actor",
+    system: payload.system || GameObjectManager.instance.chatPublicInfo.system
+  };
+
+  const outputNormalChat = async (command: string) => {
+    if (!/[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
+      await addChatLog(chatInfo);
+      return;
+    }
+    const resultJson = await BcdiceManager.sendBcdiceServer({
+      system: chatInfo.system,
+      command
+    });
+
+    if (resultJson.ok) {
+      // bcdiceとして結果が取れた
+      chatInfo.diceRollResult = resultJson.result!;
+      chatInfo.isSecret = resultJson.secret!;
+      chatInfo.dices = resultJson.dices!;
+    } else {
+      // bcdiceとして結果は取れなかった
+    }
+
+    // TODO ダイス結果を画面から非表示にする
+
+    await addChatLog(chatInfo);
+
+    if (chatInfo.isSecret) {
+      // TODO シークレットダイスの画面表示処理
+    }
+  };
+
+  // -------------------
+  // 独自ダイスBot処理
+  // -------------------
+  const commandStr = chatInfo.text
+    // 空白で分割した1行目
+    .split(new RegExp("\\s+"))[0]
+    // 全角を半角へ
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
+      String.fromCharCode(s.charCodeAt(0) - 65248)
+    )
+    .toLowerCase();
+  const customDiceBotObj = BcdiceManager.instance.customDiceBotList.filter(
+    cdb => cdb.commandName.toLowerCase() === commandStr
+  )[0];
+  const customDiceBotRoomSysObj = subCustomDiceBotList.filter(
+    cdb => cdb.commandName.toLowerCase() === commandStr
+  )[0];
+  const useCustomDiceBotObj = customDiceBotObj || customDiceBotRoomSysObj;
+  if (!useCustomDiceBotObj) {
+    // 独自ダイスボットが見つからなかったので通常のチャット処理
+    await outputNormalChat(commandStr);
+  } else {
+    // 独自ダイスボットが見つかった
+    const diceRoll = useCustomDiceBotObj.diceRoll;
+    const tableTitle = useCustomDiceBotObj.tableTitle;
+    const diceBotSystem = useCustomDiceBotObj.system;
+    const tableContents = useCustomDiceBotObj.tableContents;
+
+    const resultJson = await BcdiceManager.sendBcdiceServer({
+      system: diceBotSystem,
+      command: diceRoll
+    });
+
+    let diceRollResult: string | null = null;
+    let dices: any[] | null = null;
+    let diceResultStr: string | null = null;
+    if (resultJson.ok) {
+      // bcdiceとして結果が取れた
+      chatInfo.diceRollResult = resultJson.result!;
+      chatInfo.isSecret = resultJson.secret!;
+      chatInfo.dices = resultJson.dices!;
+
+      const diceRollResult = resultJson.result!.replace(/^.*→ */, "");
+      const pips = chatInfo.dices.map(d => d.value);
+      const diceResultStr = `(${sum(pips)}[${pips.join(",")}])`;
+
+      const customDiceBotResult = tableContents[diceRollResult];
+
+      chatInfo.customDiceBotResult = [
+        tableTitle,
+        diceResultStr,
+        " → ",
+        customDiceBotResult || "該当値なし"
+      ].join("");
+
+      // TODO メッセージに結果表示
+      const viewMessage =
+        customDiceBotResult || `該当値なし\n${diceRollResult}`;
+
+      await addChatLog(chatInfo);
+    } else {
+      // bcdiceとして結果は取れなかった
+    }
+  }
 }

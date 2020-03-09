@@ -16,9 +16,9 @@
           <option
             v-for="user in userList"
             :key="user.id"
-            :value="user.data.userName"
+            :value="user.data.name"
           >
-            {{ user.data.userName }}
+            {{ user.data.name }}
           </option>
         </datalist>
       </label>
@@ -34,7 +34,7 @@
       <label>
         <span class="label-input" v-t="'label.user-type'"></span>
         <user-type-select
-          v-model="userType"
+          v-model="type"
           :isPending="!name"
           :visitable="visitable"
         />
@@ -53,34 +53,30 @@
 
 <script lang="ts">
 import { Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   UserLoginInput,
   UserLoginWindowInput,
   UserType
 } from "@/@types/socket";
-import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
 import LanguageManager from "@/LanguageManager";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
-    InputPasswordComponent,
+    CtrlButton,
     UserTypeSelect,
-    DiceBotSelect,
-    BaseInput,
-    TableComponent,
-    CtrlButton
+    InputPasswordComponent,
+    BaseInput
   }
 })
 export default class UserLoginWindow extends Mixins<
@@ -88,7 +84,7 @@ export default class UserLoginWindow extends Mixins<
 >(WindowVue) {
   private name: string = "";
   private password: string = "";
-  private userType: UserType = "PL";
+  private type: UserType = "PL";
   private isSetting: boolean = false;
   private visitable: boolean = false;
   private userList: StoreUseData<UserData>[] | null = null;
@@ -101,7 +97,7 @@ export default class UserLoginWindow extends Mixins<
     this.isSetting = this.windowInfo.args!.isSetting;
     this.visitable = this.windowInfo.args!.visitable;
     this.userList = await SocketFacade.instance.userCC().getList(true);
-    this.name = this.windowInfo.args!.userName || "";
+    this.name = this.windowInfo.args!.name || "";
     if (!this.isSetting) {
       this.windowInfo.heightEm = 9.5;
       this.windowInfo.declare.size.heightEm = 9.5;
@@ -112,8 +108,8 @@ export default class UserLoginWindow extends Mixins<
 
   @Watch("name")
   private onChangeName() {
-    const idx = this.userList!.findIndex(u => u.data!.userName === this.name);
-    if (idx >= 0) this.userType = this.userList![idx]!.data!.userType;
+    const idx = this.userList!.findIndex(u => u.data!.name === this.name);
+    if (idx >= 0) this.type = this.userList![idx]!.data!.type;
   }
 
   @Watch("currentDiceBotSystem")
@@ -124,9 +120,9 @@ export default class UserLoginWindow extends Mixins<
   @VueEvent
   private async commit() {
     await this.finally({
-      userName: this.name || LanguageManager.instance.getText("label.nameless"),
-      userType: this.userType,
-      userPassword: this.password
+      name: this.name || LanguageManager.instance.getText("label.nameless"),
+      type: this.type,
+      password: this.password
     });
   }
 

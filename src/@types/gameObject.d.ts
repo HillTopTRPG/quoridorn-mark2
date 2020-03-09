@@ -20,7 +20,7 @@ type VolatileMapObject = {
 };
 
 type Place = "field" | "graveyard" | "backstage";
-type SceneObjectBase = Address & {
+type SceneObject = Address & {
   type: SceneObjectType;
   tag: string;
   name: string;
@@ -36,74 +36,43 @@ type SceneObjectBase = Address & {
   textures: Texture[];
   textureIndex: number;
   angle: number;
-};
-
-type SceneObject = SceneObjectBase &
-  (
-    | MapMaskStore
-    | MapMarkerStore
-    | ChitStore
-    | FloorTileStore
-    | DiceSymbolStore
-    | CharacterStore
-  );
-
-type MapMaskStore = {
-  type: "map-mask";
-};
-type MapMarkerStore = {
-  type: "map-marker";
-};
-type ChitStore = {
-  type: "chit";
-};
-type FloorTileStore = {
-  type: "floor-tile";
-};
-type DiceSymbolStore = {
-  type: "dice-symbol";
-  diceType: string; // dice-symbol
-  pips: number; // dice-symbol
-  faceNum: number; // dice-symbol
-};
-type CharacterStore = {
-  type: "character";
-  chatFontColorType: "owner" | "original"; // character
-  chatFontColor: string; // character
-  actorStatusId: string; // character(id)
-  isHide: boolean; // character
   url: string; // character
+  subType: string; // サイコロの色など
+  pips: number; // 出目
+  faceNum: number; // 出目の最大数
 };
 
-type ExtraStore = {
-  owner: string; // id
-  chatFontColorType: "owner" | "original";
-  chatFontColor: string;
-  actorStatusId: string; // id
+type ActorStore = {
+  name: string; // 名前
+  type: "user" | "character";
+  pieceIdList: string[]; // コマのID一覧
+  chatFontColorType: "owner" | "original"; // チャット文字色はオーナー（ユーザ）の色か独自の色か
+  chatFontColor: string; // 独自のチャット文字色
+  standImagePosition: number; // 1〜12
+  statusId: string; // ステータスへの参照
+  isUseTableData: boolean; // イニシアティブ表のデータを持つかどうか
 };
 
 type ActorStatusStore = {
-  parentId: string;
-  name: string;
-  standImageInfoId: "" | string; // id
-  chatPaletteInfoId: "" | string; // id
+  // actorId: string; actorIdはownerで管理
+  name: string; // ステータス名
+  isSystem: boolean;
+  standImageInfoId: string; // id
+  chatPaletteInfoId: string; // id
 };
 
 // import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
 type StandImageDiffInfo = Point & {
-  imageId: string;
-  imageTag: string;
-  type: number;
+  texture: Texture;
+  stackType: number; // 重ね方
   time: [number, number];
 };
 
 type StandImageInfo = {
-  parentId: string;
-  baseImageId: string;
-  baseImageTag: string;
+  statusId: string;
+  texture: Texture;
   autoResize: boolean;
   animationLength: number;
-  locate: number;
   diffList: StandImageDiffInfo[];
 };
 
@@ -159,6 +128,7 @@ type OtherTextViewInfo = {
   docId: string;
   text: string;
   point: Point;
-  columns: number;
-  rows: number;
+  width: number;
+  height: number;
+  isFix: boolean;
 };

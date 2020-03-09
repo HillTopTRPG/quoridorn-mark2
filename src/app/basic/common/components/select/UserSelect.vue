@@ -53,7 +53,7 @@ export default class UserSelect extends Mixins<MultiMixin>(
 
     let userList = GameObjectManager.instance.userList;
     this.optionInfoList = userList.map(u => {
-      let text = u.data!.userName;
+      let text = u.data!.name;
       return {
         key: u.id!,
         value: u.id!,
@@ -67,11 +67,6 @@ export default class UserSelect extends Mixins<MultiMixin>(
       text: getText("type.user"),
       disabled: true
     });
-  }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
   }
 }
 </script>

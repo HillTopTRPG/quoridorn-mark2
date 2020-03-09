@@ -2,7 +2,7 @@
   <div class="simple-tab-component" ref="elm">
     <div class="tab-area">
       <div
-        class="tab index"
+        class="tab"
         v-for="(tab, index) in tabList"
         :class="{ isActive: tab.text === localValue.text }"
         :key="index"
@@ -11,6 +11,9 @@
         @keydown.space.prevent="localValue = tab"
       >
         {{ tab.text }}
+      </div>
+      <div class="tab setting" v-if="hasSetting" @click="$emit('settingOpen')">
+        <span class="icon-cog"></span>
       </div>
     </div>
     <slot></slot>
@@ -38,6 +41,9 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
+
+  @Prop({ type: Boolean, required: false, default: false })
+  private hasSetting!: boolean;
 
   @Prop({ type: Object, required: false, default: null })
   public value!: TabInfo | null;
@@ -100,28 +106,35 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
 }
 .tab-area {
   @include flex-box(row, flex-start, center);
+  position: relative;
+  z-index: 1;
+}
 
-  .tab {
-    @include flex-box(row, center, center);
-    background: linear-gradient(
-      to bottom,
-      rgba(240, 240, 240, 1),
-      rgba(200, 200, 200, 1)
-    );
-    border: 1px solid gray;
-    box-sizing: border-box;
-    cursor: pointer;
-    border-bottom-width: 0;
-    border-radius: 5px 5px 0 0;
-    padding: 0 0.5em;
-    height: var(--table-row-height);
-    min-width: var(--table-row-height);
-    font-weight: bold;
+.tab {
+  @include flex-box(row, center, center);
+  background: linear-gradient(
+    to bottom,
+    rgba(240, 240, 240, 1),
+    rgba(200, 200, 200, 1)
+  );
+  border: 1px solid gray;
+  box-sizing: border-box;
+  cursor: pointer;
+  border-bottom-width: 0;
+  border-radius: 5px 5px 0 0;
+  padding: 0 0.5em;
+  height: var(--table-row-height);
+  min-width: var(--table-row-height);
+  font-weight: bold;
 
-    &.isActive {
-      background: white;
-      border-color: #0092ed;
-    }
+  &.isActive {
+    background: white;
+    border-color: #0092ed;
+  }
+
+  &.setting {
+    position: absolute;
+    right: 0;
   }
 }
 </style>

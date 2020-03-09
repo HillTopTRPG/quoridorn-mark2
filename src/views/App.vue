@@ -7,7 +7,7 @@
       <!-- プレイマット (z-index: 1) -->
       <game-table ref="gameTable" />
       <!-- メニュー (z-index: 5) -->
-      <Menu :roomInfo="roomInfo" />
+      <Menu />
       <!-- 右ペイン (z-index: 2) -->
       <right-pane />
       <!-- 右クリックメニュー (z-index: 4) -->
@@ -21,6 +21,8 @@
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
+    <!--
+    -->
     <!-- 放物線シミュレータ (z-index: 7) -->
     <throw-parabola-simulator v-if="throwParabola" />
     <!-- 放物線シミュレータ (z-index: 8) -->
@@ -74,6 +76,7 @@ import { BgmPlayInfo, TabMoveInfo, ThrowParabolaInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
 import { disableBodyScroll } from "body-scroll-lock";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -96,7 +99,6 @@ export default class App extends Vue {
 
   private isModal: boolean = false;
 
-  private roomInfo: ClientRoomInfo | null = null;
   private otherTextViewInfo: OtherTextViewInfo | null = null;
   private throwParabola: boolean = false;
 
@@ -442,17 +444,28 @@ export default class App extends Vue {
     task.resolve();
   }
 
+  @VueEvent
   private otherTextHide() {
     this.otherTextViewInfo = null;
   }
 
   @TaskProcessor("room-initialize-finished")
   private async roomInitializeFinished(
-    task: Task<ClientRoomInfo, never>
+    task: Task<void, never>
   ): Promise<TaskResult<never> | void> {
     // 部屋に接続できた
     this.roomInitialized = true;
-    this.roomInfo = task.value!;
+    const openSimpleWindow = async (type: string) => {
+      await TaskManager.instance.ignition<WindowOpenInfo<null>, null>({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type,
+          args: null
+        }
+      });
+    };
+    await openSimpleWindow("chat-window");
     task.resolve();
   }
 
@@ -627,7 +640,7 @@ label {
   z-index: 3;
 }
 
-.other-text-frame {
+#other-text-frame {
   z-index: 6;
 }
 

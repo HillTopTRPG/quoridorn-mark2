@@ -59,10 +59,5 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
       o.key = o.value;
     });
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

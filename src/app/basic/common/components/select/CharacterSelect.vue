@@ -75,10 +75,5 @@ export default class CharacterSelect extends Mixins<MultiMixin>(
       disabled: true
     });
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

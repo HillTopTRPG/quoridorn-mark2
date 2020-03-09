@@ -87,10 +87,7 @@
       </label>
     </div>
 
-    <div
-      class="window-title-balloon"
-      v-show="windowInfo.isMinimizeAnimationEnd"
-    >
+    <div class="window-title-balloon" v-if="windowInfo.isMinimizeAnimationEnd">
       <span v-if="windowInfo.title">{{ windowInfo.title }}</span>
       <span v-else v-t="`${windowInfo.type}.window-title`"></span>
     </div>

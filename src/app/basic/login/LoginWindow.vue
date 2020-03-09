@@ -659,8 +659,8 @@ export default class LoginWindow extends Mixins<
           args: {
             isSetting: true,
             visitable: createRoomInput.extend.visitable,
-            userNameList: [],
-            userName: ""
+            nameList: [],
+            name: ""
           }
         }
       });
@@ -732,20 +732,16 @@ export default class LoginWindow extends Mixins<
       return;
     }
     SocketFacade.instance.userId = userLoginResponse.userId;
-    Cookies.set(
-      `${roomId}/${userLoginInput.userName}`,
-      userLoginResponse.token,
-      {
-        expires: 365
-      }
-    );
+    Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
+      expires: 365
+    });
 
     /* ----------------------------------------------------------------------
      * 部屋の使用準備
      */
     await this.close();
 
-    await this.addPresetData(createRoomInput.extend);
+    await this.addPresetData(createRoomInput);
 
     // await TaskManager.instance.ignition<ModeInfo, never>({
     //   type: "mode-change",
@@ -769,7 +765,7 @@ export default class LoginWindow extends Mixins<
 
     const params = new URLSearchParams();
     params.append("no", loginResult.roomNo.toString(10));
-    params.append("player", userLoginInput.userName);
+    params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
@@ -893,10 +889,11 @@ export default class LoginWindow extends Mixins<
           type: "user-login-window",
           args: {
             isSetting: false,
-            userNameList: (
-              await SocketFacade.instance.userCC().getList(true)
-            ).map(userData => userData.data!.userName),
-            userName: this.urlPlayerName
+            visitable: true, // TODO 見学者可否を取得する
+            nameList: (await SocketFacade.instance.userCC().getList(true)).map(
+              userData => userData.data!.name
+            ),
+            name: this.urlPlayerName
           }
         }
       });
@@ -950,13 +947,9 @@ export default class LoginWindow extends Mixins<
       // });
     }
     SocketFacade.instance.userId = userLoginResponse.userId;
-    Cookies.set(
-      `${roomId}/${userLoginInput.userName}`,
-      userLoginResponse.token,
-      {
-        expires: 365
-      }
-    );
+    Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
+      expires: 365
+    });
 
     /* ----------------------------------------------------------------------
      * 部屋の使用準備
@@ -969,7 +962,7 @@ export default class LoginWindow extends Mixins<
 
     const params = new URLSearchParams();
     params.append("no", loginResult.roomNo.toString(10));
-    params.append("player", userLoginInput.userName);
+    params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
@@ -979,7 +972,7 @@ export default class LoginWindow extends Mixins<
     });
   }
 
-  private async addPresetData(extendInfo: RoomInfoExtend) {
+  private async addPresetData(createRoomInput: CreateRoomInput) {
     const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
       "./static/conf/image.yaml"
     );
@@ -1129,9 +1122,33 @@ export default class LoginWindow extends Mixins<
 
     const roomData: RoomData = {
       sceneId: addMapResult.sceneId,
-      settings: extendInfo
+      settings: createRoomInput.extend,
+      name: createRoomInput.name
     };
     await roomDataCC.addDirect([roomData]);
+
+    /* --------------------------------------------------
+     * チャットタブのプリセットデータ投入
+     */
+    await SocketFacade.instance.chatTabListCC().addDirect([
+      {
+        name: LanguageManager.instance.getText("label.main"),
+        isSystem: true
+      }
+    ]);
+
+    /* --------------------------------------------------
+     * グループチャットタブのプリセットデータ投入
+     */
+    await SocketFacade.instance.groupChatTabListCC().addDirect([
+      {
+        name: LanguageManager.instance.getText("label.target-all"),
+        isSystem: true,
+        actorGroupId: "",
+        isSecret: false,
+        outputChatTabId: null
+      }
+    ]);
   }
 }
 </script>

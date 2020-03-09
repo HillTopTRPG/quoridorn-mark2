@@ -126,7 +126,7 @@ export default class NekostoreCollectionController<T> {
 
   public async touch(option?: Partial<StoreUseData<any>>): Promise<string> {
     let id: string | undefined = undefined;
-    let owner: string = GameObjectManager.instance.mySelfId;
+    let owner: string = GameObjectManager.instance.mySelfUserId;
     if (option) {
       id = option.id || undefined;
       if (option.owner) owner = option.owner;
@@ -137,7 +137,9 @@ export default class NekostoreCollectionController<T> {
     >("touch-data", {
       collection: this.collectionName,
       id,
-      owner
+      option: {
+        owner
+      }
     });
     this.touchList.push(docId);
     return docId;
@@ -181,7 +183,9 @@ export default class NekostoreCollectionController<T> {
       collection: this.collectionName,
       id,
       data,
-      permission: permission || GameObjectManager.DEFAULT_PERMISSION
+      option: {
+        permission: permission || GameObjectManager.DEFAULT_PERMISSION
+      }
     });
   }
 
@@ -190,7 +194,7 @@ export default class NekostoreCollectionController<T> {
     option?: Partial<StoreObj<any>>
   ): Promise<string[]> {
     let permission: Permission = GameObjectManager.DEFAULT_PERMISSION;
-    let owner: string = GameObjectManager.instance.mySelfId;
+    let owner: string = GameObjectManager.instance.mySelfUserId;
     if (option) {
       if (option.permission) permission = option.permission;
       if (option.owner) owner = option.owner;

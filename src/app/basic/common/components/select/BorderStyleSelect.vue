@@ -61,10 +61,5 @@ export default class BorderStyleSelect extends Mixins<MultiMixin>(
       "label.border-style"
     );
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

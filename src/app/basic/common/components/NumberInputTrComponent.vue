@@ -22,13 +22,15 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 
-@Component({ components: { DiceBotSelect, BaseInput, CtrlSelect } })
+@Component({
+  components: {
+    BaseInput
+  }
+})
 export default class NumberInputTrComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

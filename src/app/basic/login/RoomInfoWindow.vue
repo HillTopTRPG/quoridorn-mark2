@@ -49,21 +49,21 @@
         </thead>
         <tbody>
           <tr v-for="user in useUserList" :key="user.id">
-            <td class="left">{{ user.data.userName }}</td>
+            <td class="left">{{ user.data.name }}</td>
             <td
               class="center"
               v-t="'label.gameMaster'"
-              v-if="user.data.userType === 'GM'"
+              v-if="user.data.type === 'GM'"
             ></td>
             <td
               class="center"
               v-t="'label.player'"
-              v-if="user.data.userType === 'PL'"
+              v-if="user.data.type === 'PL'"
             ></td>
             <td
               class="center"
               v-t="'label.visitor'"
-              v-if="user.data.userType === 'VISITOR'"
+              v-if="user.data.type === 'VISITOR'"
             ></td>
             <td class="center">{{ user.data.login }}</td>
             <td class="url">
@@ -97,30 +97,24 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import { ClientRoomInfo, UserType } from "@/@types/socket";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
 import { execCopy } from "@/app/core/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
-    InputPasswordComponent,
-    DiceBotSelect,
-    BaseInput,
-    TableComponent,
-    CtrlButton
+    CtrlButton,
+    BaseInput
   }
 })
 export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
@@ -139,7 +133,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @Watch("systemId")
   private async onChangeSystemId() {
-    this.systemName = await BCDiceFacade.getBcdiceSystemName(
+    this.systemName = await BcdiceManager.getBcdiceSystemName(
       SocketFacade.instance.connectInfo.bcdiceServer,
       this.systemId
     );
@@ -148,8 +142,8 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   private get useUserList(): StoreUseData<UserData>[] {
     const typeOrder: UserType[] = ["VISITOR", "PL", "GM"];
     return this.userList.concat().sort((u1, u2) => {
-      const u1Index = typeOrder.findIndex(t => t === u1.data!.userType);
-      const u2Index = typeOrder.findIndex(t => t === u2.data!.userType);
+      const u1Index = typeOrder.findIndex(t => t === u1.data!.type);
+      const u2Index = typeOrder.findIndex(t => t === u2.data!.type);
       if (u1Index < u2Index) return 1;
       if (u1Index > u2Index) return -1;
       if (u1.order < u2.order) return 1;
@@ -161,12 +155,12 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   public getInviteUrl(user?: StoreUseData<UserData>) {
     if (!this.clientRoomInfo) return "";
     const roomNo = this.clientRoomInfo.roomNo;
-    const userName = user ? user.data!.userName : "";
+    const name = user ? user.data!.name : "";
 
     const baseUrl = location.href.replace(/\?.+$/, "");
     const params = new URLSearchParams();
     params.append("no", roomNo.toString(10));
-    if (userName) params.append("player", userName);
+    if (name) params.append("player", name);
     return `${baseUrl}?${params.toString()}`;
   }
 

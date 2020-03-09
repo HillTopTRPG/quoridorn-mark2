@@ -129,16 +129,14 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         elm.style.setProperty("--background-image", backgroundImage);
         elm.style.setProperty("--image-direction", direction);
 
-        let userName = "";
+        let name = "";
         if (s.exclusionOwner) {
-          userName = GameObjectManager.instance.getExclusionOwnerName(
+          name = GameObjectManager.instance.getExclusionOwnerName(
             s.exclusionOwner
           );
           elm.style.setProperty(
             "--msg-locked",
-            `'${LanguageManager.instance.getText(
-              "label.editing"
-            )}(${userName})'`
+            `'${LanguageManager.instance.getText("label.editing")}(${name})'`
           );
         }
       });

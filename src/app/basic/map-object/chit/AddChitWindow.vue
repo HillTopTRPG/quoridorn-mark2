@@ -85,7 +85,7 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
-    const owner = GameObjectManager.instance.mySelfId;
+    const owner = GameObjectManager.instance.mySelfUserId;
     await GameObjectManager.instance.addSceneObject({
       type: "chit",
       tag: this.tag,
@@ -113,7 +113,11 @@ export default class AddChitWindow extends Mixins<WindowVue<string, never>>(
         }
       ],
       textureIndex: 0,
-      angle: 0
+      angle: 0,
+      url: "",
+      subType: "",
+      pips: 0,
+      faceNum: 0
     });
 
     task.resolve();

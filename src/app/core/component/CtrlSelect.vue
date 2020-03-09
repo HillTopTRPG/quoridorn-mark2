@@ -46,6 +46,8 @@ import { Component } from "vue-mixin-decorator";
 import { HtmlOptionInfo } from "@/@types/window";
 import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { createRectangle } from "@/app/core/Coordinate";
+import { Rectangle } from "address";
 
 @Component
 export default class CtrlSelect extends SelectMixin {
@@ -60,6 +62,12 @@ export default class CtrlSelect extends SelectMixin {
   public focus(): void {
     const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
     elm.focus();
+  }
+
+  public getRect(): Rectangle {
+    const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
+    const r = elm.getBoundingClientRect();
+    return createRectangle(r.x, r.y, r.width, r.height);
   }
 
   @VueEvent
@@ -91,35 +99,39 @@ export default class CtrlSelect extends SelectMixin {
 <style scoped lang="scss">
 @import "Ctrl";
 
-.ctrl-select-wrapper:not(.multiple) {
-  @include ctrl-select();
-}
+.ctrl-select-wrapper {
+  position: relative;
 
-.ctrl-select-wrapper.multiple {
-  select {
-    display: inline-block;
-    font-size: inherit;
-    width: 99%;
-    height: 100%;
-    cursor: pointer;
+  &:not(.multiple) {
+    @include ctrl-select();
+  }
 
-    &[disabled="disabled"] {
-      color: gray;
-      -webkit-text-fill-color: gray !important;
-      cursor: default;
-    }
-
-    option {
-      @include flex-box(row, flex-start, center);
+  &.multiple {
+    select {
+      display: inline-block;
       font-size: inherit;
-      color: inherit;
-      -webkit-text-fill-color: inherit;
-      cursor: inherit;
-      height: 2em;
-    }
+      width: 99%;
+      height: 100%;
+      cursor: pointer;
 
-    option[disabled="disabled"] {
-      display: none;
+      &[disabled="disabled"] {
+        color: gray;
+        -webkit-text-fill-color: gray !important;
+        cursor: default;
+      }
+
+      option {
+        @include flex-box(row, flex-start, center);
+        font-size: inherit;
+        color: inherit;
+        -webkit-text-fill-color: inherit;
+        cursor: inherit;
+        height: 2em;
+      }
+
+      option[disabled="disabled"] {
+        display: none;
+      }
     }
   }
 }

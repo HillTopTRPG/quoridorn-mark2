@@ -30,6 +30,7 @@ type:
   stand-image: 立ち絵
   stand-image-diff: 立ち絵差分
   user: ユーザー
+  actor: アクター
   actor-group: アクターグループ
 
 context:
@@ -61,9 +62,12 @@ label:
   user-type: ユーザ種別
   nameless: ななし(必須項目)
   permission: 権限
-  player: PL
   gameMaster: GM
+  player: PL
   visitor: 見学者
+  GM: GM
+  PL: PL
+  VISITOR: 見学者
   room-name: プレイルーム名
   room-name-placeholder: 部屋名(必須項目)
   bcdice-api-url: BCDice-APIのURL
@@ -177,6 +181,10 @@ label:
   unknown: [不明]
   really-delete: 本当に削除しますか？
   input-bcdice-url: BCDice-APIサーバーのURLを設定します
+  secret-dice: シークレットダイス
+  target-all: 全体
+  all: すべて
+  status: ステータス
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -310,3 +318,19 @@ add-bgm-window:
 
 edit-bgm-window:
   window-title: BGM編集
+
+chat-window:
+  window-title: チャット
+  shortcut-title:
+    cut-in: カットイン
+    scene-list: シーン一覧
+  options:
+    select-actor: アクター選択
+    select-tab: タブ選択
+    select-target: 送信先選択
+    select-chat-format: 部分フォーマット選択
+    selected-item: [選択中]
+    goto-head: [先頭へ]
+    goto-next: [次へ]
+    goto-last: [前へ]
+    goto-tail: [末尾へ]

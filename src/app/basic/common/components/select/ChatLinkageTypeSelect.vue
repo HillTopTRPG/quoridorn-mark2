@@ -60,10 +60,5 @@ export default class ChatLinkageTypeSelect extends Mixins<MultiMixin>(
       o.text = getText(`label.${o.key}`);
     });
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

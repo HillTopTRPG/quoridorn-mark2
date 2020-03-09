@@ -54,7 +54,7 @@
     </div>
     <!-- 部屋情報 -->
     <div class="menu-button" @click="clickRoomInfo">
-      <span>{{ roomInfo.name }}</span>
+      <span>{{ roomData.name }}</span>
       ：
       <span>{{ userList | loginNum }}</span>
       名
@@ -243,9 +243,8 @@
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 
-import { Action, Getter } from "vuex-class";
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { ClientRoomInfo } from "@/@types/socket";
+import { Action } from "vuex-class";
+import { Component, Vue } from "vue-property-decorator";
 import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -263,9 +262,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
   }
 })
 export default class Menu extends Vue {
-  @Prop({ type: Object, required: true })
-  private roomInfo!: ClientRoomInfo;
-
+  private roomData = GameObjectManager.instance.roomData;
   @Action("windowOpenDeprecated") private windowOpenDeprecated: any;
   @Action("setPropertyDeprecated") private setPropertyDeprecated: any;
   @Action("doResetWindowLocateDeprecated")

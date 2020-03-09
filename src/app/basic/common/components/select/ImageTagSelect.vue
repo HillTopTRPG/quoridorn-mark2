@@ -69,10 +69,5 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
       });
     }
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

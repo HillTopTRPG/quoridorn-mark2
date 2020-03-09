@@ -223,7 +223,7 @@
   resizable: true
   tableInfoList: []
 "app-server-setting-window":
-  icon: cloud
+  icon: sphere
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -257,7 +257,7 @@
   resizable: true
   tableInfoList: []
 "bcdice-api-server-setting-window":
-  icon: cloud
+  icon: sphere
   parentTypeList: []
   isInputWindow: true
   isMovingRendering: false
@@ -849,6 +849,40 @@
     heightPx: 2
     heightEm: 28
     heightRem: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"chat-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: left-bottom
+  size:
+    widthPx: 600
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 20
+    heightRem: 1
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 14
+    heightRem: 1
+  maxSize:
+    widthPx: 1200
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 52
+    heightRem: 1
   minimizable: true
   paneContainable: true
   closable: true

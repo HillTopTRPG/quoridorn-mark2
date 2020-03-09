@@ -27,10 +27,13 @@ import {
   ActorGroup,
   CutInDeclareInfo,
   SceneAndObject,
-  SocketUserData
+  SocketUserData,
+  ChatInfo,
+  ChatTabInfo,
+  GroupChatTabInfo
 } from "@/@types/room";
 import {
-  ExtraStore,
+  ActorStore,
   SceneObject,
   PropertyFaceStore,
   PropertySelectionStore,
@@ -106,12 +109,16 @@ export function permissionCheck(
         )[0];
         if (!roleGroup) return false;
         return (
-          roleGroup.data!.list.findIndex(member => {
-            const targetId =
-              member.type === "user"
-                ? SocketFacade.instance.userId
-                : SocketFacade.instance.characterId;
-            return member.id === targetId;
+          roleGroup.data!.list.findIndex(actorRef => {
+            if (actorRef.type === "user")
+              return SocketFacade.instance.userId === actorRef.id;
+
+            GameObjectManager.instance.actorList.filter(
+              a =>
+                a.id === actorRef.id ||
+                a.owner === GameObjectManager.instance.mySelfUserId
+            );
+            return SocketFacade.instance.characterId === actorRef.id;
           }) > -1
         );
       }
@@ -328,7 +335,7 @@ export default class SocketFacade {
     if (!args.targetList)
       args.targetList = GameObjectManager.instance.userList.map(u => u.id!);
     if (!args.dataType) args.dataType = "general-data";
-    if (!args.owner) args.owner = GameObjectManager.instance.mySelfId;
+    if (!args.owner) args.owner = GameObjectManager.instance.mySelfUserId;
     await this.socketCommunication<SendDataRequest<T>, void>(
       "send-data",
       args as SendDataRequest<T>
@@ -445,6 +452,20 @@ export default class SocketFacade {
     ));
   }
 
+  public chatListCC(): NekostoreCollectionController<ChatInfo> {
+    return this.roomCollectionController<ChatInfo>("chat-list");
+  }
+
+  public chatTabListCC(): NekostoreCollectionController<ChatTabInfo> {
+    return this.roomCollectionController<ChatTabInfo>("chat-tab-list");
+  }
+
+  public groupChatTabListCC(): NekostoreCollectionController<GroupChatTabInfo> {
+    return this.roomCollectionController<GroupChatTabInfo>(
+      "group-chat-tab-list"
+    );
+  }
+
   public sceneListCC(): NekostoreCollectionController<Scene> {
     return this.roomCollectionController<Scene>("scene-list");
   }
@@ -517,8 +538,8 @@ export default class SocketFacade {
     );
   }
 
-  public extraCC(): NekostoreCollectionController<ExtraStore> {
-    return this.roomCollectionController<ExtraStore>("extra-list");
+  public actorCC(): NekostoreCollectionController<ActorStore> {
+    return this.roomCollectionController<ActorStore>("actor-list");
   }
 
   public actorGroupCC(): NekostoreCollectionController<ActorGroup> {
@@ -527,6 +548,12 @@ export default class SocketFacade {
 
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
+      case "chat":
+        return this.chatListCC();
+      case "chat-tab":
+        return this.chatTabListCC();
+      case "group-chat-tab":
+        return this.groupChatTabListCC();
       case "scene":
         return this.sceneListCC();
       case "room-data":
@@ -551,8 +578,8 @@ export default class SocketFacade {
       case "chit":
       case "map-mask":
         return this.sceneObjectCC();
-      case "extra":
-        return this.extraCC();
+      case "actor":
+        return this.actorCC();
       case "map-layer":
         return this.sceneLayerCC();
       case "map-and-layer":

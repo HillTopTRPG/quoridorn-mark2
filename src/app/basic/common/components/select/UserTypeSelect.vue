@@ -61,10 +61,5 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
       if (o.value === "VISITOR" && !this.visitable) o.disabled = true;
     });
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

@@ -8,7 +8,7 @@ import YoutubeManager from "@/app/basic/music/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/music/PlayYoutubeWindow.vue";
 import LoginWindow from "@/app/basic/login/LoginWindow.vue";
 import CreateNewRoomWindow from "@/app/basic/login/CreateNewRoomWindow.vue";
-import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import UserLoginWindow from "@/app/basic/login/UserLoginWindow.vue";
 import AppServerSettingWindow from "@/app/basic/login/AppServerSettingWindow.vue";
 import TermsOfUseWindow from "@/app/basic/login/TermsOfUseWindow.vue";
@@ -32,6 +32,7 @@ import ChmodWindow from "@/app/basic/chmod/ChmodWindow.vue";
 import AddBgmWindow from "@/app/basic/music/AddBgmWindow.vue";
 import EditBgmWindow from "@/app/basic/music/EditBgmWindow.vue";
 import BcdiceApiServerSettingWindow from "@/app/basic/login/BcdiceApiServerSettingWindow.vue";
+import ChatWindow from "@/app/basic/chat/ChatWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -46,7 +47,8 @@ let isYoutubeApiReady = false;
 async function init(): Promise<void> {
   return new Promise(async resolve => {
     await SocketFacade.instance.init();
-    await BCDiceFacade.instance.init();
+    const bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
+    await BcdiceManager.instance.init(bcdiceServer);
     YoutubeManager.init();
 
     const intervalId = window.setInterval(() => {
@@ -83,6 +85,7 @@ async function main(): Promise<void> {
   Vue.component("chmod-window", ChmodWindow);
   Vue.component("add-bgm-window", AddBgmWindow);
   Vue.component("edit-bgm-window", EditBgmWindow);
+  Vue.component("chat-window", ChatWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

@@ -1,5 +1,4 @@
-import { Vue, Prop, Emit } from "vue-property-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import { Vue, Prop } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 
 @Component
@@ -22,13 +21,12 @@ export default class SelectMixin extends Vue {
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
 
-  @Emit("input")
-  public input(value: string | string[] | null) {}
+  public input(value: string | string[] | null) {
+    this.$emit("input", value);
+  }
 
   public focus(): void {
-    const elm: CtrlSelect = this.$refs.select as CtrlSelect;
-    // @ts-ignore
-    elm.focus();
+    (this.$refs.component as any).focus();
   }
 
   protected get localValue(): string | string[] | null {

@@ -11,11 +11,14 @@ import {
   SocketUserData,
   CutInDeclareInfo,
   ImageInfo,
-  PartialRoomData
+  PartialRoomData,
+  ChatInfo,
+  ChatTabInfo,
+  GroupChatTabInfo
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
-  ExtraStore,
+  ActorStore,
   SceneObject,
   PropertyFaceStore,
   PropertySelectionStore,
@@ -29,11 +32,23 @@ import {
   WindowSettings
 } from "@/@types/socket";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { Point } from "address";
-import { createPoint } from "@/app/core/Coordinate";
 import { BgmStandByInfo } from "task-info";
 import LanguageManager from "@/LanguageManager";
 import { getSrc } from "@/app/core/Utility";
+import { loadYaml } from "@/app/core/File";
+
+export type ChatPublicInfo = {
+  actorId: string;
+  tabId: string;
+  targetId: string;
+  system: string;
+  bcdiceUrl: string;
+};
+
+export type ChatFormatInfo = {
+  label: string;
+  chatText: string;
+};
 
 export default class GameObjectManager {
   // シングルトン
@@ -44,6 +59,8 @@ export default class GameObjectManager {
   }
 
   private static _instance: GameObjectManager;
+
+  /** 権限のデフォルト値 */
   public static readonly DEFAULT_PERMISSION: Permission = {
     view: {
       type: "none",
@@ -62,15 +79,21 @@ export default class GameObjectManager {
   // コンストラクタの隠蔽
   private constructor() {}
 
+  /**
+   * GameObjectManagerのイニシャライズ
+   */
   private async initialize() {
     const sf = SocketFacade.instance;
+    await sf.actorCC().getList(true, this.actorList);
+    await sf.chatListCC().getList(true, this.chatList);
+    await sf.chatTabListCC().getList(true, this.chatTabList);
+    await sf.groupChatTabListCC().getList(true, this.groupChatTabList);
     await sf.sceneListCC().getList(true, this.sceneList);
     await sf.imageDataCC().getList(true, this.imageList);
     await sf.imageTagCC().getList(true, this.imageTagList);
     await sf.userCC().getList(true, this.userList);
     await sf.cutInDataCC().getList(true, this.cutInList);
     await sf.socketUserCC().getList(true, this.socketUserList);
-    await sf.extraCC().getList(true, this.extraList);
     await sf.propertyFaceCC().getList(true, this.propertyFaceList);
     await sf.propertyCC().getList(true, this.propertyList);
     await sf.sceneLayerCC().getList(true, this.sceneLayerList);
@@ -103,6 +126,7 @@ export default class GameObjectManager {
       to.windowSettings.chatPalette = from.windowSettings.chatPalette;
       to.windowSettings.counterRemocon = from.windowSettings.counterRemocon;
     };
+    this.roomData.name = roomData.data!.name;
     this.roomData.sceneId = roomData.data!.sceneId;
     writeSettings(roomData.data!.settings, this.roomData.settings);
 
@@ -127,8 +151,28 @@ export default class GameObjectManager {
         imgElm.src = src;
       }
     });
+
+    // チャットフォーマットの読み込み
+    this.chatFormatList.push(
+      ...(await loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml"))
+    );
+
+    // チャット設定の初期化
+    this.chatPublicInfo.actorId = this.mySelfActorId;
+    this.chatPublicInfo.tabId = this.chatTabList.filter(
+      ct => ct.data!.isSystem
+    )[0].id!;
+    this.chatPublicInfo.targetId = this.groupChatTabList.filter(
+      gct => gct.data!.isSystem
+    )[0].id!;
+    this.chatPublicInfo.system = this.clientRoomInfo.system;
+    this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
   }
 
+  /**
+   * 部屋情報を更新する
+   * @param data
+   */
   public async updateRoomData(data: PartialRoomData): Promise<void> {
     if (!this.roomDataId)
       throw new ApplicationError("Illegal timing error(roomDataId is null).");
@@ -143,6 +187,7 @@ export default class GameObjectManager {
     }
 
     // Object.assign()
+    if (data.name !== undefined) this.roomData.name = data.name;
     if (data.sceneId !== undefined) this.roomData.sceneId = data.sceneId;
     const settings = data.settings;
     if (settings) {
@@ -178,11 +223,27 @@ export default class GameObjectManager {
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
-  public isSceneEditing: boolean = false;
+
+  public readonly chatPublicInfo: ChatPublicInfo = {
+    actorId: "",
+    tabId: "",
+    targetId: "",
+    system: "",
+    bcdiceUrl: ""
+  };
+
+  public get selfActors(): StoreUseData<ActorStore>[] {
+    return this.actorList.filter(a => a.owner === this.mySelfUserId);
+  }
+
   // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
+  public isSceneEditing: boolean = false;
   public sceneEditingUpdateSceneId: string | null = null;
+
+  // 部屋の設定情報
   private roomDataId: string | null = null;
   public readonly roomData: RoomData = {
+    name: "",
     sceneId: "",
     settings: {
       visitable: true,
@@ -203,30 +264,39 @@ export default class GameObjectManager {
       }
     }
   };
+
+  public readonly chatFormatList: ChatFormatInfo[] = [];
+
+  // 再生中のBGMの一覧
   public readonly playingBgmList: {
     targetId: string | null;
     tag: string;
     windowKey: string;
   }[] = [];
-  public readonly throwEndPoint: Point = createPoint(0, 0);
-  public sceneList: StoreUseData<Scene>[] = [];
-  public cutInList: StoreUseData<CutInDeclareInfo>[] = [];
-  public bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
-  public imageList: StoreUseData<ImageInfo>[] = [];
-  public imageTagList: StoreUseData<string>[] = [];
-  public userList: StoreUseData<UserData>[] = [];
-  public socketUserList: StoreUseData<SocketUserData>[] = [];
-  public extraList: StoreUseData<ExtraStore>[] = [];
-  public propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
-  public sceneLayerList: StoreUseData<SceneLayer>[] = [];
-  public sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
-  public sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
-  public sceneObjectList: StoreUseData<SceneObject>[] = [];
-  public actorStatusList: StoreUseData<ActorStatusStore>[] = [];
-  public propertyList: StoreUseData<PropertyStore>[] = [];
-  public propertySelectionList: StoreUseData<PropertySelectionStore>[] = [];
-  public tagNoteList: StoreUseData<TagNoteStore>[] = [];
-  public actorGroupList: StoreUseData<ActorGroup>[] = [];
+
+  public readonly chatList: StoreUseData<ChatInfo>[] = [];
+  public readonly chatTabList: StoreUseData<ChatTabInfo>[] = [];
+  public readonly groupChatTabList: StoreUseData<GroupChatTabInfo>[] = [];
+  public readonly sceneList: StoreUseData<Scene>[] = [];
+  public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
+  public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
+  public readonly imageList: StoreUseData<ImageInfo>[] = [];
+  public readonly imageTagList: StoreUseData<string>[] = [];
+  public readonly userList: StoreUseData<UserData>[] = [];
+  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
+  public readonly actorList: StoreUseData<ActorStore>[] = [];
+  public readonly propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
+  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
+  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
+  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
+  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
+  public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
+  public readonly propertyList: StoreUseData<PropertyStore>[] = [];
+  public readonly propertySelectionList: StoreUseData<
+    PropertySelectionStore
+  >[] = [];
+  public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
+  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -250,7 +320,7 @@ export default class GameObjectManager {
     const userInfo = this.userList.filter(u => u.id === userId)[0];
     return !userInfo
       ? LanguageManager.instance.getText("label.unknown")
-      : userInfo.data!.userName;
+      : userInfo.data!.name;
   }
 
   public async setClientRoomInfo(info: ClientRoomInfo) {
@@ -284,7 +354,7 @@ export default class GameObjectManager {
       sceneAndLayerList
     );
 
-    /* --------------------------------------------------
+    /* --------------------_ ------------------------------
      * シーンとオブジェクトの紐づきの登録
      */
     const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
@@ -403,22 +473,24 @@ export default class GameObjectManager {
       await sceneAndObjectCC!.delete(id);
     };
     // 直列の非同期で全部実行する
-    touchedList
+    await touchedList
       .map((id: string) => () => deleteFunc(id))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
-  public get mySelf(): StoreUseData<UserData> | null {
-    return this.userList.filter(p => p.id === this.mySelfId)[0] || null;
+  public get mySelfUser(): StoreUseData<UserData> | null {
+    return this.userList.filter(p => p.id === this.mySelfUserId)[0] || null;
   }
 
   public get isGm(): boolean {
     return (
-      !!this.mySelf && !!this.mySelf.data && this.mySelf.data.userType === "GM"
+      !!this.mySelfUser &&
+      !!this.mySelfUser.data &&
+      this.mySelfUser.data.type === "GM"
     );
   }
 
-  public get mySelfId(): string {
+  public get mySelfUserId(): string {
     const userId = SocketFacade.instance.userId;
     if (!userId) {
       throw new ApplicationError(`Illegal timing error.`);
@@ -426,8 +498,20 @@ export default class GameObjectManager {
     return userId;
   }
 
+  public get mySelfActorId(): string {
+    return this.actorList.filter(
+      a => a.data!.type === "user" && a.owner === this.mySelfUserId
+    )[0].id!;
+  }
+
   public getList(type: string): StoreUseData<unknown>[] | null {
     switch (type) {
+      case "chat":
+        return this.chatList;
+      case "chatTab":
+        return this.chatTabList;
+      case "groupChatTab":
+        return this.groupChatTabList;
       case "scene":
         return this.sceneList;
       case "image":
@@ -448,8 +532,8 @@ export default class GameObjectManager {
         return this.sceneObjectList;
       case "actor-status":
         return this.actorStatusList;
-      case "extra":
-        return this.extraList;
+      case "actor":
+        return this.actorList;
       case "property-face":
         return this.propertyFaceList;
       case "scene-layer":

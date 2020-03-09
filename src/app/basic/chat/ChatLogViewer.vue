@@ -1,143 +1,100 @@
 <template>
-  <div class="chat-log-container">
-    <!----------------
-     ! タブ
-     !--------------->
-    <tabs-component
-      :tabIndex="0"
-      :tabList="useTabList"
-      :activeChatTab="activeChatTab"
-      :hoverChatTab="hoverChatTab"
-      :isVertical="isVertical"
-      :textFunc="textFunc"
-      :viewOption="viewOption"
-      @onSelect="onSelect"
-      @onHover="onHover"
-      @editTab="editTab"
-    />
-
-    <!----------------
-     ! チャットログ
-     !--------------->
-    <div id="chatLog" class="selectable" @wheel.stop>
-      <chat-log-line-component
-        v-for="(chatLog, index) in chatLogList"
-        :key="index"
-        :chatLog="chatLog"
-        :activeChatTab="activeChatTab"
-        :isViewTime="isViewTime"
-      />
-    </div>
+  <div class="chat-view-container">
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+      :hasSetting="true"
+      @settingOpen="onSettingOpen()"
+    >
+      <div class="chat-line-container selectable">
+        <div v-for="chat in chatList" :key="chat.id" class="chat-line">
+          <span v-html="transText(chat.data.text)"></span>
+        </div>
+      </div>
+    </simple-tab-component>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
-import { Emit, Prop, Watch } from "vue-property-decorator";
-import { Component } from "vue-mixin-decorator";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
-import ChatLogLineComponent from "@/app/basic/chat/ChatLogLineComponent.vue";
+import { Component, Prop, Watch } from "vue-property-decorator";
+import { Mixins } from "vue-mixin-decorator";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { transText } from "@/app/core/Utility";
+import { TabInfo } from "@/@types/window";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
-  components: { ChatLogLineComponent, TabsComponent }
+  components: {
+    SimpleTabComponent
+  }
 })
-export default class ChatLogViewer extends Vue {
-  @Prop({ type: Array, required: true })
-  private tabList!: any[];
+export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
+  @Prop({ type: String, required: true })
+  private windowKey!: string;
 
-  private get useTabList() {
-    if (this.isViewTotalTab) return this.tabList;
-    return this.tabList.filter((tab: any) => !tab.isTotal);
+  private chatTabList = GameObjectManager.instance.chatTabList;
+  private chatList = GameObjectManager.instance.chatList;
+
+  // tab controls
+  private tabList: TabInfo[] = [];
+  private currentTabInfo: TabInfo | null = null;
+
+  @Watch("chatTabList", { immediate: true, deep: true })
+  private onChangeChatTabList() {
+    this.tabList = this.chatTabList
+      .filter(ct => permissionCheck(ct, "view"))
+      .map(ct => ({
+        text: ct.data!.name,
+        target: ct.id!
+      }));
+    if (!this.currentTabInfo) this.currentTabInfo = this.tabList[0];
   }
 
-  @Prop({ type: String, required: true })
-  private activeChatTab!: string;
+  @VueEvent
+  private transText(raw: string): string {
+    return transText(raw);
+  }
 
-  @Prop({ type: String, required: true })
-  private hoverChatTab!: string;
-
-  @Prop({ type: Boolean, required: true })
-  private isVertical!: boolean;
-
-  @Prop({ type: Boolean, required: true })
-  private isViewTime!: boolean;
-
-  @Prop({ type: Boolean, required: true })
-  private isViewTotalTab!: boolean;
-
-  @Prop({ type: Number, required: true })
-  private tabIndex!: number;
-
-  @Prop({ type: Function, required: true })
-  private textFunc!: Function;
-
-  @Prop({ type: Array, required: true })
-  private chatLogList!: any[];
-
-  @Prop({ type: Object, required: true })
-  private colorMap!: any;
-
-  @Prop({ type: Boolean, required: true })
-  private viewOption!: boolean;
-
-  /**
-   * チャットログ表示タブを選択されたときの挙動
-   * @param key タブのkey
-   */
-  @Emit("onSelect")
-  private onSelect(key: string): void {}
-
-  /**
-   * チャットログ表示タブをホバーされたときの挙動
-   * @param key タブのkey
-   */
-  @Emit("onHover")
-  private onHover(key: string): void {}
-
-  /**
-   * チャットタブ追加ボタンクリックイベントハンドラ
-   */
-  @Emit("editTab")
-  private editTab(): void {}
-
-  @Watch("colorMap", { immediate: true, deep: true })
-  private onChangeColorMap(colorMap: any) {
-    for (const colorKey in colorMap) {
-      if (!colorMap.hasOwnProperty(colorKey)) continue;
-      document.documentElement.style.setProperty(
-        `--${colorKey}`,
-        colorMap[colorKey]
-      );
-    }
+  @VueEvent
+  private onSettingOpen() {
+    window.console.log("## onSettingOpen");
+    // TODO Open view tab setting.
   }
 }
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common.scss";
+@import "../../../assets/common";
 
-.chat-log-container {
-  @include flex-box(column, normal, normal);
-  position: relative;
+.chat-view-container {
+  @include flex-box(column, stretch, stretch);
   flex: 1;
-  height: 100%;
+  z-index: 0;
 }
 
-#chatLog {
-  @include flex-box(column, stretch, flex-start);
-  background-color: white;
+.chat-line-container {
   flex: 1;
   border: 1px solid gray;
+  margin-top: -1px;
+  z-index: 0;
+  background-color: white;
   overflow-y: scroll;
-  overflow-x: auto;
-  margin: 0;
-  padding-left: 2px;
-  list-style: none;
-  min-height: 70px;
-  position: relative;
-  z-index: 10;
-  white-space: normal;
-  word-break: break-all;
+  box-sizing: content-box;
+  margin-bottom: 0.5rem;
+}
+
+.simple-tab-component {
+  flex: 1;
+  @include flex-box(column, stretch, stretch);
+}
+
+.chat-line {
+  min-height: 2em;
+  line-height: 2em;
 }
 </style>

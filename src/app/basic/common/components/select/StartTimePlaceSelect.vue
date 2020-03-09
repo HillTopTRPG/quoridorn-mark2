@@ -60,10 +60,5 @@ export default class StartTimePlaceSelect extends Mixins<MultiMixin>(
       "label.no-target"
     );
   }
-
-  public focus() {
-    const elm = this.$refs.component as CtrlSelect;
-    elm.focus();
-  }
 }
 </script>

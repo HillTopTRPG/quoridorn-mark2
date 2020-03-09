@@ -45,22 +45,21 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import DiceBotSelect from "@/app/basic/common/components/select/DiceBotSelect.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { AppServerSettingInput, DefaultServerInfo } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import BCDiceFacade from "@/app/core/api/bcdice/BCDiceFacade";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import { BcdiceVersionInfo } from "@/@types/bcdice";
 import LanguageManager from "@/LanguageManager";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
-  components: { DiceBotSelect, BaseInput, TableComponent, CtrlButton }
+  components: {
+    CtrlButton,
+    BaseInput
+  }
 })
 export default class BcdiceApiServerSettingWindow extends Mixins<
   WindowVue<string, string>
@@ -87,7 +86,7 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
     window.console.log("test");
     this.testStatus = "testing";
     try {
-      const info: BcdiceVersionInfo = await BCDiceFacade.getBcdiceVersionInfo(
+      const info: BcdiceVersionInfo = await BcdiceManager.getBcdiceVersionInfo(
         this.url
       );
       this.apiVersion = info.api;

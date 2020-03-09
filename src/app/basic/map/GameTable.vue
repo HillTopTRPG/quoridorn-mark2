@@ -481,7 +481,6 @@ export default class GameTable extends AddressCalcMixin {
 #gameTable {
   position: fixed;
   display: block;
-  margin: auto;
   text-align: center;
   vertical-align: middle;
   cursor: crosshair;

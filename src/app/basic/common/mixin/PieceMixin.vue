@@ -71,21 +71,21 @@ export default class PieceMixin<
   protected get lockMessage() {
     let result = "";
     if (this.sceneObjectInfo && this.sceneObjectInfo.exclusionOwner) {
-      const userName = GameObjectManager.instance.getExclusionOwnerName(
+      const name = GameObjectManager.instance.getExclusionOwnerName(
         this.sceneObjectInfo.exclusionOwner
       );
-      result = userName
-        ? `<span class="icon-lock"></span>sceneObject(${escape(userName)})`
+      result = name
+        ? `<span class="icon-lock"></span>sceneObject(${escape(name)})`
         : "";
     }
 
     let additional = "";
     if (this.sceneAndObjectInfo && this.sceneAndObjectInfo.exclusionOwner) {
-      const userName = GameObjectManager.instance.getExclusionOwnerName(
+      const name = GameObjectManager.instance.getExclusionOwnerName(
         this.sceneAndObjectInfo.exclusionOwner
       );
-      additional = userName
-        ? `<span class="icon-lock"></span>sceneAndObject(${escape(userName)})`
+      additional = name
+        ? `<span class="icon-lock"></span>sceneAndObject(${escape(name)})`
         : "";
     }
 
@@ -188,7 +188,7 @@ export default class PieceMixin<
     const lastExclusionOwnerId = GameObjectManager.instance.getExclusionOwnerId(
       lastExclusionOwner
     );
-    return lastExclusionOwnerId !== GameObjectManager.instance.mySelfId;
+    return lastExclusionOwnerId !== GameObjectManager.instance.mySelfUserId;
   }
 
   protected get basicClasses() {
@@ -707,6 +707,7 @@ export default class PieceMixin<
     this.isHover = true;
     const data = this.sceneObjectInfo!.data!;
     if (!data.otherText) return;
+    const rect = this.elm.getBoundingClientRect();
     await TaskManager.instance.ignition<OtherTextViewInfo, never>({
       type: "other-text-view",
       owner: "Quoridorn",
@@ -715,8 +716,9 @@ export default class PieceMixin<
         docId: this.docId,
         text: data.otherText,
         point: createPoint(data.x, data.y),
-        columns: data.columns,
-        rows: data.rows
+        width: rect.width,
+        height: rect.height,
+        isFix: false
       }
     });
   }
@@ -725,12 +727,10 @@ export default class PieceMixin<
     this.isHover = false;
     const data = this.sceneObjectInfo!.data!;
     if (!data.otherText) return;
-    setTimeout(async () => {
-      await TaskManager.instance.ignition<string, never>({
-        type: "other-text-hide",
-        owner: "Quoridorn",
-        value: this.docId
-      });
+    await TaskManager.instance.ignition<string, never>({
+      type: "other-text-hide",
+      owner: "Quoridorn",
+      value: this.docId
     });
   }
 }
