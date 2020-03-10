@@ -178,13 +178,14 @@ label:
   second: 秒
   url-placeholder: 指定なしで「停止」の指定
   editing: 編集中
-  unknown: [不明]
+  unknown: "[不明]"
   really-delete: 本当に削除しますか？
   input-bcdice-url: BCDice-APIサーバーのURLを設定します
   secret-dice: シークレットダイス
   target-all: 全体
   all: すべて
   status: ステータス
+  edited: "[編集済]"
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -321,16 +322,28 @@ edit-bgm-window:
 
 chat-window:
   window-title: チャット
+  placeholder: "メッセージ（改行はShift + Enter）\n部分フォント変更は \"&\" を入力"
   shortcut-title:
     cut-in: カットイン
     scene-list: シーン一覧
   options:
-    select-actor: アクター選択
-    select-tab: タブ選択
-    select-target: 送信先選択
+    select-sender: 送信者の選択
+    select-output-tab: 送信先タブの選択
+    select-target: 送信相手の選択
     select-chat-format: 部分フォーマット選択
-    selected-item: [選択中]
-    goto-head: [先頭へ]
-    goto-next: [次へ]
-    goto-last: [前へ]
-    goto-tail: [末尾へ]
+    select-is-secret: 秘匿チャットかどうかの選択
+    selected-item: "[選択中]"
+    goto-head: "[先頭へ]"
+    goto-next: "[次へ]"
+    goto-last: "[前へ]"
+    goto-tail: "[末尾へ]"
+  input-info:
+    message-sender: 現在の送信者を表示しています
+    message-target: チャットの送信先を表示しています
+    message-outputTab: チャットを表示するタブを表示しています
+    message-secret: 秘匿チャットかどうかを表示しています
+    secret: 秘匿
+    non-secret: 公開
+  dialog:
+    delete-chat: "本当にこのチャットを消しますか？\nこの操作は後から取り消せません。"
+    delete-failure: 削除に失敗しました。

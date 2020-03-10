@@ -2,7 +2,7 @@
   <div class="operation-line-container">
     <!-- アクター選択 -->
     <label>
-      <span>{{ $t("label.name") }}(！)</span>
+      <span>{{ $t("label.name") }}</span>
       <self-actor-select v-model="actorId" />
     </label>
 

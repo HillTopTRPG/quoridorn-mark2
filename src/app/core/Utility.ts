@@ -1135,6 +1135,7 @@ type SendChatInfo = {
   statusId: string | null;
   targetId: string | null;
   system: string | null;
+  isSecret: boolean;
 };
 
 export async function addChatLog(chatInfo: ChatInfo) {
@@ -1188,15 +1189,16 @@ export async function sendChatLog(
     text: payload.text,
     diceRollResult: null,
     customDiceBotResult: null,
-    isSecret: false,
+    isSecret: payload.isSecret,
+    isSecretDice: false,
     dices: [],
     targetId,
+    targetType: groupChatTabInfo ? "group" : "actor",
     tabId:
       groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
         ? groupChatTabInfo.data!.outputChatTabId
         : payload.tabId || GameObjectManager.instance.chatPublicInfo.tabId,
     statusId: payload.statusId || actorStatus!.id!,
-    targetType: groupChatTabInfo ? "group" : "actor",
     system: payload.system || GameObjectManager.instance.chatPublicInfo.system
   };
 
@@ -1213,7 +1215,7 @@ export async function sendChatLog(
     if (resultJson.ok) {
       // bcdiceとして結果が取れた
       chatInfo.diceRollResult = resultJson.result!;
-      chatInfo.isSecret = resultJson.secret!;
+      chatInfo.isSecretDice = resultJson.secret!;
       chatInfo.dices = resultJson.dices!;
     } else {
       // bcdiceとして結果は取れなかった
@@ -1223,7 +1225,7 @@ export async function sendChatLog(
 
     await addChatLog(chatInfo);
 
-    if (chatInfo.isSecret) {
+    if (chatInfo.isSecretDice) {
       // TODO シークレットダイスの画面表示処理
     }
   };
@@ -1267,7 +1269,7 @@ export async function sendChatLog(
     if (resultJson.ok) {
       // bcdiceとして結果が取れた
       chatInfo.diceRollResult = resultJson.result!;
-      chatInfo.isSecret = resultJson.secret!;
+      chatInfo.isSecretDice = resultJson.secret!;
       chatInfo.dices = resultJson.dices!;
 
       const diceRollResult = resultJson.result!.replace(/^.*→ */, "");

@@ -687,8 +687,7 @@ export default class WindowFrame extends Vue {
   -webkit-font-smoothing: subpixel-antialiased;
   width: calc(
     var(--windowWidthPx) + var(--windowWidthEm) + var(--windowWidthRem) +
-      var(--windowWidthScrollBar) + var(--scroll-bar-width) +
-      var(--window-padding) * 2 + 2px
+      var(--windowWidthScrollBar) + var(--window-padding) * 2 + 2px
   );
   height: calc(
     var(--windowHeightPx) + var(--windowHeightEm) + var(--windowHeightRem) +
@@ -829,7 +828,7 @@ export default class WindowFrame extends Vue {
   height: 100%;
   z-index: 1;
   overflow-x: visible;
-  overflow-y: scroll;
+  overflow-y: visible;
 }
 
 .window-title {

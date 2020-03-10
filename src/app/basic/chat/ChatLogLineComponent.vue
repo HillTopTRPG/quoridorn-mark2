@@ -1,158 +1,172 @@
 <template>
-  <div class="chatLogLine">
-    <span v-if="activeChatTab === 'chatTab-0'"
-      >[{{ getViewName(chatLog.tab) }}]
-    </span>
-    <span :style="{ color: `var(--${chatLog.color}, #000)` }">
-      <b>{{ chatLog.name }}</b
-      ><span v-if="chatLog.target !== 'groupTargetTab-0'"
-        >＞＞<b>{{ getViewName(chatLog.target) }}</b></span
-      >：<span v-html="transText(chatLog.text)"></span></span
-    ><span class="time" v-if="isViewTime">{{
-      getTime(chatLog.updateTime)
-    }}</span>
+  <div class="chat-log-line-component">
+    <div class="chat-line">
+      <span class="sender">{{ getSender(chat.data) }}：</span>
+      <span v-html="transText(chat.data.text)"></span>
+      <div class="icon-container">
+        <template v-if="isEditable(chat)">
+          <span class="icon icon-pencil" @click="$emit('edit', chat.id)"></span>
+          <span class="icon icon-bin" @click="$emit('delete', chat.id)"></span>
+        </template>
+        <span class="update-time">{{ getDateStr(chat.updateTime) }}</span>
+        <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
+      </div>
+    </div>
+    <div class="chat-line dice-roll-result" v-if="chat.data.diceRollResult">
+      <span class="sender">{{ chat.data.system }}</span>
+      <span>：</span>
+      <span>{{ chat.data.diceRollResult }}</span>
+    </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-@import "../../../assets/common";
-
-.chatLogLine {
-  display: inline-block;
-  width: 100%;
-  position: relative;
-  line-height: 1.7em;
-
-  .time {
-    flex: 1;
-    @include inline-flex-box(row, flex-end, center);
-    position: absolute;
-    right: 0;
-  }
-
-  rt {
-    font-size: 80%;
-    line-height: 1em;
-  }
-}
-</style>
-
 <script lang="ts">
 import Vue from "vue";
-
 import { Prop } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
+import { StoreUseData } from "@/@types/store";
+import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
 import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
-import { Getter } from "vuex-class";
-import moment from "moment";
+import { transText } from "@/app/core/Utility";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { ActorStore } from "@/@types/gameObject";
+import { UserType } from "@/@types/socket";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import moment from "moment/moment";
 
 @Component({
   components: { TabsComponent }
 })
 export default class ChatLogLineComponent extends Vue {
-  @Getter("getViewName") private getViewName: any;
-  @Getter("chatLineRegExp") private chatLineRegExp: any;
-  @Getter("borderStyleRegExp") private borderStyleRegExp: any;
-  @Getter("chatStyleRegExp") private chatStyleRegExp: any;
-
   @Prop({ type: Object, required: true })
-  private chatLog!: any;
+  private chat!: StoreUseData<ChatInfo>;
 
   @Prop({ type: String, required: true })
-  private activeChatTab!: string;
+  private editedMessage!: string;
 
-  @Prop({ type: Boolean, required: true })
-  private isViewTime!: boolean;
+  @Prop({ type: Array, required: true })
+  private userList!: StoreUseData<UserData>[];
 
-  private getTime(timeNum: number) {
-    return timeNum
-      ? moment(String(timeNum), "YYYYMMDDHHmmss").format("HH:mm:ss")
-      : "";
+  @Prop({ type: Array, required: true })
+  private actorList!: StoreUseData<ActorStore>[];
+
+  @Prop({ type: Array, required: true })
+  private groupChatTabList!: StoreUseData<GroupChatTabInfo>[];
+
+  @Prop({ type: Object, required: true })
+  private userTypeLanguageMap!: { [type in UserType]: string };
+
+  @VueEvent
+  private isEditable(chat: StoreUseData<ChatInfo>): boolean {
+    return permissionCheck(chat, "edit");
   }
 
-  private transText(text: string) {
-    text = text
-      .replace(/\[\[quot]]/g, "&quot;")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/'/g, "&#39;")
-      .replace(/\n/g, "<br />");
+  private get isEdited(): boolean {
+    return this.chat.updateTime !== this.chat.createTime;
+  }
 
-    const matchInfoList: any[] = [];
-    let matchResult = null;
-    while ((matchResult = this.chatLineRegExp.exec(text)) !== null) {
-      const styleStr = matchResult[1];
-      const startIndex = matchResult.index;
-      const contentsIndex = matchResult.index + matchResult[0].length;
-      matchInfoList.push({
-        styleStr,
-        startIndex,
-        contentsIndex
-      });
+  @VueEvent
+  private getDateStr(d: Date) {
+    return moment(d).format("YYYY/MM/DD HH:mm:ss");
+  }
+
+  @VueEvent
+  private getSender(chat: ChatInfo): string {
+    const actorName = this.getName(chat.actorId, "actor");
+    const delimiter = " ＞＞ ";
+    const targetName = this.getName(chat.targetId, chat.targetType);
+    return actorName + (targetName ? delimiter + targetName : "");
+  }
+
+  private getName(id: string, type: "group" | "actor") {
+    if (type === "group") {
+      const gct = this.groupChatTabList.filter(gct => gct.id === id)[0];
+      if (gct.data!.isSystem) return "";
+      return gct.data!.name;
+    } else {
+      const actor = this.actorList.filter(a => a.id === id)[0];
+      const user = this.userList.filter(u => u.id === actor.owner)[0];
+      const userType = this.userTypeLanguageMap[user.data!.type];
+      const userTypeStr = actor.data!.type !== "user" ? "" : `(${userType})`;
+      return `${actor.data!.name}${userTypeStr}`;
     }
+  }
 
-    if (!matchInfoList.length) return text;
-
-    matchInfoList.push({ startIndex: text.length });
-    const resultTexts: string[] = [];
-    resultTexts.push(text.substring(0, matchInfoList[0].startIndex));
-
-    for (let i = 0; i < matchInfoList.length - 1; i++) {
-      const styleStr: string = matchInfoList[i]!.styleStr;
-      const startIndex: number = matchInfoList[i]!.contentsIndex;
-      const endIndex: number = matchInfoList[i + 1]!.startIndex;
-      const contentsStr = text.substring(startIndex, endIndex);
-
-      const style: string[] = [];
-      const textDecoration: string[] = [];
-      let rubyText: string = "";
-      let matchResult = null;
-      while ((matchResult = this.chatStyleRegExp.exec(styleStr)) !== null) {
-        if (matchResult[1] === "c") style.push(`color: ${matchResult[2]}`);
-        if (matchResult[1] === "bc")
-          style.push(`background-color: ${matchResult[2]}`);
-        if (matchResult[3] === "u" || matchResult[3] === "o") {
-          const lineObj: any = {
-            type: matchResult[3] === "u" ? "underline" : "overline",
-            style: "",
-            color: ""
-          };
-          const setFunc: Function = (str: string): void => {
-            if (str) {
-              if (this.borderStyleRegExp.test(str)) lineObj.style = ` ${str}`;
-              else lineObj.color = ` ${str}`;
-            }
-          };
-          setFunc(matchResult[4]);
-          setFunc(matchResult[5]);
-
-          textDecoration.push(
-            `${lineObj.type}${lineObj.style}${lineObj.color}`
-          );
-        }
-        if (matchResult[6] === "b") style.push("font-weight: bold");
-        if (matchResult[7] === "i") style.push("font-style: italic");
-        if (matchResult[8] === "lt") textDecoration.push("line-through");
-        if (matchResult[9] === "r") rubyText = matchResult[10];
-      }
-      if (textDecoration.length) {
-        style.push(`text-decoration: ${textDecoration.join(" ")}`);
-      }
-
-      const styleText: string = style.join(";");
-      const styleAttrStr: string = styleText ? ` style="${styleText};"` : "";
-      let contentsText: string = contentsStr;
-      if (rubyText) {
-        contentsText = `<ruby><rb${styleAttrStr}>${contentsText}</rb><rp>（</rp><rt${styleAttrStr}>${rubyText}</rt><rp>）</rp></ruby>`;
-      } else {
-        if (styleText) {
-          contentsText = `<span${styleAttrStr}>${contentsText}</span>`;
-        }
-      }
-      resultTexts.push(contentsText);
-    }
-    return resultTexts.join("");
+  @VueEvent
+  private transText(raw: string): string {
+    return transText(raw);
   }
 }
 </script>
+
+<style scoped lang="scss">
+@import "../../../assets/common";
+
+.chat-log-line-component {
+  display: contents;
+}
+
+.chat-line {
+  position: relative;
+  min-height: 2em;
+  line-height: 1.7em;
+  white-space: pre-wrap;
+
+  &:hover {
+    background-color: var(--uni-color-light-skyblue);
+
+    .icon-container {
+      visibility: visible;
+    }
+  }
+}
+
+.sender {
+  font-weight: bold;
+  margin-top: 0.5em;
+}
+
+.edited-message {
+  margin-left: 0.2rem;
+  color: black;
+  font-size: 80%;
+  white-space: nowrap;
+}
+.update-time {
+  color: black;
+  font-size: 80%;
+}
+
+.dice-roll-result {
+  background-color: var(--uni-color-cream);
+}
+
+.icon-container {
+  position: absolute;
+  height: 2em;
+  top: 0;
+  right: 0;
+  visibility: hidden;
+  padding-left: 0.3rem;
+  background-color: var(--uni-color-light-green);
+}
+.icon {
+  @include inline-flex-box(row, center, center);
+  background-color: white;
+  border: 1px solid gray;
+  border-radius: 50%;
+  width: 2em;
+  height: 2em;
+  margin-right: 0.3rem;
+  box-sizing: border-box;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--uni-color-light-pink);
+  }
+
+  &:active {
+    background-color: var(--uni-color-pink);
+  }
+}
+</style>

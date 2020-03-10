@@ -307,6 +307,7 @@ type ChatInfo = {
   diceRollResult: string | null;
   customDiceBotResult: string | null;
   isSecret: boolean;
+  isSecretDice: boolean;
   dices: DiceResult[];
   system: string;
 };

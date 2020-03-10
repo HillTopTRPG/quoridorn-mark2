@@ -130,12 +130,6 @@ export default class OtherTextFrame extends Vue {
         if (ratioW > 1) {
           fontSizeW = Math.floor(OtherTextFrame.DEFAULT_FONT_SIZE / ratioW);
         }
-        window.console.log(
-          ratioW,
-          useSpace,
-          OtherTextFrame.DEFAULT_FONT_SIZE / ratioW,
-          fontSizeW
-        );
       }
       this.fontSize = Math.min(this.fontSize, fontSizeH, fontSizeW);
       this.elm.style.fontSize = `${this.fontSize}px`;

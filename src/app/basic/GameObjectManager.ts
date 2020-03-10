@@ -79,6 +79,11 @@ export default class GameObjectManager {
   // コンストラクタの隠蔽
   private constructor() {}
 
+  public async setClientRoomInfo(info: ClientRoomInfo) {
+    this.__clientRoomInfo = info;
+    await this.initialize();
+  }
+
   /**
    * GameObjectManagerのイニシャライズ
    */
@@ -321,11 +326,6 @@ export default class GameObjectManager {
     return !userInfo
       ? LanguageManager.instance.getText("label.unknown")
       : userInfo.data!.name;
-  }
-
-  public async setClientRoomInfo(info: ClientRoomInfo) {
-    this.__clientRoomInfo = info;
-    await this.initialize();
   }
 
   public async addScene(

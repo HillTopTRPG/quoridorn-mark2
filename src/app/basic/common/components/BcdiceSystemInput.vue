@@ -447,7 +447,6 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
     }
     const filterInfo = this.getFilterInfo(this.inputText);
     const list = filterInfo.list;
-    window.console.log(filterInfo);
     if (list.length === 0 || filterInfo.isNameEquals) return this.systemList;
     return list;
   }

@@ -1140,11 +1140,14 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * グループチャットタブのプリセットデータ投入
      */
+    const allActorGroup = (await SocketFacade.instance
+      .actorGroupCC()
+      .find([{ property: "data.name", operand: "==", value: "All" }]))![0];
     await SocketFacade.instance.groupChatTabListCC().addDirect([
       {
         name: LanguageManager.instance.getText("label.target-all"),
         isSystem: true,
-        actorGroupId: "",
+        actorGroupId: allActorGroup.id!,
         isSecret: false,
         outputChatTabId: null
       }

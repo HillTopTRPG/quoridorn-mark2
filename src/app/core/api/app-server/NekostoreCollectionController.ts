@@ -205,8 +205,7 @@ export default class NekostoreCollectionController<T> {
     >("add-direct", {
       collection: this.collectionName,
       dataList,
-      permission,
-      owner
+      option
     });
   }
 

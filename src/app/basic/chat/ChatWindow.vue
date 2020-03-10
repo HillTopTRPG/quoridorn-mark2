@@ -1,7 +1,18 @@
 <template>
   <div class="container" ref="window-container">
     <!-- ログビューアー -->
-    <chat-log-viewer :windowKey="windowKey" />
+    <chat-log-viewer
+      :windowInfo="windowInfo"
+      :editedMessage="editedMessage"
+      :userTypeLanguageMap="userTypeLanguageMap"
+      :chatList="chatList"
+      :userList="userList"
+      :actorList="actorList"
+      :chatTabList="chatTabList"
+      :groupChatTabList="groupChatTabList"
+      @edit="editChat"
+      @delete="deleteChat"
+    />
 
     <!-- 操作盤 -->
     <chat-operation-line
@@ -22,16 +33,28 @@
         :hasSetting="true"
         @settingOpen="onSettingOpen()"
       >
-        <div>
+        <div class="chat-input-box">
+          <chat-input-info-component
+            :windowInfo="windowInfo"
+            :sender="sender"
+            :targetType="targetType"
+            :targetName="targetName"
+            :isDefaultTab="!outputTabId"
+            :outputTabName="outputTabName"
+            :isSecret="isSecret"
+          />
           <label class="chat-input-container">
             <textarea
               v-model="inputtingChatText"
+              :placeholder="$t('chat-window.placeholder')"
               @input="onInputChat($event.target.value)"
               @keydown.up.self.stop="event => changeChatOption('up', event)"
               @keydown.down.self.stop="event => changeChatOption('down', event)"
               @keydown.esc.prevent="resetChatOption"
               @keypress.enter.prevent="event => sendMessage(event, true)"
               @keyup.enter.prevent="event => sendMessage(event, false)"
+              @keydown.229.stop
+              @keyup.229.stop
             ></textarea>
             <!--
               @blur="resetChatOption"
@@ -48,6 +71,9 @@
         :max="chatOptionMax"
         v-model="chatOptionValue"
       />
+
+      <!-- 単位変換テーブル -->
+      <unit-table-component v-if="unitList" :unitList="unitList" />
     </div>
   </div>
 </template>
@@ -61,6 +87,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { conversion, sendChatLog } from "@/app/core/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
+  ChatInfo,
   ChatTabInfo,
   CustomDiceBotInfo,
   GroupChatTabInfo
@@ -78,10 +105,15 @@ import { ActorStore } from "@/@types/gameObject";
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
+import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue";
+import { UserType } from "@/@types/socket";
+import UnitTableComponent from "@/app/basic/chat/UnitTableComponent.vue";
 
 @Component({
   components: {
+    UnitTableComponent,
     ChatOptionSelector,
+    ChatInputInfoComponent,
     SimpleTabComponent,
     ChatOperationLine,
     ChatLogViewer
@@ -95,18 +127,31 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     | { value: number; name: string; unit: string }[]
     | null = null;
   private chatList = GameObjectManager.instance.chatList;
+  private userList = GameObjectManager.instance.userList;
   private actorList = GameObjectManager.instance.actorList;
   private selfActors = GameObjectManager.instance.selfActors;
   private chatTabList = GameObjectManager.instance.chatTabList;
   private outputTabList: StoreUseData<ChatTabInfo>[] = [];
+  private isSecretList: StoreUseData<{ name: string }>[] = [
+    ChatWindow.createEmptyStoreUseData<{ name: string }>("false", {
+      name: LanguageManager.instance.getText(
+        "chat-window.input-info.non-secret"
+      )
+    }),
+    ChatWindow.createEmptyStoreUseData<{ name: string }>("true", {
+      name: LanguageManager.instance.getText("chat-window.input-info.secret")
+    })
+  ];
   private actorGroupList = GameObjectManager.instance.actorGroupList;
   private chatFormatList = GameObjectManager.instance.chatFormatList;
+  private actorStatusList = GameObjectManager.instance.actorStatusList;
   private chatFormatWrapList: StoreUseData<{ name: string }>[] = [];
   private groupChatTabList = GameObjectManager.instance.groupChatTabList;
   private customDiceBotList: CustomDiceBotInfo[] = [];
 
   // NekostoreCollectionController
   private actorCC = SocketFacade.instance.actorCC();
+  private chatListCC = SocketFacade.instance.chatListCC();
 
   /*
    * global info
@@ -127,6 +172,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   /*
    * local flags
    */
+  /** 秘匿通信かどうか */
+  private isSecret: boolean = false;
+  /** 後からチャット内容を更新するID */
+  private edittingChat: StoreUseData<ChatInfo> | null = null;
   /** 出力先タブ */
   private outputTabId: string | null = null;
   /** 発言に括弧をつけるかどうか */
@@ -137,6 +186,19 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private inputtingChatText: string = "";
   /** Enterを押しているかどうか */
   private enterPressing: boolean = false;
+  /** 選択済みのタブを意味する文言 */
+  private selectedItemLabel: string = LanguageManager.instance.getText(
+    "chat-window.options.selected-item"
+  );
+  private editedMessage: string = LanguageManager.instance.getText(
+    "label.edited"
+  );
+  /** ユーザタイプ */
+  private userTypeLanguageMap: { [type in UserType]: string } = {
+    PL: LanguageManager.instance.getText("label.PL"),
+    GM: LanguageManager.instance.getText("label.GM"),
+    VISITOR: LanguageManager.instance.getText("label.VISITOR")
+  };
 
   /*
    * tab controls
@@ -150,10 +212,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   /** チャットオプション入力モード */
   private chatOptionSelectMode:
     | "none" // 指定なし
-    | "select-actor" // !
-    | "select-tab" // #
+    | "select-sender" // !
+    | "select-output-tab" // #
     | "select-target" // @
-    | "select-chat-format" = "none"; // $
+    | "select-chat-format" // $
+    | "select-is-secret" = "none"; // ?
 
   private chatOptionTitle: string | null = null;
   private chatOptionMax: number = 7;
@@ -161,14 +224,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private chatOptionValue: string | null = null;
 
   /** 選択中のチャットフォーマット */
-  private partsFormat: string = "";
+  private partsFormat: string | null = null;
 
   // チャットオプション用一時退避領域
   private volatileActorId: string | null = null;
   private volatileStatusId: string | null = null;
   private volatileTarget: string | null = null;
   private volatileActiveTab: string | null = null;
-  private volatileTargetTab: string | null = null;
+  private volatileTargetTab: string | null | undefined = undefined;
+  private volatileIsSecret: boolean | null = null;
 
   /*
    * getters
@@ -201,8 +265,67 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     return resultList;
   }
 
+  private get sender(): string {
+    return this.getName(this.actorId, "actor", true);
+  }
+
+  private get targetType(): string {
+    const groupChatTabInfo = this.groupChatTabList.filter(
+      gct => gct.id === this.targetId
+    )[0];
+    if (groupChatTabInfo)
+      return groupChatTabInfo.data!.isSystem ? "default" : "group";
+    return "direct";
+  }
+
+  private get targetName(): string {
+    const groupChatTabInfo = this.groupChatTabList.filter(
+      gct => gct.id === this.targetId
+    )[0];
+    if (groupChatTabInfo) {
+      return groupChatTabInfo.data!.name;
+    }
+
+    const actor = this.actorList.filter(a => a.id === this.targetId)[0];
+    return actor.data!.name;
+  }
+
+  private getName(id: string, type: "group" | "actor", addStatus: boolean) {
+    if (type === "group") {
+      const gct = this.groupChatTabList.filter(gct => gct.id === id)[0];
+      if (gct.data!.isSystem) return "";
+      return gct.data!.name;
+    } else {
+      const actor = this.actorList.filter(a => a.id === id)[0];
+      let userTypeStr = "";
+      if (actor.data!.type === "user") {
+        const user = this.userList.filter(u => u.id === actor.owner)[0];
+        const userType = this.userTypeLanguageMap[user.data!.type];
+        userTypeStr = `(${userType})`;
+      }
+      let statusStr = "";
+      if (addStatus) {
+        const status = this.actorStatusList.filter(
+          as => as.owner === this.actorId
+        )[0];
+        statusStr = `-${status.data!.name}`;
+      }
+      return `${actor.data!.name}${userTypeStr}${statusStr}`;
+    }
+  }
+
+  private get isSelectedTab(): boolean {
+    return !this.outputTabId;
+  }
+
+  private get outputTabName(): string {
+    if (!this.outputTabId) return this.selectedItemLabel;
+    const tab = this.chatTabList.filter(t => t.id === this.outputTabId)[0];
+    return tab.data!.name;
+  }
+
   private get actorStatusId(): string {
-    const status = GameObjectManager.instance.actorStatusList.filter(
+    const status = this.actorStatusList.filter(
       as => as.owner === this.actorId
     )[0];
     return status.id!;
@@ -370,21 +493,27 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       );
     }
 
+    // コマンド（秘匿）
+    let isSecret: string | null = null;
+    if (text.endsWith("?") || text.endsWith("？")) {
+      isSecret = getIdByName(
+        text.substring(1),
+        this.isSecretList,
+        String(this.isSecret)
+      );
+    }
+
     // コマンド（部分フォーマット）
     let partsFormat: string | null = null;
     if (text.endsWith("&") || text.endsWith("＆")) {
-      partsFormat = getIdByName(
-        text.substring(1),
-        this.chatFormatWrapList,
-        this.partsFormat
-      );
+      partsFormat = this.chatFormatWrapList[0].id!;
     }
 
     if (actorId) {
       this.chatOptionList = this.selfActors;
       this.chatOptionValue = actorId;
       this.actorId = actorId;
-      this.chatOptionSelectMode = "select-actor";
+      this.chatOptionSelectMode = "select-sender";
     } else if (targetId) {
       this.chatOptionList = this.targetList;
       this.chatOptionValue = targetId;
@@ -394,12 +523,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.chatOptionList = this.outputTabList;
       this.chatOptionValue = outputTabId;
       this.outputTabId = outputTabId;
-      this.chatOptionSelectMode = "select-tab";
+      this.chatOptionSelectMode = "select-output-tab";
     } else if (partsFormat) {
       this.chatOptionList = this.chatFormatWrapList;
       this.chatOptionValue = partsFormat;
       this.partsFormat = partsFormat;
       this.chatOptionSelectMode = "select-chat-format";
+    } else if (isSecret !== null) {
+      this.chatOptionList = this.isSecretList;
+      this.chatOptionValue = isSecret;
+      this.isSecret = isSecret === "true";
+      this.chatOptionSelectMode = "select-is-secret";
     } else {
       this.chatOptionSelectMode = "none";
       // TODO 入力中であることをルームメイトに通達
@@ -436,7 +570,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     if (!this.volatileStatusId) this.volatileStatusId = this.actorStatusId;
     if (!this.volatileTarget) this.volatileTarget = this.targetId;
     if (!this.volatileActiveTab) this.volatileActiveTab = this.tabId;
-    if (!this.volatileTargetTab) this.volatileTargetTab = this.outputTabId;
+    if (!this.volatileTargetTab === undefined)
+      this.volatileTargetTab = this.outputTabId;
+    if (this.volatileIsSecret === null) this.volatileIsSecret = this.isSecret;
 
     // カーソル移動と、移動後の輪転処理
     const getNextId = (): string => {
@@ -453,7 +589,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     };
 
     // 発言者の選択の場合
-    if (this.chatOptionSelectMode === "select-actor")
+    if (this.chatOptionSelectMode === "select-sender")
       this.actorId = getNextId();
 
     // 発言先の選択の場合
@@ -461,8 +597,12 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.targetId = getNextId();
 
     // タブの選択の場合
-    if (this.chatOptionSelectMode === "select-tab")
+    if (this.chatOptionSelectMode === "select-output-tab")
       this.outputTabId = getNextId();
+
+    // 秘匿チャットかどうかの選択の場合
+    if (this.chatOptionSelectMode === "select-is-secret")
+      this.isSecret = getNextId() === "true";
 
     // チャットフォーマットの選択の場合
     if (this.chatOptionSelectMode === "select-chat-format")
@@ -486,14 +626,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       }
       if (this.volatileTarget) this.targetId = this.volatileTarget;
       if (this.volatileActiveTab) this.tabId = this.volatileActiveTab;
-      if (this.volatileTargetTab) this.outputTabId = this.volatileTargetTab;
+      if (this.volatileTargetTab !== undefined)
+        this.outputTabId = this.volatileTargetTab;
+      if (this.volatileIsSecret !== null) this.isSecret = this.volatileIsSecret;
     }
     this.chatOptionSelectMode = "none";
     this.volatileActorId = null;
     this.volatileTarget = null;
     this.volatileStatusId = null;
     this.volatileActiveTab = null;
-    this.volatileTargetTab = null;
+    this.volatileTargetTab = undefined;
+    this.volatileIsSecret = null;
   }
 
   // アクターステータスを切り替える
@@ -509,6 +652,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
+    this.selectedItemLabel = LanguageManager.instance.getText(
+      "chat-window.options.selected-item"
+    );
+    this.editedMessage = LanguageManager.instance.getText("label.edited");
+    this.userTypeLanguageMap.PL = LanguageManager.instance.getText("label.PL");
+    this.userTypeLanguageMap.GM = LanguageManager.instance.getText("label.GM");
+    this.userTypeLanguageMap.VISITOR = LanguageManager.instance.getText(
+      "label.VISITOR"
+    );
     this.updateOutputTabList();
     task.resolve();
   }
@@ -538,9 +690,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       0,
       0,
       ChatWindow.createEmptyStoreUseData<ChatTabInfo>(null, {
-        name: LanguageManager.instance.getText(
-          "chat-window.options.selected-item"
-        ),
+        name: this.selectedItemLabel,
         isSystem: true
       })
     );
@@ -560,6 +710,37 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private onSettingOpen() {
     window.console.log("## onSettingOpen");
     // TODO Open view tab setting.
+  }
+
+  @VueEvent
+  private async editChat(id: string) {
+    try {
+      await this.chatListCC.touchModify(id);
+    } catch (err) {
+      // TODO error show.
+      return;
+    }
+    const chat = this.chatList.filter(c => c.id === id)[0];
+    this.edittingChat = chat;
+    this.inputtingChatText = chat.data!.text;
+  }
+
+  @VueEvent
+  private async deleteChat(id: string) {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+
+    const flg = window.confirm(getText("chat-window.dialog.delete-chat"));
+    if (!flg) return;
+    try {
+      await this.chatListCC.touchModify(id);
+    } catch (err) {
+      alert(getText("chat-window.dialog.delete-failure"));
+      return;
+    }
+
+    await this.chatListCC.delete(id);
   }
 
   /**
@@ -595,11 +776,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     if (this.chatOptionSelectMode !== "none") {
       if (this.chatOptionSelectMode === "select-chat-format") {
         const chatFormat: any = GameObjectManager.instance.chatFormatList.filter(
-          (format: any) => format.label === this.partsFormat
+          format => format.chatText === this.partsFormat
         )[0];
         this.inputtingChatText =
           this.inputtingChatText.replace(/[&＆]$/, "") + chatFormat.chatText;
-        this.partsFormat = GameObjectManager.instance.chatFormatList[0].label;
+        // this.partsFormat = GameObjectManager.instance.chatFormatList[0].chatText;
       } else {
         this.inputtingChatText = "";
       }
@@ -619,6 +800,16 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     }
     this.inputtingChatText = "";
 
+    // チャット編集中の場合
+    if (this.edittingChat) {
+      this.edittingChat.data!.text = text;
+      await this.chatListCC.update(
+        this.edittingChat.id!,
+        this.edittingChat.data!
+      );
+      this.edittingChat = null;
+      return;
+    }
     await sendChatLog(
       {
         actorId: this.actorId,
@@ -626,7 +817,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         tabId: this.tabId,
         statusId: null, // Actorに設定されているものを使う
         targetId: this.targetId,
-        system: this.system
+        system: this.system,
+        isSecret: this.isSecret
       },
       this.customDiceBotList
     );
@@ -649,20 +841,26 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 }
 
 .edit-tab-component {
-  @include flex-box(column, stretch, stretch);
+  @include inline-flex-box(column, stretch, flex-start);
   flex: 1;
+}
+
+.chat-input-box {
+  @include flex-box(row, flex-start, stretch);
+  border: 1px solid gray;
+  margin-top: -1px;
+  background-color: white;
 }
 
 .chat-input-container {
   @include flex-box(row, flex-start, stretch);
+  flex: 1;
   height: 6em;
-  border: 1px solid gray;
-  margin-top: -1px;
 }
 
 textarea {
   flex: 1;
-  padding: 0;
+  padding: 0 0.2rem;
   border: none;
   font-size: inherit;
   overflow-y: auto;

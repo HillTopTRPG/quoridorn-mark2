@@ -9,7 +9,7 @@
       </li>
 
       <li v-if="pageMax > 1 && page === 1" v-t="`${bt}goto-tail`"></li>
-      <li v-if="pageMax > 1 && page !== 1" v-t="`${bt}options.goto-last`"></li>
+      <li v-if="pageMax > 1 && page !== 1" v-t="`${bt}goto-last`"></li>
 
       <li
         v-for="item in pagedList"

@@ -19,8 +19,7 @@ export type CreateDataRequest = TouchModifyRequest & {
 export type AddDirectRequest = {
   collection: string;
   dataList: any[];
-  permission: Permission;
-  owner: string;
+  option?: Partial<StoreObj<unknown>>;
 };
 export type DeleteDataRequest = TouchModifyRequest;
 export type UpdateDataRequest = TouchModifyRequest & {
