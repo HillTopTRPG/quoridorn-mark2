@@ -20,8 +20,8 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import MapMask from "@/app/basic/map-object/map-mask/MapMask.vue";
-import Chit from "@/app/basic/map-object/chit/Chit.vue";
+import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
+import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import VueEvent from "@/app/core/decorator/VueEvent";

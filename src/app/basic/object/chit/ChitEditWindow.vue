@@ -30,11 +30,7 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import WindowVue from "../../../core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import { DataReference } from "@/@types/data";
 import { BackgroundSize, Direction } from "@/@types/room";
@@ -45,7 +41,11 @@ import SocketFacade, {
 import { SceneObject } from "@/@types/gameObject";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import ChitInfoForm from "@/app/basic/map-object/chit/ChitInfoForm.vue";
+import ChitInfoForm from "@/app/basic/object/chit/ChitInfoForm.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
 
 @Component({
   components: {
@@ -53,7 +53,7 @@ import ChitInfoForm from "@/app/basic/map-object/chit/ChitInfoForm.vue";
     CtrlButton
   }
 })
-export default class EditChitWindow extends Mixins<
+export default class ChitEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docId: string = "";

@@ -111,12 +111,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import VueEvent from "../../../core/decorator/VueEvent";
-import BaseInput from "../../../core/component/BaseInput.vue";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction } from "@/@types/room";
@@ -130,6 +125,11 @@ import StringInputTrComponent from "@/app/basic/common/components/StringInputTrC
 import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { getSrc } from "@/app/core/Utility";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

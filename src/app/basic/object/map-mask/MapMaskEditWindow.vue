@@ -43,7 +43,7 @@ import SocketFacade, {
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import MapMaskInfoForm from "@/app/basic/map-object/map-mask/MapMaskInfoForm.vue";
+import MapMaskInfoForm from "@/app/basic/object/map-mask/MapMaskInfoForm.vue";
 
 @Component({
   components: {
@@ -51,7 +51,7 @@ import MapMaskInfoForm from "@/app/basic/map-object/map-mask/MapMaskInfoForm.vue
     CtrlButton
   }
 })
-export default class EditMapMaskWindow extends Mixins<
+export default class MapMastEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docId: string = "";

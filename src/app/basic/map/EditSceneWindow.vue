@@ -262,7 +262,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import SocketFacade, {

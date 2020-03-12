@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chit"
+    class="map-mask"
     :class="basicClasses"
     :id="docId"
     @mouseover="mouseover"
@@ -28,12 +28,12 @@ import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 import { Component } from "vue-property-decorator";
 
 @Component
-export default class Chit extends PieceMixin<"chit"> {}
+export default class MapMaskPieceComponent extends PieceMixin<"map-mask"> {}
 </script>
 
 <style scoped lang="scss">
 @import "../../../../assets/common";
-.chit {
+.map-mask {
   @include basic-map-object();
 }
 </style>

@@ -1,16 +1,18 @@
 <template>
   <div class="container" ref="window-container">
-    <map-mask-info-form
+    <chit-info-form
       :windowKey="windowKey"
       :isAdd="true"
-      initTabTarget="background"
+      initTabTarget="image"
       :name.sync="name"
-      :text.sync="text"
-      :color.sync="color"
       :tag.sync="tag"
       :otherText.sync="otherText"
       :width.sync="width"
       :height.sync="height"
+      :imageDocId.sync="imageDocId"
+      :imageTag.sync="imageTag"
+      :direction.sync="direction"
+      :backgroundSize.sync="backgroundSize"
       :layerId.sync="layerId"
       @drag-start="dragStart"
     />
@@ -18,51 +20,60 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
-import { parseColor } from "@/app/core/Utility";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { AddObjectInfo } from "@/@types/data";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
-import MapMaskInfoForm from "@/app/basic/map-object/map-mask/MapMaskInfoForm.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import ChitInfoForm from "@/app/basic/object/chit/ChitInfoForm.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
 
 @Component({
   components: {
-    MapMaskInfoForm
+    ChitInfoForm
   }
 })
-export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
+export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
-  private name: string = LanguageManager.instance.getText("type.map-mask");
+  private name: string = LanguageManager.instance.getText("type.chit");
   private tag: string = "";
-  private text: string = "";
-  private color: string = "rgba(255, 0, 0, 1)";
+  private otherText: string = "";
   private height: number = 1;
   private width: number = 1;
+  private imageDocId: string | null = null;
+  private imageTag: string | null = null;
+  private direction: Direction = "none";
   private isMounted: boolean = false;
+  private backgroundSize: BackgroundSize = "contain";
   private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
-    ml => ml.data!.type === "map-mask"
+    ml => ml.data!.type === "character"
   )[0].id!;
-  private otherText: string = "";
 
   @LifeCycle
   public async mounted() {
     await this.init();
+    this.imageTag = LanguageManager.instance.getText("type.character");
     this.isMounted = true;
+  }
+
+  @Watch("imageDocId", { immediate: true })
+  private onChangeImageDocId() {
     this.windowInfo.message = LanguageManager.instance.getText(
-      `${this.windowInfo.type}.message-list.drag-piece`
+      `${this.windowInfo.type}.message-list.${
+        this.imageDocId ? "drag-piece" : "choose-image"
+      }`
     );
   }
 
   @VueEvent
   private dragStart(event: DragEvent) {
-    event.dataTransfer!.setData("dropType", "map-mask");
+    event.dataTransfer!.setData("dropType", "chit");
     event.dataTransfer!.setData("dropWindow", this.key);
   }
 
@@ -75,20 +86,17 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
     const matrix = task.value!.matrix;
 
     const owner = GameObjectManager.instance.mySelfUserId;
-    const colorObj = parseColor(this.color);
-    const backgroundColor = colorObj.getRGBA();
-    const fontColor = colorObj.getRGBReverse();
     await GameObjectManager.instance.addSceneObject({
-      type: "map-mask",
+      type: "chit",
       tag: this.tag,
       name: this.name,
       x: point.x,
       y: point.y,
       row: matrix.row,
       column: matrix.column,
-      rows: this.height,
-      columns: this.width,
       owner,
+      columns: this.width,
+      rows: this.height,
       place: "field",
       isHideBorder: false,
       isHideHighlight: false,
@@ -97,10 +105,11 @@ export default class AddMapMaskWindow extends Mixins<WindowVue<string, never>>(
       layerId: this.layerId,
       textures: [
         {
-          type: "color",
-          backgroundColor,
-          fontColor,
-          text: this.text
+          type: "image",
+          imageTag: this.imageTag!,
+          imageId: this.imageDocId!,
+          direction: this.direction,
+          backgroundSize: this.backgroundSize!
         }
       ],
       textureIndex: 0,

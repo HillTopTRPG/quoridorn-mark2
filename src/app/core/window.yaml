@@ -17,7 +17,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
-"cut-in-setting-window":
+"cut-in-list-window":
   icon: tv
   parentTypeList: []
   isInputWindow: false
@@ -494,7 +494,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"add-map-mask-window":
+"map-mask-add-window":
   icon: plus
   parentTypeList: []
   isInputWindow: true
@@ -515,7 +515,7 @@
   fontSizePickable: true
   resizable: false
   tableInfoList: []
-"edit-map-mask-window":
+"map-mask-edit-window":
   icon: pencil
   parentTypeList: []
   isInputWindow: true
@@ -536,7 +536,7 @@
   fontSizePickable: true
   resizable: false
   tableInfoList: []
-"add-chit-window":
+"chit-add-window":
   icon: plus
   parentTypeList: []
   isInputWindow: true
@@ -573,7 +573,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"edit-chit-window":
+"chit-edit-window":
   icon: pencil
   parentTypeList: []
   isInputWindow: true
@@ -787,7 +787,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"add-bgm-window":
+"bgm-add-window":
   icon: plus
   parentTypeList: []
   isInputWindow: true
@@ -821,7 +821,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"edit-bgm-window":
+"bgm-edit-window":
   icon: pencil
   parentTypeList: []
   isInputWindow: true

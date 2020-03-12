@@ -28,22 +28,22 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { TabInfo, WindowInfo, WindowOpenInfo } from "@/@types/window";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { UserType } from "@/@types/socket";
-import ChatLogLineComponent from "@/app/basic/chat/ChatLogLineComponent.vue";
-import { StoreUseData } from "@/@types/store";
-import { ActorStore } from "@/@types/gameObject";
+import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { TabInfo, WindowInfo, WindowOpenInfo } from "../../../../@types/window";
+import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { UserType } from "../../../../@types/socket";
+import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
+import { StoreUseData } from "../../../../@types/store";
+import { ActorStore } from "../../../../@types/gameObject";
 import {
   ChatInfo,
   ChatTabInfo,
   GroupChatTabInfo,
   UserData
-} from "@/@types/room";
-import TaskManager from "@/app/core/task/TaskManager";
+} from "../../../../@types/room";
+import TaskManager from "../../../core/task/TaskManager";
 
 @Component({
   components: {
@@ -110,7 +110,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .chat-view-container {
   @include flex-box(column, stretch, stretch);

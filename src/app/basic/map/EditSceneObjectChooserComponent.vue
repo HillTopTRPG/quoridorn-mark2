@@ -1,7 +1,7 @@
 <template>
   <div class="scene-object-container" v-if="selectedLayerId">
     <label class="header">
-      <span v-t="'label.map-object'"></span>
+      <span v-t="'label.object'"></span>
       <span
         class="icon-menu drag-mode-button"
         @click="dragMode = !dragMode"

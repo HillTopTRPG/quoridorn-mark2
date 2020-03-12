@@ -70,7 +70,7 @@ import { Component, Emit } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import BgmManager from "@/app/basic/music/BgmManager";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
@@ -97,7 +97,7 @@ import LanguageManager from "@/LanguageManager";
       if (!data.data!.url) return "icon-stop2";
       if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
       if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
-      return "icon-file-music";
+      return "icon-file-cut-in";
     },
     time: (data: StoreUseData<CutInDeclareInfo>) => {
       if (!data.data!.url) return "-";
@@ -120,9 +120,9 @@ import LanguageManager from "@/LanguageManager";
     }
   }
 })
-export default class CutInSettingWindow extends Mixins<
-  WindowVue<number, never>
->(WindowVue) {
+export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
+  WindowVue
+) {
   private selectedCutInId: string | null = null;
   private cutInList = GameObjectManager.instance.cutInList;
   private cc: NekostoreCollectionController<
@@ -243,7 +243,7 @@ export default class CutInSettingWindow extends Mixins<
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "add-bgm-window"
+        type: "bgm-add-window"
       }
     });
   }
@@ -255,7 +255,7 @@ export default class CutInSettingWindow extends Mixins<
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "edit-bgm-window",
+        type: "bgm-edit-window",
         args: {
           type: "bgm",
           docId: this.selectedCutInId

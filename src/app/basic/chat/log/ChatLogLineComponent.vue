@@ -24,14 +24,14 @@
 import Vue from "vue";
 import { Prop } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
-import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
-import { transText } from "@/app/core/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { ActorStore } from "@/@types/gameObject";
-import { UserType } from "@/@types/socket";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { StoreUseData } from "../../../../@types/store";
+import { ChatInfo, GroupChatTabInfo, UserData } from "../../../../@types/room";
+import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
+import { transText } from "../../../core/Utility";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { ActorStore } from "../../../../@types/gameObject";
+import { UserType } from "../../../../@types/socket";
+import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
 import moment from "moment/moment";
 
 @Component({
@@ -100,7 +100,7 @@ export default class ChatLogLineComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .chat-log-line-component {
   display: contents;

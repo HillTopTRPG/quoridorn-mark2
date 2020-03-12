@@ -6,15 +6,15 @@ map:
   - text: context.bgm-setting
     taskName: window-open
     taskArg:
-      type: cut-in-setting-window
+      type: cut-in-list-window
   - text: context.add-map-mask
     taskName: window-open
     taskArg:
-      type: add-map-mask-window
+      type: map-mask-add-window
   - text: context.add-chit
     taskName: window-open
     taskArg:
-      type: add-chit-window
+      type: chit-add-window
   - text: 整備中
     isViewCompare:
       lhs: true
@@ -38,7 +38,7 @@ map-mask:
       rhs:
         true
     taskArg:
-      type: edit-map-mask-window
+      type: map-mask-edit-window
   - ref: object-copy
   - ref: object-delete
   - ref: object-chmod
@@ -65,7 +65,7 @@ chit:
       rhs:
         true
     taskArg:
-      type: edit-chit-window
+      type: chit-edit-window
   - ref: object-copy
   - ref: object-delete
   - ref: object-chmod

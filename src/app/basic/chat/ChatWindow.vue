@@ -98,7 +98,7 @@ import SocketFacade, {
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import ChatOperationLine from "@/app/basic/chat/ChatOperationLine.vue";
-import ChatLogViewer from "@/app/basic/chat/ChatLogViewer.vue";
+import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewer.vue";
 import ChatOptionSelector from "@/app/basic/chat/ChatOptionSelector.vue";
 import { StoreUseData } from "@/@types/store";
 import { ActorStore } from "@/@types/gameObject";

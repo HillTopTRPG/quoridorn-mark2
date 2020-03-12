@@ -32,8 +32,8 @@
 import MapBoard from "./MapBoard.vue";
 import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
 
-import MapMask from "@/app/basic/map-object/map-mask/MapMask.vue";
-import Chit from "@/app/basic/map-object/chit/Chit.vue";
+import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
+import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
 
 import { Component } from "vue-mixin-decorator";
 import { Watch } from "vue-property-decorator";

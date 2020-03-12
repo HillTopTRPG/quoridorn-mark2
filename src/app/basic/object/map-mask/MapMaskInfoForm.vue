@@ -115,7 +115,7 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
 import { TabInfo } from "@/@types/window";

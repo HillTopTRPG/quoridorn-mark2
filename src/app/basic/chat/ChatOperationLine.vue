@@ -140,7 +140,7 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
 
   @VueEvent
   private async open1() {
-    await this.open("cut-in-setting-window");
+    await this.open("cut-in-list-window");
   }
 
   @VueEvent

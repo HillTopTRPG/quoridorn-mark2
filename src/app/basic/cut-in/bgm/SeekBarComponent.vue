@@ -23,12 +23,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { zeroPadding } from "@/app/core/Utility";
-import CssManager from "@/app/core/css/CssManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { zeroPadding } from "@/app/core/Utility";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import CssManager from "@/app/core/css/CssManager";
 import { CutInDeclareInfo } from "@/@types/room";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton }
@@ -117,7 +117,7 @@ export default class SeekBarComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .seek-bar-area {
   position: relative;

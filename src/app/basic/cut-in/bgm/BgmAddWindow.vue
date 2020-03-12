@@ -34,15 +34,15 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import BgmInfoForm from "@/app/basic/music/BgmInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { CutInDeclareInfo } from "@/@types/room";
-import BgmManager from "@/app/basic/music/BgmManager";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import BgmInfoForm from "@/app/basic/cut-in/bgm/BgmInfoForm.vue";
 
 @Component({
   components: {
@@ -50,7 +50,7 @@ import BgmManager from "@/app/basic/music/BgmManager";
     CtrlButton
   }
 })
-export default class AddBgmWindow extends Mixins<WindowVue<void, never>>(
+export default class BgmAddWindow extends Mixins<WindowVue<void, never>>(
   WindowVue
 ) {
   private cc: NekostoreCollectionController<
@@ -118,7 +118,7 @@ export default class AddBgmWindow extends Mixins<WindowVue<void, never>>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .container {
   @include flex-box(column, flex-start, flex-start);

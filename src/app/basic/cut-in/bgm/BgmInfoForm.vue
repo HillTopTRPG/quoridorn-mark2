@@ -170,16 +170,16 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LanguageManager from "@/LanguageManager";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import RangeInputTrComponent from "@/app/basic/common/components/RangeInputTrComponent.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ChatLinkageTypeSelect from "@/app/basic/common/components/select/ChatLinkageTypeSelect.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
 
 @Component({
   components: {
@@ -401,7 +401,7 @@ export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .bgm-info-form {
   display: contents;

@@ -36,34 +36,34 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
+import { Mixins } from "vue-mixin-decorator";
+import { Task, TaskResult } from "task";
+import { PlayBgmInfo } from "window-info";
+import { StandByReturnInfo } from "task-info";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import YoutubeManager, {
-  YoutubeEventHandler
-} from "@/app/basic/music/YoutubeManager";
-import { getUrlParam } from "@/app/core/Utility";
-import SeekBarComponent from "@/app/basic/music/SeekBarComponent.vue";
-import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LanguageManager from "@/LanguageManager";
-import { getCssPxNum } from "@/app/core/Css";
-import CssManager from "@/app/core/css/CssManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import TaskManager from "@/app/core/task/TaskManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { WindowMoveInfo } from "@/@types/window";
+import { getCssPxNum } from "@/app/core/Css";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import WindowManager from "@/app/core/window/WindowManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   CutInDeclareInfo,
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
-import BgmManager from "@/app/basic/music/BgmManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { PlayBgmInfo } from "window-info";
-import { StandByReturnInfo } from "task-info";
-import WindowManager from "@/app/core/window/WindowManager";
-import { WindowMoveInfo } from "@/@types/window";
+import TaskManager from "@/app/core/task/TaskManager";
+import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import { getUrlParam } from "@/app/core/Utility";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import YoutubeManager, {
+  YoutubeEventHandler
+} from "@/app/basic/cut-in/bgm/YoutubeManager";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -561,7 +561,7 @@ export default class PlayYoutubeWindow
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .container {
   visibility: inherit;

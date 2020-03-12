@@ -202,7 +202,7 @@ sample-window:
 play-youtube-window:
   window-title: Youtube Player
 
-cut-in-setting-window:
+cut-in-list-window:
   window-title: CutIn Setting
   table-columns:
     -
@@ -278,21 +278,21 @@ version-info-window:
 room-info-window:
   window-title: プレイルーム情報表示
 
-add-map-mask-window:
+map-mask-add-window:
   window-title: マップマスク追加
   message-list:
     drag-piece: マップにドラッグすると追加できます。
 
-edit-map-mask-window:
+map-mask-edit-window:
   window-title: マップマスク編集
 
-add-chit-window:
+chit-add-window:
   window-title: チット追加
   message-list:
     choose-image: 画像を選択してください。
     drag-piece: マップにドラッグすると追加できます。
 
-edit-chit-window:
+chit-edit-window:
   window-title: チット編集
 
 input-image-password-window:
@@ -317,10 +317,10 @@ edit-scene-window:
 chmod-window:
   window-title: 権限変更
 
-add-bgm-window:
+bgm-add-window:
   window-title: BGM追加
 
-edit-bgm-window:
+bgm-edit-window:
   window-title: BGM編集
 
 chat-window:

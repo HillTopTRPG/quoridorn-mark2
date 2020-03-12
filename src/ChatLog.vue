@@ -143,7 +143,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
 import { Action, Getter, Mutation } from "vuex-class";
-import ChatLogViewer from "@/app/basic/chat/ChatLogViewerOrg.vue";
+import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewerOrg.vue";
 import { Watch } from "vue-property-decorator";
 import ImportTypeRadio from "@/app/basic/common/components/radio/ImportTypeRadio.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";

@@ -36,19 +36,19 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import { DataReference } from "@/@types/data";
+import { CutInDeclareInfo } from "@/@types/room";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import BgmInfoForm from "@/app/basic/music/BgmInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import WindowVue from "@/app/core/window/WindowVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { CutInDeclareInfo } from "@/@types/room";
-import BgmManager from "@/app/basic/music/BgmManager";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import BgmInfoForm from "@/app/basic/cut-in/bgm/BgmInfoForm.vue";
 
 @Component({
   components: {
@@ -56,7 +56,7 @@ import BgmManager from "@/app/basic/music/BgmManager";
     CtrlButton
   }
 })
-export default class EditBgmWindow extends Mixins<
+export default class BgmEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docId: string = "";
@@ -196,7 +196,7 @@ export default class EditBgmWindow extends Mixins<
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .container {
   @include flex-box(column, flex-start, flex-start);

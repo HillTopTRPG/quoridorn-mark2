@@ -66,7 +66,7 @@ import {
   ServerTestResult
 } from "@/@types/socket";
 import { StoreUseData } from "@/@types/store";
-import BgmManager from "@/app/basic/music/BgmManager";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
 import { OtherTextViewInfo } from "@/@types/gameObject";
 import { ModeInfo } from "mode";

@@ -36,8 +36,8 @@ import Vue from "vue";
 
 import { Emit, Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
-import ChatLogLineComponent from "@/app/basic/chat/ChatLogLineComponent.vue";
+import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
+import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
 
 @Component({
   components: { ChatLogLineComponent, TabsComponent }
@@ -115,7 +115,7 @@ export default class ChatLogViewerOrg extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common.scss";
+@import "../../../../assets/common";
 
 .chat-log-container {
   @include flex-box(column, normal, normal);
