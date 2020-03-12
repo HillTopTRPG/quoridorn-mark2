@@ -34,7 +34,7 @@ export type StoreUseData<T> = StoreObj<T> & StoreMetaData;
 /**
  * 権限対象の種別
  */
-export type PermissionNodeType = "group" | "user" | "character" | "owner";
+export type PermissionNodeType = "group" | "actor" | "owner";
 
 /**
  * 権限対象1件の表現

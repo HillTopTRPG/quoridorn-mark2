@@ -1,8 +1,8 @@
 <template>
   <span
     class="shortcut-button"
-    :class="'icon-' + icon"
-    tabindex="0"
+    :class="['icon-' + icon, disabled ? 'disabled' : undefined]"
+    :tabindex="disabled ? undefined : '0'"
     @click="$emit('click')"
     @keydown.space.stop="$emit('click')"
     @keydown.enter.stop="$emit('click')"
@@ -26,14 +26,17 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private icon!: string;
+
+  @Prop({ type: Boolean, default: false })
+  private disabled!: boolean;
 }
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .shortcut-button {
-  @include flex-box(row, center, center);
+  @include inline-flex-box(row, center, center);
   border: 1px dotted gray;
   border-radius: 50%;
   background-color: white;
@@ -41,15 +44,15 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   height: 2em;
   min-width: 2em;
   box-sizing: border-box;
-  cursor: pointer;
   margin-left: 0.3rem;
 
-  &:hover {
-    background-color: var(--uni-color-light-skyblue);
+  &.disabled {
+    cursor: not-allowed;
+    background-color: var(--uni-color-light-gray);
   }
 
-  &:active {
-    background-color: var(--uni-color-skyblue);
+  &:not(.disabled) {
+    @include btn-skyblue();
   }
 }
 </style>

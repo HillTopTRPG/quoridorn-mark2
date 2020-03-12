@@ -137,7 +137,7 @@ import {
   ServerTestResult,
   RoomInfoExtend
 } from "@/@types/socket";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { PermissionNode, StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -1127,22 +1127,49 @@ export default class LoginWindow extends Mixins<
     };
     await roomDataCC.addDirect([roomData]);
 
+    // ActorGroupを取得する関数
+    const getActorGroup = async (name: string) =>
+      (await SocketFacade.instance
+        .actorGroupCC()
+        .find([{ property: "data.name", operand: "==", value: name }]))![0];
+
     /* --------------------------------------------------
      * チャットタブのプリセットデータ投入
      */
-    await SocketFacade.instance.chatTabListCC().addDirect([
+    const gameMastersActorGroup = await getActorGroup("GameMasters");
+    const gameMastersPermission: PermissionNode = {
+      type: "group",
+      id: gameMastersActorGroup.id!
+    };
+    await SocketFacade.instance.chatTabListCC().addDirect(
+      [
+        {
+          name: LanguageManager.instance.getText("label.main"),
+          isSystem: true
+        }
+      ],
       {
-        name: LanguageManager.instance.getText("label.main"),
-        isSystem: true
+        permission: {
+          view: {
+            type: "none",
+            list: []
+          },
+          edit: {
+            type: "allow",
+            list: [gameMastersPermission]
+          },
+          chmod: {
+            type: "allow",
+            list: [gameMastersPermission]
+          }
+        }
       }
-    ]);
+    );
 
     /* --------------------------------------------------
      * グループチャットタブのプリセットデータ投入
      */
-    const allActorGroup = (await SocketFacade.instance
-      .actorGroupCC()
-      .find([{ property: "data.name", operand: "==", value: "All" }]))![0];
+    const allActorGroup = await getActorGroup("All");
     await SocketFacade.instance.groupChatTabListCC().addDirect([
       {
         name: LanguageManager.instance.getText("label.target-all"),

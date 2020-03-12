@@ -130,6 +130,30 @@
   }
 }
 
+@mixin btn-skyblue() {
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--uni-color-light-skyblue) !important;
+  }
+
+  &:active {
+    background-color: var(--uni-color-skyblue) !important;
+  }
+}
+
+@mixin btn-pink() {
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--uni-color-light-pink) !important;
+  }
+
+  &:active {
+    background-color: var(--uni-color-pink) !important;
+  }
+}
+
 @mixin lock-view() {
   position: relative;
 
@@ -199,6 +223,7 @@
 
 .button-area {
   @include flex-box(row, center, center);
+  position: relative;
   margin-top: 0.5rem;
 
   &.margin-none {

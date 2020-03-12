@@ -38,6 +38,7 @@ import { getSrc } from "@/app/core/Utility";
 import { loadYaml } from "@/app/core/File";
 
 export type ChatPublicInfo = {
+  isUseAllTab: boolean;
   actorId: string;
   tabId: string;
   targetId: string;
@@ -230,6 +231,7 @@ export default class GameObjectManager {
   private __clientRoomInfo: ClientRoomInfo | null = null;
 
   public readonly chatPublicInfo: ChatPublicInfo = {
+    isUseAllTab: false,
     actorId: "",
     tabId: "",
     targetId: "",
@@ -322,6 +324,7 @@ export default class GameObjectManager {
 
   public getExclusionOwnerName(socketId: string): string {
     const userId = this.getExclusionOwnerId(socketId);
+    if (!userId) return "";
     const userInfo = this.userList.filter(u => u.id === userId)[0];
     return !userInfo
       ? LanguageManager.instance.getText("label.unknown")

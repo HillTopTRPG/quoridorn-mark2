@@ -292,16 +292,18 @@ export default class EditSceneObjectChooserComponent extends Mixins<
 
   @VueEvent
   private async onChangeIsOriginalAddress(isOriginalAddress: boolean) {
-    const so = this.sceneObjectInfo.data!;
-    const originalAddress: Address | null = isOriginalAddress
-      ? {
-          x: so.x,
-          y: so.y,
-          row: so.row,
-          column: so.column
-        }
-      : null;
-    await this.updateSceneAndObject({ isOriginalAddress, originalAddress });
+    setTimeout(async () => {
+      const so = this.sceneObjectInfo.data!;
+      const originalAddress: Address | null = isOriginalAddress
+        ? {
+            x: so.x,
+            y: so.y,
+            row: so.row,
+            column: so.column
+          }
+        : null;
+      await this.updateSceneAndObject({ isOriginalAddress, originalAddress });
+    });
   }
 }
 </script>

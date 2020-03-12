@@ -122,11 +122,8 @@ export function permissionCheck(
           }) > -1
         );
       }
-      if (pn.type === "user") {
-        if (pn.id === SocketFacade.instance.userId) return true;
-      }
-      if (pn.type === "character") {
-        if (pn.id === SocketFacade.instance.characterId) return true;
+      if (pn.type === "actor") {
+        if (pn.id === GameObjectManager.instance.mySelfActorId) return true;
       }
       if (pn.type === "owner") {
         if (data.owner === SocketFacade.instance.userId) return true;

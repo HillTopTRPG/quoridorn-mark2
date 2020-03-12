@@ -19,46 +19,31 @@
       v-if="layerInfo.data.isSystem"
     ></span>
     <span v-else>{{ layerInfo.data.name }}</span>
-    <label
-      class="view-check"
-      @mouseenter="$emit('onMouseHoverView', true)"
-      @mouseleave="
-        dragMode
-          ? $emit('onMouseHoverOrder', true)
-          : $emit('onMouseHoverView', false)
+    <s-check
+      :value="sceneAndLayerInfo(layerInfo.id).data.isUse"
+      colorStyle="pink"
+      c-icon="eye"
+      c-label=""
+      n-icon="eye-blocked"
+      n-label=""
+      @hover="onHoverView"
+      @input="
+        value =>
+          $emit('onChangeLayerUse', sceneAndLayerInfo(layerInfo.id).id, value)
       "
-      :class="[
-        sceneAndLayerInfo(layerInfo.id).data.isUse
-          ? 'icon-eye'
-          : 'icon-eye-blocked'
-      ]"
-    >
-      <input
-        type="checkbox"
-        class="input"
-        :checked="sceneAndLayerInfo(layerInfo.id).data.isUse"
-        @change="
-          $emit(
-            'onChangeLayerUse',
-            sceneAndLayerInfo(layerInfo.id).id,
-            !sceneAndLayerInfo(layerInfo.id).data.isUse
-          )
-        "
-      />
-    </label>
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { StoreUseData } from "@/@types/store";
 import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
-@Component({ components: {} })
+@Component({ components: { SCheck } })
 export default class EditSceneLayerComponent extends Vue {
   @Prop({ type: Object, required: true })
   private layerInfo!: SceneLayer;
@@ -84,9 +69,19 @@ export default class EditSceneLayerComponent extends Vue {
     this.input(value);
   }
 
+  @VueEvent
   private get sceneAndLayerInfo(): (id: string) => StoreUseData<SceneAndLayer> {
     return (id: string) =>
       this.sceneAndLayerList.filter(sal => sal.data!.layerId === id)[0];
+  }
+
+  @VueEvent
+  private onHoverView(isHover: boolean) {
+    if (isHover) this.$emit("onMouseHoverView", true);
+    else {
+      if (this.dragMode) this.$emit("onMouseHoverOrder", true);
+      else this.$emit("onMouseHoverView", false);
+    }
   }
 
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;

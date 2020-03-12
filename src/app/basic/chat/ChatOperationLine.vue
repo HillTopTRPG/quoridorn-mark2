@@ -11,6 +11,8 @@
       <actor-status-select :actorId="actorId" v-model="statusId" />
     </label>
 
+    <s-button icon="user-plus" @hover="hover3" @click="open3()" />
+
     <!-- ダイスボット選択 -->
     <bcdice-system-input
       v-model="system"
@@ -31,7 +33,7 @@ import { Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { WindowInfo, WindowOpenInfo } from "@/@types/window";
 import TaskManager from "@/app/core/task/TaskManager";
-import SButton from "@/app/basic/chat/SButton.vue";
+import SButton from "@/app/basic/common/components/SButton.vue";
 import SelfActorSelect from "@/app/basic/common/components/select/SelfActorSelect.vue";
 import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
 import LanguageManager from "@/LanguageManager";
@@ -148,6 +150,16 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
 
   @VueEvent
   private async open2() {
+    await this.open("scene-list-window");
+  }
+
+  @VueEvent
+  private hover3(flg: boolean) {
+    this.hover("add-actor", flg);
+  }
+
+  @VueEvent
+  private async open3() {
     await this.open("scene-list-window");
   }
 }

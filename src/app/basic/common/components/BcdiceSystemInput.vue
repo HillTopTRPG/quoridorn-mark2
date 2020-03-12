@@ -88,7 +88,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { clone } from "@/app/core/Utility";
 import { OtherTextViewInfo } from "@/@types/gameObject";
-import SButton from "@/app/basic/chat/SButton.vue";
+import SButton from "@/app/basic/common/components/SButton.vue";
 
 type FilterInfo = {
   list: DiceSystem[];
@@ -602,20 +602,12 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
 
   .dice-bot-item {
     @include inline-flex-box(row, flex-start, center);
+    @include btn-skyblue();
     width: 100%;
     background-color: white;
     height: var(--select-item-height);
     min-height: var(--select-item-height);
     outline: none;
-    cursor: pointer;
-
-    &:hover {
-      background-color: var(--uni-color-light-skyblue);
-    }
-
-    &:focus {
-      background-color: var(--uni-color-skyblue);
-    }
 
     &:not(:first-child) {
       border-top: none;

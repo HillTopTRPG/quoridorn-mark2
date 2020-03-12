@@ -30,7 +30,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { TabInfo, WindowInfo } from "@/@types/window";
+import { TabInfo, WindowInfo, WindowOpenInfo } from "@/@types/window";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { UserType } from "@/@types/socket";
@@ -43,6 +43,7 @@ import {
   GroupChatTabInfo,
   UserData
 } from "@/@types/room";
+import TaskManager from "@/app/core/task/TaskManager";
 
 @Component({
   components: {
@@ -96,9 +97,14 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @VueEvent
-  private onSettingOpen() {
-    window.console.log("## onSettingOpen");
-    // TODO Open view tab setting.
+  private async onSettingOpen() {
+    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "chat-tab-list-window"
+      }
+    });
   }
 }
 </script>

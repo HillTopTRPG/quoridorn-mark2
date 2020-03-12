@@ -1,52 +1,69 @@
 <template>
-  <ctrl-select v-model="localValue" :optionInfoList="optionInfoList" />
+  <ctrl-select
+    v-model="localValue"
+    :optionInfoList="optionInfoList"
+    :multiple="multiple"
+    :disabled="disabled"
+    ref="component"
+  />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
-
-import { Prop } from "vue-property-decorator";
-import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class SelfActorSelect extends Mixins<SelectMixin>(SelectMixin) {
-  @Getter("getAllActors") private getAllActors: any;
+export default class ActorSelect extends Mixins<MultiMixin>(
+  SelectMixin,
+  ComponentVue
+) {
+  private optionInfoList: HtmlOptionInfo[] = [];
 
-  @Prop({ type: String, default: "アクター" })
-  protected defaultLabel!: string;
-
-  @Prop({ type: Array, required: true })
-  private selectedActorList!: any[];
-
-  private get selectActors(): any[] {
-    return this.getAllActors.filter(
-      (actor: any) =>
-        this.selectedActorList.findIndex(
-          standActor => standActor.key === actor.key
-        ) === -1
-    );
+  @LifeCycle
+  private async created() {
+    this.createOptionInfoList();
   }
 
-  @VueEvent
-  private get optionInfoList(): any[] {
-    const resultList = this.selectActors.map(actor => ({
-      key: actor.key,
-      value: actor.key,
-      text: actor.name,
-      disabled: false
-    }));
-    resultList.unshift({
-      key: null,
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createOptionInfoList();
+    task.resolve();
+  }
+
+  private createOptionInfoList() {
+    const getText = LanguageManager.instance.getText.bind(
+      LanguageManager.instance
+    );
+
+    this.optionInfoList = GameObjectManager.instance.actorList
+      .filter(a => permissionCheck(a, "view"))
+      .map(c => ({
+        key: c.id!,
+        value: c.id!,
+        text: c.data!.name,
+        disabled: false
+      }));
+    this.optionInfoList.unshift({
+      key: "",
       value: "",
-      text: this.defaultLabel,
+      text: getText("type.actor"),
       disabled: true
     });
-    return resultList;
   }
 }
 </script>

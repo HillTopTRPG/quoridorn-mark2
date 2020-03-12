@@ -33,6 +33,9 @@ import AddBgmWindow from "@/app/basic/music/AddBgmWindow.vue";
 import EditBgmWindow from "@/app/basic/music/EditBgmWindow.vue";
 import BcdiceApiServerSettingWindow from "@/app/basic/login/BcdiceApiServerSettingWindow.vue";
 import ChatWindow from "@/app/basic/chat/ChatWindow.vue";
+import ChatTabListWindow from "@/app/basic/chat/tab/ChatTabListWindow.vue";
+import ChatTabAddWindow from "@/app/basic/chat/tab/ChatTabAddWindow.vue";
+import ChatTabEditWindow from "@/app/basic/chat/tab/ChatTabEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -86,6 +89,9 @@ async function main(): Promise<void> {
   Vue.component("add-bgm-window", AddBgmWindow);
   Vue.component("edit-bgm-window", EditBgmWindow);
   Vue.component("chat-window", ChatWindow);
+  Vue.component("chat-tab-list-window", ChatTabListWindow);
+  Vue.component("chat-tab-add-window", ChatTabAddWindow);
+  Vue.component("chat-tab-edit-window", ChatTabEditWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

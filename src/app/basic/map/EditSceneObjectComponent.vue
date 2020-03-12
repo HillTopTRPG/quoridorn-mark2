@@ -19,32 +19,16 @@
       )&nbsp;
       <span>{{ sceneObject.data.name }}</span>
     </span>
-    <label class="original-address" v-if="sceneAndObject">
-      <span
-        v-t="'label.original-address'"
-        class="original-address-label"
-        @mouseenter="$emit('onMouseHoverAddress', true)"
-        @mouseleave="
-          dragMode
-            ? $emit('onMouseHoverOrder', true)
-            : $emit('onMouseHoverAddress', false)
-        "
-        :class="{
-          checked: sceneAndObject.data.isOriginalAddress
-        }"
-      ></span>
-      <base-input
-        type="checkbox"
-        class="original-address-check"
-        :checked="sceneAndObject.data.isOriginalAddress"
-        @input="
-          $emit(
-            'onChangeIsOriginalAddress',
-            !sceneAndObject.data.isOriginalAddress
-          )
-        "
-      />
-    </label>
+    <s-check
+      :value="sceneAndObject.data.isOriginalAddress"
+      colorStyle="pink"
+      c-icon="checkmark"
+      :c-label="$t('label.original-address')"
+      n-icon=""
+      :n-label="$t('label.original-address')"
+      @hover="onHoverView"
+      @input="value => $emit('onChangeIsOriginalAddress', value)"
+    />
   </div>
 </template>
 
@@ -58,8 +42,9 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { SceneObject } from "@/@types/gameObject";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
 
-@Component({ components: { BaseInput, draggable } })
+@Component({ components: { SCheck, BaseInput, draggable } })
 export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -77,6 +62,15 @@ export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   private dragMode!: boolean;
+
+  @VueEvent
+  private onHoverView(isHover: boolean) {
+    if (isHover) this.$emit("onMouseHoverAddress", true);
+    else {
+      if (this.dragMode) this.$emit("onMouseHoverOrder", true);
+      else this.$emit("onMouseHoverAddress", false);
+    }
+  }
 }
 </script>
 
@@ -108,10 +102,6 @@ export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
   }
 }
 
-.original-address-check {
-  display: none !important;
-}
-
 .drag-mark {
   visibility: hidden;
 }
@@ -120,17 +110,13 @@ $border-color: green;
 
 .scene-object {
   @include flex-box(row, space-between, center);
+  @include btn-skyblue();
   background-color: white;
   height: 2em;
   line-height: 2em;
   padding: 0 0.2rem;
   position: relative;
   border-bottom: 1px solid $border-color;
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--uni-color-light-skyblue);
-  }
 
   &.selected {
     background-color: var(--uni-color-skyblue);

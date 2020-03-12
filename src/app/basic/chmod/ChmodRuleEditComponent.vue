@@ -15,18 +15,9 @@
         />
       </label>
       <label class="select-label">
-        <span v-t="'label.user'"></span>
-        <user-select
-          v-model="userListInput"
-          :multiple="true"
-          :disabled="permissionRule.type === 'none'"
-        />
-      </label>
-      <label class="select-label">
-        <span v-t="'label.character'"></span>
-        <character-select
-          v-model="characterListInput"
-          :placeList="[]"
+        <span v-t="'type.actor'"></span>
+        <actor-select
+          v-model="actorListInput"
           :multiple="true"
           :disabled="permissionRule.type === 'none'"
         />
@@ -61,14 +52,14 @@ import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSel
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { listToEmpty } from "@/app/core/Utility";
 import BaseInput from "@/app/core/component/BaseInput.vue";
+import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
 
 @Component({
   components: {
     BaseInput,
     CtrlButton,
     ActorGroupSelect,
-    UserSelect,
-    CharacterSelect,
+    ActorSelect,
     PermissionNodeTypeSelect,
     PermissionTypeSelect
   }
@@ -80,8 +71,7 @@ export default class ChmodRuleEditComponent extends Vue {
   private isMounted: boolean = false;
 
   private groupListInput: string[] = [];
-  private userListInput: string[] = [];
-  private characterListInput: string[] = [];
+  private actorListInput: string[] = [];
   private isUseOwner: boolean = false;
 
   public key: string = "ChmodRuleEditComponent";
@@ -91,8 +81,7 @@ export default class ChmodRuleEditComponent extends Vue {
     this.isMounted = true;
 
     listToEmpty(this.groupListInput);
-    listToEmpty(this.userListInput);
-    listToEmpty(this.userListInput);
+    listToEmpty(this.actorListInput);
     this.permissionRule.list.forEach(pr => {
       if (pr.type === "owner") {
         this.isUseOwner = true;
@@ -100,8 +89,7 @@ export default class ChmodRuleEditComponent extends Vue {
       }
       let list: string[] = [];
       if (pr.type === "group") list = this.groupListInput;
-      else if (pr.type === "user") list = this.userListInput;
-      else if (pr.type === "character") list = this.characterListInput;
+      else if (pr.type === "actor") list = this.actorListInput;
       if (pr.id) list.push(pr.id);
     });
   }
@@ -111,14 +99,13 @@ export default class ChmodRuleEditComponent extends Vue {
     if (type === "none") {
       listToEmpty(this.permissionRule.list);
       listToEmpty(this.groupListInput);
-      listToEmpty(this.userListInput);
+      listToEmpty(this.actorListInput);
       this.isUseOwner = false;
     }
   }
 
   @Watch("groupListInput", { deep: true })
-  @Watch("userListInput", { deep: true })
-  @Watch("characterListInput", { deep: true })
+  @Watch("actorListInput", { deep: true })
   @Watch("isUseOwner")
   private mergeInputList() {
     listToEmpty(this.permissionRule.list);
@@ -126,8 +113,7 @@ export default class ChmodRuleEditComponent extends Vue {
       this.permissionRule.list.push(...list.map(id => ({ type, id })));
     };
     addList(this.groupListInput, "group");
-    addList(this.userListInput, "user");
-    addList(this.characterListInput, "character");
+    addList(this.actorListInput, "actor");
     if (this.isUseOwner) {
       this.permissionRule.list.push({
         type: "owner"
