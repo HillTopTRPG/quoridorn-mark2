@@ -29,13 +29,13 @@ export default class SelectMixin extends Vue {
     (this.$refs.component as any).focus();
   }
 
-  protected get localValue(): string | string[] | null {
+  public get localValue(): string | string[] | null {
     if (this.test)
       window.console.log("set '" + this.value + "'", this.constructor.name);
     return this.value || "";
   }
 
-  protected set localValue(value: string | string[] | null) {
+  public set localValue(value: string | string[] | null) {
     if (this.test)
       window.console.log("return '" + value + "'", this.constructor.name);
     this.input(value);

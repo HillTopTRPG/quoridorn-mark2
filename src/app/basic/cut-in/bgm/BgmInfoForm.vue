@@ -3,7 +3,7 @@
     <table>
       <tr>
         <!-- URL -->
-        <string-input-tr-component
+        <tr-string-input-component
           class="url"
           labelName="url"
           v-model="urlVolatile"
@@ -13,7 +13,7 @@
       </tr>
       <tr>
         <!-- タイトル -->
-        <string-input-tr-component
+        <tr-string-input-component
           class="title"
           labelName="title"
           v-model="titleVolatile"
@@ -22,7 +22,7 @@
       </tr>
       <tr>
         <!-- タグ -->
-        <string-input-tr-component
+        <tr-string-input-component
           class="tag"
           labelName="tag"
           v-model="tagVolatile"
@@ -32,7 +32,7 @@
       <tr class="space"></tr>
       <tr>
         <!-- 音量 -->
-        <range-input-tr-component
+        <tr-range-input-component
           class="volume"
           labelName="volume"
           v-model="volumeVolatile"
@@ -43,7 +43,7 @@
       </tr>
       <tr>
         <!-- 再生開始 -->
-        <number-input-tr-component
+        <tr-number-input-component
           class="start"
           labelName="play-start"
           v-model="startVolatile"
@@ -55,7 +55,7 @@
       </tr>
       <tr>
         <!-- 再生終了 -->
-        <number-input-tr-component
+        <tr-number-input-component
           class="end"
           labelName="play-end"
           v-model="endVolatile"
@@ -68,7 +68,7 @@
       <tr class="space"></tr>
       <tr>
         <!-- フェードイン -->
-        <number-input-tr-component
+        <tr-number-input-component
           class="fade-in"
           labelName="fade-in"
           v-model="fadeInVolatile"
@@ -80,7 +80,7 @@
       </tr>
       <tr>
         <!-- フェードアウト -->
-        <number-input-tr-component
+        <tr-number-input-component
           class="fade-out"
           labelName="fade-out"
           v-model="fadeOutVolatile"
@@ -109,7 +109,7 @@
       </tr>
       <tr>
         <!-- チャット連動対象 -->
-        <string-input-tr-component
+        <tr-string-input-component
           class="chat-linkage-target"
           labelName="chat-linkage-target"
           v-model="chatLinkageTargetVolatile"
@@ -172,21 +172,21 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import RangeInputTrComponent from "@/app/basic/common/components/RangeInputTrComponent.vue";
+import TrRangeInputComponent from "@/app/basic/common/components/TrRangeInputComponent.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ChatLinkageTypeSelect from "@/app/basic/common/components/select/ChatLinkageTypeSelect.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 
 @Component({
   components: {
     ChatLinkageTypeSelect,
-    RangeInputTrComponent,
-    NumberInputTrComponent,
-    StringInputTrComponent,
+    TrRangeInputComponent,
+    TrNumberInputComponent,
+    TrStringInputComponent,
     BaseInput,
     CtrlButton
   }

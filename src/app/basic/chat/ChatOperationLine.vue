@@ -3,20 +3,23 @@
     <!-- アクター選択 -->
     <label>
       <span>{{ $t("label.name") }}</span>
-      <self-actor-select v-model="actorId" />
+      <self-actor-select v-model="actorIdVolatile" />
     </label>
 
     <!-- ステータス選択 -->
     <label>
-      <actor-status-select :actorId="actorId" v-model="statusId" />
+      <actor-status-select
+        :actorId="actorIdVolatile"
+        v-model="statusIdVolatile"
+      />
     </label>
 
-    <s-button icon="user-plus" @hover="hover3" @click="open3()" />
+    <s-button icon="user" @hover="hover3" @click="open3()" />
 
     <!-- ダイスボット選択 -->
     <bcdice-system-input
-      v-model="system"
-      :url.sync="bcdiceUrl"
+      v-model="systemVolatile"
+      :url.sync="bcdiceUrlVolatile"
       :windowInfo="windowInfo"
       @onMouseEnterUrl="onMouseEnterUrl"
     />
@@ -160,7 +163,7 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
 
   @VueEvent
   private async open3() {
-    await this.open("scene-list-window");
+    await this.open("actor-add-window");
   }
 }
 </script>

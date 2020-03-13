@@ -45,20 +45,20 @@ type SceneObject = Address & {
 type ActorStore = {
   name: string; // 名前
   type: "user" | "character";
-  pieceIdList: string[]; // コマのID一覧
   chatFontColorType: "owner" | "original"; // チャット文字色はオーナー（ユーザ）の色か独自の色か
   chatFontColor: string; // 独自のチャット文字色
   standImagePosition: number; // 1〜12
-  statusId: string; // ステータスへの参照
   isUseTableData: boolean; // イニシアティブ表のデータを持つかどうか
+  pieceIdList: string[]; // コマのID一覧
+  statusId: string; // ステータスへの参照
 };
 
 type ActorStatusStore = {
   // actorId: string; actorIdはownerで管理
   name: string; // ステータス名
   isSystem: boolean;
-  standImageInfoId: string; // id
-  chatPaletteInfoId: string; // id
+  standImageInfoId: string | null; // id
+  chatPaletteInfoId: string | null; // id
 };
 
 // import { StandImageInfo } from "@/app/basic/stand-image/StandImage";

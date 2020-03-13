@@ -16,7 +16,7 @@
     <!-- コマ情報 -->
     <table class="info-table">
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           labelName="width"
           inputWidth="3em"
           v-model="widthVolatile"
@@ -24,7 +24,7 @@
         />
       </tr>
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           labelName="height"
           inputWidth="3em"
           v-model="heightVolatile"
@@ -42,14 +42,14 @@
       <div v-if="currentTabInfo.target === 'background'">
         <table>
           <tr>
-            <string-input-tr-component
+            <tr-string-input-component
               labelName="text"
               width="100%"
               v-model="textVolatile"
             />
           </tr>
           <tr>
-            <color-picker-tr-component
+            <tr-color-picker-component
               labelName="color"
               v-model="colorVolatile"
             />
@@ -63,14 +63,14 @@
       >
         <table>
           <tr>
-            <string-input-tr-component
+            <tr-string-input-component
               labelName="tag"
               width="100%"
               v-model="tagVolatile"
             />
           </tr>
           <tr>
-            <string-input-tr-component
+            <tr-string-input-component
               labelName="name"
               width="100%"
               v-model="nameVolatile"
@@ -120,16 +120,16 @@ import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import LanguageManager from "@/LanguageManager";
 import { TabInfo } from "@/@types/window";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
-import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
   components: {
-    ColorPickerTrComponent,
-    NumberInputTrComponent,
-    StringInputTrComponent,
+    TrColorPickerComponent,
+    TrNumberInputComponent,
+    TrStringInputComponent,
     SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,

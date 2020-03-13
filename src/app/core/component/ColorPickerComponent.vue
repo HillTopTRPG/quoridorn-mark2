@@ -146,6 +146,10 @@ export default class ColorPickerComponent extends Mixins<ComponentVue>(
 input {
   font-size: 1em;
   margin: 0;
+
+  &:disabled {
+    background-color: lightgray;
+  }
 }
 
 .color-picker-container {

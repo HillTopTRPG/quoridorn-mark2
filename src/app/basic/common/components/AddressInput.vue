@@ -2,14 +2,14 @@
   <div class="address-input" ref="component">
     <table v-if="localValue">
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           propName="columns"
           :disabled="!roomData.isFitGrid"
           v-model="localValue.column"
           :widthEm="5"
           @input="onInputValue()"
         />
-        <number-input-tr-component
+        <tr-number-input-component
           propName="rows"
           :disabled="!roomData.isFitGrid"
           v-model="localValue.row"
@@ -18,14 +18,14 @@
         />
       </tr>
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           propName="x"
           :disabled="roomData.isFitGrid"
           v-model="localValue.x"
           :widthEm="5"
           @input="onInputValue()"
         />
-        <number-input-tr-component
+        <tr-number-input-component
           propName="y"
           :disabled="roomData.isFitGrid"
           v-model="localValue.y"
@@ -44,12 +44,12 @@ import { Prop, Watch } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Address } from "address";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import CssManager from "@/app/core/css/CssManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
-@Component({ components: { NumberInputTrComponent } })
+@Component({ components: { TrNumberInputComponent } })
 export default class AddressInput extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, default: null })
   private value!: Address;

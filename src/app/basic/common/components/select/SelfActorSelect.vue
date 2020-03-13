@@ -31,10 +31,15 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
   private optionInfoList: HtmlOptionInfo[] = [];
 
   private actorList = GameObjectManager.instance.actorList;
+  private userList = GameObjectManager.instance.userList;
 
   @LifeCycle
-  @Watch("actorList", { deep: true })
   private created() {
+    this.createOptionInfoList();
+  }
+
+  @Watch("actorList", { deep: true })
+  private onChangeActorList() {
     this.createOptionInfoList();
   }
 
@@ -51,25 +56,22 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
       LanguageManager.instance
     );
 
-    this.optionInfoList = GameObjectManager.instance.selfActors.map(a => {
-      const type = a.data!.type;
-      let additionalText = "";
-      if (a.data!.type === "user") {
-        const user = GameObjectManager.instance.userList.filter(
-          u => u.id === a.owner
-        )[0];
-        additionalText +=
-          "(" +
-          LanguageManager.instance.getText(`label.${user.data!.type}`) +
-          ")";
-      }
-      return {
-        key: a.id!,
-        value: a.id!,
-        text: a.data!.name + additionalText,
-        disabled: false
-      };
-    });
+    this.optionInfoList = this.actorList
+      .filter(a => a.owner === GameObjectManager.instance.mySelfUserId)
+      .map(a => {
+        const type = a.data!.type;
+        let additionalText = "";
+        if (a.data!.type === "user") {
+          const user = this.userList.filter(u => u.id === a.owner)[0];
+          additionalText += "(" + getText(`label.${user.data!.type}`) + ")";
+        }
+        return {
+          key: a.id!,
+          value: a.id!,
+          text: a.data!.name + additionalText,
+          disabled: false
+        };
+      });
     this.optionInfoList.unshift({
       key: "",
       value: "",

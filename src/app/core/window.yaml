@@ -988,3 +988,37 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"actor-add-window":
+  icon: user
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 0
+    widthEm: 21
+    widthRem: 0
+    heightPx: 2
+    heightEm: 12
+    heightRem: 0.5
+  minSize:
+    widthPx: 0
+    widthEm: 17
+    widthRem: 0
+    heightPx: 2
+    heightEm: 12
+    heightRem: 0.5
+  maxSize:
+    widthPx: 0
+    widthEm: 30
+    widthRem: 0
+    heightPx: 2
+    heightEm: 12
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

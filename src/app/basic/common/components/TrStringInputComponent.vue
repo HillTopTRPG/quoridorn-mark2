@@ -1,21 +1,20 @@
 <template>
-  <tr class="number-input-tr-component">
+  <tr class="tr-string-input-component">
     <th>
       <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
     </th>
     <td>
       <base-input
         :id="key"
-        type="number"
+        class="text"
+        type="text"
         :value="localValue"
         :disabled="disabled"
-        @input="localValue = $event.target.valueAsNumber"
-        :min="min"
-        :max="max"
-        :step="step"
+        @input="localValue = $event.target.value"
+        :placeholder="placeholder"
+        :list="list"
         ref="inputElm"
       />
-      <span v-if="unitLabel" v-t="`label.${unitLabel}`"></span>
     </td>
   </tr>
 </template>
@@ -26,28 +25,15 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 
-@Component({
-  components: {
-    BaseInput
-  }
-})
-export default class NumberInputTrComponent extends Mixins<ComponentVue>(
+@Component({ components: { BaseInput } })
+export default class TrStringInputComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
-  @Prop({ type: Number })
-  private step: number | undefined;
-
-  @Prop({ type: Number })
-  private min: number | undefined;
-
-  @Prop({ type: Number })
-  private max: number | undefined;
-
-  @Prop({ type: Number, required: true })
-  private value!: number;
+  @Prop({ type: String, required: true })
+  private value!: string;
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
@@ -56,7 +42,10 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
   private inputWidth!: string;
 
   @Prop({ type: String, default: "" })
-  private unitLabel!: string;
+  private placeholder!: string;
+
+  @Prop({ type: String, default: undefined })
+  private list!: string | undefined;
 
   private mounted() {
     if (this.inputWidth) {
@@ -65,23 +54,28 @@ export default class NumberInputTrComponent extends Mixins<ComponentVue>(
     }
   }
 
-  private input(value: number) {
+  private input(value: string) {
     this.$emit("input", value);
   }
 
-  public get localValue(): number {
+  public get localValue(): string {
     return this.value;
   }
-  public set localValue(value: number) {
+  public set localValue(value: string) {
     this.input(value);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.color-picker-tr-component {
+.tr-color-picker-component {
   display: contents;
 }
+
+.text {
+  width: 100%;
+}
+
 th,
 td {
   padding: 0;

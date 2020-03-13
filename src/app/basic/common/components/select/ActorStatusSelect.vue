@@ -36,9 +36,17 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
   private statusList = GameObjectManager.instance.actorStatusList;
 
   @LifeCycle
+  private created() {
+    this.createOptionInfoList();
+  }
+
   @Watch("actorId")
+  private onChangeActorId() {
+    this.createOptionInfoList();
+  }
+
   @Watch("statusList", { deep: true })
-  private async created() {
+  private onChangeStatusList() {
     this.createOptionInfoList();
   }
 

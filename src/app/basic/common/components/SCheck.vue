@@ -77,7 +77,7 @@ export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
 @import "../../../../assets/common";
 
 .simple-check {
-  @include flex-box(row, center, center);
+  @include inline-flex-box(row, center, center);
   height: 2em;
   border: 1px dotted black;
   border-radius: 1em;

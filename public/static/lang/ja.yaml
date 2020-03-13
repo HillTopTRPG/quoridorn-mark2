@@ -60,7 +60,7 @@ label:
   password: パスワード
   password-placeholder: (空ならパスワードなし)
   user-type: ユーザ種別
-  nameless: ななし(必須項目)
+  require-text: 必須
   permission: 権限
   gameMaster: GM
   player: PL
@@ -124,6 +124,7 @@ label:
   grid-line: 方眼線
   grid-line-color: 方眼線色
   font-color: 文字色
+  chat-font-color: チャット文字色
   sub: サブ
   grid-size: マス(px)
   border-style: 罫線のスタイル
@@ -140,6 +141,7 @@ label:
   permission-type: 権限種別
   permission-node-type: 権限対象種別
   owner: オーナー
+  original: オリジナル
   user: ユーザー
   character: キャラクター
   group: グループ
@@ -189,6 +191,8 @@ label:
   use: 使う
   un-use: 使わない
   sort: 並び替え
+  stand-image-position: 立ち絵の位置
+  has-data: データの有無
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -364,10 +368,20 @@ chat-tab-list-window:
     chmod: 権限編集
     delete: 削除
 
+chat-tab-add-window:
+  window-title: チャットタブ追加
+  message-list:
+    default: "元：$1"
+    duplicate: "他のタブと重複します。"
+
 chat-tab-edit-window:
   window-title: チャットタブ編集
   message-list:
     default: "元：$1"
     duplicate: "他のタブと重複します。"
 
+actor-add-window:
+  window-title: アクター追加
+  placeholders:
+    name: 名前(必須項目)
 

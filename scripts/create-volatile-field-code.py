@@ -2,12 +2,11 @@ import re
 import tkinter as Tk
 
 def doProcess(fieldName, typeName, defaultValue):
-    print(fieldName, typeName, defaultValue)
     volatileFieldName = "{0}Volatile".format(fieldName)
     fieldNameUp = fieldName[0].upper() + fieldName[1:]
     volatileFieldNameUp = volatileFieldName[0].upper() + volatileFieldName[1:]
     print('')
-    print('// ' + fieldName)
+    print('    // ' + fieldName)
     print('@Prop({ type: ' + typeName[0].upper() + typeName[1:] + ', required: true })')
     print('private ' + fieldName + '!: ' + typeName + ';')
     print('private ' + volatileFieldName + ': ' + typeName + ' = ' + defaultValue + ';')

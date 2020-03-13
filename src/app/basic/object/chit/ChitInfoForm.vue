@@ -14,7 +14,7 @@
     <!-- コマ情報 -->
     <table class="info-table">
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           labelName="width"
           inputWidth="3em"
           v-model="widthVolatile"
@@ -22,7 +22,7 @@
         />
       </tr>
       <tr>
-        <number-input-tr-component
+        <tr-number-input-component
           labelName="height"
           inputWidth="3em"
           v-model="heightVolatile"
@@ -68,14 +68,14 @@
       >
         <table>
           <tr>
-            <string-input-tr-component
+            <tr-string-input-component
               labelName="tag"
               width="100%"
               v-model="tagVolatile"
             />
           </tr>
           <tr>
-            <string-input-tr-component
+            <tr-string-input-component
               labelName="name"
               width="100%"
               v-model="nameVolatile"
@@ -121,8 +121,8 @@ import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { getSrc } from "@/app/core/Utility";
 import BaseInput from "@/app/core/component/BaseInput.vue";
@@ -133,8 +133,8 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
-    NumberInputTrComponent,
-    StringInputTrComponent,
+    TrNumberInputComponent,
+    TrStringInputComponent,
     SceneLayerSelect,
     BackgroundLocationSelect,
     SimpleTabComponent,

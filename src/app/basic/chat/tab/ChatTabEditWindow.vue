@@ -116,9 +116,11 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private async commit() {
-    const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
-    data.data!.name = this.tabName!;
-    await this.cc!.update(this.docId!, data.data!);
+    if (!this.isDuplicate) {
+      const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
+      data.data!.name = this.tabName!;
+      await this.cc!.update(this.docId!, data.data!);
+    }
     this.isProcessed = true;
     await this.close();
   }

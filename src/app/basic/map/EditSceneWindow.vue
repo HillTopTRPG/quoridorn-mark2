@@ -10,7 +10,7 @@
         <div class="detail">
           <table class="info-table">
             <tr>
-              <string-input-tr-component
+              <tr-string-input-component
                 class="value-name"
                 labelName="name"
                 v-model="sceneData.name"
@@ -22,7 +22,7 @@
             <legend v-t="'label.size'"></legend>
             <table class="info-table">
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-columns"
                   labelName="columns"
                   v-model="sceneData.columns"
@@ -30,7 +30,7 @@
                 />
               </tr>
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-columns"
                   labelName="columns"
                   v-model="sceneData.rows"
@@ -38,7 +38,7 @@
                 />
               </tr>
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-grid-size"
                   labelName="grid-size"
                   v-model="sceneData.gridSize"
@@ -52,14 +52,14 @@
             <legend v-t="'label.decoration'"></legend>
             <table class="info-table">
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-font-color"
                   labelName="font-color"
                   v-model="sceneData.fontColor"
                 />
               </tr>
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-grid-color"
                   labelName="grid-line-color"
                   v-model="sceneData.gridColor"
@@ -90,7 +90,7 @@
             <legend v-t="'label.size'"></legend>
             <table class="info-table">
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-margin-columns"
                   labelName="columns"
                   v-model="sceneData.margin.columns"
@@ -98,7 +98,7 @@
                 />
               </tr>
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-margin-rows"
                   labelName="rows"
                   v-model="sceneData.margin.rows"
@@ -129,14 +129,14 @@
                 </td>
               </tr>
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-grid-color-main"
                   labelName="main"
                   v-model="sceneData.margin.gridColorBold"
                 />
               </tr>
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-grid-color-sub"
                   labelName="sub"
                   v-model="sceneData.margin.gridColorThin"
@@ -150,14 +150,14 @@
             <legend v-t="'label.mask'"></legend>
             <table class="info-table">
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-mask-color"
                   labelName="color"
                   v-model="sceneData.margin.maskColor"
                 />
               </tr>
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-mask-blur"
                   labelName="blur"
                   v-model="sceneData.margin.maskBlur"
@@ -171,7 +171,7 @@
             <legend v-t="'label.frame-border'"></legend>
             <table class="info-table">
               <tr>
-                <number-input-tr-component
+                <tr-number-input-component
                   class="value-border-width"
                   labelName="width"
                   v-model="sceneData.margin.border.width"
@@ -179,7 +179,7 @@
                 />
               </tr>
               <tr>
-                <color-picker-tr-component
+                <tr-color-picker-component
                   class="value-border-color"
                   labelName="color"
                   v-model="sceneData.margin.border.color"
@@ -281,9 +281,9 @@ import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
 import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import AddressInput from "@/app/basic/common/components/AddressInput.vue";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
-import NumberInputTrComponent from "@/app/basic/common/components/NumberInputTrComponent.vue";
-import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import EditSceneLayerChooserComponent from "@/app/basic/map/EditSceneLayerChooserComponent.vue";
 import EditSceneObjectChooserComponent from "@/app/basic/map/EditSceneObjectChooserComponent.vue";
@@ -293,9 +293,9 @@ import { SceneObject } from "@/@types/gameObject";
   components: {
     EditSceneObjectChooserComponent,
     EditSceneLayerChooserComponent,
-    ColorPickerTrComponent,
-    NumberInputTrComponent,
-    StringInputTrComponent,
+    TrColorPickerComponent,
+    TrNumberInputComponent,
+    TrStringInputComponent,
     AddressInput,
     BorderStyleSelect,
     InputTextureComponent,

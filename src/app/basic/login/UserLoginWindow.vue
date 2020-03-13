@@ -9,7 +9,7 @@
           :value="name"
           @input="name = $event.target.value"
           :class="{ pending: !name }"
-          :placeholder="$t('label.nameless')"
+          :placeholder="$t('label.require-text')"
           :list="`${key}-user-list`"
         />
         <datalist :id="`${key}-user-list`">
@@ -119,8 +119,9 @@ export default class UserLoginWindow extends Mixins<
 
   @VueEvent
   private async commit() {
+    if (!this.name) return;
     await this.finally({
-      name: this.name || LanguageManager.instance.getText("label.nameless"),
+      name: this.name,
       type: this.type,
       password: this.password
     });

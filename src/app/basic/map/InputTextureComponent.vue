@@ -11,14 +11,14 @@
     <div v-else>
       <table>
         <tr>
-          <string-input-tr-component
+          <tr-string-input-component
             labelName="text"
             width="100%"
             v-model="text"
           />
         </tr>
         <tr v-if="isMounted">
-          <color-picker-tr-component
+          <tr-color-picker-component
             class="value-color"
             labelName="background-color"
             v-model="color"
@@ -42,13 +42,13 @@ import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundT
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction, Texture } from "@/@types/room";
 import { parseColor } from "@/app/core/Utility";
-import StringInputTrComponent from "@/app/basic/common/components/StringInputTrComponent.vue";
-import ColorPickerTrComponent from "@/app/basic/common/components/ColorPickerTrComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
 
 @Component({
   components: {
-    ColorPickerTrComponent,
-    StringInputTrComponent,
+    TrColorPickerComponent,
+    TrStringInputComponent,
     ImagePickerComponent,
     BackgroundTypeRadio,
     SceneLayerSelect,

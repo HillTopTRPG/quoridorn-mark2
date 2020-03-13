@@ -53,6 +53,7 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
   }
 
   private get isDuplicate(): boolean {
@@ -75,29 +76,31 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private async commit() {
-    const gameMastersActorGroup = this.actorGroupList.filter(
-      ag => ag.data!.isSystem && ag.data!.name === "GameMasters"
-    )[0];
-    const gameMastersPermission: PermissionNode = {
-      type: "group",
-      id: gameMastersActorGroup.id!
-    };
-    await this.cc!.addDirect([{ name: this.tabName, isSystem: false }], {
-      permission: {
-        view: {
-          type: "none",
-          list: []
-        },
-        edit: {
-          type: "allow",
-          list: [gameMastersPermission]
-        },
-        chmod: {
-          type: "allow",
-          list: [gameMastersPermission]
+    if (!this.isDuplicate) {
+      const gameMastersActorGroup = this.actorGroupList.filter(
+        ag => ag.data!.isSystem && ag.data!.name === "GameMasters"
+      )[0];
+      const gameMastersPermission: PermissionNode = {
+        type: "group",
+        id: gameMastersActorGroup.id!
+      };
+      await this.cc!.addDirect([{ name: this.tabName, isSystem: false }], {
+        permission: {
+          view: {
+            type: "none",
+            list: []
+          },
+          edit: {
+            type: "allow",
+            list: [gameMastersPermission]
+          },
+          chmod: {
+            type: "allow",
+            list: [gameMastersPermission]
+          }
         }
-      }
-    });
+      });
+    }
     this.isProcessed = true;
     await this.close();
   }

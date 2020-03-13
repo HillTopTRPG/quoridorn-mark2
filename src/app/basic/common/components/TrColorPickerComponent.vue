@@ -1,5 +1,5 @@
 <template>
-  <tr class="color-picker-tr-component">
+  <tr class="tr-color-picker-component">
     <th>
       <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
     </th>
@@ -7,8 +7,9 @@
       <color-picker-component
         :key="key"
         :id="key"
+        :disabled="disabled"
         v-model="localValue"
-        :use-alpha="true"
+        :use-alpha="useAlpha"
       />
     </td>
   </tr>
@@ -21,7 +22,7 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
 
 @Component({ components: { ColorPickerComponent } })
-export default class StringInputTrComponent extends Mixins<ComponentVue>(
+export default class TrColorPickerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
@@ -29,6 +30,9 @@ export default class StringInputTrComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private value!: string;
+
+  @Prop({ type: Boolean, default: true })
+  private useAlpha!: boolean;
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
@@ -47,7 +51,7 @@ export default class StringInputTrComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.color-picker-tr-component {
+.tr-color-picker-component {
   display: contents;
 }
 

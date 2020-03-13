@@ -129,7 +129,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private chatList = GameObjectManager.instance.chatList;
   private userList = GameObjectManager.instance.userList;
   private actorList = GameObjectManager.instance.actorList;
-  private selfActors = GameObjectManager.instance.selfActors;
+  private selfActors: StoreUseData<ActorStore>[] = [];
   private chatTabList = GameObjectManager.instance.chatTabList;
   private outputTabList: StoreUseData<ChatTabInfo>[] = [];
   private isSecretList: StoreUseData<{ name: string }>[] = [
@@ -159,6 +159,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
   /** チャット発言者 */
   private actorId: string = "";
+  /** ステータス */
+  private statusId: string = "";
   private isActorChanging: boolean = false;
   /** タブ */
   private tabId: string = "";
@@ -180,8 +182,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private outputTabId: string | null = null;
   /** 発言に括弧をつけるかどうか */
   private addBrackets: boolean = false;
-  /** ステータス */
-  private statusId: string = "";
   /** 入力されたチャット文言を格納する変数 */
   private inputtingChatText: string = "";
   /** Enterを押しているかどうか */
@@ -290,7 +290,12 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     return actor.data!.name;
   }
 
-  private getName(id: string, type: "group" | "actor", addStatus: boolean) {
+  private getName(
+    id: string,
+    type: "group" | "actor",
+    addStatus: boolean
+  ): string {
+    if (!id) return "";
     if (type === "group") {
       const gct = this.groupChatTabList.filter(gct => gct.id === id)[0];
       if (gct.data!.isSystem) return "";
@@ -336,6 +341,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     await this.init();
   }
 
+  @Watch("actorList", { immediate: true, deep: true })
+  private onChangeActorList() {
+    this.selfActors = this.actorList.filter(
+      a => a.owner === GameObjectManager.instance.mySelfUserId
+    );
+  }
+
   @Watch("groupChatTabList", { immediate: true, deep: true })
   private onChangeGroupChatTabList() {
     this.targetTabList = this.groupChatTabList
@@ -353,8 +365,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
    */
   @Watch("chatPublicInfo.actorId", { immediate: true })
   private onChangeChatPublicActorId() {
-    this.actorId = this.chatPublicInfo.actorId;
-    this.setActorStatus();
+    // これはactorIdのWatchを発動させるのに必要
+    setTimeout(() => {
+      this.actorId = this.chatPublicInfo.actorId;
+    });
   }
 
   @Watch("chatPublicInfo.tabId", { immediate: true })
@@ -383,7 +397,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("actorId")
   private onChangeActorId() {
     this.chatPublicInfo.actorId = this.actorId;
-    this.setActorStatus();
+    this.isActorChanging = true;
+    const actor = this.actorList.filter(a => a.id === this.actorId)[0];
+    this.statusId = actor.data!.statusId;
   }
 
   @Watch("statusId")
@@ -447,12 +463,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("bcdiceUrl")
   private onChangeBcdiceUrl() {
     this.chatPublicInfo.bcdiceUrl = this.bcdiceUrl;
-  }
-
-  private setActorStatus() {
-    this.isActorChanging = true;
-    const actor = this.actorList.filter(a => a.id === this.actorId)[0];
-    this.statusId = actor.data!.statusId;
   }
 
   @VueEvent

@@ -4,10 +4,10 @@
     v-bind:is="'input'"
     v-bind="$attrs"
     v-on="listeners"
-    @keydown.enter.stop
-    @keyup.enter.stop
-    @keydown.229.stop
-    @keyup.229.stop
+    @keydown.enter.prevent.stop
+    @keyup.enter.prevent.stop
+    @keydown.229.prevent.stop
+    @keyup.229.prevent.stop
     ref="component"
   ></component>
 </template>
@@ -46,7 +46,7 @@ export default class BaseInput extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped lang="scss">
 input {
   font-size: inherit;
   height: 2em;

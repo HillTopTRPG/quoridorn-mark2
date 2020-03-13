@@ -331,6 +331,47 @@ export default class GameObjectManager {
       : userInfo.data!.name;
   }
 
+  public static async addActor(actorInfo: ActorStore) {
+    const actorCC = SocketFacade.instance.actorCC();
+    const actorStatusCC = SocketFacade.instance.actorStatusCC();
+
+    const statusInfo: ActorStatusStore = {
+      name: "◆",
+      isSystem: true,
+      standImageInfoId: null,
+      chatPaletteInfoId: null
+    };
+    const statusId = (await actorStatusCC.addDirect([statusInfo]))[0];
+
+    actorInfo.statusId = statusId;
+
+    const owner: string = (
+      await actorCC.addDirect([actorInfo], {
+        permission: {
+          view: {
+            type: "none",
+            list: []
+          },
+          edit: {
+            type: "allow",
+            list: [
+              {
+                type: "owner"
+              }
+            ]
+          },
+          chmod: {
+            type: "none",
+            list: []
+          }
+        }
+      })
+    )[0];
+    await actorStatusCC.touchModify(statusId);
+    actorInfo.statusId = statusId;
+    await actorStatusCC.update(statusId, statusInfo, { owner });
+  }
+
   public async addScene(
     scene: Scene
   ): Promise<{ sceneId: string; mapAndLayerIdList: string[] }> {
