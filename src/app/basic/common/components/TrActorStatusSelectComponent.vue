@@ -1,16 +1,13 @@
 <template>
-  <tr class="tr-color-picker-component">
+  <tr class="tr-check-box-component">
     <th class="label-input">
-      <label :for="key" v-t="`label.${labelName}`"></label>
+      <label v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <color-picker-component
-        :key="key"
-        :id="key"
-        :disabled="disabled"
-        :readonly="readonly"
+      <actor-status-select
+        :actorId="actorId"
         v-model="localValue"
-        :use-alpha="useAlpha"
+        :readonly="readonly"
       />
     </td>
   </tr>
@@ -20,23 +17,22 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
 
-@Component({ components: { ColorPickerComponent } })
-export default class TrColorPickerComponent extends Mixins<ComponentVue>(
+@Component({ components: { ActorStatusSelect, SCheck, ChatColorTypeSelect } })
+export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, required: true })
+  private actorId!: string;
+
+  @Prop({ type: String, required: true })
   private value!: string;
-
-  @Prop({ type: Boolean, default: true })
-  private useAlpha!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private disabled!: boolean;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
@@ -55,10 +51,9 @@ export default class TrColorPickerComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-color-picker-component {
+.tr-check-box-component {
   display: contents;
 }
-
 th,
 td {
   padding: 0;

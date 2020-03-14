@@ -361,8 +361,12 @@ export default class GameObjectManager {
             ]
           },
           chmod: {
-            type: "none",
-            list: []
+            type: "allow",
+            list: [
+              {
+                type: "owner"
+              }
+            ]
           }
         }
       })

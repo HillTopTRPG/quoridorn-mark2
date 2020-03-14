@@ -10,7 +10,7 @@
         @keydown.enter.stop
         @keyup.enter.stop
         ref="component"
-        :disabled="optionInfo.disabled"
+        :disabled="disabled || readonly || optionInfo.disabled"
       />
       {{ optionInfo.text }}
     </label>
@@ -31,6 +31,12 @@ export default class CtrlRadio extends Vue {
 
   @Prop({ type: String, default: "1" })
   public value!: string;
+
+  @Prop({ type: Boolean, default: false })
+  public disabled!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  public readonly!: boolean;
 
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
@@ -61,6 +67,8 @@ export default class CtrlRadio extends Vue {
 @import "../../../assets/common";
 
 .ctrl-radio {
+  @include inline-flex-box(row, flex-start, center);
+
   label {
     @include inline-flex-box(row, flex-start, center);
     height: 2em;

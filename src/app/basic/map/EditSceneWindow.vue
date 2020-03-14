@@ -11,9 +11,9 @@
           <table class="info-table">
             <tr>
               <tr-string-input-component
-                class="value-name"
                 labelName="name"
                 v-model="sceneData.name"
+                inputWidth="10em"
               />
             </tr>
           </table>
@@ -23,25 +23,25 @@
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  class="value-columns"
                   labelName="columns"
                   v-model="sceneData.columns"
+                  inputWidth="3.5em"
                   :min="1"
                 />
               </tr>
               <tr>
                 <tr-number-input-component
-                  class="value-columns"
-                  labelName="columns"
+                  labelName="rows"
                   v-model="sceneData.rows"
+                  inputWidth="3.5em"
                   :min="1"
                 />
               </tr>
               <tr>
                 <tr-number-input-component
-                  class="value-grid-size"
                   labelName="grid-size"
                   v-model="sceneData.gridSize"
+                  inputWidth="3.5em"
                   :min="1"
                 />
               </tr>
@@ -53,14 +53,12 @@
             <table class="info-table">
               <tr>
                 <tr-color-picker-component
-                  class="value-font-color"
                   labelName="font-color"
                   v-model="sceneData.fontColor"
                 />
               </tr>
               <tr>
                 <tr-color-picker-component
-                  class="value-grid-color"
                   labelName="grid-line-color"
                   v-model="sceneData.gridColor"
                 />
@@ -91,17 +89,17 @@
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  class="value-margin-columns"
                   labelName="columns"
                   v-model="sceneData.margin.columns"
+                  inputWidth="3.5em"
                   :min="0"
                 />
               </tr>
               <tr>
                 <tr-number-input-component
-                  class="value-margin-rows"
                   labelName="rows"
                   v-model="sceneData.margin.rows"
+                  inputWidth="3.5em"
                   :min="0"
                 />
               </tr>
@@ -112,32 +110,21 @@
             <legend v-t="'label.grid-line'"></legend>
             <table class="info-table">
               <tr>
-                <th>
-                  <label
-                    :for="`${key}-grid-check`"
-                    class="label-color label-input"
-                    v-t="'label.grid-line'"
-                  ></label>
-                </th>
-                <td>
-                  <base-input
-                    :id="`${key}-grid-check`"
-                    type="checkbox"
-                    :checked="sceneData.margin.isUseGrid"
-                    @input="sceneData.margin.isUseGrid = $event.target.checked"
-                  />
-                </td>
+                <tr-checkbox-component
+                  labelName="grid-line"
+                  :cLabel="$t('label.exist')"
+                  :nLabel="$t('label.not-exist')"
+                  v-model="sceneData.margin.isUseGrid"
+                />
               </tr>
               <tr>
                 <tr-color-picker-component
-                  class="value-grid-color-main"
                   labelName="main"
                   v-model="sceneData.margin.gridColorBold"
                 />
               </tr>
               <tr>
                 <tr-color-picker-component
-                  class="value-grid-color-sub"
                   labelName="sub"
                   v-model="sceneData.margin.gridColorThin"
                   :disabled="!sceneData.margin.isUseGrid"
@@ -151,16 +138,15 @@
             <table class="info-table">
               <tr>
                 <tr-color-picker-component
-                  class="value-mask-color"
                   labelName="color"
                   v-model="sceneData.margin.maskColor"
                 />
               </tr>
               <tr>
                 <tr-number-input-component
-                  class="value-mask-blur"
                   labelName="blur"
                   v-model="sceneData.margin.maskBlur"
+                  inputWidth="3.5em"
                   :min="0"
                 />
               </tr>
@@ -172,9 +158,9 @@
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  class="value-border-width"
                   labelName="width"
                   v-model="sceneData.margin.border.width"
+                  inputWidth="3.5em"
                   :min="0"
                 />
               </tr>
@@ -258,7 +244,6 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
@@ -288,9 +273,11 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import EditSceneLayerChooserComponent from "@/app/basic/map/EditSceneLayerChooserComponent.vue";
 import EditSceneObjectChooserComponent from "@/app/basic/map/EditSceneObjectChooserComponent.vue";
 import { SceneObject } from "@/@types/gameObject";
+import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
 
 @Component({
   components: {
+    TrCheckboxComponent,
     EditSceneObjectChooserComponent,
     EditSceneLayerChooserComponent,
     TrColorPickerComponent,
@@ -304,7 +291,6 @@ import { SceneObject } from "@/@types/gameObject";
     SceneLayerSelect,
     SimpleTabComponent,
     ColorPickerComponent,
-    BaseInput,
     SeekBarComponent,
     CtrlButton
   }
@@ -665,7 +651,6 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 .value-grid-size,
 .value-margin-rows,
 .value-margin-columns,
-.value-border-width,
 .value-mask-blur {
   width: 3.5em;
 }

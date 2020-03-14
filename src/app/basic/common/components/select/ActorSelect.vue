@@ -20,6 +20,7 @@ import LanguageManager from "@/LanguageManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { Prop } from "vue-property-decorator";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -30,6 +31,9 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
+  @Prop({ type: String, default: "" })
+  private userId!: string;
+
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
@@ -51,7 +55,10 @@ export default class ActorSelect extends Mixins<MultiMixin>(
     );
 
     this.optionInfoList = GameObjectManager.instance.actorList
-      .filter(a => permissionCheck(a, "view"))
+      .filter(a => {
+        if (this.userId && a.owner !== this.userId) return false;
+        return permissionCheck(a, "view");
+      })
       .map(c => ({
         key: c.id!,
         value: c.id!,

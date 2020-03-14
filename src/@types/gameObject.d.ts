@@ -44,6 +44,7 @@ type SceneObject = Address & {
 
 type ActorStore = {
   name: string; // 名前
+  tag: string; // タグ
   type: "user" | "character";
   chatFontColorType: "owner" | "original"; // チャット文字色はオーナー（ユーザ）の色か独自の色か
   chatFontColor: string; // 独自のチャット文字色

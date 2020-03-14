@@ -24,11 +24,13 @@
       </label>
       <label class="use-owner">
         <span v-t="'label.owner'"></span>
-        <base-input
-          type="checkbox"
-          :value="isUseOwner"
-          @input="isUseOwner = $event.target.checked"
-          :disabled="permissionRule.type === 'none'"
+        <s-check
+          v-model="isUseOwner"
+          colorStyle="skyblue"
+          c-icon="checkmark"
+          c-label=""
+          n-icon=""
+          n-label=""
         />
       </label>
     </div>
@@ -45,18 +47,15 @@ import {
 } from "@/@types/store";
 import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
 import PermissionNodeTypeSelect from "@/app/basic/common/components/select/PermissionNodeTypeSelect.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import CharacterSelect from "@/app/basic/common/components/select/CharacterSelect.vue";
-import UserSelect from "@/app/basic/common/components/select/UserSelect.vue";
 import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { listToEmpty } from "@/app/core/Utility";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
 
 @Component({
   components: {
-    BaseInput,
+    SCheck,
     CtrlButton,
     ActorGroupSelect,
     ActorSelect,

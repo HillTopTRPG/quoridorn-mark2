@@ -131,26 +131,50 @@
 }
 
 @mixin btn-skyblue() {
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--uni-color-light-skyblue) !important;
+  &.checked {
+    background-color: var(--uni-color-cream);
   }
 
-  &:active {
-    background-color: var(--uni-color-skyblue) !important;
+  &.readonly,
+  &.disabled {
+    cursor: not-allowed;
+    background-color: var(--uni-color-light-gray);
+  }
+
+  &:not(.readonly):not(.disabled) {
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--uni-color-light-skyblue) !important;
+    }
+
+    &:active {
+      background-color: var(--uni-color-skyblue) !important;
+    }
   }
 }
 
 @mixin btn-pink() {
-  cursor: pointer;
-
-  &:hover {
-    background-color: var(--uni-color-light-pink) !important;
+  &.checked {
+    background-color: var(--uni-color-cream);
   }
 
-  &:active {
-    background-color: var(--uni-color-pink) !important;
+  &.readonly,
+  &.disabled {
+    cursor: not-allowed;
+    background-color: var(--uni-color-light-gray);
+  }
+
+  &:not(.readonly):not(.disabled) {
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--uni-color-light-pink) !important;
+    }
+
+    &:active {
+      background-color: var(--uni-color-pink) !important;
+    }
   }
 }
 
@@ -253,6 +277,8 @@
 }
 
 .label-input {
+  font-weight: bold;
+
   &:after {
     content: "：";
   }

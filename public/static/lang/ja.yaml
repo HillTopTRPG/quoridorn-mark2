@@ -32,6 +32,12 @@ type:
   user: ユーザー
   actor: アクター
   actor-group: アクターグループ
+  piece: コマ
+
+option:
+  chat-color-type:
+    owner: オーナーと同じ
+    original: 個別の色
 
 context:
   bgm-setting: BGM設定
@@ -87,6 +93,7 @@ label:
   width: 幅
   alpha: 透過度
   tag: タグ
+  non-tag: タグ無し
   direction: 向き
   direction-none: そのまま
   direction-horizontal: 左右反転
@@ -141,7 +148,6 @@ label:
   permission-type: 権限種別
   permission-node-type: 権限対象種別
   owner: オーナー
-  original: オリジナル
   user: ユーザー
   character: キャラクター
   group: グループ
@@ -193,6 +199,8 @@ label:
   sort: 並び替え
   stand-image-position: 立ち絵の位置
   has-data: データの有無
+  view-type: 表示モード
+  search-name-box: 名前検索欄
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -334,6 +342,7 @@ chat-window:
     cut-in: カットイン
     scene-list: シーン一覧
     add-actor: アクター追加
+    player-box: プレイヤーボックス
   options:
     select-sender: 送信者の選択
     select-output-tab: 送信先タブの選択
@@ -353,16 +362,13 @@ chat-window:
     secret: 秘匿
     non-secret: 公開
   dialog:
-    delete-chat: "本当にこのチャットを消しますか？\nこの操作は後から取り消せません。"
+    delete-chat: "本当にこのチャットを消しますか？\nこの操作は取り消せません。"
     delete-failure: 削除に失敗しました。
 
 chat-tab-list-window:
   window-title: チャットタブ一覧
   dialog:
-    create-tab: "新規作成するタブの名前を入力してください。"
-    duplicate-tab: "その名前は既に他のタブに使われています。"
-    edit-tab: "タブの名前を編集します。"
-    delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は後から取り消せません。"
+    delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
   message-list:
     edit: 編集
     chmod: 権限編集
@@ -382,6 +388,15 @@ chat-tab-edit-window:
 
 actor-add-window:
   window-title: アクター追加
-  placeholders:
-    name: 名前(必須項目)
 
+actor-edit-window:
+  window-title: アクター編集
+
+player-box-window:
+  window-title: プレイヤーボックス
+  message-list:
+    edit: 編集
+    chmod: 権限編集
+    delete: 削除
+  dialog:
+    delete-actor: "本当にアクター「$1」を削除しますか？\nこの操作は取り消せません。"

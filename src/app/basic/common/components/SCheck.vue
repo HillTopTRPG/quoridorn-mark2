@@ -2,7 +2,9 @@
   <span
     class="simple-check"
     :class="[
+      value ? 'checked' : undefined,
       disabled ? 'disabled' : undefined,
+      readonly ? 'readonly' : undefined,
       colorStyle,
       !value && !nIcon ? 'transparent' : undefined
     ]"
@@ -10,10 +12,10 @@
       width: !cLabel && !nLabel ? '2em' : `auto`,
       padding: !cLabel && !nLabel ? 0 : '0 0.5em'
     }"
-    :tabindex="disabled ? undefined : '0'"
-    @click="localValue = !localValue"
-    @keydown.space.stop="localValue = !localValue"
-    @keydown.enter.stop="localValue = !localValue"
+    :tabindex="disabled || readonly ? undefined : '0'"
+    @click="onClick()"
+    @keydown.space.stop="onClick()"
+    @keydown.enter.stop="onClick()"
     @mouseenter="$emit('hover', true)"
     @mouseleave="$emit('hover', false)"
     @keydown.229.stop
@@ -59,6 +61,9 @@ export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly!: boolean;
+
   private get localValue(): boolean {
     return this.value;
   }
@@ -69,6 +74,11 @@ export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
 
   private input(value: boolean) {
     this.$emit("input", value);
+  }
+
+  private onClick() {
+    if (this.disabled || this.readonly) return;
+    this.localValue = !this.localValue;
   }
 }
 </script>
@@ -82,23 +92,17 @@ export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
   border: 1px dotted black;
   border-radius: 1em;
   box-sizing: border-box;
-  cursor: pointer;
   background-color: white;
-
-  &.disabled {
-    cursor: not-allowed;
-    background-color: var(--uni-color-light-gray);
-  }
 
   &.transparent .icon {
     visibility: hidden;
   }
 
-  &:not(.disabled).skyblue {
+  &.skyblue {
     @include btn-skyblue();
   }
 
-  &:not(.disabled).pink {
+  &.pink {
     @include btn-pink();
   }
 }

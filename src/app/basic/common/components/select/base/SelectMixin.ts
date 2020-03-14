@@ -16,6 +16,9 @@ export default class SelectMixin extends Vue {
   private disabled!: boolean;
 
   @Prop({ type: Boolean, default: false })
+  private readonly!: boolean;
+
+  @Prop({ type: Boolean, default: false })
   private isPending!: boolean;
 
   @Prop({ type: Boolean, default: false })

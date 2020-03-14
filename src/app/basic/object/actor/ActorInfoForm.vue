@@ -1,28 +1,27 @@
 <template>
   <div class="actor-info-form">
-    <!-- 名前 -->
     <table class="info-table">
+      <!-- 名前 -->
       <tr>
         <tr-string-input-component
           labelName="name"
           v-model="nameVolatile"
-          :placeholder="$t('actor-add-window.placeholders.name')"
+          :placeholder="$t('label.require-text')"
         />
       </tr>
+      <!-- タグ -->
       <tr>
-        <tr-chat-color-type-radio-component
-          labelName="chat-font-color"
-          v-model="chatFontColorTypeVolatile"
-        />
+        <tr-string-input-component labelName="tag" v-model="tagVolatile" />
       </tr>
+      <!-- チャット文字色 -->
       <tr>
-        <tr-color-picker-component
+        <tr-chat-color-input-component
           labelName="chat-font-color"
-          v-model="chatFontColorVolatile"
-          :disabled="chatFontColorTypeVolatile === 'owner'"
-          :use-alpha="false"
+          :type.sync="chatFontColorTypeVolatile"
+          :color.sync="chatFontColorVolatile"
         />
       </tr>
+      <!-- 立ち絵位置 -->
       <tr>
         <tr-range-component
           labelName="stand-image-position"
@@ -31,6 +30,7 @@
           v-model="standImagePositionVolatile"
         />
       </tr>
+      <!-- データの有無 -->
       <tr>
         <tr-checkbox-component
           labelName="has-data"
@@ -45,33 +45,27 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import LanguageManager from "@/LanguageManager";
-import { TabInfo } from "@/@types/window";
 import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import TrChatColorTypeRadioComponent from "@/app/basic/common/components/TrChatColorTypeRadioComponent.vue";
 import TrRangeComponent from "@/app/basic/common/components/TrRangeComponent.vue";
 import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+import TrChatColorInputComponent from "@/app/basic/common/components/TrChatColorInputComponent.vue";
 
 @Component({
   components: {
+    TrChatColorInputComponent,
     TrCheckboxComponent,
     TrRangeComponent,
-    TrChatColorTypeRadioComponent,
     TrColorPickerComponent,
     TrNumberInputComponent,
     TrStringInputComponent,
@@ -83,9 +77,7 @@ import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxCompone
     CtrlButton
   }
 })
-export default class MapMaskInfoForm extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class ActorInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   private isMounted: boolean = false;
 
   // name
@@ -99,6 +91,19 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   @Watch("nameVolatile")
   private onChangeNameVolatile(value: string) {
     this.$emit("update:name", value);
+  }
+
+  // tag
+  @Prop({ type: String, required: true })
+  private tag!: string;
+  private tagVolatile: string = "";
+  @Watch("tag", { immediate: true })
+  private onChangeTag(value: string) {
+    this.tagVolatile = value;
+  }
+  @Watch("tagVolatile")
+  private onChangeTagVolatile(value: string) {
+    this.$emit("update:tag", value);
   }
 
   // chatFontColorType

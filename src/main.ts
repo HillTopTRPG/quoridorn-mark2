@@ -37,6 +37,8 @@ import ChatTabListWindow from "@/app/basic/chat/tab/ChatTabListWindow.vue";
 import ChatTabAddWindow from "@/app/basic/chat/tab/ChatTabAddWindow.vue";
 import ChatTabEditWindow from "@/app/basic/chat/tab/ChatTabEditWindow.vue";
 import ActorAddWindow from "@/app/basic/object/actor/ActorAddWindow.vue";
+import ActorEditWindow from "@/app/basic/object/actor/ActorEditWindow.vue";
+import PlayerBoxWindow from "@/app/basic/object/actor/PlayerBoxWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -94,6 +96,8 @@ async function main(): Promise<void> {
   Vue.component("chat-tab-add-window", ChatTabAddWindow);
   Vue.component("chat-tab-edit-window", ChatTabEditWindow);
   Vue.component("actor-add-window", ActorAddWindow);
+  Vue.component("actor-edit-window", ActorEditWindow);
+  Vue.component("player-box-window", PlayerBoxWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

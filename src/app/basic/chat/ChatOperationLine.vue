@@ -15,6 +15,7 @@
     </label>
 
     <s-button icon="user" @hover="hover3" @click="open3()" />
+    <s-button icon="users" @hover="hover4" @click="open4()" />
 
     <!-- ダイスボット選択 -->
     <bcdice-system-input
@@ -164,6 +165,16 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
   @VueEvent
   private async open3() {
     await this.open("actor-add-window");
+  }
+
+  @VueEvent
+  private hover4(flg: boolean) {
+    this.hover("actor-list", flg);
+  }
+
+  @VueEvent
+  private async open4() {
+    await this.open("player-box-window");
   }
 }
 </script>

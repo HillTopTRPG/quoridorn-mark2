@@ -1,6 +1,6 @@
 @import "../../../assets/common";
 
-$disabledOpacity: 0.5;
+$disabledOpacity: 0.7;
 
 $border-normal: linear-gradient(to bottom, #b5b8ba 0%, #5e6061 100%);
 $border-hover: linear-gradient(to bottom, #008efd 0%, #005eba 100%);
@@ -36,11 +36,13 @@ $background-area-active-background: linear-gradient(
   height: 2em;
   background: $border-normal;
 
-  &[disabled="disabled"] {
+  &[disabled="disabled"],
+  &.disabled {
     opacity: $disabledOpacity;
+    cursor: not-allowed;
   }
 
-  &:not([disabled="disabled"]) {
+  &:not([disabled="disabled"]):not(.disabled) {
     &:hover {
       background: $border-hover;
     }
@@ -71,7 +73,7 @@ $background-area-active-background: linear-gradient(
 
   &[disabled="disabled"] {
     input {
-      cursor: default;
+      cursor: not-allowed;
     }
   }
 
@@ -146,7 +148,7 @@ $background-area-active-background: linear-gradient(
   }
 
   /* hover状態の仕切り線 */
-  &:not([disabled="disabled"]) {
+  &:not(.disabled) {
     &:hover:after {
       border-left-color: #008efd;
     }
@@ -169,8 +171,8 @@ $background-area-active-background: linear-gradient(
     cursor: pointer;
     font-size: inherit;
 
-    &[disabled="disabled"] {
-      cursor: default;
+    &:disabled {
+      cursor: not-allowed;
     }
 
     option[disabled="disabled"] {

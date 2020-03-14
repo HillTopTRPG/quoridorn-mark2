@@ -3,7 +3,7 @@
     class="ctrl-select-wrapper"
     :disabled="disabled"
     @contextmenu.prevent
-    :class="{ multiple }"
+    :class="{ multiple, disabled: disabled || readonly }"
   >
     <select
       class="input"
@@ -11,7 +11,7 @@
       v-model="localValue"
       :id="id || undefined"
       ref="component"
-      :disabled="disabled"
+      :disabled="disabled || readonly"
       :style="{
         webkitTextFillColor: fontColor,
         mozTextFillColor: fontColor,
@@ -114,7 +114,7 @@ export default class CtrlSelect extends SelectMixin {
       height: 100%;
       cursor: pointer;
 
-      &[disabled="disabled"] {
+      &:disabled {
         color: gray;
         -webkit-text-fill-color: gray !important;
         cursor: default;

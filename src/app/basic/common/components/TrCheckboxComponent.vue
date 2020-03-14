@@ -1,8 +1,7 @@
 <template>
   <tr class="tr-check-box-component">
-    <th>
+    <th class="label-input">
       <label
-        class="label-input"
         v-t="`label.${labelName}`"
         @click="localValue = !localValue"
       ></label>
@@ -10,6 +9,7 @@
     <td>
       <s-check
         :id="key"
+        :readonly="readonly"
         v-model="localValue"
         colorStyle="skyblue"
         c-icon="checkmark"
@@ -25,10 +25,10 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeRadio from "@/app/basic/common/components/radio/ChatColorTypeRadio.vue";
+import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 
-@Component({ components: { SCheck, ChatColorTypeRadio } })
+@Component({ components: { SCheck, ChatColorTypeSelect } })
 export default class TrCheckboxComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -43,6 +43,9 @@ export default class TrCheckboxComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   private value!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private readonly!: boolean;
 
   private input(value: boolean) {
     this.$emit("input", value);
@@ -67,9 +70,14 @@ td {
 }
 
 th {
-  text-align: right;
+  text-align: left;
   width: 1px;
   white-space: nowrap;
+
+  :first-child {
+    display: inline-block;
+    width: calc(100% - 1em);
+  }
 }
 
 tr {

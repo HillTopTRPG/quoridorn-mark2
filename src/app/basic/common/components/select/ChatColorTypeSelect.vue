@@ -1,7 +1,9 @@
 <template>
-  <ctrl-radio
+  <ctrl-select
     :optionInfoList="optionInfoList"
-    name="backgroundTypeRadio"
+    :disabled="disabled"
+    :readonly="readonly"
+    :name="`chat-color-type-select-${key}`"
     v-model="localValue"
     ref="component"
   />
@@ -9,29 +11,36 @@
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import LanguageManager from "@/LanguageManager";
-import { HtmlOptionInfo } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import CtrlRadio from "@/app/core/component/CtrlRadio.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import { HtmlOptionInfo } from "@/@types/window";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
-  components: { CtrlRadio }
+  components: { CtrlSelect }
 })
-export default class ChatColorTypeRadio extends Mixins<ComponentVue>(
+export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, default: "owner" })
   public value!: string;
+
+  @Prop({ type: Boolean, default: false })
+  public disabled!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  public readonly!: boolean;
 
   public input(value: string) {
     this.$emit("input", value);
   }
 
   private get localValue(): string {
+    window.console.log(this.value);
     return this.value || "";
   }
 
@@ -62,13 +71,13 @@ export default class ChatColorTypeRadio extends Mixins<ComponentVue>(
       LanguageManager.instance
     );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.value}`);
-      o.key = o.value || "";
+      o.text = getText(`option.chat-color-type.${o.value}`);
+      o.key = o.value;
     });
   }
 
   public focus() {
-    const elm = this.$refs.component as CtrlRadio;
+    const elm = this.$refs.component as CtrlSelect;
     elm.focus();
   }
 }

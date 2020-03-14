@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-range-input-component">
-    <th>
-      <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
+    <th class="label-input">
+      <label :for="key" v-t="`label.${labelName}`"></label>
     </th>
     <td>
       <input
@@ -87,9 +87,14 @@ td {
 }
 
 th {
-  text-align: right;
+  text-align: left;
   width: 1px;
   white-space: nowrap;
+
+  :first-child {
+    display: inline-block;
+    width: calc(100% - 1em);
+  }
 }
 
 td {

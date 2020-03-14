@@ -549,6 +549,17 @@ div.img {
   background: no-repeat center;
 }
 
+input {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+
+  &:disabled,
+  &:read-only {
+    cursor: not-allowed !important;
+  }
+}
+
 hr {
   margin: 3px 0;
 }

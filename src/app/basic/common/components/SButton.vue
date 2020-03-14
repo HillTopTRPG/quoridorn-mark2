@@ -37,6 +37,7 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
 
 .shortcut-button {
   @include inline-flex-box(row, center, center);
+  @include btn-skyblue();
   border: 1px dotted gray;
   border-radius: 50%;
   background-color: white;
@@ -45,14 +46,5 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   min-width: 2em;
   box-sizing: border-box;
   margin-left: 0.3rem;
-
-  &.disabled {
-    cursor: not-allowed;
-    background-color: var(--uni-color-light-gray);
-  }
-
-  &:not(.disabled) {
-    @include btn-skyblue();
-  }
 }
 </style>

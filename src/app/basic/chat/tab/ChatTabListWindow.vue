@@ -48,19 +48,19 @@
             <s-button
               icon="pencil"
               :disabled="!isEditable(tab)"
-              @hover="value => hover('edit', value)"
+              @hover="value => onHover('edit', value)"
               @click="editTab(tab)"
             />
             <s-button
               icon="user-tie"
               :disabled="!isChmodAble(tab)"
-              @hover="value => hover('chmod', value)"
+              @hover="value => onHover('chmod', value)"
               @click="chmodTab(tab)"
             />
             <s-button
               icon="bin"
               :disabled="!isDeletable(tab)"
-              @hover="value => hover('delete', value)"
+              @hover="value => onHover('delete', value)"
               @click="deleteTab(tab)"
             />
           </div>
@@ -235,7 +235,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private hover(messageType: string, isHover: boolean) {
+  private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
       ? LanguageManager.instance.getText(
           `chat-tab-list-window.message-list.${messageType}`

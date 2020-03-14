@@ -1,37 +1,17 @@
 <template>
-  <tr class="tr-chat-color-type-radio-component">
-    <th>
-      <label :for="key" class="label-input" v-t="`label.${labelName}`"></label>
+  <tr class="tr-chat-color-type-select-component">
+    <th class="label-input">
+      <label :for="key" v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <input
-        :id="key"
-        type="number"
-        class="raw-input"
+      <range-component
+        tag="td"
+        :readonly="readonly"
+        :raw-key="key"
         :min="min"
         :max="max"
         :step="step"
-        :style="{ width: rawWidth + 'em' }"
-        :value="localValue"
-        @input="localValue = $event.target.valueAsNumber"
-        @keydown.enter.prevent.stop
-        @keyup.enter.prevent.stop
-        @keydown.229.prevent.stop
-        @keyup.229.prevent.stop
-      />
-      <input
-        type="range"
-        class="slider-input"
-        :min="min"
-        :max="max"
-        :step="step"
-        :style="{ width: sliderWidth + 'em' }"
-        :value="localValue"
-        @input="localValue = $event.target.valueAsNumber"
-        @keydown.enter.prevent.stop
-        @keyup.enter.prevent.stop
-        @keydown.229.prevent.stop
-        @keyup.229.prevent.stop
+        v-model="localValue"
       />
     </td>
   </tr>
@@ -41,9 +21,10 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeRadio from "@/app/basic/common/components/radio/ChatColorTypeRadio.vue";
+import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
+import RangeComponent from "@/app/basic/common/components/RangeComponent.vue";
 
-@Component({ components: { ChatColorTypeRadio } })
+@Component({ components: { RangeComponent, ChatColorTypeSelect } })
 export default class TrRangeComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -68,6 +49,9 @@ export default class TrRangeComponent extends Mixins<ComponentVue>(
   @Prop({ type: Number, required: true })
   private value!: number;
 
+  @Prop({ type: Boolean, default: false })
+  private readonly!: boolean;
+
   private input(value: number) {
     this.$emit("input", value);
   }
@@ -82,7 +66,7 @@ export default class TrRangeComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-chat-color-type-radio-component {
+.tr-chat-color-type-select-component {
   display: contents;
 }
 
@@ -100,9 +84,14 @@ td {
 }
 
 th {
-  text-align: right;
+  text-align: left;
   width: 1px;
   white-space: nowrap;
+
+  :first-child {
+    display: inline-block;
+    width: calc(100% - 1em);
+  }
 }
 
 tr {

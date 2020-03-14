@@ -31,6 +31,9 @@ export default class UserSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
+  @Prop({ type: Boolean, default: false })
+  private isUseAll!: boolean;
+
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
@@ -53,7 +56,8 @@ export default class UserSelect extends Mixins<MultiMixin>(
 
     let userList = GameObjectManager.instance.userList;
     this.optionInfoList = userList.map(u => {
-      let text = u.data!.name;
+      const userTypeStr = getText(`label.${u.data!.type}`);
+      const text = `${u.data!.name}(${userTypeStr})`;
       return {
         key: u.id!,
         value: u.id!,
@@ -61,9 +65,17 @@ export default class UserSelect extends Mixins<MultiMixin>(
         disabled: false
       };
     });
+    if (this.isUseAll) {
+      this.optionInfoList.unshift({
+        key: "",
+        value: "",
+        text: getText("label.all"),
+        disabled: false
+      });
+    }
     this.optionInfoList.unshift({
-      key: "",
-      value: "",
+      key: "label",
+      value: "label",
       text: getText("type.user"),
       disabled: true
     });
