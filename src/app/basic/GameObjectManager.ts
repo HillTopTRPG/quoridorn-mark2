@@ -24,7 +24,11 @@ import {
   PropertySelectionStore,
   PropertyStore,
   TagNoteStore,
-  ActorStatusStore
+  ActorStatusStore,
+  CardMeta,
+  CardObject,
+  CardDeckBig,
+  CardDeckSmall
 } from "@/@types/gameObject";
 import {
   ClientRoomInfo,
@@ -110,6 +114,10 @@ export default class GameObjectManager {
     await sf.propertySelectionCC().getList(true, this.propertySelectionList);
     await sf.tagNoteCC().getList(true, this.tagNoteList);
     await sf.actorGroupCC().getList(true, this.actorGroupList);
+    await sf.cardMetaCC().getList(true, this.cardMetaList);
+    await sf.cardObjectCC().getList(true, this.cardObjectList);
+    await sf.cardDeckBigCC().getList(true, this.cardDeckBigList);
+    await sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList);
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
@@ -304,6 +312,10 @@ export default class GameObjectManager {
   >[] = [];
   public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
   public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
+  public readonly cardMetaList: StoreUseData<CardMeta>[] = [];
+  public readonly cardObjectList: StoreUseData<CardObject>[] = [];
+  public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
+  public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -598,6 +610,14 @@ export default class GameObjectManager {
         return this.tagNoteList;
       case "actor-group":
         return this.actorGroupList;
+      case "card-meta":
+        return this.cardMetaList;
+      case "card-object":
+        return this.cardObjectList;
+      case "card-deck-big":
+        return this.cardDeckBigList;
+      case "card-deck-small":
+        return this.cardDeckSmallList;
     }
     return null;
   }

@@ -1,0 +1,121 @@
+<template>
+  <div class="card-component" :class="isTurnOff ? 'back' : 'front'" ref="elm">
+    <div class="card">
+      <div class="face front-face" :style="frontStyle">
+        <div class="name" :style="{ height: cardMeta.nameHeight + 'px' }">
+          {{ cardMeta.name }}
+        </div>
+        <div class="text" :style="{ height: cardMeta.textHeight + 'px' }">
+          {{ cardMeta.text }}
+        </div>
+      </div>
+      <div class="face back-face" :style="backStyle"></div>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Prop } from "vue-property-decorator";
+import { Mixins } from "vue-mixin-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { CardMeta } from "@/@types/gameObject";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { StoreUseData } from "@/@types/store";
+
+@Component
+export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
+  @Prop({ type: Object, required: true })
+  private cardMeta!: StoreUseData<CardMeta>;
+
+  @Prop({ type: Boolean, required: true })
+  private isTurnOff!: boolean;
+
+  @LifeCycle
+  private mounted() {
+    this.elm.style.width = this.cardMeta.data!.width + "px";
+    this.elm.style.height = this.cardMeta.data!.height + "px";
+  }
+
+  @VueEvent
+  private get frontStyle() {
+    const cm = this.cardMeta.data!;
+    return {
+      backgroundImage: cm.frontImage,
+      backgroundColor: cm.frontBackgroundColor,
+      color: cm.fontColor,
+      padding: `${cm.padWidth}px ${cm.padHeight}px`,
+      borderRadius: `${cm.radius}px`,
+      width: `${cm.width}px`,
+      height: `${cm.height}px`
+    };
+  }
+
+  @VueEvent
+  private get backStyle() {
+    const cm = this.cardMeta.data!;
+    return {
+      backgroundImage: cm.backImage,
+      backgroundColor: cm.backBackgroundColor,
+      color: cm.fontColor,
+      borderRadius: `${cm.radius}px`,
+      width: `${cm.width}px`,
+      height: `${cm.height}px`
+    };
+  }
+
+  private get elm(): HTMLElement {
+    return this.$refs.elm as HTMLElement;
+  }
+}
+</script>
+
+<style scoped lang="scss">
+@import "../../../assets/common";
+
+.card-component {
+  @include flex-box(column, stretch, flex-start);
+  position: relative;
+}
+.card {
+  width: 100%;
+  height: 100%;
+  perspective: 20rem;
+}
+.face {
+  backface-visibility: hidden;
+  transition: all 0.5s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.front {
+  .front-face {
+    transform: rotateY(0deg);
+  }
+  .back-face {
+    transform: rotateY(180deg);
+  }
+}
+.back {
+  .front-face {
+    transform: rotateY(-180deg);
+  }
+  .back-face {
+    transform: rotateY(0deg);
+  }
+}
+.name {
+  @include inline-flex-box(row, flex-start, center);
+  overflow: hidden;
+}
+.text {
+  @include inline-flex-box(row, flex-start, flex-start);
+  overflow: hidden;
+}
+</style>

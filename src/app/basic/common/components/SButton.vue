@@ -3,7 +3,7 @@
     class="shortcut-button"
     :class="['icon-' + icon, disabled ? 'disabled' : undefined]"
     :tabindex="disabled ? undefined : '0'"
-    @click="$emit('click')"
+    @click.stop="$emit('click')"
     @keydown.space.stop="$emit('click')"
     @keydown.enter.stop="$emit('click')"
     @mouseenter="$emit('hover', true)"

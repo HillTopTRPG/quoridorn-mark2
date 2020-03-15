@@ -101,7 +101,11 @@ declare module "compare" {
 }
 
 declare module "mode" {
-  type ModeInfo = ModalModeInfo | CreateRoomModeInfo | ThrowParabolaModeInfo;
+  type ModeInfo =
+    | ModalModeInfo
+    | CreateRoomModeInfo
+    | ThrowParabolaModeInfo
+    | ViewCardDeckInfo;
 
   type ModalModeInfo = {
     type: "modal";
@@ -116,6 +120,14 @@ declare module "mode" {
   type ThrowParabolaModeInfo = {
     type: "throw-parabola";
     value: "on" | "off";
+  };
+
+  type ViewCardDeckInfo = {
+    type: "view-card-deck";
+    value: {
+      flag: "on" | "off";
+      cardDeckId: string;
+    };
   };
 }
 

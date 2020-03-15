@@ -201,6 +201,8 @@ label:
   has-data: データの有無
   view-type: 表示モード
   search-name-box: 名前検索欄
+  search: 検索
+  operation: 操作
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -343,6 +345,7 @@ chat-window:
     scene-list: シーン一覧
     add-actor: アクター追加
     player-box: プレイヤーボックス
+    card-deck-list: 山札一覧
   options:
     select-sender: 送信者の選択
     select-output-tab: 送信先タブの選択
@@ -400,3 +403,23 @@ player-box-window:
     delete: 削除
   dialog:
     delete-actor: "本当にアクター「$1」を削除しますか？\nこの操作は取り消せません。"
+
+card-deck-builder:
+  title: Quoridornカード山札ビルダー Ver.1.0.0a1
+  description: 部屋データに山札を1つ登録するための機能です。
+  message-list:
+    choose-base-deck: ベース山札の選択
+    choose-card: カードの選択・追加
+    confirm: 内容確認
+  header:
+    deck-set-preset: プリセット
+    deck-set-room: 部屋データ
+    card-list: カード一覧
+  options:
+    count-zero: 0枚
+    count-one: 1枚
+    count-two: 2枚
+    count-three: 3枚
+    count-four: 4枚
+    count-more: 5枚以上
+

@@ -1,4 +1,4 @@
-import { Address, Point } from "address";
+import { Address, Point, Rectangle } from "address";
 import { Texture } from "@/@types/room";
 
 type SceneObjectType =
@@ -132,4 +132,80 @@ type OtherTextViewInfo = {
   width: number;
   height: number;
   isFix: boolean;
+};
+
+// カード１枚のデータ
+// カード一覧で見せたくない場合はこいつのView権限
+type CardMeta = {
+  // cardDeckBigId は owner で管理
+  // cardDeckSmallId は ここでは不要
+  width: number;
+  height: number;
+  padWidth: number; // ふちの幅（横方向）
+  padHeight: number; // ふちの幅（縦方向）
+  radius: number; // 角の丸み
+  frontImage: string; // オモテ面の画像
+  frontBackgroundColor: string; // オモテ面の背景色
+  backImage: string; // ウラ面の画像
+  backBackgroundColor: string; // ウラ面の背景色
+  fontColor: string; // 文字色
+  name: string; // 名前
+  nameHeight: number; // 名前の表示高さ
+  text: string; // テキスト
+  textHeight: number; // テキストの表示高さ
+};
+
+// オブジェクトとして触れるカードのデータ
+// こいつのView権限はオモテ面を公開するかどうか。
+type CardObject = {
+  // actorId は owner で管理
+  cardMetaId: string; // カード情報への参照
+  gameCardDeckId: string; // 所属するデッキへの参照
+  smallCardDeckId: string; // 所属するデッキへの参照
+  mode: "field" | "hand" | "both"; // 管理方法
+  isTurnOff: boolean; // 伏せているかどうか
+  address: Address;
+};
+
+type CardDeckBig = {
+  name: string;
+};
+
+type CardDeckSmall = {
+  name: string;
+};
+
+type InputCardInfo = {
+  name?: string;
+  text?: string;
+  imagePath?: string;
+  backgroundColor?: string;
+  fontColor?: string;
+  style?: any; // プログラムで追加する
+};
+
+type CardYamlInfo = {
+  title: string;
+  basePath: string;
+  back: {
+    imagePath: string;
+    backgroundColor: string;
+  };
+  width: number;
+  height: number;
+  radius: number;
+  padWidth: number;
+  padHeight: number;
+  nameHeight: number;
+  textHeight: number;
+  source: {
+    author: string;
+    title: string;
+    refs: {
+      url: string;
+      author: string;
+      title: string;
+    }[];
+  };
+  cards: InputCardInfo[];
 };

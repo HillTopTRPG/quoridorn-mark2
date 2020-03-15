@@ -56,7 +56,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
-import { getSrc } from "@/app/core/Utility";
+import { getTextureStyle } from "@/app/core/Utility";
 
 @Component({
   components: {
@@ -153,9 +153,9 @@ export default class GameTable extends AddressCalcMixin {
     if (!this.isMounted || !scene) return;
     const margin = scene.margin;
     const background = scene.background;
-    await GameTable.setBackground(GameTable.mapCanvasBackElm, scene.texture);
-    await GameTable.setBackground(GameTable.backSceneElm, background.texture);
-    await GameTable.setBackground(GameTable.tableBackElm, margin.texture);
+    GameTable.setBackground(GameTable.mapCanvasBackElm, scene.texture);
+    GameTable.setBackground(GameTable.backSceneElm, background.texture);
+    GameTable.setBackground(GameTable.tableBackElm, margin.texture);
     GameTable.gridPaperElm.style.backgroundSize = `${scene.gridSize!}px ${scene.gridSize!}px`;
     GameTable.gridPaperElm.style.backgroundColor = margin.maskColor;
     GameTable.tableBackElm.style.filter = `blur(${margin.maskBlur}px)`;
@@ -185,26 +185,11 @@ export default class GameTable extends AddressCalcMixin {
     GameTable.gameTableElm.style.borderStyle = margin.border.style;
   }
 
-  private static async setBackground(elm: HTMLElement, info: Texture) {
-    let direction: string = "";
-    let backgroundColor: string = "transparent";
-    let backgroundImage: string = "none";
-    if (info.type === "color") {
-      backgroundColor = info.backgroundColor;
-    } else {
-      const imageData = await SocketFacade.instance
-        .imageDataCC()
-        .getData(info.imageId);
-      if (imageData && imageData.data) {
-        backgroundImage = `url("${getSrc(imageData.data.data)}")`;
-      }
-      if (info.direction === "horizontal") direction = "scale(-1, 1)";
-      if (info.direction === "vertical") direction = "scale(1, -1)";
-      if (info.direction === "180") direction = "rotate(180deg)";
-    }
-    elm.style.backgroundColor = backgroundColor;
-    elm.style.backgroundImage = backgroundImage;
-    elm.style.transform = direction;
+  private static setBackground(elm: HTMLElement, texture: Texture) {
+    const style = getTextureStyle(texture);
+    elm.style.transform = style.transform;
+    elm.style.backgroundColor = style.backgroundColor;
+    elm.style.backgroundImage = style.backgroundImage;
   }
 
   @Watch("isMounted")

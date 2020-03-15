@@ -39,7 +39,11 @@ import {
   PropertySelectionStore,
   PropertyStore,
   TagNoteStore,
-  ActorStatusStore
+  ActorStatusStore,
+  CardMeta,
+  CardObject,
+  CardDeckBig,
+  CardDeckSmall
 } from "@/@types/gameObject";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -113,12 +117,11 @@ export function permissionCheck(
             if (actorRef.type === "user")
               return SocketFacade.instance.userId === actorRef.id;
 
-            GameObjectManager.instance.actorList.filter(
+            return !!GameObjectManager.instance.actorList.filter(
               a =>
                 a.id === actorRef.id ||
                 a.owner === GameObjectManager.instance.mySelfUserId
-            );
-            return SocketFacade.instance.characterId === actorRef.id;
+            )[0];
           }) > -1
         );
       }
@@ -153,7 +156,6 @@ export default class SocketFacade {
   } = {};
   private __roomCollectionPrefix: string | null = null;
   private __userId: string | null = null;
-  private __characterId: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
   private __interoperability: Interoperability[] | null = null;
   private targetServer: TargetVersion = {
@@ -302,14 +304,6 @@ export default class SocketFacade {
 
   public get userId(): string | null {
     return this.__userId;
-  }
-
-  public set characterId(val: string | null) {
-    this.__characterId = val;
-  }
-
-  public get characterId(): string | null {
-    return this.__characterId;
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
@@ -543,6 +537,22 @@ export default class SocketFacade {
     return this.roomCollectionController<ActorGroup>("actor-group-list");
   }
 
+  public cardMetaCC(): NekostoreCollectionController<CardMeta> {
+    return this.roomCollectionController<CardMeta>("card-meta-list");
+  }
+
+  public cardObjectCC(): NekostoreCollectionController<CardObject> {
+    return this.roomCollectionController<CardObject>("card-object-list");
+  }
+
+  public cardDeckBigCC(): NekostoreCollectionController<CardDeckBig> {
+    return this.roomCollectionController<CardDeckBig>("card-deck-big-list");
+  }
+
+  public cardDeckSmallCC(): NekostoreCollectionController<CardDeckSmall> {
+    return this.roomCollectionController<CardDeckSmall>("card-deck-small-list");
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
       case "chat":
@@ -585,6 +595,14 @@ export default class SocketFacade {
         return this.tagNoteCC();
       case "role-group-list":
         return this.actorGroupCC();
+      case "card-meta":
+        return this.cardMetaCC();
+      case "card-object":
+        return this.cardObjectCC();
+      case "card-deck-big":
+        return this.cardDeckBigCC();
+      case "card-deck-small":
+        return this.cardDeckSmallCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

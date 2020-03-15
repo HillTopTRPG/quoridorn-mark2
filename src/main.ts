@@ -39,6 +39,7 @@ import ChatTabEditWindow from "@/app/basic/chat/tab/ChatTabEditWindow.vue";
 import ActorAddWindow from "@/app/basic/object/actor/ActorAddWindow.vue";
 import ActorEditWindow from "@/app/basic/object/actor/ActorEditWindow.vue";
 import PlayerBoxWindow from "@/app/basic/object/actor/PlayerBoxWindow.vue";
+import CardDeckListWindow from "@/app/basic/card/CardDeckListWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -98,6 +99,7 @@ async function main(): Promise<void> {
   Vue.component("actor-add-window", ActorAddWindow);
   Vue.component("actor-edit-window", ActorEditWindow);
   Vue.component("player-box-window", PlayerBoxWindow);
+  Vue.component("card-deck-list-window", CardDeckListWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

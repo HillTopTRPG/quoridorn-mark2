@@ -21,12 +21,12 @@
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
-    <!--
-    -->
     <!-- 放物線シミュレータ (z-index: 7) -->
     <throw-parabola-simulator v-if="throwParabola" />
     <!-- 放物線シミュレータ (z-index: 8) -->
     <throw-parabola-container />
+    <!-- カードデッキビルダー (z-index: 9) -->
+    <card-deck-builder v-if="cardView" :cardDeckId="cardDeckId" />
     <!-- お部屋作成中 (z-index: 10) -->
     <div id="loading-create-room" v-if="isCreatingRoomMode">
       <div class="message">お部屋を作成しています！</div>
@@ -77,9 +77,11 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
 import { disableBodyScroll } from "body-scroll-lock";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
 
 @Component({
   components: {
+    CardDeckBuilder,
     ThrowParabolaContainer,
     ThrowParabolaSimulator,
     OtherTextFrame,
@@ -101,6 +103,8 @@ export default class App extends Vue {
 
   private otherTextViewInfo: OtherTextViewInfo | null = null;
   private throwParabola: boolean = false;
+  private cardView: boolean = false;
+  private cardDeckId: string = "";
 
   private cutInList = GameObjectManager.instance.cutInList;
 
@@ -328,14 +332,29 @@ export default class App extends Vue {
     }
 
     if (event.key === "Shift" && event.ctrlKey) {
+      // TODO カードビルダー
+      window.console.log("カードビルダー起動！！");
       await TaskManager.instance.ignition<ModeInfo, never>({
         type: "mode-change",
         owner: "Quoridorn",
         value: {
-          type: "throw-parabola",
-          value: this.throwParabola ? "off" : "on"
+          type: "view-card-deck",
+          value: {
+            flag: "on",
+            cardDeckId: ""
+          }
         }
       });
+      // TODO ブーケトス機能
+      // const value: "on" | "off" = this.throwParabola ? "off" : "on";
+      // await TaskManager.instance.ignition<ModeInfo, never>({
+      //   type: "mode-change",
+      //   owner: "Quoridorn",
+      //   value: {
+      //     type: "throw-parabola",
+      //     value
+      //   }
+      // });
       return;
     }
     // window.console.log(event.key);
@@ -473,18 +492,27 @@ export default class App extends Vue {
   private async modeChangeFinished(
     task: Task<ModeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    const type: string = task.value!.type;
-    const value: string = task.value!.value;
-    if (type === "create-room") {
+    const taskValue = task.value!;
+    if (taskValue.type === "create-room") {
+      const value: string = taskValue.value;
       this.isCreatingRoomMode = value === "on";
       task.resolve();
     }
-    if (type === "modal") {
+    if (taskValue.type === "modal") {
+      const value: string = taskValue.value;
       this.isModal = value === "on";
       task.resolve();
     }
-    if (type === "throw-parabola") {
+    if (taskValue.type === "throw-parabola") {
+      const value: string = taskValue.value;
       this.throwParabola = value === "on";
+      task.resolve();
+    }
+    if (taskValue.type === "view-card-deck") {
+      const flag: string = taskValue.value.flag;
+      const cardDeckId: string = taskValue.value.cardDeckId;
+      this.cardView = flag === "on";
+      this.cardDeckId = cardDeckId;
       task.resolve();
     }
   }
@@ -661,6 +689,10 @@ label {
 
 #throw-parabola-container {
   z-index: 8;
+}
+
+#card-deck-builder {
+  z-index: 9;
 }
 
 #loading-create-room {

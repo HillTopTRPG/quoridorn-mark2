@@ -1,11 +1,17 @@
 import { all, create } from "mathjs";
-import { ChatInfo, CustomDiceBotInfo, StandImageInfo } from "@/@types/room";
+import {
+  ChatInfo,
+  CustomDiceBotInfo,
+  StandImageInfo,
+  Texture
+} from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import urljoin from "url-join";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { StoreUseData } from "@/@types/store";
 
 const config = {};
 const math = create(all, config);
@@ -1294,4 +1300,44 @@ export async function sendChatLog(
       // bcdiceとして結果は取れなかった
     }
   }
+}
+
+export function getTextureStyle(texture: Texture) {
+  const style = {
+    transform: "",
+    backgroundColor: "transparent",
+    backgroundImage: "none"
+  };
+  if (texture.type === "color") {
+    style.backgroundColor = texture.backgroundColor;
+  } else {
+    const imageData = GameObjectManager.instance.imageList.filter(
+      i => i.id === texture.imageId
+    )[0];
+    if (imageData && imageData.data) {
+      style.backgroundImage = `url("${getSrc(imageData.data.data)}")`;
+    }
+    if (texture.direction === "horizontal") style.transform = "scale(-1, 1)";
+    if (texture.direction === "vertical") style.transform = "scale(1, -1)";
+    if (texture.direction === "180") style.transform = "rotate(180deg)";
+  }
+  return style;
+}
+
+export function createEmptyStoreUseData<T>(
+  id: string | null,
+  data: T
+): StoreUseData<T> {
+  return {
+    id,
+    order: -1,
+    exclusionOwner: null,
+    lastExclusionOwner: null,
+    owner: null,
+    data,
+    permission: null,
+    status: "added",
+    createTime: new Date(),
+    updateTime: null
+  };
 }

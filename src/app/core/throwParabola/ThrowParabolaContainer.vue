@@ -7,19 +7,20 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-mixin-decorator";
-import { Vue } from "vue-property-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import animations from "create-keyframe-animation";
 import { ThrowParabolaInfo } from "task-info";
 import { calcParabola } from "@/app/core/throwParabola/parabolaUtil";
 import { Point } from "address";
+import ComponentVue from "@/app/core/window/ComponentVue";
 const uuid = require("uuid");
 
 @Component
-export default class ThrowParabolaContainer extends Vue {
-  private readonly key = "ThrowParabolaSimulator";
+export default class ThrowParabolaContainer extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   private objList: ThrowParabolaInfo[] = [];
 
   @TaskProcessor("throw-parabola-finished")

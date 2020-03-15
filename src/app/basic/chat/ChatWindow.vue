@@ -84,7 +84,11 @@ import { Mixins } from "vue-mixin-decorator";
 import WindowVue from "@/app/core/window/WindowVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { conversion, sendChatLog } from "@/app/core/Utility";
+import {
+  conversion,
+  createEmptyStoreUseData,
+  sendChatLog
+} from "@/app/core/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   ChatInfo,
@@ -133,12 +137,12 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private chatTabList = GameObjectManager.instance.chatTabList;
   private outputTabList: StoreUseData<ChatTabInfo>[] = [];
   private isSecretList: StoreUseData<{ name: string }>[] = [
-    ChatWindow.createEmptyStoreUseData<{ name: string }>("false", {
+    createEmptyStoreUseData<{ name: string }>("false", {
       name: LanguageManager.instance.getText(
         "chat-window.input-info.non-secret"
       )
     }),
-    ChatWindow.createEmptyStoreUseData<{ name: string }>("true", {
+    createEmptyStoreUseData<{ name: string }>("true", {
       name: LanguageManager.instance.getText("chat-window.input-info.secret")
     })
   ];
@@ -675,31 +679,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     task.resolve();
   }
 
-  private static createEmptyStoreUseData<T>(
-    id: string | null,
-    data: T
-  ): StoreUseData<T> {
-    return {
-      id,
-      order: -1,
-      exclusionOwner: null,
-      lastExclusionOwner: null,
-      owner: null,
-      data,
-      permission: null,
-      status: "added",
-      createTime: new Date(),
-      updateTime: null
-    };
-  }
-
   @Watch("chatTabList", { immediate: true, deep: true })
   private updateOutputTabList() {
     const outputTabList = this.chatTabList.concat();
     outputTabList.splice(
       0,
       0,
-      ChatWindow.createEmptyStoreUseData<ChatTabInfo>(null, {
+      createEmptyStoreUseData<ChatTabInfo>(null, {
         name: this.selectedItemLabel,
         isSystem: true
       })
@@ -710,7 +696,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("chatFormatList", { immediate: true, deep: true })
   private updateChatFormatWrapList() {
     this.chatFormatWrapList = this.chatFormatList.map(cf =>
-      ChatWindow.createEmptyStoreUseData<{ name: string }>(cf.chatText, {
+      createEmptyStoreUseData<{ name: string }>(cf.chatText, {
         name: cf.label
       })
     );

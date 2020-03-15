@@ -1,17 +1,28 @@
 #=========#=========#=========#=========#=========#=========#=========#=========#
 - # カードセット名
-  name    : 花札
+  title     : 花札
   # index.htmlを基準とした相対URL
-  basePath: static/img/deck/hanahuda/
+  basePath  : static/img/deck/hanahuda/
   # 裏面の柄
-  back    : back.jpg
-  # カードサイズ
-  width   : 128
-  height  : 192
+  back      :
+    imagePath      : back.jpg
+    backgroundColor: "#ffffff"
+  # カードサイズ(px)
+  width     : 128
+  height    : 192
+  # カードのふちの幅(px)
+  padWidth  : 0
+  padHeight : 0
+  # 角の丸み(px)
+  radius    : 0
+  # カード名の表示高さ（非表示なら0）
+  nameHeight: 0
+  # カードテキストの表示高さ（非表示なら0）
+  textHeight: 0
   # 出典元情報
-  source  :
-    author: メタボルタ氏
-    title : 花札＠どどんとふ
+  source    :
+    author  : メタボルタ氏
+    title   : 花札＠どどんとふ
     # 個別情報
     # url   : リンク先（必須）
     # author: 作者（省略可）
@@ -20,113 +31,129 @@
     - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52572048
     - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52619352
   # カード情報
-  # file  : [basePath + file]が参照URLとなる
-  cards   :
-  - file: 1_1_1.jpg
-  - file: 1_1_2.jpg
-  - file: 1_5.jpg
-  - file: 1_20.jpg
-  - file: 2_1_1.jpg
-  - file: 2_1_2.jpg
-  - file: 2_5.jpg
-  - file: 2_10.jpg
-  - file: 3_1_1.jpg
-  - file: 3_1_2.jpg
-  - file: 3_5.jpg
-  - file: 3_20.jpg
-  - file: 4_1_1.jpg
-  - file: 4_1_2.jpg
-  - file: 4_5.jpg
-  - file: 4_10.jpg
-  - file: 5_1_1.jpg
-  - file: 5_1_2.jpg
-  - file: 5_5.jpg
-  - file: 5_10.jpg
-  - file: 6_1_1.jpg
-  - file: 6_1_2.jpg
-  - file: 6_5.jpg
-  - file: 6_10.jpg
-  - file: 7_1_1.jpg
-  - file: 7_1_2.jpg
-  - file: 7_5.jpg
-  - file: 7_10.jpg
-  - file: 8_1_1.jpg
-  - file: 8_1_2.jpg
-  - file: 8_10.jpg
-  - file: 8_20.jpg
-  - file: 9_1_1.jpg
-  - file: 9_1_2.jpg
-  - file: 9_5.jpg
-  - file: 9_10.jpg
-  - file: 10_1_1.jpg
-  - file: 10_1_2.jpg
-  - file: 10_5.jpg
-  - file: 10_10.jpg
-  - file: 11_1.jpg
-  - file: 11_5.jpg
-  - file: 11_10.jpg
-  - file: 11_20.jpg
-  - file: 12_1_1.jpg
-  - file: 12_1_2.jpg
-  - file: 12_1_3.jpg
-  - file: 12_20.jpg
-
-#=========#=========#=========#=========#=========#=========#=========#=========#
-- # カードセット名
-  name    : タロット
-  # index.htmlを基準とした相対URL
-  basePath: static/img/deck/tarot/
-  # 裏面の柄
-  back    : back.jpg
-  # カードサイズ
-  width   : 130
-  height  : 240
-  # 出典元情報
-  source  :
-    author: Sigo Paolini氏
-    title : Napo Tarot
-    # 個別情報
-    # url   : リンク先（必須）
-    # author: 作者（省略可）
-    # title : 作品名（省略可）
-    refs:
-    - url: https://www.flickr.com/photos/thegreathorsecigar/sets/72157634257174286
-  # カード情報
-  # file  : [basePath + file]が参照URLとなる
+  # name           : カード名前
+  # text           : カードテキスト
+  # imagePath      : [basePath + imagePath]が参照URLとなる
+  # backgroundColor: 背景色（デフォルトは#ffffff）
+  # fontColor      : フォント色（デフォルトは#000000）
   cards:
-  - file: 0.Fool.jpg
-  - file: 1.Magician.jpg
-  - file: 2.Priestess.jpg
-  - file: 3.Empress.jpg
-  - file: 4.Emperor.jpg
-  - file: 5.Pope.jpg
-  - file: 6.Lovers.jpg
-  - file: 7.Chariot.jpg
-  - file: 8.Fortitude.jpg
-  - file: 9.Hermit.jpg
-  - file: 10.Wheel.jpg
-  - file: 11.Justice.jpg
-  - file: 12.HangedMan.jpg
-  - file: 13.Death.jpg
-  - file: 14.Temperance.jpg
-  - file: 15.Devil.jpg
-  - file: 16.Tower.jpg
-  - file: 17.Star.jpg
-  - file: 18.Moon.jpg
-  - file: 19.Sun.jpg
-  - file: 20.Judgement.jpg
-  - file: 21.World.png
+  - imagePath: 1_1_1.jpg
+    name: 松／カス(1)
+  - imagePath: 1_1_2.jpg
+    name: 松／カス(2)
+  - imagePath: 1_5.jpg
+    name: 松／短冊
+  - imagePath: 1_20.jpg
+    name: 松／光
+  - imagePath: 2_1_1.jpg
+    name: 梅／カス(1)
+  - imagePath: 2_1_2.jpg
+    name: 梅／カス(1)
+  - imagePath: 2_5.jpg
+    name: 梅／短冊
+  - imagePath: 2_10.jpg
+    name: 梅／タネ
+  - imagePath: 3_1_1.jpg
+    name: 桜／カス(1)
+  - imagePath: 3_1_2.jpg
+    name: 桜／カス(2)
+  - imagePath: 3_5.jpg
+    name: 桜／短冊
+  - imagePath: 3_20.jpg
+    name: 桜／光
+  - imagePath: 4_1_1.jpg
+    name: 藤／カス(1)
+  - imagePath: 4_1_2.jpg
+    name: 藤／カス(2)
+  - imagePath: 4_5.jpg
+    name: 藤／短冊
+  - imagePath: 4_10.jpg
+    name: 藤／タネ
+  - imagePath: 5_1_1.jpg
+    name: 菖蒲／カス(1)
+  - imagePath: 5_1_2.jpg
+    name: 菖蒲／カス(2)
+  - imagePath: 5_5.jpg
+    name: 菖蒲／短冊
+  - imagePath: 5_10.jpg
+    name: 菖蒲／タネ
+  - imagePath: 6_1_1.jpg
+    name: 牡丹／カス(1)
+  - imagePath: 6_1_2.jpg
+    name: 牡丹／カス(2)
+  - imagePath: 6_5.jpg
+    name: 牡丹／短冊
+  - imagePath: 6_10.jpg
+    name: 牡丹／タネ
+  - imagePath: 7_1_1.jpg
+    name: 萩／カス(1)
+  - imagePath: 7_1_2.jpg
+    name: 萩／カス(2)
+  - imagePath: 7_5.jpg
+    name: 萩／短冊
+  - imagePath: 7_10.jpg
+    name: 萩／タネ
+  - imagePath: 8_1_1.jpg
+    name: 芒／カス(1)
+  - imagePath: 8_1_2.jpg
+    name: 芒／カス(2)
+  - imagePath: 8_10.jpg
+    name: 芒／短冊
+  - imagePath: 8_20.jpg
+    name: 芒／光
+  - imagePath: 9_1_1.jpg
+    name: 菊／カス(1)
+  - imagePath: 9_1_2.jpg
+    name: 菊／カス(2)
+  - imagePath: 9_5.jpg
+    name: 菊／短冊
+  - imagePath: 9_10.jpg
+    name: 菊／タネ
+  - imagePath: 10_1_1.jpg
+    name: 紅葉／カス(1)
+  - imagePath: 10_1_2.jpg
+    name: 紅葉／カス(2)
+  - imagePath: 10_5.jpg
+    name: 紅葉／短冊
+  - imagePath: 10_10.jpg
+    name: 紅葉／タネ
+  - imagePath: 11_1.jpg
+    name: 柳／カス
+  - imagePath: 11_5.jpg
+    name: 柳／短冊
+  - imagePath: 11_10.jpg
+    name: 柳／タネ
+  - imagePath: 11_20.jpg
+    name: 柳／光
+  - imagePath: 12_1_1.jpg
+    name: 桐／カス(1)
+  - imagePath: 12_1_2.jpg
+    name: 桐／カス(2)
+  - imagePath: 12_1_3.jpg
+    name: 桐／カス(3)
+  - imagePath: 12_20.jpg
+    name: 桐／光
 
 #=========#=========#=========#=========#=========#=========#=========#=========#
 - # カードセット名
-  name    : トランプ
+  title     : トランプ
   # index.htmlを基準とした相対URL
-  basePath: static/img/deck/cards/
+  basePath  : static/img/deck/cards/
   # 裏面の柄
-  back    : back.jpg
-  # カードサイズ
-  width   : 128
-  height  : 192
+  back      :
+    imagePath      : back.jpg
+    backgroundColor: "#ffffff"  # カードサイズ
+  width     : 128
+  height    : 192
+  # カードのふちの幅(px)
+  padWidth  : 0
+  padHeight : 0
+  # 角の丸み(px)
+  radius    : 10
+  # カード名の表示高さ（非表示なら0）
+  nameHeight: 0
+  # カードテキストの表示高さ（非表示なら0）
+  textHeight: 0
   # 出典元情報
   source  :
     author: Wikipedia Commons
@@ -144,59 +171,117 @@
     - url  : https://commons.wikimedia.org/wiki/File:Carta_Francese_retro_Rosso.jpg
       title: Carta Francese retro Rosso
   # カード情報
-  # file  : [basePath + file]が参照URLとなる
+  # name           : カード名前
+  # text           : カードテキスト
+  # imagePath      : [basePath + imagePath]が参照URLとなる
+  # backgroundColor: 背景色（デフォルトは#ffffff）
+  # fontColor      : フォント色（デフォルトは#000000）
   cards:
-    - file: 1_clubs.png
-    - file: 1_diamonds.png
-    - file: 1_hearts.png
-    - file: 1_spades.png
-    - file: 2_clubs.png
-    - file: 2_diamonds.png
-    - file: 2_hearts.png
-    - file: 2_spades.png
-    - file: 3_clubs.png
-    - file: 3_diamonds.png
-    - file: 3_hearts.png
-    - file: 3_spades.png
-    - file: 4_clubs.png
-    - file: 4_diamonds.png
-    - file: 4_hearts.png
-    - file: 4_spades.png
-    - file: 5_clubs.png
-    - file: 5_diamonds.png
-    - file: 5_hearts.png
-    - file: 5_spades.png
-    - file: 6_clubs.png
-    - file: 6_diamonds.png
-    - file: 6_hearts.png
-    - file: 6_spades.png
-    - file: 7_clubs.png
-    - file: 7_diamonds.png
-    - file: 7_hearts.png
-    - file: 7_spades.png
-    - file: 8_clubs.png
-    - file: 8_diamonds.png
-    - file: 8_hearts.png
-    - file: 8_spades.png
-    - file: 9_clubs.png
-    - file: 9_diamonds.png
-    - file: 9_hearts.png
-    - file: 9_spades.png
-    - file: 10_clubs.png
-    - file: 10_diamonds.png
-    - file: 10_hearts.png
-    - file: 10_spades.png
-    - file: 11_clubs.png
-    - file: 11_diamonds.png
-    - file: 11_hearts.png
-    - file: 11_spades.png
-    - file: 12_clubs.png
-    - file: 12_diamonds.png
-    - file: 12_hearts.png
-    - file: 12_spades.png
-    - file: 13_clubs.png
-    - file: 13_diamonds.png
-    - file: 13_hearts.png
-    - file: 13_spades.png
-    - file: Joker_1.png
-    - file: Joker_2.png
+    - imagePath: 1_clubs.png
+      name: クラブのA
+    - imagePath: 1_diamonds.png
+      name: ダイヤのA
+    - imagePath: 1_hearts.png
+      name: ハートのA
+    - imagePath: 1_spades.png
+      name: スペードのA
+    - imagePath: 2_clubs.png
+      name: クラブの2
+    - imagePath: 2_diamonds.png
+      name: ダイヤの2
+    - imagePath: 2_hearts.png
+      name: ハートの2
+    - imagePath: 2_spades.png
+      name: スペードの2
+    - imagePath: 3_clubs.png
+      name: クラブの3
+    - imagePath: 3_diamonds.png
+      name: ダイヤの3
+    - imagePath: 3_hearts.png
+      name: ハートの3
+    - imagePath: 3_spades.png
+      name: スペードの3
+    - imagePath: 4_clubs.png
+      name: クラブの4
+    - imagePath: 4_diamonds.png
+      name: ダイヤの4
+    - imagePath: 4_hearts.png
+      name: ハートの4
+    - imagePath: 4_spades.png
+      name: スペードの4
+    - imagePath: 5_clubs.png
+      name: クラブの5
+    - imagePath: 5_diamonds.png
+      name: ダイヤの5
+    - imagePath: 5_hearts.png
+      name: ハートの5
+    - imagePath: 5_spades.png
+      name: スペードの5
+    - imagePath: 6_clubs.png
+      name: クラブの6
+    - imagePath: 6_diamonds.png
+      name: ダイヤの6
+    - imagePath: 6_hearts.png
+      name: ハートの6
+    - imagePath: 6_spades.png
+      name: スペードの6
+    - imagePath: 7_clubs.png
+      name: クラブの7
+    - imagePath: 7_diamonds.png
+      name: ダイヤの7
+    - imagePath: 7_hearts.png
+      name: ハートの7
+    - imagePath: 7_spades.png
+      name: スペードの7
+    - imagePath: 8_clubs.png
+      name: クラブの8
+    - imagePath: 8_diamonds.png
+      name: ダイヤの8
+    - imagePath: 8_hearts.png
+      name: ハートの8
+    - imagePath: 8_spades.png
+      name: スペードの8
+    - imagePath: 9_clubs.png
+      name: クラブの9
+    - imagePath: 9_diamonds.png
+      name: ダイヤの9
+    - imagePath: 9_hearts.png
+      name: ハートの9
+    - imagePath: 9_spades.png
+      name: スペードの9
+    - imagePath: 10_clubs.png
+      name: クラブの10
+    - imagePath: 10_diamonds.png
+      name: ダイヤの10
+    - imagePath: 10_hearts.png
+      name: ハートの10
+    - imagePath: 10_spades.png
+      name: スペードの10
+    - imagePath: 11_clubs.png
+      name: クラブのジャック
+    - imagePath: 11_diamonds.png
+      name: ダイヤのジャック
+    - imagePath: 11_hearts.png
+      name: ハートのジャック
+    - imagePath: 11_spades.png
+      name: スペードのジャック
+    - imagePath: 12_clubs.png
+      name: クラブのクイーン
+    - imagePath: 12_diamonds.png
+      name: ダイヤのクイーン
+    - imagePath: 12_hearts.png
+      name: ハートのクイーン
+    - imagePath: 12_spades.png
+      name: スペードのクイーン
+    - imagePath: 13_clubs.png
+      name: クラブのキング
+    - imagePath: 13_diamonds.png
+      name: ダイヤのキング
+    - imagePath: 13_hearts.png
+      name: ハートのキング
+    - imagePath: 13_spades.png
+      name: スペードのキング
+    - imagePath: Joker_1.png
+      name: ジョーカー(1)
+    - imagePath: Joker_2.png
+      name: ジョーカー(2)
