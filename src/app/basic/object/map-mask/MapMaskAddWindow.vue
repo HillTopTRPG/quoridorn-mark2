@@ -13,13 +13,13 @@
       :height.sync="height"
       :layerId.sync="layerId"
       @drag-start="dragStart"
+      @drag-end="dragEnd"
     />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { parseColor } from "@/app/core/Utility";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { AddObjectInfo } from "@/@types/data";
@@ -30,6 +30,9 @@ import WindowVue from "@/app/core/window/WindowVue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import MapMaskInfoForm from "@/app/basic/object/map-mask/MapMaskInfoForm.vue";
+import { parseColor } from "@/app/core/utility/ColorUtility";
+import TaskManager from "@/app/core/task/TaskManager";
+import { ModeInfo } from "mode";
 
 @Component({
   components: {
@@ -61,9 +64,29 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private dragStart(event: DragEvent) {
+  private async dragStart(event: DragEvent) {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "drop-piece",
+        value: "on" as "on"
+      }
+    });
     event.dataTransfer!.setData("dropType", "map-mask");
     event.dataTransfer!.setData("dropWindow", this.key);
+  }
+
+  @VueEvent
+  private async dragEnd() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "drop-piece",
+        value: "off" as "off"
+      }
+    });
   }
 
   @TaskProcessor("added-object-finished")

@@ -4,14 +4,16 @@
       <label v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <chat-color-type-select v-model="typeVolatile" :readonly="readonly" />
-      <color-picker-component
-        :key="key"
-        :disabled="disabled"
-        :readonly="readonly"
-        v-model="colorVolatile"
-        :use-alpha="false"
-      />
+      <div class="wrap">
+        <chat-color-type-select v-model="typeVolatile" :readonly="readonly" />
+        <color-picker-component
+          :key="key"
+          :disabled="disabled"
+          :readonly="readonly"
+          v-model="colorVolatile"
+          :use-alpha="false"
+        />
+      </div>
     </td>
   </tr>
 </template>
@@ -65,9 +67,16 @@ export default class TrChatColorInputComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
+@import "../../../../assets/common";
+
 .tr-chat-color-input-component {
   display: contents;
 }
+
+.wrap {
+  @include inline-flex-box(row, flex-start, center, wrap);
+}
+
 th,
 td {
   padding: 0;

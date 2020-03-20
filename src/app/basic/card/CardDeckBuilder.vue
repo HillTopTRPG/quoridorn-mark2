@@ -86,16 +86,17 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Prop } from "vue-property-decorator";
 import {
+  CardDeckBig,
   CardMeta,
   CardYamlInfo,
   InputCardInfo,
   OtherTextViewInfo
 } from "@/@types/gameObject";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { loadYaml } from "@/app/core/File";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
-import { createEmptyStoreUseData, getSrc } from "@/app/core/Utility";
+import { createEmptyStoreUseData, getSrc } from "@/app/core/utility/Utility";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import urljoin from "url-join";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -109,8 +110,7 @@ import TextFrame from "@/app/basic/card/TextFrame.vue";
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
 type DeckInfo = {
-  id: string;
-  title: string;
+  cardDeckBig: StoreUseData<CardDeckBig>;
   cardMetaList: StoreUseData<CardMeta>[];
 };
 
@@ -146,7 +146,10 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     this.presetDeckList
       .concat(this.dbDeckList)
       .filter(
-        deck => this.selectedDeckIdList.findIndex(idx => idx === deck.id) > -1
+        deck =>
+          this.selectedDeckIdList.findIndex(
+            idx => idx === deck.cardDeckBig.id
+          ) > -1
       )
       .forEach(deck => {
         resultList.push(...deck.cardMetaList);
@@ -161,20 +164,19 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   @LifeCycle
   private async created() {
     // DBデッキリストを参照
-    this.cardDeckBigList.forEach(deck => {
-      const id = deck.id!;
-      const title = deck.data!.name;
+    this.cardDeckBigList.forEach(cardDeckBig => {
       const cardMetaList: StoreUseData<CardMeta>[] = this.cardMetaList.filter(
-        cm => cm.owner === deck.id
+        cm => cm.owner === cardDeckBig.id
       );
-      this.dbDeckList.push({ id, title, cardMetaList });
+      this.dbDeckList.push({ cardDeckBig, cardMetaList });
     });
 
     // プリセットデッキの読み込み
-    (await loadYaml(cardDeckYamlPath)).forEach(
+    (await loadYaml<CardYamlInfo[]>(cardDeckYamlPath)).forEach(
       (presetDeck: CardYamlInfo, deckIdx: number) => {
-        const title = presetDeck.title;
-        const id = `preset-deck-${title}-${deckIdx}`;
+        const name = presetDeck.title;
+        const id = `preset-deck-${name}-${deckIdx}`;
+        const cardDeckBig = createEmptyStoreUseData(id, { name });
         const cardMetaList: StoreUseData<CardMeta>[] = presetDeck.cards.map(
           (c: InputCardInfo, cardIdx: number) => {
             const cardId = `preset-card-${deckIdx}-${cardIdx}`;
@@ -203,8 +205,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
             return createEmptyStoreUseData(cardId, cardMeta);
           }
         );
-        this.presetDeckList.push({ id, title, cardMetaList });
-        window.console.log(this.presetDeckList.concat());
+        this.presetDeckList.push({ cardDeckBig, cardMetaList });
       }
     );
   }

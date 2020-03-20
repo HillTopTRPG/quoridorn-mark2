@@ -49,9 +49,9 @@ import PermissionTypeSelect from "@/app/basic/common/components/select/Permissio
 import PermissionNodeTypeSelect from "@/app/basic/common/components/select/PermissionNodeTypeSelect.vue";
 import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { listToEmpty } from "@/app/core/Utility";
 import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {

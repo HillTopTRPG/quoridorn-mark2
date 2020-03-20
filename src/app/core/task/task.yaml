@@ -52,6 +52,7 @@
     - stand-by-return
     - tab-move
     - row-select
+    - drop-piece
 
 - taskAttribute:
     isIgniteWithParam: false

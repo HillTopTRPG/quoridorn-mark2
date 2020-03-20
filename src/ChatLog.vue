@@ -147,7 +147,7 @@ import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewerOrg.vue";
 import { Watch } from "vue-property-decorator";
 import ImportTypeRadio from "@/app/basic/common/components/radio/ImportTypeRadio.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { saveJson, saveHTML, saveText } from "@/app/core/Utility";
+import { saveJson, saveHTML, saveText } from "@/app/core/utility/FileUtility";
 import moment from "moment";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 

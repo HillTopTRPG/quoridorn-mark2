@@ -58,11 +58,8 @@ export default class PlayerBoxViewTypeRadio extends Mixins<ComponentVue>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`type.${o.value}`);
+      o.text = this.$t(`type.${o.value}`)!.toString();
       o.key = o.value;
     });
   }

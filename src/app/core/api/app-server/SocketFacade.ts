@@ -16,7 +16,7 @@ import {
   SendDataRequest,
   ServerTestResult
 } from "@/@types/socket";
-import { loadYaml } from "@/app/core/File";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 import {
   SceneAndLayer,
   SceneLayer,

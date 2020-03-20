@@ -45,13 +45,13 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { parseColor } from "../Utility";
-import LifeCycle from "../decorator/LifeCycle";
-import VueEvent from "../decorator/VueEvent";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { parseColor } from "@/app/core/utility/ColorUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { BaseInput, CtrlButton }

@@ -15,6 +15,7 @@
       :backgroundSize.sync="backgroundSize"
       :layerId.sync="layerId"
       @drag-start="dragStart"
+      @drag-end="dragEnd"
     />
   </div>
 </template>
@@ -32,6 +33,8 @@ import WindowVue from "@/app/core/window/WindowVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskManager from "@/app/core/task/TaskManager";
+import { ModeInfo } from "mode";
 
 @Component({
   components: {
@@ -72,9 +75,29 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private dragStart(event: DragEvent) {
+  private async dragStart(event: DragEvent) {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "drop-piece",
+        value: "on" as "on"
+      }
+    });
     event.dataTransfer!.setData("dropType", "chit");
     event.dataTransfer!.setData("dropWindow", this.key);
+  }
+
+  @VueEvent
+  private async dragEnd(event: DragEvent) {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "drop-piece",
+        value: "off" as "off"
+      }
+    });
   }
 
   @TaskProcessor("added-object-finished")

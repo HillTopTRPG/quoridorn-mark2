@@ -491,11 +491,8 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private createTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.tabList.forEach(t => {
-      t.text = getText(`label.${t.target}`);
+      t.text = this.$t(`label.${t.target}`)!.toString();
     });
   }
 

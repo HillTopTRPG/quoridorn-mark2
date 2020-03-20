@@ -53,11 +53,8 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.key}`);
+      o.text = this.$t(`label.${o.key}`)!.toString();
       if (o.value === "VISITOR" && !this.visitable) o.disabled = true;
     });
   }

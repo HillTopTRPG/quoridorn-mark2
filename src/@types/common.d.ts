@@ -58,6 +58,10 @@ declare module "window-info" {
         targetId: null;
         data: CutInDeclareInfo;
       };
+
+  type MediaUploadInfo = {
+    fileList: File[];
+  };
 }
 
 declare module "compare" {
@@ -105,7 +109,8 @@ declare module "mode" {
     | ModalModeInfo
     | CreateRoomModeInfo
     | ThrowParabolaModeInfo
-    | ViewCardDeckInfo;
+    | ViewCardDeckInfo
+    | DropPieceModeInfo;
 
   type ModalModeInfo = {
     type: "modal";
@@ -128,6 +133,11 @@ declare module "mode" {
       flag: "on" | "off";
       cardDeckId: string;
     };
+  };
+
+  type DropPieceModeInfo = {
+    type: "drop-piece";
+    value: "on" | "off";
   };
 }
 
@@ -159,6 +169,15 @@ declare module "task-info" {
   type RowSelectInfo = {
     windowKey: string;
     addIndex: 1 | -1;
+  };
+
+  type DropPieceInfo = {
+    type: string;
+    dropWindow: string;
+    offsetX: number;
+    offsetY: number;
+    pageX: number;
+    pageY: number;
   };
 }
 

@@ -25,7 +25,7 @@ import {
   createPoint,
   createRectangle,
   createSize
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 
 @Component({
   components: { OtherTextComponent }

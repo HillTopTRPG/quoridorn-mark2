@@ -1,15 +1,42 @@
 import { Address, Anchor, Matrix, Point, Rectangle, Size } from "address";
 import { WindowSize } from "@/@types/window";
+import { getCssPxNum } from "@/app/core/css/Css";
 import WindowManager from "@/app/core/window/WindowManager";
-import { getCssPxNum } from "@/app/core/Css";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 export function createPoint(x: number, y: number): Point {
   return { x, y };
 }
 
+export function createSize(width: number, height: number): Size {
+  return { width, height };
+}
+
+export function createRectangle(
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): Rectangle {
+  return {
+    ...createPoint(x, y),
+    ...createSize(width, height)
+  };
+}
+
 export function createMatrix(column: number, row: number): Matrix {
   return { column, row };
+}
+
+export function createAddress(
+  x: number,
+  y: number,
+  column: number,
+  row: number
+): Address {
+  return {
+    ...createPoint(x, y),
+    ...createMatrix(column, row)
+  };
 }
 
 export function copyAddress(from: Address, to: Address) {
@@ -17,10 +44,6 @@ export function copyAddress(from: Address, to: Address) {
   to.y = from.y;
   to.column = from.column;
   to.row = from.row;
-}
-
-export function createSize(width: number, height: number): Size {
-  return { width, height };
 }
 
 export function getWindowSize(s: WindowSize, elm?: HTMLElement): Size {
@@ -43,18 +66,6 @@ export function getWindowSize(s: WindowSize, elm?: HTMLElement): Size {
   };
 }
 
-export function createRectangle(
-  x: number,
-  y: number,
-  width: number,
-  height: number
-): Rectangle {
-  return {
-    ...createPoint(x, y),
-    ...createSize(width, height)
-  };
-}
-
 export function isContain(r: Rectangle, p: Point) {
   if (!r || !p) return false;
   if (p.x < r.x) return false;
@@ -63,8 +74,42 @@ export function isContain(r: Rectangle, p: Point) {
   return p.y <= r.y + r.height;
 }
 
-export function ps(p: Point): string {
-  return `(${Math.floor(p.x)}, ${Math.floor(p.y)})`;
+function p2s(p: Point): string {
+  const x = Math.floor(p.x);
+  const y = Math.floor(p.y);
+  return `r(${x}, ${y})`;
+}
+
+function m2s(m: Matrix): string {
+  const r = m.row;
+  const c = m.column;
+  return `m(r: ${r}, c: ${c})`;
+}
+
+function s2s(s: Size): string {
+  const w = Math.floor(s.width);
+  const h = Math.floor(s.height);
+  return `s(${w}, ${h})`;
+}
+
+function r2s(r: Rectangle): string {
+  const x = Math.floor(r.x);
+  const y = Math.floor(r.y);
+  const w = Math.floor(r.width);
+  const h = Math.floor(r.height);
+  return `r(${x}, ${y}, ${w}, ${h})`;
+}
+
+function a2s(a: Address): string {
+  const ps = p2s(a);
+  const ms = m2s(a);
+  return `a(${ps}, ${ms})`;
+}
+
+export function c2s(v: Point | Rectangle | Size | Address): string {
+  if (!v) return "Nothing.";
+  if ("width" in v) return "x" in v ? r2s(v) : s2s(v);
+  return "row" in v ? a2s(v) : p2s(v);
 }
 
 export function getQuerySelectorRectangle(query: string): Rectangle | null {
@@ -80,17 +125,6 @@ export function getEventPoint(event: MouseEvent | TouchEvent): Point {
   return "touches" in event
     ? createPoint(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
     : createPoint(event.pageX, event.pageY);
-}
-
-export function format(v: Point | Rectangle | Size): string {
-  if (!v) return "Nothing.";
-  if ("width" in v) {
-    if ("x" in v) {
-      return `(${v.x}, ${v.y}) {${v.width} * ${v.height}}`;
-    }
-    return `{${v.width} * ${v.height}}`;
-  }
-  return `(${v.x}, ${v.y})`;
 }
 
 export function calcStrWidth(element: HTMLElement, str: string) {

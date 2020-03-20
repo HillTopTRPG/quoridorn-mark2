@@ -67,11 +67,8 @@ export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`option.chat-color-type.${o.value}`);
+      o.text = this.$t(`option.chat-color-type.${o.value}`)!.toString();
       o.key = o.value;
     });
   }

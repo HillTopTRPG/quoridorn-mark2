@@ -63,15 +63,11 @@ export default class StartTimeActorStatusSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-
     this.optionInfoList = this.optionInfoContents.concat();
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: LanguageManager.instance.getText("label.actor-status"),
+      text: this.$t("label.actor-status")!.toString(),
       disabled: true
     });
   }

@@ -8,7 +8,7 @@ import {
   calcCenter,
   calcDistance,
   createPoint
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 import { Matrix, Point, Rectangle } from "address";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import CssManager from "@/app/core/css/CssManager";

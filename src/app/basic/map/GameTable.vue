@@ -1,9 +1,6 @@
 <template>
   <div id="gameTableContainer">
     <div
-      @dragover.prevent
-      @drop.prevent="drop"
-      dropzone="move"
       id="gameTable"
       @keydown.enter.stop="globalEnter"
       @keyup.enter.stop
@@ -41,7 +38,7 @@ import {
   arrangeAngle,
   createPoint,
   getEventPoint
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 import { Matrix, Point } from "address";
 import { Task, TaskResult } from "task";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -56,7 +53,9 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
-import { getTextureStyle } from "@/app/core/Utility";
+import { getTextureStyle } from "@/app/core/utility/Utility";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import { DropPieceInfo } from "task-info";
 
 @Component({
   components: {
@@ -411,18 +410,22 @@ export default class GameTable extends AddressCalcMixin {
     task.resolve();
   }
 
-  @VueEvent
-  private async drop(event: DragEvent): Promise<void> {
-    const type = event.dataTransfer!.getData("dropType");
-    const dropWindow = event.dataTransfer!.getData("dropWindow");
-    const offsetX = event.dataTransfer!.getData("offsetX");
-    const offsetY = event.dataTransfer!.getData("offsetY");
+  @TaskProcessor("drop-piece-finished")
+  private async dropPieceFinished(
+    task: Task<DropPieceInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    const type = task.value!.type;
+    const dropWindow = task.value!.dropWindow;
+    const offsetX = task.value!.offsetX;
+    const offsetY = task.value!.offsetY;
+    const pageX = task.value!.pageX;
+    const pageY = task.value!.pageY;
     const canvasAddress = this.calcCanvasAddress(
-      event.pageX,
-      event.pageY,
+      pageX,
+      pageY,
       this.currentAngle,
-      offsetX ? parseInt(offsetX, 10) : undefined,
-      offsetY ? parseInt(offsetY, 10) : undefined
+      offsetX,
+      offsetY
     );
     const locateOnCanvas = canvasAddress.locateOnCanvas;
 

@@ -46,7 +46,7 @@ import { Component } from "vue-mixin-decorator";
 import { HtmlOptionInfo } from "@/@types/window";
 import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { createRectangle } from "@/app/core/Coordinate";
+import { createRectangle } from "@/app/core/utility/CoordinateUtility";
 import { Rectangle } from "address";
 
 @Component

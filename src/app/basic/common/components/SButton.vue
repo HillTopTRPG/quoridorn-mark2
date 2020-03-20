@@ -1,7 +1,7 @@
 <template>
   <span
     class="shortcut-button"
-    :class="['icon-' + icon, disabled ? 'disabled' : undefined]"
+    :class="['icon-' + icon, disabled ? 'disabled' : undefined, colorStyle]"
     :tabindex="disabled ? undefined : '0'"
     @click.stop="$emit('click')"
     @keydown.space.stop="$emit('click')"
@@ -27,6 +27,9 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private icon!: string;
 
+  @Prop({ type: String, default: "skyblue" })
+  private colorStyle!: string;
+
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 }
@@ -37,7 +40,6 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
 
 .shortcut-button {
   @include inline-flex-box(row, center, center);
-  @include btn-skyblue();
   border: 1px dotted gray;
   border-radius: 50%;
   background-color: white;
@@ -46,5 +48,13 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   min-width: 2em;
   box-sizing: border-box;
   margin-left: 0.3rem;
+
+  &.skyblue {
+    @include btn-skyblue();
+  }
+
+  &.pink {
+    @include btn-pink();
+  }
 }
 </style>

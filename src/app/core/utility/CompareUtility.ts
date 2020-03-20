@@ -1,9 +1,9 @@
-import { Operand, CompareInfo, SimpleCompareInfo } from "compare";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { CompareInfo, Operand, SimpleCompareInfo } from "compare";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 /**
  * オペランドの値を取得する

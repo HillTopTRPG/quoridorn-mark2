@@ -69,8 +69,8 @@ import {
   createSize,
   getEventPoint,
   getRightPaneRectangle
-} from "../Coordinate";
-import { getCssPxNum } from "../Css";
+} from "../utility/CoordinateUtility";
+import { getCssPxNum } from "../css/Css";
 import { Point, Rectangle } from "address";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "task";

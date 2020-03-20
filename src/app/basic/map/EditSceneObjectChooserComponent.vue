@@ -49,7 +49,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
 import { SceneAndObject } from "@/@types/room";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { clone } from "@/app/core/Utility";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { SceneObject } from "@/@types/gameObject";
 import { Address } from "address";
 import ComponentVue from "@/app/core/window/ComponentVue";

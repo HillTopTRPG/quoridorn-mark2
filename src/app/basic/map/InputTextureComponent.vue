@@ -41,7 +41,7 @@ import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSel
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction, Texture } from "@/@types/room";
-import { parseColor } from "@/app/core/Utility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
 

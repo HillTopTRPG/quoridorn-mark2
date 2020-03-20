@@ -10,12 +10,12 @@ import {
   createPoint,
   createRectangle,
   getWindowSize
-} from "../Coordinate";
+} from "../utility/CoordinateUtility";
 import { Point } from "address";
-import { getCssPxNum } from "../Css";
+import { getCssPxNum } from "../css/Css";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import TaskManager from "@/app/core/task/TaskManager";
-import { clone } from "@/app/core/Utility";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;

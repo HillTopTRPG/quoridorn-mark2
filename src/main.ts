@@ -40,6 +40,8 @@ import ActorAddWindow from "@/app/basic/object/actor/ActorAddWindow.vue";
 import ActorEditWindow from "@/app/basic/object/actor/ActorEditWindow.vue";
 import PlayerBoxWindow from "@/app/basic/object/actor/PlayerBoxWindow.vue";
 import CardDeckListWindow from "@/app/basic/card/CardDeckListWindow.vue";
+import MediaListWindow from "@/app/basic/media/MediaListWindow.vue";
+import MediaUploadWindow from "@/app/basic/media/MediaUploadWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -100,6 +102,8 @@ async function main(): Promise<void> {
   Vue.component("actor-edit-window", ActorEditWindow);
   Vue.component("player-box-window", PlayerBoxWindow);
   Vue.component("card-deck-list-window", CardDeckListWindow);
+  Vue.component("media-list-window", MediaListWindow);
+  Vue.component("media-upload-window", MediaUploadWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

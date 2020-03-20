@@ -150,11 +150,12 @@ import {
   calcStrWidth,
   createPoint,
   getEventPoint
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
 import { RowSelectInfo } from "task-info";
+import { convertNumberZero, sum } from "@/app/core/utility/PrimaryDataUtility";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -406,7 +407,7 @@ export default class SimpleTableComponent extends Vue {
     if (!param || param.key !== this.key) return;
 
     if (param.type) {
-      const leftIndex = parseInt(param.type.replace("div-", ""), 10) - 1;
+      const leftIndex = convertNumberZero(param.type.replace("div-", "")) - 1;
       const point = task.value!;
       const diffX = point.x - this.dragFrom.x;
 
@@ -612,12 +613,7 @@ export default class SimpleTableComponent extends Vue {
     }
 
     if (this.tableDeclareInfo.type === "free") {
-      const totalWidth: number = list.reduce(
-        (accumulator: number, currentValue: number) => {
-          return accumulator + currentValue + 1;
-        },
-        1
-      );
+      const totalWidth: number = sum(list) + list.length + 1;
       this.adjustEmit(totalWidth);
     }
   }

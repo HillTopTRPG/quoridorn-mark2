@@ -52,10 +52,6 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-
     this.optionInfoList = this.actorList
       .filter(a => a.owner === GameObjectManager.instance.mySelfUserId)
       .map(a => {
@@ -63,7 +59,8 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
         let additionalText = "";
         if (a.data!.type === "user") {
           const user = this.userList.filter(u => u.id === a.owner)[0];
-          additionalText += "(" + getText(`label.${user.data!.type}`) + ")";
+          additionalText +=
+            "(" + this.$t(`label.${user.data!.type}`)!.toString() + ")";
         }
         return {
           key: a.id!,
@@ -75,7 +72,7 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: getText("type.actor"),
+      text: this.$t("type.actor")!.toString(),
       disabled: true
     });
   }

@@ -32,6 +32,7 @@
 import ActorStatusCombo from "../ActorStatusCombo.vue";
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {
@@ -72,7 +73,7 @@ export default class ActorStatusTabComponent extends Vue {
 
   @Watch("actor")
   onChangeActor(actor: any) {
-    this.statusList.splice(0, this.statusList.length);
+    listToEmpty(this.statusList);
   }
 
   @Emit("change")

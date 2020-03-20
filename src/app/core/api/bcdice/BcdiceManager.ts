@@ -7,8 +7,9 @@ import {
 import TaskManager from "@/app/core/task/TaskManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LanguageManager from "@/LanguageManager";
-import { loadYaml } from "@/app/core/File";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 import { CustomDiceBotInfo } from "@/@types/room";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 export default class BcdiceManager {
   // シングルトン
@@ -32,9 +33,9 @@ export default class BcdiceManager {
     } = await BcdiceManager.getBcdiceSystemList(baseUrl);
     SocketFacade.instance.connectInfo.bcdiceServer = baseUrl;
 
-    this.diceSystemList.splice(0, this.diceSystemList.length);
+    listToEmpty(this.diceSystemList);
     this.diceSystemList.push(...diceSystemList);
-    this.customDiceBotList.splice(0, this.customDiceBotList.length);
+    listToEmpty(this.customDiceBotList);
     this.customDiceBotList.push(...customDiceBotList);
   }
 
@@ -80,7 +81,31 @@ export default class BcdiceManager {
   }> {
     const url = `${baseUrl}/v1/names`;
 
-    const json: any = await (await fetch(url)).json();
+    let json: any = null;
+    const option = {
+      method: "GET", // *GET, POST, PUT, DELETE, etc.
+      mode: "no-cors", // no-cors, cors, *same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "include", // include, same-origin, *omit
+      headers: {
+        "Content-Type": "application/json; charset=utf-8"
+        // "Content-Type": "application/x-www-form-urlencoded",
+      },
+      redirect: "follow", // manual, *follow, error
+      referrer: "client" // no-referrer, *client
+    };
+    try {
+      const jsonStr = await fetch(url);
+      window.console.log(jsonStr);
+      json = await jsonStr.json();
+    } catch (err) {
+      alert("BCDice-APIとの通信に失敗しました。");
+      window.console.error("[!!CAUTION!!] これは問題ですっ！🐧💦");
+      window.console.error(err);
+      // TODO 対症療法
+      return { diceSystemList: [], customDiceBotList: [] };
+      // throw err;
+    }
     const diceSystemList: DiceSystem[] = json.names as DiceSystem[];
     diceSystemList.sort((i1: any, i2: any) => {
       if (i1.name === "DiceBot") return -1;

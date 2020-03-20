@@ -8,6 +8,7 @@
         ref="object"
         :draggable="isAdd && imageDocId"
         @dragstart="dragStart"
+        @dragend="dragEnd"
       ></div>
     </div>
 
@@ -124,7 +125,7 @@ import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSel
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { getSrc } from "@/app/core/Utility";
+import { getSrc } from "@/app/core/utility/Utility";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -308,11 +309,8 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   private createTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.tabList.forEach(t => {
-      t.text = getText(`label.${t.target}`);
+      t.text = this.$t(`label.${t.target}`)!.toString();
     });
   }
 
@@ -354,6 +352,11 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @VueEvent
   private dragStart(event: DragEvent) {
     this.$emit("drag-start", event);
+  }
+
+  @VueEvent
+  private dragEnd(event: DragEvent) {
+    this.$emit("drag-end", event);
   }
 
   @Watch("isMounted")

@@ -49,14 +49,11 @@ export default class PermissionTypeSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      if (o.value) o.text = getText(`label.${o.value}`);
+      if (o.value) o.text = this.$t(`label.${o.value}`)!.toString();
       o.key = o.value;
     });
-    this.optionInfoList[0].text = getText("label.permission-type");
+    this.optionInfoList[0].text = this.$t("label.permission-type")!.toString();
   }
 }
 </script>

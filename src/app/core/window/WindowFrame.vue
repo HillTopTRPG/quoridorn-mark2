@@ -172,12 +172,13 @@ import {
   createSize,
   getEventPoint,
   getWindowSize
-} from "../Coordinate";
+} from "../utility/CoordinateUtility";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -423,8 +424,8 @@ export default class WindowFrame extends Vue {
   @Watch("standImageSize", { immediate: true })
   private onChangeStandImageSize(standImageSize: string) {
     const split: string[] = standImageSize.split("*");
-    this.standImageWidth = parseInt(split[0]);
-    this.standImageHeight = parseInt(split[1]);
+    this.standImageWidth = convertNumberZero(split[0]);
+    this.standImageHeight = convertNumberZero(split[1]);
   }
 
   @VueEvent

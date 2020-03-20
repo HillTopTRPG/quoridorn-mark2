@@ -50,18 +50,21 @@
                 </span>
                 <s-button
                   icon="pencil"
+                  colorStyle="pink"
                   :disabled="!isEditable(actor)"
                   @hover="value => onHover('edit', value)"
                   @click="editActor(actor)"
                 />
                 <s-button
                   icon="user-tie"
+                  colorStyle="pink"
                   :disabled="!isChmodAble(actor)"
                   @hover="value => onHover('chmod', value)"
                   @click="chmodActor(actor)"
                 />
                 <s-button
                   icon="bin"
+                  colorStyle="pink"
                   :disabled="actor.data.type === 'user' || !isDeletable(actor)"
                   @hover="value => onHover('delete', value)"
                   @click="deleteActor(actor)"
@@ -223,20 +226,14 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private getOwnerType(userId: string): string {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     const user = this.userList.filter(u => u.id === userId)[0];
-    return getText(`label.${user.data!.type}`);
+    return this.$t(`label.${user.data!.type}`)!.toString();
   }
 
   @VueEvent
   private getOwnerName(userId: string): string {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     const user = this.userList.filter(u => u.id === userId)[0];
-    const userTypeStr = getText(`label.${user.data!.type}`);
+    const userTypeStr = this.$t(`label.${user.data!.type}`)!.toString();
     return `${user.data!.name}(${userTypeStr})`;
   }
 
@@ -261,9 +258,6 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 
   @Watch("ownerActorList", { deep: true })
   private createActorTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.actorTabList = this.ownerActorList
       .map(a => a.data!.tag)
       .filter(
@@ -271,7 +265,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       )
       .map(tag => ({
         target: tag,
-        text: tag || getText("label.non-tag")
+        text: tag || this.$t("label.non-tag")!.toString()
       }));
     const idx = this.currentActorTabInfo
       ? this.actorTabList.findIndex(
@@ -432,6 +426,10 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   flex-shrink: 0;
   padding: 0.5rem;
   border-bottom: 1px dashed gray;
+
+  &:hover {
+    background-color: var(--uni-color-light-skyblue);
+  }
 
   /*
   &.user {

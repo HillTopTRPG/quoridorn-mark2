@@ -19,9 +19,11 @@ import { Task, TaskResult } from "task";
 import { WindowInfo } from "@/@types/window";
 import WindowFrame from "./WindowFrame.vue";
 import WindowManager from "./WindowManager";
-import Logging from "../logger/Logging";
-import { calcWindowPosition, getWindowSize } from "../Coordinate";
-import { getCssPxNum } from "../Css";
+import {
+  calcWindowPosition,
+  getWindowSize
+} from "../utility/CoordinateUtility";
+import { getCssPxNum } from "../css/Css";
 
 @Component({
   components: { WindowFrame }

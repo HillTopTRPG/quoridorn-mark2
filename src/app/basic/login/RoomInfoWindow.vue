@@ -104,7 +104,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
-import { execCopy } from "@/app/core/Utility";
+import { execCopy } from "@/app/core/utility/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";

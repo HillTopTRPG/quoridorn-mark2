@@ -3,11 +3,11 @@ import AddressCalcMixin from "./AddressCalcMixin.vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Mixin } from "vue-mixin-decorator";
 import {
-  copyAddress,
-  createMatrix,
   createPoint,
+  createAddress,
+  copyAddress,
   getEventPoint
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   getStoreObj
@@ -26,11 +26,12 @@ import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import { ContextTaskInfo } from "context";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { clone, getSrc } from "@/app/core/Utility";
 import { SceneAndObject } from "@/@types/room";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import Unsubscribe from "nekostore/lib/Unsubscribe";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import { getSrc } from "@/app/core/utility/Utility";
 
 @Mixin
 export default class PieceMixin<
@@ -217,10 +218,7 @@ export default class PieceMixin<
 
     // setTransform
     const angle = this.sceneObjectInfo!.data!.angle;
-    const address = {
-      ...createPoint(0, 0),
-      ...createMatrix(0, 0)
-    };
+    const address = createAddress(0, 0, 0, 0);
     copyAddress(this.sceneObjectInfo!.data!, address);
     if (
       this.sceneAndObjectInfo!.data!.isOriginalAddress &&
@@ -560,10 +558,7 @@ export default class PieceMixin<
     if (!param || param.key !== this.docId) return;
 
     window.console.log("mouse-move-end-left-finished", param.key, param.type);
-    const address = {
-      ...createPoint(0, 0),
-      ...createMatrix(0, 0)
-    };
+    const address = createAddress(0, 0, 0, 0);
 
     copyAddress(this.sceneObjectInfo!.data!, address);
 
@@ -597,10 +592,7 @@ export default class PieceMixin<
     if (this.sceneAndObjectInfo!.data!.isOriginalAddress) {
       const data: SceneAndObject = clone(this.sceneAndObjectInfo!.data)!;
       if (!data.originalAddress)
-        data.originalAddress = {
-          ...createPoint(0, 0),
-          ...createMatrix(0, 0)
-        };
+        data.originalAddress = createAddress(0, 0, 0, 0);
       copyAddress(address, data.originalAddress);
       await this.sceneAndObjectCC!.update(this.sceneAndObjectInfo!.id!, data);
     } else {

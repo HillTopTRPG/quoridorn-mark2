@@ -23,7 +23,7 @@ import {
   createPoint,
   createRectangle,
   createSize
-} from "@/app/core/Coordinate";
+} from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";

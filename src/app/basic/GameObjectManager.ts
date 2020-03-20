@@ -38,8 +38,8 @@ import {
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
 import LanguageManager from "@/LanguageManager";
-import { getSrc } from "@/app/core/Utility";
-import { loadYaml } from "@/app/core/File";
+import { getSrc } from "@/app/core/utility/Utility";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;

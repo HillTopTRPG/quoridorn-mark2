@@ -29,6 +29,7 @@
     <s-button icon="tv" @hover="hover1" @click="open1()" />
     <s-button icon="display" @hover="hover2" @click="open2()" />
     <s-button icon="stack" @hover="hover5" @click="open5()" />
+    <s-button icon="library" @hover="hover6" @click="open6()" />
   </div>
 </template>
 
@@ -186,6 +187,16 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
   @VueEvent
   private async open5() {
     await this.open("card-deck-list-window");
+  }
+
+  @VueEvent
+  private hover6(flg: boolean) {
+    this.hover("media-list", flg);
+  }
+
+  @VueEvent
+  private async open6() {
+    await this.open("media-list-window");
   }
 }
 </script>

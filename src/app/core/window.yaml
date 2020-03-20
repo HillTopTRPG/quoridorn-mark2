@@ -1068,9 +1068,9 @@
     widthEm: 35
     widthRem: 0
     widthScrollBar: 1
-    heightPx: 4
-    heightEm: 20
-    heightRem: 0.5
+    heightPx: 5
+    heightEm: 26
+    heightRem: 2.5
   minSize:
     widthPx: 0
     widthEm: 30
@@ -1078,15 +1078,15 @@
     widthScrollBar: 1
     heightPx: 4
     heightEm: 16
-    heightRem: 0.5
+    heightRem: 1.5
   maxSize:
     widthPx: 0
     widthEm: 60
     widthRem: 0
     widthScrollBar: 1
-    heightPx: 4
-    heightEm: 40
-    heightRem: 0.5
+    heightPx: 7
+    heightEm: 46
+    heightRem: 4.5
   minimizable: true
   paneContainable: true
   closable: true
@@ -1095,6 +1095,80 @@
   tableInfoList: []
 "card-deck-list-window":
   icon: stack
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 4
+    widthEm: 40
+    widthRem: 2.5
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 24
+    heightRem: 2.5
+  minSize:
+    widthPx: 4
+    widthEm: 30
+    widthRem: 2
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 14
+    heightRem: 2
+  maxSize:
+    widthPx: 4
+    widthEm: 60
+    widthRem: 3.5
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 44
+    heightRem: 3.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+"media-list-window":
+  icon: library
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 4
+    widthEm: 40
+    widthRem: 2.5
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 24
+    heightRem: 2.5
+  minSize:
+    widthPx: 4
+    widthEm: 30
+    widthRem: 2
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 14
+    heightRem: 2
+  maxSize:
+    widthPx: 4
+    widthEm: 60
+    widthRem: 3.5
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 44
+    heightRem: 3.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+"media-upload-window":
+  icon: library
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false

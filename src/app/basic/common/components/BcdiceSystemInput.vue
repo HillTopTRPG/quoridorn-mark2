@@ -81,14 +81,17 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Point, Rectangle, Size } from "address";
-import { createPoint, createRectangle } from "@/app/core/Coordinate";
+import {
+  createPoint,
+  createRectangle
+} from "@/app/core/utility/CoordinateUtility";
 import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
 import TaskManager from "@/app/core/task/TaskManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { clone } from "@/app/core/Utility";
 import { OtherTextViewInfo } from "@/@types/gameObject";
 import SButton from "@/app/basic/common/components/SButton.vue";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 type FilterInfo = {
   list: DiceSystem[];

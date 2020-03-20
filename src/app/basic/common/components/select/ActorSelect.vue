@@ -50,10 +50,6 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-
     this.optionInfoList = GameObjectManager.instance.actorList
       .filter(a => {
         if (this.userId && a.owner !== this.userId) return false;
@@ -68,7 +64,7 @@ export default class ActorSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: getText("type.actor"),
+      text: this.$t("type.actor")!.toString(),
       disabled: true
     });
   }

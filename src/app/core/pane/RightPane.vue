@@ -40,11 +40,11 @@ import {
   getPaneHeight,
   getRightPaneRectangle,
   isContain
-} from "../Coordinate";
+} from "../utility/CoordinateUtility";
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
 
 @Component({
   components: { PaneFrame, ResizeKnob }

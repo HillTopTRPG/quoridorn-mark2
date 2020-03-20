@@ -84,11 +84,7 @@ import { Mixins } from "vue-mixin-decorator";
 import WindowVue from "@/app/core/window/WindowVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import {
-  conversion,
-  createEmptyStoreUseData,
-  sendChatLog
-} from "@/app/core/Utility";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   ChatInfo,
@@ -112,6 +108,7 @@ import { Task, TaskResult } from "task";
 import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue";
 import { UserType } from "@/@types/socket";
 import UnitTableComponent from "@/app/basic/chat/UnitTableComponent.vue";
+import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
 
 @Component({
   components: {
@@ -723,16 +720,14 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   @VueEvent
   private async deleteChat(id: string) {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
+    const flg = window.confirm(
+      this.$t("chat-window.dialog.delete-chat")!.toString()
     );
-
-    const flg = window.confirm(getText("chat-window.dialog.delete-chat"));
     if (!flg) return;
     try {
       await this.chatListCC.touchModify(id);
     } catch (err) {
-      alert(getText("chat-window.dialog.delete-failure"));
+      alert(this.$t("chat-window.dialog.delete-failure")!.toString());
       return;
     }
 

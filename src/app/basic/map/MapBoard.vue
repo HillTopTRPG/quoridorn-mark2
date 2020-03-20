@@ -23,11 +23,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { drawLine, drawLine2 } from "@/app/core/CanvasDrawer";
+import { drawLine, drawLine2 } from "@/app/core/utility/CanvasDrawUtility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { Scene, RoomData } from "@/@types/room";
 import { Matrix, Size } from "address";
-import { createSize } from "@/app/core/Coordinate";
+import { createSize } from "@/app/core/utility/CoordinateUtility";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import TaskManager from "@/app/core/task/TaskManager";

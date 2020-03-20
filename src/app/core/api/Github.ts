@@ -1,4 +1,5 @@
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 
 type VersionInfo = {
   major: number;
@@ -82,11 +83,11 @@ export function stringToVersion(version: string | null): VersionInfo {
   );
   if (!matchResult)
     throw new ApplicationError(`Illegal format. str=${version}`);
-  const major: number = parseInt(matchResult[1], 10);
-  const minor: number = parseInt(matchResult[2], 10);
-  const build: number = parseInt(matchResult[3], 10);
+  const major: number = convertNumberZero(matchResult[1]);
+  const minor: number = convertNumberZero(matchResult[2]);
+  const build: number = convertNumberZero(matchResult[3]);
   const stage: string = matchResult[4];
-  const stageVersion: number = parseInt(matchResult[5], 10);
+  const stageVersion: number = convertNumberZero(matchResult[5]);
   return {
     major,
     minor,

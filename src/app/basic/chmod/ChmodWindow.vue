@@ -97,11 +97,8 @@ export default class ChmodWindow extends Mixins<
   }
 
   private createTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.tabList.forEach(t => {
-      t.text = getText(`label.permission-${t.target}`);
+      t.text = this.$t(`label.permission-${t.target}`)!.toString();
     });
   }
 

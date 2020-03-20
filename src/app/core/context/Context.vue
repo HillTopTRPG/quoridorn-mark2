@@ -33,14 +33,14 @@ import {
   ContextTaskInfo
 } from "context";
 import { Task, TaskResult } from "task";
-import { judgeCompare } from "../Compare";
+import { judgeCompare } from "../utility/CompareUtility";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { clone } from "@/app/core/Utility";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");

@@ -72,7 +72,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
 import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { getSrc } from "@/app/core/Utility";
+import { getSrc } from "@/app/core/utility/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({

@@ -83,11 +83,8 @@ export default class CardSearchCountChooser extends Mixins<ComponentVue>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`card-deck-builder.options.${o.key}`);
+      o.text = this.$t(`card-deck-builder.options.${o.key}`)!.toString();
     });
   }
 

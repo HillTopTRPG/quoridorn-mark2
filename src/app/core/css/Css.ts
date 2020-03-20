@@ -1,4 +1,4 @@
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { ApplicationError } from "../error/ApplicationError";
 
 /**
  * CSSの値を取得する

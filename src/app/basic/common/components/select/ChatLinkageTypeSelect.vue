@@ -53,11 +53,8 @@ export default class ChatLinkageTypeSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.key}`);
+      o.text = this.$t(`label.${o.key}`)!.toString();
     });
   }
 }

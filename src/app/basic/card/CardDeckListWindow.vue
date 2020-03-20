@@ -9,29 +9,19 @@
       </ctrl-button>
     </div>
     <div class="card-deck-container">
-      <div
-        class="card-deck"
-        :class="{
-          selected: selectedCardDeckBigId === cardDeck.id,
-          'lock-info': cardDeck.exclusionOwner
-        }"
-        v-for="cardDeck in useCardDeckBigList"
-        :key="cardDeck.id"
-        @click="selectCardDeckBig(cardDeck)"
+      <card-deck-set-component
+        class="card-deck-set"
+        v-for="deck in deckList"
+        :key="deck.cardDeckBig.id"
+        :deck="deck"
+        :isSelected="selectedCardDeckBigId === deck.cardDeckBig.id"
+        @select="selectedCardDeckBigId = deck.cardDeckBig.id"
         @dblclick="editCardDeck()"
-        ref="cardDeck"
-      >
-        <div class="title">{{ cardDeck.data.name }}</div>
-        <div class="card-set">
-          <div
-            class="card"
-            v-for="(style, idx) in getDeckStyleList(cardDeck)"
-            :key="idx"
-            :style="style"
-          ></div>
-        </div>
-      </div>
-      <div class="card-deck add" @click="addCardDeck()">
+        :style="{
+          '--msg-locked': getExclusionOwnerName(deck.cardDeckBig.exclusionOwner)
+        }"
+      />
+      <div class="card-deck-set add" @click="addCardDeck()">
         <span>＋</span>
       </div>
     </div>
@@ -55,36 +45,28 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
-import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 import { StoreUseData } from "@/@types/store";
-import { Texture } from "@/@types/room";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
 import LanguageManager from "@/LanguageManager";
-import { getSrc, getTextureStyle } from "@/app/core/Utility";
 import { ModeInfo } from "mode";
 import { CardMeta, CardDeckBig } from "@/@types/gameObject";
+import CardDeckSetComponent, {
+  DeckInfo
+} from "@/app/basic/card/CardDeckSetComponent.vue";
 
 @Component({
   components: {
-    SceneLayerSelect,
-    SimpleTabComponent,
-    ColorPickerComponent,
-    BaseInput,
-    SeekBarComponent,
+    CardDeckSetComponent,
     CtrlButton
   }
 })
@@ -109,87 +91,28 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     return this.cardDeckBigList.filter(cd => permissionCheck(cd, "view"));
   }
 
-  @Watch("isMounted")
-  @Watch("useCardDeckBigList", { deep: true })
-  private onChangeCardDeckList() {
-    const elmList: HTMLElement[] = this.$refs.cardDeck as HTMLElement[];
-    if (this.useCardDeckBigList.findIndex(s => !s.data) > -1) return;
-    setTimeout(() => {
-      this.useCardDeckBigList.forEach(async (cd, index) => {
-        const elm = elmList[index];
+  private get useCardMetaList() {
+    return this.cardMetaList.filter(cm => permissionCheck(cm, "view"));
+  }
 
-        const texture = cd.data!.name;
-
-        const cardList = this.cardMetaList.filter(c => c.owner === cd.id);
-        const textureInfoList: { count: number; cardMeta: CardMeta }[] = [];
-        cardList.forEach(c => {
-          const textureInfo = textureInfoList.filter(
-            t => JSON.stringify(t.cardMeta) === JSON.stringify(texture)
-          )[0];
-          if (textureInfo) textureInfo.count++;
-          else textureInfoList.push({ count: 1, cardMeta: c.data! });
-        });
-        textureInfoList.sort((t1, t2) => {
-          if (t1.count < t2.count) return -1;
-          if (t1.count > t2.count) return 1;
-          return 0;
-        });
-        window.console.log(JSON.stringify(textureInfoList, null, "  "));
-
-        let lockName = "";
-        if (cd.exclusionOwner) {
-          lockName = GameObjectManager.instance.getExclusionOwnerName(
-            cd.exclusionOwner
-          );
-          elm.style.setProperty(
-            "--msg-locked",
-            `'${LanguageManager.instance.getText(
-              "label.editing"
-            )}(${lockName})'`
-          );
-        }
-      });
+  private get deckList(): DeckInfo[] {
+    return this.useCardDeckBigList.map(cardDeckBig => {
+      return {
+        cardDeckBig,
+        cardMetaList: this.useCardMetaList.filter(
+          cm => cm.owner === cardDeckBig.id
+        )
+      };
     });
   }
 
   @VueEvent
-  private getDeckStyleList(cardDeckBig: StoreUseData<CardDeckBig>): any[] {
-    return [];
-    // const cardList = this.cardMetaList.filter(c => c.owner === cardDeckBig.id);
-    // if (cardList.length === 0) return [];
-    // const textureInfoList: { count: number; cardMeta: CardMeta }[] = [];
-    // cardList.forEach(c => {
-    //   const texture = c.data!.backImage;
-    //   const textureInfo = textureInfoList.filter(
-    //     t => JSON.stringify(t.cardMeta.backImage) === JSON.stringify(texture)
-    //   )[0];
-    //   if (textureInfo) textureInfo.count++;
-    //   else textureInfoList.push({ count: 1, cardMeta: c.data });
-    // });
-    // textureInfoList.sort((t1, t2) => {
-    //   if (t1.count < t2.count) return -1;
-    //   if (t1.count > t2.count) return 1;
-    //   return 0;
-    // });
-    // window.console.log(JSON.stringify(textureInfoList, null, "  "));
-    //
-    // if (textureInfoList.length === 1) {
-    //   const s = getSrc(textureInfoList[0].cardMeta.backImage);
-    //   return [s, s, s];
-    // }
-    // if (textureInfoList.length === 2) {
-    //   const s1 = getSrc(textureInfoList[0].cardMeta.backImage);
-    //   const s2 = getSrc(textureInfoList[1].cardMeta.backImage);
-    //   return [s1, s1, s2];
-    // }
-    // const s1 = getSrc(textureInfoList[0].cardMeta.backImage);
-    // const s2 = getSrc(textureInfoList[1].cardMeta.backImage);
-    // const s3 = getSrc(textureInfoList[2].cardMeta.backImage);
-    // return [s1, s2, s3];
-  }
-
-  private selectCardDeckBig(cardDeckBig: StoreUseData<CardDeckBig>) {
-    this.selectedCardDeckBigId = cardDeckBig.id;
+  private getExclusionOwnerName(exclusionOwner: string) {
+    const lockName = GameObjectManager.instance.getExclusionOwnerName(
+      exclusionOwner
+    );
+    const editLabel = LanguageManager.instance.getText("label.editing");
+    return `${lockName}(${editLabel})`;
   }
 
   @VueEvent
@@ -210,6 +133,21 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
         value: {
           flag: "on",
           cardDeckId: this.selectedCardDeckBigId
+        }
+      }
+    });
+  }
+
+  @VueEvent
+  private async addCardDeck() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "view-card-deck",
+        value: {
+          flag: "on",
+          cardDeckId: ""
         }
       }
     });
@@ -260,17 +198,6 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     }
     await this.cardDeckBigCC.delete(this.selectedCardDeckBigId);
   }
-
-  private async addCardDeck() {
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "card-deck-add-window",
-        args: this.selectedCardDeckBigId!
-      }
-    });
-  }
 }
 </script>
 
@@ -283,70 +210,45 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   height: 100%;
 }
 
+.card-deck-container {
+  @include flex-box(row, flex-start, flex-start, wrap);
+  flex: 1;
+  border: 1px solid gray;
+  padding-top: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.card-deck-set {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  width: 10em;
+  height: 10em;
+  border: 2px solid gray;
+  box-sizing: border-box;
+
+  &.add {
+    @include flex-box(row, center, center);
+    border-style: dashed;
+
+    span {
+      @include flex-box(row, center, center);
+      border-radius: 50%;
+      border: 1px solid black;
+      width: 2em;
+      height: 2em;
+      padding: 0.3rem;
+      box-sizing: border-box;
+      font-weight: bold;
+      font-size: 2rem;
+    }
+  }
+}
+
 .lock-info {
   @include lock-view();
 }
 
 .lock-info:after {
   content: var(--msg-locked, "ロック中");
-}
-
-.title {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: inline-block;
-  background-color: white;
-  border: 1px solid gray;
-  border-top-width: 0;
-  border-left-width: 0;
-  padding: 0 0.2rem;
-}
-
-.area-map-container {
-  @include flex-box(row, flex-start, flex-start, wrap);
-  padding-top: 0.5rem;
-  padding-left: 0.5rem;
-  border: 1px solid black;
-  box-sizing: border-box;
-  overflow-y: scroll;
-  flex: 1;
-
-  .area-map {
-    position: relative;
-    width: 10em;
-    height: 10em;
-    border: 2px solid gray;
-    background-image: var(--background-image);
-    background-color: var(--background-color);
-    background-size: cover;
-    background-position: center;
-    transform: var(--image-direction);
-    box-sizing: border-box;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    overflow-x: hidden;
-
-    &.selected {
-      border-color: red;
-    }
-
-    &.add {
-      @include flex-box(row, center, center);
-      border-style: dashed;
-
-      span {
-        @include flex-box(row, center, center);
-        border-radius: 50%;
-        border: 1px solid black;
-        width: 2em;
-        height: 2em;
-        padding: 0.3rem;
-        box-sizing: border-box;
-        font-weight: bold;
-        font-size: 2rem;
-      }
-    }
-  }
 }
 </style>

@@ -8,6 +8,7 @@
         ref="object"
         :draggable="isAdd"
         @dragstart="dragStart"
+        @dragend="dragEnd"
       >
         {{ text }}
       </div>
@@ -106,7 +107,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { parseColor } from "@/app/core/Utility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
@@ -277,11 +278,8 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   }
 
   private createTabInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.tabList.forEach(t => {
-      t.text = getText(`label.${t.target}`);
+      t.text = this.$t(`label.${t.target}`)!.toString();
     });
   }
 
@@ -297,6 +295,11 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   @VueEvent
   private dragStart(event: DragEvent) {
     this.$emit("drag-start", event);
+  }
+
+  @VueEvent
+  private dragEnd(event: DragEvent) {
+    this.$emit("drag-end", event);
   }
 
   @Watch("isMounted")

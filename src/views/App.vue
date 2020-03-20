@@ -1,7 +1,18 @@
 <template>
-  <div id="app" @scroll.prevent.stop>
+  <div
+    id="app"
+    @scroll.prevent.stop
+    @drop.prevent.stop="dropFile"
+    @dragover.prevent.stop
+    @dragenter="onDragEnter($event)"
+    @dragleave="onDragLeave($event)"
+    dropzone="move"
+  >
     <!-- 最も後ろの背景 (z-index: 0) -->
     <div id="back-scene"></div>
+
+    <!-- 最も手前でドロップを受ける領域 (z-index: 100) -->
+    <drop-area :isDropping="isDropping" />
 
     <template v-if="roomInitialized">
       <!-- プレイマット (z-index: 1) -->
@@ -49,7 +60,11 @@ import EventProcessor from "@/app/core/event/EventProcessor";
 import WindowArea from "@/app/core/window/WindowArea.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { Point, Size } from "address";
-import { createPoint, createSize, getEventPoint } from "@/app/core/Coordinate";
+import {
+  createPoint,
+  createSize,
+  getEventPoint
+} from "@/app/core/utility/CoordinateUtility";
 import RightPane from "@/app/core/pane/RightPane.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { WindowOpenInfo } from "@/@types/window";
@@ -72,15 +87,26 @@ import { OtherTextViewInfo } from "@/@types/gameObject";
 import { ModeInfo } from "mode";
 import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
-import { BgmPlayInfo, TabMoveInfo, ThrowParabolaInfo } from "task-info";
+import {
+  BgmPlayInfo,
+  DropPieceInfo,
+  TabMoveInfo,
+  ThrowParabolaInfo
+} from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
 import { disableBodyScroll } from "body-scroll-lock";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
+import DropBoxManager from "@/app/core/api/drop-box/DropBoxManager";
+import DropArea from "@/app/basic/media/DropArea.vue";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import { getDropFileList } from "@/app/core/utility/DropFileUtility";
+import { MediaUploadInfo } from "window-info";
 
 @Component({
   components: {
+    DropArea,
     CardDeckBuilder,
     ThrowParabolaContainer,
     ThrowParabolaSimulator,
@@ -107,6 +133,8 @@ export default class App extends Vue {
   private cardDeckId: string = "";
 
   private cutInList = GameObjectManager.instance.cutInList;
+  private isDropPiece: boolean = false;
+  private isDropping: boolean = false;
 
   private static get elm(): HTMLElement {
     return document.getElementById("app") as HTMLElement;
@@ -230,6 +258,60 @@ export default class App extends Vue {
     this.isMounted = true;
   }
 
+  @VueEvent
+  private async dropFile(event: DragEvent) {
+    // コマをドロップインしている場合
+    if (this.isDropPiece) {
+      await TaskManager.instance.ignition<DropPieceInfo, never>({
+        type: "drop-piece",
+        owner: "Quoridorn",
+        value: {
+          type: event.dataTransfer!.getData("dropType"),
+          dropWindow: event.dataTransfer!.getData("dropWindow"),
+          offsetX: convertNumberZero(event.dataTransfer!.getData("offsetX")),
+          offsetY: convertNumberZero(event.dataTransfer!.getData("offsetY")),
+          pageX: event.pageX,
+          pageY: event.pageY
+        }
+      });
+      return;
+    }
+
+    // ファイルをドロップインしている場合
+    const fileList = await getDropFileList(event.dataTransfer!);
+
+    await TaskManager.instance.ignition<WindowOpenInfo<MediaUploadInfo>, never>(
+      {
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "media-upload-window",
+          args: { fileList }
+        }
+      }
+    );
+
+    this.isDropping = false;
+  }
+
+  @VueEvent
+  private onDragEnter(event: DragEvent) {
+    if (this.isDropPiece) return;
+    this.isDropping = true;
+  }
+
+  @VueEvent
+  private onDragLeave(event: DragEvent) {
+    if (this.isDropPiece) return;
+    const p = createPoint(event.pageX, event.pageY);
+    const s = createSize(window.innerWidth, window.innerHeight);
+
+    // 画面外に出た時に座標が (0, 0) になるが、ここはあえて幻想の厳密さで書こうと思う。
+    if (p.x <= 0 || s.width < p.x || p.y <= 0 || s.height < p.y) {
+      this.isDropping = false;
+    }
+  }
+
   @Watch("cutInList", { deep: true, immediate: true })
   private async onChangeCutInList() {
     const openWindowFunc = async (
@@ -332,29 +414,28 @@ export default class App extends Vue {
     }
 
     if (event.key === "Shift" && event.ctrlKey) {
-      // TODO カードビルダー
-      window.console.log("カードビルダー起動！！");
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "view-card-deck",
-          value: {
-            flag: "on",
-            cardDeckId: ""
-          }
-        }
-      });
-      // TODO ブーケトス機能
-      // const value: "on" | "off" = this.throwParabola ? "off" : "on";
+      // // TODO カードビルダー
       // await TaskManager.instance.ignition<ModeInfo, never>({
       //   type: "mode-change",
       //   owner: "Quoridorn",
       //   value: {
-      //     type: "throw-parabola",
-      //     value
+      //     type: "view-card-deck",
+      //     value: {
+      //       flag: "on",
+      //       cardDeckId: ""
+      //     }
       //   }
       // });
+
+      // TODO ブーケトス機能
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "throw-parabola",
+          value: (this.throwParabola ? "off" : "on") as "on" | "off"
+        }
+      });
       return;
     }
     // window.console.log(event.key);
@@ -485,6 +566,7 @@ export default class App extends Vue {
       });
     };
     await openSimpleWindow("chat-window");
+
     task.resolve();
   }
 
@@ -513,6 +595,11 @@ export default class App extends Vue {
       const cardDeckId: string = taskValue.value.cardDeckId;
       this.cardView = flag === "on";
       this.cardDeckId = cardDeckId;
+      task.resolve();
+    }
+    if (taskValue.type === "drop-piece") {
+      const value: string = taskValue.value;
+      this.isDropPiece = value === "on";
       task.resolve();
     }
   }
@@ -640,9 +727,9 @@ label {
 }
 
 #back-scene {
-  position: fixed;
   background-size: cover;
   background-position: center;
+  position: fixed;
   left: 0;
   top: 0;
   width: 100%;
@@ -654,6 +741,10 @@ label {
   background-color
   transform
   */
+}
+
+#drop-area {
+  z-index: 100;
 }
 
 #gameTableContainer {

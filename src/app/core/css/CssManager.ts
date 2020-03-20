@@ -1,3 +1,5 @@
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+
 type CssInfo = {
   property: string;
   value: string;
@@ -40,9 +42,13 @@ export default class CssManager {
       "visibility: hidden; position: absolute; top: 0; left: 0; width: 100vw;"
     );
     document.body.appendChild(scrollbarElem);
-    const vw = parseInt(window.getComputedStyle(scrollbarElem).width);
+    const vw = convertNumberZero(
+      window.getComputedStyle(scrollbarElem).width.replace("px", "")
+    );
     scrollbarElem.style.width = "100%";
-    const pc = parseInt(window.getComputedStyle(scrollbarElem).width);
+    const pc = convertNumberZero(
+      window.getComputedStyle(scrollbarElem).width.replace("px", "")
+    );
     document.body.removeChild(scrollbarElem);
     document.documentElement.style.overflow = "hidden";
     return vw - pc;

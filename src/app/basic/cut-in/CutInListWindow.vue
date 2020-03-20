@@ -87,7 +87,7 @@ import { DataReference } from "@/@types/data";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
 import LanguageManager from "@/LanguageManager";
 
 @Component({
@@ -97,7 +97,7 @@ import LanguageManager from "@/LanguageManager";
       if (!data.data!.url) return "icon-stop2";
       if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
       if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
-      return "icon-file-cut-in";
+      return "icon-file-music";
     },
     time: (data: StoreUseData<CutInDeclareInfo>) => {
       if (!data.data!.url) return "-";

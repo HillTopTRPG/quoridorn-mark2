@@ -203,6 +203,9 @@ label:
   search-name-box: 名前検索欄
   search: 検索
   operation: 操作
+  drop-area: "どうぞそのまま\nドロップインしてください。"
+  local: ローカル
+  dropbox: Dropbox
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -346,6 +349,7 @@ chat-window:
     add-actor: アクター追加
     player-box: プレイヤーボックス
     card-deck-list: 山札一覧
+    media-list: メディア一覧
   options:
     select-sender: 送信者の選択
     select-output-tab: 送信先タブの選択
@@ -423,3 +427,5 @@ card-deck-builder:
     count-four: 4枚
     count-more: 5枚以上
 
+card-deck-list-window:
+  window-title: 山札一覧

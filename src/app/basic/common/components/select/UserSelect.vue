@@ -50,13 +50,9 @@ export default class UserSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-
     let userList = GameObjectManager.instance.userList;
     this.optionInfoList = userList.map(u => {
-      const userTypeStr = getText(`label.${u.data!.type}`);
+      const userTypeStr = this.$t(`label.${u.data!.type}`)!.toString();
       const text = `${u.data!.name}(${userTypeStr})`;
       return {
         key: u.id!,
@@ -69,14 +65,14 @@ export default class UserSelect extends Mixins<MultiMixin>(
       this.optionInfoList.unshift({
         key: "",
         value: "",
-        text: getText("label.all"),
+        text: this.$t("label.all")!.toString(),
         disabled: false
       });
     }
     this.optionInfoList.unshift({
       key: "label",
       value: "label",
-      text: getText("type.user"),
+      text: this.$t("type.user")!.toString(),
       disabled: true
     });
   }

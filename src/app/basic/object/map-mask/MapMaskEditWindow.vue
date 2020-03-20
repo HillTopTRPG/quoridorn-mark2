@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { parseColor } from "@/app/core/Utility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import { Mixins } from "vue-mixin-decorator";
 import { DataReference } from "@/@types/data";
 import { SceneObject } from "@/@types/gameObject";

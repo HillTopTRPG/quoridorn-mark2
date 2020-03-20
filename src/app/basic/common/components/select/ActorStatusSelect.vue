@@ -60,10 +60,6 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
-
     this.optionInfoList = this.statusList
       .filter(s => s.owner === this.actorId)
       .map(s => {
@@ -77,7 +73,7 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: getText("label.status"),
+      text: this.$t("label.status")!.toString(),
       disabled: true
     });
   }

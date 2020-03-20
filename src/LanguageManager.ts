@@ -1,4 +1,4 @@
-import { loadYaml } from "@/app/core/File";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 import VueI18n from "vue-i18n";
 import TaskManager from "@/app/core/task/TaskManager";
 

@@ -66,7 +66,7 @@ import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
 import LanguageManager from "@/LanguageManager";
-import { getSrc } from "@/app/core/Utility";
+import { getSrc } from "@/app/core/utility/Utility";
 
 @Component({
   components: {

@@ -24,7 +24,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { zeroPadding } from "@/app/core/Utility";
+import { zeroPadding } from "@/app/core/utility/PrimaryDataUtility";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { CutInDeclareInfo } from "@/@types/room";

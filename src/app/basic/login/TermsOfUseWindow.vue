@@ -28,7 +28,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Message } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { loadText } from "@/app/core/File";
+import { loadText } from "@/app/core/utility/FileUtility";
 
 @Component({
   components: { CtrlButton }

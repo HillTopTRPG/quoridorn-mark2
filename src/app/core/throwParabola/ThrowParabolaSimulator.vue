@@ -21,11 +21,14 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Point, Size } from "address";
-import { createPoint, getEventPoint } from "@/app/core/Coordinate";
+import {
+  createPoint,
+  getEventPoint
+} from "@/app/core/utility/CoordinateUtility";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import TaskManager from "@/app/core/task/TaskManager";
-import { drawLine2 } from "@/app/core/CanvasDrawer";
+import { drawLine2 } from "@/app/core/utility/CanvasDrawUtility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { ThrowParabolaInfo } from "task-info";
 import LifeCycle from "@/app/core/decorator/LifeCycle";

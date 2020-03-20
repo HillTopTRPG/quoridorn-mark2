@@ -46,9 +46,6 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList = GameObjectManager.instance.imageTagList.map(
       tagObj => ({
         key: tagObj.id,
@@ -63,7 +60,7 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
         value: "",
         text:
           this.defaultLabel === "label.image-tag"
-            ? getText(this.defaultLabel)
+            ? this.$t(this.defaultLabel)!
             : this.defaultLabel,
         disabled: true
       });

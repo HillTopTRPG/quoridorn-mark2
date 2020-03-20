@@ -1,30 +1,13 @@
 <template>
   <div class="card-deck-chooser-component deck-set-container">
     <div class="title" v-t="title"></div>
-    <div
-      class="deck-set"
-      :class="{ selected: isSelectedDeck(deck.id) }"
+    <card-deck-set-component
       v-for="deck in deckList"
-      :key="deck.id"
-      @click="onClickPresetDeck(deck.id)"
-      @mouseenter="onHoverPresetDeck(deck.id, true)"
-      @mouseleave="onHoverPresetDeck(deck.id, false)"
-    >
-      <span class="title">{{ deck.title }}</span>
-      <card-component
-        class="deck-set-card"
-        v-for="cardMeta in getSampleList(deck.cardMetaList)"
-        :key="cardMeta.id"
-        :cardMeta="cardMeta"
-        :isTurnOff="!isSelectedDeck(deck.id)"
-      />
-      <img
-        v-if="isSelectedDeck(deck.id)"
-        class="select-mark"
-        src="http://quoridorn.com/img/mascot/normal/mascot_normal.png"
-        alt="こっぺりん"
-      />
-    </div>
+      :key="deck.cardDeckBig.id"
+      :deck="deck"
+      :isSelected="isSelectedDeck(deck.cardDeckBig.id)"
+      @select="onClickPresetDeck(deck.cardDeckBig.id)"
+    />
   </div>
 </template>
 
@@ -33,18 +16,15 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Prop, Watch } from "vue-property-decorator";
-import { CardMeta } from "@/@types/gameObject";
+import { CardDeckBig, CardMeta } from "@/@types/gameObject";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
-
-type DeckInfo = {
-  id: string;
-  title: string;
-  cardMetaList: StoreUseData<CardMeta>[];
-};
+import CardDeckSetComponent, {
+  DeckInfo
+} from "@/app/basic/card/CardDeckSetComponent.vue";
 
 @Component({
-  components: { CardComponent }
+  components: { CardDeckSetComponent, CardComponent }
 })
 export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
   ComponentVue
@@ -68,8 +48,6 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
     this.$emit("update:selectedDeckIdList", value);
   }
 
-  private hoverDeckId: string | null = null;
-
   @VueEvent
   private isSelectedDeck(cardDeckId: string): boolean {
     return this.selectedDeckIdList.findIndex(i => i === cardDeckId) > -1;
@@ -83,16 +61,6 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
     } else {
       this.selectedDeckIdList.splice(findIdx, 1);
     }
-  }
-
-  @VueEvent
-  private onHoverPresetDeck(cardDeckId: string, isHover: boolean) {
-    this.hoverDeckId = isHover ? cardDeckId : null;
-  }
-
-  @VueEvent
-  private getSampleList(list: StoreUseData<CardMeta>[]) {
-    return list.slice(0, 3);
   }
 }
 </script>
@@ -120,78 +88,6 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
     box-sizing: border-box;
     height: 2em;
     font-weight: bold;
-  }
-}
-
-.deck-set {
-  position: relative;
-  border: 3px solid white;
-  box-sizing: border-box;
-  margin-left: 0.5rem;
-  margin-top: 0.5rem;
-  width: 16em;
-  height: 16em;
-  overflow: hidden;
-  background-color: rgba(0, 0, 0, 0.5);
-  cursor: pointer;
-
-  .deck-set-card {
-    position: absolute;
-    top: 30%;
-    left: 60%;
-    transform-origin: bottom center;
-    z-index: 1;
-    transition: all 0.1s ease-in-out;
-
-    &:nth-of-type(1) {
-      transform: rotate(-39deg) translateY(-5%) translateX(-35%);
-    }
-
-    &:nth-of-type(2) {
-      transform: rotate(-12deg) translateY(-12%) translateX(-35%);
-    }
-
-    &:nth-of-type(3) {
-      transform: rotate(15deg) translateY(-19%) translateX(-35%);
-    }
-  }
-
-  &:hover {
-    border-color: var(--uni-color-skyblue);
-
-    .title {
-      border-color: var(--uni-color-skyblue);
-    }
-
-    .deck-set-card {
-      &:nth-of-type(1) {
-        transform: rotate(-39deg) translateY(-9%) translateX(-35%);
-      }
-
-      &:nth-of-type(2) {
-        transform: rotate(-12deg) translateY(-16%) translateX(-35%);
-      }
-
-      &:nth-of-type(3) {
-        transform: rotate(15deg) translateY(-23%) translateX(-35%);
-      }
-    }
-  }
-  &.selected {
-    border-color: var(--uni-color-blue);
-
-    .title {
-      border-color: var(--uni-color-blue);
-    }
-  }
-
-  .select-mark {
-    position: absolute;
-    z-index: 2;
-    right: 0;
-    bottom: 0;
-    width: 40%;
-    height: 40%;
   }
 }
 </style>

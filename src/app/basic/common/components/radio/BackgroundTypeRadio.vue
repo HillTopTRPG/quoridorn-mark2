@@ -65,11 +65,8 @@ export default class BackgroundTypeRadio extends Mixins<ComponentVue>(
   }
 
   private createOptionInfoList() {
-    const getText = LanguageManager.instance.getText.bind(
-      LanguageManager.instance
-    );
     this.optionInfoList.forEach(o => {
-      o.text = getText(`label.${o.value}`);
+      o.text = this.$t(`label.${o.value}`)!.toString();
       o.key = o.value || "";
     });
   }

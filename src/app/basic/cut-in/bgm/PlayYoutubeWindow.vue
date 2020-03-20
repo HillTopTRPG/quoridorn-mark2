@@ -45,7 +45,7 @@ import WindowVue from "@/app/core/window/WindowVue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { WindowMoveInfo } from "@/@types/window";
-import { getCssPxNum } from "@/app/core/Css";
+import { getCssPxNum } from "@/app/core/css/Css";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import WindowManager from "@/app/core/window/WindowManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -58,7 +58,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
-import { getUrlParam } from "@/app/core/Utility";
+import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import YoutubeManager, {
   YoutubeEventHandler

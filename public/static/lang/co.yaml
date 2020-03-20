@@ -203,6 +203,9 @@ label:
   search-name-box: 名前検索欄
   search: 検索
   operation: 操作
+  drop-area: "どうぞそのまま\nドロップインしてください。"
+  local: ローカル
+  dropbox: Dropbox
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -423,3 +426,5 @@ card-deck-builder:
     count-four: 4枚
     count-more: 5枚以上
 
+card-deck-list-window:
+  window-title: 山札一覧

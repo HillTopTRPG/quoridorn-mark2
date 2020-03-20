@@ -18,6 +18,7 @@
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 interface Rectangle {
   x: number;
@@ -97,7 +98,7 @@ export default class StandImageComponent extends Vue {
     );
 
     // 差分のロード
-    this.diffImageList.splice(0, this.diffImageList.length);
+    listToEmpty(this.diffImageList);
     let diffImageList: any[] = [];
     standImage.diffList.forEach((diff: any, index: number) => {
       const promise = Promise.resolve().then(() => {

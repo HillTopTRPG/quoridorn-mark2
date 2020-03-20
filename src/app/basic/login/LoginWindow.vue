@@ -147,12 +147,7 @@ import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { loadYaml } from "@/app/core/File";
-import {
-  convertNumber,
-  getFileNameArgList,
-  getUrlParam
-} from "@/app/core/Utility";
+import { getFileNameArgList, loadYaml } from "@/app/core/utility/FileUtility";
 import {
   Scene,
   RoomData,
@@ -164,6 +159,11 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 import { ModeInfo } from "mode";
+import {
+  convertNumberNull,
+  getUrlParam,
+  listToEmpty
+} from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {
@@ -408,7 +408,7 @@ export default class LoginWindow extends Mixins<
       this.serverTestResult = resp;
       if (serverInfo.roomList) {
         if (!this.roomList) this.roomList = [];
-        else this.roomList!.splice(0, this.roomList!.length);
+        else listToEmpty(this.roomList!);
         serverInfo.roomList.forEach(
           (roomInfo: StoreUseData<ClientRoomInfo>) => {
             this.roomList!.push(roomInfo);
@@ -684,7 +684,7 @@ export default class LoginWindow extends Mixins<
       owner: "Quoridorn",
       value: {
         type: "create-room",
-        value: "on"
+        value: "on" as "on"
       }
     });
 
@@ -710,7 +710,7 @@ export default class LoginWindow extends Mixins<
         owner: "Quoridorn",
         value: {
           type: "create-room",
-          value: "off"
+          value: "off" as "off"
         }
       });
       return;
@@ -776,7 +776,7 @@ export default class LoginWindow extends Mixins<
   }
 
   private async procUrlParam() {
-    const no: number | null = convertNumber(getUrlParam("no"));
+    const no: number | null = convertNumberNull(getUrlParam("no"));
 
     if (this.roomList && no !== null && 0 <= no && no < this.roomList.length) {
       this.selectedRoomNo = no;
@@ -917,7 +917,7 @@ export default class LoginWindow extends Mixins<
       owner: "Quoridorn",
       value: {
         type: "create-room",
-        value: "on"
+        value: "on" as "on"
       }
     });
 

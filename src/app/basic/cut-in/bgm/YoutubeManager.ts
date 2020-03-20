@@ -1,5 +1,5 @@
 import { Size } from "address";
-import { createSize } from "@/app/core/Coordinate";
+import { createSize } from "@/app/core/utility/CoordinateUtility";
 import { CutInDeclareInfo } from "@/@types/room";
 
 type PlayerInfo = {

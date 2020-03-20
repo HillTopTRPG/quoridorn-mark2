@@ -84,7 +84,7 @@ import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
-import { createPoint } from "@/app/core/Coordinate";
+import { createPoint } from "@/app/core/utility/CoordinateUtility";
 
 export type CardCountInfo = {
   id: string;
