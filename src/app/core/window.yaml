@@ -1164,7 +1164,7 @@
   minimizable: true
   paneContainable: true
   closable: true
-  fontSizePickable: false
+  fontSizePickable: true
   resizable: true
   tableInfoList: []
 "media-upload-window":
@@ -1201,6 +1201,6 @@
   minimizable: true
   paneContainable: true
   closable: true
-  fontSizePickable: false
+  fontSizePickable: true
   resizable: true
   tableInfoList: []

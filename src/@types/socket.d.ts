@@ -148,3 +148,10 @@ export type SendDataRequest<T> = {
   owner: string;
   data: T | null;
 };
+
+export type UploadFileInfo = {
+  name: string;
+  src: string | ArrayBuffer | null;
+};
+
+export type UploadFileRequest = UploadFileInfo[];

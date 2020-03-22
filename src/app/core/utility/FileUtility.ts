@@ -116,6 +116,25 @@ export function saveFile(name: string, blob: Blob): void {
   anchor.click();
 }
 
+export async function file2ArrayBuffer(
+  file: File
+): Promise<string | ArrayBuffer | null> {
+  return new Promise<string | ArrayBuffer | null>((resolve, reject) => {
+    const fr = new FileReader();
+    fr.readAsArrayBuffer(file);
+    fr.onload = event => {
+      resolve(event.target!.result);
+    };
+    fr.onerror = err => {
+      reject(err);
+    };
+  });
+}
+
+export function extname(path: string): string {
+  return path.replace(/^.+\./, "");
+}
+
 export async function fileToBase64(file: File) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

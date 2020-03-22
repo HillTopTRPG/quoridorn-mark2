@@ -28,22 +28,22 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
-import VueEvent from "../../../core/decorator/VueEvent";
-import { TabInfo, WindowInfo, WindowOpenInfo } from "../../../../@types/window";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import ComponentVue from "../../../core/window/ComponentVue";
-import { UserType } from "../../../../@types/socket";
+import { TabInfo, WindowInfo, WindowOpenInfo } from "@/@types/window";
 import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
-import { StoreUseData } from "../../../../@types/store";
-import { ActorStore } from "../../../../@types/gameObject";
 import {
   ChatInfo,
   ChatTabInfo,
   GroupChatTabInfo,
   UserData
-} from "../../../../@types/room";
+} from "@/@types/room";
 import TaskManager from "../../../core/task/TaskManager";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { StoreUseData } from "@/@types/store";
+import { ActorStore } from "@/@types/gameObject";
+import { UserType } from "@/@types/socket";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -127,11 +127,10 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   background-color: white;
   overflow-y: scroll;
   box-sizing: content-box;
-  margin-bottom: 0.5rem;
 }
 
 .simple-tab-component {
-  flex: 1;
-  @include flex-box(column, stretch, stretch);
+  @include flex-box(column, stretch, flex-start);
+  height: 100%;
 }
 </style>

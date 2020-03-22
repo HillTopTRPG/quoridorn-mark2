@@ -1,5 +1,6 @@
 import JSZip from "jszip";
 import iconv from "iconv-lite";
+import yaml from "js-yaml";
 
 /**
  * ドロップインされたファイル群から、Fileの配列を得る。
@@ -9,10 +10,10 @@ import iconv from "iconv-lite";
  */
 export async function getDropFileList(
   dataTransfer: DataTransfer
-): Promise<File[]> {
-  let files: File[] = [];
+): Promise<(File | string)[]> {
+  let list: (File | string)[] = [];
   const rawFiles = dataTransfer.files;
-  for (const file of rawFiles) files.push(file);
+  for (const file of rawFiles) list.push(file);
 
   /*
    * ドロップされたものの中にフォルダが含まれており、かつブラウザが対応している場合は
@@ -23,13 +24,22 @@ export async function getDropFileList(
     const items: DataTransferItem[] = [];
     for (const item of rawItems) items.push(item);
 
-    const fileList: File[] = [];
+    const resultList: (File | string)[] = [];
     await Promise.all(
       items
         .filter(item => "webkitGetAsEntry" in item)
-        .map(item => scanEntryFiles(item.webkitGetAsEntry(), fileList, ""))
+        .map(item => {
+          window.console.log(item);
+          if (item.kind === "string") return item;
+          return item.webkitGetAsEntry;
+        })
+        .map(obj => scanEntryFiles(obj, resultList, ""))
     );
-    if (fileList.length) files = fileList;
+    if (resultList.length)
+      list = resultList.filter(
+        (r, idx, list) =>
+          list.findIndex(i => JSON.stringify(i) === JSON.stringify(r)) === idx
+      );
   }
 
   /*
@@ -37,29 +47,63 @@ export async function getDropFileList(
    */
   const unzipFunc = async (z: File): Promise<void> => {
     const zipFileList: File[] = await getZipFileList(z);
-    files.push(...zipFileList);
+    list.push(...zipFileList);
   };
 
   // 直列の非同期で全部実行する
-  await files
-    .filter(file => file.type.indexOf("zip") > -1)
-    .map(file => () => unzipFunc(file))
+  await list
+    .filter(item => typeof item !== "string" && item.type.indexOf("zip") > -1)
+    .map(file => () => unzipFunc(file as File))
     .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
   // フォルダの中も拾うし、zipも解凍した後の一覧
-  return files.filter(file => {
-    const name = file.name;
+  return list.filter(item => {
+    if (typeof item === "string") return true;
+    const name = item.name;
     if (name.startsWith("__MACOSX/")) return false;
     if (name.endsWith(".DS_Store")) return false;
     return !name.endsWith(".zip");
   });
 }
 
+function getResultList(text: string): string[] {
+  // jsonはパースできたらOK
+  try {
+    JSON.parse(text);
+    return [text];
+  } catch (err) {
+    // Nothing.
+  }
+
+  // yamlは "type"プロパティを持つものしか認めない
+  try {
+    const yamlObj: any = yaml.safeLoad(text);
+    if ("type" in yamlObj) {
+      return [JSON.stringify(yamlObj)];
+    }
+  } catch (err) {
+    // Nothing.
+  }
+
+  // テキスト形式は分解して、URLのみを取得
+  return text.split("\n").filter(s => s && s.startsWith("http"));
+}
+
 async function scanEntryFiles(
   entry: any,
-  fileList: File[],
+  resultList: (File | string)[],
   folderPath: string
 ): Promise<void> {
+  if ("kind" in entry && entry.kind === "string") {
+    await new Promise(resolve => {
+      entry.getAsString((result: string) => {
+        const textList = getResultList(result);
+        if (textList.length) resultList.push(...textList);
+        resolve();
+      });
+    });
+    return;
+  }
   switch (true) {
     case entry.isDirectory: {
       const name = entry.name;
@@ -69,7 +113,7 @@ async function scanEntryFiles(
       });
       await Promise.all(
         entries.map((entry: any) =>
-          scanEntryFiles(entry, fileList, folderPath + name + "/")
+          scanEntryFiles(entry, resultList, folderPath + name + "/")
         )
       );
       break;
@@ -84,7 +128,7 @@ async function scanEntryFiles(
         lastModified: file.lastModified
       });
 
-      fileList.push(newFile);
+      resultList.push(newFile);
       break;
     }
     default: {

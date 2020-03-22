@@ -61,6 +61,7 @@ import LanguageManager from "@/LanguageManager";
 import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import YoutubeManager, {
+  getYoutubeThunbnail,
   YoutubeEventHandler
 } from "@/app/basic/cut-in/bgm/YoutubeManager";
 import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
@@ -149,10 +150,7 @@ export default class PlayYoutubeWindow
     );
     this.maxVolume = this.bgmInfo.volume;
     this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.bgmInfo.url}`;
-    this.thumbnailData = `http://i.ytimg.com/vi/${getUrlParam(
-      "v",
-      this.bgmInfo.url
-    )}/default.jpg`;
+    this.thumbnailData = getYoutubeThunbnail(this.bgmInfo.url);
   }
 
   private get isStandByBgm(): boolean {

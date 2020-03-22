@@ -14,7 +14,8 @@ import {
   PartialRoomData,
   ChatInfo,
   ChatTabInfo,
-  GroupChatTabInfo
+  GroupChatTabInfo,
+  MediaInfo
 } from "@/@types/room";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -66,19 +67,24 @@ export default class GameObjectManager {
   private static _instance: GameObjectManager;
 
   /** 権限のデフォルト値 */
-  public static readonly DEFAULT_PERMISSION: Permission = {
-    view: {
-      type: "none",
-      list: []
-    },
-    edit: {
-      type: "none",
-      list: []
-    },
-    chmod: {
-      type: "none",
-      list: []
-    }
+  public static readonly PERMISSION_DEFAULT: Permission = {
+    view: { type: "none", list: [] },
+    edit: { type: "none", list: [] },
+    chmod: { type: "none", list: [] }
+  };
+
+  /** 権限のデフォルト値 */
+  public static readonly PERMISSION_OWNER_CHANGE: Permission = {
+    view: { type: "none", list: [] },
+    edit: { type: "allow", list: [{ type: "owner" }] },
+    chmod: { type: "allow", list: [{ type: "owner" }] }
+  };
+
+  /** 権限のデフォルト値 */
+  public static readonly PERMISSION_OWNER_VIEW: Permission = {
+    view: { type: "allow", list: [{ type: "owner" }] },
+    edit: { type: "allow", list: [{ type: "owner" }] },
+    chmod: { type: "allow", list: [{ type: "owner" }] }
   };
 
   // コンストラクタの隠蔽
@@ -100,6 +106,7 @@ export default class GameObjectManager {
     await sf.groupChatTabListCC().getList(true, this.groupChatTabList);
     await sf.sceneListCC().getList(true, this.sceneList);
     await sf.imageDataCC().getList(true, this.imageList);
+    await sf.mediaCC().getList(true, this.mediaList);
     await sf.imageTagCC().getList(true, this.imageTagList);
     await sf.userCC().getList(true, this.userList);
     await sf.cutInDataCC().getList(true, this.cutInList);
@@ -181,6 +188,16 @@ export default class GameObjectManager {
     )[0].id!;
     this.chatPublicInfo.system = this.clientRoomInfo.system;
     this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
+  }
+
+  /**
+   * ユーザー名を取得する
+   * @param userId
+   */
+  public getUserName(userId: string) {
+    const user = this.userList.filter(u => u.id === userId)[0];
+    const type = LanguageManager.instance.getText(`label.${user.data!.type}`);
+    return `${user.data!.name}(${type})`;
   }
 
   /**
@@ -296,6 +313,7 @@ export default class GameObjectManager {
   public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
   public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
   public readonly imageList: StoreUseData<ImageInfo>[] = [];
+  public readonly mediaList: StoreUseData<MediaInfo>[] = [];
   public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly userList: StoreUseData<UserData>[] = [];
   public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
@@ -574,6 +592,8 @@ export default class GameObjectManager {
         return this.groupChatTabList;
       case "scene":
         return this.sceneList;
+      case "media":
+        return this.mediaList;
       case "image":
         return this.imageList;
       case "image-tag":

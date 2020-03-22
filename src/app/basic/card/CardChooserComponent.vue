@@ -141,10 +141,10 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   private targetCount: number = 1;
 
   private get useCardList() {
+    const regExp = this.searchText ? new RegExp(this.searchText) : null;
     return this.cardList.filter(c => {
-      if (this.searchText) {
+      if (regExp) {
         const name = c.data!.name;
-        const regExp = new RegExp(this.searchText);
         if (!name.match(regExp)) return false;
       }
       const count = this.getSelectedCount(c.id!);

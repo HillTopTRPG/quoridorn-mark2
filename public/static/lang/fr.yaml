@@ -18,6 +18,7 @@ button:
   exit-room: Quitter
   edit: 編集
   chmod: 権限変更
+  upload: アップロード
 
 type:
   map-mask: Masque de carte
@@ -206,6 +207,7 @@ label:
   drop-area: "どうぞそのまま\nドロップインしてください。"
   local: ローカル
   dropbox: Dropbox
+  file-name: ファイル名
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -349,6 +351,7 @@ chat-window:
     add-actor: アクター追加
     player-box: プレイヤーボックス
     card-deck-list: 山札一覧
+    media-list: メディア一覧
   options:
     select-sender: 送信者の選択
     select-output-tab: 送信先タブの選択
@@ -428,3 +431,11 @@ card-deck-builder:
 
 card-deck-list-window:
   window-title: 山札一覧
+
+media-upload-window:
+  window-title: メディアアップロード
+
+media-list-window:
+  window-title: メディア一覧
+  dialog:
+    delete-media: "本当にメディア「$1」を削除しますか？\nこの操作は取り消せません。"

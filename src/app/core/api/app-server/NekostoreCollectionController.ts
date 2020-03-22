@@ -184,7 +184,7 @@ export default class NekostoreCollectionController<T> {
       id,
       data,
       option: {
-        permission: permission || GameObjectManager.DEFAULT_PERMISSION
+        permission: permission || GameObjectManager.PERMISSION_DEFAULT
       }
     });
   }
@@ -193,7 +193,7 @@ export default class NekostoreCollectionController<T> {
     dataList: T[],
     option?: Partial<StoreObj<any>>
   ): Promise<string[]> {
-    let permission: Permission = GameObjectManager.DEFAULT_PERMISSION;
+    let permission: Permission = GameObjectManager.PERMISSION_DEFAULT;
     let owner: string = GameObjectManager.instance.mySelfUserId;
     if (option) {
       if (option.permission) permission = option.permission;

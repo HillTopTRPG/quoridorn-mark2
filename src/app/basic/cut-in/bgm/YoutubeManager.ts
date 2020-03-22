@@ -1,6 +1,7 @@
 import { Size } from "address";
 import { createSize } from "@/app/core/utility/CoordinateUtility";
 import { CutInDeclareInfo } from "@/@types/room";
+import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 
 type PlayerInfo = {
   player: any;
@@ -19,6 +20,10 @@ export type YoutubeEventHandler = {
   setVolume: (volume: number) => void;
   setIsMute: (isMute: boolean) => void;
 };
+
+export function getYoutubeThunbnail(url: string) {
+  return `http://i.ytimg.com/vi/${getUrlParam("v", url)}/default.jpg`;
+}
 
 /**
  * 複数のYoutubeを再生するための特製のクラス！

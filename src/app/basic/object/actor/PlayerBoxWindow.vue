@@ -232,9 +232,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private getOwnerName(userId: string): string {
-    const user = this.userList.filter(u => u.id === userId)[0];
-    const userTypeStr = this.$t(`label.${user.data!.type}`)!.toString();
-    return `${user.data!.name}(${userTypeStr})`;
+    return GameObjectManager.instance.getUserName(userId);
   }
 
   private actorTabList: TabInfo[] = [

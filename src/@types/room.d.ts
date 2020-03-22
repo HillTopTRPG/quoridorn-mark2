@@ -224,6 +224,13 @@ type ImageInfo = {
   standImageInfo: StandImageInfo | null;
 };
 
+type MediaInfo = {
+  tag: string;
+  name: string;
+  url: string;
+  type: string;
+};
+
 export type ActorRef = {
   id: string;
   type: "user" | "other";

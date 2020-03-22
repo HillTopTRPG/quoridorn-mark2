@@ -60,7 +60,7 @@ declare module "window-info" {
       };
 
   type MediaUploadInfo = {
-    fileList: File[];
+    resultList: (File | string)[];
   };
 }
 

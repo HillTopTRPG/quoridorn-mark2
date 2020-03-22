@@ -30,7 +30,8 @@ import {
   SocketUserData,
   ChatInfo,
   ChatTabInfo,
-  GroupChatTabInfo
+  GroupChatTabInfo,
+  MediaInfo
 } from "@/@types/room";
 import {
   ActorStore,
@@ -431,9 +432,7 @@ export default class SocketFacade {
   ): NekostoreCollectionController<T> {
     const collectionName = `${this.__roomCollectionPrefix}-DATA-${collectionNamePrefix}`;
     let controller = this.collectionControllerMap[collectionName];
-    if (controller) {
-      return controller as NekostoreCollectionController<T>;
-    }
+    if (controller) return controller as NekostoreCollectionController<T>;
     return (this.collectionControllerMap[
       collectionName
     ] = new NekostoreCollectionController<T>(
@@ -493,6 +492,10 @@ export default class SocketFacade {
 
   public imageDataCC(): NekostoreCollectionController<ImageInfo> {
     return this.roomCollectionController<ImageInfo>("image-list");
+  }
+
+  public mediaCC(): NekostoreCollectionController<MediaInfo> {
+    return this.roomCollectionController<MediaInfo>("media-list");
   }
 
   public imageTagCC(): NekostoreCollectionController<string> {
@@ -567,6 +570,8 @@ export default class SocketFacade {
         return this.roomDataCC();
       case "image-list":
         return this.imageDataCC();
+      case "media":
+        return this.mediaCC();
       case "image-tag-list":
         return this.imageTagCC();
       case "cut-in":

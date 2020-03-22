@@ -4,8 +4,8 @@
     @scroll.prevent.stop
     @drop.prevent.stop="dropFile"
     @dragover.prevent.stop
-    @dragenter="onDragEnter($event)"
-    @dragleave="onDragLeave($event)"
+    @dragenter.prevent.stop="onDragEnter"
+    @dragleave.prevent.stop="onDragLeave"
     dropzone="move"
   >
     <!-- 最も後ろの背景 (z-index: 0) -->
@@ -98,7 +98,6 @@ import { CutInDeclareInfo } from "@/@types/room";
 import { disableBodyScroll } from "body-scroll-lock";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
-import DropBoxManager from "@/app/core/api/drop-box/DropBoxManager";
 import DropArea from "@/app/basic/media/DropArea.vue";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
@@ -278,7 +277,7 @@ export default class App extends Vue {
     }
 
     // ファイルをドロップインしている場合
-    const fileList = await getDropFileList(event.dataTransfer!);
+    const resultList = await getDropFileList(event.dataTransfer!);
 
     await TaskManager.instance.ignition<WindowOpenInfo<MediaUploadInfo>, never>(
       {
@@ -286,7 +285,7 @@ export default class App extends Vue {
         owner: "Quoridorn",
         value: {
           type: "media-upload-window",
-          args: { fileList }
+          args: { resultList }
         }
       }
     );

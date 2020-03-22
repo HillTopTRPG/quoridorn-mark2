@@ -2,6 +2,7 @@
   <div class="container" ref="window-container">
     <!-- ログビューアー -->
     <chat-log-viewer
+      class="chat-log-viewer"
       :windowInfo="windowInfo"
       :editedMessage="editedMessage"
       :userTypeLanguageMap="userTypeLanguageMap"
@@ -16,6 +17,7 @@
 
     <!-- 操作盤 -->
     <chat-operation-line
+      class="chat-operation-line"
       :windowInfo="windowInfo"
       :actorId.sync="actorId"
       :statusId.sync="statusId"
@@ -821,9 +823,22 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 @import "../../../assets/common";
 
 .container {
-  @include flex-box(column, stretch, center);
+  @include flex-box(column, stretch, flex-start);
   width: 100%;
   height: 100%;
+}
+
+.chat-log-viewer {
+  height: calc(100% - 10em - 1rem);
+  margin-bottom: 0.5rem;
+}
+
+.chat-operation-line {
+  flex-shrink: 0;
+}
+
+.chat-edit-container {
+  height: 8em;
 }
 
 .chat-edit-container {
@@ -841,12 +856,12 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   border: 1px solid gray;
   margin-top: -1px;
   background-color: white;
+  flex: 1;
 }
 
 .chat-input-container {
   @include flex-box(row, flex-start, stretch);
   flex: 1;
-  height: 6em;
 }
 
 textarea {
