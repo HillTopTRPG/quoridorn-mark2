@@ -103,64 +103,56 @@ export default class MediaUploadWindow extends Mixins<
   @LifeCycle
   private async mounted() {
     await this.init();
-    this.localResultList = this.windowInfo.args!.resultList.map(src => {
-      if (typeof src === "string") {
-        let iconClass = "icon-sphere";
-        let imageSrc: string | null = null;
-        let type = "url";
-        // URL
-        if (src.indexOf("youtube") > -1) {
-          iconClass = "icon-youtube2";
-          imageSrc = getYoutubeThunbnail(src);
-          type = "youtube";
-        }
-        return {
-          name: "",
-          tag: "",
-          type,
-          iconClass,
-          imageSrc,
-          src
-        };
-      } else {
-        const ext = extname(src.name);
-        let type: string = "(unknown)";
-        let iconClass: string = "icon-warning";
-        const fr = new FileReader();
-        switch (ext) {
-          case "png":
-          case "gif":
-          case "jpg":
-          case "jpeg":
-            type = "image";
-            iconClass = "icon-image";
-            fr.readAsDataURL(src);
-            break;
-          case "mp3":
-            type = "music";
-            iconClass = "icon-music";
-            break;
-          case "json":
-          case "yaml":
-            type = "setting";
-            iconClass = "icon-text";
-            break;
-          default:
-        }
-        const result: ResultInfo = {
-          name: src.name,
-          tag: "",
-          type,
-          iconClass,
-          imageSrc: null,
-          src
-        };
-        fr.onload = () => {
-          result.imageSrc = fr.result as string;
-        };
-        return result;
+    this.localResultList = this.windowInfo.args!.resultList.map(
+      this.createResultInfo
+    );
+  }
+
+  private createResultInfo(src: File | string): ResultInfo {
+    let name: string = typeof src === "string" ? src : src.name;
+    const tag = "";
+    let type: string = "(unknown)";
+    let iconClass: string = "icon-warning";
+    let imageSrc: string | null = null;
+
+    const ext = extname(name);
+    const fr = new FileReader();
+
+    if (name.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
+      iconClass = "icon-youtube2";
+      imageSrc = getYoutubeThunbnail(name);
+      type = "youtube";
+      // URLの場合はユーザに名前を入力してもらう
+      name = "";
+    } else {
+      switch (ext) {
+        case "png":
+        case "gif":
+        case "jpg":
+        case "jpeg":
+          type = "image";
+          iconClass = "icon-image";
+          if (typeof src === "string") imageSrc = src;
+          else fr.readAsDataURL(src);
+          break;
+        case "mp3":
+          type = "music";
+          iconClass = "icon-music";
+          break;
+        case "json":
+        case "yaml":
+          type = "setting";
+          iconClass = "icon-text";
+          break;
+        default:
       }
-    });
+      name = name.replace(/^https?:\/\/.+\//, "");
+    }
+    const result: ResultInfo = { name, tag, type, iconClass, imageSrc, src };
+    fr.onload = () => {
+      result.imageSrc = fr.result as string;
+    };
+    return result;
   }
 
   @Watch("dropBoxAccessKey")

@@ -12,6 +12,7 @@
         alt="image"
       />
     </div>
+    <span class="type" v-if="isViewThumbnail">{{ typeStr }}</span>
     <span class="tag">{{ tagStr }}</span>
     <div class="name">
       <span class="owner">{{ ownerStr }}</span>
@@ -60,9 +61,6 @@ import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { WindowOpenInfo } from "@/@types/window";
-import TaskManager from "@/app/core/task/TaskManager";
-import { DataReference } from "@/@types/data";
 
 @Component({
   components: { SButton, BaseInput, CtrlButton }
@@ -75,6 +73,23 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   private isViewThumbnail!: boolean;
+
+  @VueEvent
+  private get typeStr(): string {
+    const type = this.media.data!.type;
+    let target = "label.";
+    switch (type) {
+      case "image":
+      case "music":
+      case "setting":
+      case "youtube":
+        target += type;
+        break;
+      default:
+        target += "unknown";
+    }
+    return LanguageManager.instance.getText(target);
+  }
 
   @VueEvent
   private get tagStr(): string {
@@ -137,7 +152,7 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   &.thumbnail-mode {
     display: grid;
     grid-template-rows: 3em 3em;
-    grid-template-columns: calc(6em + 0.5rem) auto 1fr auto;
+    grid-template-columns: calc(6em + 0.5rem) auto auto 1fr auto;
     align-items: center;
     height: 6em;
     padding: 0.5rem;
@@ -150,18 +165,23 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
     .name {
       grid-row: 1 / 2;
-      grid-column: 2 / 5;
+      grid-column: 2 / 6;
       font-size: 120%;
     }
 
-    .tag {
+    .type {
       grid-row: 2 / 3;
       grid-column: 2 / 3;
     }
 
+    .tag {
+      grid-row: 2 / 3;
+      grid-column: 3 / 4;
+    }
+
     .operation-box {
       grid-row: 2 / 3;
-      grid-column: 4 / 5;
+      grid-column: 5 / 6;
     }
   }
 
@@ -189,16 +209,8 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   margin-right: 0.5rem;
 }
 
-.tag {
-  border: 1px solid gray;
-  border-radius: 0.5em;
-  background-color: var(--uni-color-white);
-  margin-right: 0.5rem;
-  padding: 0 0.3rem;
-  line-height: 1.5em;
-  box-sizing: border-box;
-}
-
+.tag,
+.type,
 .owner {
   display: inline-block;
   border: 1px solid gray;
