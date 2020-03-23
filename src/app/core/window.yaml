@@ -613,40 +613,6 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
-"input-image-password-window":
-  icon: key2
-  parentTypeList: []
-  isInputWindow: true
-  isMovingRendering: false
-  message: ""
-  position: center
-  size:
-    widthPx: 400
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 5.5
-    heightRem: 0.7
-  minSize:
-    widthPx: 400
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 5.5
-    heightRem: 0.7
-  maxSize:
-    widthPx: 600
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 5.5
-    heightRem: 0.7
-  minimizable: true
-  paneContainable: true
-  closable: true
-  fontSizePickable: true
-  resizable: true
-  tableInfoList: []
 "edit-other-text-window":
   icon: pencil
   parentTypeList: []

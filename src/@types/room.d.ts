@@ -213,17 +213,6 @@ type StandImageInfo = Point & {
   type: "pile" | "replace";
 };
 
-/**
- * imageDataCCのデータ定義
- * 画像1件の情報
- */
-type ImageInfo = {
-  tag: string;
-  data: string;
-  password: string;
-  standImageInfo: StandImageInfo | null;
-};
-
 type MediaInfo = {
   tag: string;
   name: string;

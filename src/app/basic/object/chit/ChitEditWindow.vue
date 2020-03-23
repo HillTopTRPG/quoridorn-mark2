@@ -63,7 +63,7 @@ export default class ChitEditWindow extends Mixins<
   private tag: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private imageList = GameObjectManager.instance.imageList;
+  private mediaList = GameObjectManager.instance.mediaList;
   private otherText: string = "";
   private height: number = 1;
   private width: number = 1;

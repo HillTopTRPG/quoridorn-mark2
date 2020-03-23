@@ -10,7 +10,6 @@ import {
   RoomData,
   SocketUserData,
   CutInDeclareInfo,
-  ImageInfo,
   PartialRoomData,
   ChatInfo,
   ChatTabInfo,
@@ -105,9 +104,7 @@ export default class GameObjectManager {
     await sf.chatTabListCC().getList(true, this.chatTabList);
     await sf.groupChatTabListCC().getList(true, this.groupChatTabList);
     await sf.sceneListCC().getList(true, this.sceneList);
-    await sf.imageDataCC().getList(true, this.imageList);
     await sf.mediaCC().getList(true, this.mediaList);
-    await sf.imageTagCC().getList(true, this.imageTagList);
     await sf.userCC().getList(true, this.userList);
     await sf.cutInDataCC().getList(true, this.cutInList);
     await sf.socketUserCC().getList(true, this.socketUserList);
@@ -165,8 +162,8 @@ export default class GameObjectManager {
     );
 
     // 画像のプリロード
-    this.imageList.forEach(image => {
-      const src = getSrc(image.data!.data);
+    this.mediaList.forEach(media => {
+      const src = getSrc(media.data!.url);
       if (!src.startsWith("data")) {
         const imgElm = document.createElement("img");
         imgElm.src = src;
@@ -312,7 +309,6 @@ export default class GameObjectManager {
   public readonly sceneList: StoreUseData<Scene>[] = [];
   public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
   public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
-  public readonly imageList: StoreUseData<ImageInfo>[] = [];
   public readonly mediaList: StoreUseData<MediaInfo>[] = [];
   public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly userList: StoreUseData<UserData>[] = [];
@@ -594,10 +590,6 @@ export default class GameObjectManager {
         return this.sceneList;
       case "media":
         return this.mediaList;
-      case "image":
-        return this.imageList;
-      case "image-tag":
-        return this.imageTagList;
       case "bgm-stand-by":
         return this.bgmStandByList;
       case "user":

@@ -83,7 +83,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private isMounted: boolean = false;
   private cc = SocketFacade.instance.sceneListCC();
-  private imageList = GameObjectManager.instance.imageList;
+  private mediaList = GameObjectManager.instance.mediaList;
   private sceneList = GameObjectManager.instance.sceneList;
   private selectedSceneId: string | null = null;
 
@@ -116,10 +116,10 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
           backgroundColor = texture.backgroundColor;
         } else {
           const imageData = await SocketFacade.instance
-            .imageDataCC()
+            .mediaCC()
             .getData(texture.imageId);
           if (imageData && imageData.data) {
-            backgroundImage = `url("${getSrc(imageData.data.data)}")`;
+            backgroundImage = `url("${getSrc(imageData.data.url)}")`;
           }
           if (texture.direction === "horizontal") direction = "scale(-1, 1)";
           if (texture.direction === "vertical") direction = "scale(1, -1)";
@@ -203,8 +203,8 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private async createMap() {
-    const firstImage = this.imageList[0].data!;
-    const firstImageId = this.imageList[0].id!;
+    const firstImage = this.mediaList[0].data!;
+    const firstImageId = this.mediaList[0].id!;
 
     const scene: Scene = {
       name: "New map",

@@ -1,0 +1,177 @@
+# TODO 立ち絵の仕様については一旦保留
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵
+  url: http://quoridorn.com/img/mascot/normal/mascot_normal.png
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/normal/mascot_normal_wink.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 30 # X座標
+    y: 16 # Y座標
+    viewStart: 20 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/normal/mascot_normal_stick.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 177 # X座標
+    y: 0 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_1.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 83 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/normal/mascot_normal_wing_right_2.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 83 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+
+
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle.png
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_left.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 197 # X座標
+    y: 64 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_leg_right.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 96 # X座標
+    y: 92 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_1.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 0 # X座標
+    y: 0 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_sweat_2.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 0 # X座標
+    y: 0 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_tie.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 134 # X座標
+    y: 61 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_left.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 166 # X座標
+    y: 19 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/struggle/mascot_struggle_wing_right.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 21 # X座標
+    y: 61 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+
+
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach.png
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach_stick.png
+  # 立ち絵情報
+  standImageInfo:
+    type: replace # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 179 # X座標
+    y: 0 # Y座標
+    viewStart: 20 # 表示時間(開始%) 0~100
+    viewEnd: 70 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach_wing_right.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 108 # X座標
+    y: 81 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach_glad_1.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 40 # X座標
+    y: 1 # Y座標
+    viewStart: 0 # 表示時間(開始%) 0~100
+    viewEnd: 50 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach_glad_2.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 43 # X座標
+    y: 1 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#
+- tag: 立ち絵差分
+  url: http://quoridorn.com/img/mascot/teach/mascot_teach_mouth.png
+  # 立ち絵情報
+  standImageInfo:
+    type: pile # 画像処理方法(pile: 重ねる, replace:置換)
+    x: 149 # X座標
+    y: 55 # Y座標
+    viewStart: 50 # 表示時間(開始%) 0~100
+    viewEnd: 100 # 表示時間(終了%) 0~100
+#=========#=========#=========#=========#=========#=========#

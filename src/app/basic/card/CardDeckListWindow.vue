@@ -76,7 +76,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   private isMounted: boolean = false;
   private cardMetaCC = SocketFacade.instance.cardMetaCC();
   private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
-  private imageList = GameObjectManager.instance.imageList;
+  private mediaList = GameObjectManager.instance.mediaList;
   private cardMetaList = GameObjectManager.instance.cardMetaList;
   private cardDeckBigList = GameObjectManager.instance.cardDeckBigList;
   private selectedCardDeckBigId: string | null = null;

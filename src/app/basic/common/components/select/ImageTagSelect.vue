@@ -46,14 +46,15 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    this.optionInfoList = GameObjectManager.instance.imageTagList.map(
-      tagObj => ({
-        key: tagObj.id,
-        value: tagObj.data,
-        text: tagObj.data,
+    this.optionInfoList = GameObjectManager.instance.mediaList
+      .map(image => image.data!.tag)
+      .filter((tag, idx, list) => list.indexOf(tag) === idx)
+      .map(tag => ({
+        key: tag,
+        value: tag,
+        text: tag,
         disabled: false
-      })
-    );
+      }));
     if (this.defaultLabel) {
       this.optionInfoList.unshift({
         key: null,

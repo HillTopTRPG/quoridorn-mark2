@@ -154,7 +154,7 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, required: true })
   private isAdd!: boolean;
 
-  private imageList = GameObjectManager.instance.imageList;
+  private mediaList = GameObjectManager.instance.mediaList;
   private isMounted: boolean = false;
   private imageSrc: string = "";
 
@@ -328,11 +328,11 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("backgroundSize")
   private onChangeImage() {
     if (!this.isMounted) return;
-    const imageObj = this.imageList.filter(
+    const imageObj = this.mediaList.filter(
       obj => obj.id === this.imageDocId
     )[0];
     if (!imageObj) return;
-    this.imageSrc = getSrc(imageObj.data!.data);
+    this.imageSrc = getSrc(imageObj.data!.url);
     this.objectElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
     let direction = "";
     if (this.direction === "horizontal") direction = "scale(-1, 1)";

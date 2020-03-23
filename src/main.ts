@@ -23,7 +23,6 @@ import RoomInfoWindow from "@/app/basic/login/RoomInfoWindow.vue";
 import MapMastAddWindow from "@/app/basic/object/map-mask/MapMaskAddWindow.vue";
 import MapMastEditWindow from "@/app/basic/object/map-mask/MapMaskEditWindow.vue";
 import ChitAddWindow from "@/app/basic/object/chit/ChitAddWindow.vue";
-import InputImagePasswordWindow from "@/app/core/component/InputImagePasswordWindow.vue";
 import EditOtherTextWindow from "@/app/basic/other-text/EditOtherTextWindow.vue";
 import ChitEditWindow from "@/app/basic/object/chit/ChitEditWindow.vue";
 import SceneListWindow from "@/app/basic/map/SceneListWindow.vue";
@@ -87,7 +86,6 @@ async function main(): Promise<void> {
   Vue.component("map-mask-edit-window", MapMastEditWindow);
   Vue.component("chit-add-window", ChitAddWindow);
   Vue.component("chit-edit-window", ChitEditWindow);
-  Vue.component("input-image-password-window", InputImagePasswordWindow);
   Vue.component("edit-other-text-window", EditOtherTextWindow);
   Vue.component("scene-list-window", SceneListWindow);
   Vue.component("edit-scene-window", EditSceneWindow);

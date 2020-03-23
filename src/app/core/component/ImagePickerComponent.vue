@@ -6,7 +6,7 @@
         v-for="image in useImageList"
         :class="{ active: value === image.id }"
         :key="image.id"
-        :src="getSrc(image.data.data)"
+        :src="image.data.url"
         alt=""
         @click="localValue = image.id"
         draggable="false"
@@ -49,9 +49,6 @@
               :id="`${windowKey}-image-pick-direction`"
               v-model="direction"
             />
-            <ctrl-button @click="inputPassword">
-              <span v-t="'label.image-password'"></span>
-            </ctrl-button>
           </div>
         </td>
       </tr>
@@ -64,9 +61,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
 import { StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { Direction, ImageInfo } from "@/@types/room";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
+import { Direction, MediaInfo } from "@/@types/room";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
@@ -96,11 +91,10 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   private isMounted: boolean = false;
   private selectImageTag: string | null = null;
-  private password: string = "";
   private direction: Direction = "none";
 
-  private rowImageList: StoreUseData<ImageInfo>[] = [];
-  private useImageList: StoreUseData<ImageInfo>[] = [];
+  private rowImageList: StoreUseData<MediaInfo>[] = [];
+  private useImageList: StoreUseData<MediaInfo>[] = [];
 
   @VueEvent
   private getSrc(data: string) {
@@ -109,17 +103,16 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @Watch("isMounted")
   @Watch("selectImageTag")
-  @Watch("password")
   @Watch("rowImageList", { deep: true })
   private async onChangeImageList() {
     if (!this.isMounted) return;
     this.useImageList = this.rowImageList.filter(d => {
       if (!d || !d.data) return false;
-      if (d.data.tag !== this.selectImageTag) return false;
-      return d.data.password === this.password;
+      return d.data.tag === this.selectImageTag;
     });
   }
 
+  @VueEvent
   private get selectedTagIndexText() {
     const index = this.useImageList.findIndex(
       image => image.id === this.localValue
@@ -127,24 +120,11 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     return `${index + 1}/${this.useImageList.length}`;
   }
 
-  private async inputPassword() {
-    const imagePasswordList = await TaskManager.instance.ignition<
-      WindowOpenInfo<string>,
-      string
-    >({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "input-image-password-window",
-        args: this.password
-      }
-    });
-    if (imagePasswordList.length) this.password = imagePasswordList[0];
-  }
-
   @LifeCycle
   private mounted() {
-    this.rowImageList = GameObjectManager.instance.imageList;
+    this.rowImageList = GameObjectManager.instance.mediaList.filter(
+      media => media.data.type === "image"
+    );
     this.isMounted = true;
   }
 

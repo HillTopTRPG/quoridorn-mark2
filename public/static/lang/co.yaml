@@ -318,10 +318,6 @@ chit-add-window:
 chit-edit-window:
   window-title: チット編集
 
-input-image-password-window:
-  window-title: 숨겨진 이미지 암호 입력
-  message: 암호를 입력하면 숨겨진 이미지를 표시 할 수 있습니다
-
 scene-list-window:
   window-title: シーン一覧
 

@@ -23,7 +23,6 @@ import {
   Scene,
   RoomData,
   UserData,
-  ImageInfo,
   ActorGroup,
   CutInDeclareInfo,
   SceneAndObject,
@@ -490,10 +489,6 @@ export default class SocketFacade {
     return this.roomCollectionController<RoomData>("room-data");
   }
 
-  public imageDataCC(): NekostoreCollectionController<ImageInfo> {
-    return this.roomCollectionController<ImageInfo>("image-list");
-  }
-
   public mediaCC(): NekostoreCollectionController<MediaInfo> {
     return this.roomCollectionController<MediaInfo>("media-list");
   }
@@ -568,8 +563,6 @@ export default class SocketFacade {
         return this.sceneListCC();
       case "room-data":
         return this.roomDataCC();
-      case "image-list":
-        return this.imageDataCC();
       case "media":
         return this.mediaCC();
       case "image-tag-list":

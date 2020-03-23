@@ -134,8 +134,7 @@ import {
   RoomLoginRequest,
   UserLoginResponse,
   LoginWindowInput,
-  ServerTestResult,
-  RoomInfoExtend
+  ServerTestResult
 } from "@/@types/socket";
 import { PermissionNode, StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -147,13 +146,13 @@ import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { getFileNameArgList, loadYaml } from "@/app/core/utility/FileUtility";
+import { extname, loadYaml } from "@/app/core/utility/FileUtility";
 import {
   Scene,
   RoomData,
   SceneLayerType,
-  ImageInfo,
-  CutInDeclareInfo
+  CutInDeclareInfo,
+  MediaInfo
 } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
@@ -164,6 +163,7 @@ import {
   getUrlParam,
   listToEmpty
 } from "@/app/core/utility/PrimaryDataUtility";
+import { getSrc } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -784,8 +784,8 @@ export default class LoginWindow extends Mixins<
       this.urlPlayerName = getUrlParam("player");
 
       if (this.urlPlayerName) {
-        const roomId = this.roomList.filter(r => r.order === no)[0].id;
-        const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
+        // const roomId = this.roomList.filter(r => r.order === no)[0].id;
+        // const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
         // window.console.log(`token: ${cookieToken}`);
       } else {
         if (!this.disabledLogin) await this.login();
@@ -972,57 +972,76 @@ export default class LoginWindow extends Mixins<
     });
   }
 
+  /**
+   * 部屋の初期データをDBに投入する
+   *
+   * @param createRoomInput
+   */
   private async addPresetData(createRoomInput: CreateRoomInput) {
-    const imageList: ImageInfo[] = await loadYaml<ImageInfo[]>(
-      "./static/conf/image.yaml"
+    const mediaList: MediaInfo[] = await loadYaml<MediaInfo[]>(
+      "./static/conf/media.yaml"
     );
-    const imageTagList: string[] = await loadYaml<string[]>(
-      "./static/conf/imageTag.yaml"
-    );
-    imageList.forEach((image: ImageInfo) => {
-      if (!image.tag)
-        image.tag = imageTagList.length ? imageTagList[0] : "default";
-      if (image.standImageInfo) {
-        // 立ち絵パラメータの値を正しく設定
-        const si = image.standImageInfo;
-        if (!si.status) si.status = "";
-        if (si.type !== "pile" && si.type !== "replace") si.type = "pile";
-        if (
-          si.viewStart === undefined ||
-          si.viewStart < 0 ||
-          si.viewStart > 100
-        )
-          si.viewStart = 0;
-        if (si.viewEnd === undefined || si.viewEnd < 0 || si.viewEnd > 100)
-          si.viewEnd = 100;
-      } else {
-        // 立ち絵パラメータを推測＆設定
-        image.standImageInfo = getFileNameArgList(image.data) || null;
-      }
+    let firstImageIdx: number = -1;
+    mediaList.forEach((media: MediaInfo, idx: number) => {
+      if (!media.tag) media.tag = "";
+      media.url = getSrc(media.url);
 
-      const regExp = new RegExp("[ 　]+", "g");
-      const tagStrList = image.tag.split(regExp);
-      tagStrList.forEach((tagStr: string) => {
-        const imageTag: string = imageTagList.filter(
-          (imageTag: string) => imageTag === tagStr
-        )[0];
-        if (!imageTag) imageTagList.push(tagStr);
-      });
+      const ext = extname(media.url);
+
+      if (media.url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
+        media.type = "youtube";
+        if (!media.name) {
+          media.name = LanguageManager.instance.getText("label.no-target");
+        }
+      } else {
+        switch (ext) {
+          case "png":
+          case "gif":
+          case "jpg":
+          case "jpeg":
+            media.type = "image";
+            if (firstImageIdx === -1) firstImageIdx = idx;
+            break;
+          case "mp3":
+            media.type = "music";
+            break;
+          case "json":
+          case "yaml":
+            media.type = "setting";
+            break;
+          default:
+            media.type = "unknown";
+        }
+        if (!media.name) {
+          media.name = media.url.replace(/^https?:\/\/.+\//, "");
+        }
+      }
+      // if (image.standImageInfo) {
+      //   // 立ち絵パラメータの値を正しく設定
+      //   const si = image.standImageInfo;
+      //   if (!si.status) si.status = "";
+      //   if (si.type !== "pile" && si.type !== "replace") si.type = "pile";
+      //   if (
+      //     si.viewStart === undefined ||
+      //     si.viewStart < 0 ||
+      //     si.viewStart > 100
+      //   )
+      //     si.viewStart = 0;
+      //   if (si.viewEnd === undefined || si.viewEnd < 0 || si.viewEnd > 100)
+      //     si.viewEnd = 100;
+      // } else {
+      //   // 立ち絵パラメータを推測＆設定
+      //   image.standImageInfo = getFileNameArgList(image.data) || null;
+      // }
     });
 
     /* --------------------------------------------------
-     * 画像タグのプリセットデータ投入
+     * メディアデータのプリセットデータ投入
      */
-    const imageTagCC = SocketFacade.instance.imageTagCC();
-    await imageTagCC.addDirect(imageTagList);
+    const mediaCC = SocketFacade.instance.mediaCC();
+    const docIdList = await mediaCC.addDirect(mediaList);
 
-    /* --------------------------------------------------
-     * 画像データのプリセットデータ投入
-     */
-    const imageDataCC = SocketFacade.instance.imageDataCC();
-    const docIdList = await imageDataCC.addDirect(imageList);
-
-    const imageId: string = docIdList[0];
+    const imageId: string = docIdList[firstImageIdx];
 
     /* --------------------------------------------------
      * BGMデータのプリセットデータ投入
@@ -1054,7 +1073,7 @@ export default class LoginWindow extends Mixins<
       shapeType: "square",
       texture: {
         type: "image",
-        imageTag: imageList[0].tag,
+        imageTag: mediaList[firstImageIdx].tag,
         imageId: imageId!,
         direction: "none",
         backgroundSize: "100%"
@@ -1062,7 +1081,7 @@ export default class LoginWindow extends Mixins<
       background: {
         texture: {
           type: "image",
-          imageTag: imageList[0].tag,
+          imageTag: mediaList[firstImageIdx].tag,
           imageId: imageId!,
           direction: "none",
           backgroundSize: "100%"
@@ -1073,7 +1092,7 @@ export default class LoginWindow extends Mixins<
         useTexture: "original",
         texture: {
           type: "image",
-          imageTag: imageList[0].tag,
+          imageTag: mediaList[firstImageIdx].tag,
           imageId: imageId!,
           direction: "none",
           backgroundSize: "100%"

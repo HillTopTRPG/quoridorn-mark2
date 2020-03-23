@@ -160,11 +160,11 @@ export function getTextureStyle(texture: Texture) {
   if (texture.type === "color") {
     style.backgroundColor = texture.backgroundColor;
   } else {
-    const imageData = GameObjectManager.instance.imageList.filter(
+    const imageData = GameObjectManager.instance.mediaList.filter(
       i => i.id === texture.imageId
     )[0];
     if (imageData && imageData.data) {
-      style.backgroundImage = `url("${getSrc(imageData.data.data)}")`;
+      style.backgroundImage = `url("${getSrc(imageData.data.url)}")`;
     }
     if (texture.direction === "horizontal") style.transform = "scale(-1, 1)";
     if (texture.direction === "vertical") style.transform = "scale(1, -1)";

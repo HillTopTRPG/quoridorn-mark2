@@ -49,7 +49,7 @@ export default class PieceMixin<
   protected inflateWidth: number = 0;
   protected sceneObjectCC = SocketFacade.instance.sceneObjectCC();
   protected sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-  private imageList = GameObjectManager.instance.imageList;
+  private mediaList = GameObjectManager.instance.mediaList;
 
   protected isMounted: boolean = false;
   protected sceneObjectInfo: StoreUseData<SceneObject> | null = null;
@@ -335,10 +335,10 @@ export default class PieceMixin<
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
-      const imageObj = this.imageList.filter(
-        obj => obj.id === backInfo.imageId
+      const media = this.mediaList.filter(
+        media => media.id === backInfo.imageId
       )[0];
-      this.imageSrc = getSrc(imageObj.data!.data);
+      this.imageSrc = getSrc(media.data!.url);
       this.elm.style.setProperty(`--image`, `url(${this.imageSrc})`);
       let direction = "";
       if (backInfo.direction === "horizontal") direction = "scale(-1, 1)";

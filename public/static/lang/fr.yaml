@@ -318,10 +318,6 @@ chit-add-window:
 chit-edit-window:
   window-title: チット編集
 
-input-image-password-window:
-  window-title: Entrez le mot de passe pour l'image cachée
-  message: En entrant le mot de passe, vous pouvez afficher l'image cachée.
-
 scene-list-window:
   window-title: シーン一覧
 
