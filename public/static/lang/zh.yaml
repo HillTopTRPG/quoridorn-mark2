@@ -212,6 +212,7 @@ label:
   list: リスト
   youtube: Youtube
   music: 音楽
+  system: システム
 
 message:
   copy-to-clipboard: 复制到剪贴板
@@ -434,6 +435,12 @@ card-deck-list-window:
 
 media-upload-window:
   window-title: メディアアップロード
+  dialog:
+    input-tag: "まとめて設定するタグを入力してください。"
+    delete-together: "まとめて削除しますか？"
+  message-list:
+    edit-tag-together: まとめてタグ編集
+    delete-together: まとめて削除
 
 media-list-window:
   window-title: メディア一覧

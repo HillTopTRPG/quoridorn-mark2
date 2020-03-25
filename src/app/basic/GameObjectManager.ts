@@ -191,8 +191,9 @@ export default class GameObjectManager {
    * ユーザー名を取得する
    * @param userId
    */
-  public getUserName(userId: string) {
+  public getUserName(userId: string | null) {
     const user = this.userList.filter(u => u.id === userId)[0];
+    if (!user) return LanguageManager.instance.getText("label.system");
     const type = LanguageManager.instance.getText(`label.${user.data!.type}`);
     return `${user.data!.name}(${type})`;
   }

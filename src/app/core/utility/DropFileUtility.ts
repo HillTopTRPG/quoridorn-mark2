@@ -29,7 +29,6 @@ export async function getDropFileList(
       items
         .filter(item => "webkitGetAsEntry" in item)
         .map(item => {
-          window.console.log(item);
           if (item.kind === "string") return item;
           return item.webkitGetAsEntry;
         })

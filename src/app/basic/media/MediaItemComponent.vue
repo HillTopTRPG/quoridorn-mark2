@@ -99,7 +99,7 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get ownerStr(): string {
-    return GameObjectManager.instance.getUserName(this.media.owner!);
+    return GameObjectManager.instance.getUserName(this.media.owner);
   }
 
   @VueEvent

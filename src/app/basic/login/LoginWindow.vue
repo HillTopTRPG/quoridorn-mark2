@@ -1039,7 +1039,7 @@ export default class LoginWindow extends Mixins<
      * メディアデータのプリセットデータ投入
      */
     const mediaCC = SocketFacade.instance.mediaCC();
-    const docIdList = await mediaCC.addDirect(mediaList);
+    const docIdList = await mediaCC.addDirect(mediaList, { owner: null });
 
     const imageId: string = docIdList[firstImageIdx];
 

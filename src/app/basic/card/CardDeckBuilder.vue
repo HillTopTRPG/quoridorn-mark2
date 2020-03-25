@@ -230,7 +230,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       value: {
         type: "view-card-deck",
         value: {
-          flag: "off",
+          flag: "off" as "off",
           cardDeckId: ""
         }
       }

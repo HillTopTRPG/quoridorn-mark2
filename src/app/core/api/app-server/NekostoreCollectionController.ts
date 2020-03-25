@@ -196,8 +196,8 @@ export default class NekostoreCollectionController<T> {
     let permission: Permission = GameObjectManager.PERMISSION_DEFAULT;
     let owner: string = GameObjectManager.instance.mySelfUserId;
     if (option) {
-      if (option.permission) permission = option.permission;
-      if (option.owner) owner = option.owner;
+      if (option.permission === undefined) option.permission = permission;
+      if (option.owner === undefined) option.owner = owner;
     }
     return await SocketFacade.instance.socketCommunication<
       AddDirectRequest,

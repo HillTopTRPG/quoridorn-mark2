@@ -46,6 +46,11 @@
         alt=""
       />
     </div>
+    <div
+      id="progress-bar"
+      :style="{ '--ratio': `${(progressCurrent * 100) / progressAll}%` }"
+      v-if="progressFlag"
+    ></div>
   </div>
 </template>
 
@@ -134,6 +139,9 @@ export default class App extends Vue {
   private cutInList = GameObjectManager.instance.cutInList;
   private isDropPiece: boolean = false;
   private isDropping: boolean = false;
+  private progressFlag: boolean = false;
+  private progressAll: number = 0;
+  private progressCurrent: number = 0;
 
   private static get elm(): HTMLElement {
     return document.getElementById("app") as HTMLElement;
@@ -194,6 +202,20 @@ export default class App extends Vue {
             data: null
           });
         }
+      }
+    );
+    SocketFacade.instance.socketOn<{ all: number; current: number }>(
+      "notify-progress",
+      async (err, { all, current }) => {
+        const flag: "on" | "off" = all > 0 && all !== current ? "on" : "off";
+        await TaskManager.instance.ignition<ModeInfo, never>({
+          type: "mode-change",
+          owner: "Quoridorn",
+          value: {
+            type: "view-progress",
+            value: { flag, all, current }
+          }
+        });
       }
     );
 
@@ -601,6 +623,16 @@ export default class App extends Vue {
       this.isDropPiece = value === "on";
       task.resolve();
     }
+    if (taskValue.type === "view-progress") {
+      const flag: string = taskValue.value.flag;
+      const all: number = taskValue.value.all;
+      const current: number = taskValue.value.current;
+      this.progressFlag = flag === "on";
+      this.progressAll = all;
+      this.progressCurrent = current;
+      window.console.log(`UPLOAD PROCESS: (${current} / ${all})`);
+      task.resolve();
+    }
   }
 
   @TaskProcessor("socket-connect-error-finished")
@@ -819,6 +851,30 @@ label {
       border-style: solid;
       border-top-color: white;
     }
+  }
+}
+
+#progress-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 20%;
+  transform: translateX(-50%);
+  height: 2em;
+  width: 18em;
+  z-index: 11;
+  background-color: var(--uni-color-white);
+  border: 1px solid gray;
+  border-radius: 0.5em;
+
+  &:before {
+    content: "";
+    width: var(--ratio);
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    border-radius: 0.5em;
+    background-color: var(--uni-color-orange);
   }
 }
 </style>

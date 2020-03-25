@@ -93,7 +93,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   private selectImageTag: string | null = null;
   private direction: Direction = "none";
 
-  private rowImageList: StoreUseData<MediaInfo>[] = [];
+  private rawImageList: StoreUseData<MediaInfo>[] = [];
   private useImageList: StoreUseData<MediaInfo>[] = [];
 
   @VueEvent
@@ -103,10 +103,10 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @Watch("isMounted")
   @Watch("selectImageTag")
-  @Watch("rowImageList", { deep: true })
+  @Watch("rawImageList", { deep: true })
   private async onChangeImageList() {
     if (!this.isMounted) return;
-    this.useImageList = this.rowImageList.filter(d => {
+    this.useImageList = this.rawImageList.filter(d => {
       if (!d || !d.data) return false;
       return d.data.tag === this.selectImageTag;
     });
@@ -122,8 +122,8 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @LifeCycle
   private mounted() {
-    this.rowImageList = GameObjectManager.instance.mediaList.filter(
-      media => media.data.type === "image"
+    this.rawImageList = GameObjectManager.instance.mediaList.filter(
+      media => media.data!.type === "image"
     );
     this.isMounted = true;
   }

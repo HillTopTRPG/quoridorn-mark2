@@ -1,5 +1,34 @@
 <template>
   <div class="container" ref="window-container">
+    <div class="operate-box">
+      <s-button
+        class="s-button"
+        icon="price-tags"
+        colorStyle="skyblue"
+        :disabled="!localResultList.length"
+        @hover="hoverEditTags"
+        @click="editTags()"
+      />
+      <s-button
+        class="s-button"
+        icon="bin"
+        colorStyle="skyblue"
+        :disabled="!localResultList.length"
+        @hover="hoverDeleteAll"
+        @click="deleteAll()"
+      />
+      <input
+        type="text"
+        class="search-name"
+        :value="searchText"
+        @input="searchText = $event.target.value"
+        :placeholder="$t('label.search-name-box')"
+        @keydown.enter.prevent.stop
+        @keyup.enter.prevent.stop
+        @keydown.229.prevent.stop
+        @keyup.229.prevent.stop
+      />
+    </div>
     <input type="file" />
     <simple-tab-component
       class="view-type-tab"
@@ -9,7 +38,7 @@
     >
       <div class="tab-container">
         <media-upload-item-component
-          v-for="(resultInfo, idx) in localResultList"
+          v-for="(resultInfo, idx) in useLocalResultList"
           :key="idx"
           :resultInfo="resultInfo"
           @preview="preview(resultInfo)"
@@ -50,6 +79,9 @@ import MediaUploadItemComponent from "@/app/basic/media/MediaUploadItemComponent
 import { MediaInfo } from "@/@types/room";
 import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import LanguageManager from "@/LanguageManager";
 
 export type ResultInfo = {
   name: string;
@@ -62,6 +94,8 @@ export type ResultInfo = {
 
 @Component({
   components: {
+    SButton,
+    SCheck,
     MediaUploadItemComponent,
     BaseInput,
     CtrlButton,
@@ -74,6 +108,14 @@ export default class MediaUploadWindow extends Mixins<
   private localResultList: ResultInfo[] = [];
   private dropBoxAccessKey: string = "";
   private mediaCC = SocketFacade.instance.mediaCC();
+  private searchText: string = "";
+
+  @VueEvent
+  private get useLocalResultList() {
+    if (!this.searchText) return this.localResultList.concat();
+    const regExp = new RegExp(this.searchText);
+    return this.localResultList.filter(r => r.name.match(regExp));
+  }
 
   private tabList: TabInfo[] = [
     { target: "local", text: "" },
@@ -87,6 +129,59 @@ export default class MediaUploadWindow extends Mixins<
   ): Promise<TaskResult<never> | void> {
     this.createTabInfoList();
     task.resolve();
+  }
+
+  @VueEvent
+  private hoverEditTags(isHover: boolean) {
+    this.settingHoverMessage(isHover, "edit-tag-together");
+  }
+
+  @VueEvent
+  private hoverDeleteAll(isHover: boolean) {
+    this.settingHoverMessage(isHover, "delete-together");
+  }
+
+  private settingHoverMessage(isHover: boolean, target: string) {
+    this.windowInfo.message = isHover
+      ? LanguageManager.instance.getText(
+          `media-upload-window.message-list.${target}`
+        )
+      : "";
+  }
+
+  @VueEvent
+  private editTags() {
+    const msg = LanguageManager.instance.getText(
+      "media-upload-window.dialog.input-tag"
+    );
+    const tag = window.prompt(msg, "");
+    window.console.log(tag);
+    if (tag === null || tag === undefined) return;
+    this.useLocalResultList.forEach(result => {
+      result.tag = tag;
+    });
+  }
+
+  @VueEvent
+  private deleteAll() {
+    const msg = LanguageManager.instance.getText(
+      "media-upload-window.dialog.delete-together"
+    );
+    const result = window.confirm(msg);
+    if (!result) return;
+
+    const idxList: number[] = [];
+    this.useLocalResultList.forEach(ur => {
+      idxList.unshift(
+        this.localResultList.findIndex(
+          r => JSON.stringify(ur) === JSON.stringify(r)
+        )
+      );
+    });
+
+    idxList.forEach(idx => {
+      this.localResultList.splice(idx, 1);
+    });
   }
 
   @LifeCycle
@@ -208,13 +303,10 @@ export default class MediaUploadWindow extends Mixins<
       .map(resultInfo => () => createUploadResultInfo(resultInfo))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
-    window.console.log("## UPLOAD START ####################################");
-
     const urlList = await SocketFacade.instance.socketCommunication<
       UploadFileRequest,
       string[]
     >("upload-file", uploadResultInfoList);
-    window.console.log(urlList);
 
     let idx = 0;
     const mediaInfoList: MediaInfo[] = this.localResultList.map(
@@ -229,8 +321,6 @@ export default class MediaUploadWindow extends Mixins<
         };
       }
     );
-    window.console.log(JSON.stringify(mediaInfoList, null, "  "));
-    window.console.log("## UPLOAD END ####################################");
     await this.mediaCC.addDirect(mediaInfoList, {
       permission: GameObjectManager.PERMISSION_OWNER_VIEW
     });

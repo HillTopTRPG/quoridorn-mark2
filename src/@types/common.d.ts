@@ -110,7 +110,8 @@ declare module "mode" {
     | CreateRoomModeInfo
     | ThrowParabolaModeInfo
     | ViewCardDeckInfo
-    | DropPieceModeInfo;
+    | DropPieceModeInfo
+    | ProcessInfo;
 
   type ModalModeInfo = {
     type: "modal";
@@ -138,6 +139,15 @@ declare module "mode" {
   type DropPieceModeInfo = {
     type: "drop-piece";
     value: "on" | "off";
+  };
+
+  type ProcessInfo = {
+    type: "view-progress";
+    value: {
+      flag: "on" | "off";
+      all: number;
+      current: number;
+    };
   };
 }
 
