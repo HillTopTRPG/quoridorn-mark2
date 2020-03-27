@@ -370,7 +370,7 @@ export default class ChatLog extends Vue {
 
   private onClickSaveAsJson() {
     const dateStr = moment().format("YYYYMMDD_HHmmss");
-    saveJson(`chatLog_${dateStr}`, this.jsonData);
+    saveJson(`chatLog_${dateStr}`, "chat-log", this.jsonData);
   }
 
   private get jsonData(): any {

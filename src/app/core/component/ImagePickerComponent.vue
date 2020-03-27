@@ -1,16 +1,29 @@
 <template>
   <div class="image-picker-container" @contextmenu.prevent ref="elm">
+    <input
+      type="text"
+      class="search-name"
+      :value="searchText"
+      @input="searchText = $event.target.value"
+      :placeholder="$t('label.search-name-box')"
+      @keydown.enter.prevent.stop
+      @keyup.enter.prevent.stop
+      @keydown.229.prevent.stop
+      @keyup.229.prevent.stop
+      v-if="viewName"
+    />
     <!-- 画像選択エリア -->
     <div class="choseImage" :style="{ '--size': imageSize }">
-      <img
+      <div
+        class="image"
         v-for="image in useImageList"
-        :class="{ active: value === image.id }"
         :key="image.id"
-        :src="image.data.url"
-        alt=""
+        :class="{ active: value === image.id }"
         @click="localValue = image.id"
-        draggable="false"
-      />
+      >
+        <span v-if="viewName">{{ image.data.name }}</span>
+        <img :src="image.data.url" alt="" draggable="false" />
+      </div>
     </div>
 
     <!-- 絞り込み情報 -->
@@ -92,6 +105,9 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @Prop({ type: Boolean, default: false })
   private isSimple!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private viewName!: boolean;
+
   @Prop({ type: String, default: "4em" })
   private imageSize!: string;
 
@@ -101,6 +117,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   private rawImageList: StoreUseData<MediaInfo>[] = [];
   private useImageList: StoreUseData<MediaInfo>[] = [];
+  private searchText: string = "";
 
   @VueEvent
   private getSrc(data: string) {
@@ -109,11 +126,14 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @Watch("isMounted")
   @Watch("selectImageTag")
+  @Watch("searchText")
   @Watch("rawImageList", { deep: true })
   private async onChangeImageList() {
     if (!this.isMounted) return;
+    const regExp = this.searchText ? new RegExp(this.searchText) : null;
     this.useImageList = this.rawImageList.filter(d => {
       if (!d || !d.data) return false;
+      if (regExp && !d.data.name.match(regExp)) return false;
       return d.data.tag === this.selectImageTag;
     });
   }
@@ -173,10 +193,19 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
 .flex-space-between {
   width: 100%;
   @include flex-box(row, space-between, center);
 }
+
+.search-name {
+  @include inline-flex-box(row, flex-start, center);
+  font-size: inherit;
+  height: 2em;
+  min-height: 2em;
+}
+
 .image-picker-container {
   @include flex-box(column, flex-start, flex-start);
 
@@ -203,14 +232,19 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     box-sizing: border-box;
     width: 100%;
 
-    img {
-      width: var(--size);
-      height: var(--size);
+    .image {
+      @include flex-box(column, flex-start, flex-start);
       border: solid rgba(0, 0, 0, 0) 1px;
       box-sizing: border-box;
 
       &.active {
         border: solid blue 1px;
+        background-color: var(--uni-color-cream);
+      }
+
+      img {
+        width: var(--size);
+        height: var(--size);
       }
     }
   }

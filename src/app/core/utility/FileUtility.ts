@@ -62,35 +62,35 @@ export async function loadJson<T>(path: string): Promise<T> {
   }
 }
 
+async function showOpenFileDialog(): Promise<File | null> {
+  return new Promise(resolve => {
+    const input: HTMLInputElement = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json, text/plain";
+    input.onchange = () => {
+      resolve(input.files ? input.files[0] : null);
+    };
+    input.click();
+  });
+}
+
+async function readAsText(file: File | null): Promise<string | null> {
+  return new Promise(resolve => {
+    if (!file) return null;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = () => {
+      resolve(String(reader.result));
+    };
+  });
+}
+
 /**
  * Jsonファイルをインポートする
  *
  * @param type
  */
 export async function importJson<T>(type: string): Promise<T | null> {
-  const showOpenFileDialog = async (): Promise<File | null> => {
-    return new Promise(resolve => {
-      const input: HTMLInputElement = document.createElement("input");
-      input.type = "file";
-      input.accept = ".txt, text/plain";
-      input.onchange = () => {
-        resolve(input.files ? input.files[0] : null);
-      };
-      input.click();
-    });
-  };
-
-  const readAsText = async (file: File | null): Promise<string | null> => {
-    return new Promise(resolve => {
-      if (!file) return null;
-      const reader = new FileReader();
-      reader.readAsText(file);
-      reader.onload = () => {
-        resolve(String(reader.result));
-      };
-    });
-  };
-
   const file = await showOpenFileDialog();
   const text = await readAsText(file);
   if (!text) return null;
@@ -100,6 +100,14 @@ export async function importJson<T>(type: string): Promise<T | null> {
   } catch (err) {
     return null;
   }
+}
+
+/**
+ * Textファイルをインポートする
+ */
+export async function importText(): Promise<string | null> {
+  const file = await showOpenFileDialog();
+  return await readAsText(file);
 }
 
 /**

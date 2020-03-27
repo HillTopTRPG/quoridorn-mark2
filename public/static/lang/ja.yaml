@@ -215,7 +215,6 @@ label:
   youtube: Youtube
   music: 音楽
   system: システム
-  card-deck-name: 山札名
   card-deck-name-placeholder: 山札名(必須項目)
   card-width: カードの幅(px)
   card-height: カードの高さ(px)
@@ -230,6 +229,8 @@ label:
   card-text-font-size: テキスト部分のフォントサイズ(px)
   card-text-padding: テキスト部分の内余白(px)
   card-text-background-color: テキスト部分の背景色
+  special-process: 特殊機能
+  importFailure: インポートに失敗しました。
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -430,20 +431,23 @@ player-box-window:
 
 card-deck-builder:
   title: Quoridornカード山札ビルダー Ver.1.0.0a1
-  description: 部屋データに山札を1つ登録するための機能です。
+  description:
+    tool: 部屋データに山札を1つ登録するための機能です。
+    import-text-paranoia-rebooted: "クリックすることでファイル指定ダイアログが表示します。\n専用のテキストファイルを読み込んで、山札を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用カード画像ファイルzipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下のテキストファイルを指定してください。\n「allCards.txt」だけは使用できません。\n事前に画像ファイルをQuoridorn上にアップロードしておく必要があります。"
   card-frame-preset:
     text-template: "テキストテンプレート\n（inSANe）"
     template-image: 画像テンプレート
     full-image-paranoia: "画像フル\n（Paranoia Rebooted）"
     full-image-tnm: "画像フル\n（トーキョー・ナイトメア）"
     full-image-tnx: "画像フル\n（トーキョーN◎VA）"
-
+  button:
+    import-text-paranoia-rebooted: "テキストからインポート\n（Paranoia Rebooted）"
   message-list:
     choose-base-deck: ベース山札の選択
     create-card: 山札の新規作成
-    input-deck-name: 山札の名前を入力してください。
-    choose-back-image: "山札「{name}」に共通するカードの裏面を選んでください。\n新規作成の際に設定できる裏面の種類は１種類のみです。\n複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。"
+    create-deck-entrance: "Quoridornにアップロードされた画像を使って、新しい山札を作成します。\n特殊処理を使わない場合は、画面下部の矢印で進んでください。"
     setting-frame: "カードの表面のフレームを設定してください。\nここで指定したフレームが、後続の工程で流し込む画像や文字のベースとなります。"
+    choose-back-image: "山札に共通するカードの裏面を選んでください。\n新規作成の際に設定できる裏面の種類は１種類のみです。\n複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。"
     create-front: カードの表面を選びつつカードデータを入力してください。
     choose-card: カードの選択
     confirm: 内容確認

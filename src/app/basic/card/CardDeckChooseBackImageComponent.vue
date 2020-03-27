@@ -1,19 +1,19 @@
 <template>
   <card-deck-sub-container-component
     message="choose-back-image"
-    :messageArg="{ name }"
     @back="$emit('back')"
     @next="$emit('next')"
     :nextDisabled="!backImageIdVolatile"
   >
     <label>
+      <span v-t="'label.background-color'"></span>
       <color-picker-component v-model="colorVolatile" :use-alpha="false" />
     </label>
     <image-picker-component
       class="image-picker-component"
       v-model="backImageIdVolatile"
       :windowKey="key"
-      :imageTag.sync="tagVolatile"
+      :imageTag.sync="imageTagVolatile"
       :isSimple="true"
       imageSize="20em"
     />
@@ -38,10 +38,6 @@ import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue"
 export default class CardDeckChooseBackImageComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {
-  // name
-  @Prop({ type: String, required: true })
-  private name!: string;
-
   // color
   @Prop({ type: String, required: true })
   private color!: string;
@@ -68,17 +64,17 @@ export default class CardDeckChooseBackImageComponent extends Mixins<
     this.$emit("update:backImageId", value);
   }
 
-  // tag
+  // imageTag
   @Prop({ type: String, required: true })
-  private tag!: string;
-  private tagVolatile: string = "";
-  @Watch("tag", { immediate: true })
-  private onChangeTag(value: string) {
-    this.tagVolatile = value;
+  private imageTag!: string;
+  private imageTagVolatile: string = "";
+  @Watch("imageTag", { immediate: true })
+  private onChangeImageTag(value: string) {
+    this.imageTagVolatile = value;
   }
-  @Watch("tagVolatile")
-  private onChangeTagVolatile(value: string) {
-    this.$emit("update:tag", value);
+  @Watch("imageTagVolatile")
+  private onChangeImageTagVolatile(value: string) {
+    this.$emit("update:imageTag", value);
   }
 }
 </script>

@@ -124,41 +124,25 @@
         </tr>
       </table>
 
-      <div
-        class="card-simulator"
-        :style="{
-          width: `${widthVolatile}px`,
-          height: `${heightVolatile}px`,
-          padding: `${padTopVolatile}px ${padHorizontalVolatile}px ${padBottomVolatile}px`,
-          'border-radius': `${radiusVolatile}px`,
-          'background-color': frontBackgroundColorVolatile,
-          'font-color': fontColorVolatile
-        }"
-      >
-        <div
-          class="name-simulator"
-          :style="{
-            height: `${nameHeightVolatile}px`,
-            'font-size': `${nameFontSizeVolatile}px`,
-            'background-color': nameBackgroundColorVolatile,
-            visibility: nameHeightVolatile ? 'visible' : 'hidden'
-          }"
-        >
-          Emperor penguin
-        </div>
-        <div
-          class="text-simulator"
-          :style="{
-            height: `${textHeightVolatile}px`,
-            'font-size': `${textFontSizeVolatile}px`,
-            padding: `${textPaddingVolatile}px`,
-            'background-color': textBackgroundColorVolatile,
-            visibility: textHeightVolatile ? 'visible' : 'hidden'
-          }"
-        >
-          {{ sampleCardText }}
-        </div>
-      </div>
+      <card-simulator-component
+        :width="width"
+        :height="height"
+        :padTop="padTop"
+        :padHorizontal="padHorizontal"
+        :padBottom="padBottom"
+        :radius="radius"
+        :frontBackgroundColor="frontBackgroundColor"
+        :fontColor="fontColor"
+        name="Emperor penguin"
+        :nameHeight="nameHeight"
+        :nameFontSize="nameFontSize"
+        :nameBackgroundColor="nameBackgroundColor"
+        :text="sampleCardText"
+        :textHeight="textHeight"
+        :textFontSize="textFontSize"
+        :textPadding="textPadding"
+        :textBackgroundColor="textBackgroundColor"
+      />
     </div>
     <div class="file-box">
       <s-button
@@ -195,9 +179,13 @@ import SButton from "@/app/basic/common/components/SButton.vue";
 import { importJson, saveJson } from "@/app/core/utility/FileUtility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CardSimulatorComponent from "@/app/basic/card/CardSimulatorComponent.vue";
+import LanguageManager from "@/LanguageManager";
+import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
 
 @Component({
   components: {
+    CardSimulatorComponent,
     SButton,
     TrNumberInputComponent,
     TrColorPickerComponent,
@@ -211,10 +199,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  // name
-  @Prop({ type: String, required: true })
-  private name!: string;
-
   // width
   @Prop({ type: Number, required: true })
   private width!: number;
@@ -299,12 +283,10 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   private frontBackgroundColorVolatile: string = "#ffffff";
   @Watch("frontBackgroundColor", { immediate: true })
   private onChangeFrontBackgroundColor(value: string) {
-    window.console.log(value);
     this.frontBackgroundColorVolatile = value;
   }
   @Watch("frontBackgroundColorVolatile")
   private onChangeFrontBackgroundColorVolatile(value: string) {
-    window.console.log(value);
     this.$emit("update:frontBackgroundColor", value);
   }
 
@@ -444,28 +426,8 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     text: ""
   };
 
-  private paranoiaRebootedFrameSetting: CardMeta = {
-    width: 200,
-    height: 300,
-    radius: 0,
-    padHorizontal: 0,
-    padTop: 150,
-    padBottom: 0,
-    frontBackgroundColor: "#ffffff",
-    backBackgroundColor: "#ffffff",
-    fontColor: "#000000",
-    nameHeight: 0,
-    nameFontSize: 20,
-    nameBackgroundColor: "rgba(0, 0, 0, 0)",
-    textHeight: 0,
-    textFontSize: 11,
-    textPadding: 5,
-    textBackgroundColor: "rgba(0, 0, 0, 0)",
-    frontImage: "",
-    backImage: "",
-    name: "",
-    text: ""
-  };
+  public paranoiaRebootedFrameSetting: CardMeta =
+    CardDeckBuilder.DEFAULT_CARD_FRAME_PARANOIA_REBOOTED;
 
   private tnmFrameSetting: CardMeta = {
     width: 180,
@@ -550,14 +512,14 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
       textPadding: this.textPaddingVolatile,
       textBackgroundColor: this.textBackgroundColorVolatile
     };
-    saveJson(`Quoridorn_card_deck_frame_${this.name}`, "card_deck_frame", data);
+    saveJson(`Quoridorn_card_deck_frame`, "card_deck_frame", data);
   }
 
   @VueEvent
   private async doImport() {
     const dataContainer: any = await importJson<any>("card_deck_frame");
     if (!dataContainer) {
-      alert("インポートに失敗しました。");
+      alert(LanguageManager.instance.getText("label.importFailure"));
       return;
     }
     const data: any = dataContainer.data;
@@ -598,26 +560,6 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   flex: 1;
   align-self: stretch;
   overflow: hidden;
-}
-
-.card-simulator {
-  @include flex-box(column, stretch, space-between);
-  box-sizing: border-box;
-  border: 1px dashed gray;
-  margin-left: 2rem;
-}
-
-.name-simulator {
-  @include flex-box(column, flex-start, center);
-  border: 1px dashed gray;
-  box-sizing: border-box;
-}
-
-.text-simulator {
-  white-space: pre-wrap;
-  border: 1px dashed gray;
-  box-sizing: border-box;
-  overflow-y: auto;
 }
 
 .file-box {

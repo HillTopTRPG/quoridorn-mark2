@@ -16,7 +16,7 @@
     @keydown.229.stop
     @keyup.229.stop
   >
-    {{ label }}
+    <span class="label">{{ label }}</span>
   </span>
 </template>
 
@@ -55,12 +55,18 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   width: 2em;
   min-width: 2em;
   height: 2em;
+  min-height: 2em;
   box-sizing: border-box;
   margin-left: 0.3rem;
+
+  .label {
+    white-space: pre-wrap;
+  }
 
   &.hasLabel {
     width: auto;
     padding: 0 0.5em;
+    height: auto;
   }
 
   &.skyblue {

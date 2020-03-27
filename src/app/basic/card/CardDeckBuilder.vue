@@ -1,7 +1,10 @@
 <template>
   <div id="card-deck-builder" ref="elm">
     <div class="tool-title" v-t="'card-deck-builder.title'"></div>
-    <div class="tool-description" v-t="'card-deck-builder.description'"></div>
+    <div
+      class="tool-description"
+      v-t="'card-deck-builder.description.tool'"
+    ></div>
     <span class="icon-cross close-btn" @click="rollback()"></span>
 
     <!-- 進捗欄 -->
@@ -60,29 +63,39 @@
     </div>
 
     <div
-      class="contents create-card"
+      class="contents create-card-deck-area"
       :class="{ 'out-right': statusNum < 2, 'out-left': statusNum > 2 }"
     >
       <card-deck-input-name-component
         class="sub-contents card-deck-input-name"
         :class="{ 'out-bottom': subStatusNum < 1, 'out-top': subStatusNum > 1 }"
-        :name.sync="newDeckName"
         @next="subStatusNum = 2"
-      />
-      <card-deck-choose-back-image-component
-        class="sub-contents choose-back-image"
-        :class="{ 'out-bottom': subStatusNum < 2, 'out-top': subStatusNum > 2 }"
-        :name="newDeckName"
-        :color.sync="newDeckBackColor"
+        @import-direct="statusNum = 3"
+        :cardList="newCardList"
+        :width.sync="width"
+        :height.sync="height"
+        :radius.sync="radius"
+        :padHorizontal.sync="padHorizontal"
+        :padTop.sync="padTop"
+        :padBottom.sync="padBottom"
+        :frontBackgroundColor.sync="frontBackgroundColor"
+        :fontColor.sync="fontColor"
+        :backBackgroundColor.sync="newDeckBackColor"
         :backImageId.sync="newDeckBackImageId"
-        :tag.sync="newDeckTag"
-        @back="subStatusNum = 1"
-        @next="subStatusNum = 3"
+        :imageTag.sync="newDeckTag"
+        :nameHeight.sync="nameHeight"
+        :nameFontSize.sync="nameFontSize"
+        :nameBackgroundColor.sync="nameBackgroundColor"
+        :textHeight.sync="textHeight"
+        :textFontSize.sync="textFontSize"
+        :textBackgroundColor.sync="textBackgroundColor"
+        :textPadding.sync="textPadding"
       />
       <card-deck-frame-setting-component
-        class="sub-contents choose-back-image"
-        :class="{ 'out-bottom': subStatusNum < 3, 'out-top': subStatusNum > 3 }"
-        :name="newDeckName"
+        class="sub-contents frame-setting"
+        :class="{ 'out-bottom': subStatusNum < 2, 'out-top': subStatusNum > 2 }"
+        @back="subStatusNum = 1"
+        @next="subStatusNum = 3"
         :width.sync="width"
         :height.sync="height"
         :radius.sync="radius"
@@ -98,10 +111,41 @@
         :textFontSize.sync="textFontSize"
         :textBackgroundColor.sync="textBackgroundColor"
         :textPadding.sync="textPadding"
+      />
+      <card-deck-choose-back-image-component
+        class="sub-contents choose-back-image"
+        :class="{ 'out-bottom': subStatusNum < 3, 'out-top': subStatusNum > 3 }"
         @back="subStatusNum = 2"
         @next="subStatusNum = 4"
+        :color.sync="newDeckBackColor"
+        :backImageId.sync="newDeckBackImageId"
+        :imageTag.sync="newDeckTag"
       />
-      <div class="sub-contents create-front"></div>
+      <card-deck-create-card-component
+        class="sub-contents create-card"
+        :class="{ 'out-bottom': subStatusNum < 4, 'out-top': subStatusNum > 4 }"
+        @back="subStatusNum = 3"
+        :width="width"
+        :imageTag="newDeckTag"
+        :height="height"
+        :padTop="padTop"
+        :padHorizontal="padHorizontal"
+        :padBottom="padBottom"
+        :radius="radius"
+        :frontBackgroundColorDefault="frontBackgroundColor"
+        :backImage="newDeckBackImageId"
+        :backBackgroundColor="newDeckBackColor"
+        :fontColor="fontColor"
+        :nameHeight="nameHeight"
+        :nameFontSizeDefault="nameFontSize"
+        :nameBackgroundColorDefault="nameBackgroundColor"
+        :textHeight="textHeight"
+        :textFontSizeDefault="textFontSize"
+        :textPaddingDefault="textPadding"
+        :textBackgroundColor="textBackgroundColor"
+        :cardList="newCardList"
+        :otherTextViewInfo.sync="otherTextViewInfo"
+      />
     </div>
 
     <div
@@ -163,6 +207,7 @@ import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue"
 import CardDeckChooseBackImageComponent from "@/app/basic/card/CardDeckChooseBackImageComponent.vue";
 import CardDeckInputNameComponent from "@/app/basic/card/CardDeckInputNameComponent.vue";
 import CardDeckFrameSettingComponent from "@/app/basic/card/CardDeckFrameSettingComponent.vue";
+import CardDeckCreateCardComponent from "@/app/basic/card/CardDeckCreateCardComponent.vue";
 
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
@@ -173,6 +218,7 @@ type DeckInfo = {
 
 @Component({
   components: {
+    CardDeckCreateCardComponent,
     CardDeckFrameSettingComponent,
     CardDeckInputNameComponent,
     CardDeckChooseBackImageComponent,
@@ -191,6 +237,29 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 ) {
   @Prop({ type: String, default: "" })
   private cardDeckId!: string;
+
+  public static DEFAULT_CARD_FRAME_PARANOIA_REBOOTED: CardMeta = {
+    width: 200,
+    height: 300,
+    radius: 0,
+    padHorizontal: 0,
+    padTop: 140,
+    padBottom: 0,
+    frontBackgroundColor: "#ffffff",
+    backBackgroundColor: "#ffffff",
+    fontColor: "#000000",
+    nameHeight: 0,
+    nameFontSize: 20,
+    nameBackgroundColor: "rgba(0, 0, 0, 0)",
+    textHeight: 0,
+    textFontSize: 11,
+    textPadding: 5,
+    textBackgroundColor: "rgba(0, 0, 0, 0)",
+    frontImage: "",
+    backImage: "",
+    name: "",
+    text: ""
+  };
 
   private ml: string = "card-deck-builder.message-list";
 
@@ -222,33 +291,22 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private textPadding: number = 0;
   private textBackgroundColor: string = "rgba(0, 0, 0, 0)";
 
+  private newCardList: StoreUseData<CardMeta>[] = [];
+
   private otherTextViewInfo: OtherTextViewInfo | null = null;
 
-  @Watch("newDeckName")
-  private onChangeNewDeckName() {
-    window.console.log(this.newDeckName);
-  }
-
-  @Watch("newDeckBackImageId")
-  private onChangeNewDeckBackImageId() {
-    window.console.log(this.newDeckBackImageId);
-  }
-
-  @Watch("newDeckTag")
-  private onChangeNewNewDeckTag() {
-    window.console.log(this.newDeckTag);
-  }
-
+  @VueEvent
   private get cardList(): StoreUseData<CardMeta>[] {
     const resultList: StoreUseData<CardMeta>[] = [];
+
+    resultList.push(...this.newCardList);
 
     this.presetDeckList
       .concat(this.dbDeckList)
       .filter(
         deck =>
-          this.selectedDeckIdList.findIndex(
-            idx => idx === deck.cardDeckBig.id
-          ) > -1
+          this.selectedDeckIdList.findIndex(id => id === deck.cardDeckBig.id) >
+          -1
       )
       .forEach(deck => {
         resultList.push(...deck.cardMetaList);
@@ -320,13 +378,11 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   @VueEvent
   private async commit(): Promise<void> {
-    window.console.log("commit");
     await this.close();
   }
 
   @VueEvent
   private async rollback(): Promise<void> {
-    window.console.log("rollback");
     await this.close();
   }
 
@@ -448,6 +504,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   .sub-contents {
     transition: all 0.5s ease-in-out;
+    background-color: white;
+    height: 100%;
 
     &.out-top {
       transform: translateY(calc(-100%));
@@ -513,13 +571,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   }
 }
 
-.create-card {
+.create-card-deck-area {
   @include flex-box(column, stretch, flex-start);
-
-  .choose-back-image {
-    background-color: white;
-    height: 100%;
-  }
 }
 
 .card-choose {

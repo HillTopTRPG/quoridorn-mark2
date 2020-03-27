@@ -4,7 +4,7 @@
       <label :for="key" v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <base-input
+      <input
         :id="key"
         type="number"
         :value="localValue"
@@ -14,6 +14,10 @@
         :max="max"
         :step="step"
         ref="inputElm"
+        @keydown.enter.stop
+        @keyup.enter.stop
+        @keydown.229.stop
+        @keyup.229.stop
       />
       <span v-if="unitLabel" v-t="`label.${unitLabel}`"></span>
     </td>
@@ -100,5 +104,20 @@ th {
 
 tr {
   display: contents;
+}
+
+input {
+  font-size: inherit;
+  height: 2em;
+  box-sizing: border-box;
+  margin: 0;
+
+  &:read-only {
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: lightgray;
+  }
 }
 </style>

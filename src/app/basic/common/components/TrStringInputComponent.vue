@@ -4,7 +4,7 @@
       <label :for="key" v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <base-input
+      <input
         :id="key"
         class="text"
         type="text"
@@ -14,6 +14,10 @@
         :placeholder="placeholder"
         :list="list"
         ref="inputElm"
+        @keydown.enter.stop
+        @keyup.enter.stop
+        @keydown.229.stop
+        @keyup.229.stop
       />
     </td>
   </tr>
@@ -23,9 +27,8 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
 
-@Component({ components: { BaseInput } })
+@Component
 export default class TrStringInputComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -49,8 +52,8 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
 
   private mounted() {
     if (this.inputWidth) {
-      const inputElm = this.$refs.inputElm as BaseInput;
-      inputElm.elm.style.width = this.inputWidth;
+      const inputElm = this.$refs.inputElm as HTMLInputElement;
+      inputElm.style.width = this.inputWidth;
     }
   }
 
@@ -94,5 +97,20 @@ th {
 
 tr {
   display: contents;
+}
+
+input {
+  font-size: inherit;
+  height: 2em;
+  box-sizing: border-box;
+  margin: 0;
+
+  &:read-only {
+    outline: none;
+  }
+
+  &:disabled {
+    background-color: lightgray;
+  }
 }
 </style>

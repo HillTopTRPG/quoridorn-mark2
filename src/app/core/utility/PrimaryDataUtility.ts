@@ -48,7 +48,7 @@ export function convertNumberZero(
 }
 
 /**
- * 配列を空にする
+ * 配列を空にするa
  * @param list
  */
 export function listToEmpty(list: Array<unknown>) {
