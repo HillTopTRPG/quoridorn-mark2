@@ -19,6 +19,8 @@ button:
   edit: 編集
   chmod: 権限変更
   upload: アップロード
+  download: ダウンロード
+  read: 読込
 
 type:
   map-mask: 맵 마스크
@@ -213,6 +215,21 @@ label:
   youtube: Youtube
   music: 音楽
   system: システム
+  card-deck-name: 山札名
+  card-deck-name-placeholder: 山札名(必須項目)
+  card-width: カードの幅(px)
+  card-height: カードの高さ(px)
+  card-corner-radius: 角の半径(px)
+  card-padding-horizontal: 横方向の余白(px)
+  card-padding-top: 上部の余白(px)
+  card-padding-bottom: 下部の余白(px)
+  card-name-height: 名前部分の高さ(px)
+  card-name-font-size: 名前部分のフォントサイズ(px)
+  card-name-background-color: 名前部分の背景色
+  card-text-height: テキスト部分の高さ(px)
+  card-text-font-size: テキスト部分のフォントサイズ(px)
+  card-text-padding: テキスト部分の内余白(px)
+  card-text-background-color: テキスト部分の背景色
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -414,9 +431,21 @@ player-box-window:
 card-deck-builder:
   title: Quoridornカード山札ビルダー Ver.1.0.0a1
   description: 部屋データに山札を1つ登録するための機能です。
+  card-frame-preset:
+    text-template: "テキストテンプレート\n（inSANe）"
+    template-image: 画像テンプレート
+    full-image-paranoia: "画像フル\n（Paranoia Rebooted）"
+    full-image-tnm: "画像フル\n（トーキョー・ナイトメア）"
+    full-image-tnx: "画像フル\n（トーキョーN◎VA）"
+
   message-list:
     choose-base-deck: ベース山札の選択
-    choose-card: カードの選択・追加
+    create-card: 山札の新規作成
+    input-deck-name: 山札の名前を入力してください。
+    choose-back-image: "山札「{name}」に共通するカードの裏面を選んでください。\n新規作成の際に設定できる裏面の種類は１種類のみです。\n複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。"
+    setting-frame: "カードの表面のフレームを設定してください。\nここで指定したフレームが、後続の工程で流し込む画像や文字のベースとなります。"
+    create-front: カードの表面を選びつつカードデータを入力してください。
+    choose-card: カードの選択
     confirm: 内容確認
   header:
     deck-set-preset: プリセット

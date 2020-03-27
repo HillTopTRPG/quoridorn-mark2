@@ -169,6 +169,8 @@ export function parseColor(colorText: string) {
       b: convertNumberZero(rgbaResult[3].trim()),
       a: parseFloat(rgbaResult[4])
     };
+    window.console.log(JSON.stringify(rgbaResult, null, "  "));
+    window.console.log(JSON.stringify(_c, null, "  "));
   } else if (rgbResult) {
     _c = {
       r: convertNumberZero(rgbResult[1].trim()),
@@ -192,6 +194,8 @@ export function parseColor(colorText: string) {
         a: 1
       };
     }
+    window.console.log(JSON.stringify(colorCodeResult, null, "  "));
+    window.console.log(JSON.stringify(_c, null, "  "));
   } else {
     throw new ApplicationError(`Illegal color-text. text: ${colorText}`);
   }

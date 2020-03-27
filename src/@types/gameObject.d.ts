@@ -139,10 +139,11 @@ type OtherTextViewInfo = {
 type CardMeta = {
   // cardDeckBigId は owner で管理
   // cardDeckSmallId は ここでは不要
-  width: number;
-  height: number;
-  padWidth: number; // ふちの幅（横方向）
-  padHeight: number; // ふちの幅（縦方向）
+  width: number; // カードの横幅
+  height: number; // カードの高さ
+  padHorizontal: number; // ふちの幅（横方向）
+  padTop: number; // ふちの幅（上部）
+  padBottom: number; // ふちの幅（下部）
   radius: number; // 角の丸み
   frontImage: string; // オモテ面の画像
   frontBackgroundColor: string; // オモテ面の背景色
@@ -151,8 +152,13 @@ type CardMeta = {
   fontColor: string; // 文字色
   name: string; // 名前
   nameHeight: number; // 名前の表示高さ
+  nameFontSize: number; // 名前のフォントサイズ
+  nameBackgroundColor: string; // 名前の背景色
   text: string; // テキスト
   textHeight: number; // テキストの表示高さ
+  textFontSize: number; // テキストのフォントサイズ
+  textPadding: number; // テキストの内余白
+  textBackgroundColor: string; // テキストの背景色
 };
 
 // オブジェクトとして触れるカードのデータ
@@ -194,10 +200,16 @@ type CardYamlInfo = {
   width: number;
   height: number;
   radius: number;
-  padWidth: number;
-  padHeight: number;
+  padHorizontal: number;
+  padTop: number;
+  padBottom: number;
   nameHeight: number;
+  nameFontSize: number;
+  nameBackgroundColor: string;
   textHeight: number;
+  textFontSize: number;
+  textPadding: number;
+  textBackgroundColor: string;
   source: {
     author: string;
     title: string;

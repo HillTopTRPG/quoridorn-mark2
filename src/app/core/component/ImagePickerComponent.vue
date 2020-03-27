@@ -1,7 +1,7 @@
 <template>
   <div class="image-picker-container" @contextmenu.prevent ref="elm">
     <!-- 画像選択エリア -->
-    <div class="choseImage">
+    <div class="choseImage" :style="{ '--size': imageSize }">
       <img
         v-for="image in useImageList"
         :class="{ active: value === image.id }"
@@ -35,7 +35,7 @@
           </div>
         </td>
       </tr>
-      <tr>
+      <tr v-if="!isSimple">
         <th>
           <label
             :for="`${windowKey}-image-pick-direction`"
@@ -88,6 +88,12 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: null })
   private imageTag!: string | null;
+
+  @Prop({ type: Boolean, default: false })
+  private isSimple!: boolean;
+
+  @Prop({ type: String, default: "4em" })
+  private imageSize!: string;
 
   private isMounted: boolean = false;
   private selectImageTag: string | null = null;
@@ -198,8 +204,8 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     width: 100%;
 
     img {
-      width: 4em;
-      height: 4em;
+      width: var(--size);
+      height: var(--size);
       border: solid rgba(0, 0, 0, 0) 1px;
       box-sizing: border-box;
 

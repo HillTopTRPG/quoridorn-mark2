@@ -15,18 +15,25 @@
       <div class="process-separator"></div>
       <div
         class="process"
-        v-t="`${ml}.choose-card`"
+        v-t="`${ml}.create-card`"
         @click="statusNum = 2"
         :class="{ current: statusNum === 2 }"
       ></div>
       <div class="process-separator"></div>
       <div
         class="process"
-        v-t="`${ml}.confirm`"
+        v-t="`${ml}.choose-card`"
         @click="statusNum = 3"
+        :class="{ current: statusNum === 3 }"
+      ></div>
+      <div class="process-separator"></div>
+      <div
+        class="process"
+        v-t="`${ml}.confirm`"
+        @click="statusNum = 4"
         :class="{
           disabled: selectedDeckIdList.length === 0,
-          current: statusNum === 3
+          current: statusNum === 4
         }"
       ></div>
     </div>
@@ -53,8 +60,53 @@
     </div>
 
     <div
-      class="contents choose-card"
+      class="contents create-card"
       :class="{ 'out-right': statusNum < 2, 'out-left': statusNum > 2 }"
+    >
+      <card-deck-input-name-component
+        class="sub-contents card-deck-input-name"
+        :class="{ 'out-bottom': subStatusNum < 1, 'out-top': subStatusNum > 1 }"
+        :name.sync="newDeckName"
+        @next="subStatusNum = 2"
+      />
+      <card-deck-choose-back-image-component
+        class="sub-contents choose-back-image"
+        :class="{ 'out-bottom': subStatusNum < 2, 'out-top': subStatusNum > 2 }"
+        :name="newDeckName"
+        :color.sync="newDeckBackColor"
+        :backImageId.sync="newDeckBackImageId"
+        :tag.sync="newDeckTag"
+        @back="subStatusNum = 1"
+        @next="subStatusNum = 3"
+      />
+      <card-deck-frame-setting-component
+        class="sub-contents choose-back-image"
+        :class="{ 'out-bottom': subStatusNum < 3, 'out-top': subStatusNum > 3 }"
+        :name="newDeckName"
+        :width.sync="width"
+        :height.sync="height"
+        :radius.sync="radius"
+        :padHorizontal.sync="padHorizontal"
+        :padTop.sync="padTop"
+        :padBottom.sync="padBottom"
+        :frontBackgroundColor.sync="frontBackgroundColor"
+        :fontColor.sync="fontColor"
+        :nameHeight.sync="nameHeight"
+        :nameFontSize.sync="nameFontSize"
+        :nameBackgroundColor.sync="nameBackgroundColor"
+        :textHeight.sync="textHeight"
+        :textFontSize.sync="textFontSize"
+        :textBackgroundColor.sync="textBackgroundColor"
+        :textPadding.sync="textPadding"
+        @back="subStatusNum = 2"
+        @next="subStatusNum = 4"
+      />
+      <div class="sub-contents create-front"></div>
+    </div>
+
+    <div
+      class="contents choose-card"
+      :class="{ 'out-right': statusNum < 3, 'out-left': statusNum > 3 }"
     >
       <card-chooser-component
         class="card-choose"
@@ -65,7 +117,7 @@
       />
     </div>
 
-    <div class="contents confirm" :class="{ 'out-right': statusNum < 3 }">
+    <div class="contents confirm" :class="{ 'out-right': statusNum < 4 }">
       これは確認画面
     </div>
 
@@ -84,7 +136,7 @@ import ThrowCharSelect from "@/app/basic/common/components/select/ThrowCharSelec
 import ComponentVue from "@/app/core/window/ComponentVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { Prop } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import {
   CardDeckBig,
   CardMeta,
@@ -106,6 +158,11 @@ import CardChooserComponent, {
   CardCountInfo
 } from "@/app/basic/card/CardChooserComponent.vue";
 import TextFrame from "@/app/basic/card/TextFrame.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import CardDeckChooseBackImageComponent from "@/app/basic/card/CardDeckChooseBackImageComponent.vue";
+import CardDeckInputNameComponent from "@/app/basic/card/CardDeckInputNameComponent.vue";
+import CardDeckFrameSettingComponent from "@/app/basic/card/CardDeckFrameSettingComponent.vue";
 
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
@@ -116,6 +173,11 @@ type DeckInfo = {
 
 @Component({
   components: {
+    CardDeckFrameSettingComponent,
+    CardDeckInputNameComponent,
+    CardDeckChooseBackImageComponent,
+    ImagePickerComponent,
+    BaseInput,
     TextFrame,
     CardChooserComponent,
     CardDeckChooserComponent,
@@ -134,11 +196,48 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   private cardDeckBigList = GameObjectManager.instance.cardDeckBigList;
   private cardMetaList = GameObjectManager.instance.cardMetaList;
+  private mediaList = GameObjectManager.instance.mediaList;
 
   private presetDeckList: DeckInfo[] = [];
   private dbDeckList: DeckInfo[] = [];
 
+  private newDeckName: string = "";
+  private newDeckBackColor: string = "#ffffff";
+  private newDeckBackImageId: string = "";
+  private newDeckTag: string = "";
+
+  private width: number = 200;
+  private height: number = 300;
+  private radius: number = 0;
+  private padHorizontal: number = 0;
+  private padTop: number = 0;
+  private padBottom: number = 0;
+  private frontBackgroundColor: string = "#ffffff";
+  private fontColor: string = "#000000";
+  private nameHeight: number = 30;
+  private nameFontSize: number = 20;
+  private nameBackgroundColor: string = "rgba(0, 0, 0, 0)";
+  private textHeight: number = 60;
+  private textFontSize: number = 11;
+  private textPadding: number = 0;
+  private textBackgroundColor: string = "rgba(0, 0, 0, 0)";
+
   private otherTextViewInfo: OtherTextViewInfo | null = null;
+
+  @Watch("newDeckName")
+  private onChangeNewDeckName() {
+    window.console.log(this.newDeckName);
+  }
+
+  @Watch("newDeckBackImageId")
+  private onChangeNewDeckBackImageId() {
+    window.console.log(this.newDeckBackImageId);
+  }
+
+  @Watch("newDeckTag")
+  private onChangeNewNewDeckTag() {
+    window.console.log(this.newDeckTag);
+  }
 
   private get cardList(): StoreUseData<CardMeta>[] {
     const resultList: StoreUseData<CardMeta>[] = [];
@@ -160,6 +259,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private selectedDeckIdList: string[] = [];
   private selectedCardList: CardCountInfo[] = [];
   private statusNum: number = 1;
+  private subStatusNum: number = 1;
 
   @LifeCycle
   private async created() {
@@ -184,8 +284,9 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
             const cardMeta: CardMeta = {
               width: presetDeck.width,
               height: presetDeck.height,
-              padWidth: presetDeck.padWidth || 0,
-              padHeight: presetDeck.padHeight || 0,
+              padHorizontal: presetDeck.padHorizontal || 0,
+              padTop: presetDeck.padTop || 0,
+              padBottom: presetDeck.padBottom || 0,
               radius: presetDeck.radius || 0,
               frontImage: c.imagePath
                 ? `url(${getSrc(urljoin(basePath, c.imagePath))})`
@@ -198,8 +299,15 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
               fontColor: c.fontColor || "#000000",
               name: c.name || "",
               nameHeight: presetDeck.nameHeight || 0,
+              nameFontSize: presetDeck.nameFontSize || 20,
+              nameBackgroundColor:
+                presetDeck.nameBackgroundColor || "rgba(0, 0, 0, 0)",
               text: c.text || "",
-              textHeight: presetDeck.textHeight || 0
+              textHeight: presetDeck.textHeight || 0,
+              textFontSize: presetDeck.textFontSize || 11,
+              textPadding: presetDeck.textPadding || 0,
+              textBackgroundColor:
+                presetDeck.textBackgroundColor || "rgba(0, 0, 0, 0)"
             };
             if (!cardMeta.radius) cardMeta.radius = 0;
             return createEmptyStoreUseData(cardId, cardMeta);
@@ -248,6 +356,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 @import "../../../assets/common";
 
 #card-deck-builder {
+  @include flex-box(column, stretch, flex-start);
   width: 100%;
   height: 100%;
   user-select: none;
@@ -311,6 +420,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   box-sizing: border-box;
   color: black;
   cursor: pointer;
+  z-index: 100;
 
   &:hover {
     color: var(--uni-color-cream);
@@ -324,15 +434,28 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0 3em;
+  padding: 0;
+  margin: 0 3em;
   transition: all 0.5s ease-in-out;
 
   &.out-left {
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% - 3em));
   }
 
   &.out-right {
-    transform: translateX(100%);
+    transform: translateX(calc(100% + 3em));
+  }
+
+  .sub-contents {
+    transition: all 0.5s ease-in-out;
+
+    &.out-top {
+      transform: translateY(calc(-100%));
+    }
+
+    &.out-bottom {
+      transform: translateY(calc(100%));
+    }
   }
 }
 
@@ -387,6 +510,15 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         rgba(0, 155, 159, 0.5) 60px,
         rgba(0, 155, 159, 0.5) 80px
       );
+  }
+}
+
+.create-card {
+  @include flex-box(column, stretch, flex-start);
+
+  .choose-back-image {
+    background-color: white;
+    height: 100%;
   }
 }
 

@@ -41,7 +41,10 @@ export function convertNumberZero(
   radix: number = 10
 ): number {
   if (str === null) return 0;
-  return str.match(/^[0-9]+$/) ? parseInt(str, radix) : 0;
+  if (radix === 10) return str.match(/^[0-9]+$/) ? parseInt(str, radix) : 0;
+  else if (radix === 16)
+    return str.match(/^[0-9a-fA-F]+$/) ? parseInt(str, radix) : 0;
+  return 0;
 }
 
 /**

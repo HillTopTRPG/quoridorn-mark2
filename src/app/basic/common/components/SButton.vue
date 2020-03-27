@@ -1,9 +1,14 @@
 <template>
   <span
     class="shortcut-button"
-    :class="['icon-' + icon, disabled ? 'disabled' : undefined, colorStyle]"
+    :class="[
+      'icon-' + icon,
+      disabled ? 'disabled' : undefined,
+      colorStyle,
+      label ? 'hasLabel' : undefined
+    ]"
     :tabindex="disabled ? undefined : '0'"
-    @click.stop="$emit('click')"
+    @click.stop="disabled || $emit('click')"
     @keydown.space.stop="$emit('click')"
     @keydown.enter.stop="$emit('click')"
     @mouseenter="$emit('hover', true)"
@@ -11,6 +16,7 @@
     @keydown.229.stop
     @keyup.229.stop
   >
+    {{ label }}
   </span>
 </template>
 
@@ -32,6 +38,9 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
+
+  @Prop({ type: String, default: "" })
+  private label!: string;
 }
 </script>
 
@@ -41,13 +50,18 @@ export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
 .shortcut-button {
   @include inline-flex-box(row, center, center);
   border: 1px dotted gray;
-  border-radius: 50%;
+  border-radius: 1em;
   background-color: white;
   width: 2em;
-  height: 2em;
   min-width: 2em;
+  height: 2em;
   box-sizing: border-box;
   margin-left: 0.3rem;
+
+  &.hasLabel {
+    width: auto;
+    padding: 0 0.5em;
+  }
 
   &.skyblue {
     @include btn-skyblue();

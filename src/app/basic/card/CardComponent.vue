@@ -44,7 +44,7 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
       backgroundImage: cm.frontImage,
       backgroundColor: cm.frontBackgroundColor,
       color: cm.fontColor,
-      padding: `${cm.padWidth}px ${cm.padHeight}px`,
+      padding: `${cm.padTop}px ${cm.padHorizontal}px ${cm.padBottom}px`,
       borderRadius: `${cm.radius}px`,
       width: `${cm.width}px`,
       height: `${cm.height}px`

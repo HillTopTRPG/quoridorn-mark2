@@ -11,14 +11,21 @@
   width     : 128
   height    : 192
   # カードのふちの幅(px)
-  padWidth  : 0
-  padHeight : 0
+  padHorizontal  : 0
+  padTop : 0
+  padBottom : 0
   # 角の丸み(px)
   radius    : 0
-  # カード名の表示高さ（非表示なら0）
+  # カード名の表示高さ(px)（非表示なら0）
   nameHeight: 0
-  # カードテキストの表示高さ（非表示なら0）
+  # カード名のフォントサイズ(px)（非表示なら意味なし）
+  nameFontSize: 20
+  # カードテキストの表示高さ(px)（非表示なら0）
   textHeight: 0
+  # カードテキストのフォントサイズ(px)（非表示なら意味なし）
+  textFontSize: 11
+  # カードテキストの内余白
+  textPadding: 0
   # 出典元情報
   source    :
     author  : メタボルタ氏
@@ -146,14 +153,21 @@
   width     : 128
   height    : 192
   # カードのふちの幅(px)
-  padWidth  : 0
-  padHeight : 0
+  padHorizontal  : 0
+  padTop : 0
+  padBottom : 0
   # 角の丸み(px)
   radius    : 10
-  # カード名の表示高さ（非表示なら0）
+  # カード名の表示高さ(px)（非表示なら0）
   nameHeight: 0
-  # カードテキストの表示高さ（非表示なら0）
+  # カード名のフォントサイズ(px)（非表示なら意味なし）
+  nameFontSize: 20
+  # カードテキストの表示高さ(px)（非表示なら0）
   textHeight: 0
+  # カードテキストのフォントサイズ(px)（非表示なら意味なし）
+  textFontSize: 11
+  # カードテキストの内余白
+  textPadding: 0
   # 出典元情報
   source  :
     author: Wikipedia Commons
