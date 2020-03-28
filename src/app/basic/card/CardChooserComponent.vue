@@ -84,7 +84,7 @@ import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
-import { createPoint } from "@/app/core/utility/CoordinateUtility";
+import { createRectangle } from "@/app/core/utility/CoordinateUtility";
 
 export type CardCountInfo = {
   id: string;
@@ -119,19 +119,6 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   @Watch("selectedCardListVolatile", { deep: true })
   private onChangeSelectedCardListVolatile(value: CardCountInfo[]) {
     this.$emit("update:selectedCardList", value);
-  }
-
-  // otherTextViewInfo
-  @Prop({ type: Object, default: null })
-  private otherTextViewInfo!: OtherTextViewInfo | null;
-  private otherTextViewInfoVolatile: OtherTextViewInfo | null = null;
-  @Watch("otherTextViewInfo", { immediate: true })
-  private onChangeOtherTextViewInfo(value: OtherTextViewInfo | null) {
-    this.otherTextViewInfoVolatile = value;
-  }
-  @Watch("otherTextViewInfoVolatile")
-  private onChangeOtherTextViewInfoVolatile(value: OtherTextViewInfo | null) {
-    this.$emit("update:otherTextViewInfo", value);
   }
 
   private hoverCardId: string | null = null;
@@ -217,20 +204,9 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
     elm: HTMLElement
   ) {
     this.hoverCardId = isHover ? card.id! : null;
-    if (isHover) {
-      const rect = elm.getBoundingClientRect();
-      this.otherTextViewInfoVolatile = {
-        type: "card-meta",
-        docId: card.id!,
-        text: card.data!.text || "このカードにテキストはありません",
-        point: createPoint(rect.x, rect.y),
-        width: rect.width,
-        height: rect.height,
-        isFix: true
-      };
-    } else {
-      this.otherTextViewInfoVolatile = null;
-    }
+    const rect = elm.getBoundingClientRect();
+    const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
+    this.$emit("hover-card", card, isHover, r);
   }
 }
 </script>

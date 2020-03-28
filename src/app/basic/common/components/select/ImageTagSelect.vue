@@ -52,13 +52,13 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
       .map(tag => ({
         key: tag,
         value: tag,
-        text: tag,
+        text: tag || LanguageManager.instance.getText("label.non-tag"),
         disabled: false
       }));
     if (this.defaultLabel) {
       this.optionInfoList.unshift({
         key: null,
-        value: "",
+        value: null,
         text:
           this.defaultLabel === "label.image-tag"
             ? this.$t(this.defaultLabel)!

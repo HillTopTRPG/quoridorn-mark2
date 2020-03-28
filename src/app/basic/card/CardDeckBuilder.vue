@@ -66,7 +66,7 @@
       class="contents create-card-deck-area"
       :class="{ 'out-right': statusNum < 2, 'out-left': statusNum > 2 }"
     >
-      <card-deck-input-name-component
+      <card-deck-create-entrance-component
         class="sub-contents card-deck-input-name"
         :class="{ 'out-bottom': subStatusNum < 1, 'out-top': subStatusNum > 1 }"
         @next="subStatusNum = 2"
@@ -144,7 +144,7 @@
         :textPaddingDefault="textPadding"
         :textBackgroundColor="textBackgroundColor"
         :cardList="newCardList"
-        :otherTextViewInfo.sync="otherTextViewInfo"
+        @hover-card="hoverCard"
       />
     </div>
 
@@ -157,7 +157,7 @@
         title="card-deck-builder.header.card-list"
         :cardList="cardList"
         :selectedCardList.sync="selectedCardList"
-        :otherTextViewInfo.sync="otherTextViewInfo"
+        @hover-card="hoverCard"
       />
     </div>
 
@@ -180,7 +180,7 @@ import ThrowCharSelect from "@/app/basic/common/components/select/ThrowCharSelec
 import ComponentVue from "@/app/core/window/ComponentVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { Prop, Watch } from "vue-property-decorator";
+import { Prop } from "vue-property-decorator";
 import {
   CardDeckBig,
   CardMeta,
@@ -205,9 +205,10 @@ import TextFrame from "@/app/basic/card/TextFrame.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import CardDeckChooseBackImageComponent from "@/app/basic/card/CardDeckChooseBackImageComponent.vue";
-import CardDeckInputNameComponent from "@/app/basic/card/CardDeckInputNameComponent.vue";
 import CardDeckFrameSettingComponent from "@/app/basic/card/CardDeckFrameSettingComponent.vue";
 import CardDeckCreateCardComponent from "@/app/basic/card/CardDeckCreateCardComponent.vue";
+import CardDeckCreateEntranceComponent from "@/app/basic/card/CardDeckCreateEntranceComponent.vue";
+import { Rectangle } from "address";
 
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
@@ -218,9 +219,9 @@ type DeckInfo = {
 
 @Component({
   components: {
+    CardDeckCreateEntranceComponent,
     CardDeckCreateCardComponent,
     CardDeckFrameSettingComponent,
-    CardDeckInputNameComponent,
     CardDeckChooseBackImageComponent,
     ImagePickerComponent,
     BaseInput,
@@ -273,7 +274,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private newDeckName: string = "";
   private newDeckBackColor: string = "#ffffff";
   private newDeckBackImageId: string = "";
-  private newDeckTag: string = "";
+  private newDeckTag: string | null = null;
 
   private width: number = 200;
   private height: number = 300;
@@ -294,6 +295,26 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private newCardList: StoreUseData<CardMeta>[] = [];
 
   private otherTextViewInfo: OtherTextViewInfo | null = null;
+
+  @VueEvent
+  private hoverCard(
+    card: StoreUseData<CardMeta>,
+    isHover: boolean,
+    rect: Rectangle
+  ) {
+    if (isHover) {
+      const text = `${card.data!.name}\n${card.data!.text}`;
+      this.otherTextViewInfo = {
+        type: "card-meta",
+        docId: card.id!,
+        text,
+        rect,
+        isFix: true
+      };
+    } else {
+      this.otherTextViewInfo = null;
+    }
+  }
 
   @VueEvent
   private get cardList(): StoreUseData<CardMeta>[] {

@@ -43,9 +43,9 @@ const uuid = require("uuid");
 @Component({
   components: { SButton, CardDeckSubContainerComponent, BaseInput }
 })
-export default class CardDeckInputNameComponent extends Mixins<ComponentVue>(
+export default class CardDeckCreateEntranceComponent extends Mixins<
   ComponentVue
-) {
+>(ComponentVue) {
   @Prop({ type: Array, required: true })
   private cardList!: StoreUseData<CardMeta>[];
 
@@ -167,15 +167,15 @@ export default class CardDeckInputNameComponent extends Mixins<ComponentVue>(
   }
 
   // imageTag
-  @Prop({ type: String, required: true })
-  private imageTag!: string;
-  private imageTagVolatile: string = "";
+  @Prop({ required: true })
+  private imageTag!: string | null;
+  private imageTagVolatile: string | null = null;
   @Watch("imageTag", { immediate: true })
-  private onChangeImageTag(value: string) {
+  private onChangeImageTag(value: string | null) {
     this.imageTagVolatile = value;
   }
   @Watch("imageTagVolatile")
-  private onChangeImageTagVolatile(value: string) {
+  private onChangeImageTagVolatile(value: string | null) {
     this.$emit("update:imageTag", value);
   }
 
@@ -326,6 +326,7 @@ export default class CardDeckInputNameComponent extends Mixins<ComponentVue>(
     const regExp1 = new RegExp("[!！。.][ 　]*", "g");
     const regExp2 = new RegExp("[◇●◆]", "g");
     const regExp3 = new RegExp("\\n\\n", "g");
+    const regExp4 = new RegExp("\\n$");
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
@@ -350,7 +351,8 @@ export default class CardDeckInputNameComponent extends Mixins<ComponentVue>(
       contents = contents
         .replace(regExp1, (c: string) => `${c}\n`)
         .replace(regExp2, (c: string) => `\n${c}`)
-        .replace(regExp3, "\n");
+        .replace(regExp3, "\n")
+        .replace(regExp4, "");
 
       const nameSplit = name.split(" ■");
       name = nameSplit[0];

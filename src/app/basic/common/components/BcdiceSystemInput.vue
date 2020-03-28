@@ -165,9 +165,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
             type: "",
             docId: this.windowInfo.key,
             text: this.helpMessage,
-            point: createPoint(rect.x, rect.y),
-            width: rect.width + 1,
-            height: rect.height,
+            rect: createRectangle(rect.x, rect.y, rect.width + 1, rect.height),
             isFix: true
           }
         });

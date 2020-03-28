@@ -168,7 +168,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import CardSimulatorComponent from "@/app/basic/card/CardSimulatorComponent.vue";
-import { createPoint } from "@/app/core/utility/CoordinateUtility";
+import { createRectangle } from "@/app/core/utility/CoordinateUtility";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 const uuid = require("uuid");
 
@@ -213,8 +213,8 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   @Prop({ type: String, required: true })
   private backImage!: string;
 
-  @Prop({ type: String, required: true })
-  private imageTag!: string;
+  @Prop({ required: true })
+  private imageTag!: string | null;
   @Watch("imageTag")
   private onChangeImageTag() {
     this.currentTag = this.imageTag;
@@ -249,19 +249,6 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Array, required: true })
   private cardList!: StoreUseData<CardMeta>[];
-
-  // otherTextViewInfo
-  @Prop({ type: Object, default: null })
-  private otherTextViewInfo!: OtherTextViewInfo | null;
-  private otherTextViewInfoVolatile: OtherTextViewInfo | null = null;
-  @Watch("otherTextViewInfo", { immediate: true })
-  private onChangeOtherTextViewInfo(value: OtherTextViewInfo | null) {
-    this.otherTextViewInfoVolatile = value;
-  }
-  @Watch("otherTextViewInfoVolatile")
-  private onChangeOtherTextViewInfoVolatile(value: OtherTextViewInfo | null) {
-    this.$emit("update:otherTextViewInfo", value);
-  }
 
   private frontBackgroundColor: string = "#ffffff";
   private nameFontSize: number = 20;
@@ -299,7 +286,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   }
 
   private currentImageId: string = "";
-  private currentTag: string = "";
+  private currentTag: string | null = null;
   private mediaList = GameObjectManager.instance.mediaList;
 
   @VueEvent
@@ -349,20 +336,9 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
     elm: HTMLElement
   ) {
     this.hoverCardId = isHover ? card.id! : null;
-    if (isHover) {
-      const rect = elm.getBoundingClientRect();
-      this.otherTextViewInfoVolatile = {
-        type: "card-meta",
-        docId: card.id!,
-        text: card.data!.text || "このカードにテキストはありません",
-        point: createPoint(rect.x, rect.y),
-        width: rect.width,
-        height: rect.height,
-        isFix: true
-      };
-    } else {
-      this.otherTextViewInfoVolatile = null;
-    }
+    const rect = elm.getBoundingClientRect();
+    const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
+    this.$emit("hover-card", card, isHover, r);
   }
 
   @VueEvent

@@ -4,7 +4,7 @@ import { Component } from "vue-mixin-decorator";
 @Component
 export default class SelectMixin extends Vue {
   @Prop({ default: "" })
-  public value!: string | string[];
+  public value!: string | string[] | null;
 
   @Prop({ type: String, default: null })
   public id!: string | null;

@@ -128,9 +128,7 @@ type OtherTextViewInfo = {
   type: string;
   docId: string;
   text: string;
-  point: Point;
-  width: number;
-  height: number;
+  rect: Rectangle;
   isFix: boolean;
 };
 

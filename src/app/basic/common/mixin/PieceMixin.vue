@@ -6,7 +6,8 @@ import {
   createPoint,
   createAddress,
   copyAddress,
-  getEventPoint
+  getEventPoint,
+  createRectangle
 } from "@/app/core/utility/CoordinateUtility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
@@ -707,9 +708,7 @@ export default class PieceMixin<
         type: this.type,
         docId: this.docId,
         text: data.otherText,
-        point: createPoint(data.x, data.y),
-        width: rect.width,
-        height: rect.height,
+        rect: createRectangle(data.x, data.y, rect.width, rect.height),
         isFix: false
       }
     });

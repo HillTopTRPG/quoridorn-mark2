@@ -168,8 +168,6 @@ import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import {
   createPoint,
-  createRectangle,
-  createSize,
   getEventPoint,
   getWindowSize
 } from "../utility/CoordinateUtility";

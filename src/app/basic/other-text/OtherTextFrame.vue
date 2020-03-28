@@ -79,8 +79,8 @@ export default class OtherTextFrame extends Vue {
     if (!this.isMounted) return;
     const gridSize = CssManager.instance.propMap.gridSize;
     const info = this.otherTextViewInfo;
-    const x = info.point.x;
-    const y = info.point.y;
+    const x = info.rect.x;
+    const y = info.rect.y;
 
     const marginColumns = CssManager.instance.propMap.marginColumn;
     const marginRows = CssManager.instance.propMap.marginRow;
@@ -95,7 +95,7 @@ export default class OtherTextFrame extends Vue {
 
     const translateZ = this.otherTextViewInfo.isFix ? 0 : this.wheel;
 
-    this.translateX = x + info.width;
+    this.translateX = x + info.rect.width;
     this.translateY = y;
     if (!this.otherTextViewInfo.isFix) {
       this.translateX += marginColumns * gridSize + mapPoint.x;
@@ -119,10 +119,10 @@ export default class OtherTextFrame extends Vue {
       }
       if (rect.x + rect.width > ws.width) {
         const useSpace = Math.max(
-          this.otherTextViewInfo.point.x,
+          this.otherTextViewInfo.rect.x,
           ws.width -
-            this.otherTextViewInfo.point.x -
-            this.otherTextViewInfo.width
+            this.otherTextViewInfo.rect.x -
+            this.otherTextViewInfo.rect.width
         );
         this.maxSize.width = useSpace;
         this.elm.style.maxWidth = `${this.maxSize.width}px`;
@@ -137,8 +137,8 @@ export default class OtherTextFrame extends Vue {
       setTimeout(() => {
         const rect = this.getRectangle();
         if (rect.x + rect.width > ws.width) {
-          if (rect.x - this.otherTextViewInfo.width - rect.width > 0) {
-            rect.x = rect.x - this.otherTextViewInfo.width - rect.width;
+          if (rect.x - this.otherTextViewInfo.rect.width - rect.width > 0) {
+            rect.x = rect.x - this.otherTextViewInfo.rect.width - rect.width;
           }
         }
         if (rect.y + rect.height > ws.height)

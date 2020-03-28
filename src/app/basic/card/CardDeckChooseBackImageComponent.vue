@@ -65,15 +65,15 @@ export default class CardDeckChooseBackImageComponent extends Mixins<
   }
 
   // imageTag
-  @Prop({ type: String, required: true })
-  private imageTag!: string;
-  private imageTagVolatile: string = "";
+  @Prop({ required: true })
+  private imageTag!: string | null;
+  private imageTagVolatile: string | null = null;
   @Watch("imageTag", { immediate: true })
-  private onChangeImageTag(value: string) {
+  private onChangeImageTag(value: string | null) {
     this.imageTagVolatile = value;
   }
   @Watch("imageTagVolatile")
-  private onChangeImageTagVolatile(value: string) {
+  private onChangeImageTagVolatile(value: string | null) {
     this.$emit("update:imageTag", value);
   }
 }
