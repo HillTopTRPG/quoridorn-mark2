@@ -164,11 +164,11 @@ type CardMeta = {
 type CardObject = {
   // actorId は owner で管理
   cardMetaId: string; // カード情報への参照
-  gameCardDeckId: string; // 所属するデッキへの参照
-  smallCardDeckId: string; // 所属するデッキへの参照
-  mode: "field" | "hand" | "both"; // 管理方法
+  cardDeckBigId: string; // 所属するデッキへの参照
+  cardDeckSmallId: string | null; // 所属するデッキへの参照
   isTurnOff: boolean; // 伏せているかどうか
-  address: Address;
+  point: Point; // 置き場のレイアウトが frankness の場合の座標
+  angle: number; // 置き場のレイアウトが frankness の場合の角度
 };
 
 type CardDeckBig = {
@@ -177,6 +177,17 @@ type CardDeckBig = {
 
 type CardDeckSmall = {
   name: string;
+  layout: "deck" | "hand" | "tile" | "frankness";
+  address: Address; // x, y: 手札の起点, row, column: フィールドの起点
+  width: number; // 手札の表示幅
+  rows: number; // フィールドの設置高さ
+  columns: number; // フィールドの設置幅
+  tileReorderingMode: "substitute" | "insert"; // タイルの並べ替え方式(substitute: 置換, insert: 挿入)
+  cardWidthRatio: number; // 置き場の大きさに収まるカードの枚数（幅）
+  cardHeightRatio: number; // 置き場の大きさに収まるカードの枚数（高さ）
+  layoutRows: number; // 置き場に対して何行使ってカードを配置するか
+  layoutColumns: number; // 置き場に対して何列使ってカードを配置するか
+  layerId: string; // 配置するシーンレイヤー
 };
 
 type InputCardInfo = {

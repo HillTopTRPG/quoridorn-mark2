@@ -97,6 +97,7 @@ type SceneLayerType =
   | "map-mask"
   | "map-marker"
   | "dice-symbol"
+  | "card"
   | "character"
   | "other";
 

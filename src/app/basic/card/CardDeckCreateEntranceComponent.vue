@@ -345,6 +345,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
       }
 
       const id: string = uuid.v4();
+      window.console.log(id);
       const base = CardDeckBuilder.DEFAULT_CARD_FRAME_PARANOIA_REBOOTED;
       this.setFramePreset(base);
 

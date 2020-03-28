@@ -1,5 +1,11 @@
 <template>
   <div class="scene-layer" :class="[className]" ref="elm">
+    <template v-for="cardDeckSmall in useCardDeckSmallList">
+      <card-deck-small-component
+        :deck="cardDeckSmall"
+        :key="cardDeckSmall.id"
+      />
+    </template>
     <template v-for="sceneObject in useSceneObjectList">
       <map-mask
         v-if="sceneObject.data.type === 'map-mask'"
@@ -33,9 +39,11 @@ import SocketFacade, {
 } from "@/app/core/api/app-server/SocketFacade";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue";
 
 @Component({
   components: {
+    CardDeckSmallComponent,
     MapMask,
     Chit
   }
@@ -51,6 +59,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
 
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
+  private cardDeckSmallList = GameObjectManager.instance.cardDeckSmallList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
@@ -105,6 +114,13 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
       .filter(
         so => so.data!.place === "field" && so.data!.layerId === this.layer.id
       );
+  }
+
+  @VueEvent
+  private get useCardDeckSmallList() {
+    return this.cardDeckSmallList.filter(
+      cds => cds.data!.layerId === this.layer.id
+    );
   }
 
   private get elm(): HTMLElement {

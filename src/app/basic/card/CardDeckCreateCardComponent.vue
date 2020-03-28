@@ -134,6 +134,7 @@
               class="deck-set-card"
               v-show="isViewCardImage"
               :cardMeta="cardMeta"
+              :size="getCardSize(cardMeta.data)"
               :isTurnOff="false"
             />
             <s-button
@@ -161,14 +162,17 @@ import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerC
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 import { StoreUseData } from "@/@types/store";
-import { CardMeta, OtherTextViewInfo } from "@/@types/gameObject";
+import { CardMeta } from "@/@types/gameObject";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import CardSimulatorComponent from "@/app/basic/card/CardSimulatorComponent.vue";
-import { createRectangle } from "@/app/core/utility/CoordinateUtility";
+import {
+  createRectangle,
+  createSize
+} from "@/app/core/utility/CoordinateUtility";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 const uuid = require("uuid");
 
@@ -272,6 +276,11 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   private mounted() {
     this.setDefault();
     this.currentTag = this.imageTag;
+  }
+
+  @VueEvent
+  private getCardSize(cardMeta: CardMeta) {
+    return createSize(cardMeta.width, cardMeta.height);
   }
 
   private setDefault() {

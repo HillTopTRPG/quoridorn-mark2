@@ -43,6 +43,27 @@
           </label>
         </div>
       </fieldset>
+
+      <fieldset>
+        <legend v-t="'label.resist'"></legend>
+        <div class="fieldset-contents">
+          <label class="name-box">
+            <span v-t="'label.name'"></span>
+            <input
+              type="text"
+              :value="cardDeckNameVolatile"
+              @input="cardDeckNameVolatile = $event.target.value"
+              @keydown.enter.prevent.stop
+              @keyup.enter.prevent.stop
+              @keydown.229.prevent.stop
+              @keyup.229.prevent.stop
+            />
+            <ctrl-button @click="$emit('resist')">
+              <span v-t="'label.resist'"></span>
+            </ctrl-button>
+          </label>
+        </div>
+      </fieldset>
     </div>
 
     <div
@@ -57,11 +78,13 @@
       <card-component
         class="card card-face-back"
         :cardMeta="card"
+        :size="getCardSize(card.data)"
         :isTurnOff="true"
       />
       <card-component
         class="card card-face-front"
         :cardMeta="card"
+        :size="getCardSize(card.data)"
         :isTurnOff="false"
       />
       <div class="operation-box">
@@ -79,12 +102,15 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Prop, Watch } from "vue-property-decorator";
-import { CardMeta, OtherTextViewInfo } from "@/@types/gameObject";
+import { CardMeta } from "@/@types/gameObject";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
-import { createRectangle } from "@/app/core/utility/CoordinateUtility";
+import {
+  createRectangle,
+  createSize
+} from "@/app/core/utility/CoordinateUtility";
 
 export type CardCountInfo = {
   id: string;
@@ -121,6 +147,19 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
     this.$emit("update:selectedCardList", value);
   }
 
+  // cardDeckName
+  @Prop({ type: String, required: true })
+  private cardDeckName!: string;
+  private cardDeckNameVolatile: string = "";
+  @Watch("cardDeckName", { immediate: true })
+  private onChangeCardDeckName(value: string) {
+    this.cardDeckNameVolatile = value;
+  }
+  @Watch("cardDeckNameVolatile")
+  private onChangeCardDeckNameVolatile(value: string) {
+    this.$emit("update:cardDeckName", value);
+  }
+
   private hoverCardId: string | null = null;
 
   private searchText: string = "";
@@ -140,6 +179,11 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
         this.searchCountList.indexOf(count.toString(10)) > -1
       );
     });
+  }
+
+  @VueEvent
+  private getCardSize(cardMeta: CardMeta) {
+    return createSize(cardMeta.width, cardMeta.height);
   }
 
   @VueEvent

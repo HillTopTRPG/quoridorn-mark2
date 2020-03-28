@@ -1,7 +1,7 @@
 <template>
   <div class="container" ref="window-container">
     <div class="button-area space-between margin-bottom">
-      <ctrl-button @click="send()" :disabled="!selectedCardDeckBigId">
+      <ctrl-button @click="setDeck()" :disabled="!selectedCardDeckBigId">
         <span v-t="'button.send'"></span>
       </ctrl-button>
       <ctrl-button @click="preview" :disabled="!selectedCardDeckBigId">
@@ -14,6 +14,7 @@
         v-for="deck in deckList"
         :key="deck.cardDeckBig.id"
         :deck="deck"
+        :size="10"
         :isSelected="selectedCardDeckBigId === deck.cardDeckBig.id"
         @select="selectedCardDeckBigId = deck.cardDeckBig.id"
         @dblclick="editCardDeck()"
@@ -32,10 +33,7 @@
       <ctrl-button @click="chmodCardDeck()" :disabled="!selectedCardDeckBigId">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
-      <ctrl-button
-        @click="deleteCardDeck()"
-        :disabled="!selectedCardDeckBigId || useCardDeckList.length <= 1"
-      >
+      <ctrl-button @click="deleteCardDeck()" :disabled="!selectedCardDeckBigId">
         <span v-t="'button.delete'"></span>
       </ctrl-button>
     </div>
@@ -59,10 +57,11 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
 import LanguageManager from "@/LanguageManager";
 import { ModeInfo } from "mode";
-import { CardMeta, CardDeckBig } from "@/@types/gameObject";
+import { CardMeta, CardDeckBig, CardDeckSmall } from "@/@types/gameObject";
 import CardDeckSetComponent, {
   DeckInfo
 } from "@/app/basic/card/CardDeckSetComponent.vue";
+import { createAddress } from "@/app/core/utility/CoordinateUtility";
 
 @Component({
   components: {
@@ -76,10 +75,14 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   private isMounted: boolean = false;
   private cardMetaCC = SocketFacade.instance.cardMetaCC();
   private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
+  private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
+  private cardObjectCC = SocketFacade.instance.cardObjectCC();
   private mediaList = GameObjectManager.instance.mediaList;
   private cardMetaList = GameObjectManager.instance.cardMetaList;
+  private cardObjectList = GameObjectManager.instance.cardObjectList;
   private cardDeckBigList = GameObjectManager.instance.cardDeckBigList;
   private selectedCardDeckBigId: string | null = null;
+  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
 
   @LifeCycle
   private async mounted() {
@@ -113,12 +116,6 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     );
     const editLabel = LanguageManager.instance.getText("label.editing");
     return `${lockName}(${editLabel})`;
-  }
-
-  @VueEvent
-  private async send() {
-    if (!this.selectedCardDeckBigId) return;
-    window.console.log("まだ何も決まってない");
   }
 
   @VueEvent
@@ -184,6 +181,57 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   }
 
   @VueEvent
+  private async setDeck() {
+    if (!this.selectedCardDeckBigId) return;
+    const cardDeckSmallList: CardDeckSmall[] = [];
+    const cardDeckBig = this.cardDeckBigList.filter(
+      cdb => cdb.id === this.selectedCardDeckBigId
+    )[0];
+    const cardMetaList = this.cardMetaList.filter(
+      cm => cm.owner === cardDeckBig.id
+    );
+
+    const cardDeckSmallId = await this.cardDeckSmallCC.touch();
+
+    const cardObjectIdList = this.cardObjectList
+      .filter(co => co.data!.cardDeckBigId === this.selectedCardDeckBigId)
+      .map(co => co.id!);
+
+    const updateSmallId = async (cardObjectId: string): Promise<void> => {
+      await this.cardObjectCC.touchModify(cardObjectId);
+      const cardObject = this.cardObjectList.filter(
+        co => co.id === cardObjectId
+      )[0]!.data!;
+      cardObject.cardDeckSmallId = cardDeckSmallId;
+      await this.cardObjectCC.update(cardObjectId, cardObject);
+    };
+
+    // 直列の非同期で全部実行する
+    await cardObjectIdList
+      .map((cardObjectId: string) => () => updateSmallId(cardObjectId))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    const cardSceneLayer = this.sceneLayerList.filter(
+      sl => sl.data!.type === "card"
+    )[0];
+
+    await this.cardDeckSmallCC.add(cardDeckSmallId, {
+      address: createAddress(0, 0, 0, 0),
+      layout: "deck",
+      cardHeightRatio: 1,
+      cardWidthRatio: 1,
+      columns: 2,
+      rows: 3,
+      layoutColumns: 1,
+      layoutRows: 1,
+      name: "",
+      tileReorderingMode: "insert",
+      width: 200,
+      layerId: cardSceneLayer.id!
+    });
+  }
+
+  @VueEvent
   private async deleteCardDeck() {
     if (!this.selectedCardDeckBigId) return;
     const result = window.confirm(
@@ -214,13 +262,13 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   @include flex-box(row, flex-start, flex-start, wrap);
   flex: 1;
   border: 1px solid gray;
-  padding-top: 0.5rem;
-  padding-left: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .card-deck-set {
-  margin-right: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-left: 0.5rem;
+  margin-top: 0.5rem;
   width: 10em;
   height: 10em;
   border: 2px solid gray;

@@ -449,8 +449,7 @@ card-deck-builder:
     setting-frame: "カードの表面のフレームを設定してください。\nここで指定したフレームが、後続の工程で流し込む画像や文字のベースとなります。"
     choose-back-image: "山札に共通するカードの裏面を選んでください。\n新規作成の際に設定できる裏面の種類は１種類のみです。\n複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。"
     create-front: カードの表面を選びつつカードデータを入力してください。
-    choose-card: カードの選択
-    confirm: 内容確認
+    choose-card: カードの選択・山札登録
   header:
     deck-set-preset: プリセット
     deck-set-room: 部屋データ

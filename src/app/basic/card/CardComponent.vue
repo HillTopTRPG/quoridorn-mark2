@@ -1,6 +1,11 @@
 <template>
-  <div class="card-component" :class="isTurnOff ? 'back' : 'front'" ref="elm">
-    <div class="card">
+  <div
+    class="card-component"
+    :class="isTurnOff ? 'back' : 'front'"
+    :style="containerStyle"
+    ref="elm"
+  >
+    <div class="card" :style="cardStyle">
       <div class="face front-face" :style="frontStyle">
         <div class="name" :style="{ height: cardMeta.nameHeight + 'px' }">
           {{ cardMeta.name }}
@@ -22,19 +27,41 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { CardMeta } from "@/@types/gameObject";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { StoreUseData } from "@/@types/store";
+import { Size } from "address";
+import { createSize } from "@/app/core/utility/CoordinateUtility";
 
 @Component
 export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
   private cardMeta!: StoreUseData<CardMeta>;
 
+  @Prop({ type: Object, required: true })
+  private size!: Size;
+
   @Prop({ type: Boolean, required: true })
   private isTurnOff!: boolean;
 
-  @LifeCycle
-  private mounted() {
-    this.elm.style.width = this.cardMeta.data!.width + "px";
-    this.elm.style.height = this.cardMeta.data!.height + "px";
+  @VueEvent
+  private get containerStyle() {
+    return {
+      width: `${this.size.width}px`,
+      height: `${this.size.height}px`
+    };
+  }
+
+  @VueEvent
+  private get cardStyle() {
+    const cardRawSize = createSize(
+      this.cardMeta.data!.width,
+      this.cardMeta.data!.height
+    );
+    const cardSizeRatio = Math.min(
+      this.size.width / cardRawSize.width,
+      this.size.height / cardRawSize.height
+    );
+    return {
+      transform: `scale(${cardSizeRatio})`
+    };
   }
 
   @VueEvent
@@ -78,9 +105,11 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   position: relative;
 }
 .card {
+  display: inline-block;
   width: 100%;
   height: 100%;
   perspective: 20rem;
+  transform-origin: left top;
 }
 .face {
   backface-visibility: hidden;
@@ -88,8 +117,6 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
   transform-origin: center center;
   background-repeat: no-repeat;
   background-size: contain;

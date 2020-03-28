@@ -14,7 +14,7 @@
     </div>
     <s-button
       class="move-btn"
-      icon="arrow-down"
+      :icon="isLast ? 'arrow-right' : 'arrow-down'"
       :disabled="nextDisabled"
       @click="$emit('next')"
     />
@@ -40,6 +40,9 @@ export default class CardDeckSubContainerComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, default: false })
   private isFirst!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private isLast!: boolean;
 
   @Prop({ type: Boolean, default: false })
   private nextDisabled!: boolean;

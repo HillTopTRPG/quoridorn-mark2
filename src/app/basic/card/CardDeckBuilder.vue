@@ -29,16 +29,6 @@
         @click="statusNum = 3"
         :class="{ current: statusNum === 3 }"
       ></div>
-      <div class="process-separator"></div>
-      <div
-        class="process"
-        v-t="`${ml}.confirm`"
-        @click="statusNum = 4"
-        :class="{
-          disabled: selectedDeckIdList.length === 0,
-          current: statusNum === 4
-        }"
-      ></div>
     </div>
 
     <div
@@ -125,6 +115,7 @@
         class="sub-contents create-card"
         :class="{ 'out-bottom': subStatusNum < 4, 'out-top': subStatusNum > 4 }"
         @back="subStatusNum = 3"
+        @next="statusNum = 3"
         :width="width"
         :imageTag="newDeckTag"
         :height="height"
@@ -148,21 +139,16 @@
       />
     </div>
 
-    <div
-      class="contents choose-card"
-      :class="{ 'out-right': statusNum < 3, 'out-left': statusNum > 3 }"
-    >
+    <div class="contents choose-card" :class="{ 'out-right': statusNum < 3 }">
       <card-chooser-component
         class="card-choose"
         title="card-deck-builder.header.card-list"
         :cardList="cardList"
         :selectedCardList.sync="selectedCardList"
+        :cardDeckName.sync="newDeckName"
         @hover-card="hoverCard"
+        @resist="resistDeck()"
       />
-    </div>
-
-    <div class="contents confirm" :class="{ 'out-right': statusNum < 4 }">
-      これは確認画面
     </div>
 
     <text-frame
@@ -184,6 +170,7 @@ import { Prop } from "vue-property-decorator";
 import {
   CardDeckBig,
   CardMeta,
+  CardObject,
   CardYamlInfo,
   InputCardInfo,
   OtherTextViewInfo
@@ -209,6 +196,8 @@ import CardDeckFrameSettingComponent from "@/app/basic/card/CardDeckFrameSetting
 import CardDeckCreateCardComponent from "@/app/basic/card/CardDeckCreateCardComponent.vue";
 import CardDeckCreateEntranceComponent from "@/app/basic/card/CardDeckCreateEntranceComponent.vue";
 import { Rectangle } from "address";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { createPoint } from "@/app/core/utility/CoordinateUtility";
 
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
@@ -270,6 +259,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   private presetDeckList: DeckInfo[] = [];
   private dbDeckList: DeckInfo[] = [];
+  private selectedDeckIdList: string[] = [];
 
   private newDeckName: string = "";
   private newDeckBackColor: string = "#ffffff";
@@ -294,7 +284,46 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   private newCardList: StoreUseData<CardMeta>[] = [];
 
+  private selectedCardList: CardCountInfo[] = [];
+  private statusNum: number = 1;
+  private subStatusNum: number = 1;
+
   private otherTextViewInfo: OtherTextViewInfo | null = null;
+
+  private cardMetaCC = SocketFacade.instance.cardMetaCC();
+  private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
+  private cardObjectCC = SocketFacade.instance.cardObjectCC();
+
+  @VueEvent
+  private async resistDeck() {
+    // 大山札の登録
+    const cardDeckBigId: string = (
+      await this.cardDeckBigCC.addDirect([{ name: this.newDeckName }])
+    )[0];
+
+    const cardMetaList: CardMeta[] = this.selectedCardList
+      .filter(ccInfo => ccInfo.count)
+      .map(ccInfo => this.cardList.filter(c => c.id === ccInfo.id)[0].data!);
+    const cardMetaIdList = await this.cardMetaCC.addDirect(cardMetaList, {
+      owner: cardDeckBigId
+    });
+
+    const cardObjectList: CardObject[] = this.selectedCardList
+      .filter(ccInfo => ccInfo.count)
+      .map((ccInfo, idx) => {
+        // const idx: number = this.cardList.findIndex(c => (c.id = ccInfo.id));
+        return {
+          cardMetaId: cardMetaIdList[idx],
+          cardDeckBigId,
+          cardDeckSmallId: null,
+          isTurnOff: true,
+          point: createPoint(0, 0),
+          angle: 0
+        };
+      });
+    await this.cardObjectCC.addDirect(cardObjectList);
+    await this.close();
+  }
 
   @VueEvent
   private hoverCard(
@@ -334,11 +363,6 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       });
     return resultList;
   }
-
-  private selectedDeckIdList: string[] = [];
-  private selectedCardList: CardCountInfo[] = [];
-  private statusNum: number = 1;
-  private subStatusNum: number = 1;
 
   @LifeCycle
   private async created() {
@@ -395,11 +419,6 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         this.presetDeckList.push({ cardDeckBig, cardMetaList });
       }
     );
-  }
-
-  @VueEvent
-  private async commit(): Promise<void> {
-    await this.close();
   }
 
   @VueEvent

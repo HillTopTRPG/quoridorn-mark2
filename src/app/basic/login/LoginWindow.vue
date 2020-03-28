@@ -1132,7 +1132,8 @@ export default class LoginWindow extends Mixins<
     await addSceneLayer("map-mask", 2);
     await addSceneLayer("map-marker", 3);
     await addSceneLayer("dice-symbol", 4);
-    await addSceneLayer("character", 5);
+    await addSceneLayer("card", 5);
+    await addSceneLayer("character", 6);
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
