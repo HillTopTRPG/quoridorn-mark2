@@ -87,7 +87,6 @@ import { DataReference } from "@/@types/data";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { getCssPxNum } from "@/app/core/css/Css";
 import LanguageManager from "@/LanguageManager";
 
 @Component({
@@ -130,10 +129,6 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   > = SocketFacade.instance.cutInDataCC();
   private fontSize: number = 12;
 
-  private get elm(): HTMLElement {
-    return this.$refs["window-container"] as HTMLElement;
-  }
-
   @LifeCycle
   public async mounted() {
     await this.init();
@@ -164,12 +159,14 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     return this.cutInList.filter(c => c.id === this.selectedCutInId)[0];
   }
 
+  @VueEvent
   private get isEditBan(): boolean {
     if (!this.cutInInfo) return true;
     if (this.cutInInfo.exclusionOwner) return true;
     return !permissionCheck(this.cutInInfo, "edit");
   }
 
+  @VueEvent
   private get isChmodBan(): boolean {
     if (!this.cutInInfo) return true;
     return !permissionCheck(this.cutInInfo, "chmod");
@@ -218,7 +215,6 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     task: Task<WindowResizeInfo, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value!.key !== this.windowKey) return;
-    const remSize = getCssPxNum("font-size");
     const fontSize = this.fontSize;
     const heightPx = this.windowInfo.heightPx;
     const heightDiffPx = this.windowInfo.diffRect.height;
@@ -287,8 +283,8 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async deleteMusic() {
-    await this.cc.touchModify(this.selectedCutInId!);
-    await this.cc.delete(this.selectedCutInId!);
+    await this.cc.touchModify([this.selectedCutInId!]);
+    await this.cc.delete([this.selectedCutInId!]);
     this.selectedCutInId = null;
   }
 }

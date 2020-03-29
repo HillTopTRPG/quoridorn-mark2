@@ -53,6 +53,13 @@
     - tab-move
     - row-select
     - drop-piece
+    - card-shuffle
+    - card-draw
+    - card-turn-on
+    - card-turn-off
+    - card-spread-out
+    - card-put-together
+    - card-setting-change
 
 - taskAttribute:
     isIgniteWithParam: false

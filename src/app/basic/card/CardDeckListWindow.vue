@@ -197,38 +197,39 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       .filter(co => co.data!.cardDeckBigId === this.selectedCardDeckBigId)
       .map(co => co.id!);
 
-    const updateSmallId = async (cardObjectId: string): Promise<void> => {
-      await this.cardObjectCC.touchModify(cardObjectId);
-      const cardObject = this.cardObjectList.filter(
-        co => co.id === cardObjectId
-      )[0]!.data!;
-      cardObject.cardDeckSmallId = cardDeckSmallId;
-      await this.cardObjectCC.update(cardObjectId, cardObject);
-    };
-
-    // 直列の非同期で全部実行する
-    await cardObjectIdList
-      .map((cardObjectId: string) => () => updateSmallId(cardObjectId))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await this.cardObjectCC.touchModify(cardObjectIdList);
+    await this.cardObjectCC.update(
+      cardObjectIdList,
+      cardObjectIdList.map(coId => {
+        const co = this.cardObjectList.filter(co => co.id === coId)[0]!.data!;
+        co.cardDeckSmallId = cardDeckSmallId;
+        return co;
+      })
+    );
 
     const cardSceneLayer = this.sceneLayerList.filter(
       sl => sl.data!.type === "card"
     )[0];
 
-    await this.cardDeckSmallCC.add(cardDeckSmallId, {
-      address: createAddress(0, 0, 0, 0),
-      layout: "deck",
-      cardHeightRatio: 1,
-      cardWidthRatio: 1,
-      columns: 2,
-      rows: 3,
-      layoutColumns: 1,
-      layoutRows: 1,
-      name: "",
-      tileReorderingMode: "insert",
-      width: 200,
-      layerId: cardSceneLayer.id!
-    });
+    await this.cardDeckSmallCC.add(
+      [cardDeckSmallId],
+      [
+        {
+          address: createAddress(0, 0, 0, 0),
+          layout: "deck",
+          cardHeightRatio: 1,
+          cardWidthRatio: 1,
+          columns: 2,
+          rows: 3,
+          layoutColumns: 1,
+          layoutRows: 1,
+          name: "",
+          tileReorderingMode: "insert",
+          width: 200,
+          layerId: cardSceneLayer.id!
+        }
+      ]
+    );
   }
 
   @VueEvent
@@ -239,12 +240,12 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     );
     if (!result) return;
     try {
-      await this.cardDeckBigCC.touchModify(this.selectedCardDeckBigId);
+      await this.cardDeckBigCC.touchModify([this.selectedCardDeckBigId]);
     } catch (err) {
       // TODO show message.
       return;
     }
-    await this.cardDeckBigCC.delete(this.selectedCardDeckBigId);
+    await this.cardDeckBigCC.delete([this.selectedCardDeckBigId]);
   }
 }
 </script>

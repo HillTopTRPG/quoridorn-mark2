@@ -177,12 +177,12 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
     const data: any = (await cc.getData(docId))!.data;
     data.otherText = this.rawText;
     try {
-      await cc.touchModify(docId);
+      await cc.touchModify([docId]);
     } catch (err) {
       alert("他の人が操作中のオブジェクトのため、更新に失敗しました。");
       return;
     }
-    await cc.update(docId, data);
+    await cc.update([docId], [data]);
   }
 
   private get elm(): HTMLElement {

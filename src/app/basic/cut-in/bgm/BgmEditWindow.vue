@@ -121,7 +121,7 @@ export default class BgmEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.docId);
+        await this.cc.touchModify([this.docId]);
       } catch (err) {
         window.console.warn(err);
         this.isProcessed = true;
@@ -164,7 +164,7 @@ export default class BgmEditWindow extends Mixins<
 
     Object.assign(data, this.cutInData);
 
-    await this.cc!.update(this.docId, data);
+    await this.cc!.update([this.docId], [data]);
     this.isProcessed = true;
     await this.close();
   }
@@ -183,7 +183,7 @@ export default class BgmEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch(this.docId);
+      await this.cc!.releaseTouch([this.docId]);
     } catch (err) {
       // nothing
     }

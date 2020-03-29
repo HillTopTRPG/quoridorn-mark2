@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch, Vue, Prop } from "vue-property-decorator";
+import { Component, Watch, Prop } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import OtherTextComponent from "./OtherTextComponent.vue";
 import { Point, Rectangle, Size } from "address";
@@ -26,11 +26,14 @@ import {
   createRectangle,
   createSize
 } from "@/app/core/utility/CoordinateUtility";
+import { Mixins } from "vue-mixin-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { OtherTextComponent }
 })
-export default class OtherTextFrame extends Vue {
+export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, default: null })
   private otherTextViewInfo!: OtherTextViewInfo;
 
@@ -50,8 +53,6 @@ export default class OtherTextFrame extends Vue {
   private maxSize: Size = createSize(0, 0);
 
   private fontSize = OtherTextFrame.DEFAULT_FONT_SIZE;
-
-  private key = "OtherTextFrame";
 
   @LifeCycle
   public async mounted() {
@@ -176,22 +177,24 @@ export default class OtherTextFrame extends Vue {
     const data: any = (await cc.getData(docId))!.data;
     data.otherText = this.rawText;
     try {
-      await cc.touchModify(docId);
+      await cc.touchModify([docId]);
     } catch (err) {
       alert("他の人が操作中のオブジェクトのため、更新に失敗しました。");
       return;
     }
-    await cc.update(docId, data);
+    await cc.update([docId], [data]);
   }
 
   private get elm(): HTMLElement {
     return this.$refs.elm as HTMLElement;
   }
 
+  @VueEvent
   private onMouseOver() {
     this.isHover = true;
   }
 
+  @VueEvent
   private onMouseOut() {
     this.isHover = false;
     if (!this.isHover) this.$emit("hide");

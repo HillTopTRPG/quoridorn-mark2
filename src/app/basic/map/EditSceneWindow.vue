@@ -261,7 +261,7 @@ import { Task, TaskResult } from "task";
 import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { StoreUseData } from "@/@types/store";
-import { Scene, SceneAndLayer, SceneLayer, Texture } from "@/@types/room";
+import { Scene, SceneAndLayer, SceneLayer } from "@/@types/room";
 import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
 import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -444,30 +444,16 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     if (oldValue === null) return;
 
     try {
-      await this.cc.update(this.sceneId!, this.sceneData!, {
-        continuous: true
-      });
+      await this.cc.update(
+        [this.sceneId!],
+        [this.sceneData!],
+        [{ continuous: true }]
+      );
     } catch (err) {
       window.console.log("==========");
       window.console.log(err);
     }
   }
-
-  // @Watch("marginRows")
-  // private async onChangeMarginRows(newValue: number, oldValue: number | null) {
-  //   if (oldValue === null) return;
-  //   this.mapInfo!.data!.margin.row = newValue;
-  //   await this.updateMap();
-  // }
-  //
-  // private async updateMap() {
-  //   try {
-  //     await this.cc.update(this.sceneId!, this.sceneData!, true);
-  //   } catch (err) {
-  //     window.console.log("==========");
-  //     window.console.log(err);
-  //   }
-  // }
 
   private tabList: TabInfo[] = [
     { target: "map", text: "" },
@@ -542,31 +528,12 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.sceneId);
+        await this.cc.touchModify([this.sceneId]);
       } catch (err) {
         this.isProcessed = true;
         window.console.warn(err);
         await this.close();
       }
-    }
-  }
-
-  private static getBgObj(info: Texture): Texture {
-    if (info.type === "image") {
-      return {
-        type: "image",
-        imageId: info.imageId,
-        imageTag: info.imageTag,
-        direction: info.direction,
-        backgroundSize: info.backgroundSize
-      };
-    } else {
-      return {
-        type: "color",
-        backgroundColor: info.backgroundColor,
-        fontColor: info.fontColor,
-        text: info.text
-      };
     }
   }
 
@@ -583,7 +550,7 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     GameObjectManager.instance.sceneEditingUpdateSceneId = null;
     if (!this.isProcessed) {
       try {
-        await this.cc!.releaseTouch(this.sceneId!);
+        await this.cc!.releaseTouch([this.sceneId!]);
       } catch (err) {
         // nothing
       }

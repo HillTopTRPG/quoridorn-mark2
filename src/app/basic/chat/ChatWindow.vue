@@ -654,11 +654,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   // アクターステータスを切り替える
   private async updateActorStatus(statusId: string) {
-    await this.actorCC.touchModify(this.actorId);
+    await this.actorCC.touchModify([this.actorId]);
     const actorInfo = this.actorList.filter(a => a.id === this.actorId)[0];
     const actorData = actorInfo.data!;
     actorData.statusId = statusId;
-    await this.actorCC.update(this.actorId, actorData);
+    await this.actorCC.update([this.actorId], [actorData]);
   }
 
   @TaskProcessor("language-change-finished")
@@ -710,7 +710,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async editChat(id: string) {
     try {
-      await this.chatListCC.touchModify(id);
+      await this.chatListCC.touchModify([id]);
     } catch (err) {
       // TODO error show.
       return;
@@ -727,13 +727,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     );
     if (!flg) return;
     try {
-      await this.chatListCC.touchModify(id);
+      await this.chatListCC.touchModify([id]);
     } catch (err) {
       alert(this.$t("chat-window.dialog.delete-failure")!.toString());
       return;
     }
 
-    await this.chatListCC.delete(id);
+    await this.chatListCC.delete([id]);
   }
 
   /**
@@ -797,8 +797,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     if (this.edittingChat) {
       this.edittingChat.data!.text = text;
       await this.chatListCC.update(
-        this.edittingChat.id!,
-        this.edittingChat.data!
+        [this.edittingChat.id!],
+        [this.edittingChat.data!]
       );
       this.edittingChat = null;
       return;

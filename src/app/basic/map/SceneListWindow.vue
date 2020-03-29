@@ -143,6 +143,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
     });
   }
 
+  @VueEvent
   private selectAreaMap(scene: StoreUseData<Scene>) {
     this.selectedSceneId = scene.id;
   }
@@ -198,10 +199,15 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       LanguageManager.instance.getText("label.really-delete")
     );
     if (!result) return;
-    await this.cc.touchModify(this.selectedSceneId);
-    await this.cc.delete(this.selectedSceneId);
+    try {
+      await this.cc.touchModify([this.selectedSceneId]);
+    } catch (err) {
+      return;
+    }
+    await this.cc.delete([this.selectedSceneId]);
   }
 
+  @VueEvent
   private async createMap() {
     const firstImage = this.mediaList[0].data!;
     const firstImageId = this.mediaList[0].id!;

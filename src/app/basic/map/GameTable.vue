@@ -19,7 +19,7 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board :scene="sceneInfo" :sceneId="sceneId" />
+        <map-board :scene="sceneInfo" :sceneId="sceneId" v-if="isMounted" />
       </div>
     </div>
   </div>
@@ -127,6 +127,7 @@ export default class GameTable extends AddressCalcMixin {
     await this.updateScreen();
   }
 
+  @Watch("isMounted")
   @Watch("sceneList", { deep: true })
   private async updateScreen() {
     if (!this.isMounted) return;
@@ -136,6 +137,7 @@ export default class GameTable extends AddressCalcMixin {
       CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;
       CssManager.instance.propMap.totalRow = this.sceneInfo.rows;
       CssManager.instance.propMap.gridSize = this.sceneInfo.gridSize!;
+      window.console.log("## setGridSize ##");
       CssManager.instance.propMap.marginColumn = this.sceneInfo.margin.columns;
       CssManager.instance.propMap.marginRow = this.sceneInfo.margin.rows;
       CssManager.instance.propMap.marginBorderWidth = this.sceneInfo.margin.border.width;

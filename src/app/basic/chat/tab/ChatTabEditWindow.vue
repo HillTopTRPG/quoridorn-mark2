@@ -78,7 +78,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.docId);
+        await this.cc.touchModify([this.docId]);
       } catch (err) {
         window.console.warn(err);
         this.isProcessed = true;
@@ -119,7 +119,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     if (!this.isDuplicate) {
       const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
       data.data!.name = this.tabName!;
-      await this.cc!.update(this.docId!, data.data!);
+      await this.cc!.update([this.docId!], [data.data!]);
     }
     this.isProcessed = true;
     await this.close();
@@ -139,7 +139,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch(this.docId!);
+      await this.cc!.releaseTouch([this.docId!]);
     } catch (err) {
       // nothing
     }

@@ -57,6 +57,13 @@ context:
   hide-highlight: ハイライトを非表示
   view-scene-list: シーン一覧表示
   chmod: 権限変更
+  shuffle: シャッフル
+  draw: ドロー
+  turn-on: 表向きにする
+  turn-off: 裏向きにする
+  spread-out: 広げる
+  put-together: まとめる
+  setting-change: 設定変更
 
 label:
   terms-of-use: 利用規約

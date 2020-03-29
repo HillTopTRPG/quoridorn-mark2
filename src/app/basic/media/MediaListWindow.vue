@@ -36,7 +36,6 @@
           :media="media"
           :isViewThumbnail="isViewThumbnail"
           @preview="preview(media)"
-          @edit="editMedia(media)"
           @chmod="chmodMedia(media)"
           @delete="deleteMedia(media)"
         />
@@ -189,12 +188,12 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.mediaCC.touchModify(media.id!);
+      await this.mediaCC.touchModify([media.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.mediaCC.delete(media.id!);
+    await this.mediaCC.delete([media.id!]);
   }
 
   private setHoverWindowMessage(isHover: boolean, messageType: string) {

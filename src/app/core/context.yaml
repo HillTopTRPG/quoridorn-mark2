@@ -23,6 +23,22 @@ map:
       - taskName: item02-item01-emit
       - text: item02-item01
 
+card-deck-small:
+  - text: context.shuffle
+    taskName: card-shuffle
+  - text: context.draw
+    taskName: card-draw
+  - text: context.turn-on
+    taskName: card-turn-on
+  - text: context.turn-off
+    taskName: card-turn-off
+  - text: context.spread-out
+    taskName: card-spread-out
+  - text: context.put-together
+    taskName: card-put-together
+  - text: context.setting-change
+    taskName: card-setting-change
+
 map-mask:
   - text: context.modify
     taskName: window-open

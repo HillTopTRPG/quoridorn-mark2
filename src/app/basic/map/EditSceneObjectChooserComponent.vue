@@ -112,23 +112,19 @@ export default class EditSceneObjectChooserComponent extends Mixins<
   @Watch("sceneAndObjectList", { deep: true })
   private async onChangeSceneAndObjectInfoList() {
     if (this.dragMode) {
-      const touchModifyFunc = async (id: string): Promise<void> => {
-        try {
-          await this.sceneAndObjectCC.touchModify(id);
-          this.orderChangingIdList.push(id);
-        } catch (err) {
-          alert("このタイミングでは例外にならないはず");
-        }
-      };
-
-      await this.sceneAndObjectList
+      const idList = await this.sceneAndObjectList
         .filter(
           sao =>
             this.orderChangingIdList.filter(oId => oId === sao.id).length === -1
         )
-        .map(sao => sao.id!)
-        .map((id: string) => () => touchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+        .map(sao => sao.id!);
+
+      try {
+        await this.sceneAndObjectCC.touchModify(idList);
+        this.orderChangingIdList.push(...idList);
+      } catch (err) {
+        alert("このタイミングでは例外にならないはず");
+      }
     }
   }
 
@@ -157,30 +153,26 @@ export default class EditSceneObjectChooserComponent extends Mixins<
       ido.order = orderList[idx];
     });
 
-    const updateOrderFunc = async (idx: number): Promise<void> => {
+    const orderedIdList: string[] = [];
+    const dataList: SceneAndObject[] = [];
+    const optionList: any[] = [];
+    idList.forEach((sceneLayerId, idx) => {
       if (!idOrderList[idx].target) return;
       const id = idOrderList[idx].id;
-      const order = idOrderList[idx].order;
       const data = this.sceneAndObjectList.filter(sao => sao.id === id)[0]
         .data!;
-      await this.sceneAndObjectCC.update(id, data, {
-        order,
+      orderedIdList.push(id);
+      dataList.push(data);
+      optionList.push({
+        order: idOrderList[idx].order,
         continuous: true
       });
-    };
-
-    // 直列の非同期で全部実行する
-    await idList
-      .map((id: string, idx: number) => () => updateOrderFunc(idx))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    });
+    await this.sceneAndObjectCC.update(orderedIdList, dataList, optionList);
   }
 
   @Watch("dragMode")
   private async onChangeDragMode() {
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.sceneAndObjectCC.releaseTouch(id);
-    };
-
     const idList: string[] = this.sceneAndObjectList
       .filter(
         sao =>
@@ -190,47 +182,19 @@ export default class EditSceneObjectChooserComponent extends Mixins<
       )
       .map(sao => sao.id!);
     if (this.dragMode) {
-      let error: boolean = false;
-      const touchedList: string[] = [];
-
-      const touchModifyFunc = async (id: string): Promise<void> => {
-        if (error) return;
-        try {
-          await this.sceneAndObjectCC.touchModify(id);
-          touchedList.push(id);
-        } catch (err) {
-          error = true;
-
-          // 直列の非同期で全部実行する
-          await touchedList
-            .map((id: string) => () => releaseTouchModifyFunc(id))
-            .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-          window.console.error(err);
-          alert("Failure to get sceneAndObjectList's lock.\nPlease try again.");
-        }
-      };
-
-      // 直列の非同期で全部実行する
-      await idList
-        .map((id: string) => () => touchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-      if (error) {
+      try {
+        await this.sceneAndObjectCC.touchModify(idList);
+        this.orderChangingIdList = idList;
+      } catch (err) {
         this.dragModeProcessed = true;
         this.dragMode = false;
         this.orderChangingIdList = [];
-      } else {
-        this.orderChangingIdList = idList;
+        alert("Failure to get sceneAndObjectList's lock.\nPlease try again.");
       }
     } else {
       this.orderChangingIdList = [];
       if (!this.dragModeProcessed) {
-        // 直列の非同期で全部実行する
-        await idList
-          .map((id: string) => () => releaseTouchModifyFunc(id))
-          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
+        await this.sceneAndObjectCC.releaseTouch(idList);
         this.dragModeProcessed = false;
       }
     }
@@ -238,14 +202,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
 
   @LifeCycle
   private async beforeDestroy(): Promise<void> {
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.sceneAndObjectCC.releaseTouch(id);
-    };
-
-    // 直列の非同期で全部実行する
-    await this.orderChangingIdList
-      .map((id: string) => () => releaseTouchModifyFunc(id))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await this.sceneAndObjectCC.releaseTouch(this.orderChangingIdList);
   }
 
   @VueEvent
@@ -281,12 +238,14 @@ export default class EditSceneObjectChooserComponent extends Mixins<
         sao.data!.objectId === this.localValue
     )[0]!.id!;
     if (!this.dragMode) {
-      await this.sceneAndObjectCC.touchModify(targetId);
-      await this.sceneAndObjectCC.update(targetId, sceneAndObjectData);
+      await this.sceneAndObjectCC.touchModify([targetId]);
+      await this.sceneAndObjectCC.update([targetId], [sceneAndObjectData]);
     } else {
-      await this.sceneAndObjectCC.update(targetId, sceneAndObjectData, {
-        continuous: true
-      });
+      await this.sceneAndObjectCC.update(
+        [targetId],
+        [sceneAndObjectData],
+        [{ continuous: true }]
+      );
     }
   }
 

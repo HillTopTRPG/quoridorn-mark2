@@ -406,10 +406,10 @@ export default class PieceMixin<
       `【highlight:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.sceneObjectCC!.touchModify(this.docId);
+      await this.sceneObjectCC!.touchModify([this.docId]);
       const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isHideHighlight = task.value.value;
-      await this.sceneObjectCC!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
       window.console.warn(err);
     }
@@ -426,10 +426,10 @@ export default class PieceMixin<
       `【border:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.sceneObjectCC!.touchModify(this.docId);
+      await this.sceneObjectCC!.touchModify([this.docId]);
       const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isHideBorder = task.value.value;
-      await this.sceneObjectCC!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
       window.console.warn(err);
     }
@@ -446,10 +446,10 @@ export default class PieceMixin<
       `【lock:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
-      await this.sceneObjectCC!.touchModify(this.docId);
+      await this.sceneObjectCC!.touchModify([this.docId]);
       const data = (await this.sceneObjectCC!.getData(this.docId))!;
       data.data!.isLock = task.value.value;
-      await this.sceneObjectCC!.update(this.docId, data.data!);
+      await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
       window.console.warn(err);
     }
@@ -495,14 +495,16 @@ export default class PieceMixin<
     event.stopPropagation();
     if (this.sceneAndObjectInfo!.data!.isOriginalAddress) {
       try {
-        await this.sceneAndObjectCC!.touchModify(this.sceneAndObjectInfo!.id!);
+        await this.sceneAndObjectCC!.touchModify([
+          this.sceneAndObjectInfo!.id!
+        ]);
       } catch (err) {
         window.console.warn(err);
         return;
       }
     } else {
       try {
-        await this.sceneObjectCC!.touchModify(this.docId);
+        await this.sceneObjectCC!.touchModify([this.docId]);
       } catch (err) {
         window.console.warn(err);
         return;
@@ -595,11 +597,14 @@ export default class PieceMixin<
       if (!data.originalAddress)
         data.originalAddress = createAddress(0, 0, 0, 0);
       copyAddress(address, data.originalAddress);
-      await this.sceneAndObjectCC!.update(this.sceneAndObjectInfo!.id!, data);
+      await this.sceneAndObjectCC!.update(
+        [this.sceneAndObjectInfo!.id!],
+        [data]
+      );
     } else {
       const data: SceneObject = clone(this.sceneObjectInfo!.data)!;
       copyAddress(address, data);
-      await this.sceneObjectCC!.update(this.docId, data);
+      await this.sceneObjectCC!.update([this.docId], [data]);
     }
     this.inflateWidth = 0;
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);

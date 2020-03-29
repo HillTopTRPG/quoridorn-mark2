@@ -348,12 +348,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
     if (!result) return;
 
     try {
-      await this.actorCC.touchModify(actor.id!);
+      await this.actorCC.touchModify([actor.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.actorCC.delete(actor.id!);
+    await this.actorCC.delete([actor.id!]);
   }
 
   private static getDialogMessage(target: string) {

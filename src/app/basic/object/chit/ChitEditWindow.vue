@@ -115,7 +115,7 @@ export default class ChitEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.docId);
+        await this.cc.touchModify([this.docId]);
       } catch (err) {
         window.console.warn(err);
         this.isProcessed = true;
@@ -141,7 +141,7 @@ export default class ChitEditWindow extends Mixins<
     data.data!.columns = this.width;
     data.data!.otherText = this.otherText;
     data.data!.layerId = this.layerId;
-    await this.cc!.update(this.docId, data.data!);
+    await this.cc!.update([this.docId], [data.data!]);
     this.isProcessed = true;
     await this.close();
   }
@@ -160,7 +160,7 @@ export default class ChitEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch(this.docId);
+      await this.cc!.releaseTouch([this.docId]);
     } catch (err) {
       // nothing
     }

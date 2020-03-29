@@ -73,6 +73,7 @@ export default class EditSceneLayerChooserComponent extends Vue {
     this.input(value);
   }
 
+  @VueEvent
   private get sceneAndLayerInfo(): (id: string) => StoreUseData<SceneAndLayer> {
     return (id: string) =>
       this.sceneAndLayerList.filter(sal => sal.data!.layerId === id)[0];
@@ -91,13 +92,13 @@ export default class EditSceneLayerChooserComponent extends Vue {
     if (this.dragMode) {
       option.continuous = true;
     } else {
-      await this.sceneAndLayerCC.touchModify(mapAndKayerId);
+      await this.sceneAndLayerCC.touchModify([mapAndKayerId]);
     }
     let data = this.sceneAndLayerInfoList!.filter(
       ml => ml.id === mapAndKayerId
     )[0].data!;
     data.isUse = checked;
-    await this.sceneAndLayerCC.update(mapAndKayerId, data, option);
+    await this.sceneAndLayerCC.update([mapAndKayerId], [data], [option]);
   }
 
   @LifeCycle
@@ -116,36 +117,25 @@ export default class EditSceneLayerChooserComponent extends Vue {
 
   @LifeCycle
   private async beforeDestroy(): Promise<void> {
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.sceneAndLayerCC.releaseTouch(id);
-    };
-
-    // 直列の非同期で全部実行する
-    await this.orderChangingIdList
-      .map((id: string) => () => releaseTouchModifyFunc(id))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await this.sceneAndLayerCC.releaseTouch(this.orderChangingIdList);
   }
 
   @Watch("sceneAndLayerList", { deep: true })
   private async onChangeSceneAndLayerInfoList() {
     if (this.dragMode) {
-      const touchModifyFunc = async (id: string): Promise<void> => {
-        try {
-          await this.sceneAndLayerCC.touchModify(id);
-          this.orderChangingIdList.push(id);
-        } catch (err) {
-          alert("このタイミングでは例外にならないはず");
-        }
-      };
-
-      await this.sceneAndLayerList
+      const idList = this.sceneAndLayerList
         .filter(
           sao =>
             this.orderChangingIdList.filter(oId => oId === sao.id).length === -1
         )
-        .map(sao => sao.id!)
-        .map((id: string) => () => touchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+        .map(sao => sao.id!);
+
+      try {
+        await this.sceneAndLayerCC.touchModify(idList);
+        this.orderChangingIdList.push(...idList);
+      } catch (err) {
+        alert("このタイミングでは例外にならないはず");
+      }
     }
   }
 
@@ -158,53 +148,26 @@ export default class EditSceneLayerChooserComponent extends Vue {
   private async onChangeDragMode() {
     this.$emit("onChangeDragMode", this.dragMode);
 
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.sceneAndLayerCC.releaseTouch(id);
-    };
-
     const idList: string[] = this.sceneAndLayerList.map(sao => sao.id!);
     if (this.dragMode) {
-      let error: boolean = false;
-      const touchedList: string[] = [];
-
-      const touchModifyFunc = async (id: string): Promise<void> => {
-        if (error) return;
-        try {
-          await this.sceneAndLayerCC.touchModify(id);
-          touchedList.push(id);
-        } catch (err) {
-          error = true;
-
-          // 直列の非同期で全部実行する
-          await touchedList
-            .map((id: string) => () => releaseTouchModifyFunc(id))
-            .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-          alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
-        }
-      };
-
-      // 直列の非同期で全部実行する
-      await idList
-        .map((id: string) => () => touchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-      if (error) {
+      try {
+        await this.sceneAndLayerCC.touchModify(idList);
+        this.orderChangingIdList = idList;
+      } catch (err) {
+        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
         this.dragModeProcessed = true;
         this.dragMode = false;
         this.orderChangingIdList = [];
-      } else {
-        this.orderChangingIdList = idList;
       }
     } else {
       this.orderChangingIdList = [];
       if (!this.dragModeProcessed) {
-        // 直列の非同期で全部実行する
-        await idList
-          .map((id: string) => () => releaseTouchModifyFunc(id))
-          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-        this.dragModeProcessed = false;
+        try {
+          await this.sceneAndLayerCC.releaseTouch(idList);
+          this.dragModeProcessed = false;
+        } catch (err) {
+          // Nothing.
+        }
       }
     }
   }
@@ -234,21 +197,22 @@ export default class EditSceneLayerChooserComponent extends Vue {
       ido.order = orderList[idx];
     });
 
-    const updateOrderFunc = async (idx: number): Promise<void> => {
+    const orderedIdList: string[] = [];
+    const dataList: SceneAndLayer[] = [];
+    const optionList: any[] = [];
+
+    idList.forEach((layerId, idx) => {
       if (!idOrderList[idx].target) return;
       const id = idOrderList[idx].id;
-      const order = idOrderList[idx].order;
       const data = this.sceneAndLayerList.filter(sao => sao.id === id)[0].data!;
-      await this.sceneAndLayerCC.update(id, data, {
-        order,
+      orderedIdList.push(id);
+      dataList.push(data);
+      optionList.push({
+        order: idOrderList[idx].order,
         continuous: true
       });
-    };
-
-    // 直列の非同期で全部実行する
-    await idList
-      .map((id: string, idx: number) => () => updateOrderFunc(idx))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    });
+    await this.sceneAndLayerCC.update(orderedIdList, dataList, optionList);
   }
 }
 </script>

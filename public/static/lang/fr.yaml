@@ -57,6 +57,13 @@ context:
   hide-highlight: Masquer la surbrillance
   view-scene-list: シーン一覧表示
   chmod: 権限変更
+  shuffle: シャッフル
+  draw: ドロー
+  turn-on: 表向きにする
+  turn-off: 裏向きにする
+  spread-out: 広げる
+  put-together: まとめる
+  setting-change: 設定変更
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -231,6 +238,7 @@ label:
   card-text-background-color: テキスト部分の背景色
   special-process: 特殊機能
   importFailure: インポートに失敗しました。
+  resist: 登録
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.

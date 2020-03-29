@@ -43,7 +43,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import LanguageManager from "@/LanguageManager";
 import { Task, TaskResult } from "task";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { TabInfo } from "@/@types/window";
@@ -130,7 +129,7 @@ export default class ChmodWindow extends Mixins<
     }
 
     try {
-      await this.cc.touchModify(this.docId);
+      await this.cc.touchModify([this.docId]);
     } catch (err) {
       window.console.warn(err);
       this.isProcessed = true;
@@ -141,9 +140,15 @@ export default class ChmodWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    await this.cc!.update(this.docId, data.data!, {
-      permission: this.permission || undefined
-    });
+    await this.cc!.update(
+      [this.docId],
+      [data.data!],
+      [
+        {
+          permission: this.permission || undefined
+        }
+      ]
+    );
     this.isProcessed = true;
     await this.close();
   }
@@ -162,7 +167,7 @@ export default class ChmodWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch(this.docId);
+      await this.cc!.releaseTouch([this.docId]);
     } catch (err) {
       // nothing
     }

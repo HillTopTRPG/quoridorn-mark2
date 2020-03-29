@@ -205,12 +205,12 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.chatTabListCC.touchModify(tabInfo.id!);
+      await this.chatTabListCC.touchModify([tabInfo.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.chatTabListCC.delete(tabInfo.id!);
+    await this.chatTabListCC.delete([tabInfo.id!]);
   }
 
   @VueEvent
@@ -248,35 +248,19 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
     this.$emit("onChangeDragMode", this.dragMode);
 
     const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.chatTabListCC.releaseTouch(id);
+      await this.chatTabListCC.releaseTouch([id]);
     };
 
     const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
     if (this.dragMode) {
       let error: boolean = false;
-      const touchedList: string[] = [];
 
-      const touchModifyFunc = async (id: string): Promise<void> => {
-        if (error) return;
-        try {
-          await this.chatTabListCC.touchModify(id);
-          touchedList.push(id);
-        } catch (err) {
-          error = true;
-
-          // 直列の非同期で全部実行する
-          await touchedList
-            .map((id: string) => () => releaseTouchModifyFunc(id))
-            .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-          alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
-        }
-      };
-
-      // 直列の非同期で全部実行する
-      await idList
-        .map((id: string) => () => touchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+      try {
+        await this.chatTabListCC.touchModify(idList);
+      } catch (err) {
+        error = true;
+        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+      }
 
       if (error) {
         this.dragModeProcessed = true;
@@ -317,21 +301,23 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
       ido.order = orderList[idx];
     });
 
-    const updateOrderFunc = async (idx: number): Promise<void> => {
+    const idList: string[] = [];
+    const dataList: ChatTabInfo[] = [];
+    const optionList: any = [];
+    this.filteredChatTabList.forEach((obj, idx) => {
       if (!idOrderList[idx].target) return;
       const id = idOrderList[idx].id;
       const order = idOrderList[idx].order;
       const data = this.filteredChatTabList.filter(ct => ct.id === id)[0].data!;
-      await this.chatTabListCC.update(id, data, {
+      idList.push(id);
+      dataList.push(data);
+      optionList.push({
         order,
         continuous: true
       });
-    };
+    });
 
-    // 直列の非同期で全部実行する
-    await this.filteredChatTabList
-      .map((ct: StoreUseData<any>, idx: number) => () => updateOrderFunc(idx))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await this.chatTabListCC.update(idList, dataList, optionList);
   }
 
   @VueEvent

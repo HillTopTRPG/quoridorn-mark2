@@ -41,6 +41,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import { DataReference } from "@/@types/data";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -148,9 +149,9 @@ export default class Context extends Vue {
         this.target
       ));
 
-      const argObj = {
-        type: this.type,
-        docId: this.target
+      const argObj: DataReference = {
+        type: this.type!,
+        docId: this.target!
       };
       if (!contextItem.taskArg) {
         contextItem.taskArg = {

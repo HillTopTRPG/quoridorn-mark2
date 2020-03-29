@@ -208,7 +208,7 @@ export default class GameObjectManager {
     const cc = SocketFacade.instance.roomDataCC();
 
     try {
-      await cc.touchModify(this.roomDataId);
+      await cc.touchModify([this.roomDataId]);
     } catch (err) {
       // nothing.
       window.console.error(err);
@@ -248,7 +248,7 @@ export default class GameObjectManager {
         copyWindow("counterRemocon");
       }
     }
-    await cc.update(this.roomDataId, this.roomData);
+    await cc.update([this.roomDataId], [this.roomData]);
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
@@ -398,9 +398,9 @@ export default class GameObjectManager {
         }
       })
     )[0];
-    await actorStatusCC.touchModify(statusId);
+    await actorStatusCC.touchModify([statusId]);
     actorInfo.statusId = statusId;
-    await actorStatusCC.update(statusId, statusInfo, { owner });
+    await actorStatusCC.update([statusId], [statusInfo], [{ owner }]);
   }
 
   public async addScene(
@@ -487,8 +487,6 @@ export default class GameObjectManager {
 
   public async deleteSceneObject(id: string) {
     const sceneAndObjectIdList: string[] = [];
-    const touchedList: string[] = [];
-    let error: boolean = false;
 
     const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
     this.sceneList.forEach(async s => {
@@ -500,57 +498,28 @@ export default class GameObjectManager {
         });
     });
 
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await sceneAndObjectCC!.releaseTouch(id);
-    };
-    const touchModifyFunc = async (id: string): Promise<void> => {
-      if (error) return;
-      try {
-        await sceneAndObjectCC!.touchModify(id);
-        touchedList.push(id);
-      } catch (err) {
-        error = true;
-
-        // 直列の非同期で全部実行する
-        await touchedList
-          .map((id: string) => () => releaseTouchModifyFunc(id))
-          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-      }
-    };
-
-    // 直列の非同期で全部実行する
-    await sceneAndObjectIdList
-      .map((id: string) => () => touchModifyFunc(id))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
     const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
-    try {
-      await sceneObjectCC!.touchModify(id);
-    } catch (err) {
-      window.console.warn(err);
-      error = true;
-
-      // 直列の非同期で全部実行する
-      await touchedList
-        .map((id: string) => () => releaseTouchModifyFunc(id))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-    }
-
-    if (error) {
-      alert(
-        "Failure to delete object.\nAny data is locked.\nPlease try again latter."
-      );
-      return;
-    }
-
-    await sceneObjectCC!.delete(id);
-    const deleteFunc = async (id: string): Promise<void> => {
-      await sceneAndObjectCC!.delete(id);
+    const failure = () => {
+      const msg =
+        "Failure to delete object.\nAny data is locked.\nPlease try again latter.";
+      alert(msg);
     };
-    // 直列の非同期で全部実行する
-    await touchedList
-      .map((id: string) => () => deleteFunc(id))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+    try {
+      await sceneObjectCC!.touchModify([id]);
+    } catch (err) {
+      return failure();
+    }
+
+    try {
+      await sceneAndObjectCC!.touchModify(sceneAndObjectIdList);
+    } catch (err) {
+      await sceneObjectCC.releaseTouch([id]);
+      return failure();
+    }
+
+    await sceneAndObjectCC!.delete(sceneAndObjectIdList);
+    await sceneObjectCC!.delete([id]);
   }
 
   public get mySelfUser(): StoreUseData<UserData> | null {
@@ -567,9 +536,7 @@ export default class GameObjectManager {
 
   public get mySelfUserId(): string {
     const userId = SocketFacade.instance.userId;
-    if (!userId) {
-      throw new ApplicationError(`Illegal timing error.`);
-    }
+    if (!userId) throw new ApplicationError(`Illegal timing error.`);
     return userId;
   }
 

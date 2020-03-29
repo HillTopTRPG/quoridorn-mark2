@@ -7,14 +7,14 @@ export type TouchRequest = {
   option?: Partial<StoreObj<unknown>>;
 };
 export type TouchModifyRequest = TouchRequest & {
-  id: string;
+  idList: string[];
 };
 export type ReleaseTouchRequest = TouchModifyRequest & {
   option?: { continuous?: boolean };
 };
 
 export type CreateDataRequest = TouchModifyRequest & {
-  data: any;
+  dataList: any[];
 };
 export type AddDirectRequest = {
   collection: string;
@@ -23,8 +23,8 @@ export type AddDirectRequest = {
 };
 export type DeleteDataRequest = TouchModifyRequest;
 export type UpdateDataRequest = TouchModifyRequest & {
-  data: any;
-  option?: Partial<StoreObj<unknown>> & { continuous?: boolean };
+  dataList: any[];
+  optionList?: (Partial<StoreObj<unknown>> & { continuous?: boolean })[];
 };
 
 export type DataReference = {

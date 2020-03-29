@@ -57,6 +57,13 @@ context:
   hide-highlight: 隐藏突出显示
   view-scene-list: シーン一覧表示
   chmod: 権限変更
+  shuffle: シャッフル
+  draw: ドロー
+  turn-on: 表向きにする
+  turn-off: 裏向きにする
+  spread-out: 広げる
+  put-together: まとめる
+  setting-change: 設定変更
 
 label:
   terms-of-use: 使用条款
@@ -231,6 +238,7 @@ label:
   card-text-background-color: テキスト部分の背景色
   special-process: 特殊機能
   importFailure: インポートに失敗しました。
+  resist: 登録
 
 message:
   copy-to-clipboard: 复制到剪贴板

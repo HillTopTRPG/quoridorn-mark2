@@ -38,9 +38,7 @@ export default class NekostoreCollectionController<T> {
     });
 
     // releaseTouchを直列の非同期で全部実行する
-    await this.touchList
-      .map((touchId: string) => () => this.releaseTouch(touchId))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    await this.releaseTouch(this.touchList);
   }
 
   private snapshotMap: { [ownerKey in string]: Unsubscribe } = {};
@@ -145,44 +143,48 @@ export default class NekostoreCollectionController<T> {
     return docId;
   }
 
-  public async touchModify(id: string): Promise<string> {
-    const docId = await SocketFacade.instance.socketCommunication<
+  public async touchModify(idList: string[]): Promise<string[]> {
+    const docIdList = await SocketFacade.instance.socketCommunication<
       TouchModifyRequest,
-      never
+      string[]
     >("touch-data-modify", {
       collection: this.collectionName,
-      id
+      idList
     });
-    this.touchList.push(docId);
-    return docId;
+    this.touchList.push(...docIdList);
+    return docIdList;
   }
 
-  public async releaseTouch(id: string): Promise<void> {
-    const index = this.touchList.findIndex(listId => listId === id);
-    this.touchList.splice(index, 1);
+  public async releaseTouch(idList: string[]): Promise<void> {
+    idList.forEach(id => {
+      const index = this.touchList.findIndex(listId => listId === id);
+      this.touchList.splice(index, 1);
+    });
     await SocketFacade.instance.socketCommunication<ReleaseTouchRequest, never>(
       "release-touch-data",
       {
         collection: this.collectionName,
-        id
+        idList
       }
     );
   }
 
   public async add(
-    id: string,
-    data: T,
+    idList: string[],
+    dataList: T[],
     permission?: Permission
   ): Promise<string> {
-    const index = this.touchList.findIndex(listId => listId === id);
-    this.touchList.splice(index, 1);
+    idList.forEach(id => {
+      const index = this.touchList.findIndex(listId => listId === id);
+      this.touchList.splice(index, 1);
+    });
     return await SocketFacade.instance.socketCommunication<
       CreateDataRequest,
       string
     >("create-data", {
       collection: this.collectionName,
-      id,
-      data,
+      idList,
+      dataList,
       option: {
         permission: permission || GameObjectManager.PERMISSION_DEFAULT
       }
@@ -210,31 +212,35 @@ export default class NekostoreCollectionController<T> {
   }
 
   public async update(
-    id: string,
-    data: T,
-    option?: Partial<StoreObj<unknown>> & { continuous?: boolean }
+    idList: string[],
+    dataList: T[],
+    optionList?: (Partial<StoreObj<unknown>> & { continuous?: boolean })[]
   ) {
-    const index = this.touchList.findIndex(listId => listId === id);
-    this.touchList.splice(index, 1);
+    idList.forEach(id => {
+      const index = this.touchList.findIndex(listId => listId === id);
+      this.touchList.splice(index, 1);
+    });
     await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
       "update-data",
       {
         collection: this.collectionName,
-        id,
-        data,
-        option
+        idList,
+        dataList,
+        optionList
       }
     );
   }
 
-  public async delete(id: string): Promise<void> {
-    const index = this.touchList.findIndex(listId => listId === id);
-    this.touchList.splice(index, 1);
+  public async delete(idList: string[]): Promise<void> {
+    idList.forEach(id => {
+      const index = this.touchList.findIndex(listId => listId === id);
+      this.touchList.splice(index, 1);
+    });
     await SocketFacade.instance.socketCommunication<DeleteDataRequest, never>(
       "delete-data",
       {
         collection: this.collectionName,
-        id
+        idList
       }
     );
   }

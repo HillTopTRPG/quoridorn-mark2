@@ -94,7 +94,7 @@ export default class ActorEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify(this.docId);
+        await this.cc.touchModify([this.docId]);
       } catch (err) {
         window.console.warn(err);
         this.isProcessed = true;
@@ -112,6 +112,7 @@ export default class ActorEditWindow extends Mixins<
     );
   }
 
+  @VueEvent
   private get isCommitAble(): boolean {
     return !!this.name && !this.isDuplicate;
   }
@@ -137,7 +138,7 @@ export default class ActorEditWindow extends Mixins<
     data.chatFontColor = this.chatFontColor;
     data.standImagePosition = this.standImagePosition;
     data.isUseTableData = this.isUseTableData;
-    await this.cc!.update(this.docId, data);
+    await this.cc!.update([this.docId], [data]);
     this.isProcessed = true;
     await this.close();
   }

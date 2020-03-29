@@ -2,7 +2,8 @@
   <div
     :class="[
       fontSizeChangeBan ? 'fontSizeChangeBan' : undefined,
-      `knob-${side}`
+      `knob-${side}`,
+      deco ? 'deco' : undefined
     ]"
     @mousedown.left.stop="leftDown($event, side)"
     @touchstart.stop="leftDown($event, side)"
@@ -11,7 +12,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class ResizeKnob extends Vue {
@@ -21,8 +23,13 @@ export default class ResizeKnob extends Vue {
   @Prop({ type: Boolean, default: false })
   private fontSizeChangeBan!: boolean;
 
-  @Emit("leftDown")
-  private leftDown(event: MouseEvent | TouchEvent, side: string): void {}
+  @Prop({ type: Boolean, default: false })
+  private deco!: boolean;
+
+  @VueEvent
+  private leftDown(event: MouseEvent | TouchEvent, side: string): void {
+    this.$emit("leftDown", event, side);
+  }
 }
 </script>
 
@@ -39,30 +46,34 @@ export default class ResizeKnob extends Vue {
 .knob-right-bottom {
   position: absolute;
   z-index: 1;
+
+  &.deco {
+    background-color: var(--uni-color-orange);
+  }
 }
 
 .knob-left,
 .knob-right {
-  top: 10px;
+  top: 6px;
   width: 10px;
-  height: calc(100% - 20px);
+  height: calc(100% - 12px);
 }
 
 .knob-top,
 .knob-bottom {
-  left: 10px;
+  left: 6px;
   height: 10px;
-  width: calc(100% - 20px);
+  width: calc(100% - 12px);
 }
 
 .knob-top:not(.fontSizeChangeBan) {
-  left: calc(10px + 8rem);
-  width: calc(100% - 20px - 8rem);
+  left: calc(6px + 8rem);
+  width: calc(100% - 12px - 8rem);
 }
 
 .knob-bottom {
-  left: 10px;
-  width: calc(100% - 20px);
+  left: 6px;
+  width: calc(100% - 12px);
 }
 
 .knob-left-top,
@@ -114,7 +125,6 @@ export default class ResizeKnob extends Vue {
 }
 .knob-right-top {
   cursor: ne-resize;
-  border-radius: 0 8px 0 0;
 }
 .knob-right-bottom {
   cursor: se-resize;

@@ -3,6 +3,10 @@
     class="card-component"
     :class="isTurnOff ? 'back' : 'front'"
     :style="containerStyle"
+    @mousedown.left="$emit('leftDown')"
+    @touchstart="$emit('leftDown')"
+    @mousedown.right.stop="$emit('rightDown')"
+    @contextmenu.prevent
     ref="elm"
   >
     <div class="card" :style="cardStyle">
