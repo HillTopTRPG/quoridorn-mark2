@@ -1,7 +1,7 @@
 <script lang="ts">
 import AddressCalcMixin from "./AddressCalcMixin.vue";
 import { Prop, Watch } from "vue-property-decorator";
-import { Mixin } from "vue-mixin-decorator";
+import { Mixin, Mixins } from "vue-mixin-decorator";
 import {
   createPoint,
   createAddress,
@@ -35,9 +35,9 @@ import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { getSrc } from "@/app/core/utility/Utility";
 
 @Mixin
-export default class PieceMixin<
-  T extends SceneObjectType
-> extends AddressCalcMixin {
+export default class PieceMixin<T extends SceneObjectType> extends Mixins<
+  AddressCalcMixin
+>(AddressCalcMixin) {
   @Prop({ type: String, required: true })
   protected docId!: string;
 

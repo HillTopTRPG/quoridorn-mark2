@@ -191,7 +191,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       cm => cm.owner === cardDeckBig.id
     );
 
-    const cardDeckSmallId = await this.cardDeckSmallCC.touch();
+    const cardDeckSmallId: string = (await this.cardDeckSmallCC.touch())[0];
 
     const cardObjectIdList = this.cardObjectList
       .filter(co => co.data!.cardDeckBigId === this.selectedCardDeckBigId)

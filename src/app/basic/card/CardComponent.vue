@@ -6,6 +6,8 @@
     @mousedown.left="$emit('leftDown')"
     @touchstart="$emit('leftDown')"
     @mousedown.right.stop="$emit('rightDown')"
+    @mouseenter="$emit('hover', true)"
+    @mouseleave="$emit('hover', false)"
     @contextmenu.prevent
     ref="elm"
   >
