@@ -122,16 +122,16 @@ export default class NekostoreCollectionController<T> {
       .map(item => getStoreObj(item)!);
   }
 
-  public async touch(option?: Partial<StoreUseData<any>>): Promise<string> {
+  public async touch(option?: Partial<StoreUseData<any>>): Promise<string[]> {
     let id: string | undefined = undefined;
     let owner: string = GameObjectManager.instance.mySelfUserId;
     if (option) {
       id = option.id || undefined;
       if (option.owner) owner = option.owner;
     }
-    const docId = await SocketFacade.instance.socketCommunication<
+    const docIdList = await SocketFacade.instance.socketCommunication<
       TouchRequest,
-      string
+      string[]
     >("touch-data", {
       collection: this.collectionName,
       id,
@@ -139,8 +139,8 @@ export default class NekostoreCollectionController<T> {
         owner
       }
     });
-    this.touchList.push(docId);
-    return docId;
+    this.touchList.push(...docIdList);
+    return docIdList;
   }
 
   public async touchModify(idList: string[]): Promise<string[]> {
@@ -173,14 +173,14 @@ export default class NekostoreCollectionController<T> {
     idList: string[],
     dataList: T[],
     permission?: Permission
-  ): Promise<string> {
+  ): Promise<string[]> {
     idList.forEach(id => {
       const index = this.touchList.findIndex(listId => listId === id);
       this.touchList.splice(index, 1);
     });
     return await SocketFacade.instance.socketCommunication<
       CreateDataRequest,
-      string
+      string[]
     >("create-data", {
       collection: this.collectionName,
       idList,
