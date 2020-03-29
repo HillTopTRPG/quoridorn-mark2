@@ -147,7 +147,9 @@ export default class GameTable extends AddressCalcMixin {
     const totalLeftY = Math.round(this.point.y + this.pointDiff.y);
     CssManager.instance.propMap.totalLeftX = totalLeftX;
     CssManager.instance.propMap.totalLeftY = totalLeftY;
-    await this.setCss(this.sceneInfo);
+    setTimeout(async () => {
+      await this.setCss(this.sceneInfo);
+    });
   }
 
   private async setCss(scene: Scene | null) {

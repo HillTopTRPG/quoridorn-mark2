@@ -64,8 +64,8 @@ export default class TrNumberInputComponent extends Mixins<ComponentVue>(
 
   private mounted() {
     if (this.inputWidth) {
-      const inputElm = this.$refs.inputElm as BaseInput;
-      inputElm.elm.style.width = this.inputWidth;
+      const inputElm = this.$refs.inputElm as HTMLInputElement;
+      inputElm.style.width = this.inputWidth;
     }
   }
 
