@@ -39,18 +39,19 @@
     <!-- カードデッキビルダー (z-index: 9) -->
     <card-deck-builder v-if="cardView" :cardDeckId="cardDeckId" />
     <!-- お部屋作成中 (z-index: 10) -->
-    <div id="loading-create-room" v-if="isCreatingRoomMode">
-      <div class="message">お部屋を作成しています！</div>
+    <div id="progress-message-area" v-if="progressMessage">
+      <div class="message">{{ progressMessage }}</div>
       <img
+        draggable="false"
         src="http://quoridorn.com/img/mascot/struggle/mascot_struggle.png"
         alt=""
       />
+      <div
+        id="progress-bar"
+        :style="{ '--ratio': `${(progressCurrent * 100) / progressAll}%` }"
+        v-if="progressAll"
+      ></div>
     </div>
-    <div
-      id="progress-bar"
-      :style="{ '--ratio': `${(progressCurrent * 100) / progressAll}%` }"
-      v-if="progressFlag"
-    ></div>
   </div>
 </template>
 
@@ -107,6 +108,9 @@ import DropArea from "@/app/basic/media/DropArea.vue";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import { MediaUploadInfo } from "window-info";
+import LanguageManager from "@/LanguageManager";
+import YoutubeManager from "@/app/basic/cut-in/bgm/YoutubeManager";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 
 @Component({
   components: {
@@ -126,7 +130,7 @@ import { MediaUploadInfo } from "window-info";
 export default class App extends Vue {
   private readonly key = "App";
   private roomInitialized: boolean = false;
-  private isCreatingRoomMode: boolean = false;
+  private progressMessage: string = "";
   private isMounted: boolean = false;
 
   private isModal: boolean = false;
@@ -139,7 +143,6 @@ export default class App extends Vue {
   private cutInList = GameObjectManager.instance.cutInList;
   private isDropPiece: boolean = false;
   private isDropping: boolean = false;
-  private progressFlag: boolean = false;
   private progressAll: number = 0;
   private progressCurrent: number = 0;
 
@@ -163,6 +166,32 @@ export default class App extends Vue {
 
   @LifeCycle
   public async mounted() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "view-progress",
+        value: {
+          message: LanguageManager.instance.getText(
+            "message.setting-up-quoridorn"
+          ),
+          all: 0,
+          current: 0
+        }
+      }
+    });
+    performance.mark("app-init-start");
+    await SocketFacade.instance.init();
+    const bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
+    await BcdiceManager.instance.init(bcdiceServer);
+    YoutubeManager.init();
+    performance.mark("app-init-end");
+    performance.measure("app-init-time", "app-init-start", "app-init-end");
+    const durationMs = performance.getEntriesByName("app-init-time")[0]
+      .duration;
+    const durationS = Math.round(durationMs / 100) / 10;
+    window.console.log(`アプリのセットアップにかかった時間：${durationS}秒`);
+
     disableBodyScroll();
     document.documentElement.style.setProperty(
       "--background-background-color",
@@ -207,13 +236,20 @@ export default class App extends Vue {
     SocketFacade.instance.socketOn<{ all: number; current: number }>(
       "notify-progress",
       async (err, { all, current }) => {
-        const flag: "on" | "off" = all > 0 && all !== current ? "on" : "off";
+        const flag: boolean = all > 0 && all !== current;
+        const message = flag
+          ? LanguageManager.instance.getText("message.processing")
+          : "";
         await TaskManager.instance.ignition<ModeInfo, never>({
           type: "mode-change",
           owner: "Quoridorn",
           value: {
             type: "view-progress",
-            value: { flag, all, current }
+            value: {
+              message,
+              all,
+              current
+            }
           }
         });
       }
@@ -261,6 +297,15 @@ export default class App extends Vue {
       window.console.warn(`${err}. url:${url}`);
       return;
     }
+
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "view-progress",
+        value: { message: "", all: 0, current: 0 }
+      }
+    });
 
     await TaskManager.instance.ignition<
       WindowOpenInfo<LoginWindowInput>,
@@ -596,11 +641,6 @@ export default class App extends Vue {
     task: Task<ModeInfo, never>
   ): Promise<TaskResult<never> | void> {
     const taskValue = task.value!;
-    if (taskValue.type === "create-room") {
-      const value: string = taskValue.value;
-      this.isCreatingRoomMode = value === "on";
-      task.resolve();
-    }
     if (taskValue.type === "modal") {
       const value: string = taskValue.value;
       this.isModal = value === "on";
@@ -624,13 +664,12 @@ export default class App extends Vue {
       task.resolve();
     }
     if (taskValue.type === "view-progress") {
-      const flag: string = taskValue.value.flag;
       const all: number = taskValue.value.all;
       const current: number = taskValue.value.current;
-      this.progressFlag = flag === "on";
       this.progressAll = all;
       this.progressCurrent = current;
-      window.console.log(`UPLOAD PROCESS: (${current} / ${all})`);
+      this.progressMessage = taskValue.value.message;
+      if (all) window.console.log(`PROGRESS: (${current} / ${all})`);
       task.resolve();
     }
   }
@@ -817,14 +856,13 @@ label {
   z-index: 9;
 }
 
-#loading-create-room {
+#progress-message-area {
   @include flex-box(column, center, center);
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
   z-index: 10;
 
   img {
@@ -855,13 +893,9 @@ label {
 }
 
 #progress-bar {
-  position: fixed;
-  left: 50%;
-  bottom: 20%;
-  transform: translateX(-50%);
+  position: relative;
   height: 2em;
   width: 18em;
-  z-index: 11;
   background-color: var(--uni-color-white);
   border: 1px solid gray;
   border-radius: 0.5em;

@@ -242,6 +242,10 @@ label:
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
+  setting-up-quoridorn: Quoridornをセットアップ中です！
+  processing: 処理中です！
+  creating-room: お部屋を作成しています！
+  entering-room: お部屋に入ります！
 
 test-window:
   window-title: 시험 화면

@@ -4,17 +4,14 @@ import MainVue from "./MainVue.vue";
 import store from "@/app/store/store";
 import ImageDirective from "@/app/basic/common/directive/Image";
 import CutInListWindow from "@/app/basic/cut-in/CutInListWindow.vue";
-import YoutubeManager from "@/app/basic/cut-in/bgm/YoutubeManager";
 import PlayYoutubeWindow from "@/app/basic/cut-in/bgm/PlayYoutubeWindow.vue";
 import LoginWindow from "@/app/basic/login/LoginWindow.vue";
 import CreateNewRoomWindow from "@/app/basic/login/CreateNewRoomWindow.vue";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import UserLoginWindow from "@/app/basic/login/UserLoginWindow.vue";
 import AppServerSettingWindow from "@/app/basic/login/AppServerSettingWindow.vue";
 import TermsOfUseWindow from "@/app/basic/login/TermsOfUseWindow.vue";
 import DeleteRoomWindow from "@/app/basic/login/DeleteRoomWindow.vue";
 import ConfirmWindow from "@/app/core/window/ConfirmWindow.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import VueI18n from "vue-i18n";
 import LanguageManager from "@/LanguageManager";
 import LoginRoomWindow from "@/app/basic/login/LoginRoomWindow.vue";
@@ -52,24 +49,7 @@ let isYoutubeApiReady = false;
   isYoutubeApiReady = true;
 };
 
-async function init(): Promise<void> {
-  return new Promise(async resolve => {
-    await SocketFacade.instance.init();
-    const bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
-    await BcdiceManager.instance.init(bcdiceServer);
-    YoutubeManager.init();
-
-    const intervalId = window.setInterval(() => {
-      if (!isYoutubeApiReady) return;
-      clearInterval(intervalId);
-      resolve();
-    }, 100);
-  });
-}
-
 async function main(): Promise<void> {
-  await init();
-
   Vue.component("cut-in-list-window", CutInListWindow);
   Vue.component("play-youtube-window", PlayYoutubeWindow);
   Vue.component("login-window", LoginWindow);

@@ -96,7 +96,6 @@ export default class BcdiceManager {
     };
     try {
       const jsonStr = await fetch(url);
-      window.console.log(jsonStr);
       json = await jsonStr.json();
     } catch (err) {
       alert("BCDice-APIとの通信に失敗しました。");

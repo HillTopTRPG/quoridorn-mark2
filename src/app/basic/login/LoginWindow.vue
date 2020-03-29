@@ -683,8 +683,12 @@ export default class LoginWindow extends Mixins<
       type: "mode-change",
       owner: "Quoridorn",
       value: {
-        type: "create-room",
-        value: "on" as "on"
+        type: "view-progress",
+        value: {
+          message: LanguageManager.instance.getText("message.creating-room"),
+          all: 0,
+          current: 0
+        }
       }
     });
 
@@ -709,8 +713,12 @@ export default class LoginWindow extends Mixins<
         type: "mode-change",
         owner: "Quoridorn",
         value: {
-          type: "create-room",
-          value: "off" as "off"
+          type: "view-progress",
+          value: {
+            message: "",
+            all: 0,
+            current: 0
+          }
         }
       });
       return;
@@ -742,15 +750,6 @@ export default class LoginWindow extends Mixins<
     await this.close();
 
     await this.addPresetData(createRoomInput);
-
-    // await TaskManager.instance.ignition<ModeInfo, never>({
-    //   type: "mode-change",
-    //   owner: "Quoridorn",
-    //   value: {
-    //     type: "create-room",
-    //     value: "off"
-    //   }
-    // });
 
     const loginResult: ClientRoomInfo = {
       name: createRoomInput.name,
@@ -916,8 +915,12 @@ export default class LoginWindow extends Mixins<
       type: "mode-change",
       owner: "Quoridorn",
       value: {
-        type: "create-room",
-        value: "on" as "on"
+        type: "view-progress",
+        value: {
+          message: LanguageManager.instance.getText("message.entering-room"),
+          all: 0,
+          current: 0
+        }
       }
     });
 
@@ -937,14 +940,6 @@ export default class LoginWindow extends Mixins<
       return;
     } finally {
       this.isInputtingRoomInfo = false;
-      // await TaskManager.instance.ignition<ModeInfo, never>({
-      //   type: "mode-change",
-      //   owner: "Quoridorn",
-      //   value: {
-      //     type: "create-room",
-      //     value: "off"
-      //   }
-      // });
     }
     SocketFacade.instance.userId = userLoginResponse.userId;
     Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {

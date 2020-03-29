@@ -98,30 +98,43 @@ export default class GameObjectManager {
    * GameObjectManagerのイニシャライズ
    */
   private async initialize() {
+    performance.mark("room-init-start");
     const sf = SocketFacade.instance;
-    await sf.actorCC().getList(true, this.actorList);
-    await sf.chatListCC().getList(true, this.chatList);
-    await sf.chatTabListCC().getList(true, this.chatTabList);
-    await sf.groupChatTabListCC().getList(true, this.groupChatTabList);
-    await sf.sceneListCC().getList(true, this.sceneList);
-    await sf.mediaCC().getList(true, this.mediaList);
-    await sf.userCC().getList(true, this.userList);
-    await sf.cutInDataCC().getList(true, this.cutInList);
-    await sf.socketUserCC().getList(true, this.socketUserList);
-    await sf.propertyFaceCC().getList(true, this.propertyFaceList);
-    await sf.propertyCC().getList(true, this.propertyList);
-    await sf.sceneLayerCC().getList(true, this.sceneLayerList);
-    await sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList);
-    await sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList);
-    await sf.sceneObjectCC().getList(true, this.sceneObjectList);
-    await sf.actorStatusCC().getList(true, this.actorStatusList);
-    await sf.propertySelectionCC().getList(true, this.propertySelectionList);
-    await sf.tagNoteCC().getList(true, this.tagNoteList);
-    await sf.actorGroupCC().getList(true, this.actorGroupList);
-    await sf.cardMetaCC().getList(true, this.cardMetaList);
-    await sf.cardObjectCC().getList(true, this.cardObjectList);
-    await sf.cardDeckBigCC().getList(true, this.cardDeckBigList);
-    await sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList);
+    // 個数の量が微量のもの
+    await Promise.all([
+      sf.sceneLayerCC().getList(true, this.sceneLayerList),
+      sf.actorCC().getList(true, this.actorList),
+      sf.cardDeckBigCC().getList(true, this.cardDeckBigList),
+      sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList),
+      sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList),
+      sf.actorStatusCC().getList(true, this.actorStatusList)
+    ]);
+    // 個数の量が小規模のもの
+    await Promise.all([
+      sf.propertySelectionCC().getList(true, this.propertySelectionList),
+      sf.chatTabListCC().getList(true, this.chatTabList),
+      sf.groupChatTabListCC().getList(true, this.groupChatTabList),
+      sf.sceneListCC().getList(true, this.sceneList),
+      sf.userCC().getList(true, this.userList),
+      sf.cutInDataCC().getList(true, this.cutInList)
+    ]);
+    // 個数の量が中規模のもの
+    await Promise.all([
+      sf.sceneObjectCC().getList(true, this.sceneObjectList),
+      sf.socketUserCC().getList(true, this.socketUserList),
+      sf.propertyFaceCC().getList(true, this.propertyFaceList),
+      sf.propertyCC().getList(true, this.propertyList),
+      sf.actorGroupCC().getList(true, this.actorGroupList),
+      sf.tagNoteCC().getList(true, this.tagNoteList)
+    ]);
+    // 個数の量が大規模のもの
+    await Promise.all([
+      sf.chatListCC().getList(true, this.chatList),
+      sf.mediaCC().getList(true, this.mediaList),
+      sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList),
+      sf.cardMetaCC().getList(true, this.cardMetaList),
+      sf.cardObjectCC().getList(true, this.cardObjectList)
+    ]);
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
@@ -171,9 +184,9 @@ export default class GameObjectManager {
     });
 
     // チャットフォーマットの読み込み
-    this.chatFormatList.push(
-      ...(await loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml"))
-    );
+    loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml").then(list => {
+      this.chatFormatList.push(...list);
+    });
 
     // チャット設定の初期化
     this.chatPublicInfo.actorId = this.mySelfActorId;
@@ -185,6 +198,12 @@ export default class GameObjectManager {
     )[0].id!;
     this.chatPublicInfo.system = this.clientRoomInfo.system;
     this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
+    performance.mark("room-init-end");
+    performance.measure("room-init-time", "room-init-start", "room-init-end");
+    const durationMs = performance.getEntriesByName("room-init-time")[0]
+      .duration;
+    const durationS = Math.round(durationMs / 100) / 10;
+    window.console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
   }
 
   /**

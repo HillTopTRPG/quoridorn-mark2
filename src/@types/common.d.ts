@@ -107,7 +107,6 @@ declare module "compare" {
 declare module "mode" {
   type ModeInfo =
     | ModalModeInfo
-    | CreateRoomModeInfo
     | ThrowParabolaModeInfo
     | ViewCardDeckInfo
     | DropPieceModeInfo
@@ -115,11 +114,6 @@ declare module "mode" {
 
   type ModalModeInfo = {
     type: "modal";
-    value: "on" | "off";
-  };
-
-  type CreateRoomModeInfo = {
-    type: "create-room";
     value: "on" | "off";
   };
 
@@ -144,7 +138,7 @@ declare module "mode" {
   type ProcessInfo = {
     type: "view-progress";
     value: {
-      flag: "on" | "off";
+      message: string;
       all: number;
       current: number;
     };

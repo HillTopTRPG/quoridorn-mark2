@@ -71,8 +71,12 @@ export default class MapBoard extends Vue {
         type: "mode-change",
         owner: "Quoridorn",
         value: {
-          type: "create-room",
-          value: "off"
+          type: "view-progress",
+          value: {
+            message: "",
+            all: 0,
+            current: 0
+          }
         }
       });
     });
