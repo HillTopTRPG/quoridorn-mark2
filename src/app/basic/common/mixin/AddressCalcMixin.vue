@@ -32,7 +32,7 @@ export default class AddressCalcMixin extends Vue {
    * @param oldAngle
    * @returns {{angle: number, planeLocateScene: {x: *, y: *}, planeLocateCanvas: {x: *, y: *}, planeLocateTable: {x: *, y: *}}}
    */
-  protected calcCoordinate(mouse: Point, oldAngle: number): Coordinates {
+  public calcCoordinate(mouse: Point, oldAngle: number): Coordinates {
     // canvas上のマス座標を計算する
     const canvasRectangle: Rectangle = document
       .getElementById("map-canvas")!

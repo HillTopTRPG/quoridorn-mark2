@@ -13,15 +13,13 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { Prop, Watch } from "vue-property-decorator";
-import { CardDeckBig, CardMeta } from "@/@types/gameObject";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import { StoreUseData } from "@/@types/store";
+import { Prop } from "vue-property-decorator";
 import CardDeckSetComponent, {
   DeckInfo
 } from "@/app/basic/card/CardDeckSetComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import CardComponent from "@/app/basic/card/CardComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CardDeckSetComponent, CardComponent }
@@ -38,15 +36,6 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
   // selectedDeckIdList
   @Prop({ type: Array, required: true })
   private selectedDeckIdList!: string[];
-  private selectedDeckIdListVolatile: string[] = [];
-  @Watch("selectedDeckIdList", { immediate: true, deep: true })
-  private onChangeSelectedDeckIdList(value: string[]) {
-    this.selectedDeckIdListVolatile = value;
-  }
-  @Watch("selectedDeckIdListVolatile", { deep: true })
-  private onChangeSelectedDeckIdListVolatile(value: string[]) {
-    this.$emit("update:selectedDeckIdList", value);
-  }
 
   @VueEvent
   private isSelectedDeck(cardDeckId: string): boolean {
@@ -66,7 +55,7 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .deck-set-container {
   @include flex-box(row, flex-start, flex-start, wrap);

@@ -111,7 +111,7 @@ export default class MediaUploadWindow extends Mixins<
   private searchText: string = "";
 
   @VueEvent
-  private get useLocalResultList() {
+  private get useLocalResultList(): ResultInfo[] {
     if (!this.searchText) return this.localResultList.concat();
     const regExp = new RegExp(this.searchText);
     return this.localResultList.filter(r => r.name.match(regExp));
@@ -268,8 +268,10 @@ export default class MediaUploadWindow extends Mixins<
 
   @VueEvent
   private deleteFile(fileInfo: ResultInfo) {
-    // TODO プレビュー
-    window.console.log("deleteFile", JSON.stringify(fileInfo, null, "  "));
+    const idx = this.localResultList.findIndex(
+      ulr => ulr.name === fileInfo.name
+    );
+    this.localResultList.splice(idx, 1);
   }
 
   @VueEvent
@@ -321,9 +323,12 @@ export default class MediaUploadWindow extends Mixins<
         };
       }
     );
-    await this.mediaCC.addDirect(mediaInfoList, {
-      permission: GameObjectManager.PERMISSION_OWNER_VIEW
-    });
+    await this.mediaCC.addDirect(
+      mediaInfoList,
+      mediaInfoList.map(() => ({
+        permission: GameObjectManager.PERMISSION_OWNER_VIEW
+      }))
+    );
     await this.close();
   }
 }
@@ -341,7 +346,8 @@ export default class MediaUploadWindow extends Mixins<
 
 .view-type-tab {
   @include flex-box(column, stretch, flex-start);
-  height: calc(100% - 4em - 0.5rem);
+  height: calc(100% - 6em - 1rem);
+  margin-top: 0.5rem;
 }
 
 .tab-container {

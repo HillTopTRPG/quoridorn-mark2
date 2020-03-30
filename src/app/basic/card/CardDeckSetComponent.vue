@@ -48,7 +48,7 @@ export type DeckInfo = {
 @Component({
   components: { CardComponent }
 })
-export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
+export default class CardDeckSetComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })

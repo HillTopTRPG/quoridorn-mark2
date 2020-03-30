@@ -13,21 +13,21 @@
 <script lang="ts">
 import { Component, Watch, Prop } from "vue-property-decorator";
 import { Point, Rectangle, Size } from "address";
-import { OtherTextViewInfo } from "@/@types/gameObject";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { MouseMoveParam } from "@/app/core/task/TaskManager";
-import CssManager from "@/app/core/css/CssManager";
+import { Mixins } from "vue-mixin-decorator";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { OtherTextViewInfo } from "@/@types/gameObject";
 import {
   createPoint,
   createRectangle,
   createSize
 } from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { Mixins } from "vue-mixin-decorator";
 import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CssManager from "@/app/core/css/CssManager";
+import { MouseMoveParam } from "@/app/core/task/TaskManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
@@ -223,7 +223,7 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 #text-frame {
   @include inline-flex-box(row, flex-start, flex-start);

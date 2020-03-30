@@ -392,30 +392,18 @@ export default class GameObjectManager {
     actorInfo.statusId = statusId;
 
     const owner: string = (
-      await actorCC.addDirect([actorInfo], {
-        permission: {
-          view: {
-            type: "none",
-            list: []
-          },
-          edit: {
-            type: "allow",
-            list: [
-              {
-                type: "owner"
-              }
-            ]
-          },
-          chmod: {
-            type: "allow",
-            list: [
-              {
-                type: "owner"
-              }
-            ]
+      await actorCC.addDirect(
+        [actorInfo],
+        [
+          {
+            permission: {
+              view: { type: "none", list: [] },
+              edit: { type: "allow", list: [{ type: "owner" }] },
+              chmod: { type: "allow", list: [{ type: "owner" }] }
+            }
           }
-        }
-      })
+        ]
+      )
     )[0];
     await actorStatusCC.touchModify([statusId]);
     actorInfo.statusId = statusId;

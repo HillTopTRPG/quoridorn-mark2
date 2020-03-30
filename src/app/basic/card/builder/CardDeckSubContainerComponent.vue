@@ -23,9 +23,9 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SButton } })
@@ -58,7 +58,7 @@ export default class CardDeckSubContainerComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .sub-container {
   @include flex-box(column, stretch, flex-start);

@@ -22,11 +22,11 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop, Watch } from "vue-property-decorator";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import CardDeckSubContainerComponent from "@/app/basic/card/CardDeckSubContainerComponent.vue";
 import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
   components: {
@@ -80,7 +80,7 @@ export default class CardDeckChooseBackImageComponent extends Mixins<
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .image-picker-component {
   flex: 1;

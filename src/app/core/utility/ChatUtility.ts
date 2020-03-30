@@ -46,7 +46,7 @@ export function transText(text: string) {
     .replace(/\n/g, "<br />");
 
   const matchInfoList: any[] = [];
-  let matchResult = null;
+  let matchResult: RegExpExecArray | null;
   while ((matchResult = lineRegExp.exec(text)) !== null) {
     const styleStr = matchResult[1];
     const startIndex = matchResult.index;
@@ -131,26 +131,18 @@ type SendChatInfo = {
 
 async function addChatLog(chatInfo: ChatInfo) {
   window.console.log(JSON.stringify(chatInfo, null, "  "));
-  await SocketFacade.instance.chatListCC().addDirect([chatInfo], {
-    permission: {
-      view: {
-        type: "none",
-        list: []
-      },
-      edit: {
-        type: "allow",
-        list: [
-          {
-            type: "owner"
-          }
-        ]
-      },
-      chmod: {
-        type: "none",
-        list: []
+  await SocketFacade.instance.chatListCC().addDirect(
+    [chatInfo],
+    [
+      {
+        permission: {
+          view: { type: "none", list: [] },
+          edit: { type: "allow", list: [{ type: "owner" }] },
+          chmod: { type: "none", list: [] }
+        }
       }
-    }
-  });
+    ]
+  );
 }
 
 export async function sendChatLog(

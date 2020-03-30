@@ -103,7 +103,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
 import { disableBodyScroll } from "body-scroll-lock";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
+import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
 import DropArea from "@/app/basic/media/DropArea.vue";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";

@@ -25,19 +25,19 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop, Watch } from "vue-property-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import CardDeckSubContainerComponent from "@/app/basic/card/CardDeckSubContainerComponent.vue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { importText } from "@/app/core/utility/FileUtility";
-import LanguageManager from "@/LanguageManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
-import { CardMeta } from "@/@types/gameObject";
+import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import CardDeckBuilder from "@/app/basic/card/CardDeckBuilder.vue";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import { CardMeta } from "@/@types/gameObject";
+import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
+import { importText } from "@/app/core/utility/FileUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 const uuid = require("uuid");
 
 @Component({
@@ -298,11 +298,12 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
   @VueEvent
   private async importParanoiaRebooted() {
     const text = await importText();
-    const failure = () => {
+    const failure = (reason: string) => {
       alert(LanguageManager.instance.getText("label.importFailure"));
+      window.console.warn(`import failure. [${reason}]`);
       this.cardList.splice(0, this.cardList.length);
     };
-    if (!text) return failure();
+    if (!text) return failure("text is empty");
     const getFileName = (path: string) => {
       return path.replace(/^.+\//, "");
     };
@@ -319,7 +320,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
         : null;
     };
     const lines = text.split(/\r?\n/g);
-    if (lines[0] !== "image") return failure();
+    if (lines[0] !== "image") return failure("init line is not 'image'");
 
     let backImageUrl: string = "";
 
@@ -332,11 +333,14 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
       const line = lines[i];
       if (!line) continue;
       const words = line.split(/\t/g);
-      const imageUrl = getImageUrl(getFileName(words[0]));
+      let imageUrl = getImageUrl(getFileName(words[0]));
+      if (!imageUrl) {
+        imageUrl = getImageUrl(getFileName(words[0].replace("0", "")));
+      }
       let name = words[1];
       let contents = words[2] || "";
 
-      if (!imageUrl) return failure();
+      if (!imageUrl) return failure("imageUrl is empty");
       if (i === 1) {
         backImageUrl = imageUrl.url;
         this.backImageIdVolatile = imageUrl.id;
@@ -345,7 +349,6 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
       }
 
       const id: string = uuid.v4();
-      window.console.log(id);
       const base = CardDeckBuilder.DEFAULT_CARD_FRAME_PARANOIA_REBOOTED;
       this.setFramePreset(base);
 
@@ -409,7 +412,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .special-area {
   position: absolute;

@@ -152,28 +152,28 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop, Watch } from "vue-property-decorator";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import CardDeckSubContainerComponent from "@/app/basic/card/CardDeckSubContainerComponent.vue";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import { StoreUseData } from "@/@types/store";
-import { CardMeta } from "@/@types/gameObject";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import CardSimulatorComponent from "@/app/basic/card/CardSimulatorComponent.vue";
+import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
 import {
   createRectangle,
   createSize
 } from "@/app/core/utility/CoordinateUtility";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
+import { CardMeta } from "@/@types/gameObject";
+import CardSimulatorComponent from "@/app/basic/card/builder/CardSimulatorComponent.vue";
+import CardComponent from "@/app/basic/card/CardComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { StoreUseData } from "@/@types/store";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
 const uuid = require("uuid");
 
 @Component({
@@ -359,7 +359,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .create-container {
   @include flex-box(row, space-around, stretch);

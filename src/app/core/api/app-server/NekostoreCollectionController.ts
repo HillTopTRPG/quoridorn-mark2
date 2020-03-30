@@ -193,21 +193,15 @@ export default class NekostoreCollectionController<T> {
 
   public async addDirect(
     dataList: T[],
-    option?: Partial<StoreObj<any>>
+    optionList?: Partial<StoreObj<any>>[]
   ): Promise<string[]> {
-    let permission: Permission = GameObjectManager.PERMISSION_DEFAULT;
-    let owner: string = GameObjectManager.instance.mySelfUserId;
-    if (option) {
-      if (option.permission === undefined) option.permission = permission;
-      if (option.owner === undefined) option.owner = owner;
-    }
     return await SocketFacade.instance.socketCommunication<
       AddDirectRequest,
       string[]
     >("add-direct", {
       collection: this.collectionName,
       dataList,
-      option
+      optionList
     });
   }
 

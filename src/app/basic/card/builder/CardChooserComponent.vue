@@ -98,19 +98,19 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import { Prop, Watch } from "vue-property-decorator";
-import { CardMeta } from "@/@types/gameObject";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import { StoreUseData } from "@/@types/store";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
+import { StoreUseData } from "@/@types/store";
 import {
   createRectangle,
   createSize
 } from "@/app/core/utility/CoordinateUtility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import { CardMeta } from "@/@types/gameObject";
+import CardComponent from "@/app/basic/card/CardComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 export type CardCountInfo = {
   id: string;
@@ -137,15 +137,6 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   // selectedCardIdList
   @Prop({ type: Array, required: true })
   private selectedCardList!: CardCountInfo[];
-  private selectedCardListVolatile: CardCountInfo[] = [];
-  @Watch("selectedCardList", { immediate: true, deep: true })
-  private onChangeSelectedCardList(value: CardCountInfo[]) {
-    this.selectedCardListVolatile = value;
-  }
-  @Watch("selectedCardListVolatile", { deep: true })
-  private onChangeSelectedCardListVolatile(value: CardCountInfo[]) {
-    this.$emit("update:selectedCardList", value);
-  }
 
   // cardDeckName
   @Prop({ type: String, required: true })
@@ -256,7 +247,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .card-container {
   @include flex-box(row, flex-start, flex-start, wrap);

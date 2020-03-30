@@ -26,9 +26,7 @@ import { Mixins } from "vue-mixin-decorator";
 import GameObjectManager from "../../GameObjectManager";
 import WindowVue from "../../../core/window/WindowVue";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
+import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import LanguageManager from "../../../../LanguageManager";
 import BaseInput from "../../../core/component/BaseInput.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
@@ -84,22 +82,18 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
         type: "group",
         id: gameMastersActorGroup.id!
       };
-      await this.cc!.addDirect([{ name: this.tabName, isSystem: false }], {
-        permission: {
-          view: {
-            type: "none",
-            list: []
-          },
-          edit: {
-            type: "allow",
-            list: [gameMastersPermission]
-          },
-          chmod: {
-            type: "allow",
-            list: [gameMastersPermission]
+      await this.cc!.addDirect(
+        [{ name: this.tabName, isSystem: false }],
+        [
+          {
+            permission: {
+              view: { type: "none", list: [] },
+              edit: { type: "allow", list: [gameMastersPermission] },
+              chmod: { type: "allow", list: [gameMastersPermission] }
+            }
           }
-        }
-      });
+        ]
+      );
     }
     this.isProcessed = true;
     await this.close();

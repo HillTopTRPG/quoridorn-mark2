@@ -85,9 +85,15 @@ export default class UserLoginWindow extends Mixins<
   private name: string = "";
   private password: string = "";
   private type: UserType = "PL";
+  private isMounted: boolean = false;
   private isSetting: boolean = false;
   private visitable: boolean = false;
   private userList: StoreUseData<UserData>[] | null = null;
+
+  @LifeCycle
+  public async created() {
+    this.name = this.windowInfo.args!.name || "";
+  }
 
   @LifeCycle
   public async mounted() {
@@ -97,17 +103,19 @@ export default class UserLoginWindow extends Mixins<
     this.isSetting = this.windowInfo.args!.isSetting;
     this.visitable = this.windowInfo.args!.visitable;
     this.userList = await SocketFacade.instance.userCC().getList(true);
-    this.name = this.windowInfo.args!.name || "";
     if (!this.isSetting) {
       this.windowInfo.heightEm = 9.5;
       this.windowInfo.declare.size.heightEm = 9.5;
       this.windowInfo.declare.minSize!.heightEm = 9.5;
       this.windowInfo.declare.maxSize!.heightEm = 9.5;
     }
+    this.isMounted = true;
   }
 
+  @Watch("isMounted")
   @Watch("name")
   private onChangeName() {
+    if (!this.isMounted) return;
     const idx = this.userList!.findIndex(u => u.data!.name === this.name);
     if (idx >= 0) this.type = this.userList![idx]!.data!.type;
   }

@@ -40,7 +40,7 @@
         class="deck-set-choose-preset"
         title="card-deck-builder.header.deck-set-preset"
         :deckList="presetDeckList"
-        :selectedDeckIdList.sync="selectedDeckIdList"
+        :selectedDeckIdList="selectedDeckIdList"
       />
 
       <!-- ベース山札の選択 -->
@@ -48,7 +48,7 @@
         class="deck-set-choose-room"
         title="card-deck-builder.header.deck-set-room"
         :deckList="dbDeckList"
-        :selectedDeckIdList.sync="selectedDeckIdList"
+        :selectedDeckIdList="selectedDeckIdList"
       />
     </div>
 
@@ -144,7 +144,7 @@
         class="card-choose"
         title="card-deck-builder.header.card-list"
         :cardList="cardList"
-        :selectedCardList.sync="selectedCardList"
+        :selectedCardList="selectedCardList"
         :cardDeckName.sync="newDeckName"
         @hover-card="hoverCard"
         @resist="resistDeck()"
@@ -162,11 +162,11 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ThrowCharSelect from "@/app/basic/common/components/select/ThrowCharSelect.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import { Prop } from "vue-property-decorator";
+import { ModeInfo } from "mode";
+import urljoin from "url-join";
+import { Rectangle } from "address";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   CardDeckBig,
   CardMeta,
@@ -175,29 +175,29 @@ import {
   InputCardInfo,
   OtherTextViewInfo
 } from "@/@types/gameObject";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { loadYaml } from "@/app/core/utility/FileUtility";
-import TaskManager from "@/app/core/task/TaskManager";
-import { ModeInfo } from "mode";
-import { createEmptyStoreUseData, getSrc } from "@/app/core/utility/Utility";
+import { createPoint } from "@/app/core/utility/CoordinateUtility";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
-import urljoin from "url-join";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreUseData } from "@/@types/store";
-import CardDeckChooserComponent from "@/app/basic/card/CardDeckChooserComponent.vue";
 import CardChooserComponent, {
   CardCountInfo
-} from "@/app/basic/card/CardChooserComponent.vue";
-import TextFrame from "@/app/basic/card/TextFrame.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
+} from "@/app/basic/card/builder/CardChooserComponent.vue";
+import ThrowCharSelect from "@/app/basic/common/components/select/ThrowCharSelect.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import CardDeckChooseBackImageComponent from "@/app/basic/card/CardDeckChooseBackImageComponent.vue";
-import CardDeckFrameSettingComponent from "@/app/basic/card/CardDeckFrameSettingComponent.vue";
-import CardDeckCreateCardComponent from "@/app/basic/card/CardDeckCreateCardComponent.vue";
-import CardDeckCreateEntranceComponent from "@/app/basic/card/CardDeckCreateEntranceComponent.vue";
-import { Rectangle } from "address";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import TextFrame from "@/app/basic/card/builder/TextFrame.vue";
+import CardDeckChooseBackImageComponent from "@/app/basic/card/builder/CardDeckChooseBackImageComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import CardDeckCreateEntranceComponent from "@/app/basic/card/builder/CardDeckCreateEntranceComponent.vue";
+import { createEmptyStoreUseData, getSrc } from "@/app/core/utility/Utility";
+import CardDeckCreateCardComponent from "@/app/basic/card/builder/CardDeckCreateCardComponent.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { createPoint } from "@/app/core/utility/CoordinateUtility";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import { loadYaml } from "@/app/core/utility/FileUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import CardDeckFrameSettingComponent from "@/app/basic/card/builder/CardDeckFrameSettingComponent.vue";
+import CardDeckChooserComponent from "@/app/basic/card/builder/CardDeckChooserComponent.vue";
 
 const cardDeckYamlPath = "/static/conf/deck.yaml";
 
@@ -304,9 +304,15 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     const cardMetaList: CardMeta[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
       .map(ccInfo => this.cardList.filter(c => c.id === ccInfo.id)[0].data!);
-    const cardMetaIdList = await this.cardMetaCC.addDirect(cardMetaList, {
-      owner: cardDeckBigId
-    });
+    const cardMetaIdList = await this.cardMetaCC.addDirect(
+      cardMetaList,
+      cardMetaList.map(() => ({
+        owner: cardDeckBigId
+      }))
+    );
+
+    window.console.log(JSON.stringify(cardMetaList, null, "  "));
+    window.console.log(JSON.stringify(cardMetaIdList, null, "  "));
 
     const cardObjectList: CardObject[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
@@ -321,7 +327,13 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
           angle: 0
         };
       });
-    await this.cardObjectCC.addDirect(cardObjectList);
+    window.console.log(JSON.stringify(cardObjectList, null, "  "));
+    await this.cardObjectCC.addDirect(
+      cardObjectList,
+      cardObjectList.map((_k, v) => ({
+        order: v
+      }))
+    );
     await this.close();
   }
 
@@ -449,7 +461,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 #card-deck-builder {
   @include flex-box(column, stretch, flex-start);

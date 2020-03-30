@@ -9,8 +9,8 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
@@ -108,7 +108,7 @@ export default class CardSimulatorComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../assets/common";
+@import "../../../../assets/common";
 
 .card-simulator {
   @include flex-box(column, stretch, space-between);

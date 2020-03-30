@@ -3,9 +3,9 @@
     class="card-component"
     :class="isTurnOff ? 'back' : 'front'"
     :style="containerStyle"
-    @mousedown.left="$emit('leftDown')"
-    @touchstart="$emit('leftDown')"
-    @mousedown.right.stop="$emit('rightDown')"
+    @mousedown.left="$emit('leftDown', $event)"
+    @touchstart="$emit('leftDown', $event)"
+    @mousedown.right.stop="$emit('rightDown', $event)"
     @mouseenter="$emit('hover', true)"
     @mouseleave="$emit('hover', false)"
     @contextmenu.prevent
@@ -109,6 +109,7 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
 .card-component {
   @include flex-box(column, stretch, flex-start);
   position: relative;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 .card {
   display: inline-block;

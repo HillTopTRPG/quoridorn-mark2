@@ -1034,7 +1034,10 @@ export default class LoginWindow extends Mixins<
      * メディアデータのプリセットデータ投入
      */
     const mediaCC = SocketFacade.instance.mediaCC();
-    const docIdList = await mediaCC.addDirect(mediaList, { owner: null });
+    const docIdList = await mediaCC.addDirect(
+      mediaList,
+      mediaList.map(() => ({ owner: null }))
+    );
 
     const imageId: string = docIdList[firstImageIdx];
 
@@ -1163,22 +1166,15 @@ export default class LoginWindow extends Mixins<
           isSystem: true
         }
       ],
-      {
-        permission: {
-          view: {
-            type: "none",
-            list: []
-          },
-          edit: {
-            type: "allow",
-            list: [gameMastersPermission]
-          },
-          chmod: {
-            type: "allow",
-            list: [gameMastersPermission]
+      [
+        {
+          permission: {
+            view: { type: "none", list: [] },
+            edit: { type: "allow", list: [gameMastersPermission] },
+            chmod: { type: "allow", list: [gameMastersPermission] }
           }
         }
-      }
+      ]
     );
 
     /* --------------------------------------------------
