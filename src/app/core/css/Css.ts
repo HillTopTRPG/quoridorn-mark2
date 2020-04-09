@@ -31,11 +31,12 @@ export function getCssPxNum(
   const getNum = (cssVal: string) => {
     if (cssVal.endsWith("px")) return getPxNum(cssVal);
     if (cssVal.endsWith("rem")) return getRemNum(cssVal) * rootFontSizeNum;
-    if (cssVal.endsWith("em"))
+    if (cssVal.endsWith("em")) {
       return (
         getEmNum(cssVal) *
         getCssPxNum("font-size", targetElm.parentElement || undefined)
       );
+    }
     if (cssVal === "auto" && propertyName === "height") {
       return targetElm.getBoundingClientRect().height;
     }

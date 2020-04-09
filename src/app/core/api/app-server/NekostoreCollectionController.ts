@@ -4,7 +4,7 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { Permission, StoreObj, StoreUseData } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import SocketFacade, {
   getStoreObj
 } from "@/app/core/api/app-server/SocketFacade";
@@ -17,7 +17,6 @@ import {
   TouchRequest,
   UpdateDataRequest
 } from "@/@types/data";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import Query from "nekostore/lib/Query";
 
 export default class NekostoreCollectionController<T> {
@@ -122,22 +121,17 @@ export default class NekostoreCollectionController<T> {
       .map(item => getStoreObj(item)!);
   }
 
-  public async touch(option?: Partial<StoreUseData<any>>): Promise<string[]> {
-    let id: string | undefined = undefined;
-    let owner: string = GameObjectManager.instance.mySelfUserId;
-    if (option) {
-      id = option.id || undefined;
-      if (option.owner) owner = option.owner;
-    }
+  public async touch(
+    idList?: string[],
+    optionList?: Partial<StoreUseData<any>>[]
+  ): Promise<string[]> {
     const docIdList = await SocketFacade.instance.socketCommunication<
       TouchRequest,
       string[]
     >("touch-data", {
       collection: this.collectionName,
-      id,
-      option: {
-        owner
-      }
+      idList,
+      optionList
     });
     this.touchList.push(...docIdList);
     return docIdList;
@@ -172,7 +166,7 @@ export default class NekostoreCollectionController<T> {
   public async add(
     idList: string[],
     dataList: T[],
-    permission?: Permission
+    optionList?: Partial<StoreObj<any>>[]
   ): Promise<string[]> {
     idList.forEach(id => {
       const index = this.touchList.findIndex(listId => listId === id);
@@ -185,9 +179,7 @@ export default class NekostoreCollectionController<T> {
       collection: this.collectionName,
       idList,
       dataList,
-      option: {
-        permission: permission || GameObjectManager.PERMISSION_DEFAULT
-      }
+      optionList
     });
   }
 
@@ -216,6 +208,22 @@ export default class NekostoreCollectionController<T> {
     });
     await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
       "update-data",
+      {
+        collection: this.collectionName,
+        idList,
+        dataList,
+        optionList
+      }
+    );
+  }
+
+  public async updatePackage(
+    idList: string[],
+    dataList: T[],
+    optionList?: (Partial<StoreObj<unknown>> & { continuous?: boolean })[]
+  ) {
+    await SocketFacade.instance.socketCommunication<UpdateDataRequest, never>(
+      "update-data-package",
       {
         collection: this.collectionName,
         idList,

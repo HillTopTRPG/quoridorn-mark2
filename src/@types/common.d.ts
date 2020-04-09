@@ -80,6 +80,7 @@ declare module "compare" {
         searchValue: string;
       }
     | { refType: "db-id-property"; property: string }
+    | { refType: "db-id-owner-property"; level: number; property: string }
     | {
         refType: "db-search-property";
         searchProperty: string;
@@ -253,7 +254,7 @@ declare module "context" {
     taskArg: T;
     isViewCompare?: CompareInfo;
     isDisabledCompare?: CompareInfo;
-    children?: ContextItemDeclareInfo[];
+    children?: ContextItemDeclare[];
   };
 
   // 区切り線(表示条件あり)

@@ -269,10 +269,11 @@ export default class App extends Vue {
               (info: StoreUseData<ClientRoomInfo>) => info.id === change.id
             );
             serverInfo.roomList!.splice(index, 1, {
+              ownerType: null,
+              owner: null,
               order: index,
               exclusionOwner: null,
               lastExclusionOwner: null,
-              owner: null,
               permission: null,
               status: null,
               createTime: new Date(),
@@ -361,7 +362,7 @@ export default class App extends Vue {
   }
 
   @VueEvent
-  private onDragEnter(event: DragEvent) {
+  private onDragEnter() {
     if (this.isDropPiece) return;
     this.isDropping = true;
   }
@@ -479,31 +480,18 @@ export default class App extends Vue {
       return;
     }
 
-    if (event.key === "Shift" && event.ctrlKey) {
-      // // TODO カードビルダー
-      // await TaskManager.instance.ignition<ModeInfo, never>({
-      //   type: "mode-change",
-      //   owner: "Quoridorn",
-      //   value: {
-      //     type: "view-card-deck",
-      //     value: {
-      //       flag: "on",
-      //       cardDeckId: ""
-      //     }
-      //   }
-      // });
-
-      // TODO ブーケトス機能
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "throw-parabola",
-          value: (this.throwParabola ? "off" : "on") as "on" | "off"
-        }
-      });
-      return;
-    }
+    // if (event.key === "Shift" && event.ctrlKey) {
+    //   // TODO ブーケトス機能
+    //   await TaskManager.instance.ignition<ModeInfo, never>({
+    //     type: "mode-change",
+    //     owner: "Quoridorn",
+    //     value: {
+    //       type: "throw-parabola",
+    //       value: (this.throwParabola ? "off" : "on") as "on" | "off"
+    //     }
+    //   });
+    //   return;
+    // }
     // window.console.log(event.key);
   }
 

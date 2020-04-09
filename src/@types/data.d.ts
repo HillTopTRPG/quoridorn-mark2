@@ -3,14 +3,14 @@ import { Permission, StoreObj } from "@/@types/store";
 
 export type TouchRequest = {
   collection: string;
-  id?: string;
-  option?: Partial<StoreObj<unknown>>;
+  idList?: string[];
+  optionList?: Partial<StoreObj<unknown>>[];
 };
 export type TouchModifyRequest = TouchRequest & {
   idList: string[];
 };
 export type ReleaseTouchRequest = TouchModifyRequest & {
-  option?: { continuous?: boolean };
+  optionList?: (Partial<StoreObj<unknown>> & { continuous?: boolean })[];
 };
 
 export type CreateDataRequest = TouchModifyRequest & {

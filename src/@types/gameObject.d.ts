@@ -9,12 +9,12 @@ type SceneObjectType =
   | "chit"
   | "floor-tile";
 
-type VolatileMapObject = {
-  moveFrom: Point;
-  moveFromPlane: Point;
-  moveFromPlaneRelative: Point;
-  moveGridOffset: Point;
+type ObjectMoveInfo = {
+  fromPoint: Point;
+  fromAbsPoint: Point; // オブジェクトの座標（スクロールによる拡大縮小やマップの回転を無視した絶対座標）
+  fromAbsRelPoint: Point; // オブジェクト座標とマウス座標の差（どちらも絶対座標）
   moveDiff: Point;
+  cardCenter: Point; // Card向け
   angleFrom: number;
   angleDiff: number;
 };
@@ -162,10 +162,9 @@ type CardMeta = {
 // オブジェクトとして触れるカードのデータ
 // こいつのView権限はオモテ面を公開するかどうか。
 type CardObject = {
-  // actorId は owner で管理
+  // cardDeckSmallId は owner で管理
   cardMetaId: string; // カード情報への参照
   cardDeckBigId: string; // 所属するデッキへの参照
-  cardDeckSmallId: string | null; // 所属するデッキへの参照
   isTurnOff: boolean; // 伏せているかどうか
   point: Point; // 置き場のレイアウトが frankness の場合の座標
   angle: number; // 置き場のレイアウトが frankness の場合の角度
@@ -176,8 +175,9 @@ type CardDeckBig = {
 };
 
 type CardDeckSmall = {
+  // owner があれば手札
   name: string;
-  layout: "deck" | "hand" | "tile" | "frankness";
+  layout: "deck" | "spread-out" | "tile";
   address: Address; // x, y: 手札の起点, row, column: フィールドの起点
   width: number; // 手札の表示幅
   rows: number; // フィールドの設置高さ
@@ -188,6 +188,7 @@ type CardDeckSmall = {
   layoutRows: number; // 置き場に対して何行使ってカードを配置するか
   layoutColumns: number; // 置き場に対して何列使ってカードを配置するか
   layerId: string; // 配置するシーンレイヤー
+  total: number;
 };
 
 type InputCardInfo = {

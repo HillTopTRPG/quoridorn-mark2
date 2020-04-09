@@ -9,6 +9,8 @@
     ]"
     :tabindex="disabled ? undefined : '0'"
     @click.stop="disabled || $emit('click')"
+    @mousedown.stop
+    @touchstart.stop
     @keydown.space.stop="$emit('click')"
     @keydown.enter.stop="$emit('click')"
     @mouseenter="$emit('hover', true)"

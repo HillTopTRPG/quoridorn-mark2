@@ -36,6 +36,7 @@ type:
   actor: アクター
   actor-group: アクターグループ
   piece: コマ
+  card-object: カード/山札
 
 option:
   chat-color-type:
@@ -59,10 +60,14 @@ context:
   chmod: 権限変更
   shuffle: シャッフル
   draw: ドロー
-  turn-on: 表向きにする
-  turn-off: 裏向きにする
-  spread-out: 広げる
-  put-together: まとめる
+  turn-on-all: すべて表にする
+  turn-off-all: すべて裏にする
+  turn-on: 表にする
+  turn-off: 裏にする
+  layout: レイアウト
+  layout-pile-up: 重ねる
+  layout-spread-out: 広げる
+  layout-tile: タイル
   setting-change: 設定変更
 
 label:
@@ -246,6 +251,7 @@ message:
   processing: 処理中です！
   creating-room: お部屋を作成しています！
   entering-room: お部屋に入ります！
+  delete-deck: 山札を削除しますか？
 
 test-window:
   window-title: Test Window

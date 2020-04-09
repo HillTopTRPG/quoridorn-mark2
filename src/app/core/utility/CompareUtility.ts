@@ -4,6 +4,7 @@ import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { StoreUseData } from "@/@types/store";
 
 /**
  * オペランドの値を取得する
@@ -45,11 +46,27 @@ async function getOperandValue(
       ]);
       return dataList ? dataList.length : 0;
     }
-    if (o.refType === "db-id-property") {
-      const list = GameObjectManager.instance.getList(type!);
+    const getObject = (type: string, id: string): StoreUseData<unknown> => {
+      const list = GameObjectManager.instance.getList(type);
       if (!list) throw new ApplicationError(`Un supported type='${type}'`);
-      const useData = list.filter(d => d.id === docId!)[0];
-      if (!useData) throw new ApplicationError(`Un supported docId='${docId}'`);
+      const useData = list.filter(d => d.id === id)[0];
+      if (!useData) throw new ApplicationError(`Un supported docId='${id}'`);
+      return useData;
+    };
+    if (o.refType === "db-id-property") {
+      const useData = getObject(type!, docId!);
+      return useData.data ? (useData.data as any)[o.property] : null;
+    }
+    if (o.refType === "db-id-owner-property") {
+      let useData: StoreUseData<unknown> = getObject(type!, docId!);
+      for (let level = 0; level < o.level; level++) {
+        if (!useData.ownerType || !useData.owner) {
+          throw new ApplicationError(
+            `Un supported ownerType='${useData.ownerType}', owner='${useData.owner}'`
+          );
+        }
+        useData = getObject(useData.ownerType, useData.owner);
+      }
       return useData.data ? (useData.data as any)[o.property] : null;
     }
     if (o.refType === "db-search-property") {

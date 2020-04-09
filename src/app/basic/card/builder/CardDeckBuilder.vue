@@ -321,17 +321,17 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         return {
           cardMetaId: cardMetaIdList[idx],
           cardDeckBigId,
-          cardDeckSmallId: null,
           isTurnOff: true,
           point: createPoint(0, 0),
           angle: 0
         };
       });
-    window.console.log(JSON.stringify(cardObjectList, null, "  "));
     await this.cardObjectCC.addDirect(
       cardObjectList,
       cardObjectList.map((_k, v) => ({
-        order: v
+        order: v,
+        owner: null,
+        ownerType: "card-deck-small"
       }))
     );
     await this.close();

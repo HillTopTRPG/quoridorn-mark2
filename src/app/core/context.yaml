@@ -15,27 +15,60 @@ map:
     taskName: window-open
     taskArg:
       type: chit-add-window
-  - text: 整備中
-    isViewCompare:
-      lhs: true
-      rhs: false
-    children:
-      - taskName: item02-item01-emit
-      - text: item02-item01
 
-card-deck-small:
-  - text: context.shuffle
-    taskName: card-shuffle
-  - text: context.draw
-    taskName: card-draw
+card-object:
   - text: context.turn-on
     taskName: card-turn-on
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isTurnOff
+      rhs: true
   - text: context.turn-off
     taskName: card-turn-off
-  - text: context.spread-out
-    taskName: card-spread-out
-  - text: context.put-together
-    taskName: card-put-together
+    isViewCompare:
+      lhs:
+        refType: db-id-property
+        property: isTurnOff
+      rhs: false
+  - ~
+  - text: context.placement-reset
+    taskName: card-placement-reset
+  - text: context.shuffle
+    taskName: card-shuffle
+  - text: context.turn-on-all
+    taskName: card-turn-on-all
+  - text: context.turn-off-all
+    taskName: card-turn-off-all
+  - text: context.layout
+    children:
+    - text: context.layout-pile-up
+      taskName: card-layout-pile-up
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: layout
+        rhs: deck
+        isNot: true
+    - text: context.layout-spread-out
+      taskName: card-layout-spread-out
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: layout
+        rhs: spread-out
+        isNot: true
+    - text: context.layout-tile
+      taskName: card-layout-tile
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: layout
+        rhs: tile
+        isNot: true
   - text: context.setting-change
     taskName: card-setting-change
 

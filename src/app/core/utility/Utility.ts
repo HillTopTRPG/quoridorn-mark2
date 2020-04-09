@@ -14,6 +14,15 @@ export function getSrc(path: string): string {
   return urljoin(protocol, host, baseUrl, path);
 }
 
+export function shuffleOrder(list: StoreUseData<any>[]): void {
+  for (let i = list.length - 1; i > 0; i--) {
+    const r = Math.floor(Math.random() * (i + 1));
+    const tmpOrder = list[i].order;
+    list[i].order = list[r].order;
+    list[r].order = tmpOrder;
+  }
+}
+
 /**
  * 極彩ログ処理
  *
@@ -178,11 +187,12 @@ export function createEmptyStoreUseData<T>(
   data: T
 ): StoreUseData<T> {
   return {
+    ownerType: null,
+    owner: null,
     id,
     order: -1,
     exclusionOwner: null,
     lastExclusionOwner: null,
-    owner: null,
     data,
     permission: null,
     status: "added",

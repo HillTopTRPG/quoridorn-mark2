@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
@@ -50,14 +50,12 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { DataReference } from "@/@types/data";
 import LanguageManager from "@/LanguageManager";
 import { ModeInfo } from "mode";
-import { CardMeta, CardDeckBig, CardDeckSmall } from "@/@types/gameObject";
 import CardDeckSetComponent, {
   DeckInfo
 } from "@/app/basic/card/CardDeckSetComponent.vue";
@@ -73,11 +71,9 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   WindowVue
 ) {
   private isMounted: boolean = false;
-  private cardMetaCC = SocketFacade.instance.cardMetaCC();
   private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
   private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
   private cardObjectCC = SocketFacade.instance.cardObjectCC();
-  private mediaList = GameObjectManager.instance.mediaList;
   private cardMetaList = GameObjectManager.instance.cardMetaList;
   private cardObjectList = GameObjectManager.instance.cardObjectList;
   private cardDeckBigList = GameObjectManager.instance.cardDeckBigList;
@@ -98,6 +94,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     return this.cardMetaList.filter(cm => permissionCheck(cm, "view"));
   }
 
+  @VueEvent
   private get deckList(): DeckInfo[] {
     return this.useCardDeckBigList.map(cardDeckBig => {
       return {
@@ -128,7 +125,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       value: {
         type: "view-card-deck",
         value: {
-          flag: "on",
+          flag: "on" as "on",
           cardDeckId: this.selectedCardDeckBigId
         }
       }
@@ -143,7 +140,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       value: {
         type: "view-card-deck",
         value: {
-          flag: "on",
+          flag: "on" as "on",
           cardDeckId: ""
         }
       }
@@ -183,28 +180,20 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async setDeck() {
     if (!this.selectedCardDeckBigId) return;
-    const cardDeckSmallList: CardDeckSmall[] = [];
-    const cardDeckBig = this.cardDeckBigList.filter(
-      cdb => cdb.id === this.selectedCardDeckBigId
+
+    const cardDeckSmallId: string = (
+      await this.cardDeckSmallCC.touch(undefined, [{ owner: null }])
     )[0];
-    const cardMetaList = this.cardMetaList.filter(
-      cm => cm.owner === cardDeckBig.id
-    );
-
-    const cardDeckSmallId: string = (await this.cardDeckSmallCC.touch())[0];
-
     const cardObjectIdList = this.cardObjectList
       .filter(co => co.data!.cardDeckBigId === this.selectedCardDeckBigId)
       .map(co => co.id!);
 
-    await this.cardObjectCC.touchModify(cardObjectIdList);
-    await this.cardObjectCC.update(
+    await this.cardObjectCC.updatePackage(
       cardObjectIdList,
-      cardObjectIdList.map(coId => {
-        const co = this.cardObjectList.filter(co => co.id === coId)[0]!.data!;
-        co.cardDeckSmallId = cardDeckSmallId;
-        return co;
-      })
+      cardObjectIdList.map(
+        coId => this.cardObjectList.filter(co => co.id === coId)[0]!.data!
+      ),
+      cardObjectIdList.map(() => ({ owner: cardDeckSmallId }))
     );
 
     const cardSceneLayer = this.sceneLayerList.filter(
@@ -226,9 +215,11 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
           name: "",
           tileReorderingMode: "insert",
           width: 200,
-          layerId: cardSceneLayer.id!
+          layerId: cardSceneLayer.id!,
+          total: cardObjectIdList.length
         }
-      ]
+      ],
+      [{}]
     );
   }
 

@@ -1,23 +1,36 @@
 <template>
-  <div
-    id="context"
-    v-if="type"
-    @mouseleave.prevent="hide"
-    @contextmenu.prevent
-    ref="context"
-  >
-    <div class="title">{{ title }}</div>
-    <template v-for="(item, index) in itemList">
-      <hr :key="index" v-if="item.type === 'hr'" />
-      <div
-        :key="index"
-        v-if="item.type !== 'hr'"
-        class="item"
-        :class="{ disabled: item.disabled }"
-        @click.left.stop="emitEvent(item.taskName, item.arg, item.disabled)"
-        v-t="item.text"
-      ></div>
-    </template>
+  <div id="context" v-if="type" @mouseleave.prevent="hide" @contextmenu.prevent>
+    <div
+      v-for="level in getLevelList()"
+      :key="level"
+      :style="getLevelStyle(level)"
+      class="level-box"
+      :class="`level-${level}`"
+    >
+      <div class="title" v-if="level === 0">{{ title }}</div>
+      <template v-for="(item, idx) in getLevelItemList(level)">
+        <hr
+          :key="`${level}-${idx}`"
+          :style="getItemStyle(item)"
+          v-if="item.type === 'hr'"
+          @mouseenter="onHoverItem(level, idx)"
+        />
+        <div
+          :key="`${level}-${idx}`"
+          :style="getItemStyle(item)"
+          v-if="item.type !== 'hr'"
+          class="item"
+          :class="[
+            item.disabled ? 'disabled' : undefined,
+            `level-${item.level}`,
+            item.hasChild ? 'has-child' : undefined
+          ]"
+          @click.left.stop="emitEvent(item)"
+          @mouseenter="onHoverItem(level, idx)"
+          v-t="item.text"
+        ></div>
+      </template>
+    </div>
   </div>
 </template>
 
@@ -42,16 +55,21 @@ import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { DataReference } from "@/@types/data";
+import { createPoint } from "@/app/core/utility/CoordinateUtility";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
 
 type Item = {
   type: string;
+  idx: number;
   text?: string;
   taskName?: string;
   arg?: any;
   disabled?: boolean;
+  level: number; // 階層
+  parentIdx: number; // 親が上から何番目だったか
+  hasChild: boolean; // 子要素があるか
 };
 
 @Component
@@ -65,9 +83,58 @@ export default class Context extends Vue {
   private title: string = "";
 
   private itemList: Item[] = [];
+  private hoverIdxList: number[] = [0];
 
-  private getContextElm(): HTMLDivElement {
-    return this.$refs.context as HTMLDivElement;
+  private getElm(): HTMLElement {
+    return document.getElementById("context") as HTMLElement;
+  }
+
+  @VueEvent
+  private onHoverItem(level: number, idx: number) {
+    if (this.hoverIdxList.length - 1 > level) {
+      this.hoverIdxList.splice(this.hoverIdxList.length - 1, 1);
+      return;
+    }
+    if (this.hoverIdxList.length - 1 === level) {
+      this.hoverIdxList.splice(this.hoverIdxList.length - 1, 1, idx);
+      return;
+    }
+    this.hoverIdxList.push(idx);
+  }
+
+  @VueEvent
+  private getLevelList(): number[] {
+    const levelList = this.hoverIdxList.map((_idx, idx) => idx);
+    const lastLevel = this.hoverIdxList.length - 1;
+    const lastLevelIdx = this.hoverIdxList[this.hoverIdxList.length - 1];
+    const hoverItem = this.itemList.filter(
+      item => item.level === lastLevel && item.idx === lastLevelIdx
+    )[0];
+    if (hoverItem && hoverItem.hasChild)
+      levelList.push(this.hoverIdxList.length);
+    return levelList;
+  }
+
+  @VueEvent
+  private getLevelStyle(level: number) {
+    const elm = this.getElm();
+    if (!elm) return {};
+    const cRect = elm.getBoundingClientRect();
+    const point = createPoint(0, 28);
+    if (level > 0) {
+      const hoverIdx = this.hoverIdxList[level - 1] + (level === 1 ? 1 : 0);
+      const levelElm = elm.getElementsByClassName(`level-${level - 1}`)[0];
+      const hoverItemElm = levelElm.children[hoverIdx];
+      const elmRect = hoverItemElm.getBoundingClientRect();
+      point.x = elmRect.x + elmRect.width - 7 - cRect.x;
+      point.y = elmRect.y - cRect.y;
+    }
+    return { left: `${point.x}px`, top: `${point.y}px` };
+  }
+
+  @VueEvent
+  private getLevelItemList(level: number): Item[] {
+    return this.itemList.filter(item => item.level === level);
   }
 
   /**
@@ -82,6 +149,8 @@ export default class Context extends Vue {
     this.target = task.value!.target;
     this.x = task.value!.x - 5;
     this.y = task.value!.y - 5;
+
+    this.hoverIdxList = [0];
 
     const list = GameObjectManager.instance.getList(this.type)!;
     const obj: any = list ? list.filter(o => o.id === this.target)[0] : null;
@@ -99,21 +168,24 @@ export default class Context extends Vue {
     );
 
     // 表示項目をリセット
-    this.itemList.length = 0;
+    this.itemList.splice(0, this.itemList.length);
 
     // 定義を元に要素を構築していく
     let itemInfo: ContextDeclareInfo = contextInfo[this.type!];
     if (!itemInfo) return;
 
-    const refFunc = (itemInfo: ContextDeclareInfo): ContextItemDeclare[] => {
-      if ("ref" in itemInfo) return refFunc(contextInfo[itemInfo.ref]);
+    const getRef = (itemInfo: ContextDeclareInfo): ContextItemDeclare[] => {
+      if ("ref" in itemInfo) return getRef(contextInfo[itemInfo.ref]);
       return itemInfo;
     };
-    itemInfo = refFunc(itemInfo);
+    itemInfo = getRef(itemInfo);
 
     // 直列の非同期で全部実行する
+    const idxArg = [[-1, -1]];
     await itemInfo
-      .map((item: ContextItemDeclare | null) => () => this.addItem(item))
+      .map((item: ContextItemDeclare | null) => () =>
+        this.addItem(item, 0, idxArg)
+      )
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     task.resolve();
@@ -122,36 +194,49 @@ export default class Context extends Vue {
   /**
    * 項目追加
    * @param item
+   * @param level
+   * @param idxArg
    */
-  private async addItem(item: ContextItemDeclare | null) {
+  private async addItem(
+    item: ContextItemDeclare | null,
+    level: number,
+    idxArg: number[2][]
+  ) {
     const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
       item && "ref" in item ? contextItemInfo![item!.ref] : item
     );
 
+    const levelIdxList = idxArg[level];
+
     // 要素がnullだったら区切り線
     if (!contextItem) {
-      this.itemList.push({ type: "hr" });
+      this.itemList.push({
+        type: "hr",
+        level,
+        parentIdx: levelIdxList[0],
+        idx: ++levelIdxList[1],
+        hasChild: false
+      });
       return;
     }
 
+    const type = this.type!;
+    const target = this.target!;
+    const isViewCompare = contextItem.isViewCompare;
+
     // 項目を表示するかどうかの判定
-    if (
-      !(await judgeCompare(contextItem!.isViewCompare, this.type, this.target))
-    )
-      return;
+    if (!(await judgeCompare(isViewCompare, type, target))) return;
 
     // テキスト項目の追加
     if ("text" in contextItem) {
+      const isDisabledCompare = contextItem.isDisabledCompare;
+
       // 非活性の判定
-      const disabled = !(await judgeCompare(
-        contextItem.isDisabledCompare,
-        this.type,
-        this.target
-      ));
+      const disabled = !(await judgeCompare(isDisabledCompare, type, target));
 
       const argObj: DataReference = {
-        type: this.type!,
-        docId: this.target!
+        type,
+        docId: target
       };
       if (!contextItem.taskArg) {
         contextItem.taskArg = {
@@ -163,34 +248,56 @@ export default class Context extends Vue {
       }
       this.itemList.push({
         type: "item",
+        level,
+        parentIdx: levelIdxList[0],
+        idx: ++levelIdxList[1],
         taskName: contextItem.taskName || "default",
         text: contextItem.text || "default",
         arg: contextItem.taskArg,
-        disabled
+        disabled,
+        hasChild: !!contextItem.children
       });
+
+      if (contextItem.children) {
+        idxArg.push([levelIdxList[1], -1]);
+
+        const getRef = (itemInfo: ContextDeclareInfo): ContextItemDeclare[] => {
+          if ("ref" in itemInfo) return getRef(contextInfo[itemInfo.ref]);
+          return itemInfo;
+        };
+        contextItem.children = getRef(contextItem.children);
+
+        await contextItem.children
+          .map((item: ContextItemDeclare | null) => () =>
+            this.addItem(item, level + 1, idxArg)
+          )
+          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+      }
       return;
     }
 
     // 区切り線を追加
     this.itemList.push({
-      type: "hr"
+      type: "hr",
+      level,
+      parentIdx: levelIdxList[0],
+      idx: ++levelIdxList[1],
+      hasChild: false
     });
   }
 
   /**
    * 項目選択
-   * @param taskName
-   * @param arg
-   * @param disabled
+   * @param item
    */
   @VueEvent
-  private async emitEvent(taskName: string, arg: any, disabled: boolean) {
-    if (disabled) return;
+  private async emitEvent(item: Item) {
+    if (item.disabled || item.hasChild) return;
     this.hide();
     await TaskManager.instance.ignition<any, never>({
-      type: taskName,
+      type: item.taskName!,
       owner: "Quoridorn",
-      value: arg
+      value: item.arg
     });
   }
 
@@ -206,53 +313,94 @@ export default class Context extends Vue {
    */
   @LifeCycle
   private updated() {
-    const elm = this.getContextElm();
+    const elm = this.getElm();
     if (!elm) return;
     elm.style.setProperty("--x", `${this.x}px`);
     elm.style.setProperty("--y", `${this.y}px`);
   }
+
+  @VueEvent
+  private getItemStyle(item: Item) {
+    const elm = this.getElm();
+    if (!elm) return {};
+    const level = item.level;
+    const point = createPoint(0, 0);
+    // const fontSize = getCssPxNum("font-size", this.elm);
+    const fontSize = 14;
+    if (level > 1) {
+      const parentElmList = elm.getElementsByClassName(`level-${level - 1}`);
+      const parentElm = parentElmList[item.parentIdx];
+      const parentRect = parentElm.getBoundingClientRect();
+      point.x = parentRect.x + parentRect.width - fontSize;
+      point.y = parentRect.y;
+    }
+    point.y += item.idx * fontSize * 2;
+    return {
+      left: point.x + "px",
+      top: point.y + "px"
+    };
+  }
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
+@import "../../../assets/common";
+
 #context {
   position: fixed;
-  padding: 0;
-  min-width: 50px;
+  left: 0;
+  top: 0;
+  transform: translate(var(--x), calc(var(--y) - 1.8em));
+  font-size: 14px;
+}
+
+.level-box {
+  @include inline-flex-box(column, stretch, flex-start);
+  position: absolute;
   background-color: white;
   border: solid gray 1px;
-  box-sizing: border-box;
-  cursor: default;
-  left: var(--x);
-  top: calc(var(--y) - 1.8em);
+  box-sizing: content-box;
+}
 
-  hr {
+.title {
+  background-color: var(--uni-color-blue);
+  color: var(--uni-color-white);
+  font-weight: bold;
+  display: block;
+  min-width: 50px;
+  padding: 0 5px;
+  line-height: 1.8em;
+  height: 2em;
+  cursor: default;
+}
+
+hr {
+  cursor: default;
+}
+
+.item {
+  @include inline-flex-box(row, space-between, center);
+  min-width: 5em;
+  padding: 0 5px;
+  height: 2em;
+  cursor: pointer;
+
+  &.has-child {
     cursor: default;
+
+    &:after {
+      content: ">";
+      font-weight: bold;
+    }
   }
 
-  > * {
-    display: block;
-    min-width: 50px;
-    font-size: 14px;
-    padding: 0 5px;
-    line-height: 1.8em;
-    cursor: pointer;
+  &:not(.title):not(.disabled):hover {
+    background-color: lightblue;
+  }
 
-    &.title {
-      background-color: var(--uni-color-blue);
-      color: var(--uni-color-white);
-      font-weight: bold;
-      cursor: default;
-    }
-
-    &:not(.title):not(.disabled):hover {
-      background-color: lightblue;
-    }
-
-    &.disabled {
-      background-color: lightgrey;
-      cursor: default;
-    }
+  &.disabled {
+    background-color: lightgrey;
+    cursor: default;
   }
 }
 </style>

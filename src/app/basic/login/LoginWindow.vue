@@ -377,10 +377,11 @@ export default class LoginWindow extends Mixins<
                 info => info.id === change.id
               );
               this.roomList!.splice(index, 1, {
+                ownerType: null,
+                owner: null,
                 order: index,
                 exclusionOwner: null,
                 lastExclusionOwner: null,
-                owner: null,
                 permission: null,
                 status: null,
                 createTime: new Date(),

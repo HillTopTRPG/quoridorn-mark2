@@ -1,5 +1,5 @@
 <template>
-  <div class="card-deck-small" :style="cardDeckStyle" ref="elm">
+  <div class="card-deck-small" :style="cardDeckStyle">
     <!-- タイトルバー -->
     <div
       class="name-bar"
@@ -9,6 +9,13 @@
     >
       <!-- タイトル文言 -->
       <div class="name">{{ deck.data.name }}</div>
+      <s-button
+        class="s-button"
+        icon="bin"
+        colorStyle="skyblue"
+        :disabled="!!useCardObjectList.length"
+        @click="deleteDeck()"
+      />
     </div>
     <div class="card-container">
       <div class="background"></div>
@@ -16,22 +23,23 @@
         class="card hover-view"
         :size="cardSize"
         :cardMeta="getCardMeta(hoverCardObject)"
-        :isTurnOff="isTurnOffAll"
+        :isTurnOff="hoverCardObject.data.isTurnOff"
         @leftDown="event => cardLeftDown(hoverCardObject, event)"
         @rightDown="event => rightDown(hoverCardObject, event)"
-        v-if="viewMode === 'spread-out' && hoverCardObject"
+        v-if="deck.data.layout === 'spread-out' && hoverCardObject"
       />
       <card-component
         class="card"
-        v-for="(cardObject, idx) in useCardObjectList"
+        v-for="cardObject in useCardObjectList"
+        :id="cardObject.id"
         :key="cardObject.id"
         :size="cardSize"
         :cardMeta="getCardMeta(cardObject)"
-        :isTurnOff="isTurnOffAll"
+        :isTurnOff="cardObject.data.isTurnOff"
         @leftDown="event => cardLeftDown(cardObject, event)"
         @rightDown="event => rightDown(cardObject, event)"
         @hover="value => hoverCard(cardObject, value)"
-        :style="getCardStyle(cardObject, idx)"
+        :style="getCardStyle(cardObject, cardObject.order)"
       />
     </div>
     <div class="info-bar">
@@ -61,11 +69,7 @@
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
-import {
-  CardDeckSmall,
-  CardObject,
-  VolatileMapObject
-} from "@/@types/gameObject";
+import { CardDeckSmall, CardObject, ObjectMoveInfo } from "@/@types/gameObject";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -77,9 +81,10 @@ import {
   createPoint,
   createRectangle,
   createSize,
-  getEventPoint
+  getEventPoint,
+  isContain
 } from "@/app/core/utility/CoordinateUtility";
-import { Point, Size } from "address";
+import { Point, Rectangle, Size } from "address";
 import ResizeKnob from "@/app/core/window/ResizeKnob.vue";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
@@ -90,6 +95,8 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import LanguageManager from "@/LanguageManager";
+import { shuffleOrder } from "@/app/core/utility/Utility";
 
 interface MultiMixin extends AddressCalcMixin, ComponentVue {}
 
@@ -103,22 +110,22 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   @Prop({ type: Object, required: true })
   private deck!: StoreUseData<CardDeckSmall>;
 
-  private contentsMoveInfo: VolatileMapObject = {
-    moveFrom: createPoint(0, 0),
-    moveFromPlane: createPoint(0, 0),
-    moveFromPlaneRelative: createPoint(0, 0),
-    moveGridOffset: createPoint(0, 0),
+  private contentsMoveInfo: ObjectMoveInfo = {
+    fromPoint: createPoint(0, 0),
+    fromAbsPoint: createPoint(0, 0),
+    fromAbsRelPoint: createPoint(0, 0),
     moveDiff: createPoint(0, 0),
+    cardCenter: createPoint(0, 0),
     angleFrom: 0,
     angleDiff: 0
   };
 
-  private cardMoveInfo: VolatileMapObject = {
-    moveFrom: createPoint(0, 0),
-    moveFromPlane: createPoint(0, 0),
-    moveFromPlaneRelative: createPoint(0, 0),
-    moveGridOffset: createPoint(0, 0),
+  private cardMoveInfo: ObjectMoveInfo = {
+    fromPoint: createPoint(0, 0),
+    fromAbsPoint: createPoint(0, 0),
+    fromAbsRelPoint: createPoint(0, 0),
     moveDiff: createPoint(0, 0),
+    cardCenter: createPoint(0, 0),
     angleFrom: 0,
     angleDiff: 0
   };
@@ -132,18 +139,18 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private cardObjectCC = SocketFacade.instance.cardObjectCC();
   private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
 
-  private viewMode: "normal" | "spread-out" = "normal";
   private hoverCardObject: StoreUseData<CardObject> | null = null;
   private isMounted: boolean = false;
-  private isTurnOffAll: boolean = true;
   private moveCardId: string | null = null;
+
+  @VueEvent
+  private get useCardObjectList() {
+    return this.cardObjectList.filter(co => co.owner === this.deck.id);
+  }
 
   @LifeCycle
   private mounted() {
     this.isMounted = true;
-    this.isTurnOffAll = this.useCardObjectList[0]
-      ? this.useCardObjectList[0].data!.isTurnOff
-      : false;
   }
 
   @VueEvent
@@ -159,92 +166,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const currentAngle = CssManager.instance.propMap.currentAngle;
     const calcResult = this.calcCoordinate(point, currentAngle);
     return calcResult.planeLocateScene;
-  }
-
-  @VueEvent
-  private async contentsLeftDown(event: MouseEvent) {
-    window.console.log("contentsLeftDown");
-    event.stopPropagation();
-    try {
-      await this.cardDeckSmallCC!.touchModify([this.docId]);
-    } catch (err) {
-      window.console.warn(err);
-      return;
-    }
-    const clientRect = (event.target as any).getBoundingClientRect();
-    const elmPoint = this.getPoint(createPoint(clientRect.x, clientRect.y));
-    const point = getEventPoint(event);
-    const planeLocateScene = this.getPoint(point);
-    this.contentsMoveInfo.moveDiff = createPoint(0, 0);
-    this.contentsMoveInfo.moveFrom = createPoint(point.x, point.y);
-    this.contentsMoveInfo.moveFromPlane = createPoint(
-      planeLocateScene.x,
-      planeLocateScene.y
-    );
-    this.contentsMoveInfo.moveFromPlaneRelative = createPoint(
-      planeLocateScene.x - elmPoint.x,
-      planeLocateScene.y - elmPoint.y
-    );
-    this.movingMode = "container";
-    this.onChangePoint();
-    this.mouseDown("left");
-  }
-
-  @VueEvent
-  private async cardLeftDown(
-    cardObject: StoreUseData<CardObject>,
-    event: MouseEvent
-  ) {
-    window.console.log("cardLeftDown");
-    event.stopPropagation();
-    try {
-      await this.cardDeckSmallCC!.touchModify([this.docId]);
-    } catch (err) {
-      window.console.warn(err);
-      return;
-    }
-    const clientRect = (event.target as any).getBoundingClientRect();
-    const elmPoint = this.getPoint(createPoint(clientRect.x, clientRect.y));
-    const point = getEventPoint(event);
-    const planeLocateScene = this.getPoint(point);
-    this.cardMoveInfo.moveDiff = createPoint(0, 0);
-    this.cardMoveInfo.moveFrom = createPoint(point.x, point.y);
-    this.cardMoveInfo.moveFromPlane = createPoint(
-      planeLocateScene.x,
-      planeLocateScene.y
-    );
-    this.cardMoveInfo.moveFromPlaneRelative = createPoint(
-      planeLocateScene.x - elmPoint.x,
-      planeLocateScene.y - elmPoint.y
-    );
-    this.moveCardId = cardObject.id;
-    this.movingMode = "card";
-    this.onChangePoint();
-    this.mouseDown("left");
-  }
-
-  @TaskProcessor("mouse-moving-finished")
-  private async mouseMoveFinished(
-    task: Task<Point, never>,
-    param: MouseMoveParam
-  ): Promise<TaskResult<never> | void> {
-    if (!param || param.key !== this.docId) return;
-    if (this.movingMode === "none") return;
-    const point = task.value!;
-    const planeLocateScene = this.getPoint(point);
-    if (this.movingMode === "container") {
-      const diffX = planeLocateScene.x - this.contentsMoveInfo.moveFromPlane.x;
-      const diffY = planeLocateScene.y - this.contentsMoveInfo.moveFromPlane.y;
-      this.contentsMoveInfo.moveDiff = createPoint(diffX, diffY);
-      this.onChangePoint();
-    } else if (this.movingMode === "card") {
-      const diffX = planeLocateScene.x - this.cardMoveInfo.moveFromPlane.x;
-      const diffY = planeLocateScene.y - this.cardMoveInfo.moveFromPlane.y;
-      this.cardMoveInfo.moveDiff = createPoint(diffX, diffY);
-      window.console.log(
-        JSON.stringify(this.cardMoveInfo.moveDiff, null, "  ")
-      );
-    }
   }
 
   private onChangePoint() {
@@ -279,10 +200,42 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     );
     return {
       transform: `translate(calc(${containerRect.x -
-        6}px), calc(${containerRect.y - 6 - 28}px))`,
+        6}px), calc(${containerRect.y - 6 - 28}px)) translateZ(0)`,
       width: `calc(${containerRect.width}px + 12px)`,
       height: `calc(${containerRect.height}px + 12px + 2em)`
     };
+  }
+
+  @VueEvent
+  private getCardStyle(card: StoreUseData<CardObject>, idx: number) {
+    const isMoving = this.moveCardId === card.id;
+    const arrangePoint = createPoint(0, 0);
+    const transition = this.movingMode === "card" ? undefined : "all 0.5s ease";
+    if (isMoving) {
+      arrangePoint.x = this.cardMoveInfo.moveDiff.x;
+      arrangePoint.y = this.cardMoveInfo.moveDiff.y;
+    }
+    if (this.deck.data!.layout === "spread-out") {
+      const isHover =
+        card && this.hoverCardObject
+          ? this.hoverCardObject.id === card.id
+          : false;
+      const rotate: number = idx / (this.deck.data!.total * 1.08);
+      const lastRotate = isMoving ? -rotate : 0;
+      const height = this.cardSize.height;
+      let translateY: number = -height * (isHover ? 1.7 : 1.5);
+      return {
+        transform: `translate(${arrangePoint.x}px, ${arrangePoint.y}px) rotate(${rotate}turn) translate(0, ${translateY}px) translateZ(0) rotate(${lastRotate}turn)`,
+        transformOrigin: "center center",
+        transition
+      };
+    } else {
+      return {
+        transform: ` translate(${arrangePoint.x + idx / 3}px, ${arrangePoint.y +
+          idx / 2}px) translateZ(0)`,
+        transition
+      };
+    }
   }
 
   private get isOtherLastModify(): boolean {
@@ -292,6 +245,89 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       lastExclusionOwner
     );
     return lastExclusionOwnerId !== GameObjectManager.instance.mySelfUserId;
+  }
+
+  @VueEvent
+  private async contentsLeftDown(event: MouseEvent) {
+    window.console.log("contentsLeftDown");
+    event.stopPropagation();
+    try {
+      await this.cardDeckSmallCC!.touchModify([this.docId]);
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+    const clientRect = (event.target as any).getBoundingClientRect();
+    const elmPoint = this.getPoint(createPoint(clientRect.x, clientRect.y));
+    const point = getEventPoint(event);
+    const planeLocateScene = this.getPoint(point);
+    this.contentsMoveInfo.moveDiff = createPoint(0, 0);
+    this.contentsMoveInfo.fromPoint = createPoint(point.x, point.y);
+    this.contentsMoveInfo.fromAbsPoint = createPoint(
+      planeLocateScene.x,
+      planeLocateScene.y
+    );
+    this.contentsMoveInfo.fromAbsRelPoint = createPoint(
+      planeLocateScene.x - elmPoint.x,
+      planeLocateScene.y - elmPoint.y
+    );
+    this.movingMode = "container";
+    this.onChangePoint();
+    this.mouseDown("left");
+  }
+
+  private static getCardRect(cardId: string): Rectangle {
+    const cardRect = document.getElementById(cardId)!.getBoundingClientRect();
+    const gameTableRect = document
+      .getElementById("map-canvas-container")!
+      .getBoundingClientRect();
+    cardRect.x -= gameTableRect.x;
+    cardRect.y -= gameTableRect.y;
+    return cardRect;
+  }
+
+  private static getCardCenter(cardId: string): Point {
+    const cardRect = this.getCardRect(cardId);
+    return createPoint(
+      cardRect.x + cardRect.width / 2,
+      cardRect.y + cardRect.height / 2
+    );
+  }
+
+  @VueEvent
+  private async cardLeftDown(
+    cardObject: StoreUseData<CardObject>,
+    event: MouseEvent
+  ) {
+    window.console.log("cardLeftDown");
+    event.stopPropagation();
+    try {
+      await this.cardDeckSmallCC!.touchModify([this.docId]);
+    } catch (err) {
+      window.console.warn(err);
+      return;
+    }
+    const point = getEventPoint(event);
+    const cardRect = CardDeckSmallComponent.getCardRect(cardObject.id!);
+    const cardCenter = CardDeckSmallComponent.getCardCenter(cardObject.id!);
+    window.console.log("touch point:", JSON.stringify(point));
+    window.console.log("card center:", JSON.stringify(cardCenter));
+    const planeLocateScene = this.getPoint(point);
+    this.cardMoveInfo.moveDiff = createPoint(0, 0);
+    this.cardMoveInfo.cardCenter = cardCenter;
+    this.cardMoveInfo.fromPoint = createPoint(point.x, point.y);
+    this.cardMoveInfo.fromAbsPoint = createPoint(
+      planeLocateScene.x,
+      planeLocateScene.y
+    );
+    this.cardMoveInfo.fromAbsRelPoint = createPoint(
+      planeLocateScene.x - cardRect.x,
+      planeLocateScene.y - cardRect.y
+    );
+    this.moveCardId = cardObject.id;
+    this.movingMode = "card";
+    this.onChangePoint();
+    this.mouseDown("left");
   }
 
   protected rightDown(): void {
@@ -318,6 +354,30 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     );
   }
 
+  @TaskProcessor("mouse-moving-finished")
+  private async mouseMoveFinished(
+    task: Task<Point, never>,
+    param: MouseMoveParam
+  ): Promise<TaskResult<never> | void> {
+    if (!param || param.key !== this.docId) return;
+    if (this.movingMode === "none") return;
+    const point = task.value!;
+    const planeLocateScene = this.getPoint(point);
+    if (this.movingMode === "container") {
+      const diffX = planeLocateScene.x - this.contentsMoveInfo.fromAbsPoint.x;
+      const diffY = planeLocateScene.y - this.contentsMoveInfo.fromAbsPoint.y;
+      this.contentsMoveInfo.moveDiff = createPoint(diffX, diffY);
+      // this.onChangePoint();
+    } else if (this.movingMode === "card") {
+      const diffX = planeLocateScene.x - this.cardMoveInfo.fromAbsPoint.x;
+      const diffY = planeLocateScene.y - this.cardMoveInfo.fromAbsPoint.y;
+      this.cardMoveInfo.moveDiff = createPoint(diffX, diffY);
+      this.cardMoveInfo.cardCenter = CardDeckSmallComponent.getCardCenter(
+        this.moveCardId!
+      );
+    }
+  }
+
   @TaskProcessor("mouse-move-end-left-finished")
   private async mouseLeftUpFinished(
     task: Task<Point, never>,
@@ -326,117 +386,11 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     if (!param || param.key !== this.docId) return;
 
     window.console.log("mouse-move-end-left-finished", param.key, param.type);
-    const address = createAddress(0, 0, 0, 0);
 
     if (this.movingMode === "container") {
-      copyAddress(this.deck.data!.address, address);
-
-      address.x += this.contentsMoveInfo.moveDiff.x;
-      address.y += this.contentsMoveInfo.moveDiff.y;
-
-      const gridSize = CssManager.instance.propMap.gridSize;
-      const relativeX = this.contentsMoveInfo.moveFromPlaneRelative.x;
-      const relativeY = this.contentsMoveInfo.moveFromPlaneRelative.y;
-      address.column =
-        Math.floor((address.x + relativeX) / gridSize) -
-        Math.floor(relativeX / gridSize) +
-        1;
-      address.row =
-        Math.floor((address.y + relativeY) / gridSize) -
-        Math.floor(relativeY / gridSize) +
-        1;
-
-      if (GameObjectManager.instance.roomData.settings.isFitGrid) {
-        address.x = (address.column - 1) * gridSize;
-        address.y = (address.row - 1) * gridSize;
-      }
-
-      const data: CardDeckSmall = clone(this.deck!.data)!;
-      copyAddress(address, data.address);
-      await this.cardDeckSmallCC!.update([this.docId], [data]);
+      await this.fixDeckLocate();
     } else if (this.movingMode === "card") {
-      const deckData = this.deck.data!;
-      const gridSize = CssManager.instance.propMap.gridSize;
-      const moveDiff = this.cardMoveInfo.moveDiff;
-      const containerSize = createSize(
-        gridSize * deckData.columns,
-        gridSize * deckData.rows
-      );
-      const diffColumns = moveDiff.x / gridSize;
-      const diffRows = moveDiff.y / gridSize;
-      if (
-        Math.abs(diffColumns) > deckData.columns ||
-        Math.abs(diffRows) > deckData.rows
-      ) {
-        // カードを別の山札にわける
-        const cardColumn = deckData.address.column + diffColumns;
-        const cardRow = deckData.address.row + diffRows;
-        const cardColumns = deckData.columns;
-        const cardRows = deckData.rows;
-        const cardCenterColumn = cardColumn + cardColumns / 2;
-        const cardCenterRow = cardRow + cardRows / 2;
-        const toDeck = this.cardDeckSmallList.reverse().filter(cds => {
-          const deckColumn = cds.data!.address.column;
-          const deckRow = cds.data!.address.row;
-          const deckColumns = cds.data!.columns;
-          const deckRows = cds.data!.rows;
-          // カードの中心が移動先の山札の中に入ったら
-          return (
-            deckColumn <= cardCenterColumn &&
-            cardCenterColumn <= deckColumn + deckColumns &&
-            deckRow <= cardCenterRow &&
-            cardCenterRow <= deckRow + deckRows
-          );
-        })[0];
-        let isError = false;
-        try {
-          await this.cardObjectCC.touchModify([this.moveCardId!]);
-        } catch (err) {
-          // カードオブジェクトをタッチできなかったら処理を諦める
-          isError = true;
-        }
-        const cardObject = this.cardObjectList.filter(
-          co => co.id === this.moveCardId
-        )[0];
-        const cardObjectData = cardObject.data!;
-        if (!isError) {
-          const deckId = toDeck
-            ? toDeck.id!
-            : (
-                await this.cardDeckSmallCC.addDirect([
-                  {
-                    address: createAddress(
-                      0,
-                      0,
-                      Math.round(cardColumn),
-                      Math.round(cardRow)
-                    ),
-                    layout: "deck",
-                    cardHeightRatio: 1,
-                    cardWidthRatio: 1,
-                    columns: 2,
-                    rows: 3,
-                    layoutColumns: 1,
-                    layoutRows: 1,
-                    name: "",
-                    tileReorderingMode: "insert",
-                    width: 200,
-                    layerId: this.deck.data!.layerId
-                  }
-                ])
-              )[0];
-          cardObjectData.cardDeckSmallId = deckId;
-          const newOrder =
-            this.cardObjectList.filter(
-              co => co.data!.cardDeckSmallId === deckId
-            ).length + 1;
-          await this.cardObjectCC.update(
-            [this.moveCardId!],
-            [cardObjectData],
-            [{ order: newOrder }]
-          );
-        }
-      }
+      await this.fixCardLocate();
       // 後処理
       this.cardMoveInfo.moveDiff.x = 0;
       this.cardMoveInfo.moveDiff.y = 0;
@@ -444,77 +398,172 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     }
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
-
     this.movingMode = "none";
-
     task.resolve();
   }
 
-  @VueEvent
-  private getCardStyle(card: StoreUseData<CardObject>, idx: number) {
-    const all = this.useCardObjectList.length;
-    const isMoving = this.moveCardId === card.id;
-    const arrangePoint = createPoint(0, 0);
-    const transition = this.movingMode === "card" ? undefined : "all 0.5s ease";
-    if (isMoving) {
-      arrangePoint.x = this.cardMoveInfo.moveDiff.x;
-      arrangePoint.y = this.cardMoveInfo.moveDiff.y;
+  /**
+   * 移動中の山札の位置を確定させる。
+   */
+  private async fixDeckLocate() {
+    const address = createAddress(0, 0, 0, 0);
+    copyAddress(this.deck.data!.address, address);
+
+    address.x += this.contentsMoveInfo.moveDiff.x;
+    address.y += this.contentsMoveInfo.moveDiff.y;
+
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const relativeX = this.contentsMoveInfo.fromAbsRelPoint.x;
+    const relativeY = this.contentsMoveInfo.fromAbsRelPoint.y;
+    address.column =
+      Math.floor((address.x + relativeX) / gridSize) -
+      Math.floor(relativeX / gridSize) +
+      1;
+    address.row =
+      Math.floor((address.y + relativeY) / gridSize) -
+      Math.floor(relativeY / gridSize) +
+      1;
+
+    if (GameObjectManager.instance.roomData.settings.isFitGrid) {
+      address.x = (address.column - 1) * gridSize;
+      address.y = (address.row - 1) * gridSize;
     }
-    if (this.viewMode === "normal") {
-      return {
-        transform: `translate(${arrangePoint.x}px, ${
-          arrangePoint.y
-        }px) translate(${idx / 3}px, ${idx / 2}px)`,
-        transition
-      };
+
+    const data: CardDeckSmall = clone(this.deck!.data)!;
+    copyAddress(address, data.address);
+    await this.cardDeckSmallCC!.update([this.docId], [data]);
+  }
+
+  /**
+   * 移動中のカードの位置を確定させる。
+   */
+  private async fixCardLocate() {
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const cCenter = this.cardMoveInfo.cardCenter;
+    const cSize = createSize(
+      this.deck.data!.columns * gridSize,
+      this.deck.data!.rows * gridSize
+    );
+    window.console.log(JSON.stringify(cCenter, null, "  "));
+
+    const getDeckRectangle = (deck: StoreUseData<CardDeckSmall>) => {
+      return createRectangle(
+        gridSize * deck.data!.address.column,
+        gridSize * deck.data!.address.row,
+        gridSize * deck.data!.columns,
+        gridSize * deck.data!.rows
+      );
+    };
+
+    // カードの今の位置が山札と被っていたら新しい山札は作らないので処理を抜ける
+    if (isContain(getDeckRectangle(this.deck), cCenter)) return;
+
+    const toDeck = this.cardDeckSmallList
+      .reverse()
+      .filter(cds => isContain(getDeckRectangle(cds), cCenter))[0];
+
+    try {
+      await this.cardObjectCC.touchModify([this.moveCardId!]);
+    } catch (err) {
+      // カードオブジェクトをタッチできなかったら処理を諦める
+      return;
+    }
+
+    const cardObject = this.cardObjectList.filter(
+      co => co.id === this.moveCardId
+    )[0];
+    if (!cardObject) return;
+
+    let deckId: string;
+    if (toDeck) {
+      deckId = toDeck.id!;
+      await this.updateDeck(toDeck, {
+        total: toDeck.data!.total + 1
+      });
     } else {
-      const rotate: number = idx / (all * 1.08);
-      const height = this.cardSize.height;
-      const isHover =
-        card && this.hoverCardObject
-          ? this.hoverCardObject.id === card.id
-          : false;
-      let translateY: number = -height * (isHover ? 1.7 : 1.5);
-      return {
-        transform: `translate(${arrangePoint.x}px, ${arrangePoint.y}px) rotate(${rotate}turn) translate(0, ${translateY}px)`,
-        transformOrigin: "center center",
-        transition
-      };
+      const column = Math.round((cCenter.x - cSize.width / 2) / gridSize);
+      const row = Math.round((cCenter.y - cSize.height / 2) / gridSize);
+      const address = createAddress(
+        column * gridSize,
+        row * gridSize,
+        column,
+        row
+      );
+      deckId = (
+        await this.cardDeckSmallCC.addDirect([
+          {
+            address,
+            layout: "deck",
+            cardHeightRatio: 1,
+            cardWidthRatio: 1,
+            columns: 2,
+            rows: 3,
+            layoutColumns: 1,
+            layoutRows: 1,
+            name: this.deck.data!.name + "_",
+            tileReorderingMode: "insert",
+            width: 200,
+            layerId: this.deck.data!.layerId,
+            total: 1
+          }
+        ])
+      )[0];
     }
-  }
-
-  @TaskProcessor("card-shuffle-finished")
-  private async cardShuffleFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do shuffle!!!");
-  }
-
-  @TaskProcessor("card-draw-finished")
-  private async cardDrawFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do draw!!!");
+    let newOrder: number = 0;
+    this.cardObjectList
+      .filter(co => co.owner === deckId)
+      .forEach(co => {
+        if (co.order >= newOrder) newOrder = co.order + 1;
+      });
+    window.console.log(newOrder);
+    await this.cardObjectCC.update(
+      [this.moveCardId!],
+      [cardObject.data!],
+      [{ order: newOrder, owner: deckId }]
+    );
+    this.moveCardId = null;
+    this.hoverCardObject = null;
   }
 
   @VueEvent
-  private get useCardObjectList() {
-    return this.cardObjectList.filter(
-      co => co.data!.cardDeckSmallId === this.deck.id
+  private consoleButton() {
+    window.console.log(
+      JSON.stringify(
+        this.useCardObjectList.map(co => {
+          const cardMeta = this.cardMetaList.filter(
+            cm => cm.id === co.data!.cardMetaId
+          )[0];
+          return {
+            order: co.order,
+            name: cardMeta.data!.name
+          };
+        }),
+        null,
+        "  "
+      )
     );
   }
 
+  @VueEvent
+  private async deleteDeck() {
+    if (this.useCardObjectList.length) return;
+    const msg = LanguageManager.instance.getText("message.delete-deck");
+    if (!window.confirm(msg)) return;
+    await this.cardDeckSmallCC.touchModify([this.deck.id!]);
+    await this.cardDeckSmallCC.delete([this.deck.id!]);
+  }
+
+  private async updateDeck(
+    deck: StoreUseData<CardDeckSmall>,
+    info: Partial<CardDeckSmall>
+  ) {
+    Object.assign(deck.data!, info);
+    await this.cardDeckSmallCC.updatePackage([deck.id!], [deck.data!]);
+  }
+
   private async updateAllCard(info: Partial<CardObject>) {
-    const idList = this.useCardObjectList.map(co => co.id!);
-    await this.cardObjectCC.touchModify(idList);
-    await this.cardObjectCC.update(
-      idList,
+    await this.cardObjectCC.updatePackage(
+      this.useCardObjectList.map(co => co.id!),
       this.useCardObjectList.map(uco => {
         const cardObject = this.cardObjectList.filter(
           co => co.id === uco.id
@@ -526,54 +575,118 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     );
   }
 
+  private getTaskCardObject(
+    task: Task<any, never>
+  ): StoreUseData<CardObject> | null {
+    const args = task.value.args;
+    const cardId = args.docId;
+    const cardObject = this.cardObjectList.filter(co => co.id === cardId)[0];
+    if (!cardObject) return null;
+    if (cardObject.owner !== this.docId) return null;
+    return cardObject;
+  }
+
+  @TaskProcessor("card-shuffle-finished")
+  private async cardShuffleFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+
+    const cardObjList = clone(this.useCardObjectList)!;
+    shuffleOrder(cardObjList);
+    await this.cardObjectCC.updatePackage(
+      this.useCardObjectList.map(co => co.id!),
+      this.useCardObjectList.map(co => co.data!),
+      cardObjList.map(co => ({
+        order: co.order
+      }))
+    );
+  }
+
+  @TaskProcessor("card-draw-finished")
+  private async cardDrawFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    // TODO
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    window.console.log("Do draw!!!");
+  }
+
+  @TaskProcessor("card-turn-on-all-finished")
+  private async cardTurnOnAllFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    window.console.log("Do turn on!!!");
+    await this.updateAllCard({
+      isTurnOff: false
+    });
+  }
+
+  @TaskProcessor("card-turn-off-all-finished")
+  private async cardTurnOffFAllFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    window.console.log("Do turn off!!!");
+    await this.updateAllCard({
+      isTurnOff: true
+    });
+  }
+
   @TaskProcessor("card-turn-on-finished")
   private async cardTurnOnFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do turn on!!!");
-    this.isTurnOffAll = false;
-    // await this.updateAllCard({
-    //   isTurnOff: false
-    // });
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    cardObject.data!.isTurnOff = false;
+    await this.cardObjectCC.updatePackage([cardObject.id!], [cardObject.data!]);
   }
 
   @TaskProcessor("card-turn-off-finished")
   private async cardTurnOffFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do turn off!!!");
-    this.isTurnOffAll = true;
-    // await this.updateAllCard({
-    //   isTurnOff: true
-    // });
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    cardObject.data!.isTurnOff = true;
+    await this.cardObjectCC.updatePackage([cardObject.id!], [cardObject.data!]);
   }
 
-  @TaskProcessor("card-spread-out-finished")
-  private async cardSpreadOutFinished(
+  @TaskProcessor("card-layout-spread-out-finished")
+  private async cardLayoutSpreadOutFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do spread out!!!");
-    this.viewMode = "spread-out";
+    await this.changeLayout(task, "spread-out");
   }
 
-  @TaskProcessor("card-put-together-finished")
-  private async cardPutTogetherFinished(
+  @TaskProcessor("card-layout-pile-up-finished")
+  private async cardLayoutPileUpFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
-    window.console.log("Do put together!!!");
-    this.viewMode = "normal";
+    await this.changeLayout(task, "deck");
+  }
+
+  @TaskProcessor("card-layout-tile-finished")
+  private async cardLayoutTileFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    await this.changeLayout(task, "tile");
+  }
+
+  private async changeLayout(
+    task: Task<any, never>,
+    layout: "deck" | "spread-out" | "tile"
+  ) {
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    this.deck.data!.layout = layout;
+    await this.updateDeck(this.deck, { layout });
   }
 
   @TaskProcessor("card-setting-change-finished")
@@ -581,9 +694,39 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     // TODO
-    const args = task.value.args;
-    if (args.docId !== this.docId) return;
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
     window.console.log("Do setting change!!!");
+  }
+
+  @TaskProcessor("card-placement-reset-finished")
+  private async cardPlacementResetFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const cardObject = this.getTaskCardObject(task);
+    if (!cardObject) return;
+    performance.mark("start");
+    const idList = this.useCardObjectList.map(co => co.id!);
+    try {
+      await this.cardObjectCC.updatePackage(
+        idList,
+        this.useCardObjectList.map(co => co.data!),
+        this.useCardObjectList.map((_o, idx) => ({
+          order: idx
+        }))
+      );
+    } catch (err) {
+      // TODO Error Message
+      // return;
+    }
+    await this.updateDeck(this.deck, {
+      total: this.useCardObjectList.length
+    });
+    performance.mark("end");
+    performance.measure("time", "start", "end");
+    const durationMs = performance.getEntriesByName("time")[0].duration;
+    const durationS = Math.round(durationMs / 100) / 10;
+    window.console.log(`経過時間：${durationS}秒`);
   }
 
   @TaskProcessor("mouse-move-end-right-finished")
@@ -602,16 +745,18 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
     // 右クリックメニュー表示
     setTimeout(async () => {
-      await TaskManager.instance.ignition<ContextTaskInfo, never>({
-        type: "context-open",
-        owner: "Quoridorn",
-        value: {
-          type: "card-deck-small",
-          target: this.docId,
-          x: point.x,
-          y: point.y
-        }
-      });
+      if (this.hoverCardObject) {
+        await TaskManager.instance.ignition<ContextTaskInfo, never>({
+          type: "context-open",
+          owner: "Quoridorn",
+          value: {
+            type: "card-object",
+            target: this.hoverCardObject.id!,
+            x: point.x,
+            y: point.y
+          }
+        });
+      }
     });
 
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
@@ -642,10 +787,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       containerRect.height / deckData.cardHeightRatio
     );
   }
-
-  private get elm(): HTMLDivElement {
-    return this.$refs.elm as HTMLDivElement;
-  }
 }
 </script>
 
@@ -661,6 +802,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   background-color: rgba(0, 0, 255, 0.5);
   padding: 6px;
   box-sizing: border-box;
+  will-change: contents;
 }
 
 .card-container {

@@ -18,7 +18,7 @@ import {
   OtherTextViewInfo,
   SceneObject,
   SceneObjectType,
-  VolatileMapObject
+  ObjectMoveInfo
 } from "@/@types/gameObject";
 import { Point } from "address";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
@@ -104,12 +104,12 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   protected imageSrc: string = "";
   protected otherText: string = "";
 
-  private volatileInfo: VolatileMapObject = {
-    moveFrom: createPoint(0, 0),
-    moveFromPlane: createPoint(0, 0),
-    moveFromPlaneRelative: createPoint(0, 0),
-    moveGridOffset: createPoint(0, 0),
+  private volatileInfo: ObjectMoveInfo = {
+    fromPoint: createPoint(0, 0),
+    fromAbsPoint: createPoint(0, 0),
+    fromAbsRelPoint: createPoint(0, 0),
     moveDiff: createPoint(0, 0),
+    cardCenter: createPoint(0, 0),
     angleFrom: 0,
     angleDiff: 0
   };
@@ -381,8 +381,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     if (!this.isMoving) return;
     const point = task.value!;
     const planeLocateScene = this.getPoint(point);
-    const diffX = planeLocateScene.x - this.volatileInfo.moveFromPlane.x;
-    const diffY = planeLocateScene.y - this.volatileInfo.moveFromPlane.y;
+    const diffX = planeLocateScene.x - this.volatileInfo.fromAbsPoint.x;
+    const diffY = planeLocateScene.y - this.volatileInfo.fromAbsPoint.y;
     this.volatileInfo.moveDiff = createPoint(diffX, diffY);
     this.onChangePoint();
   }
@@ -515,14 +515,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const point = getEventPoint(event);
     const planeLocateScene = this.getPoint(point);
     this.volatileInfo.moveDiff = createPoint(0, 0);
-    this.volatileInfo.moveFrom = createPoint(point.x, point.y);
-    this.volatileInfo.moveFromPlane = createPoint(
+    this.volatileInfo.fromPoint = createPoint(point.x, point.y);
+    this.volatileInfo.fromAbsPoint = createPoint(
       planeLocateScene.x,
       planeLocateScene.y
     );
-    const relativeX = planeLocateScene.x - elmPoint.x;
-    const relativeY = planeLocateScene.y - elmPoint.y;
-    this.volatileInfo.moveFromPlaneRelative = createPoint(relativeX, relativeY);
+    this.volatileInfo.fromAbsRelPoint = createPoint(
+      planeLocateScene.x - elmPoint.x,
+      planeLocateScene.y - elmPoint.y
+    );
     this.isMoving = true;
     this.inflateWidth = 2;
     this.onChangePoint();
@@ -576,8 +577,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     address.y += this.volatileInfo.moveDiff.y;
 
     const gridSize = CssManager.instance.propMap.gridSize;
-    const relativeX = this.volatileInfo.moveFromPlaneRelative.x;
-    const relativeY = this.volatileInfo.moveFromPlaneRelative.y;
+    const relativeX = this.volatileInfo.fromAbsRelPoint.x;
+    const relativeY = this.volatileInfo.fromAbsRelPoint.y;
     address.column =
       Math.floor((address.x + relativeX) / gridSize) -
       Math.floor(relativeX / gridSize) +
