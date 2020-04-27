@@ -948,7 +948,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   private async changeLayout(layout: CardDeckLayout) {
     this.deck.data!.layout = layout;
-    const option: Partial<StoreObj> = {
+    const option: Partial<StoreObj<unknown>> = {
       owner: layout === "hand" ? GameObjectManager.instance.mySelfUserId : null
     };
     await this.updateDeck(this.deck, { layout }, option);
