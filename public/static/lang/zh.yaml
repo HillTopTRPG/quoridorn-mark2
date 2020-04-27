@@ -36,7 +36,9 @@ type:
   actor: アクター
   actor-group: アクターグループ
   piece: コマ
+  card: カード
   card-object: カード/山札
+  card-deck-small: 山札
 
 option:
   chat-color-type:
@@ -69,6 +71,7 @@ context:
   layout-spread-out: 広げる
   layout-tile: タイル
   setting-change: 設定変更
+  placement-reset: 配置リセット
 
 label:
   terms-of-use: 使用条款
@@ -244,6 +247,14 @@ label:
   special-process: 特殊機能
   importFailure: インポートに失敗しました。
   resist: 登録
+  layout: レイアウト
+  hand-card-area-width: 手札領域の幅
+  card-deck-columns: 幅(マス数)
+  card-deck-rows: 高さ(マス数)
+  card-width-ratio: カード幅(割合)
+  card-height-ratio: カード高さ(割合)
+  card-layout-columns: カード配置列数
+  card-layout-rows: カード配置行数
 
 message:
   copy-to-clipboard: 复制到剪贴板
@@ -498,3 +509,6 @@ media-list-window:
     choose-view-mode: 表示形式の変更
   dialog:
     delete-media: "本当にメディア「$1」を削除しますか？\nこの操作は取り消せません。"
+
+card-deck-small-edit-window:
+  window-title: 山札編集

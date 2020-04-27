@@ -53,17 +53,29 @@
     - tab-move
     - row-select
     - drop-piece
-    - card-shuffle
     - card-draw
     - card-turn-on
     - card-turn-off
-    - card-turn-on-all
-    - card-turn-off-all
-    - card-layout-spread-out
-    - card-layout-pile-up
-    - card-layout-tile
-    - card-setting-change
-    - card-placement-reset
+    - card-placement-reset-from-card
+    - card-shuffle-from-card
+    - card-turn-on-all-from-card
+    - card-turn-off-all-from-card
+    - card-layout-spread-out-from-card
+    - card-layout-pile-up-from-card
+    - card-layout-tile-from-card
+    - card-layout-line-from-card
+    - card-layout-hand-from-card
+    - card-setting-change-from-card
+    - card-placement-reset-from-deck
+    - card-shuffle-from-deck
+    - card-turn-on-all-from-deck
+    - card-turn-off-all-from-deck
+    - card-layout-spread-out-from-deck
+    - card-layout-pile-up-from-deck
+    - card-layout-tile-from-deck
+    - card-layout-line-from-deck
+    - card-layout-hand-from-deck
+    - card-setting-change-from-deck
 
 - taskAttribute:
     isIgniteWithParam: false

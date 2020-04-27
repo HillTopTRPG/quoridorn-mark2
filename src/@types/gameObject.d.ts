@@ -174,14 +174,16 @@ type CardDeckBig = {
   name: string;
 };
 
+type CardDeckLayout = "pile-up" | "spread-out" | "tile" | "line" | "hand";
 type CardDeckSmall = {
   // owner があれば手札
   name: string;
-  layout: "deck" | "spread-out" | "tile";
+  layout: CardDeckLayout;
   address: Address; // x, y: 手札の起点, row, column: フィールドの起点
   width: number; // 手札の表示幅
   rows: number; // フィールドの設置高さ
   columns: number; // フィールドの設置幅
+  isUseHoverView: boolean;
   tileReorderingMode: "substitute" | "insert"; // タイルの並べ替え方式(substitute: 置換, insert: 挿入)
   cardWidthRatio: number; // 置き場の大きさに収まるカードの枚数（幅）
   cardHeightRatio: number; // 置き場の大きさに収まるカードの枚数（高さ）

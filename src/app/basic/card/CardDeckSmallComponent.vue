@@ -1,14 +1,19 @@
 <template>
-  <div class="card-deck-small" :style="cardDeckStyle">
+  <div
+    class="card-deck-small"
+    :style="cardDeckStyle"
+    @mousedown.right.stop="openCardDeckSmallContext"
+    ref="elm"
+  >
     <!-- タイトルバー -->
     <div
       class="name-bar"
       @mousedown.left.stop="contentsLeftDown"
       @touchstart.stop="contentsLeftDown"
-      @contextmenu.prevent
     >
       <!-- タイトル文言 -->
       <div class="name">{{ deck.data.name }}</div>
+      <div>{{ viewCardObjectList.length }}/{{ deck.data.total }}</div>
       <s-button
         class="s-button"
         icon="bin"
@@ -17,20 +22,20 @@
         @click="deleteDeck()"
       />
     </div>
-    <div class="card-container">
-      <div class="background"></div>
+    <div class="card-container" v-if="isMounted">
       <card-component
         class="card hover-view"
+        :class="deck.data.layout"
         :size="cardSize"
         :cardMeta="getCardMeta(hoverCardObject)"
         :isTurnOff="hoverCardObject.data.isTurnOff"
         @leftDown="event => cardLeftDown(hoverCardObject, event)"
         @rightDown="event => rightDown(hoverCardObject, event)"
-        v-if="deck.data.layout === 'spread-out' && hoverCardObject"
+        v-if="deck.data.isUseHoverView && hoverCardObject && !moveCardId"
       />
       <card-component
         class="card"
-        v-for="cardObject in useCardObjectList"
+        v-for="cardObject in viewCardObjectList"
         :id="cardObject.id"
         :key="cardObject.id"
         :size="cardSize"
@@ -42,9 +47,12 @@
         :style="getCardStyle(cardObject, cardObject.order)"
       />
     </div>
+    <!--
     <div class="info-bar">
       <div class="num">{{ useCardObjectList.length }}</div>
     </div>
+    -->
+    <!--
     <resize-knob side="left-top" :deco="true" @leftDown="contentsLeftDown" />
     <resize-knob side="left-bottom" :deco="true" @leftDown="contentsLeftDown" />
     <resize-knob side="right-top" :deco="true" @leftDown="contentsLeftDown" />
@@ -62,6 +70,7 @@
     <resize-knob side="left" :deco="true" @leftDown="contentsLeftDown" />
     <resize-knob side="right" :deco="true" @leftDown="contentsLeftDown" />
     <resize-knob side="bottom" :deco="true" @leftDown="contentsLeftDown" />
+    -->
   </div>
 </template>
 
@@ -69,9 +78,14 @@
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
-import { CardDeckSmall, CardObject, ObjectMoveInfo } from "@/@types/gameObject";
+import {
+  CardDeckLayout,
+  CardDeckSmall,
+  CardObject,
+  ObjectMoveInfo
+} from "@/@types/gameObject";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import CssManager from "@/app/core/css/CssManager";
@@ -97,6 +111,8 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import LanguageManager from "@/LanguageManager";
 import { shuffleOrder } from "@/app/core/utility/Utility";
+import { WindowOpenInfo } from "@/@types/window";
+import { DataReference } from "@/@types/data";
 
 interface MultiMixin extends AddressCalcMixin, ComponentVue {}
 
@@ -145,7 +161,47 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   @VueEvent
   private get useCardObjectList() {
-    return this.cardObjectList.filter(co => co.owner === this.deck.id);
+    return this.cardObjectList.filter(co => co.owner === this.docId);
+  }
+
+  @VueEvent
+  private get viewCardObjectList() {
+    // タイル状のレイアウトの時は最大表示数が決まる
+    const total = this.deck.data!.layoutRows * this.deck.data!.layoutColumns;
+    return this.useCardObjectList.filter(
+      co => this.deck.data!.layout !== "tile" || co.order < total
+    );
+  }
+
+  private get elm(): HTMLElement {
+    return this.$el as HTMLElement;
+  }
+
+  private get docId(): string {
+    return this.deck.id!;
+  }
+
+  @VueEvent
+  private getCardMeta(cardObject: StoreUseData<CardObject>) {
+    return this.cardMetaList.filter(
+      cm => cm.id === cardObject.data!.cardMetaId
+    )[0];
+  }
+
+  @VueEvent
+  private get cardSize(): Size {
+    const deckData = this.deck.data!;
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const containerRect = createRectangle(
+      gridSize * deckData.address.column,
+      gridSize * deckData.address.row,
+      gridSize * deckData.columns,
+      gridSize * deckData.rows
+    );
+    return createSize(
+      containerRect.width / deckData.cardWidthRatio,
+      containerRect.height / deckData.cardHeightRatio
+    );
   }
 
   @LifeCycle
@@ -158,14 +214,27 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     this.hoverCardObject = isHover ? card : null;
   }
 
-  private get docId(): string {
-    return this.deck.id!;
-  }
-
   private getPoint(point: Point) {
     const currentAngle = CssManager.instance.propMap.currentAngle;
     const calcResult = this.calcCoordinate(point, currentAngle);
     return calcResult.planeLocateScene;
+  }
+
+  @VueEvent
+  private async openCardDeckSmallContext(event: MouseEvent) {
+    window.console.log("openCardDeckSmallContext");
+    const point = getEventPoint(event);
+    // const planePoint = this.getPoint(point);
+    await TaskManager.instance.ignition<ContextTaskInfo, never>({
+      type: "context-open",
+      owner: "Quoridorn",
+      value: {
+        type: "card-deck-small",
+        target: this.docId,
+        x: point.x,
+        y: point.y
+      }
+    });
   }
 
   private onChangePoint() {
@@ -182,40 +251,54 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     }
   }
 
+  /**
+   * 山札のスタイル
+   */
   @VueEvent
   private get cardDeckStyle() {
     const deckData = this.deck.data!;
     const gridSize = CssManager.instance.propMap.gridSize;
+    const cardSize = this.cardSize;
     const containerRect = createRectangle(
-      gridSize * deckData.address.column +
-        (this.movingMode === "container"
-          ? this.contentsMoveInfo.moveDiff.x
-          : 0),
-      gridSize * deckData.address.row +
-        (this.movingMode === "container"
-          ? this.contentsMoveInfo.moveDiff.y
-          : 0),
+      gridSize * deckData.address.column,
+      gridSize * deckData.address.row,
       gridSize * deckData.columns,
       gridSize * deckData.rows
     );
+    if (this.movingMode === "container") {
+      containerRect.x += this.contentsMoveInfo.moveDiff.x;
+      containerRect.y += this.contentsMoveInfo.moveDiff.y;
+    }
+    const layout = this.deck.data!.layout;
+    if (layout === "spread-out") {
+      containerRect.width = cardSize.width;
+      containerRect.height = cardSize.height;
+    }
+    if (layout === "line" || layout === "hand") {
+      containerRect.height = cardSize.height;
+    }
     return {
-      transform: `translate(calc(${containerRect.x -
-        6}px), calc(${containerRect.y - 6 - 28}px)) translateZ(0)`,
-      width: `calc(${containerRect.width}px + 12px)`,
-      height: `calc(${containerRect.height}px + 12px + 2em)`
+      transform: `translate(${containerRect.x}px, calc(${containerRect.y}px - 2em)) translateZ(0)`,
+      width: `${containerRect.width}px`,
+      height: `calc(${containerRect.height}px + 2em)`
     };
   }
 
+  /**
+   * カードのスタイル
+   */
   @VueEvent
   private getCardStyle(card: StoreUseData<CardObject>, idx: number) {
     const isMoving = this.moveCardId === card.id;
     const arrangePoint = createPoint(0, 0);
     const transition = this.movingMode === "card" ? undefined : "all 0.5s ease";
+    const zIndex = isMoving ? 9999999 : card.order;
     if (isMoving) {
       arrangePoint.x = this.cardMoveInfo.moveDiff.x;
       arrangePoint.y = this.cardMoveInfo.moveDiff.y;
     }
-    if (this.deck.data!.layout === "spread-out") {
+    const layout = this.deck.data!.layout;
+    if (layout === "spread-out") {
       const isHover =
         card && this.hoverCardObject
           ? this.hoverCardObject.id === card.id
@@ -227,15 +310,39 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       return {
         transform: `translate(${arrangePoint.x}px, ${arrangePoint.y}px) rotate(${rotate}turn) translate(0, ${translateY}px) translateZ(0) rotate(${lastRotate}turn)`,
         transformOrigin: "center center",
-        transition
-      };
-    } else {
-      return {
-        transform: ` translate(${arrangePoint.x + idx / 3}px, ${arrangePoint.y +
-          idx / 2}px) translateZ(0)`,
-        transition
+        transition,
+        zIndex
       };
     }
+    if (!this.elm) return {};
+    const gridSize = CssManager.instance.propMap.gridSize;
+    const cardSize = this.cardSize;
+    const columns = this.deck.data!.columns;
+    const rows = this.deck.data!.rows;
+    const containerSize = createSize(gridSize * columns, gridSize * rows);
+    let layoutColumns = this.deck.data!.layoutColumns;
+    let layoutRows = this.deck.data!.layoutRows;
+    if (layout === "line" || layout === "hand") {
+      layoutRows = 1;
+      layoutColumns = this.deck.data!.total;
+    }
+    const xDiff =
+      (containerSize.width - cardSize.width) / Math.max(layoutColumns - 1, 1);
+    const yDiff =
+      (containerSize.height - cardSize.height) / Math.max(layoutRows - 1, 1);
+    const pileUpCount = Math.floor(card.order / layoutColumns / layoutRows);
+    const cardColumn = card.order % layoutColumns;
+    const cardRow = Math.floor(card.order / layoutColumns) % layoutRows;
+    const point = createPoint(
+      cardColumn * xDiff + pileUpCount,
+      cardRow * yDiff + pileUpCount
+    );
+    return {
+      transform: ` translate(${arrangePoint.x + point.x}px, ${arrangePoint.y +
+        point.y}px) translateZ(0)`,
+      transition,
+      zIndex
+    };
   }
 
   private get isOtherLastModify(): boolean {
@@ -288,12 +395,17 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   private static getCardCenter(cardId: string): Point {
     const cardRect = this.getCardRect(cardId);
+    const wheel = CssManager.instance.propMap.wheel;
+    const zoom = (1000 - wheel) / 1000;
     return createPoint(
-      cardRect.x + cardRect.width / 2,
-      cardRect.y + cardRect.height / 2
+      (cardRect.x + cardRect.width / 2) * zoom,
+      (cardRect.y + cardRect.height / 2) * zoom
     );
   }
 
+  /**
+   * マウス左押下
+   */
   @VueEvent
   private async cardLeftDown(
     cardObject: StoreUseData<CardObject>,
@@ -310,8 +422,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const point = getEventPoint(event);
     const cardRect = CardDeckSmallComponent.getCardRect(cardObject.id!);
     const cardCenter = CardDeckSmallComponent.getCardCenter(cardObject.id!);
-    window.console.log("touch point:", JSON.stringify(point));
-    window.console.log("card center:", JSON.stringify(cardCenter));
     const planeLocateScene = this.getPoint(point);
     this.cardMoveInfo.moveDiff = createPoint(0, 0);
     this.cardMoveInfo.cardCenter = cardCenter;
@@ -330,14 +440,18 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     this.mouseDown("left");
   }
 
+  /**
+   * マウス右押下
+   */
+  @VueEvent
   protected rightDown(): void {
     window.console.log("rightDown");
-    // if (this.isRolling) {
-    //   this.$emit("rightDown");
-    // }
     this.mouseDown("right");
   }
 
+  /**
+   * マウスダウン
+   */
   private mouseDown(button: string) {
     TaskManager.instance.setTaskParam<MouseMoveParam>("mouse-moving-finished", {
       key: this.docId,
@@ -394,7 +508,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       // 後処理
       this.cardMoveInfo.moveDiff.x = 0;
       this.cardMoveInfo.moveDiff.y = 0;
-      await this.cardDeckSmallCC!.releaseTouch([this.docId]);
     }
     TaskManager.instance.setTaskParam("mouse-moving-finished", null);
     TaskManager.instance.setTaskParam("mouse-move-end-left-finished", null);
@@ -440,11 +553,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private async fixCardLocate() {
     const gridSize = CssManager.instance.propMap.gridSize;
     const cCenter = this.cardMoveInfo.cardCenter;
-    const cSize = createSize(
-      this.deck.data!.columns * gridSize,
-      this.deck.data!.rows * gridSize
-    );
-    window.console.log(JSON.stringify(cCenter, null, "  "));
+    const cardSize = this.cardSize;
 
     const getDeckRectangle = (deck: StoreUseData<CardDeckSmall>) => {
       return createRectangle(
@@ -456,71 +565,89 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     };
 
     // カードの今の位置が山札と被っていたら新しい山札は作らないので処理を抜ける
-    if (isContain(getDeckRectangle(this.deck), cCenter)) return;
-
-    const toDeck = this.cardDeckSmallList
-      .reverse()
-      .filter(cds => isContain(getDeckRectangle(cds), cCenter))[0];
-
-    try {
-      await this.cardObjectCC.touchModify([this.moveCardId!]);
-    } catch (err) {
-      // カードオブジェクトをタッチできなかったら処理を諦める
-      return;
-    }
-
-    const cardObject = this.cardObjectList.filter(
-      co => co.id === this.moveCardId
-    )[0];
-    if (!cardObject) return;
-
-    let deckId: string;
-    if (toDeck) {
-      deckId = toDeck.id!;
-      await this.updateDeck(toDeck, {
-        total: toDeck.data!.total + 1
-      });
+    if (isContain(getDeckRectangle(this.deck), cCenter)) {
+      // TODO
     } else {
-      const column = Math.round((cCenter.x - cSize.width / 2) / gridSize);
-      const row = Math.round((cCenter.y - cSize.height / 2) / gridSize);
-      const address = createAddress(
-        column * gridSize,
-        row * gridSize,
-        column,
-        row
-      );
-      deckId = (
-        await this.cardDeckSmallCC.addDirect([
-          {
-            address,
-            layout: "deck",
-            cardHeightRatio: 1,
-            cardWidthRatio: 1,
-            columns: 2,
-            rows: 3,
-            layoutColumns: 1,
-            layoutRows: 1,
-            name: this.deck.data!.name + "_",
-            tileReorderingMode: "insert",
-            width: 200,
-            layerId: this.deck.data!.layerId,
-            total: 1
-          }
-        ])
+      const toDeck = this.cardDeckSmallList
+        .reverse()
+        .filter(cds => isContain(getDeckRectangle(cds), cCenter))[0];
+
+      const cardObject = this.cardObjectList.filter(
+        co => co.id === this.moveCardId
       )[0];
+      if (!cardObject) return;
+
+      try {
+        await this.cardObjectCC.touchModify([this.moveCardId!]);
+      } catch (err) {
+        // カードオブジェクトをタッチできなかったら処理を諦める
+        return;
+      }
+
+      let deckId: string;
+      if (toDeck) {
+        deckId = toDeck.id!;
+        await this.updateDeck(toDeck, {
+          total: toDeck.data!.total + 1
+        });
+      } else {
+        const column = Math.round((cCenter.x - cardSize.width / 2) / gridSize);
+        const row = Math.round((cCenter.y - cardSize.height / 2) / gridSize);
+        const address = createAddress(
+          column * gridSize,
+          row * gridSize,
+          column,
+          row
+        );
+        deckId = (
+          await this.cardDeckSmallCC.addDirect([
+            {
+              address,
+              layout: "pile-up",
+              cardHeightRatio: 1,
+              cardWidthRatio: 1,
+              columns: 2,
+              rows: 3,
+              layoutColumns: 1,
+              layoutRows: 1,
+              name: this.deck.data!.name,
+              isUseHoverView: this.deck.data!.isUseHoverView,
+              tileReorderingMode: this.deck.data!.tileReorderingMode,
+              width: 200,
+              layerId: this.deck.data!.layerId,
+              total: 1
+            }
+          ])
+        )[0];
+      }
+
+      const lastCard = this.useCardObjectList[
+        this.useCardObjectList.length - 1
+      ];
+      await this.cardDeckSmallCC!.releaseTouch([this.docId]);
+      if (cardObject.id === lastCard.id) {
+        try {
+          await this.updateDeck(this.deck, {
+            total: this.deck.data!.total - 1
+          });
+        } catch (err) {
+          window.console.error(err);
+        }
+      }
+
+      let newOrder: number = 0;
+      this.cardObjectList
+        .filter(co => co.owner === deckId)
+        .forEach(co => {
+          if (co.order >= newOrder) newOrder = co.order + 1;
+        });
+      await this.cardObjectCC.update(
+        [this.moveCardId!],
+        [cardObject.data!],
+        [{ order: newOrder, owner: deckId }]
+      );
     }
-    let newOrder: number = 0;
-    this.cardObjectList
-      .filter(co => co.owner === deckId)
-      .forEach(co => {
-        if (co.order >= newOrder) newOrder = co.order + 1;
-      });
-    window.console.log(newOrder);
-    await this.cardObjectCC.update(
-      [this.moveCardId!],
-      [cardObject.data!],
-      [{ order: newOrder, owner: deckId }]
-    );
+
     this.moveCardId = null;
     this.hoverCardObject = null;
   }
@@ -549,16 +676,30 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     if (this.useCardObjectList.length) return;
     const msg = LanguageManager.instance.getText("message.delete-deck");
     if (!window.confirm(msg)) return;
-    await this.cardDeckSmallCC.touchModify([this.deck.id!]);
-    await this.cardDeckSmallCC.delete([this.deck.id!]);
+    try {
+      await this.cardDeckSmallCC.touchModify([this.docId]);
+    } catch (err) {
+      // Nothing.
+      return;
+    }
+    await this.cardDeckSmallCC.delete([this.docId]);
   }
 
   private async updateDeck(
     deck: StoreUseData<CardDeckSmall>,
-    info: Partial<CardDeckSmall>
+    info: Partial<CardDeckSmall>,
+    option?: Partial<StoreObj<unknown>>
   ) {
     Object.assign(deck.data!, info);
-    await this.cardDeckSmallCC.updatePackage([deck.id!], [deck.data!]);
+    if (option) {
+      await this.cardDeckSmallCC.updatePackage(
+        [deck.id!],
+        [deck.data!],
+        [option]
+      );
+    } else {
+      await this.cardDeckSmallCC.updatePackage([deck.id!], [deck.data!]);
+    }
   }
 
   private async updateAllCard(info: Partial<CardObject>) {
@@ -578,30 +719,20 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private getTaskCardObject(
     task: Task<any, never>
   ): StoreUseData<CardObject> | null {
-    const args = task.value.args;
-    const cardId = args.docId;
+    const cardId = task.value.args.docId;
     const cardObject = this.cardObjectList.filter(co => co.id === cardId)[0];
     if (!cardObject) return null;
     if (cardObject.owner !== this.docId) return null;
     return cardObject;
   }
 
-  @TaskProcessor("card-shuffle-finished")
-  private async cardShuffleFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
-
-    const cardObjList = clone(this.useCardObjectList)!;
-    shuffleOrder(cardObjList);
-    await this.cardObjectCC.updatePackage(
-      this.useCardObjectList.map(co => co.id!),
-      this.useCardObjectList.map(co => co.data!),
-      cardObjList.map(co => ({
-        order: co.order
-      }))
-    );
+  private checkTaskDeckObject(
+    task: Task<any, never>,
+    isFromDeck: boolean
+  ): boolean {
+    if (isFromDeck) return !!this.getTaskCardObject(task);
+    const deckId = task.value.args.docId;
+    return deckId === this.docId;
   }
 
   @TaskProcessor("card-draw-finished")
@@ -612,30 +743,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const cardObject = this.getTaskCardObject(task);
     if (!cardObject) return;
     window.console.log("Do draw!!!");
-  }
-
-  @TaskProcessor("card-turn-on-all-finished")
-  private async cardTurnOnAllFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
-    window.console.log("Do turn on!!!");
-    await this.updateAllCard({
-      isTurnOff: false
-    });
-  }
-
-  @TaskProcessor("card-turn-off-all-finished")
-  private async cardTurnOffFAllFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
-    window.console.log("Do turn off!!!");
-    await this.updateAllCard({
-      isTurnOff: true
-    });
   }
 
   @TaskProcessor("card-turn-on-finished")
@@ -658,53 +765,23 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     await this.cardObjectCC.updatePackage([cardObject.id!], [cardObject.data!]);
   }
 
-  @TaskProcessor("card-layout-spread-out-finished")
-  private async cardLayoutSpreadOutFinished(
+  @TaskProcessor("card-placement-reset-from-card-finished")
+  private async cardPlacementResetFromCardFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    await this.changeLayout(task, "spread-out");
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.cardPlacementReset();
   }
 
-  @TaskProcessor("card-layout-pile-up-finished")
-  private async cardLayoutPileUpFinished(
+  @TaskProcessor("card-placement-reset-from-deck-finished")
+  private async cardPlacementResetFromDeckFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
-    await this.changeLayout(task, "deck");
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.cardPlacementReset();
   }
 
-  @TaskProcessor("card-layout-tile-finished")
-  private async cardLayoutTileFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    await this.changeLayout(task, "tile");
-  }
-
-  private async changeLayout(
-    task: Task<any, never>,
-    layout: "deck" | "spread-out" | "tile"
-  ) {
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
-    this.deck.data!.layout = layout;
-    await this.updateDeck(this.deck, { layout });
-  }
-
-  @TaskProcessor("card-setting-change-finished")
-  private async cardSettingChangeFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    // TODO
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
-    window.console.log("Do setting change!!!");
-  }
-
-  @TaskProcessor("card-placement-reset-finished")
-  private async cardPlacementResetFinished(
-    task: Task<any, never>
-  ): Promise<TaskResult<never> | void> {
-    const cardObject = this.getTaskCardObject(task);
-    if (!cardObject) return;
+  private async cardPlacementReset() {
     performance.mark("start");
     const idList = this.useCardObjectList.map(co => co.id!);
     try {
@@ -727,6 +804,184 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const durationMs = performance.getEntriesByName("time")[0].duration;
     const durationS = Math.round(durationMs / 100) / 10;
     window.console.log(`経過時間：${durationS}秒`);
+  }
+
+  @TaskProcessor("card-shuffle-from-card-finished")
+  private async cardShuffleFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.cardShuffle();
+  }
+
+  @TaskProcessor("card-shuffle-from-deck-finished")
+  private async cardShuffleFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.cardShuffle();
+  }
+
+  private async cardShuffle() {
+    const cardObjList = clone(this.useCardObjectList)!;
+    shuffleOrder(cardObjList);
+    await this.cardObjectCC.updatePackage(
+      this.useCardObjectList.map(co => co.id!),
+      this.useCardObjectList.map(co => co.data!),
+      cardObjList.map(co => ({
+        order: co.order
+      }))
+    );
+  }
+
+  @TaskProcessor("card-turn-on-all-from-card-finished")
+  private async cardTurnOnAllFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.updateAllCard({ isTurnOff: false });
+  }
+
+  @TaskProcessor("card-turn-on-all-from-deck-finished")
+  private async cardTurnOnAllFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.updateAllCard({ isTurnOff: false });
+  }
+
+  @TaskProcessor("card-turn-off-all-from-card-finished")
+  private async cardTurnOffFAllFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.updateAllCard({ isTurnOff: true });
+  }
+
+  @TaskProcessor("card-turn-off-all-from-deck-finished")
+  private async cardTurnOffFAllFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.updateAllCard({ isTurnOff: true });
+  }
+
+  @TaskProcessor("card-layout-spread-out-from-card-finished")
+  private async cardLayoutSpreadOutFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.changeLayout("spread-out");
+  }
+
+  @TaskProcessor("card-layout-spread-out-from-deck-finished")
+  private async cardLayoutSpreadOutFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.changeLayout("spread-out");
+  }
+
+  @TaskProcessor("card-layout-pile-up-from-card-finished")
+  private async cardLayoutPileUpFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.changeLayout("pile-up");
+  }
+
+  @TaskProcessor("card-layout-pile-up-from-deck-finished")
+  private async cardLayoutPileUpFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.changeLayout("pile-up");
+  }
+
+  @TaskProcessor("card-layout-tile-from-card-finished")
+  private async cardLayoutTileFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.changeLayout("tile");
+  }
+
+  @TaskProcessor("card-layout-tile-from-deck-finished")
+  private async cardLayoutTileFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.changeLayout("tile");
+  }
+
+  @TaskProcessor("card-layout-line-from-card-finished")
+  private async cardLayoutLineFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.changeLayout("line");
+  }
+
+  @TaskProcessor("card-layout-line-from-deck-finished")
+  private async cardLayoutLineFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.changeLayout("line");
+  }
+
+  @TaskProcessor("card-layout-hand-from-card-finished")
+  private async cardLayoutHandFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.changeLayout("hand");
+  }
+
+  @TaskProcessor("card-layout-hand-from-deck-finished")
+  private async cardLayoutHandFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.changeLayout("hand");
+  }
+
+  private async changeLayout(layout: CardDeckLayout) {
+    this.deck.data!.layout = layout;
+    const option: Partial<StoreObj> = {
+      owner: layout === "hand" ? GameObjectManager.instance.mySelfUserId : null
+    };
+    await this.updateDeck(this.deck, { layout }, option);
+  }
+
+  @TaskProcessor("card-setting-change-from-card-finished")
+  private async cardSettingChangeFromCardFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, true)) return;
+    await this.cardSettingChange();
+  }
+
+  @TaskProcessor("card-setting-change-from-deck-finished")
+  private async cardSettingChangeFromDeckFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (!this.checkTaskDeckObject(task, false)) return;
+    await this.cardSettingChange();
+  }
+
+  private async cardSettingChange() {
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "card-deck-small-edit-window",
+        args: {
+          type: "card-deck-small",
+          docId: this.docId
+        }
+      }
+    });
   }
 
   @TaskProcessor("mouse-move-end-right-finished")
@@ -764,29 +1019,6 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
     task.resolve();
   }
-
-  @VueEvent
-  private getCardMeta(cardObject: StoreUseData<CardObject>) {
-    return this.cardMetaList.filter(
-      cm => cm.id === cardObject.data!.cardMetaId
-    )[0];
-  }
-
-  @VueEvent
-  private get cardSize(): Size {
-    const deckData = this.deck.data!;
-    const gridSize = CssManager.instance.propMap.gridSize;
-    const containerRect = createRectangle(
-      gridSize * deckData.address.column,
-      gridSize * deckData.address.row,
-      gridSize * deckData.columns,
-      gridSize * deckData.rows
-    );
-    return createSize(
-      containerRect.width / deckData.cardWidthRatio,
-      containerRect.height / deckData.cardHeightRatio
-    );
-  }
 }
 </script>
 
@@ -799,9 +1031,8 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   position: absolute;
   top: 0;
   left: 0;
-  background-color: rgba(0, 0, 255, 0.5);
-  padding: 6px;
-  box-sizing: border-box;
+  box-sizing: initial;
+  outline: blue 3px solid;
   will-change: contents;
 }
 
@@ -812,7 +1043,9 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 }
 
 .name-bar {
+  @include flex-box(row, space-between, center);
   height: 2em;
+  padding: 0 0.5rem;
   background-color: var(--uni-color-skyblue);
 }
 
@@ -826,7 +1059,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   font-weight: bold;
   @include flex-box(row, center, center);
   height: 2em;
-  z-index: 3;
+  z-index: 2147483646;
 }
 
 .card {
@@ -835,12 +1068,21 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2;
 
   &.hover-view {
-    transform: scale(2);
-    transform-origin: center center;
-    z-index: 4;
+    z-index: 2147483647;
+    transform-origin: right bottom;
+    transform: translateX(-100%) scale(2);
+
+    &.spread-out {
+      transform: scale(2);
+      transform-origin: center center;
+    }
+
+    &.tile,
+    &.pile-up {
+      transform-origin: right top;
+    }
   }
 }
 </style>

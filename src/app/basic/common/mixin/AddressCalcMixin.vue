@@ -1,7 +1,6 @@
 <script lang="ts">
 import Vue from "vue";
 import { Mixin } from "vue-mixin-decorator";
-import { Getter } from "vuex-class";
 import {
   arrangeAngle,
   calcAngle,
@@ -21,11 +20,6 @@ type Coordinates = {
 
 @Mixin
 export default class AddressCalcMixin extends Vue {
-  @Getter("mapColumns") protected mapColumns: any;
-  @Getter("mapRows") protected mapRows: any;
-  @Getter("mapBorderWidth") protected mapBorderWidth: any;
-  @Getter("mapWheel") protected mapWheel: any;
-
   /**
    * 指定されたスクリーン座標を元に、座標計算を行う
    * @param mouse

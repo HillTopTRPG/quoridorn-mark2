@@ -1072,15 +1072,15 @@
     widthRem: 2.5
     widthScrollBar: 1
     heightPx: 4
-    heightEm: 24
-    heightRem: 2.5
+    heightEm: 22
+    heightRem: 2
   minSize:
     widthPx: 4
     widthEm: 30
     widthRem: 2
     widthScrollBar: 1
     heightPx: 4
-    heightEm: 14
+    heightEm: 12
     heightRem: 2
   maxSize:
     widthPx: 4
@@ -1088,8 +1088,8 @@
     widthRem: 3.5
     widthScrollBar: 1
     heightPx: 4
-    heightEm: 44
-    heightRem: 3.5
+    heightEm: 42
+    heightRem: 3
   minimizable: true
   paneContainable: true
   closable: true
@@ -1164,6 +1164,37 @@
     heightPx: 4
     heightEm: 44
     heightRem: 3.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+"card-deck-small-edit-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 18
+    heightPx: 2
+    heightEm: 22
+    heightRem: 0.5
+  minSize:
+    widthPx: 2
+    widthEm: 15
+    heightPx: 2
+    heightEm: 22
+    heightRem: 0.5
+  maxSize:
+    widthPx: 2
+    widthEm: 28
+    heightPx: 2
+    heightEm: 22
+    heightRem: 0.5
   minimizable: true
   paneContainable: true
   closable: true

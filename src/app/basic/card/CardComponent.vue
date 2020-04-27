@@ -8,7 +8,6 @@
     @mousedown.right.stop="$emit('rightDown', $event)"
     @mouseenter="$emit('hover', true)"
     @mouseleave="$emit('hover', false)"
-    @contextmenu.prevent
     ref="elm"
   >
     <div class="card" :style="cardStyle">

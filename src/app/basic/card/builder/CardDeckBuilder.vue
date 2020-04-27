@@ -175,7 +175,10 @@ import {
   InputCardInfo,
   OtherTextViewInfo
 } from "@/@types/gameObject";
-import { createPoint } from "@/app/core/utility/CoordinateUtility";
+import {
+  createAddress,
+  createPoint
+} from "@/app/core/utility/CoordinateUtility";
 import CardComponent from "@/app/basic/card/CardComponent.vue";
 import { StoreUseData } from "@/@types/store";
 import CardChooserComponent, {
@@ -292,6 +295,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   private cardMetaCC = SocketFacade.instance.cardMetaCC();
   private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
+  private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
+  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private cardObjectCC = SocketFacade.instance.cardObjectCC();
 
   @VueEvent
@@ -326,13 +331,45 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
           angle: 0
         };
       });
-    await this.cardObjectCC.addDirect(
+
+    const cardDeckSmallId: string = (
+      await this.cardDeckSmallCC.touch(undefined, [{ owner: null }])
+    )[0];
+
+    const cardObjectIdList = await this.cardObjectCC.addDirect(
       cardObjectList,
       cardObjectList.map((_k, v) => ({
         order: v,
-        owner: null,
+        owner: cardDeckSmallId,
         ownerType: "card-deck-small"
       }))
+    );
+
+    const cardSceneLayer = this.sceneLayerList.filter(
+      sl => sl.data!.type === "card"
+    )[0];
+
+    await this.cardDeckSmallCC.add(
+      [cardDeckSmallId],
+      [
+        {
+          address: createAddress(0, 0, 0, 0),
+          layout: "pile-up",
+          cardHeightRatio: 1,
+          cardWidthRatio: 1,
+          columns: 2,
+          rows: 3,
+          layoutColumns: 1,
+          layoutRows: 1,
+          name: "",
+          isUseHoverView: true,
+          tileReorderingMode: "insert",
+          width: 200,
+          layerId: cardSceneLayer.id!,
+          total: cardObjectIdList.length
+        }
+      ],
+      [{}]
     );
     await this.close();
   }

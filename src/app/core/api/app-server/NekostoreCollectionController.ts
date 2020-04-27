@@ -88,12 +88,14 @@ export default class NekostoreCollectionController<T> {
               }
             }
           });
-          if (wantSort)
+          if (wantSort) {
             argList!.sort((i1: any, i2: any) => {
               if (i1[sortColumn] < i2[sortColumn]) return -1;
               if (i1[sortColumn] > i2[sortColumn]) return 1;
               return 0;
             });
+            // window.console.log("sorted", argList!);
+          }
         });
       }
     );

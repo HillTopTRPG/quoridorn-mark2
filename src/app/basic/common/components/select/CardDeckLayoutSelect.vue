@@ -3,7 +3,7 @@
     :optionInfoList="optionInfoList"
     :disabled="disabled"
     :readonly="readonly"
-    :name="`chat-color-type-select-${key}`"
+    :name="`card-deck-layout-select-${key}`"
     v-model="localValue"
     ref="component"
   />
@@ -23,10 +23,10 @@ import LanguageManager from "@/LanguageManager";
 @Component({
   components: { CtrlSelect }
 })
-export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
+export default class CardDeckLayoutSelect extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  @Prop({ type: String, default: "owner" })
+  @Prop({ type: String, default: "pile-up" })
   public value!: string;
 
   @Prop({ type: Boolean, default: false })
@@ -48,8 +48,11 @@ export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
   }
 
   private optionInfoList: HtmlOptionInfo[] = [
-    { value: "owner", key: "", text: "", disabled: false },
-    { value: "original", key: "", text: "", disabled: false }
+    { value: "", key: "", text: "", disabled: true },
+    { value: "pile-up", key: "", text: "", disabled: false },
+    { value: "spread-out", key: "", text: "", disabled: false },
+    { value: "tile", key: "", text: "", disabled: false },
+    { value: "line", key: "", text: "", disabled: false }
   ];
 
   @LifeCycle
@@ -67,7 +70,11 @@ export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      o.text = this.$t(`option.chat-color-type.${o.value}`)!.toString();
+      if (!o.value) {
+        o.text = this.$t("context.layout")!.toString();
+        return;
+      }
+      o.text = this.$t(`context.layout-${o.value}`)!.toString();
       o.key = o.value;
     });
   }

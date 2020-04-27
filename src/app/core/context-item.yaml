@@ -60,7 +60,7 @@ object-fix:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isLock
+      property: data.isLock
     rhs: false
   isDisabledCompare:
     operator: and
@@ -83,7 +83,7 @@ object-un-fix:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isLock
+      property: data.isLock
     rhs: true
   isDisabledCompare:
     operator: and
@@ -106,7 +106,7 @@ object-hide-border:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isHideBorder
+      property: data.isHideBorder
     rhs: false
   isDisabledCompare:
     operator: and
@@ -129,7 +129,7 @@ object-view-border:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isHideBorder
+      property: data.isHideBorder
     rhs: true
   isDisabledCompare:
     operator: and
@@ -152,7 +152,7 @@ object-hide-highlight:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isHideHighlight
+      property: data.isHideHighlight
     rhs: false
   isDisabledCompare:
     operator: and
@@ -175,7 +175,7 @@ object-view-highlight:
   isViewCompare:
     lhs:
       refType: db-id-property
-      property: isHideHighlight
+      property: data.isHideHighlight
     rhs: true
   isDisabledCompare:
     operator: and
@@ -191,3 +191,151 @@ object-view-highlight:
           true
   taskArg:
     value: false
+
+card-deck-placement-reset-from-card:
+  text: context.placement-reset
+  taskName: card-placement-reset-from-card
+
+card-deck-shuffle-from-card:
+  text: context.shuffle
+  taskName: card-shuffle-from-card
+
+card-deck-turn-on-all-from-card:
+  text: context.turn-on-all
+  taskName: card-turn-on-all-from-card
+
+card-deck-turn-off-all-from-card:
+  text: context.turn-off-all
+  taskName: card-turn-off-all-from-card
+
+card-deck-layout-select-from-card:
+  text: context.layout
+  children:
+    - text: context.layout-pile-up
+      taskName: card-layout-pile-up-from-card
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: data.layout
+        rhs: pile-up
+        isNot: true
+    - text: context.layout-spread-out
+      taskName: card-layout-spread-out-from-card
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: data.layout
+        rhs: spread-out
+        isNot: true
+    - text: context.layout-tile
+      taskName: card-layout-tile-from-card
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: data.layout
+        rhs: tile
+        isNot: true
+    - text: context.layout-line
+      taskName: card-layout-line-from-card
+      isDisabledCompare:
+        lhs:
+          refType: db-id-owner-property
+          level: 1
+          property: data.layout
+        rhs: line
+        isNot: true
+#    - text: context.layout-hand
+#      taskName: card-layout-hand-from-card
+#      isDisabledCompare:
+#        operator: and
+#        list:
+#          - lhs:
+#              refType: db-id-owner-property
+#              level: 1
+#              property: data.layout
+#            rhs: hand
+#            isNot: true
+#          - lhs:
+#              refType: db-id-owner-property
+#              level: 1
+#              property: owner
+#            rhs: null
+#            isNot: true
+
+card-deck-setting-change-from-card:
+  text: context.setting-change
+  taskName: card-setting-change-from-card
+
+card-deck-placement-reset-from-deck:
+  text: context.placement-reset
+  taskName: card-placement-reset-from-deck
+
+card-deck-shuffle-from-deck:
+  text: context.shuffle
+  taskName: card-shuffle-from-deck
+
+card-deck-turn-on-all-from-deck:
+  text: context.turn-on-all
+  taskName: card-turn-on-all-from-deck
+
+card-deck-turn-off-all-from-deck:
+  text: context.turn-off-all
+  taskName: card-turn-off-all-from-deck
+
+card-deck-layout-select-from-deck:
+  text: context.layout
+  children:
+    - text: context.layout-pile-up
+      taskName: card-layout-pile-up-from-deck
+      isDisabledCompare:
+        lhs:
+          refType: db-id-property
+          property: data.layout
+        rhs: pile-up
+        isNot: true
+    - text: context.layout-spread-out
+      taskName: card-layout-spread-out-from-deck
+      isDisabledCompare:
+        lhs:
+          refType: db-id-property
+          property: data.layout
+        rhs: spread-out
+        isNot: true
+    - text: context.layout-tile
+      taskName: card-layout-tile-from-deck
+      isDisabledCompare:
+        lhs:
+          refType: db-id-property
+          property: data.layout
+        rhs: tile
+        isNot: true
+    - text: context.layout-line
+      taskName: card-layout-line-from-deck
+      isDisabledCompare:
+        lhs:
+          refType: db-id-property
+          property: data.layout
+        rhs: line
+        isNot: true
+#    - text: context.layout-hand
+#      taskName: card-layout-hand-from-deck
+#      isDisabledCompare:
+#        operator: and
+#        list:
+#          - lhs:
+#              refType: db-id-property
+#              property: data.layout
+#            rhs: hand
+#            isNot: true
+#          - lhs:
+#              refType: db-id-property
+#              property: owner
+#            rhs: null
+#            isNot: true
+
+card-deck-setting-change-from-deck:
+  text: context.setting-change
+  taskName: card-setting-change-from-deck

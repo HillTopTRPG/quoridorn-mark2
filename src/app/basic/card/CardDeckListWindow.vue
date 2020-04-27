@@ -1,13 +1,5 @@
 <template>
   <div class="container" ref="window-container">
-    <div class="button-area space-between margin-bottom">
-      <ctrl-button @click="setDeck()" :disabled="!selectedCardDeckBigId">
-        <span v-t="'button.send'"></span>
-      </ctrl-button>
-      <ctrl-button @click="preview" :disabled="!selectedCardDeckBigId">
-        <span v-t="'button.preview'"></span>
-      </ctrl-button>
-    </div>
     <div class="card-deck-container">
       <card-deck-set-component
         class="card-deck-set"
@@ -116,23 +108,6 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   }
 
   @VueEvent
-  private async preview() {
-    if (!this.selectedCardDeckBigId) return;
-    GameObjectManager.instance.roomData.sceneId = this.selectedCardDeckBigId;
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "view-card-deck",
-        value: {
-          flag: "on" as "on",
-          cardDeckId: this.selectedCardDeckBigId
-        }
-      }
-    });
-  }
-
-  @VueEvent
   private async addCardDeck() {
     await TaskManager.instance.ignition<ModeInfo, never>({
       type: "mode-change",
@@ -175,52 +150,6 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
         }
       }
     });
-  }
-
-  @VueEvent
-  private async setDeck() {
-    if (!this.selectedCardDeckBigId) return;
-
-    const cardDeckSmallId: string = (
-      await this.cardDeckSmallCC.touch(undefined, [{ owner: null }])
-    )[0];
-    const cardObjectIdList = this.cardObjectList
-      .filter(co => co.data!.cardDeckBigId === this.selectedCardDeckBigId)
-      .map(co => co.id!);
-
-    await this.cardObjectCC.updatePackage(
-      cardObjectIdList,
-      cardObjectIdList.map(
-        coId => this.cardObjectList.filter(co => co.id === coId)[0]!.data!
-      ),
-      cardObjectIdList.map(() => ({ owner: cardDeckSmallId }))
-    );
-
-    const cardSceneLayer = this.sceneLayerList.filter(
-      sl => sl.data!.type === "card"
-    )[0];
-
-    await this.cardDeckSmallCC.add(
-      [cardDeckSmallId],
-      [
-        {
-          address: createAddress(0, 0, 0, 0),
-          layout: "deck",
-          cardHeightRatio: 1,
-          cardWidthRatio: 1,
-          columns: 2,
-          rows: 3,
-          layoutColumns: 1,
-          layoutRows: 1,
-          name: "",
-          tileReorderingMode: "insert",
-          width: 200,
-          layerId: cardSceneLayer.id!,
-          total: cardObjectIdList.length
-        }
-      ],
-      [{}]
-    );
   }
 
   @VueEvent

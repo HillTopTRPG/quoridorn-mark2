@@ -147,8 +147,8 @@ export default class Context extends Vue {
   ): Promise<TaskResult<never> | void> {
     this.type = task.value!.type;
     this.target = task.value!.target;
-    this.x = task.value!.x - 5;
-    this.y = task.value!.y - 5;
+    this.x = task.value!.x - 10;
+    this.y = task.value!.y - 10;
 
     this.hoverIdxList = [0];
 
@@ -200,7 +200,7 @@ export default class Context extends Vue {
   private async addItem(
     item: ContextItemDeclare | null,
     level: number,
-    idxArg: number[2][]
+    idxArg: number[][]
   ) {
     const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
       item && "ref" in item ? contextItemInfo![item!.ref] : item
@@ -350,7 +350,7 @@ export default class Context extends Vue {
   position: fixed;
   left: 0;
   top: 0;
-  transform: translate(var(--x), calc(var(--y) - 1.8em));
+  transform: translate(var(--x), calc(var(--y) - 4em));
   font-size: 14px;
 }
 

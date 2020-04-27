@@ -66,6 +66,7 @@ declare module "window-info" {
 
 declare module "compare" {
   type Operand =
+    | { refType: "variable-myself" }
     | { refType: "db-id-exist" }
     | { refType: "exclusion-check" }
     | { refType: "permission-check"; type: "view" | "edit" | "chmod" }
