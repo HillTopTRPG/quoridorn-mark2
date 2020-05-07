@@ -1,36 +1,22 @@
 <template>
   <div class="container" ref="window-container">
-    <div class="youtube-container-outer" v-if="status === 'window'">
-      <div
-        class="youtube-container-transform"
-        :class="{ isResizing, isWindowMoving }"
-      >
-        <div :id="youtubeElementId" class="youtube"></div>
-      </div>
-    </div>
-    <div class="youtube-container-outer" v-else>
-      <img
-        :src="thumbnailData"
-        draggable="false"
-        alt="Not Found"
-        :title="thumbnailText"
-        @click="thumbnailClick"
-      />
-    </div>
     <seek-bar-component
+      class="seek-bar-component"
       :bgmInfo="bgmInfo"
-      :duration="bgmInfo.duration"
+      :duration="duration"
       :seek="seek"
       @seekTo="seekTo"
       v-if="bgmInfo"
     />
+    <div class="mute" @click="onChangeMute()">
+      <span
+        class="mute-icon"
+        :class="isMute ? 'icon-volume-mute2' : 'icon-volume-high'"
+      ></span>
+    </div>
     <label class="volume" ref="volumeContainer">
       <input type="range" class="input" v-model="volume" min="0" max="100" />
     </label>
-    <div class="mute" @click="onChangeMute()">
-      <span class="mute-icon icon-volume-high" v-if="!isMute"></span>
-      <span class="mute-icon icon-volume-mute2" v-else></span>
-    </div>
   </div>
 </template>
 
@@ -45,7 +31,6 @@ import WindowVue from "@/app/core/window/WindowVue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { WindowMoveInfo } from "@/@types/window";
-import { getCssPxNum } from "@/app/core/css/Css";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import WindowManager from "@/app/core/window/WindowManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -54,17 +39,16 @@ import {
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
-import TaskManager from "@/app/core/task/TaskManager";
 import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
-import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import YoutubeManager, {
   getYoutubeThunbnail,
   YoutubeEventHandler
 } from "@/app/basic/cut-in/bgm/YoutubeManager";
 import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -80,10 +64,14 @@ export default class PlayYoutubeWindow
   private volume: number = 0;
   private isWindowMoving = false;
 
+  private jukeboxAudio: any = null;
+  private isLoop: boolean = false;
+
   private maxVolume: number = 0;
   private fadeInTable: number[] = [];
   private fadeOutTable: number[] = [];
   // private isPlay: boolean = false;
+  private duration: number = 0;
   private seek: number = 0;
   private isMute: boolean = false;
   private isFirstOnReady = true;
@@ -122,7 +110,6 @@ export default class PlayYoutubeWindow
     );
     this.isMounted = true;
 
-    // targetIdかdataはどちらかが設定されてくる
     let { targetId, data } = this.windowInfo.args!;
     this.targetId = targetId;
 
@@ -140,12 +127,44 @@ export default class PlayYoutubeWindow
       WindowManager.instance.arrangePoint(this.windowKey);
     }
 
+    if (this.status === "window") {
+      this.jukeboxAudio = new Audio();
+      this.jukeboxAudio.autoplay = true;
+      this.jukeboxAudio.loop = this.bgmInfo.isRepeat;
+      this.jukeboxAudio.addEventListener("timeupdate", async () => {
+        if (!this.jukeboxAudio) return;
+        await this.timeUpdate(this.jukeboxAudio.currentTime);
+      });
+      this.jukeboxAudio.addEventListener("emptied", () =>
+        window.console.log("emptied")
+      );
+      this.jukeboxAudio.addEventListener("stalled", () =>
+        window.console.log("stalled")
+      );
+      this.jukeboxAudio.addEventListener("abort", () =>
+        window.console.log("abort")
+      );
+      this.jukeboxAudio.addEventListener("error", () =>
+        window.console.log("error")
+      );
+      this.jukeboxAudio.addEventListener("ended", async () => {
+        await this.close();
+      });
+      this.jukeboxAudio.addEventListener("canplay", this.onReady);
+      this.jukeboxAudio.addEventListener("loadedmetadata", async () => {
+        await this.onPlaying(this.jukeboxAudio.duration);
+      });
+      this.jukeboxAudio.src = this.bgmInfo.url;
+    } else {
+      this.volume = this.bgmInfo.volume;
+    }
+
     await BgmManager.playBgm(
       targetId || null,
       this.bgmInfo,
       this.windowKey,
       this.windowInfo.status,
-      this.youtubeElementId,
+      this.bgmFileElementId,
       this
     );
     this.maxVolume = this.bgmInfo.volume;
@@ -168,8 +187,10 @@ export default class PlayYoutubeWindow
   @Watch("windowInfo.args", { immediate: true })
   async onChangeCutInDeclareInfo() {
     if (!this.windowInfo.args) {
-      if (this.bgmInfo)
-        YoutubeManager.instance.destroyed(this.youtubeElementId);
+      if (this.bgmInfo) {
+        this.jukeboxAudio.pause();
+        this.jukeboxAudio = null;
+      }
       return;
     }
     if (!this.isMounted) return;
@@ -181,7 +202,8 @@ export default class PlayYoutubeWindow
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if ("window" !== this.windowInfo.status) return;
-    YoutubeManager.instance.pause(this.youtubeElementId);
+    this.jukeboxAudio.pause();
+    this.jukeboxAudio = null;
 
     BgmManager.closeBgm(this.windowInfo.args!);
   }
@@ -200,12 +222,12 @@ export default class PlayYoutubeWindow
       windowKey: this.windowKey
     });
     setTimeout(() => {
-      YoutubeManager.instance.play(this.youtubeElementId);
+      YoutubeManager.instance.play(this.bgmFileElementId);
     });
   }
 
-  private get youtubeElementId() {
-    return `${this.windowKey}-${this.status}-youtube`;
+  private get bgmFileElementId() {
+    return `${this.windowKey}-${this.status}-bgm-file`;
   }
 
   @VueEvent
@@ -221,7 +243,7 @@ export default class PlayYoutubeWindow
   @LifeCycle
   private destroyed() {
     if (this.status !== "window") return;
-    YoutubeManager.instance.destroyed(this.youtubeElementId);
+    YoutubeManager.instance.destroyed(this.bgmFileElementId);
   }
 
   public onReady(): void {
@@ -231,12 +253,9 @@ export default class PlayYoutubeWindow
       `${this.windowInfo.type}.window-title`
     );
     setTimeout(() => {
-      this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
+      this.windowInfo.title = `${this.bgmInfo!.tag}`;
       this.windowInfo.message = this.bgmInfo!.title;
-      if (this.bgmInfo!.fadeIn > 1)
-        YoutubeManager.instance.setVolume(this.youtubeElementId, 0);
-
-      this.playStart();
+      if (this.bgmInfo!.fadeIn > 1) this.jukeboxAudio.volume = 0;
 
       // 可視化
       this.windowFrameElm.style.visibility = "visible";
@@ -248,25 +267,10 @@ export default class PlayYoutubeWindow
           this.windowKey
         );
         setTimeout(() => {
-          YoutubeManager.instance.seekTo(
-            this.youtubeElementId,
-            this.bgmInfo!.start,
-            true
-          );
-          YoutubeManager.instance.pause(this.youtubeElementId);
+          this.jukeboxAudio.pause();
         }, 100);
       }
     });
-  }
-
-  private playStart() {
-    if (this.isIpadTesting) window.console.log("# playStart");
-    if (this.isFirstOnReady) {
-      this.onChangeMute();
-    }
-    // YoutubeManager.instance.mute(this.youtubeElementId);
-    YoutubeManager.instance.loadVideoById(this.youtubeElementId, this.bgmInfo!);
-    YoutubeManager.instance.play(this.youtubeElementId);
   }
 
   public onError(error: any): void {
@@ -283,22 +287,16 @@ export default class PlayYoutubeWindow
   public async onPlaying(duration: number): Promise<void> {
     if (this.status !== "window") return;
     if (this.isIpadTesting) window.console.log("onPlaying");
-
-    if (this.isFirstOnReady) {
-      setTimeout(() => {
-        // iPad対応(まだ完全ではない)
-        this.onChangeMute();
-      });
-    }
-    this.isFirstOnReady = false;
+    // if (this.isFirstOnReady) {
+    //   setTimeout(() => {
+    //     // iPad対応(まだ完全ではない)
+    //     this.onChangeMute();
+    //   });
+    // }
+    // this.isFirstOnReady = false;
 
     this.isPlay = true;
-    const updateDB = !this.bgmInfo!.duration;
-    this.bgmInfo!.duration = duration;
-    if (updateDB && this.targetId) {
-      const cutInDataCC = SocketFacade.instance.cutInDataCC();
-      await cutInDataCC.updatePackage([this.targetId!], [this.bgmInfo!]);
-    }
+    if (!this.duration) this.duration = duration;
     // this.isPlay = true;
 
     this.fadeInTable = [];
@@ -310,30 +308,33 @@ export default class PlayYoutubeWindow
     for (let i = 0; i <= this.bgmInfo!.fadeOut; i++) {
       this.fadeOutTable.push(this.bgmEnd - (this.bgmInfo!.fadeOut - i) / 10);
     }
+
+    if (this.isFirstOnReady) {
+      this.jukeboxAudio.currentTime = this.bgmStart;
+    }
+    this.isFirstOnReady = false;
   }
 
   private get bgmStart(): number {
     let start = 0;
-    const duration = this.bgmInfo!.duration || 0;
     if (this.bgmInfo!.start > 0) {
       start = this.bgmInfo!.start;
     } else if (this.bgmInfo!.start < 0) {
-      start = duration + this.bgmInfo!.start;
+      start = this.duration + this.bgmInfo!.start;
     }
-    if (start > duration) start = duration;
+    if (start > this.duration) start = this.duration;
     if (start < 0) start = 0;
     return start;
   }
 
   private get bgmEnd(): number {
-    const duration = this.bgmInfo!.duration || 0;
-    let end = duration;
+    let end = this.duration;
     if (this.bgmInfo!.end > 0) {
       end = this.bgmInfo!.end;
     } else if (this.bgmInfo!.end < 0) {
-      end = duration + this.bgmInfo!.end;
+      end = this.duration + this.bgmInfo!.end;
     }
-    if (end > duration) end = duration;
+    if (end > this.duration) end = this.duration;
     if (end < 0) end = 0;
     return end;
   }
@@ -342,23 +343,17 @@ export default class PlayYoutubeWindow
     if (time === undefined) return;
     if (!this.bgmInfo) return;
     let isReturn = false;
-    if (!this.isSeekToAfter) {
-      if (this.seek > this.bgmEnd) {
-        if (this.bgmInfo!.isRepeat) {
-          this.seek = this.bgmStart;
-          YoutubeManager.instance.seekTo(
-            this.youtubeElementId,
-            this.bgmStart,
-            true
-          );
-          this.isSeekToBefore = false;
-        } else {
-          BgmManager.closeBgm(this.windowInfo.args!);
-          await this.close();
-          return;
-        }
-        isReturn = true;
+    if (!this.isSeekToAfter && this.seek > this.bgmEnd) {
+      if (this.bgmInfo!.isRepeat) {
+        this.seek = this.bgmStart;
+        this.jukeboxAudio.currentTime = this.seek;
+        this.isSeekToBefore = false;
+      } else {
+        BgmManager.closeBgm(this.windowInfo.args!);
+        await this.close();
+        return;
       }
+      isReturn = true;
     }
     if (!isReturn) {
       this.seek = time;
@@ -392,7 +387,7 @@ export default class PlayYoutubeWindow
     if (this.bgmInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(
-        this.youtubeElementId,
+        this.bgmFileElementId,
         this.bgmStart,
         true
       );
@@ -409,6 +404,7 @@ export default class PlayYoutubeWindow
   @VueEvent
   private onChangeMute() {
     this.isMute = !this.isMute;
+    window.console.warn("onChangeMute");
     if (this.isIpadTesting) window.console.log("onChangeMute", this.isMute);
   }
 
@@ -420,20 +416,16 @@ export default class PlayYoutubeWindow
     if (this.isIpadTesting) window.console.log("seekTo");
     this.isSeekToBefore = seek < this.bgmStart;
     this.isSeekToAfter = this.bgmEnd < seek;
-    setTimeout(() => {
-      YoutubeManager.instance.seekTo(
-        this.youtubeElementId,
-        seek,
-        allowSeekAhead
-      );
+    setTimeout(async () => {
       this.seek = seek;
+      this.jukeboxAudio.currentTime = seek;
       if (this.isPlay) {
         this.isSeekChanging = true;
         if (allowSeekAhead) {
-          YoutubeManager.instance.play(this.youtubeElementId);
+          await this.jukeboxAudio.play();
           this.isSeekChanging = false;
         } else {
-          YoutubeManager.instance.pause(this.youtubeElementId);
+          await this.jukeboxAudio.pause();
         }
       }
     });
@@ -455,7 +447,7 @@ export default class PlayYoutubeWindow
 
     if (this.bgmInfo) {
       if (this.status === "window") {
-        YoutubeManager.instance.setVolume(this.youtubeElementId, this.volume);
+        this.jukeboxAudio.volume = this.volume / 100;
       } else {
         await TaskManager.instance.ignition<YoutubeVolumeChangeInfo, never>({
           type: "bgm-volume-change",
@@ -468,7 +460,6 @@ export default class PlayYoutubeWindow
         });
       }
     }
-
     this.volumeContainerElm.style.setProperty(
       "--volume-per",
       `${this.volume}%`
@@ -488,14 +479,13 @@ export default class PlayYoutubeWindow
 
   @Watch("isMounted")
   @Watch("isMute")
-  private async onChangeIsMute() {
+  private async onChangeIsPlay() {
     if (!this.isMounted) return;
     if (this.isIpadTesting) window.console.log("onChangeIsMute");
 
     if (this.bgmInfo) {
       if (this.status === "window") {
-        if (this.isMute) YoutubeManager.instance.mute(this.youtubeElementId);
-        else YoutubeManager.instance.unMute(this.youtubeElementId);
+        this.jukeboxAudio.muted = this.isMute;
       } else {
         await TaskManager.instance.ignition<YoutubeMuteChangeInfo, never>({
           type: "bgm-mute-change",
@@ -525,54 +515,6 @@ export default class PlayYoutubeWindow
     this.isMute = task.value!.isMute;
     task.resolve();
   }
-
-  @Watch("isMounted")
-  @Watch("windowInfo.widthPx")
-  private onChangeWindowWidth() {
-    if (this.status === "window") {
-      const fontSize = getCssPxNum("font-size", this.windowElm);
-      const windowWidth = this.windowInfo.widthPx;
-      const playerSize = YoutubeManager.playerElementSize;
-      const ratio = (windowWidth - fontSize * 2) / playerSize.width;
-      this.viewSizeRatio = ratio;
-      this.windowInfo.heightPx = ratio * playerSize.height + fontSize * 2;
-      this.windowElm.style.setProperty(
-        "--youtube-size-ratio",
-        ratio.toString()
-      );
-      setTimeout(() => {
-        const volumeContainerHeight = this.volumeContainerElm.getBoundingClientRect()
-          .height;
-        this.windowElm.style.setProperty(
-          "--volume-height",
-          volumeContainerHeight + "px"
-        );
-      });
-    } else {
-      setTimeout(() => {
-        this.windowElm.style.setProperty("--volume-height", "90px");
-      });
-    }
-  }
-
-  @Watch("windowInfo.heightPx")
-  private onChangeWindowHeight() {
-    const fontSize = getCssPxNum("font-size", this.windowElm);
-    const windowHeight = this.windowInfo.heightPx;
-    const playerSize = YoutubeManager.playerElementSize;
-    const ratio = (windowHeight - fontSize * 2) / playerSize.height;
-    this.viewSizeRatio = ratio;
-    this.windowInfo.widthPx = ratio * playerSize.width + fontSize * 2;
-    this.windowElm.style.setProperty("--youtube-size-ratio", ratio.toString());
-    setTimeout(() => {
-      const volumeContainerHeight = this.volumeContainerElm.getBoundingClientRect()
-        .height;
-      this.windowElm.style.setProperty(
-        "--volume-height",
-        volumeContainerHeight + "px"
-      );
-    });
-  }
 }
 </script>
 
@@ -580,44 +522,27 @@ export default class PlayYoutubeWindow
 @import "../../../../assets/common";
 
 .container {
+  @include flex-box(row, flex-start, stretch);
   visibility: inherit;
-  display: grid;
-  grid-template-rows: 1fr 2em;
-  grid-template-columns: 1fr 2em;
   width: 100%;
   height: 100%;
 }
 
-.youtube-container-outer {
-  display: block;
-  grid-row: 1 / 2;
-  grid-column: 1 / 2;
-  position: relative;
-  overflow: hidden;
-
-  img {
-    display: block;
-  }
-}
-
-.youtube-container-transform {
-  display: block;
-  transform: scale(var(--youtube-size-ratio));
-  transform-origin: left top;
-
-  &.isResizing {
-    pointer-events: none;
-  }
-  &.isWindowMoving {
-    pointer-events: none;
-  }
+.seek-bar-component {
+  flex: 1;
+  height: 2em;
+  font-size: 12px;
 }
 
 .volume {
   position: relative;
-  grid-row: 1 / 2;
-  grid-column: 2 / 2;
+  width: 5em;
 
+  input {
+    width: 5em;
+    font-size: 12px;
+  }
+  /*
   input[type="range"] {
     position: absolute;
     left: 0;
@@ -654,13 +579,14 @@ export default class PlayYoutubeWindow
     border: none;
     background-color: var(--uni-color-black);
   }
+  */
 }
 
 .mute {
   @include flex-box(row, stretch, stretch);
   position: relative;
-  grid-row: 2 / 2;
-  grid-column: 2 / 2;
+  width: 2em;
+  height: 2em;
   cursor: pointer;
 }
 .mute-icon {

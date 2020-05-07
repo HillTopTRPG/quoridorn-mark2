@@ -38,7 +38,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
@@ -50,7 +50,7 @@ import BgmInfoForm from "@/app/basic/cut-in/bgm/BgmInfoForm.vue";
     CtrlButton
   }
 })
-export default class BgmAddWindow extends Mixins<WindowVue<void, never>>(
+export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, never>>(
   WindowVue
 ) {
   private cc: NekostoreCollectionController<
@@ -75,6 +75,13 @@ export default class BgmAddWindow extends Mixins<WindowVue<void, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
+
+    const mediaInfo = this.windowInfo.args;
+    if (mediaInfo) {
+      this.url = mediaInfo.url;
+      this.tag = mediaInfo.tag;
+      this.title = mediaInfo.name;
+    }
   }
 
   @VueEvent

@@ -1,6 +1,11 @@
 <template>
   <div class="container" ref="window-container">
     <div class="tab-container">
+      <!--
+      @drop.prevent.stop
+      @dragenter.prevent.stop
+      @dragleave.prevent.stop
+      -->
       <div
         class="tab-info tab-all"
         :class="{ 'not-use': !isUseAllTab }"
@@ -21,8 +26,9 @@
         }"
         class="draggable-box"
         v-model="filteredChatTabList"
+        @start="onSortStart()"
+        @end="onSortEnd()"
         @sort="onSortOrderChange()"
-        @end="changeOrderId = ''"
       >
         <div
           v-for="tab in filteredChatTabList"
@@ -106,6 +112,9 @@ import { WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "@/LanguageManager";
 import { DataReference } from "@/@types/data";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import { ModeInfo } from "mode";
 
 @Component({
   components: { SCheck, SButton, CtrlButton, draggable }
@@ -247,10 +256,6 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   private async onChangeDragMode() {
     this.$emit("onChangeDragMode", this.dragMode);
 
-    const releaseTouchModifyFunc = async (id: string): Promise<void> => {
-      await this.chatTabListCC.releaseTouch([id]);
-    };
-
     const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
     if (this.dragMode) {
       let error: boolean = false;
@@ -272,14 +277,41 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
     } else {
       this.orderChangingIdList = [];
       if (!this.dragModeProcessed) {
-        // 直列の非同期で全部実行する
-        await idList
-          .map((id: string) => () => releaseTouchModifyFunc(id))
-          .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
+        await this.chatTabListCC.releaseTouch(idList);
         this.dragModeProcessed = false;
       }
     }
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    if (task.value !== this.windowInfo.key) return;
+    if (this.dragMode && !this.dragModeProcessed) {
+      const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
+      await this.chatTabListCC.releaseTouch(idList);
+      this.dragModeProcessed = false;
+    }
+  }
+
+  @VueEvent
+  private async onSortStart() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "on" as "on" }
+    });
+  }
+
+  @VueEvent
+  private async onSortEnd() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "off" as "off" }
+    });
+    this.changeOrderId = "";
   }
 
   @VueEvent

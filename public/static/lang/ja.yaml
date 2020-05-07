@@ -21,6 +21,7 @@ button:
   upload: アップロード
   download: ダウンロード
   read: 読込
+  regist-cut-in: カットイン登録
 
 type:
   map-mask: マップマスク
@@ -515,3 +516,6 @@ media-list-window:
 
 card-deck-small-edit-window:
   window-title: 山札編集
+
+play-bgm-file-window:
+  window-title: 音楽ファイル再生

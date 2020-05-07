@@ -263,6 +263,7 @@ type CutInDeclareInfo = {
   isStandBy: boolean;
   isForceNew: boolean;
   isForceContinue: boolean;
+  duration?: number; // 長さ（再生することで得られる）
 };
 
 /**

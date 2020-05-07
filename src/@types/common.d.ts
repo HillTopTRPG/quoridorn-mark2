@@ -112,7 +112,8 @@ declare module "mode" {
     | ThrowParabolaModeInfo
     | ViewCardDeckInfo
     | DropPieceModeInfo
-    | ProcessInfo;
+    | ProcessInfo
+    | SpecialDragMode;
 
   type ModalModeInfo = {
     type: "modal";
@@ -144,6 +145,11 @@ declare module "mode" {
       all: number;
       current: number;
     };
+  };
+
+  type SpecialDragMode = {
+    type: "special-drag";
+    value: "on" | "off";
   };
 }
 

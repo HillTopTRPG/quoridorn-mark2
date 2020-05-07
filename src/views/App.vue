@@ -651,6 +651,11 @@ export default class App extends Vue {
       this.isDropPiece = value === "on";
       task.resolve();
     }
+    if (taskValue.type === "special-drag") {
+      const value: string = taskValue.value;
+      this.isDropPiece = value === "on";
+      task.resolve();
+    }
     if (taskValue.type === "view-progress") {
       const all: number = taskValue.value.all;
       const current: number = taskValue.value.current;

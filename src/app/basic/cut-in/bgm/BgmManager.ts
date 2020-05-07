@@ -65,9 +65,12 @@ export default class BgmManager {
         });
       return;
     }
-    if (cutInInfo.isForceNew) {
-      // 窓を何個でも開く
-    } else {
+
+    window.console.log(1, !cutInInfo.isForceNew);
+    window.console.log(JSON.stringify(cutInInfo, null, ""));
+
+    // 再生中の画面を閉じる
+    if (!cutInInfo.isForceNew) {
       GameObjectManager.instance.playingBgmList
         .filter(b => b.targetId === targetId || b.tag === tag)
         .forEach(async b => {
@@ -82,49 +85,57 @@ export default class BgmManager {
               })
               .then();
           }
+          window.console.log(
+            b.targetId === targetId && cutInInfo.isForceContinue,
+            b.targetId === targetId || b.tag === tag
+          );
         });
     }
-    if (!matchAndContinue) {
-      if (targetId && cutInInfo.isStandBy) {
-        const standByWindowInfo = this.standByWindowList.filter(
-          sbw => sbw.targetId === targetId
-        )[0];
-        const windowKeyList = standByWindowInfo.windowKeyList;
-        let intervalId: number | null;
 
-        const func = (): boolean => {
-          const idx = windowKeyList.findIndex(wk => wk);
-          if (idx >= 0) {
-            if (intervalId) clearInterval(intervalId);
-            const windowKey = windowKeyList[idx]!;
-            windowKeyList[idx] = null;
-            TaskManager.instance
-              .ignition<StandByReturnInfo, never>({
-                type: "stand-by-return",
-                owner: "Quoridorn",
-                value: { windowKey }
-              })
-              .then();
-            setTimeout(() => {
-              BgmManager.openStandByWindow(targetId).then();
-            });
-            return true;
+    if (matchAndContinue) return;
+
+    if (targetId && cutInInfo.isStandBy) {
+      const standByWindowInfo = this.standByWindowList.filter(
+        sbw => sbw.targetId === targetId
+      )[0];
+      const windowKeyList = standByWindowInfo.windowKeyList;
+      let intervalId: number | null;
+
+      const func = (): boolean => {
+        const idx = windowKeyList.findIndex(wk => wk);
+        if (idx >= 0) {
+          if (intervalId) clearInterval(intervalId);
+          const windowKey = windowKeyList[idx]!;
+          windowKeyList[idx] = null;
+          TaskManager.instance
+            .ignition<StandByReturnInfo, never>({
+              type: "stand-by-return",
+              owner: "Quoridorn",
+              value: { windowKey }
+            })
+            .then();
+          setTimeout(() => {
+            BgmManager.openStandByWindow(targetId).then();
+          });
+          return true;
+        }
+        return false;
+      };
+      if (!func()) intervalId = window.setInterval(func, 10);
+    } else {
+      window.console.log(JSON.stringify(cutInInfo));
+      TaskManager.instance
+        .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
+          type: "window-open",
+          owner: "Quoridorn",
+          value: {
+            type: BgmManager.isYoutube(cutInInfo)
+              ? "play-youtube-window"
+              : "play-bgm-file-window",
+            args: playBgmInfo
           }
-          return false;
-        };
-        if (!func()) intervalId = window.setInterval(func, 10);
-      } else {
-        TaskManager.instance
-          .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
-            type: "window-open",
-            owner: "Quoridorn",
-            value: {
-              type: "play-youtube-window",
-              args: playBgmInfo
-            }
-          })
-          .then();
-      }
+        })
+        .then();
     }
   }
 
@@ -136,22 +147,26 @@ export default class BgmManager {
     playElmId: string,
     playerHandler: YoutubeEventHandler
   ) {
-    if (cutInInfo) {
-      if (cutInInfo.fadeIn < 2) playerHandler.setVolume(cutInInfo.volume);
-      const tag = cutInInfo.tag;
-      if (windowStatus !== "window") {
+    if (!cutInInfo) return;
+
+    if (cutInInfo.fadeIn < 2) playerHandler.setVolume(cutInInfo.volume);
+
+    if (windowStatus === "window") {
+      if (BgmManager.isYoutube(cutInInfo)) {
+        YoutubeManager.instance.open(playElmId, cutInInfo, playerHandler);
+      }
+      if (!cutInInfo.isStandBy) {
+        GameObjectManager.instance.playingBgmList.push({
+          targetId,
+          tag: cutInInfo.tag,
+          windowKey
+        });
+      }
+    } else {
+      if (BgmManager.isYoutube(cutInInfo)) {
         YoutubeManager.instance.addEventHandler(playElmId, playerHandler);
         playerHandler.setVolume(YoutubeManager.instance.getVolume(playElmId));
         playerHandler.setIsMute(YoutubeManager.instance.isMuted(playElmId));
-      } else {
-        YoutubeManager.instance.open(playElmId, cutInInfo, playerHandler);
-        if (!cutInInfo.isStandBy) {
-          GameObjectManager.instance.playingBgmList.push({
-            targetId,
-            tag,
-            windowKey
-          });
-        }
       }
     }
   }

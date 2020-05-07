@@ -190,7 +190,10 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const lastExclusionOwnerId = GameObjectManager.instance.getExclusionOwnerId(
       lastExclusionOwner
     );
-    return lastExclusionOwnerId !== GameObjectManager.instance.mySelfUserId;
+    return (
+      !!lastExclusionOwnerId &&
+      lastExclusionOwnerId !== GameObjectManager.instance.mySelfUserId
+    );
   }
 
   protected get basicClasses() {

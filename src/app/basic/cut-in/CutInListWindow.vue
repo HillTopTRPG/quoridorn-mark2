@@ -78,7 +78,7 @@ import { StoreUseData } from "@/@types/store";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
 import { BgmPlayInfo } from "task-info";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -235,7 +235,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async addMusic() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
+    await TaskManager.instance.ignition<WindowOpenInfo<MediaInfo>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {

@@ -1,7 +1,7 @@
 <template>
   <div class="scene-object-container" v-if="selectedLayerId">
     <label class="header">
-      <span v-t="'label.object'"></span>
+      <span v-t="'label.map-object'"></span>
       <span
         class="icon-menu drag-mode-button"
         @click="dragMode = !dragMode"
@@ -15,8 +15,9 @@
         handle: dragMode ? '' : '.anonymous'
       }"
       v-model="sceneObjectInfoList"
+      @start="onSortStart()"
+      @end="onSortEnd()"
       @sort="onSortOrderChange()"
-      @end="changeOrderId = ''"
     >
       <edit-scene-object-component
         v-for="sceneObject in sceneObjectInfoList"
@@ -56,6 +57,8 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import EditSceneObjectComponent from "@/app/basic/map/EditSceneObjectComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { ModeInfo } from "mode";
 
 @Component({ components: { EditSceneObjectComponent, BaseInput, draggable } })
 export default class EditSceneObjectChooserComponent extends Mixins<
@@ -126,6 +129,25 @@ export default class EditSceneObjectChooserComponent extends Mixins<
         alert("このタイミングでは例外にならないはず");
       }
     }
+  }
+
+  @VueEvent
+  private async onSortStart() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "on" as "on" }
+    });
+  }
+
+  @VueEvent
+  private async onSortEnd() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "off" as "off" }
+    });
+    this.changeOrderId = "";
   }
 
   @VueEvent

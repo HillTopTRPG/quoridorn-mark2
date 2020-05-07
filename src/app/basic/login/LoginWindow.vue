@@ -1046,6 +1046,10 @@ export default class LoginWindow extends Mixins<
      * BGMデータのプリセットデータ投入
      */
     const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
+    bgmList.forEach(bgm => {
+      bgm.duration = 0;
+      bgm.url = getSrc(bgm.url);
+    });
     const cutInDataCC = SocketFacade.instance.cutInDataCC();
 
     await cutInDataCC.addDirect(bgmList);

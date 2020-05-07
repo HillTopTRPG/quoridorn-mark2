@@ -38,6 +38,7 @@
           @preview="preview(media)"
           @chmod="chmodMedia(media)"
           @delete="deleteMedia(media)"
+          @addCutIn="addCutIn(media)"
         />
       </div>
     </simple-tab-component>
@@ -66,6 +67,7 @@ import { MediaInfo } from "@/@types/room";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { DataReference } from "@/@types/data";
+import { DeleteFileRequest, UploadFileRequest } from "@/@types/socket";
 
 @Component({
   components: {
@@ -194,6 +196,11 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       return;
     }
     await this.mediaCC.delete([media.id!]);
+
+    await SocketFacade.instance.socketCommunication<DeleteFileRequest, void>(
+      "delete-file",
+      { urlList: [media.data!.url] }
+    );
   }
 
   private setHoverWindowMessage(isHover: boolean, messageType: string) {
@@ -202,6 +209,18 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
           `${this.windowInfo.type}.message-list.${messageType}`
         )
       : "";
+  }
+
+  @VueEvent
+  private async addCutIn(media: StoreUseData<MediaInfo>) {
+    await TaskManager.instance.ignition<WindowOpenInfo<MediaInfo>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "bgm-add-window",
+        args: media.data!
+      }
+    });
   }
 
   @VueEvent

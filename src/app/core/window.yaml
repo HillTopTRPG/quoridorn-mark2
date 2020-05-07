@@ -1201,3 +1201,25 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+"play-bgm-file-window":
+  icon: file-music
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: right-bottom
+  size:
+    widthEm: 16
+    heightEm: 2
+  minSize:
+    widthEm: 16
+    heightEm: 2
+  maxSize:
+    widthEm: 30
+    heightEm: 2
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []

@@ -155,3 +155,7 @@ export type UploadFileInfo = {
 };
 
 export type UploadFileRequest = UploadFileInfo[];
+
+export type DeleteFileRequest = {
+  urlList: string[];
+};

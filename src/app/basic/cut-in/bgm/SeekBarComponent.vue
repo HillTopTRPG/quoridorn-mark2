@@ -138,6 +138,7 @@ export default class SeekBarComponent extends Vue {
 
 input[type="range"] {
   -webkit-appearance: none;
+  font-size: 12px;
   flex: 1;
   margin: 0;
   position: relative;
@@ -160,7 +161,6 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   cursor: pointer;
   box-sizing: border-box;
-  font-size: 12px;
   width: 2em;
   height: 2em;
   border: none;

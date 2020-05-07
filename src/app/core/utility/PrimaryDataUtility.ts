@@ -114,3 +114,13 @@ export function removeExt(fileName: string): string {
   const matchExt: string[] | null = fileName.match(/(.*)(?:\.([^.]+$))/);
   return matchExt ? matchExt[1] : fileName;
 }
+
+/**
+ * 拡張子を取得する
+ *
+ * @param fileName
+ */
+export function getExt(fileName: string): string {
+  const matchExt: string[] | null = fileName.match(/[^.]+$/);
+  return matchExt ? matchExt[0] : "";
+}

@@ -15,8 +15,9 @@
         handle: dragMode ? '' : '.anonymous'
       }"
       v-model="layerInfoList"
+      @start="onSortStart()"
+      @end="onSortEnd()"
       @sort="onSortOrderChange()"
-      @end="changeOrderId = ''"
     >
       <edit-scene-layer-component
         v-for="layerInfo in layerInfoList"
@@ -48,6 +49,8 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import draggable from "vuedraggable";
 import EditSceneLayerComponent from "@/app/basic/map/EditSceneLayerComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { ModeInfo } from "mode";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
 export default class EditSceneLayerChooserComponent extends Vue {
@@ -170,6 +173,25 @@ export default class EditSceneLayerChooserComponent extends Vue {
         }
       }
     }
+  }
+
+  @VueEvent
+  private async onSortStart() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "on" as "on" }
+    });
+  }
+
+  @VueEvent
+  private async onSortEnd() {
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: { type: "special-drag", value: "off" as "off" }
+    });
+    this.changeOrderId = "";
   }
 
   @VueEvent

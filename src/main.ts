@@ -39,6 +39,7 @@ import CardDeckListWindow from "@/app/basic/card/CardDeckListWindow.vue";
 import MediaListWindow from "@/app/basic/media/MediaListWindow.vue";
 import MediaUploadWindow from "@/app/basic/media/MediaUploadWindow.vue";
 import CardDeckSmallEditWindow from "@/app/basic/card/CardDeckSmallEditWindow.vue";
+import PlayBgmFileWindow from "@/app/basic/cut-in/bgm/PlayBgmFileWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -84,6 +85,7 @@ async function main(): Promise<void> {
   Vue.component("media-list-window", MediaListWindow);
   Vue.component("media-upload-window", MediaUploadWindow);
   Vue.component("card-deck-small-edit-window", CardDeckSmallEditWindow);
+  Vue.component("play-bgm-file-window", PlayBgmFileWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

@@ -42,8 +42,8 @@
     - copy-object
     - delete-object
     - added-object
-    - youtube-volume-change
-    - youtube-mute-change
+    - bgm-volume-change
+    - bgm-mute-change
     - other-text-view
     - other-text-hide
     - change-focus-scene-object

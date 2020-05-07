@@ -20,6 +20,16 @@
     </div>
     <div class="operation-box">
       <s-button
+        v-if="isBgm"
+        class="s-button regist"
+        :label="$t('button.regist-cut-in')"
+        icon="plus"
+        colorStyle="pink"
+        :disabled="false"
+        @hover="value => $emit('hoverAddCutIn', value)"
+        @click="$emit('addCutIn')"
+      />
+      <s-button
         class="s-button"
         icon="pencil"
         colorStyle="pink"
@@ -61,6 +71,7 @@ import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { getExt } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: { SButton, BaseInput, CtrlButton }
@@ -100,6 +111,20 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   @VueEvent
   private get ownerStr(): string {
     return GameObjectManager.instance.getUserName(this.media.owner);
+  }
+
+  @VueEvent
+  private get isBgm(): boolean {
+    window.console.log(this.media.data!.url);
+    window.console.log(getExt(this.media.data!.url));
+    switch (getExt(this.media.data!.url)) {
+      case "wav":
+      case "wave":
+      case "mp3":
+        return true;
+      default:
+        return false;
+    }
   }
 
   @VueEvent
