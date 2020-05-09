@@ -115,12 +115,9 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get isBgm(): boolean {
-    window.console.log(this.media.data!.url);
-    window.console.log(getExt(this.media.data!.url));
-    switch (getExt(this.media.data!.url)) {
-      case "wav":
-      case "wave":
-      case "mp3":
+    switch (this.media.data!.type) {
+      case "youtube":
+      case "music":
         return true;
       default:
         return false;

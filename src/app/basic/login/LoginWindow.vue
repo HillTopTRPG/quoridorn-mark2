@@ -978,35 +978,42 @@ export default class LoginWindow extends Mixins<
       "./static/conf/media.yaml"
     );
     let firstImageIdx: number = -1;
-    mediaList.forEach((media: MediaInfo, idx: number) => {
-      if (!media.tag) media.tag = "";
-      media.url = getSrc(media.url);
 
-      const ext = extname(media.url);
-
-      if (media.url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
-        media.type = "youtube";
-        if (!media.name) {
-          media.name = LanguageManager.instance.getText("label.no-target");
-        }
+    const getType = (url: string) => {
+      if (url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
+        return "youtube";
       } else {
+        const ext = extname(url);
         switch (ext) {
           case "png":
           case "gif":
           case "jpg":
           case "jpeg":
-            media.type = "image";
-            if (firstImageIdx === -1) firstImageIdx = idx;
-            break;
+            return "image";
           case "mp3":
-            media.type = "music";
-            break;
+          case "wav":
+          case "wave":
+            return "music";
           case "json":
           case "yaml":
-            media.type = "setting";
-            break;
+            return "setting";
           default:
-            media.type = "unknown";
+            return "unknown";
+        }
+      }
+    };
+    mediaList.forEach((media: MediaInfo, idx: number) => {
+      if (!media.tag) media.tag = "";
+      media.url = getSrc(media.url);
+
+      const type = getType(media.url);
+      media.type = type;
+      if (type === "youtube") {
+        if (!media.name)
+          media.name = LanguageManager.instance.getText("label.no-target");
+      } else {
+        if (type === "image") {
+          if (firstImageIdx === -1) firstImageIdx = idx;
         }
         if (!media.name) {
           media.name = media.url.replace(/^https?:\/\/.+\//, "");
@@ -1032,6 +1039,35 @@ export default class LoginWindow extends Mixins<
     });
 
     /* --------------------------------------------------
+     * BGMデータのプリセットデータ投入
+     */
+    const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
+    bgmList.forEach(bgm => {
+      bgm.duration = 0;
+      bgm.url = getSrc(bgm.url);
+
+      const mediaInfo = mediaList.filter(m => m.url === bgm.url)[0];
+      if (mediaInfo) {
+        // 上書き
+        mediaInfo.name = bgm.title;
+        mediaInfo.tag = bgm.tag;
+      } else {
+        // 追加
+        if (bgm.url) {
+          mediaList.push({
+            name: bgm.title,
+            url: bgm.url,
+            tag: bgm.tag,
+            type: getType(bgm.url)
+          });
+        }
+      }
+    });
+    const cutInDataCC = SocketFacade.instance.cutInDataCC();
+
+    await cutInDataCC.addDirect(bgmList);
+
+    /* --------------------------------------------------
      * メディアデータのプリセットデータ投入
      */
     const mediaCC = SocketFacade.instance.mediaCC();
@@ -1041,18 +1077,6 @@ export default class LoginWindow extends Mixins<
     );
 
     const imageId: string = docIdList[firstImageIdx];
-
-    /* --------------------------------------------------
-     * BGMデータのプリセットデータ投入
-     */
-    const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
-    bgmList.forEach(bgm => {
-      bgm.duration = 0;
-      bgm.url = getSrc(bgm.url);
-    });
-    const cutInDataCC = SocketFacade.instance.cutInDataCC();
-
-    await cutInDataCC.addDirect(bgmList);
 
     /* --------------------------------------------------
      * マップデータのプリセットデータ投入

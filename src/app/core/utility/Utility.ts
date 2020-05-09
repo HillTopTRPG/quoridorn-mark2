@@ -5,6 +5,7 @@ import { Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 export function getSrc(path: string): string {
+  if (!path) return "";
   if (path.startsWith("http")) return path;
   if (path.startsWith("data:")) return path;
   if (path.startsWith(".")) path = path.replace(/^\./, "");
