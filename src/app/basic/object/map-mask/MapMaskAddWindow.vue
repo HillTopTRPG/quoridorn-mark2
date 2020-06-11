@@ -97,7 +97,6 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
-    const owner = GameObjectManager.instance.mySelfUserId;
     const colorObj = parseColor(this.color);
     const backgroundColor = colorObj.getRGBA();
     const fontColor = colorObj.getRGBReverse();
@@ -111,7 +110,7 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
       column: matrix.column,
       rows: this.height,
       columns: this.width,
-      owner,
+      actorId: null,
       place: "field",
       isHideBorder: false,
       isHideHighlight: false,

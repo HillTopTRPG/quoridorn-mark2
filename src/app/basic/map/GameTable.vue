@@ -444,7 +444,7 @@ export default class GameTable extends AddressCalcMixin {
       locateOnCanvas.y = matrix.row * gridSize;
     }
 
-    if (["map-mask", "chit"].findIndex(t => t === type) > -1) {
+    if (["map-mask", "chit", "character"].findIndex(t => t === type) > -1) {
       await TaskManager.instance.ignition<AddObjectInfo, never>({
         type: "added-object",
         owner: "Quoridorn",

@@ -17,6 +17,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
+
 "cut-in-list-window":
   icon: tv
   parentTypeList: []
@@ -82,6 +83,7 @@
           type: text
           align: center
           target: fade
+
 "login-window":
   icon: home3
   parentTypeList: []
@@ -154,6 +156,7 @@
           type: deleteButton
           align: center
           target: ""
+
 "create-new-room-window":
   icon: home3
   parentTypeList: []
@@ -188,6 +191,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "user-login-window":
   icon: home3
   parentTypeList: []
@@ -222,6 +226,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "app-server-setting-window":
   icon: sphere
   parentTypeList: []
@@ -256,6 +261,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "bcdice-api-server-setting-window":
   icon: sphere
   parentTypeList: []
@@ -290,6 +296,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "terms-of-use-window":
   icon: warning
   parentTypeList: []
@@ -324,6 +331,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "delete-room-window":
   icon: bin1
   parentTypeList: []
@@ -358,6 +366,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "confirm-window":
   icon: checkmark
   parentTypeList: []
@@ -392,6 +401,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "login-room-window":
   icon: home3
   parentTypeList: []
@@ -426,6 +436,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "version-info-window":
   icon: notification
   parentTypeList: []
@@ -460,6 +471,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "room-info-window":
   icon: home3
   parentTypeList: []
@@ -494,6 +506,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "map-mask-add-window":
   icon: plus
   parentTypeList: []
@@ -515,6 +528,7 @@
   fontSizePickable: true
   resizable: false
   tableInfoList: []
+
 "map-mask-edit-window":
   icon: pencil
   parentTypeList: []
@@ -536,6 +550,7 @@
   fontSizePickable: true
   resizable: false
   tableInfoList: []
+
 "chit-add-window":
   icon: plus
   parentTypeList: []
@@ -573,6 +588,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chit-edit-window":
   icon: pencil
   parentTypeList: []
@@ -613,6 +629,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "edit-other-text-window":
   icon: pencil
   parentTypeList: []
@@ -647,6 +664,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "scene-list-window":
   icon: display
   parentTypeList: []
@@ -684,6 +702,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
+
 "edit-scene-window":
   icon: pencil
   parentTypeList: []
@@ -719,6 +738,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chmod-window":
   icon: user-tie
   parentTypeList: []
@@ -753,6 +773,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "bgm-add-window":
   icon: plus
   parentTypeList: []
@@ -787,6 +808,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "bgm-edit-window":
   icon: pencil
   parentTypeList: []
@@ -821,6 +843,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chat-window":
   icon: keyboard
   parentTypeList: []
@@ -855,6 +878,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chat-tab-list-window":
   icon: keyboard
   parentTypeList: []
@@ -886,6 +910,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chat-tab-add-window":
   icon: keyboard
   parentTypeList: []
@@ -920,6 +945,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "chat-tab-edit-window":
   icon: keyboard
   parentTypeList: []
@@ -954,6 +980,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "actor-add-window":
   icon: user
   parentTypeList: []
@@ -988,6 +1015,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "actor-edit-window":
   icon: user
   parentTypeList: []
@@ -1022,6 +1050,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "player-box-window":
   icon: user
   parentTypeList: []
@@ -1059,6 +1088,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "card-deck-list-window":
   icon: stack
   parentTypeList: []
@@ -1096,6 +1126,7 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
+
 "media-list-window":
   icon: library
   parentTypeList: []
@@ -1133,6 +1164,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "media-upload-window":
   icon: library
   parentTypeList: []
@@ -1170,6 +1202,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "card-deck-small-edit-window":
   icon: pencil
   parentTypeList: []
@@ -1201,6 +1234,7 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
 "play-bgm-file-window":
   icon: file-music
   parentTypeList: []
@@ -1221,5 +1255,84 @@
   paneContainable: true
   closable: true
   fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+
+"character-add-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 18
+  minSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 18
+  maxSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 6em(行数) + 4em(選択画像サイズ) * 6個
+    heightPx: 4
+    heightEm: 30
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"character-edit-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  minSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  maxSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 8em(行数) + 4em(選択画像サイズ) * 6個
+    heightPx: 4
+    heightEm: 32
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
   resizable: true
   tableInfoList: []

@@ -1,5 +1,5 @@
 <template>
-  <div class="chit-info-form">
+  <div class="character-info-form">
     <!-- 掴む -->
     <div class="object-cell">
       <div
@@ -15,18 +15,17 @@
     <!-- コマ情報 -->
     <table class="info-table">
       <tr>
-        <tr-number-input-component
-          labelName="width"
-          inputWidth="3em"
-          v-model="widthVolatile"
-          :min="1"
+        <tr-string-input-component
+          labelName="name"
+          width="100%"
+          v-model="nameVolatile"
         />
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="height"
+          labelName="size"
           inputWidth="3em"
-          v-model="heightVolatile"
+          v-model="sizeVolatile"
           :min="1"
         />
       </tr>
@@ -76,13 +75,6 @@
             />
           </tr>
           <tr>
-            <tr-string-input-component
-              labelName="name"
-              width="100%"
-              v-model="nameVolatile"
-            />
-          </tr>
-          <tr>
             <th>
               <label
                 :for="`${key}-layer`"
@@ -96,6 +88,13 @@
                 :id="`${key}-layer`"
               />
             </td>
+          </tr>
+          <tr>
+            <tr-string-input-component
+              labelName="tag"
+              width="100%"
+              v-model="urlVolatile"
+            />
           </tr>
         </table>
       </div>
@@ -116,7 +115,6 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import { BackgroundSize, Direction } from "@/@types/room";
-import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
@@ -144,7 +142,9 @@ import VueEvent from "@/app/core/decorator/VueEvent";
     CtrlButton
   }
 })
-export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
+export default class CharacterInfoForm extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
@@ -185,6 +185,19 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Prop({ type: String, required: true })
+  private url!: string;
+
+  private urlVolatile: string = "";
+  @Watch("url", { immediate: true })
+  private onChangeUrl(value: string) {
+    this.urlVolatile = value;
+  }
+  @Watch("urlVolatile")
+  private onChangeUrlVolatile(value: string) {
+    this.$emit("update:url", value);
+  }
+
+  @Prop({ type: String, required: true })
   private otherText!: string;
 
   private otherTextVolatile: string = "";
@@ -198,29 +211,16 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Prop({ type: Number, required: true })
-  private width!: number;
+  private size!: number;
 
-  private widthVolatile: number = 0;
-  @Watch("width", { immediate: true })
-  private onChangeWidth(value: number) {
-    this.widthVolatile = value;
+  private sizeVolatile: number = 0;
+  @Watch("size", { immediate: true })
+  private onChangeSize(value: number) {
+    this.sizeVolatile = value;
   }
-  @Watch("widthVolatile")
-  private onChangeWidthVolatile(value: number) {
-    this.$emit("update:width", value);
-  }
-
-  @Prop({ type: Number, required: true })
-  private height!: number;
-
-  private heightVolatile: number = 0;
-  @Watch("height", { immediate: true })
-  private onChangeHeight(value: number) {
-    this.heightVolatile = value;
-  }
-  @Watch("heightVolatile")
-  private onChangeHeightVolatile(value: number) {
-    this.$emit("update:height", value);
+  @Watch("sizeVolatile")
+  private onChangeSizeVolatile(value: number) {
+    this.$emit("update:size", value);
   }
 
   @Prop({ type: String, default: null })
@@ -360,19 +360,12 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Watch("isMounted")
-  @Watch("width")
-  @Watch("height")
-  private onChangeSize() {
+  @Watch("size")
+  private onChangeSize2() {
     if (!this.isMounted) return;
-    let ratio: number = Math.min(4 / this.width, 4 / this.height, 1);
-    this.objectElm.style.setProperty(
-      "--width-ratio",
-      (this.width * ratio).toString()
-    );
-    this.objectElm.style.setProperty(
-      "--height-ratio",
-      (this.height * ratio).toString()
-    );
+    const size: number = this.size > 4 ? 4 : this.size;
+    this.objectElm.style.setProperty("--width-ratio", size.toString());
+    this.objectElm.style.setProperty("--height-ratio", size.toString());
   }
 
   @Watch("isMounted")
@@ -408,7 +401,7 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 <style scoped lang="scss">
 @import "../../../../assets/common";
 
-.chit-info-form {
+.character-info-form {
   display: contents;
 }
 

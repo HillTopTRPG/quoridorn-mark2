@@ -21,6 +21,7 @@ button:
   upload: アップロード
   download: ダウンロード
   read: 読込
+  regist-cut-in: カットイン登録
 
 type:
   map-mask: 地图遮罩
@@ -49,6 +50,7 @@ context:
   bgm-setting: 音乐设定
   add-map-mask: 添加地图蒙版
   add-chit: 添加聊天
+  add-character: キャラクター追加
   modify: 改变
   copy: 复制
   delete: 删掉
@@ -70,6 +72,8 @@ context:
   layout-pile-up: 重ねる
   layout-spread-out: 広げる
   layout-tile: タイル
+  layout-line: １列
+  layout-hand: 手札
   setting-change: 設定変更
   placement-reset: 配置リセット
 
@@ -255,6 +259,7 @@ label:
   card-height-ratio: カード高さ(割合)
   card-layout-columns: カード配置列数
   card-layout-rows: カード配置行数
+  hover-view: マウスカーソルONビュー
 
 message:
   copy-to-clipboard: 复制到剪贴板
@@ -512,3 +517,16 @@ media-list-window:
 
 card-deck-small-edit-window:
   window-title: 山札編集
+
+play-bgm-file-window:
+  window-title: 音楽ファイル再生
+
+character-add-window:
+  window-title: キャラクター追加
+  message-list:
+    choose-image: 画像を選択してください。
+    drag-piece: マップにドラッグすると追加できます。
+
+character-edit-window:
+  window-title: キャラクター編集
+

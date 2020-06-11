@@ -1,14 +1,14 @@
 <template>
   <div class="container" ref="window-container">
-    <chit-info-form
+    <character-info-form
       :windowKey="windowKey"
       :isAdd="true"
       initTabTarget="image"
       :name.sync="name"
       :tag.sync="tag"
       :otherText.sync="otherText"
-      :width.sync="width"
-      :height.sync="height"
+      :url.sync="url"
+      :size.sync="size"
       :imageDocId.sync="imageDocId"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
@@ -28,27 +28,23 @@ import { AddObjectInfo } from "@/@types/data";
 import { BackgroundSize, Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import ChitInfoForm from "@/app/basic/object/chit/ChitInfoForm.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import CharacterInfoForm from "@/app/basic/object/character/CharacterInfoForm.vue";
 
-@Component({
-  components: {
-    ChitInfoForm
-  }
-})
-export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
-  WindowVue
-) {
-  private name: string = LanguageManager.instance.getText("type.chit");
+@Component({ components: { CharacterInfoForm } })
+export default class CharacterAddWindow extends Mixins<
+  WindowVue<string, never>
+>(WindowVue) {
+  private name: string = LanguageManager.instance.getText("type.character");
   private tag: string = "";
   private otherText: string = "";
-  private height: number = 1;
-  private width: number = 1;
+  private url: string = "";
+  private size: number = 1;
   private imageDocId: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
@@ -84,7 +80,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
         value: "on" as "on"
       }
     });
-    event.dataTransfer!.setData("dropType", "chit");
+    event.dataTransfer!.setData("dropType", "character");
     event.dataTransfer!.setData("dropWindow", this.key);
   }
 
@@ -109,7 +105,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     const matrix = task.value!.matrix;
 
     await GameObjectManager.instance.addSceneObject({
-      type: "chit",
+      type: "character",
       tag: this.tag,
       name: this.name,
       x: point.x,
@@ -117,8 +113,8 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
       row: matrix.row,
       column: matrix.column,
       actorId: null,
-      columns: this.width,
-      rows: this.height,
+      columns: this.size,
+      rows: this.size,
       place: "field",
       isHideBorder: false,
       isHideHighlight: false,
@@ -136,7 +132,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
       ],
       textureIndex: 0,
       angle: 0,
-      url: "",
+      url: this.url,
       subType: "",
       pips: 0,
       faceNum: 0

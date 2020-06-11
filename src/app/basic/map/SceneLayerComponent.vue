@@ -20,6 +20,13 @@
         :docId="sceneObject.id"
         type="chit"
       />
+
+      <character
+        v-if="sceneObject.data.type === 'character'"
+        :key="sceneObject.id"
+        :docId="sceneObject.id"
+        type="character"
+      />
     </template>
   </div>
 </template>
@@ -28,6 +35,7 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
 import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
+import Character from "@/app/basic/object/character/CharacterPieceComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -45,7 +53,8 @@ import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue"
   components: {
     CardDeckSmallComponent,
     MapMask,
-    Chit
+    Chit,
+    Character
   }
 })
 export default class SceneLayerComponent extends Mixins<ComponentVue>(

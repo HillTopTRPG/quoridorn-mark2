@@ -171,6 +171,12 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   border-top: none;
   box-sizing: content-box;
 
+  .name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
   &.thumbnail-mode {
     display: grid;
     grid-template-rows: 3em 3em;
@@ -211,6 +217,10 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
     @include flex-box(row, flex-start, center);
     height: 2em;
     padding: 0 0.5rem;
+
+    .name {
+      flex: 1;
+    }
 
     .operation-box {
       margin-left: auto;

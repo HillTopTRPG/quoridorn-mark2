@@ -364,6 +364,7 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   > *:not(:first-child) {
     width: 100%;
+    height: calc(100% - 2em);
     flex: 1;
   }
 

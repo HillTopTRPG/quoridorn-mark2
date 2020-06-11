@@ -15,6 +15,10 @@ map:
     taskName: window-open
     taskArg:
       type: chit-add-window
+  - text: context.add-character
+    taskName: window-open
+    taskArg:
+      type: character-add-window
 
 card-object:
   - text: context.turn-on
@@ -94,6 +98,42 @@ chit:
   - ref: object-delete
   - ref: object-chmod
   - ref: hr-permission-check
+  - ref: object-fix
+  - ref: object-un-fix
+  - ref: object-hide-border
+  - ref: object-view-border
+  - ref: object-hide-highlight
+  - ref: object-view-highlight
+
+character:
+  - text: context.modify
+    taskName: window-open
+    isViewCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs: true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
+      rhs: true
+    taskArg:
+      type: character-edit-window
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod
+  - ref: hr-permission-check
+  - text: context.ref-url
+    taskName: open-ref-url
+    isDisabledCompare:
+      lhs:
+        refType: db-id-property
+        property: data.url
+      rhs: ""
+      isNot: true
+  - text: context.edit-actor
+    taskName: edit-actor
+  - ~
   - ref: object-fix
   - ref: object-un-fix
   - ref: object-hide-border

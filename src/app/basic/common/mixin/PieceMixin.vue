@@ -33,6 +33,8 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import Unsubscribe from "nekostore/lib/Unsubscribe";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { getSrc } from "@/app/core/utility/Utility";
+import { WindowOpenInfo } from "@/@types/window";
+import { DataReference } from "@/@types/data";
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -485,6 +487,39 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     );
 
     await GameObjectManager.instance.deleteSceneObject(this.docId);
+  }
+
+  @TaskProcessor("open-ref-url-finished")
+  private async openRefUrlFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
+    window.open(data.url, "_blank");
+  }
+
+  @TaskProcessor("edit-actor-finished")
+  private async editActorFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const args = task.value.args;
+    if (args.type !== this.type || args.docId !== this.docId) return;
+
+    const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
+    const actorId = data.actorId!;
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "actor-edit-window",
+        args: {
+          type: "actor",
+          docId: actorId
+        }
+      }
+    });
   }
 
   private getPoint(point: Point) {

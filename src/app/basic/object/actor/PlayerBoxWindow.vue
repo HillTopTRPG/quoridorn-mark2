@@ -111,6 +111,10 @@
                   />
                 </tr>
               </table>
+
+              <div class="last-line">
+                {{ actor.data.pieceIdList }}
+              </div>
             </div>
           </div>
         </simple-tab-component>
@@ -383,17 +387,11 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 }
 
 .user-area {
-  @include flex-box(row, flex-start, center, wrap);
-}
-
-.tab-component {
-  @include flex-box(column, stretch, flex-start);
-  align-self: stretch;
-  flex: 1;
+  @include inline-flex-box(row, flex-start, center, wrap);
 }
 
 .view-type-select {
-  @include flex-box(row, flex-start, center);
+  @include inline-flex-box(row, flex-start, center);
   margin-top: 0.5rem;
   align-self: stretch;
 }
@@ -407,15 +405,25 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 .view-area,
 .tab-container {
   @include flex-box(column, stretch, flex-start);
-  flex: 1;
   align-self: stretch;
+}
+
+.view-area {
+  height: calc(100% - 6em);
 }
 
 .tab-container {
   border: 1px solid gray;
+  flex: 1;
   overflow-y: scroll;
   background-color: var(--uni-color-white);
   margin-top: -1px;
+}
+
+.tab-component {
+  @include flex-box(column, stretch, flex-start);
+  align-self: stretch;
+  flex: 1;
 }
 
 .actor-info {

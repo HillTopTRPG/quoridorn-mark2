@@ -24,7 +24,7 @@ type SceneObject = Address & {
   type: SceneObjectType;
   tag: string;
   name: string;
-  owner: string; // id
+  actorId: string | null; // id
   rows: number;
   columns: number;
   isHideBorder: boolean;

@@ -76,6 +76,8 @@
     - card-layout-line-from-deck
     - card-layout-hand-from-deck
     - card-setting-change-from-deck
+    - open-ref-url
+    - edit-actor
 
 - taskAttribute:
     isIgniteWithParam: false

@@ -50,6 +50,7 @@ context:
   bgm-setting: BGM設定
   add-map-mask: マップマスク追加
   add-chit: チット追加
+  add-character: キャラクター追加
   modify: 変更
   copy: 複製
   delete: 削除
@@ -75,6 +76,8 @@ context:
   layout-hand: 手札
   setting-change: 設定変更
   placement-reset: 配置リセット
+  ref-url: データ参照先URLを開く
+  edit-actor: コマのアクターを編集
 
 label:
   terms-of-use: 利用規約
@@ -519,3 +522,13 @@ card-deck-small-edit-window:
 
 play-bgm-file-window:
   window-title: 音楽ファイル再生
+
+character-add-window:
+  window-title: キャラクター追加
+  message-list:
+    choose-image: 画像を選択してください。
+    drag-piece: マップにドラッグすると追加できます。
+
+character-edit-window:
+  window-title: キャラクター編集
+

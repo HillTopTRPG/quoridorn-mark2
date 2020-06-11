@@ -12,7 +12,7 @@
 
     <div class="button-area">
       <ctrl-button @click="commit()" :disabled="!isCommitAble">
-        <span v-t="'button.add'"></span>
+        <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
         <span v-t="'button.reject'"></span>
@@ -156,6 +156,11 @@ export default class ActorEditWindow extends Mixins<
 
   @VueEvent
   private async rollback() {
+    try {
+      await this.cc!.releaseTouch([this.docId]);
+    } catch (err) {
+      // nothing
+    }
     if (!this.isProcessed) {
       this.isProcessed = true;
       await this.close();
