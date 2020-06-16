@@ -75,10 +75,10 @@
             />
           </tr>
           <tr>
-            <th>
+            <th class="label-input">
               <label
                 :for="`${key}-layer`"
-                class="label-layer label-input"
+                class="label-layer"
                 v-t="'label.layer'"
               ></label>
             </th>
@@ -91,7 +91,7 @@
           </tr>
           <tr>
             <tr-string-input-component
-              labelName="tag"
+              labelName="ref-url"
               width="100%"
               v-model="urlVolatile"
             />
@@ -476,7 +476,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   @include flex-box(row, center, center);
 }
 
-> table {
+table {
   grid-row: 2 / 3;
   grid-column: 1 / 2;
   table-layout: fixed;
@@ -489,10 +489,14 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   th {
-    text-align: right;
-    padding: 0;
-    white-space: nowrap;
+    text-align: left;
     width: 1px;
+    white-space: nowrap;
+
+    :first-child {
+      display: inline-block;
+      width: calc(100% - 1em);
+    }
   }
 
   td {

@@ -262,6 +262,7 @@ label:
   card-layout-columns: カード配置列数
   card-layout-rows: カード配置行数
   hover-view: マウスカーソルONビュー
+  ref-url: データ参照先URL
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

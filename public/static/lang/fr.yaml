@@ -76,6 +76,8 @@ context:
   layout-hand: 手札
   setting-change: 設定変更
   placement-reset: 配置リセット
+  ref-url: データ参照先URLを開く
+  edit-actor: コマのアクターを編集
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -260,6 +262,7 @@ label:
   card-layout-columns: カード配置列数
   card-layout-rows: カード配置行数
   hover-view: マウスカーソルONビュー
+  ref-url: データ参照先URL
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
