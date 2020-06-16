@@ -496,14 +496,11 @@ export default class GameObjectManager {
     const sceneAndObjectIdList: string[] = [];
 
     const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-    this.sceneList.forEach(async s => {
-      const sceneId = s.id!;
-      this.sceneAndLayerList
-        .filter(sao => sao.id === sceneId)
-        .forEach(async sao => {
-          sceneAndObjectIdList.push(sao.id!);
-        });
-    });
+    this.sceneAndObjectList
+      .filter(sao => sao.data!.objectId === id)
+      .forEach(sao => {
+        sceneAndObjectIdList.push(sao.id!);
+      });
 
     const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
     const failure = () => {
