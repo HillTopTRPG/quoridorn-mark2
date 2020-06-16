@@ -106,7 +106,13 @@ export default class BcdiceManager {
       // throw err;
     }
     const diceSystemList: DiceSystem[] = json.names as DiceSystem[];
-    diceSystemList.sort((i1: any, i2: any) => {
+    diceSystemList.sort((i1: DiceSystem, i2: DiceSystem) => {
+      if (i1.sort_key && i2.sort_key) {
+        // BCDice Ver2.06でレスポンスに "sort_key" が追加されたので、あれば使う。
+        if (i1.sort_key > i2.sort_key) return 1;
+        if (i1.sort_key < i2.sort_key) return -1;
+        return 0;
+      }
       if (i1.name === "DiceBot") return -1;
       if (i2.name === "DiceBot") return 1;
       if (i1.name > i2.name) return 1;

@@ -1,6 +1,7 @@
 export type DiceSystem = {
   system: string;
   name: string;
+  sort_key: string | undefined; // BCDice Ver2.06対応
 };
 
 export type BcdiceVersionInfo = {
