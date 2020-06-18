@@ -70,7 +70,6 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
 
   private cardDeckSmallList = GameObjectManager.instance.cardDeckSmallList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
-  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   private isMounted: boolean = false;

@@ -112,8 +112,29 @@
                 </tr>
               </table>
 
-              <div class="last-line">
-                {{ actor.data.pieceIdList }}
+              <div class="last-line piece-list-container">
+                <template v-for="sceneObject in getSceneObjectList(actor)">
+                  <map-mask
+                    v-if="sceneObject.data.type === 'map-mask'"
+                    :key="sceneObject.id"
+                    :docId="sceneObject.id"
+                    type="map-mask"
+                  />
+
+                  <chit
+                    v-if="sceneObject.data.type === 'chit'"
+                    :key="sceneObject.id"
+                    :docId="sceneObject.id"
+                    type="chit"
+                  />
+
+                  <character
+                    v-if="sceneObject.data.type === 'character'"
+                    :key="sceneObject.id"
+                    :docId="sceneObject.id"
+                    type="character"
+                  />
+                </template>
               </div>
             </div>
           </div>
@@ -159,6 +180,9 @@ import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerC
 import TrChatColorInputComponent from "@/app/basic/common/components/TrChatColorInputComponent.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import TrActorStatusSelectComponent from "@/app/basic/common/components/TrActorStatusSelectComponent.vue";
+import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
+import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
+import Character from "@/app/basic/object/character/CharacterPieceComponent.vue";
 
 @Component({
   components: {
@@ -176,7 +200,10 @@ import TrActorStatusSelectComponent from "@/app/basic/common/components/TrActorS
     ActorSelect,
     SimpleTabComponent,
     UserSelect,
-    ColorPickerComponent
+    ColorPickerComponent,
+    MapMask,
+    Chit,
+    Character
   }
 })
 export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
@@ -188,6 +215,8 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   private userId: string = GameObjectManager.instance.mySelfUserId;
   private viewType: "actor" | "piece" = "actor";
   private searchText: string = "";
+  private sceneObjectList = GameObjectManager.instance.sceneObjectList;
+  private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   @LifeCycle
   public async mounted() {
@@ -226,6 +255,22 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       }
       return !(this.userId && a.owner !== this.userId);
     });
+  }
+
+  @VueEvent
+  private getSceneObjectList(actor: StoreUseData<ActorStore>) {
+    const sceneId = GameObjectManager.instance.roomData.sceneId;
+    return this.sceneAndObjectList
+      .filter(
+        sao =>
+          sao.data!.sceneId === sceneId &&
+          actor.data.pieceIdList.filter(p => p === sao.data!.objectId).length
+      )
+      .map(
+        sao =>
+          this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
+      )
+      .filter(so => so.data!.place === "field");
   }
 
   @VueEvent
@@ -482,5 +527,18 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 
 .info-table {
   margin-left: 1.5rem;
+}
+
+.piece-list-container {
+  @include inline-flex-box(row, space-between, center);
+  position: relative;
+
+  > * {
+    position: relative;
+    margin-top: 1.5em;
+    width: 50px !important;
+    height: 50px !important;
+    transform: none !important;
+  }
 }
 </style>
