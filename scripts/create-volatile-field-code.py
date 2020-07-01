@@ -1,5 +1,5 @@
 import re
-import tkinter as Tk
+import Tkinter as Tk
 
 def doProcess(fieldName, typeName, defaultValue):
     volatileFieldName = "{0}Volatile".format(fieldName)
@@ -24,7 +24,7 @@ def viewDialog():
     rowNum = 0
 
     # label
-    label = Tk.Label(text="フィールド名：")
+    label = Tk.Label(text="Field: ")
     label.grid(row=rowNum, column=0)
 
     # input
@@ -34,7 +34,7 @@ def viewDialog():
     rowNum += 1
 
     # label
-    label = Tk.Label(text="型：")
+    label = Tk.Label(text="type: ")
     label.grid(row=rowNum, column=0)
 
     # input
@@ -45,7 +45,7 @@ def viewDialog():
     rowNum += 1
 
     # label
-    label = Tk.Label(text="デフォルト値：")
+    label = Tk.Label(text="default: ")
     label.grid(row=rowNum, column=0)
 
     # input
@@ -56,7 +56,7 @@ def viewDialog():
     rowNum += 1
 
     # button
-    buttonElm = Tk.Button(root, text='実行', command=lambda: doProcess(fieldNameElm.get(), typeNameElm.get(), defaultValueElm.get()))
+    buttonElm = Tk.Button(root, text='exec', command=lambda: doProcess(fieldNameElm.get(), typeNameElm.get(), defaultValueElm.get()))
     buttonElm.grid(row=rowNum, column=0)
 
     root.mainloop()

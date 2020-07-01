@@ -7,7 +7,6 @@
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :standImagePosition.sync="standImagePosition"
-      :isUseTableData.sync="isUseTableData"
     />
 
     <div class="button-area">
@@ -61,7 +60,6 @@ export default class ActorEditWindow extends Mixins<
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
   private standImagePosition: number = 1;
-  private isUseTableData: boolean = false;
 
   @LifeCycle
   public async mounted() {
@@ -90,7 +88,6 @@ export default class ActorEditWindow extends Mixins<
     this.chatFontColorType = data.data!.chatFontColorType;
     this.chatFontColor = data.data!.chatFontColor;
     this.standImagePosition = data.data!.standImagePosition;
-    this.isUseTableData = data.data!.isUseTableData;
 
     if (this.windowInfo.status === "window") {
       try {
@@ -137,7 +134,6 @@ export default class ActorEditWindow extends Mixins<
     data.chatFontColorType = this.chatFontColorType;
     data.chatFontColor = this.chatFontColor;
     data.standImagePosition = this.standImagePosition;
-    data.isUseTableData = this.isUseTableData;
     await this.cc!.update([this.docId], [data]);
     this.isProcessed = true;
     await this.close();

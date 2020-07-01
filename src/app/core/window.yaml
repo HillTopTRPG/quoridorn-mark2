@@ -1336,3 +1336,131 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"initiative-window":
+  icon: tv
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: right-top
+  size:
+    widthPx: 271
+    heightPx: 5
+    heightEm: 28
+    heightRem: 1
+  minSize:
+    widthPx: 271
+    heightPx: 5
+    heightEm: 28
+    heightRem: 1
+  maxSize:
+    widthPx: 271
+    heightPx: 5
+    heightEm: 48
+    heightRem: 1
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList:
+    - type: free
+      height: 10
+      columnList: []
+
+"resource-master-add-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  minSize:
+    widthPx: 2
+    widthEm: 25
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"resource-master-edit-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  minSize:
+    widthPx: 2
+    widthEm: 25
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"resource-master-list-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 20
+  minSize:
+    widthPx: 2
+    widthEm: 25
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 10
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 4
+    heightRem: 0.9
+    heightEm: 30
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

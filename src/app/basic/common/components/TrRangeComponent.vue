@@ -1,5 +1,5 @@
 <template>
-  <tr class="tr-chat-color-type-select-component">
+  <tr class="tr-range-component">
     <th class="label-input">
       <label :for="key" v-t="`label.${labelName}`"></label>
     </th>
@@ -66,7 +66,7 @@ export default class TrRangeComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-chat-color-type-select-component {
+.tr-range-component {
   display: contents;
 }
 

@@ -207,7 +207,7 @@ export function calcWindowPosition(
     height: sceneSize.height - menuHeight
   });
   const windowCenter = calcCenter({
-    ...createPoint(0, 0),
+    ...createPoint(0, menuHeight),
     ...windowSize
   });
 

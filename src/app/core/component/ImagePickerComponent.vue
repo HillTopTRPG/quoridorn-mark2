@@ -102,6 +102,9 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @Prop({ type: String, default: null })
   private imageTag!: string | null;
 
+  @Prop({ type: String, default: "none" })
+  private direction!: Direction;
+
   @Prop({ type: Boolean, default: false })
   private isSimple!: boolean;
 
@@ -113,7 +116,6 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   private isMounted: boolean = false;
   private selectImageTag: string | null = null;
-  private direction: Direction = "none";
 
   private rawImageList: StoreUseData<MediaInfo>[] = [];
   private useImageList: StoreUseData<MediaInfo>[] = [];

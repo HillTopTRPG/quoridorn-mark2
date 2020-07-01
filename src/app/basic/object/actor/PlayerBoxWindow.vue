@@ -91,16 +91,6 @@
                     v-model="actor.data.standImagePosition"
                   />
                 </tr>
-                <!-- データの有無 -->
-                <tr>
-                  <tr-checkbox-component
-                    labelName="has-data"
-                    :readonly="true"
-                    :cLabel="$t('label.exist')"
-                    :nLabel="$t('label.not-exist')"
-                    v-model="actor.data.isUseTableData"
-                  />
-                </tr>
                 <!-- ステータス -->
                 <tr>
                   <tr-actor-status-select-component
@@ -264,7 +254,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       .filter(
         sao =>
           sao.data!.sceneId === sceneId &&
-          actor.data.pieceIdList.filter(p => p === sao.data!.objectId).length
+          actor.data!.pieceIdList.filter(p => p === sao.data!.objectId).length
       )
       .map(
         sao =>

@@ -43,7 +43,10 @@ import {
   CardMeta,
   CardObject,
   CardDeckBig,
-  CardDeckSmall
+  CardDeckSmall,
+  ResourceMasterStore,
+  ResourceStore,
+  InitiativeColumnStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -513,6 +516,26 @@ export default class SocketFacade {
     return this.roomCollectionController<PropertyStore>("property-list");
   }
 
+  public resourceMasterCC(): NekostoreCollectionController<
+    ResourceMasterStore
+  > {
+    return this.roomCollectionController<ResourceMasterStore>(
+      "resource-master-list"
+    );
+  }
+
+  public resourceCC(): NekostoreCollectionController<ResourceStore> {
+    return this.roomCollectionController<ResourceStore>("resource-list");
+  }
+
+  public initiativeColumnCC(): NekostoreCollectionController<
+    InitiativeColumnStore
+  > {
+    return this.roomCollectionController<InitiativeColumnStore>(
+      "initiative-column-list"
+    );
+  }
+
   public propertySelectionCC(): NekostoreCollectionController<
     PropertySelectionStore
   > {
@@ -565,17 +588,23 @@ export default class SocketFacade {
         return this.roomDataCC();
       case "media":
         return this.mediaCC();
-      case "image-tag-list":
+      case "image-tag":
         return this.imageTagCC();
       case "cut-in":
         return this.cutInDataCC();
-      case "user-list":
+      case "user":
         return this.userCC();
-      case "property-list":
+      case "property":
         return this.propertyCC();
-      case "property-selection-list":
+      case "resource-master":
+        return this.resourceMasterCC();
+      case "resource":
+        return this.resourceCC();
+      case "initiative-column":
+        return this.initiativeColumnCC();
+      case "property-selection":
         return this.propertySelectionCC();
-      case "property-face-list":
+      case "property-face":
         return this.propertyFaceCC();
       case "character":
       case "dice-symbol":
@@ -589,9 +618,9 @@ export default class SocketFacade {
         return this.sceneLayerCC();
       case "map-and-layer":
         return this.sceneAndLayerCC();
-      case "tag-note-list":
+      case "tag-note":
         return this.tagNoteCC();
-      case "role-group-list":
+      case "actor-group":
         return this.actorGroupCC();
       case "card-meta":
         return this.cardMetaCC();

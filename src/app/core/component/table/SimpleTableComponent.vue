@@ -26,7 +26,10 @@
             <th
               :key="`header-${index}`"
               :title="
-                $t(`${windowInfo.type}.table-columns.${tableIndex}.${index}`)
+                getHeadStr(
+                  `${windowInfo.type}.table-columns.${tableIndex}.${index}`,
+                  colDec.target
+                )
               "
               :style="colStyle(index)"
               :class="colDec | align"
@@ -78,7 +81,7 @@
             <td
               v-for="(colDec, index) in tableDeclareInfo.columnList"
               :style="colStyle(index)"
-              :key="`body-${index}`"
+              :key="`body-${row.data[keyProp]}-${colDec.target}`"
               class="selectable"
               :colspan="getColspan(index)"
               :class="colClass(colDec, index)"
@@ -156,6 +159,8 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import { getCssPxNum } from "@/app/core/css/Css";
 import { RowSelectInfo } from "task-info";
 import { convertNumberZero, sum } from "@/app/core/utility/PrimaryDataUtility";
+import { StoreUseData } from "@/@types/store";
+import LanguageManager from "@/LanguageManager";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -184,7 +189,7 @@ export default class SimpleTableComponent extends Vue {
   @Prop({ type: Object, required: false, default: null })
   private tabInfo!: TabInfo | null;
   @Prop({ type: Array, required: true })
-  private dataList!: any[];
+  private dataList!: StoreUseData<any>[];
   @Prop({ type: String, required: false, default: "key" })
   private keyProp!: string;
   @Prop({ type: Function, required: false, default: () => [] })
@@ -194,6 +199,8 @@ export default class SimpleTableComponent extends Vue {
   ) => string[];
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
+  @Prop({ type: Boolean, required: false, default: true })
+  private isUseHeaderI18n!: boolean;
   @Prop({ required: true })
   private value!: string | number | null;
 
@@ -206,6 +213,12 @@ export default class SimpleTableComponent extends Vue {
 
   public set localValue(val: string | number | null) {
     this.input(val);
+  }
+
+  private getHeadStr(target: string, defaultStr: string): string {
+    return this.isUseHeaderI18n
+      ? LanguageManager.instance.getText(target)
+      : defaultStr;
   }
 
   private isMounted: boolean = false;
@@ -319,8 +332,8 @@ export default class SimpleTableComponent extends Vue {
   private onChangeDataList() {
     let rowList = this.dataList.map((data, index) => {
       return {
-        isSelected: data[this.keyProp] === this.localValue,
-        isDoubleClick: data[this.keyProp] === this.doubleClickedKey,
+        isSelected: (data as any)[this.keyProp] === this.localValue,
+        isDoubleClick: (data as any)[this.keyProp] === this.doubleClickedKey,
         dataListIndex: index,
         data
       };
@@ -709,6 +722,10 @@ th {
   overflow: hidden;
   padding: 0;
   box-sizing: content-box;
+
+  > * {
+    width: 100%;
+  }
 
   &.align-left {
     @include flex-box(row, flex-start, center);

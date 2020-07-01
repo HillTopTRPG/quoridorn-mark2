@@ -42,6 +42,10 @@ import CardDeckSmallEditWindow from "@/app/basic/card/CardDeckSmallEditWindow.vu
 import PlayBgmFileWindow from "@/app/basic/cut-in/bgm/PlayBgmFileWindow.vue";
 import CharacterAddWindow from "@/app/basic/object/character/CharacterAddWindow.vue";
 import CharacterEditWindow from "@/app/basic/object/character/CharacterEditWindow.vue";
+import InitiativeWindow from "@/app/basic/initiative/InitiativeWindow.vue";
+import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWindow.vue";
+import ResourceMasterEditWindow from "@/app/basic/initiative/ResourceMasterEditWindow.vue";
+import ResourceMasterListWindow from "@/app/basic/initiative/ResourceMasterListWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -90,6 +94,10 @@ async function main(): Promise<void> {
   Vue.component("play-bgm-file-window", PlayBgmFileWindow);
   Vue.component("character-add-window", CharacterAddWindow);
   Vue.component("character-edit-window", CharacterEditWindow);
+  Vue.component("initiative-window", InitiativeWindow);
+  Vue.component("resource-master-add-window", ResourceMasterAddWindow);
+  Vue.component("resource-master-edit-window", ResourceMasterEditWindow);
+  Vue.component("resource-master-list-window", ResourceMasterListWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

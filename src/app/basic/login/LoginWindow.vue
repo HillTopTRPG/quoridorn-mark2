@@ -164,6 +164,7 @@ import {
   listToEmpty
 } from "@/app/core/utility/PrimaryDataUtility";
 import { getSrc } from "@/app/core/utility/Utility";
+import { PropertyStore, ResourceMasterStore } from "@/@types/gameObject";
 
 @Component({
   components: {
@@ -1219,6 +1220,141 @@ export default class LoginWindow extends Mixins<
         outputChatTabId: null
       }
     ]);
+
+    /* --------------------------------------------------
+     * イニシアティブ表のプリセットデータ投入
+     */
+    const resourceMasgerList: ResourceMasterStore[] = [
+      {
+        label: LanguageManager.instance.getText("label.name"),
+        type: "ref-map-object",
+        isSystem: true,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "data.name",
+        min: null,
+        max: null,
+        interval: null,
+        selectionStr: null,
+        defaultValue: "ななし"
+      },
+      {
+        label: LanguageManager.instance.getText("label.initiative"),
+        type: "number",
+        isSystem: true,
+        isInitiative: true,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: 0,
+        max: null,
+        interval: 1,
+        selectionStr: null,
+        defaultValue: "0"
+      },
+      {
+        label: "テキスト！",
+        type: "text",
+        isSystem: false,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: null,
+        max: null,
+        interval: null,
+        selectionStr: null,
+        defaultValue: "SAMPLE01"
+      },
+      {
+        label: "テキスト入力！",
+        type: "input-text",
+        isSystem: false,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: null,
+        max: null,
+        interval: null,
+        selectionStr: null,
+        defaultValue: "SAMPLE02"
+      },
+      {
+        label: "数入力！",
+        type: "number",
+        isSystem: false,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: 0,
+        max: 10,
+        interval: 2,
+        selectionStr: null,
+        defaultValue: "4"
+      },
+      {
+        label: "チェック！",
+        type: "check",
+        isSystem: false,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: null,
+        max: null,
+        interval: null,
+        selectionStr: null,
+        defaultValue: "true"
+      },
+      {
+        label: "色！",
+        type: "color",
+        isSystem: false,
+        isInitiative: false,
+        isAutoAddActor: false,
+        isAutoAddMapObject: true,
+        iconImageId: null,
+        iconImageTag: null,
+        iconImageDirection: null,
+        refProperty: "",
+        min: null,
+        max: null,
+        interval: null,
+        selectionStr: null,
+        defaultValue: "#ff00ff"
+      }
+    ];
+    const rmIdList = await SocketFacade.instance.resourceMasterCC().addDirect(
+      resourceMasgerList,
+      resourceMasgerList.map(_ => ({ owner: null }))
+    );
+    await SocketFacade.instance.initiativeColumnCC().addDirect(
+      rmIdList.map(id => ({
+        resourceMasterId: id
+      })),
+      rmIdList.map(_ => ({ owner: null }))
+    );
   }
 }
 </script>

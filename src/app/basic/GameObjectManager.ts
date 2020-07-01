@@ -28,7 +28,10 @@ import {
   CardMeta,
   CardObject,
   CardDeckBig,
-  CardDeckSmall
+  CardDeckSmall,
+  ResourceMasterStore,
+  ResourceStore,
+  InitiativeColumnStore
 } from "@/@types/gameObject";
 import {
   ClientRoomInfo,
@@ -107,6 +110,7 @@ export default class GameObjectManager {
       sf.cardDeckBigCC().getList(true, this.cardDeckBigList),
       sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList),
       sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList),
+      sf.initiativeColumnCC().getList(true, this.initiativeColumnList),
       sf.actorStatusCC().getList(true, this.actorStatusList)
     ]);
     // 個数の量が小規模のもの
@@ -124,6 +128,7 @@ export default class GameObjectManager {
       sf.socketUserCC().getList(true, this.socketUserList),
       sf.propertyFaceCC().getList(true, this.propertyFaceList),
       sf.propertyCC().getList(true, this.propertyList),
+      sf.resourceMasterCC().getList(true, this.resourceMasterList),
       sf.actorGroupCC().getList(true, this.actorGroupList),
       sf.tagNoteCC().getList(true, this.tagNoteList)
     ]);
@@ -133,6 +138,7 @@ export default class GameObjectManager {
       sf.mediaCC().getList(true, this.mediaList),
       sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList),
       sf.cardMetaCC().getList(true, this.cardMetaList),
+      sf.resourceCC().getList(true, this.resourceList),
       sf.cardObjectCC().getList(true, this.cardObjectList)
     ]);
 
@@ -341,6 +347,11 @@ export default class GameObjectManager {
   public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
   public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
   public readonly propertyList: StoreUseData<PropertyStore>[] = [];
+  public readonly resourceMasterList: StoreUseData<ResourceMasterStore>[] = [];
+  public readonly resourceList: StoreUseData<ResourceStore>[] = [];
+  public readonly initiativeColumnList: StoreUseData<
+    InitiativeColumnStore
+  >[] = [];
   public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore
   >[] = [];
@@ -588,6 +599,12 @@ export default class GameObjectManager {
         return this.sceneAndObjectList;
       case "property":
         return this.propertyList;
+      case "resource-master":
+        return this.resourceMasterList;
+      case "resource":
+        return this.resourceList;
+      case "initiative-column":
+        return this.initiativeColumnList;
       case "property-selection":
         return this.propertySelectionList;
       case "tag-note":

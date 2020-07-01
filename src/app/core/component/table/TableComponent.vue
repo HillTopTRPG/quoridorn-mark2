@@ -13,6 +13,7 @@
       :tabInfo="currentTabInfo"
       :rowClassGetter="rowClassGetter"
       :selectLock="selectLock"
+      :isUseHeaderI18n="isUseHeaderI18n"
       v-model="localValue"
       @doubleClick="doubleClick"
       @adjustWidth="adjustWidth"
@@ -22,7 +23,9 @@
         <slot name="header" :colDec="colDec" />
       </template>
       <template #contents="{ colDec, data, index }">
-        <slot name="contents" :colDec="colDec" :data="data" :index="index" />
+        <keep-alive>
+          <slot name="contents" :colDec="colDec" :data="data" :index="index" />
+        </keep-alive>
       </template>
     </simple-table-component>
   </simple-tab-component>
@@ -55,6 +58,8 @@ export default class TableComponent extends Vue {
   private rowClassGetter!: (data: any) => string[];
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
+  @Prop({ type: Boolean, required: false, default: true })
+  private isUseHeaderI18n!: boolean;
   @Prop({ required: true })
   private value!: string | number | null;
 

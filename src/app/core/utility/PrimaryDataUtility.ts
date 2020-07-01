@@ -48,6 +48,16 @@ export function convertNumberZero(
 }
 
 /**
+ * 文字列をbooleanに変換する
+ * 変換できない場合は false を返却する
+ * @param str
+ */
+export function convertBooleanFalse(str: string | null): boolean {
+  if (str === null) return false;
+  return str.toLowerCase() === "true";
+}
+
+/**
  * 配列を空にする
  * @param list
  */

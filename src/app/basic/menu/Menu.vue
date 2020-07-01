@@ -204,7 +204,7 @@
         プレイヤーボックス表示
       </menu-boolean-item>
       <menu-boolean-item
-        @click="menuClick"
+        @click="openInitiative"
         property="private.display.initiativeWindow"
       >
         イニシアティブ表示
@@ -284,6 +284,18 @@ export default class Menu extends Vue {
 
   menuClick(): void {
     this.isSelecting = !this.isSelecting;
+  }
+
+  @VueEvent
+  private async openInitiative() {
+    this.menuClick();
+    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "initiative-window"
+      }
+    });
   }
 
   isShow(...props: any[]): any {

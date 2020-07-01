@@ -1,14 +1,10 @@
 <template>
-  <tr class="tr-actor-status-select-component">
+  <tr class="tr-resource-type-select-component">
     <th class="label-input">
       <label v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <actor-status-select
-        :actorId="actorId"
-        v-model="localValue"
-        :readonly="readonly"
-      />
+      <resource-type-select v-model="localValue" :readonly="readonly" />
     </td>
   </tr>
 </template>
@@ -17,19 +13,16 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
-import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
+import ResourceTypeSelect from "@/app/basic/common/components/select/ResourceTypeSelect.vue";
+import { ResourceType } from "@/@types/gameObject";
 
-@Component({ components: { ActorStatusSelect, SCheck, ChatColorTypeSelect } })
-export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { ResourceTypeSelect, SCheck } })
+export default class TrResourceTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
-  private labelName!: string;
-
-  @Prop({ type: String, required: true })
-  private actorId!: string;
+  private labelName!: ResourceType;
 
   @Prop({ type: String, required: true })
   private value!: string;
@@ -51,9 +44,10 @@ export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-actor-status-select-component {
+.tr-resource-type-select-component {
   display: contents;
 }
+
 th,
 td {
   padding: 0;

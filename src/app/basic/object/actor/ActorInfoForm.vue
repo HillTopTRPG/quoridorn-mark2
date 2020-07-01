@@ -30,15 +30,6 @@
           v-model="standImagePositionVolatile"
         />
       </tr>
-      <!-- データの有無 -->
-      <tr>
-        <tr-checkbox-component
-          labelName="has-data"
-          :cLabel="$t('label.exist')"
-          :nLabel="$t('label.not-exist')"
-          v-model="isUseTableDataVolatile"
-        />
-      </tr>
     </table>
   </div>
 </template>
@@ -143,19 +134,6 @@ export default class ActorInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("standImagePositionVolatile")
   private onChangeStandImagePositionVolatile(value: number) {
     this.$emit("update:standImagePosition", value);
-  }
-
-  // isUseTableData
-  @Prop({ type: Boolean, required: true })
-  private isUseTableData!: boolean;
-  private isUseTableDataVolatile: boolean = false;
-  @Watch("isUseTableData", { immediate: true })
-  private onChangeIsUseTableData(value: boolean) {
-    this.isUseTableDataVolatile = value;
-  }
-  @Watch("isUseTableDataVolatile")
-  private onChangeIsUseTableDataVolatile(value: boolean) {
-    this.$emit("update:isUseTableData", value);
   }
 
   @LifeCycle

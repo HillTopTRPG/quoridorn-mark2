@@ -6,7 +6,6 @@
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :standImagePosition.sync="standImagePosition"
-      :isUseTableData.sync="isUseTableData"
     />
 
     <div class="button-area">
@@ -48,7 +47,6 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
   private standImagePosition: number = 1;
-  private isUseTableData: boolean = false;
 
   @LifeCycle
   public async mounted() {
@@ -85,7 +83,6 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
         chatFontColorType: this.chatFontColorType,
         chatFontColor: this.chatFontColor,
         standImagePosition: this.standImagePosition,
-        isUseTableData: this.isUseTableData,
         pieceIdList: [],
         statusId: "" // 自動的に付与される
       });

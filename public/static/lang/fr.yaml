@@ -22,6 +22,7 @@ button:
   download: ダウンロード
   read: 読込
   regist-cut-in: カットイン登録
+  setting: 設定
 
 type:
   map-mask: Masque de carte
@@ -78,6 +79,8 @@ context:
   placement-reset: 配置リセット
   ref-url: データ参照先URLを開く
   edit-actor: コマのアクターを編集
+  add-resource-master: リソース追加
+  view-resource-master-list: リソース一覧
 
 label:
   terms-of-use: Conditions d'utilisation
@@ -263,6 +266,31 @@ label:
   card-layout-rows: カード配置行数
   hover-view: マウスカーソルONビュー
   ref-url: データ参照先URL
+  initiative: イニシアティブ
+  fold: 畳む▷
+  basic: 基本
+  icon: アイコン
+  resource: リソース
+  resource-type: 種類
+  resource-type-no-contents: 内容なし
+  resource-type-ref-actor: アクター情報参照
+  resource-type-ref-map-object: 情報参照
+  resource-type-text: 固定テキスト
+  resource-type-input-text: 入力テキスト
+  resource-type-number: 数値
+  resource-type-check: チェック
+  resource-type-select: 選択肢
+  resource-type-combo: コンボボックス
+  resource-type-color: 色
+  ref-property: 参照プロパティ
+  ref-property-name: 名前
+  value-min: 最小値
+  value-max: 最大値
+  value-interval: 変化値
+  value-default: デフォルト値
+  value-selection: 選択肢(カンマ区切り)
+  auto-add-actor: イニシアティブ表の列（アクター）
+  auto-add-map-object: イニシアティブ表の列（コマ）
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -533,3 +561,23 @@ character-add-window:
 character-edit-window:
   window-title: キャラクター編集
 
+initiative-window:
+  window-title: イニシアティブ
+
+resource-master-add-window:
+  window-title: リソース追加
+
+resource-master-edit-window:
+  window-title: リソース編集
+
+resource-master-list-window:
+  window-title: リソース一覧
+  header:
+    name: リソース名
+    type: 種類
+    initiative: 自動付与
+    initiative-actor: アクター
+    initiative-map-object: コマ
+  dialog:
+    delete-resource: "本当にこのリソースを消しますか？\nこの操作は取り消せません。"
+    delete-failure: 削除に失敗しました。
