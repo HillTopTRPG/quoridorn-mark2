@@ -1224,7 +1224,7 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * イニシアティブ表のプリセットデータ投入
      */
-    const resourceMasgerList: ResourceMasterStore[] = [
+    const resourceMasterList: ResourceMasterStore[] = [
       {
         label: LanguageManager.instance.getText("label.name"),
         type: "ref-map-object",
@@ -1345,15 +1345,9 @@ export default class LoginWindow extends Mixins<
         defaultValue: "#ff00ff"
       }
     ];
-    const rmIdList = await SocketFacade.instance.resourceMasterCC().addDirect(
-      resourceMasgerList,
-      resourceMasgerList.map(_ => ({ owner: null }))
-    );
-    await SocketFacade.instance.initiativeColumnCC().addDirect(
-      rmIdList.map(id => ({
-        resourceMasterId: id
-      })),
-      rmIdList.map(_ => ({ owner: null }))
+    await SocketFacade.instance.resourceMasterCC().addDirect(
+      resourceMasterList,
+      resourceMasterList.map(_ => ({ owner: null }))
     );
   }
 }

@@ -100,7 +100,7 @@ export default class ResourceMasterAddWindow extends Mixins<
     bool: boolean,
     color: string
   ): string {
-    if (["text", "input-type", "combo"].indexOf(type) > -1) return str;
+    if (["text", "input-text", "combo"].indexOf(type) > -1) return str;
     if (["number"].indexOf(type) > -1) return num.toString(10);
     if (["check"].indexOf(type) > -1) return bool.toString();
     if (["color"].indexOf(type) > -1) return color;
@@ -117,7 +117,7 @@ export default class ResourceMasterAddWindow extends Mixins<
       bool: false,
       color: "#000000"
     };
-    if (["text", "input-type", "combo"].indexOf(type) > -1) {
+    if (["text", "input-text", "combo"].indexOf(type) > -1) {
       result.str = value;
     }
     if (["number"].indexOf(type) > -1) {

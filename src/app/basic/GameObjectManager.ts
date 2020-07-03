@@ -561,7 +561,7 @@ export default class GameObjectManager {
     )[0].id!;
   }
 
-  public getList(type: string): StoreUseData<unknown>[] | null {
+  public getList(type: string): StoreUseData<any>[] | null {
     switch (type) {
       case "chat":
         return this.chatList;
@@ -579,6 +579,7 @@ export default class GameObjectManager {
         return this.userList;
       case "socket-user":
         return this.socketUserList;
+      case "scene-object":
       case "map-mask":
       case "chit":
       case "floor-tile":

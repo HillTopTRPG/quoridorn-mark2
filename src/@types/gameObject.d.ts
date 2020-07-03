@@ -135,6 +135,7 @@ type InitiativeColumnStore = {
 type ResourceStore = {
   // 誰のリソースかはownerで表現
   masterId: string;
+  type: ResourceType;
   value: string;
 };
 

@@ -32,12 +32,12 @@
             <initiative-input-component
               :inputType="getInputType(colDec.type)"
               :colDec="colDec"
-              :data="data"
+              :dataObj="data"
               @inputCell="inputCell"
             />
           </template>
           <template v-else>
-            {{ data.data[colDec.target] }}
+            {{ getStaticValue(colDec, data) }}
           </template>
         </keep-alive>
       </template>
@@ -56,7 +56,6 @@ import { Component, Emit, Watch } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import WindowVue from "@/app/core/window/WindowVue";
 import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
@@ -74,47 +73,19 @@ import {
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { DataReference } from "@/@types/data";
 import InitiativeInputComponent from "@/app/basic/initiative/InitiativeInputComponent.vue";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 const uuid = require("uuid");
 
 @Component({
-  components: { InitiativeInputComponent, TableComponent, CtrlButton },
-  filters: {
-    icon: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "icon-stop2";
-      if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
-      if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
-      return "icon-file-music";
-    },
-    time: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "-";
-      if (data.data!.start && data.data!.end)
-        return `${data.data!.start}〜${data.data!.end}`;
-      if (data.data!.start) return `${data.data!.start}〜`;
-      if (data.data!.end) return `〜${data.data!.end}`;
-      return "All";
-    },
-    isRepeat: (data: StoreUseData<CutInDeclareInfo>) =>
-      data.data!.url && data.data!.isRepeat ? "" : "-",
-    volume: (data: StoreUseData<CutInDeclareInfo>) =>
-      data.data!.url ? data.data!.volume : "-",
-    fade: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "-";
-      if (data.data!.fadeIn > 0 && data.data!.fadeOut > 0) return "in/out";
-      if (data.data!.fadeIn > 0 && data.data!.fadeOut === 0) return "in";
-      if (data.data!.fadeIn === 0 && data.data!.fadeOut > 0) return "out";
-      return "-";
-    }
-  }
+  components: { InitiativeInputComponent, TableComponent, CtrlButton }
 })
 export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   WindowVue
 ) {
   private selectedCutInId: string | null = null;
-  private propertyList = GameObjectManager.instance.propertyList;
   private actorList = GameObjectManager.instance.actorList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
-  private propertyCC = SocketFacade.instance.propertyCC();
   private fontSize: number = 12;
   private inputtingElmId: string | null = null;
   private updateDbCounter: number = 0;
@@ -143,6 +114,42 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       default:
         return null;
     }
+  }
+
+  @VueEvent
+  private getStaticValue(colDec: WindowTableColumn, data: any): string {
+    const type = colDec.type;
+    const target = colDec.target;
+
+    const resourceMaster = this.resourceMasterList.filter(
+      rm => rm.data!.label === target
+    )[0];
+
+    if (!resourceMaster) return data[target];
+    const refProperty = resourceMaster.data!.refProperty;
+
+    const getPropValue = (d: any, refPropList: string[]): any => {
+      if (!d) return null;
+      if (refPropList.length === 1) return d[refPropList[0]];
+      const nextProp = refPropList.shift()!;
+      return getPropValue(d[nextProp], refPropList);
+    };
+
+    const list = GameObjectManager.instance.getList(data.ownerType);
+    if (!list)
+      throw new ApplicationError(`Un supported type='${data.ownerType}'`);
+    const targetData = list.filter(d => d.id === data.owner)[0]!;
+
+    if (type === "ref-actor") {
+      const actor = this.actorList.filter(
+        a => a.id === targetData.data!.actorId
+      )[0];
+      return getPropValue(actor, refProperty.split("."));
+    }
+    if (type === "ref-map-object") {
+      return getPropValue(targetData, refProperty.split("."));
+    }
+    return data.data[target];
   }
 
   /**
@@ -280,21 +287,33 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const elm: HTMLInputElement = document.getElementById(
       elmId
     ) as HTMLInputElement;
-    const newValue = elm.value;
+    const newValue =
+      elm.type === "checkbox" ? elm.checked.toString() : elm.value;
+
+    window.console.log(target, elm.type, newValue);
 
     this.inputtingElmId = elmId;
     // window.console.log(JSON.stringify(data, null, "  "));
     // window.console.log(target, newValue);
 
-    const property = this.propertyList.filter(
-      p => p.owner === data.owner && p.data!.label === target
+    const resourceMaster = this.resourceMasterList.filter(
+      rm => rm.data!.label === target
     )[0];
-    if (!property) {
-      window.console.error(`${target}のプロパティがありません。`);
+    if (!resourceMaster) {
+      window.console.error(`Not found resource(${target}).`);
       return;
     }
-    property.data!.value = newValue;
-    await this.propertyCC.updatePackage([property.id!], [property.data!]);
+
+    const resource = this.resourceList.filter(
+      r =>
+        r.data!.masterId === resourceMaster.id &&
+        r.ownerType === data.ownerType &&
+        r.owner === data.owner
+    )[0];
+    resource.data!.value = newValue;
+    await SocketFacade.instance
+      .resourceCC()
+      .updatePackage([resource.id!], [resource.data!]);
   }
 
   // private get commonPropertyListAll(): StoreUseData<PropertyStore>[] {
@@ -370,6 +389,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     this.windowInfo.tableInfoList[0].columnWidthList = columnList.map(
       c => c.width
     );
+    // window.console.log(JSON.stringify(this.initiativeColumnList, null, "  "));
+    // window.console.log(JSON.stringify(columnList, null, "  "));
   }
 
   // private get initiativeList(): StoreUseData<any>[] {
