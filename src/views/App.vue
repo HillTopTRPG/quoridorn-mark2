@@ -397,12 +397,10 @@ export default class App extends Vue {
     };
 
     await this.cutInList
-      .filter(c => c.data!.isStandBy)
       .filter(
         c =>
-          !BgmManager.instance.standByWindowList.filter(
-            s => s.targetId === c.id
-          )[0]
+          c.data!.isStandBy &&
+          !BgmManager.instance.standByWindowList.some(s => s.targetId === c.id)
       )
       .map((c: StoreUseData<CutInDeclareInfo>) => () => openWindowFunc(c))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
@@ -480,18 +478,18 @@ export default class App extends Vue {
       return;
     }
 
-    // if (event.key === "Shift" && event.ctrlKey) {
-    //   // TODO ブーケトス機能
-    //   await TaskManager.instance.ignition<ModeInfo, never>({
-    //     type: "mode-change",
-    //     owner: "Quoridorn",
-    //     value: {
-    //       type: "throw-parabola",
-    //       value: (this.throwParabola ? "off" : "on") as "on" | "off"
-    //     }
-    //   });
-    //   return;
-    // }
+    if (event.key === "Shift" && event.ctrlKey) {
+      // TODO ブーケトス機能
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "throw-parabola",
+          value: (this.throwParabola ? "off" : "on") as "on" | "off"
+        }
+      });
+      return;
+    }
     // window.console.log(event.key);
   }
 
@@ -603,23 +601,24 @@ export default class App extends Vue {
     this.otherTextViewInfo = null;
   }
 
+  public static async openSimpleWindow(type: string) {
+    await TaskManager.instance.ignition<WindowOpenInfo<void>, null>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type
+      }
+    });
+  }
+
   @TaskProcessor("room-initialize-finished")
   private async roomInitializeFinished(
     task: Task<void, never>
   ): Promise<TaskResult<never> | void> {
     // 部屋に接続できた
     this.roomInitialized = true;
-    const openSimpleWindow = async (type: string) => {
-      await TaskManager.instance.ignition<WindowOpenInfo<null>, null>({
-        type: "window-open",
-        owner: "Quoridorn",
-        value: {
-          type,
-          args: null
-        }
-      });
-    };
-    await openSimpleWindow("chat-window");
+    await App.openSimpleWindow("chat-window");
+    await App.openSimpleWindow("initiative-window");
 
     task.resolve();
   }

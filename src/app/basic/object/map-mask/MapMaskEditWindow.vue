@@ -68,9 +68,9 @@ export default class MapMastEditWindow extends Mixins<
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;
-  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
-  )[0].id!;
+  )!.id!;
   private otherText: string = "";
 
   @LifeCycle

@@ -57,8 +57,6 @@ import {
 import yaml from "js-yaml";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
-const connectYamlPath = "/static/conf/connect.yaml";
-
 export type ConnectInfo = {
   quoridornServer: string | string[];
   bcdiceServer: string;
@@ -182,7 +180,10 @@ export default class SocketFacade {
   private constructor() {}
 
   public async init() {
-    this.__connectInfo = await loadYaml(connectYamlPath);
+    // 読み込み必須のためthrowは伝搬させる
+    this.__connectInfo = await loadYaml<ConnectInfo>(
+      "/static/conf/connect.yaml"
+    );
 
     // 相互運用性チェック
     try {
@@ -216,7 +217,9 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      // window.console.error("有効なアプリケーションサーバに接続できませんでした。");
+      window.console.error(
+        "有効なアプリケーションサーバに接続できませんでした。"
+      );
       return;
     }
     await this.setAppServerUrl(serverInfo.url);

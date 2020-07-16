@@ -32,6 +32,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ActorInfoForm from "@/app/basic/object/actor/ActorInfoForm.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: { ActorInfoForm, CtrlButton, BaseInput }
@@ -76,16 +77,18 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async commit() {
     if (this.isCommitAble) {
-      await GameObjectManager.addActor({
-        name: this.name,
-        tag: this.tag,
-        type: "character",
-        chatFontColorType: this.chatFontColorType,
-        chatFontColor: this.chatFontColor,
-        standImagePosition: this.standImagePosition,
-        pieceIdList: [],
-        statusId: "" // 自動的に付与される
-      });
+      await SocketFacade.instance.actorCC().addDirect([
+        {
+          name: this.name,
+          tag: this.tag,
+          type: "character",
+          chatFontColorType: this.chatFontColorType,
+          chatFontColor: this.chatFontColor,
+          standImagePosition: this.standImagePosition,
+          pieceIdList: [],
+          statusId: "" // 自動的に付与される
+        }
+      ]);
     }
     this.isProcessed = true;
     await this.close();

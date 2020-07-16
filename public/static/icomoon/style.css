@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?dosuzt');
-  src:  url('fonts/icomoon.eot?dosuzt#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?dosuzt') format('truetype'),
-    url('fonts/icomoon.woff?dosuzt') format('woff'),
-    url('fonts/icomoon.svg?dosuzt#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?lstueq');
+  src:  url('fonts/icomoon.eot?lstueq#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?lstueq') format('truetype'),
+    url('fonts/icomoon.woff?lstueq') format('woff'),
+    url('fonts/icomoon.svg?lstueq#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -13,7 +13,7 @@
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
-  speak: none;
+  speak: never;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
@@ -294,4 +294,58 @@
 }
 .icon-youtube:before {
   content: "\ea9d";
+}
+.icon-list-numbered:before {
+  content: "\e9b9";
+}
+.icon-tab:before {
+  content: "\ea45";
+}
+.icon-move-up:before {
+  content: "\ea46";
+}
+.icon-move-down:before {
+  content: "\ea47";
+}
+.icon-sort-alpha-asc:before {
+  content: "\ea48";
+}
+.icon-sort-alpha-desc:before {
+  content: "\ea49";
+}
+.icon-sort-numeric-asc:before {
+  content: "\ea4a";
+}
+.icon-sort-numberic-desc:before {
+  content: "\ea4b";
+}
+.icon-font-size:before {
+  content: "\ea62";
+}
+.icon-bold:before {
+  content: "\ea63";
+}
+.icon-underline:before {
+  content: "\ea64";
+}
+.icon-italic:before {
+  content: "\ea65";
+}
+.icon-strikethrough:before {
+  content: "\ea66";
+}
+.icon-table2:before {
+  content: "\ea71";
+}
+.icon-section:before {
+  content: "\ea76";
+}
+.icon-paragraph-left:before {
+  content: "\ea77";
+}
+.icon-paragraph-center:before {
+  content: "\ea78";
+}
+.icon-paragraph-right:before {
+  content: "\ea79";
 }

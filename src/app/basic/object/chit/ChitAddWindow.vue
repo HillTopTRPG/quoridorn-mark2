@@ -35,6 +35,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -54,9 +55,9 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "character"
-  )[0].id!;
+  )!.id!;
 
   @LifeCycle
   public async mounted() {
@@ -89,7 +90,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private async dragEnd(event: DragEvent) {
+  private async dragEnd() {
     await TaskManager.instance.ignition<ModeInfo, never>({
       type: "mode-change",
       owner: "Quoridorn",
@@ -108,39 +109,41 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
-    await GameObjectManager.instance.addSceneObject({
-      type: "chit",
-      tag: this.tag,
-      name: this.name,
-      x: point.x,
-      y: point.y,
-      row: matrix.row,
-      column: matrix.column,
-      actorId: null,
-      columns: this.width,
-      rows: this.height,
-      place: "field",
-      isHideBorder: false,
-      isHideHighlight: false,
-      isLock: false,
-      otherText: this.otherText,
-      layerId: this.layerId,
-      textures: [
-        {
-          type: "image",
-          imageTag: this.imageTag!,
-          imageId: this.imageDocId!,
-          direction: this.direction,
-          backgroundSize: this.backgroundSize!
-        }
-      ],
-      textureIndex: 0,
-      angle: 0,
-      url: "",
-      subType: "",
-      pips: 0,
-      faceNum: 0
-    });
+    await SocketFacade.instance.sceneObjectCC().addDirect([
+      {
+        type: "chit",
+        tag: this.tag,
+        name: this.name,
+        x: point.x,
+        y: point.y,
+        row: matrix.row,
+        column: matrix.column,
+        actorId: null,
+        columns: this.width,
+        rows: this.height,
+        place: "field",
+        isHideBorder: false,
+        isHideHighlight: false,
+        isLock: false,
+        otherText: this.otherText,
+        layerId: this.layerId,
+        textures: [
+          {
+            type: "image",
+            imageTag: this.imageTag!,
+            imageId: this.imageDocId!,
+            direction: this.direction,
+            backgroundSize: this.backgroundSize!
+          }
+        ],
+        textureIndex: 0,
+        angle: 0,
+        url: "",
+        subType: "",
+        pips: 0,
+        faceNum: 0
+      }
+    ]);
 
     task.resolve();
   }

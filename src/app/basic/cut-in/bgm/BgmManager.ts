@@ -6,6 +6,7 @@ import { WindowOpenInfo } from "@/@types/window";
 import { StoreUseData } from "@/@types/store";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { CutInDeclareInfo } from "@/@types/room";
+import { findById, findRequireById } from "@/app/core/utility/Utility";
 
 export default class BgmManager {
   // シングルトン
@@ -36,9 +37,9 @@ export default class BgmManager {
   }
 
   public notifyOpenedStandByWindow(targetId: string, windowKey: string) {
-    const windowKeyList = this.standByWindowList.filter(
+    const windowKeyList = this.standByWindowList.find(
       s => s.targetId === targetId
-    )[0].windowKeyList;
+    )!.windowKeyList;
     const idx = windowKeyList.findIndex(wk => !wk);
     windowKeyList[idx] = windowKey;
   }
@@ -95,9 +96,9 @@ export default class BgmManager {
     if (matchAndContinue) return;
 
     if (targetId && cutInInfo.isStandBy) {
-      const standByWindowInfo = this.standByWindowList.filter(
+      const standByWindowInfo = this.standByWindowList.find(
         sbw => sbw.targetId === targetId
-      )[0];
+      )!;
       const windowKeyList = standByWindowInfo.windowKeyList;
       let intervalId: number | null;
 
@@ -185,19 +186,16 @@ export default class BgmManager {
   private static getCutInInfo(playBgmInfo: PlayBgmInfo): CutInDeclareInfo {
     if (playBgmInfo.data) return playBgmInfo.data;
     const cutInList = GameObjectManager.instance.cutInList;
-    const cutInData = cutInList.filter(c => c.id === playBgmInfo.targetId)[0];
-    return cutInData!.data!;
+    return findRequireById(cutInList, playBgmInfo.targetId).data!;
   }
 
-  private getInfo(id: string | null) {
-    return GameObjectManager.instance.cutInList.filter(
-      info => info.id === id
-    )[0];
+  private static getInfo(id: string | null) {
+    return findById(GameObjectManager.instance.cutInList, id);
   }
 
   private static getUrl(target: string | CutInDeclareInfo): string | null {
     if (typeof target === "string") {
-      const info: StoreUseData<CutInDeclareInfo> = BgmManager.instance.getInfo(
+      const info: StoreUseData<CutInDeclareInfo> | null = BgmManager.getInfo(
         target
       );
       if (!info) return null;

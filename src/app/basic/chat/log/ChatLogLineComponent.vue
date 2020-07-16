@@ -2,7 +2,7 @@
   <div class="chat-log-line-component">
     <div class="chat-line">
       <span class="sender">{{ getSender(chat.data) }}：</span>
-      <span v-html="transText(chat.data.text)"></span>
+      <span class="text" v-html="transText(chat.data.text)"></span>
       <div class="icon-container">
         <template v-if="isEditable(chat)">
           <span class="icon icon-pencil" @click="$emit('edit', chat.id)"></span>
@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Prop } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import moment from "moment/moment";
 import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
@@ -33,6 +33,8 @@ import { ActorStore } from "@/@types/gameObject";
 import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
 import { UserType } from "@/@types/socket";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { findRequireById } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: { TabsComponent }
@@ -56,13 +58,42 @@ export default class ChatLogLineComponent extends Vue {
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
 
+  @LifeCycle
+  private mounted() {
+    this.setFontColor();
+  }
+
+  @Watch("chat", { deep: true })
+  private onChangeChat() {
+    this.setFontColor();
+  }
+
+  private setFontColor() {
+    const fontColor = this.elm.style.getPropertyValue(
+      `--font-color-${this.chat.data!.actorId}`
+    );
+    window.console.log("###", fontColor);
+    const textElm: HTMLElement = this.elm
+      .getElementsByClassName("text")
+      .item(0) as HTMLElement;
+    textElm.style.setProperty(
+      "color",
+      `var(--font-color-${this.chat.data!.actorId})`
+    );
+  }
+
   @VueEvent
   private isEditable(chat: StoreUseData<ChatInfo>): boolean {
     return permissionCheck(chat, "edit");
   }
 
+  @VueEvent
   private get isEdited(): boolean {
     return this.chat.updateTime !== this.chat.createTime;
+  }
+
+  private get elm(): HTMLElement {
+    return this.$el as HTMLElement;
   }
 
   @VueEvent
@@ -75,17 +106,18 @@ export default class ChatLogLineComponent extends Vue {
     const actorName = this.getName(chat.actorId, "actor");
     const delimiter = " ＞＞ ";
     const targetName = this.getName(chat.targetId, chat.targetType);
+
     return actorName + (targetName ? delimiter + targetName : "");
   }
 
   private getName(id: string, type: "group" | "actor") {
     if (type === "group") {
-      const gct = this.groupChatTabList.filter(gct => gct.id === id)[0];
+      const gct = findRequireById(this.groupChatTabList, id);
       if (gct.data!.isSystem) return "";
       return gct.data!.name;
     } else {
-      const actor = this.actorList.filter(a => a.id === id)[0];
-      const user = this.userList.filter(u => u.id === actor.owner)[0];
+      const actor = findRequireById(this.actorList, id);
+      const user = findRequireById(this.userList, actor.owner);
       const userType = this.userTypeLanguageMap[user.data!.type];
       const userTypeStr = actor.data!.type !== "user" ? "" : `(${userType})`;
       return `${actor.data!.name}${userTypeStr}`;

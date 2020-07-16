@@ -3,6 +3,7 @@
     <resource-master-info-form
       :windowKey="windowKey"
       :isAdd="true"
+      :systemColumnType="systemColumnType"
       initTabTarget="basic"
       :name.sync="name"
       :resourceType.sync="resourceType"
@@ -34,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Direction } from "@/@types/room";
 import LanguageManager from "@/LanguageManager";
@@ -42,7 +43,11 @@ import WindowVue from "@/app/core/window/WindowVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ResourceMasterInfoForm from "@/app/basic/initiative/ResourceMasterInfoForm.vue";
-import { ResourceMasterStore, ResourceType } from "@/@types/gameObject";
+import {
+  RefProperty,
+  ResourceMasterStore,
+  ResourceType
+} from "@/@types/gameObject";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import {
@@ -70,11 +75,11 @@ export default class ResourceMasterAddWindow extends Mixins<
   private iconImageId: string | null = null;
   private iconImageTag: string | null = null;
   private iconImageDirection: Direction = "none";
-  private refProperty: string = "name";
-  private min: number = 0;
-  private max: number = 100;
-  private interval: number = 1;
-  private selectionStr: string = "";
+  private refProperty: RefProperty | null = null;
+  private min: number | null = null;
+  private max: number | null = null;
+  private interval: number | null = null;
+  private selectionStr: string | null = null;
   private defaultValueStr: string = "";
   private defaultValueNumber: number = 0;
   private defaultValueBoolean: boolean = false;
@@ -86,6 +91,30 @@ export default class ResourceMasterAddWindow extends Mixins<
     this.isMounted = true;
   }
 
+  @Watch("resourceType")
+  private onChangeResourceType() {
+    if (this.resourceType === "combo" || this.resourceType === "select") {
+      if (this.selectionStr === null) {
+        this.selectionStr = "";
+      }
+    }
+    if (this.resourceType === "number") {
+      if (this.min === null || this.max === null || this.interval === null) {
+        this.min = 0;
+        this.max = 100;
+        this.interval = 1;
+      }
+    }
+    if (
+      this.resourceType === "ref-owner" ||
+      this.resourceType === "ref-normal"
+    ) {
+      if (this.refProperty === null) {
+        this.refProperty = "name";
+      }
+    }
+  }
+
   @VueEvent
   private async commit() {
     // TODO 同名プロパティチェック
@@ -93,62 +122,26 @@ export default class ResourceMasterAddWindow extends Mixins<
     await this.close();
   }
 
-  public static getDefaultValueFromType(
-    type: ResourceType,
-    str: string,
-    num: number,
-    bool: boolean,
-    color: string
-  ): string {
-    if (["text", "input-text", "combo"].indexOf(type) > -1) return str;
-    if (["number"].indexOf(type) > -1) return num.toString(10);
-    if (["check"].indexOf(type) > -1) return bool.toString();
-    if (["color"].indexOf(type) > -1) return color;
-    return "";
-  }
-
-  public static getDefaultValueFromValue(
-    type: ResourceType,
-    value: string
-  ): { str: string; num: number; bool: boolean; color: string } {
-    const result = {
-      str: "",
-      num: 0,
-      bool: false,
-      color: "#000000"
-    };
-    if (["text", "input-text", "combo"].indexOf(type) > -1) {
-      result.str = value;
-    }
-    if (["number"].indexOf(type) > -1) {
-      result.num = convertNumberZero(value);
-    }
-    if (["check"].indexOf(type) > -1) {
-      result.bool = convertBooleanFalse(value);
-    }
-    if (["color"].indexOf(type) > -1) {
-      result.color = parseColor(value).getRGBA();
-    }
-    return result;
-  }
-
   private get resourceMasterData(): ResourceMasterStore {
-    const isNumber = ["number"].indexOf(this.resourceType) > -1;
+    const isNumber = this.resourceType === "number";
+    const isRef =
+      this.resourceType === "ref-normal" || this.resourceType === "ref-owner";
+    const isSelection =
+      this.resourceType === "select" || this.resourceType === "combo";
     return {
       label: this.name,
       type: this.resourceType,
-      isSystem: false,
-      isInitiative: false,
+      systemColumnType: null,
       isAutoAddActor: this.isAutoAddActor,
       isAutoAddMapObject: this.isAutoAddMapObject,
       iconImageId: this.iconImageId,
       iconImageTag: this.iconImageTag,
       iconImageDirection: this.iconImageDirection,
-      refProperty: this.resourceType.startsWith("ref-") ? this.refProperty : "",
+      refProperty: isRef ? this.refProperty : null,
       min: isNumber ? this.min : null,
       max: isNumber ? this.max : null,
       interval: isNumber ? this.interval : null,
-      selectionStr: this.selectionStr,
+      selectionStr: isSelection ? this.selectionStr : null,
       defaultValue: ResourceMasterAddWindow.getDefaultValueFromType(
         this.resourceType,
         this.defaultValueStr,
@@ -162,6 +155,61 @@ export default class ResourceMasterAddWindow extends Mixins<
   @VueEvent
   private async rollback() {
     await this.close();
+  }
+
+  public static getDefaultValueFromType(
+    type: ResourceType,
+    str: string,
+    num: number,
+    bool: boolean,
+    color: string
+  ): string {
+    switch (type) {
+      case "text":
+      case "input-text":
+      case "select":
+      case "combo":
+        return str;
+      case "number":
+        return num.toString(10);
+      case "check":
+        return bool.toString();
+      case "color":
+        return color;
+      default:
+    }
+    return "";
+  }
+
+  public static getDefaultValueFromValue(
+    type: ResourceType,
+    value: string
+  ): { str: string; num: number; bool: boolean; color: string } {
+    const result = {
+      str: "",
+      num: 0,
+      bool: false,
+      color: "#000000"
+    };
+    switch (type) {
+      case "text":
+      case "input-text":
+      case "select":
+      case "combo":
+        result.str = value;
+        break;
+      case "number":
+        result.num = convertNumberZero(value);
+        break;
+      case "check":
+        result.bool = convertBooleanFalse(value);
+        break;
+      case "color":
+        result.color = parseColor(value).getRGBA();
+        break;
+      default:
+    }
+    return result;
   }
 }
 </script>

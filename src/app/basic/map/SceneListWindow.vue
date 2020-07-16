@@ -271,7 +271,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    await GameObjectManager.instance.addScene(scene);
+    await SocketFacade.instance.sceneListCC().addDirect([scene]);
   }
 }
 </script>

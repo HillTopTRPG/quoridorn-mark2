@@ -27,6 +27,12 @@ type StoreMetaData = {
   id: string | null;
 };
 
+type ExportDataFormat<T> = {
+  type: string;
+  version: string;
+  data: T;
+};
+
 /**
  * メタデータ付き、DBデータ
  */

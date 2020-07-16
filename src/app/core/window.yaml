@@ -1338,7 +1338,7 @@
   tableInfoList: []
 
 "initiative-window":
-  icon: tv
+  icon: list-numbered
   parentTypeList: []
   isInputWindow: false
   isMovingRendering: false
@@ -1352,7 +1352,7 @@
   minSize:
     widthPx: 271
     heightPx: 5
-    heightEm: 28
+    heightEm: 10
     heightRem: 1
   maxSize:
     widthPx: 271

@@ -3,6 +3,7 @@
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :id="id"
+    :readonly="readonly"
     ref="component"
   />
 </template>
@@ -14,7 +15,6 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import LanguageManager from "@/LanguageManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -31,8 +31,8 @@ export default class ResourceTypeSelect extends Mixins<MultiMixin>(
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
     { value: "no-contents", key: "", text: "", disabled: false },
-    { value: "ref-actor", key: "", text: "", disabled: false },
-    { value: "ref-map-object", key: "", text: "", disabled: false },
+    { value: "ref-normal", key: "", text: "", disabled: false },
+    { value: "ref-owner", key: "", text: "", disabled: false },
     { value: "text", key: "", text: "", disabled: false },
     { value: "input-text", key: "", text: "", disabled: false },
     { value: "number", key: "", text: "", disabled: false },

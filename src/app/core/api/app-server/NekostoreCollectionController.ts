@@ -23,7 +23,7 @@ export default class NekostoreCollectionController<T> {
   constructor(
     private readonly socket: any,
     private readonly nekostore: Nekostore,
-    private readonly collectionName: string
+    public readonly collectionName: string
   ) {}
 
   private touchList: string[] = [];

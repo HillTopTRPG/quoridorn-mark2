@@ -44,7 +44,7 @@ import { Mixins } from "vue-mixin-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { ResultInfo } from "@/app/basic/media/MediaUploadWindow.vue";
+import { UploadMediaInfo } from "@/app/core/utility/FileUtility";
 
 @Component({
   components: { BaseInput, CtrlButton }
@@ -53,7 +53,7 @@ export default class MediaUploadItemComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private resultInfo!: ResultInfo;
+  private resultInfo!: UploadMediaInfo;
 }
 </script>
 

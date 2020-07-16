@@ -14,10 +14,10 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LanguageManager from "@/LanguageManager";
 import { Task, TaskResult } from "task";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
 import { Watch } from "vue-property-decorator";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -55,10 +55,9 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
     this.optionInfoList = this.actorList
       .filter(a => a.owner === GameObjectManager.instance.mySelfUserId)
       .map(a => {
-        const type = a.data!.type;
         let additionalText = "";
         if (a.data!.type === "user") {
-          const user = this.userList.filter(u => u.id === a.owner)[0];
+          const user = findRequireById(this.userList, a.owner);
           additionalText +=
             "(" + this.$t(`label.${user.data!.type}`)!.toString() + ")";
         }

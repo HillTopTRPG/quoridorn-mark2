@@ -98,8 +98,8 @@ type PropertyFaceStore = {
 // リソース定義
 type ResourceType =
   | "no-contents"
-  | "ref-actor"
-  | "ref-map-object"
+  | "ref-normal"
+  | "ref-owner"
   | "text"
   | "input-text"
   | "number"
@@ -108,17 +108,31 @@ type ResourceType =
   | "combo"
   | "color";
 
+type RefProperty =
+  | "name"
+  | "type"
+  | "tag"
+  | "actor-name"
+  | "actor-type"
+  | "actor-tag"
+  | "owner-name"
+  | "owner-type"
+  | "object-other-text"
+  | "object-layer"
+  | "actor-status-name"
+  | "actor-chat-text-color"
+  | "actor-stand-image-position";
+
 type ResourceMasterStore = {
   label: string;
   type: ResourceType;
-  isSystem: boolean; // ユーザに編集制限を加えるかどうか
+  systemColumnType: "name" | "initiative" | null; // システム列の種類
   isAutoAddActor: boolean; // アクターに自動付与するかどうか
   isAutoAddMapObject: boolean; // コマに自動付与するかどうか
-  isInitiative: boolean; // イニシアティブ値かどうか
   iconImageId: string | null; // アイコンを設定するならその画像のID
   iconImageTag: string | null; // アイコンを設定するならその画像のタグ
   iconImageDirection: Direction | null; // アイコンを設定するならその画像の表示方法
-  refProperty: string; // 参照先プロパティ
+  refProperty: RefProperty | null; // 参照先プロパティ
   min: number | null; // 数値の場合、その最小値
   max: number | null; // 数値の場合、その最大値
   interval: number | null; // 数値の場合、その変化値

@@ -115,6 +115,7 @@ import SCheck from "@/app/basic/common/components/SCheck.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
+import App from "@/views/App.vue";
 
 @Component({
   components: { SCheck, SButton, CtrlButton, draggable }
@@ -224,13 +225,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async addTab() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "chat-tab-add-window"
-      }
-    });
+    await App.openSimpleWindow("chat-tab-add-window");
   }
 
   @VueEvent

@@ -19,14 +19,6 @@ map:
     taskName: window-open
     taskArg:
       type: character-add-window
-  - text: context.add-resource-master
-    taskName: window-open
-    taskArg:
-      type: resource-master-add-window
-  - text: context.view-resource-master-list
-    taskName: window-open
-    taskArg:
-      type: resource-master-list-window
 
 card-object:
   - text: context.turn-on

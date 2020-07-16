@@ -93,6 +93,8 @@
 import SelfActorSelect from "../select/SelfActorSelect.vue";
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
+import { findRequireByKey } from "@/app/core/utility/Utility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -100,12 +102,7 @@ import { Getter } from "vuex-class";
   }
 })
 export default class ActorTabComponent extends Vue {
-  @Prop({
-    type: Array,
-    default: () => {
-      [];
-    }
-  })
+  @Prop({ type: Array, default: [] })
   private optionTabInfo!: any[];
 
   @Getter("getViewName") private getViewName: any;
@@ -122,14 +119,17 @@ export default class ActorTabComponent extends Vue {
     elm.focus();
   }
 
+  @VueEvent
   private selectTab(activeId: string) {
     this.activeId = activeId;
   }
 
+  @VueEvent
   private hoverTab(actorKey: string) {
     this.hoverTabKey = actorKey;
   }
 
+  @VueEvent
   private delTab(actorKey: string) {
     const index = this.standActorList.findIndex(
       actor => actor.key === actorKey
@@ -146,11 +146,12 @@ export default class ActorTabComponent extends Vue {
     ].key;
   }
 
-  @Emit("change")
-  public change(value: string) {}
+  public change(value: string) {
+    this.$emit("change", value);
+  }
 
   @Watch("activeId")
-  private onChangeActiveTabIndex(value: number) {
+  private onChangeActiveTabIndex() {
     const actor: any = this.actor;
     this.change(actor ? actor.key : null);
   }
@@ -171,20 +172,19 @@ export default class ActorTabComponent extends Vue {
     }
   }
 
+  @VueEvent
   private diagonalButtonOnClick() {
     this.isDiagonal = !this.isDiagonal;
   }
 
   private get actor(): any {
-    return this.standActorList.filter(
-      (actor: any) => actor.key === this.activeId
-    )[0];
+    return findRequireByKey(this.standActorList, this.activeId);
   }
 }
 </script>
 
 <style scoped lang="scss">
-@import "../../common";
+@import "../../../common";
 
 $hover-border-color: #0092ed;
 

@@ -37,14 +37,14 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { WindowInfo, WindowOpenInfo } from "@/@types/window";
-import TaskManager from "@/app/core/task/TaskManager";
+import { WindowInfo } from "@/@types/window";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import SelfActorSelect from "@/app/basic/common/components/select/SelfActorSelect.vue";
 import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
 import LanguageManager from "@/LanguageManager";
 import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import App from "@/views/App.vue";
 
 @Component({
   components: {
@@ -112,6 +112,7 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
     this.$emit("update:bcdiceUrl", value);
   }
 
+  @VueEvent
   private onMouseEnterUrl(isHover: boolean) {
     this.windowInfo.message = isHover
       ? LanguageManager.instance.getText("label.input-bcdice-url")
@@ -129,14 +130,7 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
 
   @VueEvent
   private async open(windowType: string) {
-    await TaskManager.instance.ignition<WindowOpenInfo<null>, null>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: windowType,
-        args: null
-      }
-    });
+    await App.openSimpleWindow(windowType);
   }
 
   @VueEvent

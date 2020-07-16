@@ -63,7 +63,6 @@ export default class ChitEditWindow extends Mixins<
   private tag: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private mediaList = GameObjectManager.instance.mediaList;
   private otherText: string = "";
   private height: number = 1;
   private width: number = 1;
@@ -71,11 +70,10 @@ export default class ChitEditWindow extends Mixins<
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
-  private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "character"
-  )[0].id!;
+  )!.id!;
 
   @LifeCycle
   public async mounted() {

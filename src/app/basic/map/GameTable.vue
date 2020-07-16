@@ -47,14 +47,12 @@ import TaskProcessor, {
   TaskProcessorSimple
 } from "@/app/core/task/TaskProcessor";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Scene, Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { AddObjectInfo } from "@/@types/data";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import CssManager from "@/app/core/css/CssManager";
-import { getTextureStyle } from "@/app/core/utility/Utility";
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import { findById, getTextureStyle } from "@/app/core/utility/Utility";
 import { DropPieceInfo } from "task-info";
 
 @Component({
@@ -67,8 +65,6 @@ import { DropPieceInfo } from "task-info";
 })
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
-  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
-  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private roomData = GameObjectManager.instance.roomData;
   private sceneId: string | null = null;
   private sceneInfo: Scene | null = null;
@@ -131,7 +127,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("sceneList", { deep: true })
   private async updateScreen() {
     if (!this.isMounted) return;
-    const sceneData = this.sceneList.filter(s => s.id === this.sceneId)[0];
+    const sceneData = findById(this.sceneList, this.sceneId);
     this.sceneInfo = sceneData ? sceneData.data! : null;
     if (this.sceneInfo) {
       CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;

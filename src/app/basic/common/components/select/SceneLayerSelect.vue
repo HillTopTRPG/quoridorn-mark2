@@ -19,7 +19,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -41,9 +41,11 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
       .filter(mal => mal.data!.sceneId === sceneId)
       .forEach(mal => {
         const layerId = mal.data!.layerId;
-        const layer = GameObjectManager.instance.sceneLayerList.filter(
-          sl => sl.id === layerId
-        )[0];
+        const layer = findRequireById(
+          GameObjectManager.instance.sceneLayerList,
+          layerId
+        );
+        // TODO やり残し？
       });
     this.orderList = GameObjectManager.instance.sceneAndLayerList
       .filter(mal => mal.data!.sceneId === sceneId)

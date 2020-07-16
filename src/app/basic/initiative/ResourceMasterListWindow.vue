@@ -35,7 +35,7 @@
             </ctrl-button>
             <ctrl-button
               @click="deleteResource(resource.id)"
-              :disabled="resource.data.isSystem"
+              :disabled="resource.data.systemColumnType"
             >
               <span v-t="'button.delete'"></span>
             </ctrl-button>
@@ -43,6 +43,16 @@
         </tr>
       </tbody>
     </table>
+    <div class="button-area space-between margin-bottom">
+      <ctrl-button @click="downloadData">
+        <span class="icon-download"></span>
+        <span v-t="'button.download'"></span>
+      </ctrl-button>
+      <ctrl-button @click="uploadData">
+        <span class="icon-upload"></span>
+        <span v-t="'button.upload'"></span>
+      </ctrl-button>
+    </div>
   </div>
 </template>
 
@@ -58,6 +68,12 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskManager from "@/app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { DataReference } from "@/@types/data";
+import App from "@/views/App.vue";
+import { importJson, saveJson } from "@/app/core/utility/FileUtility";
+import { ResourceMasterStore } from "@/@types/gameObject";
+import { StoreUseData } from "@/@types/store";
+import LanguageManager from "@/LanguageManager";
+import moment from "moment/moment";
 
 @Component({
   components: {
@@ -80,12 +96,34 @@ export default class ResourceMasterListWindow extends Mixins<
 
   @VueEvent
   private async addResource() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "resource-master-add-window"
-      }
+    await App.openSimpleWindow("resource-master-add-window");
+  }
+
+  @VueEvent
+  private async downloadData() {
+    window.console.log(JSON.stringify(this.resourceMasterList, null, "  "));
+    const dateTimeStr = moment().format("YYYYMMDDHHmmss");
+    saveJson<StoreUseData<ResourceMasterStore>[]>(
+      `Quoridorn_ResourceMaster_${dateTimeStr}`,
+      "resource-master",
+      this.resourceMasterList
+    );
+  }
+
+  @VueEvent
+  private async uploadData() {
+    window.console.log(JSON.stringify(this.resourceMasterList, null, "  "));
+    const dataContainer = await importJson<StoreUseData<ResourceMasterStore>[]>(
+      "resource-master"
+    );
+    if (!dataContainer) {
+      alert(LanguageManager.instance.getText("label.importFailure"));
+      return;
+    }
+    const importResourceMasterList = dataContainer.data;
+    window.console.log(JSON.stringify(importResourceMasterList, null, "  "));
+    importResourceMasterList.filter(irm => {
+      // TODO 実装
     });
   }
 

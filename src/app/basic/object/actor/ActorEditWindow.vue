@@ -39,6 +39,7 @@ import SocketFacade, {
 } from "@/app/core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import { DataReference } from "@/@types/data";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 @Component({
   components: { ActorInfoForm, CtrlButton, BaseInput }
@@ -128,7 +129,7 @@ export default class ActorEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = this.actorList.filter(a => a.id === this.docId)[0].data!;
+    const data = findRequireById(this.actorList, this.docId).data!;
     data.name = this.name;
     data.tag = this.tag;
     data.chatFontColorType = this.chatFontColorType;

@@ -32,6 +32,8 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import { findRequireById } from "@/app/core/utility/Utility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { SceneLayerComponent }
@@ -46,19 +48,19 @@ export default class MapBoard extends Vue {
   private scene!: Scene | null;
 
   private roomData: RoomData = GameObjectManager.instance.roomData;
-  private key = "map-board";
   private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
 
   private isMounted: boolean = false;
 
+  @VueEvent
   private get useLayerList() {
     return this.sceneAndLayerList
       .filter(
         mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
       )
       .map(mal => mal.data!.layerId)
-      .map(layerId => this.sceneLayerList.filter(ml => ml.id === layerId)[0])
+      .map(layerId => findRequireById(this.sceneLayerList, layerId))
       .filter(ml => ml);
   }
 

@@ -1,8 +1,9 @@
 import urljoin from "url-join";
-import { StoreUseData } from "@/@types/store";
+import { StoreMetaData, StoreUseData } from "@/@types/store";
 import LanguageManager from "@/LanguageManager";
 import { Texture } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 export function getSrc(path: string): string {
   if (!path) return "";
@@ -170,9 +171,8 @@ export function getTextureStyle(texture: Texture) {
   if (texture.type === "color") {
     style.backgroundColor = texture.backgroundColor;
   } else {
-    const imageData = GameObjectManager.instance.mediaList.filter(
-      i => i.id === texture.imageId
-    )[0];
+    const mediaList = GameObjectManager.instance.mediaList;
+    const imageData = findById(mediaList, texture.imageId);
     if (imageData && imageData.data) {
       style.backgroundImage = `url("${getSrc(imageData.data.url)}")`;
     }
@@ -200,4 +200,55 @@ export function createEmptyStoreUseData<T>(
     createTime: new Date(),
     updateTime: null
   };
+}
+
+export function someByStr(list: string[], str: string | null): boolean {
+  return list.some(s => s === str);
+}
+
+export function findById<T extends StoreMetaData>(
+  list: T[],
+  id: string | null
+): T | null {
+  return list.find(obj => obj.id === id) || null;
+}
+
+export function findRequireById<T extends StoreMetaData>(
+  list: T[],
+  id: string | null
+): T {
+  const result = list.find(obj => obj.id === id);
+  if (!result) {
+    throw new ApplicationError(``);
+  }
+  return result;
+}
+
+export function findByKey<T extends { key: string | null }>(
+  list: T[],
+  key: string | null
+): T | null {
+  return list.find(obj => obj.key === key) || null;
+}
+
+export function findRequireByKey<T extends { key: string | null }>(
+  list: T[],
+  key: string | null
+): T {
+  const result = list.find(obj => obj.key === key);
+  if (!result) {
+    throw new ApplicationError(``);
+  }
+  return result;
+}
+
+export function findRequireByOwner<T extends { owner: string | null }>(
+  list: T[],
+  owner: string | null
+): T {
+  const result = list.find(obj => obj.owner === owner);
+  if (!result) {
+    throw new ApplicationError(``);
+  }
+  return result;
 }

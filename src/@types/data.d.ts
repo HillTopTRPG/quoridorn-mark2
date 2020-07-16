@@ -1,5 +1,5 @@
 import { Matrix, Point } from "address";
-import { Permission, StoreObj } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 
 export type TouchRequest = {
   collection: string;

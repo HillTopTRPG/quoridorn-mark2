@@ -136,7 +136,7 @@ import {
   LoginWindowInput,
   ServerTestResult
 } from "@/@types/socket";
-import { PermissionNode, StoreObj, StoreUseData } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -146,13 +146,12 @@ import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.
 import LanguageManager from "@/LanguageManager";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { extname, loadYaml } from "@/app/core/utility/FileUtility";
+import { getUrlType, loadYaml } from "@/app/core/utility/FileUtility";
 import {
   Scene,
-  RoomData,
-  SceneLayerType,
   CutInDeclareInfo,
-  MediaInfo
+  MediaInfo,
+  AddRoomPresetDataRequest
 } from "@/@types/room";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
@@ -164,7 +163,6 @@ import {
   listToEmpty
 } from "@/app/core/utility/PrimaryDataUtility";
 import { getSrc } from "@/app/core/utility/Utility";
-import { PropertyStore, ResourceMasterStore } from "@/@types/gameObject";
 
 @Component({
   components: {
@@ -205,7 +203,7 @@ export default class LoginWindow extends Mixins<
     '\\[([^"<>\\]]+)]\\(([^)"<>]+)\\)',
     "g"
   );
-  private language: string = LanguageManager.instance.defaultLanguage;
+  private language: string = LanguageManager.defaultLanguage;
   private urlPassword: string | null = null;
   private urlPlayerName: string | null = null;
 
@@ -975,39 +973,20 @@ export default class LoginWindow extends Mixins<
    * @param createRoomInput
    */
   private async addPresetData(createRoomInput: CreateRoomInput) {
-    const mediaList: MediaInfo[] = await loadYaml<MediaInfo[]>(
+    /* --------------------------------------------------
+     * メディアデータを用意する
+     */
+    // 読み込み必須のためthrowは伝搬させる
+    const mediaDataList = await loadYaml<MediaInfo[]>(
       "./static/conf/media.yaml"
     );
     let firstImageIdx: number = -1;
 
-    const getType = (url: string) => {
-      if (url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
-        return "youtube";
-      } else {
-        const ext = extname(url);
-        switch (ext) {
-          case "png":
-          case "gif":
-          case "jpg":
-          case "jpeg":
-            return "image";
-          case "mp3":
-          case "wav":
-          case "wave":
-            return "music";
-          case "json":
-          case "yaml":
-            return "setting";
-          default:
-            return "unknown";
-        }
-      }
-    };
-    mediaList.forEach((media: MediaInfo, idx: number) => {
+    mediaDataList.forEach((media: MediaInfo, idx: number) => {
       if (!media.tag) media.tag = "";
       media.url = getSrc(media.url);
 
-      const type = getType(media.url);
+      const type = getUrlType(media.url);
       media.type = type;
       if (type === "youtube") {
         if (!media.name)
@@ -1017,6 +996,7 @@ export default class LoginWindow extends Mixins<
           if (firstImageIdx === -1) firstImageIdx = idx;
         }
         if (!media.name) {
+          // ファイル名を名前とする
           media.name = media.url.replace(/^https?:\/\/.+\//, "");
         }
       }
@@ -1040,47 +1020,36 @@ export default class LoginWindow extends Mixins<
     });
 
     /* --------------------------------------------------
-     * BGMデータのプリセットデータ投入
+     * カットインデータを用意する
      */
-    const bgmList: CutInDeclareInfo[] = await loadYaml("/static/conf/bgm.yaml");
-    bgmList.forEach(bgm => {
-      bgm.duration = 0;
-      bgm.url = getSrc(bgm.url);
+    // 読み込み必須のためthrowは伝搬させる
+    const cutInDataList = await loadYaml<CutInDeclareInfo[]>(
+      "/static/conf/bgm.yaml"
+    );
+    cutInDataList.forEach(cutIn => {
+      cutIn.duration = 0;
+      cutIn.url = getSrc(cutIn.url);
 
-      const mediaInfo = mediaList.filter(m => m.url === bgm.url)[0];
+      const mediaInfo = mediaDataList.find(m => m.url === cutIn.url);
       if (mediaInfo) {
         // 上書き
-        mediaInfo.name = bgm.title;
-        mediaInfo.tag = bgm.tag;
+        mediaInfo.name = cutIn.title;
+        mediaInfo.tag = cutIn.tag;
       } else {
         // 追加
-        if (bgm.url) {
-          mediaList.push({
-            name: bgm.title,
-            url: bgm.url,
-            tag: bgm.tag,
-            type: getType(bgm.url)
+        if (cutIn.url) {
+          mediaDataList.push({
+            name: cutIn.title,
+            url: cutIn.url,
+            tag: cutIn.tag,
+            type: getUrlType(cutIn.url)
           });
         }
       }
     });
-    const cutInDataCC = SocketFacade.instance.cutInDataCC();
-
-    await cutInDataCC.addDirect(bgmList);
 
     /* --------------------------------------------------
-     * メディアデータのプリセットデータ投入
-     */
-    const mediaCC = SocketFacade.instance.mediaCC();
-    const docIdList = await mediaCC.addDirect(
-      mediaList,
-      mediaList.map(() => ({ owner: null }))
-    );
-
-    const imageId: string = docIdList[firstImageIdx];
-
-    /* --------------------------------------------------
-     * マップデータのプリセットデータ投入
+     * マップデータのプリセットデータを用意する
      */
     const scene: Scene = {
       name: "A-1",
@@ -1101,16 +1070,16 @@ export default class LoginWindow extends Mixins<
       shapeType: "square",
       texture: {
         type: "image",
-        imageTag: mediaList[firstImageIdx].tag,
-        imageId: imageId!,
+        imageTag: "", // サーバサイドで自動投入
+        imageId: "", // サーバサイドで自動投入
         direction: "none",
         backgroundSize: "100%"
       },
       background: {
         texture: {
           type: "image",
-          imageTag: mediaList[firstImageIdx].tag,
-          imageId: imageId!,
+          imageTag: "", // サーバサイドで自動投入
+          imageId: "", // サーバサイドで自動投入
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1120,8 +1089,8 @@ export default class LoginWindow extends Mixins<
         useTexture: "original",
         texture: {
           type: "image",
-          imageTag: mediaList[firstImageIdx].tag,
-          imageId: imageId!,
+          imageTag: "", // サーバサイドで自動投入
+          imageId: "", // サーバサイドで自動投入
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1141,214 +1110,28 @@ export default class LoginWindow extends Mixins<
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    const addMapResult = await GameObjectManager.instance.addScene(scene);
-
-    /* --------------------------------------------------
-     * マップレイヤーのプリセットデータ投入
-     */
-    const addSceneLayer = async (
-      type: SceneLayerType,
-      defaultOrder: number
-    ) => {
-      await GameObjectManager.instance.addSceneLayer({
-        type,
-        defaultOrder,
-        isSystem: true
-      });
-    };
-    await addSceneLayer("floor-tile", 1);
-    await addSceneLayer("map-mask", 2);
-    await addSceneLayer("map-marker", 3);
-    await addSceneLayer("dice-symbol", 4);
-    await addSceneLayer("card", 5);
-    await addSceneLayer("character", 6);
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
      */
-    const roomDataCC = SocketFacade.instance.roomDataCC();
-
-    const roomData: RoomData = {
-      sceneId: addMapResult.sceneId,
-      settings: createRoomInput.extend,
-      name: createRoomInput.name
-    };
-    await roomDataCC.addDirect([roomData]);
-
-    // ActorGroupを取得する関数
-    const getActorGroup = async (name: string) =>
-      (await SocketFacade.instance
-        .actorGroupCC()
-        .find([{ property: "data.name", operand: "==", value: name }]))![0];
-
-    /* --------------------------------------------------
-     * チャットタブのプリセットデータ投入
-     */
-    const gameMastersActorGroup = await getActorGroup("GameMasters");
-    const gameMastersPermission: PermissionNode = {
-      type: "group",
-      id: gameMastersActorGroup.id!
-    };
-    await SocketFacade.instance.chatTabListCC().addDirect(
-      [
-        {
-          name: LanguageManager.instance.getText("label.main"),
-          isSystem: true
-        }
-      ],
-      [
-        {
-          permission: {
-            view: { type: "none", list: [] },
-            edit: { type: "allow", list: [gameMastersPermission] },
-            chmod: { type: "allow", list: [gameMastersPermission] }
-          }
-        }
-      ]
-    );
-
-    /* --------------------------------------------------
-     * グループチャットタブのプリセットデータ投入
-     */
-    const allActorGroup = await getActorGroup("All");
-    await SocketFacade.instance.groupChatTabListCC().addDirect([
-      {
-        name: LanguageManager.instance.getText("label.target-all"),
-        isSystem: true,
-        actorGroupId: allActorGroup.id!,
-        isSecret: false,
-        outputChatTabId: null
+    await SocketFacade.instance.socketCommunication<
+      AddRoomPresetDataRequest,
+      void
+    >("add-room-preset-data", {
+      mediaDataList,
+      backgroundMediaIndex: firstImageIdx,
+      cutInDataList,
+      sceneData: scene,
+      roomExtendInfo: createRoomInput.extend,
+      roomName: createRoomInput.name,
+      language: {
+        mainChatTabName: LanguageManager.instance.getText("label.main"),
+        allGroupChatTabName: LanguageManager.instance.getText(
+          "label.target-all"
+        ),
+        nameLabel: LanguageManager.instance.getText("label.name")
       }
-    ]);
-
-    /* --------------------------------------------------
-     * イニシアティブ表のプリセットデータ投入
-     */
-    const resourceMasterList: ResourceMasterStore[] = [
-      {
-        label: LanguageManager.instance.getText("label.name"),
-        type: "ref-map-object",
-        isSystem: true,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "data.name",
-        min: null,
-        max: null,
-        interval: null,
-        selectionStr: null,
-        defaultValue: "ななし"
-      },
-      {
-        label: LanguageManager.instance.getText("label.initiative"),
-        type: "number",
-        isSystem: true,
-        isInitiative: true,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: 0,
-        max: null,
-        interval: 1,
-        selectionStr: null,
-        defaultValue: "0"
-      },
-      {
-        label: "テキスト！",
-        type: "text",
-        isSystem: false,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: null,
-        max: null,
-        interval: null,
-        selectionStr: null,
-        defaultValue: "SAMPLE01"
-      },
-      {
-        label: "テキスト入力！",
-        type: "input-text",
-        isSystem: false,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: null,
-        max: null,
-        interval: null,
-        selectionStr: null,
-        defaultValue: "SAMPLE02"
-      },
-      {
-        label: "数入力！",
-        type: "number",
-        isSystem: false,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: 0,
-        max: 10,
-        interval: 2,
-        selectionStr: null,
-        defaultValue: "4"
-      },
-      {
-        label: "チェック！",
-        type: "check",
-        isSystem: false,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: null,
-        max: null,
-        interval: null,
-        selectionStr: null,
-        defaultValue: "true"
-      },
-      {
-        label: "色！",
-        type: "color",
-        isSystem: false,
-        isInitiative: false,
-        isAutoAddActor: false,
-        isAutoAddMapObject: true,
-        iconImageId: null,
-        iconImageTag: null,
-        iconImageDirection: null,
-        refProperty: "",
-        min: null,
-        max: null,
-        interval: null,
-        selectionStr: null,
-        defaultValue: "#ff00ff"
-      }
-    ];
-    await SocketFacade.instance.resourceMasterCC().addDirect(
-      resourceMasterList,
-      resourceMasterList.map(_ => ({ owner: null }))
-    );
+    });
   }
 }
 </script>

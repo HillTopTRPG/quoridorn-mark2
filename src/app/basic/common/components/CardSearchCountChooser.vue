@@ -22,7 +22,6 @@ import { Prop } from "vue-property-decorator";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LanguageManager from "@/LanguageManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 
@@ -49,7 +48,7 @@ export default class CardSearchCountChooser extends Mixins<ComponentVue>(
 
   @VueEvent
   private isChecked(key: string): boolean {
-    return !!this.localValue.filter(l => l === key)[0];
+    return this.localValue.some(l => l === key);
   }
 
   @VueEvent

@@ -71,26 +71,17 @@ import { MediaUploadInfo } from "window-info";
 import DropBoxManager from "@/app/core/api/drop-box/DropBoxManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { UploadFileRequest } from "@/@types/socket";
-import { extname, file2ArrayBuffer } from "@/app/core/utility/FileUtility";
+import {
+  createUploadMediaInfoList,
+  mediaUpload,
+  UploadMediaInfo
+} from "@/app/core/utility/FileUtility";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import MediaUploadItemComponent from "@/app/basic/media/MediaUploadItemComponent.vue";
-import { MediaInfo } from "@/@types/room";
-import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import LanguageManager from "@/LanguageManager";
-
-export type ResultInfo = {
-  name: string;
-  type: string;
-  iconClass: string;
-  imageSrc: string | ArrayBuffer | null;
-  tag: string;
-  src: File | string;
-};
 
 @Component({
   components: {
@@ -105,13 +96,12 @@ export type ResultInfo = {
 export default class MediaUploadWindow extends Mixins<
   WindowVue<MediaUploadInfo, never>
 >(WindowVue) {
-  private localResultList: ResultInfo[] = [];
+  private localResultList: UploadMediaInfo[] = [];
   private dropBoxAccessKey: string = "";
-  private mediaCC = SocketFacade.instance.mediaCC();
   private searchText: string = "";
 
   @VueEvent
-  private get useLocalResultList(): ResultInfo[] {
+  private get useLocalResultList(): UploadMediaInfo[] {
     if (!this.searchText) return this.localResultList.concat();
     const regExp = new RegExp(this.searchText);
     return this.localResultList.filter(r => r.name.match(regExp));
@@ -198,56 +188,9 @@ export default class MediaUploadWindow extends Mixins<
   @LifeCycle
   private async mounted() {
     await this.init();
-    this.localResultList = this.windowInfo.args!.resultList.map(
-      this.createResultInfo
+    this.localResultList = await createUploadMediaInfoList(
+      this.windowInfo.args!.resultList
     );
-  }
-
-  private createResultInfo(src: File | string): ResultInfo {
-    let name: string = typeof src === "string" ? src : src.name;
-    const tag = "";
-    let type: string = "(unknown)";
-    let iconClass: string = "icon-warning";
-    let imageSrc: string | null = null;
-
-    const ext = extname(name);
-    const fr = new FileReader();
-
-    if (name.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
-      iconClass = "icon-youtube2";
-      imageSrc = getYoutubeThunbnail(name);
-      type = "youtube";
-      // URLの場合はユーザに名前を入力してもらう
-      name = "";
-    } else {
-      switch (ext) {
-        case "png":
-        case "gif":
-        case "jpg":
-        case "jpeg":
-          type = "image";
-          iconClass = "icon-image";
-          if (typeof src === "string") imageSrc = src;
-          else fr.readAsDataURL(src);
-          break;
-        case "mp3":
-          type = "music";
-          iconClass = "icon-music";
-          break;
-        case "json":
-        case "yaml":
-          type = "setting";
-          iconClass = "icon-text";
-          break;
-        default:
-      }
-      name = name.replace(/^https?:\/\/.+\//, "");
-    }
-    const result: ResultInfo = { name, tag, type, iconClass, imageSrc, src };
-    fr.onload = () => {
-      result.imageSrc = fr.result as string;
-    };
-    return result;
   }
 
   @Watch("dropBoxAccessKey")
@@ -261,13 +204,13 @@ export default class MediaUploadWindow extends Mixins<
   }
 
   @VueEvent
-  private preview(fileInfo: ResultInfo) {
+  private preview(fileInfo: UploadMediaInfo) {
     // TODO プレビュー
     window.console.log("preview", JSON.stringify(fileInfo, null, "  "));
   }
 
   @VueEvent
-  private deleteFile(fileInfo: ResultInfo) {
+  private deleteFile(fileInfo: UploadMediaInfo) {
     const idx = this.localResultList.findIndex(
       ulr => ulr.name === fileInfo.name
     );
@@ -276,59 +219,7 @@ export default class MediaUploadWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    // DropBox連携が有効なら活用していく
-    if (DropBoxManager.instance.ready) {
-      const uploadFunc = async (fileInfo: ResultInfo): Promise<void> => {
-        const src = fileInfo.src;
-        if (typeof src === "string") return;
-        window.console.log(await DropBoxManager.instance.upload(src));
-      };
-      // 直列の非同期で全部実行する
-      await this.localResultList
-        .map(fileInfo => () => uploadFunc(fileInfo))
-        .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-    }
-
-    const uploadResultInfoList: UploadFileRequest = [];
-    const createUploadResultInfo = async (
-      resultInfo: ResultInfo
-    ): Promise<void> => {
-      const src = resultInfo.src;
-      uploadResultInfoList.push({
-        name: resultInfo.name,
-        src: await file2ArrayBuffer(src as File)
-      });
-    };
-    // 直列の非同期で全部実行する
-    await this.localResultList
-      .filter(resultInfo => typeof resultInfo.src !== "string")
-      .map(resultInfo => () => createUploadResultInfo(resultInfo))
-      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-    const urlList = await SocketFacade.instance.socketCommunication<
-      UploadFileRequest,
-      string[]
-    >("upload-file", uploadResultInfoList);
-
-    let idx = 0;
-    const mediaInfoList: MediaInfo[] = this.localResultList.map(
-      (result: ResultInfo) => {
-        const src = result.src;
-        const url = typeof src === "string" ? src : urlList[idx++];
-        return {
-          url,
-          name: result.name,
-          type: result.type,
-          tag: result.tag
-        };
-      }
-    );
-    await this.mediaCC.addDirect(
-      mediaInfoList,
-      mediaInfoList.map(() => ({
-        permission: GameObjectManager.PERMISSION_OWNER_VIEW
-      }))
-    );
+    await mediaUpload(this.localResultList);
     await this.close();
   }
 }

@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { TabInfo, WindowInfo, WindowOpenInfo } from "@/@types/window";
+import { TabInfo, WindowInfo } from "@/@types/window";
 import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
 import {
   ChatInfo,
@@ -36,7 +36,6 @@ import {
   GroupChatTabInfo,
   UserData
 } from "@/@types/room";
-import TaskManager from "../../../core/task/TaskManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { StoreUseData } from "@/@types/store";
@@ -44,6 +43,7 @@ import { ActorStore } from "@/@types/gameObject";
 import { UserType } from "@/@types/socket";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import App from "@/views/App.vue";
 
 @Component({
   components: {
@@ -98,13 +98,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private async onSettingOpen() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "chat-tab-list-window"
-      }
-    });
+    await App.openSimpleWindow("chat-tab-list-window");
   }
 }
 </script>

@@ -41,7 +41,7 @@ import {
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
 import LanguageManager from "@/LanguageManager";
-import { getSrc } from "@/app/core/utility/Utility";
+import { findById, getSrc } from "@/app/core/utility/Utility";
 import { loadYaml } from "@/app/core/utility/FileUtility";
 
 export type ChatPublicInfo = {
@@ -190,18 +190,23 @@ export default class GameObjectManager {
     });
 
     // チャットフォーマットの読み込み
-    loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml").then(list => {
-      this.chatFormatList.push(...list);
-    });
+    try {
+      // 読み込み必須でないためthrowは伝搬しないで警告だけ表示
+      this.chatFormatList.push(
+        ...(await loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml"))
+      );
+    } catch (err) {
+      window.console.warn(err.toString());
+    }
 
     // チャット設定の初期化
     this.chatPublicInfo.actorId = this.mySelfActorId;
-    this.chatPublicInfo.tabId = this.chatTabList.filter(
+    this.chatPublicInfo.tabId = this.chatTabList.find(
       ct => ct.data!.isSystem
-    )[0].id!;
-    this.chatPublicInfo.targetId = this.groupChatTabList.filter(
+    )!.id!;
+    this.chatPublicInfo.targetId = this.groupChatTabList.find(
       gct => gct.data!.isSystem
-    )[0].id!;
+    )!.id!;
     this.chatPublicInfo.system = this.clientRoomInfo.system;
     this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
     performance.mark("room-init-end");
@@ -217,7 +222,7 @@ export default class GameObjectManager {
    * @param userId
    */
   public getUserName(userId: string | null) {
-    const user = this.userList.filter(u => u.id === userId)[0];
+    const user = findById(this.userList, userId);
     if (!user) return LanguageManager.instance.getText("label.system");
     const type = LanguageManager.instance.getText(`label.${user.data!.type}`);
     return `${user.data!.name}(${type})`;
@@ -372,9 +377,9 @@ export default class GameObjectManager {
   }
 
   public getExclusionOwnerId(socketId: string | null): string | null {
-    const socketUserInfo = this.socketUserList.filter(
+    const socketUserInfo = this.socketUserList.find(
       su => su.data!.socketId === socketId
-    )[0];
+    );
     if (!socketUserInfo) return null;
     return socketUserInfo.data!.userId;
   }
@@ -382,125 +387,10 @@ export default class GameObjectManager {
   public getExclusionOwnerName(socketId: string): string {
     const userId = this.getExclusionOwnerId(socketId);
     if (!userId) return "";
-    const userInfo = this.userList.filter(u => u.id === userId)[0];
+    const userInfo = findById(this.userList, userId);
     return !userInfo
       ? LanguageManager.instance.getText("label.unknown")
       : userInfo.data!.name;
-  }
-
-  public static async addActor(actorInfo: ActorStore) {
-    const actorCC = SocketFacade.instance.actorCC();
-    const actorStatusCC = SocketFacade.instance.actorStatusCC();
-
-    const statusInfo: ActorStatusStore = {
-      name: "◆",
-      isSystem: true,
-      standImageInfoId: null,
-      chatPaletteInfoId: null
-    };
-    const statusId = (await actorStatusCC.addDirect([statusInfo]))[0];
-
-    actorInfo.statusId = statusId;
-
-    const owner: string = (
-      await actorCC.addDirect(
-        [actorInfo],
-        [
-          {
-            permission: {
-              view: { type: "none", list: [] },
-              edit: { type: "allow", list: [{ type: "owner" }] },
-              chmod: { type: "allow", list: [{ type: "owner" }] }
-            }
-          }
-        ]
-      )
-    )[0];
-    await actorStatusCC.touchModify([statusId]);
-    actorInfo.statusId = statusId;
-    await actorStatusCC.update([statusId], [statusInfo], [{ owner }]);
-  }
-
-  public async addScene(
-    scene: Scene
-  ): Promise<{ sceneId: string; mapAndLayerIdList: string[] }> {
-    /* --------------------------------------------------
-     * シーンの登録
-     */
-    const sceneListCC = SocketFacade.instance.sceneListCC();
-    const sceneId = (await sceneListCC.addDirect([scene]))[0];
-
-    /* --------------------------------------------------
-     * シーンとレイヤーの紐づきの登録
-     */
-    const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
-    const sceneAndLayerList: SceneAndLayer[] = (
-      await sceneLayerCC.getList(false)
-    ).map(sl => ({
-      sceneId,
-      layerId: sl.id!,
-      isUse: true
-    }));
-
-    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
-    const mapAndLayerIdList: string[] = await sceneAndLayerCC.addDirect(
-      sceneAndLayerList
-    );
-
-    /* --------------------_ ------------------------------
-     * シーンとオブジェクトの紐づきの登録
-     */
-    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
-    const sceneAndObjectList: SceneAndObject[] = (
-      await sceneObjectCC.getList(false)
-    ).map(so => ({
-      sceneId,
-      objectId: so.id!,
-      isOriginalAddress: false,
-      originalAddress: null,
-      entering: "normal"
-    }));
-
-    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-    await sceneAndObjectCC.addDirect(sceneAndObjectList);
-
-    return {
-      sceneId,
-      mapAndLayerIdList
-    };
-  }
-
-  public async addSceneLayer(sceneLayer: SceneLayer): Promise<void> {
-    const sceneLayerCC = SocketFacade.instance.sceneLayerCC();
-    const layerId = (await sceneLayerCC.addDirect([sceneLayer]))[0];
-
-    const sceneListCC = SocketFacade.instance.sceneListCC();
-    const sceneAndLayerList: SceneAndLayer[] = (
-      await sceneListCC.getList(false)
-    ).map((s: StoreUseData<Scene>) => ({
-      sceneId: s.id!,
-      layerId,
-      isUse: true
-    }));
-
-    const sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
-    await sceneAndLayerCC.addDirect(sceneAndLayerList);
-  }
-
-  public async addSceneObject(sceneObject: SceneObject) {
-    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
-    const objectId = (await sceneObjectCC.addDirect([sceneObject]))[0];
-
-    const sceneAndObjectList: SceneAndObject[] = this.sceneList.map(s => ({
-      sceneId: s.id!,
-      objectId,
-      isOriginalAddress: false,
-      originalAddress: null,
-      entering: "normal"
-    }));
-
-    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-    await sceneAndObjectCC.addDirect(sceneAndObjectList);
   }
 
   public async deleteSceneObject(id: string) {
@@ -538,7 +428,7 @@ export default class GameObjectManager {
   }
 
   public get mySelfUser(): StoreUseData<UserData> | null {
-    return this.userList.filter(p => p.id === this.mySelfUserId)[0] || null;
+    return this.userList.find(p => p.id === this.mySelfUserId) || null;
   }
 
   public get isGm(): boolean {
@@ -556,9 +446,9 @@ export default class GameObjectManager {
   }
 
   public get mySelfActorId(): string {
-    return this.actorList.filter(
+    return this.actorList.find(
       a => a.data!.type === "user" && a.owner === this.mySelfUserId
-    )[0].id!;
+    )!.id!;
   }
 
   public getList(type: string): StoreUseData<any>[] | null {

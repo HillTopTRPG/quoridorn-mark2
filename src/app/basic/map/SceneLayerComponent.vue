@@ -48,6 +48,7 @@ import SocketFacade, {
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -75,6 +76,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
   private sceneAndLayerInfo: StoreUseData<SceneAndLayer> | null = null;
 
+  @VueEvent
   private get className(): string {
     return this.layer.data!.isSystem
       ? this.layer.data!.type
@@ -115,10 +117,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   private get useSceneObjectList() {
     return this.sceneAndObjectList
       .filter(sao => sao.data!.sceneId === this.sceneId)
-      .map(
-        sao =>
-          this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
-      )
+      .map(sao => findRequireById(this.sceneObjectList, sao.data!.objectId))
       .filter(
         so => so.data!.place === "field" && so.data!.layerId === this.layer.id
       );

@@ -32,7 +32,7 @@ import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import Unsubscribe from "nekostore/lib/Unsubscribe";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { getSrc } from "@/app/core/utility/Utility";
+import { findRequireById, getSrc } from "@/app/core/utility/Utility";
 import { WindowOpenInfo } from "@/@types/window";
 import { DataReference } from "@/@types/data";
 
@@ -341,9 +341,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
-      const media = this.mediaList.filter(
-        media => media.id === backInfo.imageId
-      )[0];
+      const media = findRequireById(this.mediaList, backInfo.imageId);
       this.imageSrc = getSrc(media.data!.url);
       this.elm.style.setProperty(`--image`, `url(${this.imageSrc})`);
       let direction = "";
@@ -472,7 +470,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     );
 
     const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
-    await GameObjectManager.instance.addSceneObject(data);
+    await SocketFacade.instance.sceneObjectCC().addDirect([data]);
   }
 
   @TaskProcessor("delete-object-finished")

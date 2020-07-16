@@ -173,6 +173,8 @@ import TrActorStatusSelectComponent from "@/app/basic/common/components/TrActorS
 import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
 import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
 import Character from "@/app/basic/object/character/CharacterPieceComponent.vue";
+import App from "@/views/App.vue";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -256,16 +258,13 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
           sao.data!.sceneId === sceneId &&
           actor.data!.pieceIdList.filter(p => p === sao.data!.objectId).length
       )
-      .map(
-        sao =>
-          this.sceneObjectList.filter(mo => mo.id === sao.data!.objectId)[0]
-      )
+      .map(sao => findRequireById(this.sceneObjectList, sao.data!.objectId))
       .filter(so => so.data!.place === "field");
   }
 
   @VueEvent
   private getOwnerType(userId: string): string {
-    const user = this.userList.filter(u => u.id === userId)[0];
+    const user = findRequireById(this.userList, userId);
     return this.$t(`label.${user.data!.type}`)!.toString();
   }
 
@@ -318,13 +317,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private async addActor() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "actor-add-window"
-      }
-    });
+    await App.openSimpleWindow("actor-add-window");
   }
 
   @VueEvent

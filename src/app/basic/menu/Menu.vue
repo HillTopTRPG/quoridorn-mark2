@@ -248,9 +248,9 @@ import { Component, Vue } from "vue-property-decorator";
 import { StoreUseData } from "@/@types/store";
 import { UserData } from "@/@types/room";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import App from "@/views/App.vue";
+import { someByStr } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -289,19 +289,11 @@ export default class Menu extends Vue {
   @VueEvent
   private async openInitiative() {
     this.menuClick();
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "initiative-window"
-      }
-    });
+    await App.openSimpleWindow("initiative-window");
   }
 
   isShow(...props: any[]): any {
-    return (
-      this.isSelecting && props.filter(prop => prop === this.currentMenu)[0]
-    );
+    return this.isSelecting && someByStr(props, this.currentMenu);
   }
 
   menuHover(prop: string): void {
@@ -315,13 +307,7 @@ export default class Menu extends Vue {
   /** 部屋情報ボタン押下 */
   @VueEvent
   private async clickRoomInfo(): Promise<void> {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, void>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "room-info-window"
-      }
-    });
+    await App.openSimpleWindow("room-info-window");
   }
 
   /** 共有メモボタン押下 */

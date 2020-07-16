@@ -5,6 +5,7 @@ import SocketFacade, {
 } from "@/app/core/api/app-server/SocketFacade";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { StoreUseData } from "@/@types/store";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 /**
  * オペランドの値を取得する
@@ -24,8 +25,7 @@ async function getOperandValue(
   if (o.refType === "db-id-exist") {
     const list = GameObjectManager.instance.getList(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
-    const useData = list.filter(d => d.id === docId!)[0];
-    return !!useData;
+    return list.some(d => d.id === docId!);
   }
   if (o.refType === "db-search-exist") {
     const cc = SocketFacade.instance.getCC(type!);
@@ -52,9 +52,7 @@ async function getOperandValue(
   const getObject = (type: string, id: string): StoreUseData<unknown> => {
     const list = GameObjectManager.instance.getList(type);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
-    const useData = list.filter(d => d.id === id)[0];
-    if (!useData) throw new ApplicationError(`Un supported docId='${id}'`);
-    return useData;
+    return findRequireById(list, id);
   };
   const getProperty = (obj: any, prop: string): any => {
     if (!obj || !prop) return null;
@@ -94,15 +92,14 @@ async function getOperandValue(
   if (o.refType === "permission-check") {
     const list = GameObjectManager.instance.getList(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
-    const useData = list.filter(d => d.id === docId!)[0];
-    if (!useData) throw new ApplicationError(`Un supported docId='${docId}'`);
-    return permissionCheck(useData!, o.type);
+    const useData = findRequireById(list, docId);
+    return permissionCheck(useData, o.type);
   }
   if (o.refType === "exclusion-check") {
     const list = GameObjectManager.instance.getList(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
-    const useData = list.filter(d => d.id === docId!)[0];
-    return useData && !useData.exclusionOwner;
+    const useData = findRequireById(list, docId);
+    return !useData.exclusionOwner;
   }
   throw new ApplicationError(`Un supported refType='${(<any>o).refType}'`);
 }
