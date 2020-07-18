@@ -81,6 +81,12 @@ export default class MapBoard extends Vue {
           }
         }
       });
+      performance.mark("room-init-end");
+      performance.measure("room-init-time", "room-init-start", "room-init-end");
+      const durationMs = performance.getEntriesByName("room-init-time")[0]
+        .duration;
+      const durationS = Math.round(durationMs / 100) / 10;
+      window.console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
     });
   }
 

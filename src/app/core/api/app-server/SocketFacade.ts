@@ -56,6 +56,7 @@ import {
 } from "@/app/core/api/Github";
 import yaml from "js-yaml";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { ModeInfo } from "mode";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -217,9 +218,20 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      window.console.error(
-        "有効なアプリケーションサーバに接続できませんでした。"
-      );
+      swal({
+        title: "通信エラー",
+        text: "有効なアプリケーションサーバに接続できませんでした。",
+        icon: "error"
+      });
+
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "view-progress",
+          value: { message: "", all: 0, current: 0 }
+        }
+      });
       return;
     }
     await this.setAppServerUrl(serverInfo.url);
@@ -426,7 +438,8 @@ export default class SocketFacade {
     event: string,
     callback: (err: any, result: T) => void
   ): void {
-    this.socket!.on(event, (err: any, result: T) => {
+    if (!this.socket) return;
+    this.socket.on(event, (err: any, result: T) => {
       if (err) window.console.error(err);
       callback(err, result);
     });

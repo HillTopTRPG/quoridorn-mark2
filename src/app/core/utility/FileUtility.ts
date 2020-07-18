@@ -18,8 +18,6 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
  */
 export async function loadText(path: string): Promise<string> {
   try {
-    window.console.log("BASE_URL:", process.env.BASE_URL);
-    window.console.log("Path:", path);
     const response = await fetch(process.env.BASE_URL + path);
     return await response.text();
   } catch (err) {

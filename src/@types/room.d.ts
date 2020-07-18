@@ -313,6 +313,8 @@ type ChatInfo = {
 type ChatTabInfo = {
   name: string;
   isSystem: boolean;
+  useReadAloud: boolean;
+  readAloudVolume: number;
 };
 
 type AddRoomPresetDataRequest = {

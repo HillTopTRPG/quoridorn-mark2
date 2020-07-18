@@ -35,7 +35,7 @@
             </ctrl-button>
             <ctrl-button
               @click="deleteResource(resource.id)"
-              :disabled="resource.data.systemColumnType"
+              :disabled="!!resource.data.systemColumnType"
             >
               <span v-t="'button.delete'"></span>
             </ctrl-button>

@@ -40,7 +40,7 @@
         :status="status"
         :dataList="roomList"
         v-if="roomList"
-        :selectLock="isInputtingRoomInfo"
+        :selectLock="roomStatus !== 'normal'"
         keyProp="order"
         :rowClassGetter="getRowClasses"
         v-model="selectedRoomNo"
@@ -196,7 +196,8 @@ export default class LoginWindow extends Mixins<
   private roomList: StoreUseData<ClientRoomInfo>[] | null = null;
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
-  private isInputtingRoomInfo: boolean = false;
+  private roomStatus: "normal" | "processing" | "processingNoneRelease" =
+    "normal";
   private message: Message | null = null;
   private serverTestResult: ServerTestResult | null = null;
   private readonly htmlRegExp: RegExp = new RegExp(
@@ -430,7 +431,7 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private get disabledCreate(): boolean {
-    if (this.isInputtingRoomInfo) return true;
+    if (this.roomStatus !== "normal") return true;
     if (this.selectedRoomNo === null) return true;
     if (!this.roomList) return true;
     return !!this.roomList[this.selectedRoomNo].data;
@@ -438,7 +439,7 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private get disabledLogin(): boolean {
-    if (this.isInputtingRoomInfo) return true;
+    if (this.roomStatus !== "normal") return true;
     if (this.selectedRoomNo === null) return true;
     if (!this.roomList) return true;
     return !this.roomList[this.selectedRoomNo].data;
@@ -446,7 +447,7 @@ export default class LoginWindow extends Mixins<
 
   @LifeCycle
   public async beforeDestroy() {
-    await this.releaseTouchRoom();
+    if (this.roomStatus === "processing") await this.releaseTouchRoom();
   }
 
   @VueEvent
@@ -465,17 +466,13 @@ export default class LoginWindow extends Mixins<
 
   @VueEvent
   private async deleteRoom(order: number) {
-    this.isInputtingRoomInfo = true;
-
     // タッチ
-    if (!(await this.touchRoom(true, order))) {
-      this.isInputtingRoomInfo = false;
-      return;
-    }
+    if (!(await this.touchRoom(true, order))) return;
 
     // 確認画面
     let confirmResult: boolean;
-    this.isInputtingRoomInfo = true;
+    this.roomStatus = "processing";
+
     try {
       const confirmResultList = await TaskManager.instance.ignition<
         WindowOpenInfo<ConfirmInfo>,
@@ -495,14 +492,14 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       await this.releaseTouchRoom(order);
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
       return;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!confirmResult) {
       await this.releaseTouchRoom(order);
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
       return;
     }
 
@@ -523,14 +520,14 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       await this.releaseTouchRoom(order);
+      this.roomStatus = "normal";
       return;
-    } finally {
-      this.isInputtingRoomInfo = false;
     }
 
     // 入力画面がキャンセルされていたらタッチ状態を解除
     if (!deleteRoomInput) {
       await this.releaseTouchRoom(order);
+      this.roomStatus = "normal";
       return;
     }
 
@@ -548,9 +545,11 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       await this.releaseTouchRoom(order);
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
       return;
     }
+    this.roomStatus = "normal";
+
     setTimeout(() => {
       alert(
         deleteResult ? "部屋を削除しました。" : "部屋の削除に失敗しました。"
@@ -605,13 +604,9 @@ export default class LoginWindow extends Mixins<
       return;
     }
 
-    this.isInputtingRoomInfo = true;
-
     // タッチ
-    if (!(await this.touchRoom(false))) {
-      this.isInputtingRoomInfo = false;
-      return;
-    }
+    if (!(await this.touchRoom(false))) return;
+    this.roomStatus = "processing";
 
     /* ----------------------------------------------------------------------
      * 部屋情報入力画面
@@ -629,17 +624,17 @@ export default class LoginWindow extends Mixins<
         }
       });
       createRoomInput = roomInfoList[0];
-
-      if (!createRoomInput) {
-        // 入力画面キャンセル
-        await this.releaseTouchRoom();
-        this.isInputtingRoomInfo = false;
-        return;
-      }
     } catch (err) {
       window.console.warn(err);
       await this.releaseTouchRoom();
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
+      return;
+    }
+
+    if (!createRoomInput) {
+      // 入力画面キャンセル
+      await this.releaseTouchRoom();
+      this.roomStatus = "normal";
       return;
     }
 
@@ -669,30 +664,27 @@ export default class LoginWindow extends Mixins<
       if (!userLoginInput) {
         // 入力画面キャンセル
         await this.releaseTouchRoom();
+        this.roomStatus = "normal";
         return;
       }
     } catch (err) {
       window.console.warn(err);
       await this.releaseTouchRoom();
+      this.roomStatus = "normal";
       return;
-    } finally {
-      this.isInputtingRoomInfo = false;
     }
 
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "view-progress",
-        value: {
-          message: LanguageManager.instance.getText("message.creating-room"),
-          all: 0,
-          current: 0
-        }
-      }
-    });
-
     const roomId = this.roomList![this.selectedRoomNo].id!;
+
+    /* ----------------------------------------------------------------------
+     * 部屋の使用準備
+     */
+    this.roomStatus = "processingNoneRelease";
+    await this.close();
+    performance.mark("room-init-start");
+    this.roomStatus = "processing";
+
+    await LoginWindow.viewProcessView("creating-room");
 
     /* ----------------------------------------------------------------------
      * 部屋作成リクエスト
@@ -709,20 +701,28 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
 
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
+      await LoginWindow.viewProcessView("");
+
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<LoginWindowInput>,
+        never
+      >({
+        type: "window-open",
         owner: "Quoridorn",
         value: {
-          type: "view-progress",
-          value: {
-            message: "",
-            all: 0,
-            current: 0
+          type: "login-window",
+          args: {
+            roomList: this.roomList,
+            message: this.message!,
+            serverTestResult: this.serverTestResult!
           }
         }
       });
+
       return;
     }
+
+    await LoginWindow.viewProcessView("entering-room");
 
     /* ----------------------------------------------------------------------
      * ログインリクエスト
@@ -736,20 +736,40 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
+
+      await LoginWindow.viewProcessView("");
+
       SocketFacade.instance.roomCollectionPrefix = null;
+
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<LoginWindowInput>,
+        never
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "login-window",
+          args: {
+            roomList: this.roomList,
+            message: this.message!,
+            serverTestResult: this.serverTestResult!
+          }
+        }
+      });
+
       return;
     }
+
     SocketFacade.instance.userId = userLoginResponse.userId;
     Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
       expires: 365
     });
 
-    /* ----------------------------------------------------------------------
-     * 部屋の使用準備
-     */
-    await this.close();
+    await LoginWindow.viewProcessView("add-preset-room");
 
     await this.addPresetData(createRoomInput);
+
+    await LoginWindow.viewProcessView("last-process-room");
 
     const loginResult: ClientRoomInfo = {
       name: createRoomInput.name,
@@ -771,6 +791,20 @@ export default class LoginWindow extends Mixins<
       type: "room-initialize",
       owner: "Quoridorn",
       value: loginResult
+    });
+  }
+
+  private static async viewProcessView(msgTarget: string | null) {
+    const message: string = msgTarget
+      ? LanguageManager.instance.getText(`message.${msgTarget}`)
+      : "";
+    await TaskManager.instance.ignition<ModeInfo, never>({
+      type: "mode-change",
+      owner: "Quoridorn",
+      value: {
+        type: "view-progress",
+        value: { message, all: 0, current: 0 }
+      }
     });
   }
 
@@ -804,13 +838,10 @@ export default class LoginWindow extends Mixins<
       return;
     }
 
-    this.isInputtingRoomInfo = true;
-
     // タッチ
-    if (!(await this.touchRoom(true))) {
-      this.isInputtingRoomInfo = false;
-      return;
-    }
+    if (!(await this.touchRoom(true))) return;
+
+    this.roomStatus = "processing";
 
     let loginRoomInput: LoginRoomInput;
     if (this.urlPassword !== null) {
@@ -821,7 +852,6 @@ export default class LoginWindow extends Mixins<
       /* ----------------------------------------------------------------------
        * 部屋情報入力画面
        */
-      this.isInputtingRoomInfo = true;
       try {
         const loginRoomInputList = await TaskManager.instance.ignition<
           WindowOpenInfo<never>,
@@ -838,13 +868,13 @@ export default class LoginWindow extends Mixins<
         if (!loginRoomInput) {
           // 入力画面キャンセル
           await this.releaseTouchRoom();
-          this.isInputtingRoomInfo = false;
+          this.roomStatus = "normal";
           return;
         }
       } catch (err) {
         window.console.warn(err);
         await this.releaseTouchRoom();
-        this.isInputtingRoomInfo = false;
+        this.roomStatus = "normal";
         return;
       }
     }
@@ -866,10 +896,7 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
-      if (this.urlPassword !== null) {
-        // TODO URLパラメータによる自動部屋ログイン時のログイン失敗の場合の処理
-      }
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
       return;
     }
 
@@ -900,29 +927,14 @@ export default class LoginWindow extends Mixins<
 
       if (!userLoginInput) {
         // 入力画面キャンセル
-        // TODO 部屋ログアウト
-        this.isInputtingRoomInfo = false;
+        this.roomStatus = "normal";
         return;
       }
     } catch (err) {
       window.console.warn(err);
-      // TODO 部屋ログアウト
-      this.isInputtingRoomInfo = false;
+      this.roomStatus = "normal";
       return;
     }
-
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "view-progress",
-        value: {
-          message: LanguageManager.instance.getText("message.entering-room"),
-          all: 0,
-          current: 0
-        }
-      }
-    });
 
     /* ----------------------------------------------------------------------
      * ログインリクエスト
@@ -936,11 +948,11 @@ export default class LoginWindow extends Mixins<
     } catch (err) {
       window.console.warn(err);
       alert("ログイン失敗");
+      this.roomStatus = "normal";
       SocketFacade.instance.roomCollectionPrefix = null;
       return;
-    } finally {
-      this.isInputtingRoomInfo = false;
     }
+    this.roomStatus = "normal";
     SocketFacade.instance.userId = userLoginResponse.userId;
     Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
       expires: 365
@@ -950,6 +962,9 @@ export default class LoginWindow extends Mixins<
      * 部屋の使用準備
      */
     await this.close();
+    performance.mark("room-init-start");
+    await LoginWindow.viewProcessView("entering-room");
+
     const loginResult: ClientRoomInfo = this.roomList![this.selectedRoomNo]
       .data!;
     loginResult.roomNo = this.selectedRoomNo;

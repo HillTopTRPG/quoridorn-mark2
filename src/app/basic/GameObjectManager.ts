@@ -101,7 +101,6 @@ export default class GameObjectManager {
    * GameObjectManagerのイニシャライズ
    */
   private async initialize() {
-    performance.mark("room-init-start");
     const sf = SocketFacade.instance;
     // 個数の量が微量のもの
     await Promise.all([
@@ -209,12 +208,6 @@ export default class GameObjectManager {
     )!.id!;
     this.chatPublicInfo.system = this.clientRoomInfo.system;
     this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
-    performance.mark("room-init-end");
-    performance.measure("room-init-time", "room-init-start", "room-init-end");
-    const durationMs = performance.getEntriesByName("room-init-time")[0]
-      .duration;
-    const durationS = Math.round(durationMs / 100) / 10;
-    window.console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
   }
 
   /**

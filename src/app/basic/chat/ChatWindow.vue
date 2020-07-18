@@ -13,6 +13,7 @@
       :groupChatTabList="groupChatTabList"
       @edit="editChat"
       @delete="deleteChat"
+      @changeTab="value => (tabId = value)"
     />
 
     <!-- 操作盤 -->
@@ -116,6 +117,8 @@ import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue"
 import { UserType } from "@/@types/socket";
 import UnitTableComponent from "@/app/basic/chat/UnitTableComponent.vue";
 import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
+import ReadAloudManager from "@/ReadAloudManager";
+import { Getter } from "vuex-class";
 
 @Component({
   components: {
@@ -130,6 +133,9 @@ import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
 export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   WindowVue
 ) {
+  @Getter("useReadAloud")
+  private useReadAloud!: boolean;
+
   // List
   private unitList:
     | { value: number; name: string; unit: string }[]
@@ -178,6 +184,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private system: string = "DiceBot";
   /** BCDice-APIのURL */
   private bcdiceUrl: string = "";
+
+  private lastChatNum: number = -1;
 
   /*
    * local flags
@@ -370,7 +378,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
     this.actorList.forEach(actor => {
       const fontColor = getFontColor(actor);
-      window.console.log("$$$", fontColor);
       this.windowElm.style.setProperty(`--font-color-${actor.id}`, fontColor);
     });
   }
@@ -707,7 +714,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       0,
       createEmptyStoreUseData<ChatTabInfo>(null, {
         name: this.selectedItemLabel,
-        isSystem: true
+        isSystem: true,
+        useReadAloud: false,
+        readAloudVolume: 1
       })
     );
     this.outputTabList = outputTabList;
@@ -726,6 +735,28 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private onSettingOpen() {
     window.console.log("## onSettingOpen");
     // TODO Open view tab setting.
+  }
+
+  @Watch("chatList", { deep: true })
+  private onChangeChatList() {
+    if (!this.chatList.length) return;
+    if (this.lastChatNum < this.chatList.length) {
+      const chatInfo = this.chatList[this.chatList.length - 1].data!;
+      // テキスト読み上げ機能（ダイス結果でない物を読み上げ）
+      if (this.useReadAloud && !chatInfo.dices.length) {
+        let text = chatInfo.text;
+        const actor = this.actorList.find(a => a.id === chatInfo.actorId);
+        if (actor) text = `${actor.data!.name}, ${text}`;
+        const tabId = chatInfo.tabId;
+        const tab = this.chatTabList.find(ct => ct.id === tabId);
+        if (tab && tab.data!.useReadAloud) {
+          window.console.log(text);
+          ReadAloudManager.instance.volume = tab.data!.readAloudVolume || 1;
+          ReadAloudManager.instance.speakVoice(text);
+        }
+      }
+    }
+    this.lastChatNum = this.chatList.length;
   }
 
   @VueEvent
@@ -796,6 +827,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
           this.inputtingChatText.replace(/[&＆]$/, "") + chatFormat.chatText;
         // this.partsFormat = GameObjectManager.instance.chatFormatList[0].chatText;
       } else {
+        // if (this.chatOptionSelectMode === "select-output-tab") {
+        //   this.tabId = this.outputTabId;
+        //   this.outputTabId = null;
+        // }
         this.inputtingChatText = "";
       }
       this.chatOptionSelectMode = "none";
@@ -828,7 +863,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       {
         actorId: this.actorId,
         text,
-        tabId: this.tabId,
+        tabId: this.outputTabId || this.tabId,
         statusId: null, // Actorに設定されているものを使う
         targetId: this.targetId,
         system: this.system,

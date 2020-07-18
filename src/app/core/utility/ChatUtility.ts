@@ -189,6 +189,7 @@ export async function sendChatLog(
 
   const outputNormalChat = async (command: string) => {
     if (!/[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
+      // とりあえずコマンドじゃなさそう
       await addChatLog(chatInfo);
       return;
     }

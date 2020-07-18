@@ -29,7 +29,7 @@ import BgmAddWindow from "@/app/basic/cut-in/bgm/BgmAddWindow.vue";
 import BgmEditWindow from "@/app/basic/cut-in/bgm/BgmEditWindow.vue";
 import BcdiceApiServerSettingWindow from "@/app/basic/login/BcdiceApiServerSettingWindow.vue";
 import ChatWindow from "@/app/basic/chat/ChatWindow.vue";
-import ChatTabListWindow from "@/app/basic/chat/tab/ChatTabListWindow.vue";
+import ChatTabListWindow from "@/app/basic/chat/ChatSettingWindow.vue";
 import ChatTabAddWindow from "@/app/basic/chat/tab/ChatTabAddWindow.vue";
 import ChatTabEditWindow from "@/app/basic/chat/tab/ChatTabEditWindow.vue";
 import ActorAddWindow from "@/app/basic/object/actor/ActorAddWindow.vue";
@@ -46,6 +46,7 @@ import InitiativeWindow from "@/app/basic/initiative/InitiativeWindow.vue";
 import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWindow.vue";
 import ResourceMasterEditWindow from "@/app/basic/initiative/ResourceMasterEditWindow.vue";
 import ResourceMasterListWindow from "@/app/basic/initiative/ResourceMasterListWindow.vue";
+import ReadAloudManager from "@/ReadAloudManager";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -58,6 +59,9 @@ let isYoutubeApiReady = false;
 };
 
 async function main(): Promise<void> {
+  // 最初に読み上げ音声一覧を取得する
+  await ReadAloudManager.init();
+
   Vue.component("cut-in-list-window", CutInListWindow);
   Vue.component("play-youtube-window", PlayYoutubeWindow);
   Vue.component("login-window", LoginWindow);
@@ -81,7 +85,7 @@ async function main(): Promise<void> {
   Vue.component("bgm-add-window", BgmAddWindow);
   Vue.component("bgm-edit-window", BgmEditWindow);
   Vue.component("chat-window", ChatWindow);
-  Vue.component("chat-tab-list-window", ChatTabListWindow);
+  Vue.component("chat-setting-window", ChatTabListWindow);
   Vue.component("chat-tab-add-window", ChatTabAddWindow);
   Vue.component("chat-tab-edit-window", ChatTabEditWindow);
   Vue.component("actor-add-window", ActorAddWindow);

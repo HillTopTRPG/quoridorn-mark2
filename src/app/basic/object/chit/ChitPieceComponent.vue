@@ -5,7 +5,6 @@
     :id="docId"
     @mouseover="mouseover"
     @mouseout="mouseout"
-    @click.right.prevent="openContext"
     @mousedown.left="leftDown"
     @touchstart="leftDown"
     @mousedown.right.stop="rightDown"

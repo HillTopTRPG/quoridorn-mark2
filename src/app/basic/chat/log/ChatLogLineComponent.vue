@@ -69,10 +69,6 @@ export default class ChatLogLineComponent extends Vue {
   }
 
   private setFontColor() {
-    const fontColor = this.elm.style.getPropertyValue(
-      `--font-color-${this.chat.data!.actorId}`
-    );
-    window.console.log("###", fontColor);
     const textElm: HTMLElement = this.elm
       .getElementsByClassName("text")
       .item(0) as HTMLElement;

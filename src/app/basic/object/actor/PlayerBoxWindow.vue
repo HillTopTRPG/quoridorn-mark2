@@ -397,7 +397,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
       ? LanguageManager.instance.getText(
-          `chat-tab-list-window.message-list.${messageType}`
+          `chat-setting-window.message-list.${messageType}`
         )
       : "";
   }

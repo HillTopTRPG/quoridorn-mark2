@@ -721,23 +721,6 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     // });
   }
 
-  protected rightUp(): void {
-    // this.setProperty({ property: `map.isOverEvent`, value: true });
-    // this.$emit("rightUp", event);
-  }
-
-  protected openContext(): void {
-    // this.setProperty({
-    //   property: contextProperty,
-    //   value: {
-    //     objKey: this.objKey,
-    //     x: event.pageX,
-    //     y: event.pageY
-    //   },
-    //   logOff: true
-    // }).then(() => this.windowOpenDeprecated(contextProperty));
-  }
-
   protected async mouseover(): Promise<void> {
     this.isHover = true;
     const data = this.sceneObjectInfo!.data!;

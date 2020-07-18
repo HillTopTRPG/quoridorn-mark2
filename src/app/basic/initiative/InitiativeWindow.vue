@@ -411,7 +411,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       }
     });
 
-    window.console.log(JSON.stringify(sortableTargetInfoList, null, "  "));
+    // window.console.log(JSON.stringify(sortableTargetInfoList, null, "  "));
 
     return sortableTargetInfoList
       .sort((sti1, sti2) => {

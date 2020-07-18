@@ -8,18 +8,20 @@
       @settingOpen="onSettingOpen()"
     >
       <div class="chat-line-container selectable">
-        <chat-log-line-component
-          v-for="chat in chatList"
-          :key="chat.id"
-          :chat="chat"
-          :userList="userList"
-          :actorList="actorList"
-          :groupChatTabList="groupChatTabList"
-          :editedMessage="editedMessage"
-          :userTypeLanguageMap="userTypeLanguageMap"
-          @edit="id => $emit('edit', id)"
-          @delete="id => $emit('delete', id)"
-        />
+        <template v-for="chat in chatList">
+          <chat-log-line-component
+            v-if="chat.data.tabId === currentTabInfo.target"
+            :key="chat.id"
+            :chat="chat"
+            :userList="userList"
+            :actorList="actorList"
+            :groupChatTabList="groupChatTabList"
+            :editedMessage="editedMessage"
+            :userTypeLanguageMap="userTypeLanguageMap"
+            @edit="id => $emit('edit', id)"
+            @delete="id => $emit('delete', id)"
+          />
+        </template>
       </div>
     </simple-tab-component>
   </div>
@@ -80,6 +82,11 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
 
+  @Watch("currentTabInfo")
+  private onChangeCurrentTabInfo() {
+    this.$emit("changeTab", this.currentTabInfo!.target);
+  }
+
   @Watch("chatTabList", { immediate: true, deep: true })
   private onChangeChatTabList() {
     this.tabList = this.chatTabList
@@ -98,7 +105,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private async onSettingOpen() {
-    await App.openSimpleWindow("chat-tab-list-window");
+    await App.openSimpleWindow("chat-setting-window");
   }
 }
 </script>

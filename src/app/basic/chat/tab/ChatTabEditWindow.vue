@@ -1,14 +1,13 @@
 <template>
   <div class="container" ref="window-container">
-    <label>
-      <span v-t="'label.name'" class="label-input"></span>
-      <base-input
-        type="text"
-        :class="{ pending: isDuplicate || !tabName }"
-        :value="tabName"
-        @input="tabName = $event.target.value"
-      />
-    </label>
+    <chat-tab-info-form
+      :windowKey="windowKey"
+      :isAdd="false"
+      initTabTarget="basic"
+      :tabName.sync="tabName"
+      :useReadAloud.sync="useReadAloud"
+      :readAloudVolume.sync="readAloudVolume"
+    />
 
     <div class="button-area">
       <ctrl-button @click="commit()" :disabled="isDuplicate || !tabName">
@@ -31,14 +30,14 @@ import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import LanguageManager from "../../../../LanguageManager";
-import BaseInput from "../../../core/component/BaseInput.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
+import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
 
 @Component({
-  components: { CtrlButton, BaseInput }
+  components: { ChatTabInfoForm, CtrlButton }
 })
 export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
@@ -48,7 +47,9 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   private isProcessed: boolean = false;
   private cc = SocketFacade.instance.chatTabListCC();
 
-  private tabName: string | null = null;
+  private tabName: string = "";
+  private useReadAloud: boolean = false;
+  private readAloudVolume: number = 1;
 
   @LifeCycle
   public async mounted() {
@@ -75,6 +76,8 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     }
 
     this.tabName = data.data!.name;
+    this.useReadAloud = data.data!.useReadAloud;
+    this.readAloudVolume = data.data!.readAloudVolume;
 
     if (this.windowInfo.status === "window") {
       try {
@@ -119,6 +122,8 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     if (!this.isDuplicate) {
       const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
       data.data!.name = this.tabName!;
+      data.data!.useReadAloud = this.useReadAloud!;
+      data.data!.readAloudVolume = this.readAloudVolume!;
       await this.cc!.update([this.docId!], [data.data!]);
     }
     this.isProcessed = true;
@@ -155,7 +160,12 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
 @import "../../../../assets/common";
 
 .container {
+  @include flex-box(column, flex-start, center);
   width: 100%;
   height: 100%;
+}
+
+.button-area {
+  align-self: center;
 }
 </style>

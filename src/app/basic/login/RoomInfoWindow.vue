@@ -192,7 +192,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @VueEvent
   private modify() {
-    alert("modify");
+    alert("未実装です！ごめんなさい！");
   }
 }
 </script>

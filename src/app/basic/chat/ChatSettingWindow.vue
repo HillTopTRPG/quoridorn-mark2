@@ -1,94 +1,77 @@
 <template>
   <div class="container" ref="window-container">
-    <div class="tab-container">
-      <!--
-      @drop.prevent.stop
-      @dragenter.prevent.stop
-      @dragleave.prevent.stop
-      -->
-      <div
-        class="tab-info tab-all"
-        :class="{ 'not-use': !isUseAllTab }"
-        @click="isUseAllTab = !isUseAllTab"
-      >
-        <span class="icon-menu drag-mark"></span>
-        <span v-t="'label.all'"></span>
-
-        <div class="check-box">
-          <span v-t="`label.${isUseAllTab ? '' : 'un-'}use`"></span>
-          <span :class="`icon-eye${isUseAllTab ? '' : '-blocked'}`"></span>
-        </div>
-      </div>
-      <draggable
-        :options="{
-          animation: 10,
-          handle: dragMode ? '' : '.anonymous'
-        }"
-        class="draggable-box"
-        v-model="filteredChatTabList"
-        @start="onSortStart()"
-        @end="onSortEnd()"
-        @sort="onSortOrderChange()"
-      >
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+    >
+      <!-- タブリストタブ -->
+      <div class="tab-container" v-if="currentTabInfo.target === 'tab-list'">
         <div
-          v-for="tab in filteredChatTabList"
-          :key="tab.id"
-          class="tab-info"
-          :class="{
-            locked: tab.exclusionOwner,
-            changeOrder: changeOrderId === tab.id,
-            dragMode
-          }"
-          :style="{
-            '--msg-locked': `'${$t('label.editing')}(${getExclusionOwner(
-              tab.exclusionOwner
-            )})'`
-          }"
-          @onMouseDown="changeOrderId = tab.id"
-          @onMouseUp="changeOrderId = ''"
+          class="tab-info tab-all"
+          :class="{ 'not-use': !isUseAllTab }"
+          @click="isUseAllTab = !isUseAllTab"
         >
-          <span class="icon-menu drag-mark"></span>
-          <span>{{ tab.data.name }}</span>
+          <span class="icon-menu"></span>
+          <span v-t="'label.all'"></span>
 
-          <div class="icon-box">
-            <s-button
-              icon="pencil"
-              :disabled="!isEditable(tab)"
-              @hover="value => onHover('edit', value)"
-              @click="editTab(tab)"
-            />
-            <s-button
-              icon="user-tie"
-              :disabled="!isChmodAble(tab)"
-              @hover="value => onHover('chmod', value)"
-              @click="chmodTab(tab)"
-            />
-            <s-button
-              icon="bin"
-              :disabled="!isDeletable(tab)"
-              @hover="value => onHover('delete', value)"
-              @click="deleteTab(tab)"
-            />
+          <div class="check-box">
+            <span v-t="`label.${isUseAllTab ? '' : 'un-'}use`"></span>
+            <span :class="`icon-eye${isUseAllTab ? '' : '-blocked'}`"></span>
           </div>
         </div>
-      </draggable>
-    </div>
+        <draggable
+          :options="{
+            animation: 10,
+            handle: dragMode ? '' : '.anonymous'
+          }"
+          class="draggable-box"
+          v-model="filteredChatTabList"
+          @start="onSortStart()"
+          @end="onSortEnd()"
+          @sort="onSortOrderChange()"
+        >
+          <chat-tab-component
+            v-for="tab in filteredChatTabList"
+            :key="tab.id"
+            :tab="tab"
+            :dragMode="dragMode"
+            :changeOrderId="changeOrderId"
+            @hover="onHover"
+          />
+        </draggable>
+      </div>
 
-    <div class="button-area">
-      <ctrl-button @click="addTab()">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <s-check
-        class="sort-check"
-        v-model="dragMode"
-        colorStyle="skyblue"
-        c-icon="checkmark"
-        :c-label="$t('label.sort')"
-        n-icon=""
-        :n-label="$t('label.sort')"
-        @hover="onHoverView"
-      />
-    </div>
+      <div class="button-area" v-if="currentTabInfo.target === 'tab-list'">
+        <ctrl-button @click="addTab()">
+          <span v-t="'button.add'"></span>
+        </ctrl-button>
+        <s-check
+          class="sort-check"
+          v-model="dragMode"
+          colorStyle="skyblue"
+          c-icon="checkmark"
+          :c-label="$t('label.sort')"
+          n-icon=""
+          :n-label="$t('label.sort')"
+          @hover="onHoverView"
+        />
+      </div>
+
+      <!-- その他タブ -->
+      <div class="other-block" v-if="currentTabInfo.target === 'other'">
+        <table>
+          <tr>
+            <tr-checkbox-component
+              labelName="read-aloud"
+              cLabel=""
+              nLabel=""
+              v-model="useReadAloudLocal"
+            />
+          </tr>
+        </table>
+      </div>
+    </simple-tab-component>
   </div>
 </template>
 
@@ -96,8 +79,13 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
-import SButton from "@/app/basic/common/components/SButton.vue";
+import { Task, TaskResult } from "task";
+import { ModeInfo } from "mode";
+import { Getter, Mutation } from "vuex-class";
+import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import App from "@/views/App.vue";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
@@ -107,22 +95,33 @@ import { StoreUseData } from "@/@types/store";
 import TaskManager from "@/app/core/task/TaskManager";
 import WindowVue from "@/app/core/window/WindowVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "@/LanguageManager";
 import { DataReference } from "@/@types/data";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import { ModeInfo } from "mode";
-import App from "@/views/App.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
 
 @Component({
-  components: { SCheck, SButton, CtrlButton, draggable }
+  components: {
+    TrCheckboxComponent,
+    ChatTabComponent,
+    SCheck,
+    SimpleTabComponent,
+    CtrlButton,
+    draggable
+  }
 })
-export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
+export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   WindowVue
 ) {
+  @Mutation("setUseReadAloud")
+  private setUseReadAloud!: (useReadAloud: boolean) => void;
+
+  @Getter("useReadAloud")
+  private useReadAloud!: boolean;
+
   private chatTabList = GameObjectManager.instance.chatTabList;
   private filteredChatTabList: StoreUseData<ChatTabInfo>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
@@ -132,8 +131,47 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   private changeOrderId: string = "";
   private orderChangingIdList: string[] = [];
   private dragModeProcessed: boolean = false;
+  private useReadAloudLocal: boolean = false;
 
   private isUseAllTab: boolean = false;
+
+  private tabList: TabInfo[] = [
+    { target: "tab-list", text: "" },
+    { target: "other", text: "" }
+  ];
+  private currentTabInfo: TabInfo = this.tabList[0];
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createTabInfoList();
+    task.resolve();
+  }
+
+  @Watch("useReadAloudLocal")
+  private onChangeUseReadAloudLocal() {
+    this.setUseReadAloud(this.useReadAloudLocal);
+  }
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+    this.useReadAloudLocal = this.useReadAloud;
+  }
+
+  @LifeCycle
+  public async mounted() {
+    await this.init();
+    this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
+    this.currentTabInfo = this.tabList.filter(t => t.target === "tab-list")[0];
+  }
+
+  private createTabInfoList() {
+    this.tabList.forEach(t => {
+      t.text = this.$t(`label.${t.target}`)!.toString();
+    });
+  }
 
   @Watch("isUseAllTab")
   private onChangeIsUseAllTab() {
@@ -150,12 +188,6 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
     this.filteredChatTabList = this.chatTabList.filter(ct =>
       permissionCheck(ct, "view")
     );
-  }
-
-  @LifeCycle
-  public async mounted() {
-    await this.init();
-    this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
   }
 
   @VueEvent
@@ -207,7 +239,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   @VueEvent
   private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
     if (!this.isDeletable(tabInfo)) return;
-    const msg = ChatTabListWindow.getDialogMessage("delete-tab").replace(
+    const msg = ChatSettingWindow.getDialogMessage("delete-tab").replace(
       "$1",
       tabInfo.data!.name
     );
@@ -234,7 +266,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-list-window.dialog." + target;
+    const msgTarget = "chat-setting-window.dialog." + target;
     return LanguageManager.instance.getText(msgTarget);
   }
 
@@ -242,7 +274,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
       ? LanguageManager.instance.getText(
-          `chat-tab-list-window.message-list.${messageType}`
+          `chat-setting-window.message-list.${messageType}`
         )
       : "";
   }
@@ -359,7 +391,7 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .container {
   @include flex-box(column, stretch, flex-start);
@@ -367,11 +399,25 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   height: 100%;
 }
 
+.simple-tab-component {
+  @include flex-box(column, stretch, flex-start);
+  width: 100%;
+  height: 100%;
+}
+
+.other-block {
+  border: solid 1px gray;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.2rem;
+}
+
 .tab-container {
   @include flex-box(column, stretch, flex-start);
   flex: 1;
   background-color: white;
   overflow-y: scroll;
+  border: solid 1px gray;
 }
 
 .draggable-box {
@@ -389,24 +435,11 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
 
   &.tab-all {
     @include btn-skyblue();
-    border-top: 1px dotted var(--uni-color-gray);
-  }
-
-  &.dragMode {
-    cursor: grab;
-
-    .drag-mark {
-      visibility: visible;
-    }
   }
 }
 
-.icon-box {
-  display: inline-block;
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+.icon-menu {
+  visibility: hidden;
 }
 
 .check-box {
@@ -415,23 +448,6 @@ export default class ChatTabListWindow extends Mixins<WindowVue<void, never>>(
   right: 0.3rem;
   top: 0;
   bottom: 0;
-}
-
-.locked {
-  @include lock-view();
-
-  &:after {
-    left: auto;
-    right: 0.2rem;
-  }
-}
-
-.locked:after {
-  content: var(--msg-locked, "ロック中");
-}
-
-.drag-mark {
-  visibility: hidden;
 }
 
 .sort-check {

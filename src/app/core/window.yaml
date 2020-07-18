@@ -879,7 +879,7 @@
   resizable: true
   tableInfoList: []
 
-"chat-tab-list-window":
+"chat-setting-window":
   icon: keyboard
   parentTypeList: []
   isInputWindow: true
@@ -889,20 +889,20 @@
   size:
     widthEm: 22
     widthScrollBar: 1
-    heightPx: 2
-    heightEm: 10
+    heightPx: 4
+    heightEm: 14
     heightRem: 0.5
   minSize:
     widthEm: 18
     widthScrollBar: 1
-    heightPx: 2
-    heightEm: 8
+    heightPx: 4
+    heightEm: 10
     heightRem: 0.5
   maxSize:
     widthEm: 30
     widthScrollBar: 1
-    heightPx: 2
-    heightEm: 20
+    heightPx: 4
+    heightEm: 26
     heightRem: 0.5
   minimizable: true
   paneContainable: true
@@ -922,23 +922,23 @@
     widthPx: 200
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   minSize:
     widthPx: 200
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   maxSize:
     widthPx: 400
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   minimizable: true
   paneContainable: true
   closable: true
@@ -957,23 +957,23 @@
     widthPx: 200
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   minSize:
     widthPx: 200
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   maxSize:
     widthPx: 400
     widthEm: 0
     widthRem: 0
-    heightPx: 2
-    heightEm: 4
-    heightRem: 0.5
+    heightPx: 4
+    heightEm: 8
+    heightRem: 0.9
   minimizable: true
   paneContainable: true
   closable: true

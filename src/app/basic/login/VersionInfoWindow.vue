@@ -18,9 +18,9 @@ import WindowVue from "@/app/core/window/WindowVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { ServerTestResult } from "@/@types/socket";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { TargetVersion } from "@/app/core/api/Github";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -36,7 +36,19 @@ export default class VersionInfoWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.serverTestResult = this.windowInfo.args!;
+    if (this.windowInfo.args) {
+      this.serverTestResult = this.windowInfo.args;
+    } else {
+      let resp: ServerTestResult;
+      const url = SocketFacade.instance.appServerUrl;
+      try {
+        resp = await SocketFacade.instance.testServer(url);
+      } catch (err) {
+        window.console.warn(`${err}. url:${url}`);
+        return;
+      }
+      this.serverTestResult = resp;
+    }
   }
 
   @VueEvent
