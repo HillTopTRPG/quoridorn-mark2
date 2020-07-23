@@ -4,11 +4,11 @@
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import VueEvent from "../../../../core/decorator/VueEvent";
 
 @Component({
   components: { CtrlSelect }

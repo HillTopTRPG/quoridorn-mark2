@@ -18,9 +18,9 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import ColorPickerComponent from "../../../core/component/ColorPickerComponent.vue";
 
 @Component({ components: { ColorPickerComponent } })
 export default class TrColorPickerComponent extends Mixins<ComponentVue>(

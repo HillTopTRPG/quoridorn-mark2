@@ -1,7 +1,5 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import statePublic from "@/app/store/store_public_chat_log";
-import stateSetting from "@/app/store/store_setting";
 
 Vue.use(Vuex);
 
@@ -10,10 +8,6 @@ Vue.use(Vuex);
  * @type {Store}
  */
 export default new Vuex.Store({
-  modules: {
-    setting: stateSetting,
-    public: statePublic
-  },
   state: {},
   actions: {
     /**

@@ -37,11 +37,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import SCheck from "../common/components/SCheck.vue";
+import GameObjectManager from "../GameObjectManager";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({ components: { SCheck } })
 export default class EditSceneLayerComponent extends Vue {

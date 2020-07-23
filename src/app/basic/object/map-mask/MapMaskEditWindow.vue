@@ -28,29 +28,24 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { parseColor } from "@/app/core/utility/ColorUtility";
 import { Mixins } from "vue-mixin-decorator";
-import { DataReference } from "@/@types/data";
-import { SceneObject } from "@/@types/gameObject";
 import { Task, TaskResult } from "task";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import MapMaskInfoForm from "./MapMaskInfoForm.vue";
+import { SceneObject } from "../../../../@types/gameObject";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import MapMaskInfoForm from "@/app/basic/object/map-mask/MapMaskInfoForm.vue";
+} from "../../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { parseColor } from "../../../core/utility/ColorUtility";
+import WindowVue from "../../../core/window/WindowVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import GameObjectManager from "../../GameObjectManager";
+import { DataReference } from "../../../../@types/data";
 
-@Component({
-  components: {
-    MapMaskInfoForm,
-    CtrlButton
-  }
-})
+@Component({ components: { MapMaskInfoForm, CtrlButton } })
 export default class MapMastEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {

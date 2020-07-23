@@ -23,12 +23,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { zeroPadding } from "@/app/core/utility/PrimaryDataUtility";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import CssManager from "@/app/core/css/CssManager";
-import { CutInDeclareInfo } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import { zeroPadding } from "../../../core/utility/PrimaryDataUtility";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import CssManager from "../../../core/css/CssManager";
+import { CutInDeclareInfo } from "../../../../@types/room";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton }

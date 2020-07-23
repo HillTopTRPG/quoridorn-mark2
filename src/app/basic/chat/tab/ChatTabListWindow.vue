@@ -96,25 +96,25 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { ChatTabInfo } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import TaskManager from "@/app/core/task/TaskManager";
-import WindowVue from "@/app/core/window/WindowVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "@/LanguageManager";
-import { DataReference } from "@/@types/data";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
+import { ChatTabInfo } from "../../../../@types/room";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../../@types/store";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import TaskManager from "../../../core/task/TaskManager";
+import WindowVue from "../../../core/window/WindowVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import SCheck from "../../common/components/SCheck.vue";
+import GameObjectManager from "../../GameObjectManager";
+import { WindowOpenInfo } from "../../../../@types/window";
+import LanguageManager from "../../../../LanguageManager";
+import SButton from "../../common/components/SButton.vue";
+import { DataReference } from "../../../../@types/data";
+import SocketFacade, {
+  permissionCheck
+} from "../../../core/api/app-server/SocketFacade";
 
 @Component({
   components: { SCheck, SButton, CtrlButton, draggable }

@@ -97,19 +97,19 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import { ClientRoomInfo, UserType } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreUseData } from "@/@types/store";
-import { UserData } from "@/@types/room";
-import { execCopy } from "@/app/core/utility/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { UserData } from "../../../@types/room";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import { execCopy } from "../../core/utility/Utility";
+import BaseInput from "../../core/component/BaseInput.vue";
+import { ClientRoomInfo, UserType } from "../../../@types/socket";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import BcdiceManager from "../../core/api/bcdice/BcdiceManager";
 
 @Component({
   components: {

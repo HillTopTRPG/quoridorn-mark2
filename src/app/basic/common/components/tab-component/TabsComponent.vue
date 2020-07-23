@@ -45,9 +45,9 @@
 </template>
 
 <script lang="ts">
-import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { Action, Getter, Mutation } from "vuex-class";
-import { Component, Mixins } from "vue-mixin-decorator";
+import { Emit, Prop, Vue } from "vue-property-decorator";
+import { Getter } from "vuex-class";
+import { Component } from "vue-mixin-decorator";
 
 @Component({ components: {} })
 export default class TabsComponent extends Vue {

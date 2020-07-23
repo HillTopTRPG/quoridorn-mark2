@@ -23,10 +23,10 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
+import ColorPickerComponent from "../../../core/component/ColorPickerComponent.vue";
 
 @Component({
   components: {

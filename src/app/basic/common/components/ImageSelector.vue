@@ -32,12 +32,11 @@
 </template>
 
 <script lang="ts">
-import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import ImageTagSelect from "./select/ImageTagSelect.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({ components: { CtrlButton, ImageTagSelect } })
 export default class ImageSelector extends Vue {

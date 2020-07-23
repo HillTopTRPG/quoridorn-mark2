@@ -35,14 +35,14 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import { StoreUseData } from "@/@types/store";
-import { SceneAndObject } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { SceneObject } from "@/@types/gameObject";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
+import { StoreUseData } from "../../../@types/store";
+import ComponentVue from "../../core/window/ComponentVue";
+import { SceneObject } from "../../../@types/gameObject";
+import { SceneAndObject } from "../../../@types/room";
+import SCheck from "../common/components/SCheck.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({ components: { SCheck, BaseInput, draggable } })
 export default class EditSceneObjectComponent extends Mixins<ComponentVue>(

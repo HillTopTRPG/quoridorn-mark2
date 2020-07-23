@@ -49,15 +49,15 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskManager from "../../core/task/TaskManager";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import { WindowOpenInfo } from "../../../@types/window";
+import { DataReference } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

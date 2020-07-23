@@ -21,7 +21,7 @@ import SelectMixin from "./SelectMixin";
 
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import CtrlSelect from "../../../../../core/component/CtrlSelect.vue";
 
 @Component({ components: { CtrlSelect } })
 export default class SelectBase extends Mixins<SelectMixin>(SelectMixin) {

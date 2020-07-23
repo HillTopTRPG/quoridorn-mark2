@@ -67,27 +67,27 @@
 
 <script lang="ts">
 import { Component, Emit } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
+import { BgmPlayInfo } from "task-info";
+import { Task, TaskResult } from "task";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
-import { BgmPlayInfo } from "task-info";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo, WindowResizeInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import LanguageManager from "@/LanguageManager";
+} from "../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
+import TableComponent from "../../core/component/table/TableComponent.vue";
+import { WindowOpenInfo, WindowResizeInfo } from "../../../@types/window";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import TaskManager from "../../core/task/TaskManager";
+import { CutInDeclareInfo, MediaInfo } from "../../../@types/room";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import BgmManager from "./bgm/BgmManager";
+import { DataReference } from "../../../@types/data";
 
 @Component({
   components: { TableComponent, CtrlButton },

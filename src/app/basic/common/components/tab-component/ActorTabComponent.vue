@@ -184,7 +184,7 @@ export default class ActorTabComponent extends Vue {
 </script>
 
 <style scoped lang="scss">
-@import "../../common";
+@import "../../../common";
 
 $hover-border-color: #0092ed;
 

@@ -36,20 +36,20 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { Direction } from "@/@types/room";
-import LanguageManager from "@/LanguageManager";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ResourceMasterInfoForm from "@/app/basic/initiative/ResourceMasterInfoForm.vue";
-import { ResourceMasterStore, ResourceType } from "@/@types/gameObject";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import LifeCycle from "../../core/decorator/LifeCycle";
 import {
   convertBooleanFalse,
   convertNumberZero
-} from "@/app/core/utility/PrimaryDataUtility";
-import { parseColor } from "@/app/core/utility/ColorUtility";
+} from "../../core/utility/PrimaryDataUtility";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import { ResourceMasterStore, ResourceType } from "../../../@types/gameObject";
+import VueEvent from "../../core/decorator/VueEvent";
+import { parseColor } from "../../core/utility/ColorUtility";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import LanguageManager from "../../../LanguageManager";
+import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
+import { Direction } from "../../../@types/room";
 
 @Component({
   components: {

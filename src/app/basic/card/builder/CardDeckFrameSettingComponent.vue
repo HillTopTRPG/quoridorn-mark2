@@ -166,34 +166,26 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import CardSimulatorComponent from "@/app/basic/card/builder/CardSimulatorComponent.vue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { importJson, saveJson } from "@/app/core/utility/FileUtility";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import { CardMeta } from "@/@types/gameObject";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import LanguageManager from "@/LanguageManager";
-import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { importJson, saveJson } from "../../../core/utility/FileUtility";
+import LanguageManager from "../../../../LanguageManager";
+import { CardMeta } from "../../../../@types/gameObject";
+import CardDeckBuilder from "./CardDeckBuilder.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
+import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
+import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
+import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
+import CardSimulatorComponent from "./CardSimulatorComponent.vue";
+import SButton from "../../common/components/SButton.vue";
 
 @Component({
   components: {
-    CardSimulatorComponent,
     SButton,
-    TrNumberInputComponent,
+    CardSimulatorComponent,
     TrColorPickerComponent,
-    TrStringInputComponent,
-    BaseInput,
-    ColorPickerComponent,
-    CardDeckSubContainerComponent,
-    ImagePickerComponent
+    TrNumberInputComponent,
+    CardDeckSubContainerComponent
   }
 })
 export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(

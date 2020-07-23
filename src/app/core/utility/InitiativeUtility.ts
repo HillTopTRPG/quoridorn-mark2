@@ -1,4 +1,4 @@
-import { convertNumberZero, sum } from "@/app/core/utility/PrimaryDataUtility";
+import { convertNumberZero, sum } from "./PrimaryDataUtility";
 
 export function toInitiativeObjList(
   format: string

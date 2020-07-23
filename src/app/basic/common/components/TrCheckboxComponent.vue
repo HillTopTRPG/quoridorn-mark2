@@ -23,12 +23,11 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import SCheck from "./SCheck.vue";
 
-@Component({ components: { SCheck, ChatColorTypeSelect } })
+@Component({ components: { SCheck } })
 export default class TrCheckboxComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

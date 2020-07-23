@@ -1,9 +1,9 @@
 import { all, create } from "mathjs";
-import { ChatInfo, CustomDiceBotInfo } from "@/@types/room";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-import { sum } from "@/app/core/utility/PrimaryDataUtility";
+import { ChatInfo, CustomDiceBotInfo } from "../../../@types/room";
+import GameObjectManager from "../../basic/GameObjectManager";
+import BcdiceManager from "../api/bcdice/BcdiceManager";
+import { sum } from "./PrimaryDataUtility";
+import SocketFacade from "../api/app-server/SocketFacade";
 
 const config = {};
 const math = create(all, config);

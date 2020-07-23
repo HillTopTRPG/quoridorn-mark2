@@ -7,9 +7,9 @@ import SelectMixin from "./base/SelectMixin";
 
 import { Getter } from "vuex-class";
 import { Component, Mixins } from "vue-mixin-decorator";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import VueEvent from "../../../../core/decorator/VueEvent";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

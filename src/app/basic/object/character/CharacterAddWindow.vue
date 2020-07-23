@@ -24,17 +24,17 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { AddObjectInfo } from "@/@types/data";
-import { BackgroundSize, Direction } from "@/@types/room";
-import LanguageManager from "@/LanguageManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
-import CharacterInfoForm from "@/app/basic/object/character/CharacterInfoForm.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import CharacterInfoForm from "./CharacterInfoForm.vue";
+import { BackgroundSize, Direction } from "../../../../@types/room";
+import TaskManager from "../../../core/task/TaskManager";
+import WindowVue from "../../../core/window/WindowVue";
+import GameObjectManager from "../../GameObjectManager";
+import LanguageManager from "../../../../LanguageManager";
+import { AddObjectInfo } from "../../../../@types/data";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({ components: { CharacterInfoForm } })
 export default class CharacterAddWindow extends Mixins<

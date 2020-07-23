@@ -170,16 +170,17 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import TrRangeInputComponent from "@/app/basic/common/components/TrRangeInputComponent.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import ChatLinkageTypeSelect from "@/app/basic/common/components/select/ChatLinkageTypeSelect.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import LanguageManager from "@/LanguageManager";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import ComponentVue from "../../../core/window/ComponentVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import ChatLinkageTypeSelect from "../../common/components/select/ChatLinkageTypeSelect.vue";
+import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
+import GameObjectManager from "../../GameObjectManager";
+import LanguageManager from "../../../../LanguageManager";
+import BaseInput from "../../../core/component/BaseInput.vue";
+import TrRangeInputComponent from "../../common/components/TrRangeInputComponent.vue";
+import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -197,6 +198,7 @@ export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   private isYoutube: boolean = false;
   private cutInList = GameObjectManager.instance.cutInList;
 
+  @VueEvent
   private get chatLinkagePlaceholder() {
     if (this.chatLinkageTypeVolatile === "last")
       return LanguageManager.instance.getText("label.last-str");

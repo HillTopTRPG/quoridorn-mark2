@@ -136,7 +136,11 @@
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
 import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import Divider from "@/app/core/component/table/Divider.vue";
+import { Task, TaskResult } from "task";
+import { Point } from "address";
+import { RowSelectInfo } from "task-info";
+import LifeCycle from "../../decorator/LifeCycle";
+import TaskProcessor from "../../task/TaskProcessor";
 import {
   TabInfo,
   WindowInfo,
@@ -144,23 +148,19 @@ import {
   WindowTableColumn,
   WindowTableDeclareInfo,
   WindowTableInfo
-} from "@/@types/window";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import { Point } from "address";
+} from "../../../../@types/window";
+import TaskManager, { MouseMoveParam } from "../../task/TaskManager";
+import { getCssPxNum } from "../../css/Css";
+import { convertNumberZero, sum } from "../../utility/PrimaryDataUtility";
 import {
   calcStrWidth,
   createPoint,
   getEventPoint
-} from "@/app/core/utility/CoordinateUtility";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { getCssPxNum } from "@/app/core/css/Css";
-import { RowSelectInfo } from "task-info";
-import { convertNumberZero, sum } from "@/app/core/utility/PrimaryDataUtility";
-import { StoreUseData } from "@/@types/store";
-import LanguageManager from "@/LanguageManager";
+} from "../../utility/CoordinateUtility";
+import VueEvent from "../../decorator/VueEvent";
+import { StoreUseData } from "../../../../@types/store";
+import LanguageManager from "../../../../LanguageManager";
+import Divider from "./Divider.vue";
 
 type RowInfo<T> = {
   isSelected: boolean;

@@ -15,20 +15,20 @@ import { Component, Watch, Prop } from "vue-property-decorator";
 import { Point, Rectangle, Size } from "address";
 import { Task, TaskResult } from "task";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { OtherTextViewInfo } from "@/@types/gameObject";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import { OtherTextViewInfo } from "../../../../@types/gameObject";
 import {
   createPoint,
   createRectangle,
   createSize
-} from "@/app/core/utility/CoordinateUtility";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
-import CssManager from "@/app/core/css/CssManager";
-import { MouseMoveParam } from "@/app/core/task/TaskManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import VueEvent from "@/app/core/decorator/VueEvent";
+} from "../../../core/utility/CoordinateUtility";
+import ComponentVue from "../../../core/window/ComponentVue";
+import OtherTextComponent from "../../other-text/OtherTextComponent.vue";
+import CssManager from "../../../core/css/CssManager";
+import { MouseMoveParam } from "../../../core/task/TaskManager";
+import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: { OtherTextComponent }
@@ -154,7 +154,7 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   private getRectangle(): Rectangle {
-    const rect = this.elm.getBoundingClientRect();
+    const rect: any = this.elm.getBoundingClientRect();
     return createRectangle(rect.x, rect.y, rect.width, rect.height);
   }
 

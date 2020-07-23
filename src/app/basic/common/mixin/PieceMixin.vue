@@ -2,39 +2,39 @@
 import AddressCalcMixin from "./AddressCalcMixin.vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Mixin, Mixins } from "vue-mixin-decorator";
-import {
-  createPoint,
-  createAddress,
-  copyAddress,
-  getEventPoint,
-  createRectangle
-} from "@/app/core/utility/CoordinateUtility";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { Point } from "address";
+import { Task, TaskResult } from "task";
+import { ContextTaskInfo } from "context";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import Unsubscribe from "nekostore/lib/Unsubscribe";
 import SocketFacade, {
   getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
-import { StoreObj, StoreUseData } from "@/@types/store";
+} from "../../../core/api/app-server/SocketFacade";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
 import {
+  ObjectMoveInfo,
   OtherTextViewInfo,
   SceneObject,
-  SceneObjectType,
-  ObjectMoveInfo
-} from "@/@types/gameObject";
-import { Point } from "address";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import CssManager from "@/app/core/css/CssManager";
-import { ContextTaskInfo } from "context";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { SceneAndObject } from "@/@types/room";
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import Unsubscribe from "nekostore/lib/Unsubscribe";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { getSrc } from "@/app/core/utility/Utility";
-import { WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
+  SceneObjectType
+} from "../../../../@types/gameObject";
+import { StoreObj, StoreUseData } from "../../../../@types/store";
+import {
+  copyAddress,
+  createAddress,
+  createPoint,
+  createRectangle,
+  getEventPoint
+} from "../../../core/utility/CoordinateUtility";
+import { getSrc } from "../../../core/utility/Utility";
+import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { SceneAndObject } from "../../../../@types/room";
+import CssManager from "../../../core/css/CssManager";
+import GameObjectManager from "../../GameObjectManager";
+import { WindowOpenInfo } from "../../../../@types/window";
+import { clone } from "../../../core/utility/PrimaryDataUtility";
+import { DataReference } from "../../../../@types/data";
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<

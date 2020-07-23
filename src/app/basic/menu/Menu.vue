@@ -245,12 +245,12 @@ import MenuBooleanItem from "./MenuBooleanItem.vue";
 
 import { Action } from "vuex-class";
 import { Component, Vue } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
-import { UserData } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { StoreUseData } from "../../../@types/store";
+import TaskManager from "../../core/task/TaskManager";
+import { UserData } from "../../../@types/room";
+import GameObjectManager from "../GameObjectManager";
+import { WindowOpenInfo } from "../../../@types/window";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

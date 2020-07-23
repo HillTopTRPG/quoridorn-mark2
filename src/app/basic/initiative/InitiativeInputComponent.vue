@@ -10,9 +10,9 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import { WindowTableColumn } from "@/@types/window";
+import { StoreUseData } from "../../../@types/store";
+import { WindowTableColumn } from "../../../@types/window";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component
 export default class InitiativeInputComponent extends Vue {

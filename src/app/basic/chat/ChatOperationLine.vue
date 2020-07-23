@@ -36,15 +36,15 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { WindowInfo, WindowOpenInfo } from "@/@types/window";
-import TaskManager from "@/app/core/task/TaskManager";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import SelfActorSelect from "@/app/basic/common/components/select/SelfActorSelect.vue";
-import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
-import LanguageManager from "@/LanguageManager";
-import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import ActorStatusSelect from "../common/components/select/ActorStatusSelect.vue";
+import BcdiceSystemInput from "../common/components/BcdiceSystemInput.vue";
+import ComponentVue from "../../core/window/ComponentVue";
+import TaskManager from "../../core/task/TaskManager";
+import LanguageManager from "../../../LanguageManager";
+import { WindowInfo, WindowOpenInfo } from "../../../@types/window";
+import SButton from "../common/components/SButton.vue";
+import SelfActorSelect from "../common/components/select/SelfActorSelect.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

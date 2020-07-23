@@ -45,13 +45,13 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { parseColor } from "@/app/core/utility/ColorUtility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "../decorator/LifeCycle";
+import ComponentVue from "../window/ComponentVue";
+import CtrlButton from "./CtrlButton.vue";
+import BaseInput from "./BaseInput.vue";
+import { parseColor } from "../utility/ColorUtility";
+import VueEvent from "../decorator/VueEvent";
 
 @Component({
   components: { BaseInput, CtrlButton }
@@ -110,6 +110,7 @@ export default class ColorPickerComponent extends Mixins<ComponentVue>(
     return this.useAlpha ? colorObj.getRGBA() : colorObj.getColorCode();
   }
 
+  @VueEvent
   private set localValue(colorStr: string) {
     this.input(colorStr);
   }
@@ -142,10 +143,6 @@ export default class ColorPickerComponent extends Mixins<ComponentVue>(
       if (!colorCode.trim().startsWith("rgba")) this.alpha = colorObj.a;
       this.input(this.localValue);
     });
-  }
-
-  private get elm(): HTMLDivElement {
-    return this.$refs.elm as HTMLDivElement;
   }
 }
 </script>

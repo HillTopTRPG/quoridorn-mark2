@@ -23,16 +23,13 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import { TabInfo } from "@/@types/window";
-import SimpleTableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { TabMoveInfo } from "task-info";
 import { Task, TaskResult } from "task";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import ComponentVue from "../window/ComponentVue";
+import { TabInfo } from "../../../@types/window";
+import TaskProcessor from "../task/TaskProcessor";
 
-@Component({
-  components: { SimpleTableComponent }
-})
+@Component
 export default class SimpleTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

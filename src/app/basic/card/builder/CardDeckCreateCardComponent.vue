@@ -153,41 +153,39 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
+import { StoreUseData } from "../../../../@types/store";
+import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
   createRectangle,
   createSize
-} from "@/app/core/utility/CoordinateUtility";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import { CardMeta } from "@/@types/gameObject";
-import CardSimulatorComponent from "@/app/basic/card/builder/CardSimulatorComponent.vue";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
+} from "../../../core/utility/CoordinateUtility";
+import ComponentVue from "../../../core/window/ComponentVue";
+import GameObjectManager from "../../GameObjectManager";
+import { createEmptyStoreUseData } from "../../../core/utility/Utility";
+import { CardMeta } from "../../../../@types/gameObject";
+import VueEvent from "../../../core/decorator/VueEvent";
+import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
+import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
+import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
+import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
+import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
+import CardSimulatorComponent from "./CardSimulatorComponent.vue";
+import SButton from "../../common/components/SButton.vue";
+import SCheck from "../../common/components/SCheck.vue";
+import CardComponent from "../CardComponent.vue";
 const uuid = require("uuid");
 
 @Component({
   components: {
-    SCheck,
-    CardSimulatorComponent,
-    SButton,
     CardComponent,
-    TrStringInputComponent,
-    TrColorPickerComponent,
+    SCheck,
+    SButton,
+    CardSimulatorComponent,
     TrNumberInputComponent,
-    ColorPickerComponent,
-    CardDeckSubContainerComponent,
-    ImagePickerComponent
+    TrColorPickerComponent,
+    TrStringInputComponent,
+    ImagePickerComponent,
+    CardDeckSubContainerComponent
   }
 })
 export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
@@ -345,7 +343,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
     elm: HTMLElement
   ) {
     this.hoverCardId = isHover ? card.id! : null;
-    const rect = elm.getBoundingClientRect();
+    const rect: any = elm.getBoundingClientRect();
     const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
     this.$emit("hover-card", card, isHover, r);
   }

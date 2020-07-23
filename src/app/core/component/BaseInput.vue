@@ -14,9 +14,11 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import VueEvent from "../decorator/VueEvent";
 
 @Component({ inheritAttrs: false })
 export default class BaseInput extends Vue {
+  @VueEvent
   private get listeners() {
     return {
       ...this.$listeners
@@ -35,6 +37,7 @@ export default class BaseInput extends Vue {
     return this.elm.value;
   }
 
+  @VueEvent
   public blur() {
     window.console.log("blur");
     this.elm.blur();

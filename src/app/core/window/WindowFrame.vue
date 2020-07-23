@@ -160,8 +160,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { WindowInfo, WindowMoveInfo, WindowResizeInfo } from "@/@types/window";
-import { Point, Rectangle, Size } from "address";
+import { Point, Size } from "address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
@@ -173,10 +172,15 @@ import {
 } from "../utility/CoordinateUtility";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { getCssPxNum } from "@/app/core/css/Css";
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import {
+  WindowInfo,
+  WindowMoveInfo,
+  WindowResizeInfo
+} from "../../../@types/window";
+import LifeCycle from "../decorator/LifeCycle";
+import { convertNumberZero } from "../utility/PrimaryDataUtility";
+import { getCssPxNum } from "../css/Css";
+import VueEvent from "../decorator/VueEvent";
 
 @Component({
   components: { TitleIcon, ResizeKnob }

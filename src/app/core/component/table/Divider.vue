@@ -14,7 +14,6 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
 import { Action } from "vuex-class";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 
 @Component
 export default class Divider extends Vue {

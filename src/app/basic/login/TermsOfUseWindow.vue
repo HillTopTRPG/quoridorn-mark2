@@ -22,13 +22,13 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import { Message } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { loadText } from "@/app/core/utility/FileUtility";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { loadText } from "../../core/utility/FileUtility";
+import WindowVue from "../../core/window/WindowVue";
+import { Message } from "../../../@types/socket";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton }

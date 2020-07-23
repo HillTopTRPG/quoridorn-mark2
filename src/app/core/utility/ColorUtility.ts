@@ -1,8 +1,5 @@
-import {
-  convertNumberZero,
-  zeroPadding
-} from "@/app/core/utility/PrimaryDataUtility";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { convertNumberZero, zeroPadding } from "./PrimaryDataUtility";
+import { ApplicationError } from "../error/ApplicationError";
 
 const colorMap: { [name: string]: string } = {
   white: "#ffffff",

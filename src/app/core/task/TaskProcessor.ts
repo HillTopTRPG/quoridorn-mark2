@@ -4,7 +4,7 @@ import {
   generateMethodDecorator,
   generateMethodDecoratorFactory,
   GenerateProcessInfo
-} from "@/app/core/decorator/generateMethodDecorator";
+} from "../decorator/generateMethodDecorator";
 
 const changeCase = require("change-case");
 

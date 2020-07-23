@@ -32,7 +32,7 @@
 import ActorStatusCombo from "../ActorStatusCombo.vue";
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Action, Getter } from "vuex-class";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import { listToEmpty } from "../../../../core/utility/PrimaryDataUtility";
 
 @Component({
   components: {

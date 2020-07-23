@@ -76,43 +76,36 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
+import { Point, Rectangle, Size } from "address";
+import { ContextTaskInfo } from "context";
+import { Task, TaskResult } from "task";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
 import {
-  CardDeckLayout,
-  CardDeckSmall,
-  CardObject,
-  ObjectMoveInfo
-} from "@/@types/gameObject";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import CssManager from "@/app/core/css/CssManager";
-import {
-  copyAddress,
-  createAddress,
+  copyAddress, createAddress,
   createPoint,
   createRectangle,
   createSize,
-  getEventPoint,
-  isContain
-} from "@/app/core/utility/CoordinateUtility";
-import { Point, Rectangle, Size } from "address";
-import ResizeKnob from "@/app/core/window/ResizeKnob.vue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import { ContextTaskInfo } from "context";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import LanguageManager from "@/LanguageManager";
-import { shuffleOrder } from "@/app/core/utility/Utility";
-import { WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
+  getEventPoint, isContain
+} from "../../core/utility/CoordinateUtility";
+import { CardDeckLayout, CardDeckSmall, CardObject, ObjectMoveInfo } from "../../../@types/gameObject";
+import { StoreObj, StoreUseData } from "../../../@types/store";
+import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
+import SButton from "../common/components/SButton.vue";
+import CardComponent from "./CardComponent.vue";
+import CssManager from "../../core/css/CssManager";
+import ResizeKnob from "../../core/window/ResizeKnob.vue";
+import GameObjectManager from "../GameObjectManager";
+import { shuffleOrder } from "../../core/utility/Utility";
+import ComponentVue from "../../core/window/ComponentVue";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import VueEvent from "../../core/decorator/VueEvent";
+import { clone } from "../../core/utility/PrimaryDataUtility";
+import LanguageManager from "../../../LanguageManager";
+import { WindowOpenInfo } from "../../../@types/window";
+import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
+import { DataReference } from "../../../@types/data";
 
 interface MultiMixin extends AddressCalcMixin, ComponentVue {}
 
@@ -384,8 +377,8 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   }
 
   private static getCardRect(cardId: string): Rectangle {
-    const cardRect = document.getElementById(cardId)!.getBoundingClientRect();
-    const gameTableRect = document
+    const cardRect: any = document.getElementById(cardId)!.getBoundingClientRect();
+    const gameTableRect: any = document
       .getElementById("map-canvas-container")!
       .getBoundingClientRect();
     cardRect.x -= gameTableRect.x;

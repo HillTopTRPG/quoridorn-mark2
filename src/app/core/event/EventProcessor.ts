@@ -1,8 +1,8 @@
 import {
   generateMethodDecoratorFactory,
   GenerateProcessInfo
-} from "@/app/core/decorator/generateMethodDecorator";
-import EventManager from "@/app/core/event/EventManager";
+} from "../decorator/generateMethodDecorator";
+import EventManager from "./EventManager";
 
 type Listener = (this: Document, ev: MouseEvent | TouchEvent) => void;
 

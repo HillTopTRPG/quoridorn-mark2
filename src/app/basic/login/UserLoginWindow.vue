@@ -53,23 +53,22 @@
 
 <script lang="ts">
 import { Watch } from "vue-property-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { UserData } from "../../../@types/room";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import BaseInput from "../../core/component/BaseInput.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 import {
   UserLoginInput,
   UserLoginWindowInput,
   UserType
-} from "@/@types/socket";
-import LanguageManager from "@/LanguageManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
-import { UserData } from "@/@types/room";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
-import UserTypeSelect from "@/app/basic/common/components/select/UserTypeSelect.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+} from "../../../@types/socket";
+import { StoreUseData } from "../../../@types/store";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import UserTypeSelect from "../common/components/select/UserTypeSelect.vue";
+import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
 
 @Component({
   components: {

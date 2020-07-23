@@ -1,5 +1,4 @@
-import { fileToBase64, unicodeEscape } from "@/app/core/utility/FileUtility";
-import iconv from "iconv-lite";
+import { unicodeEscape } from "../../utility/FileUtility";
 
 export default class DropBoxManager {
   // シングルトン

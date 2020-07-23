@@ -4,8 +4,10 @@ const productionGzipExtensions = ["js", "eot", "ttf"];
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
+console.log(process.env.VUE_APP_BASE_URL);
+
 module.exports = {
-  publicPath: process.env.VUE_APP_BASE_URL,
+  publicPath: `/${process.env.VUE_APP_BASE_URL}`,
   pages: {
     main: {
       entry: "src/main.ts", // エントリーポイントとなるjs
@@ -22,11 +24,11 @@ module.exports = {
     historyApiFallback: {
       rewrites: [
         {
-          from: new RegExp(`/${process.env.VUE_APP_BASE_URL}/chatLog.html`),
+          from: new RegExp(`${process.env.VUE_APP_BASE_URL}/chatLog.html`),
           to: "chatLog.html"
         },
         {
-          from: new RegExp(`/${process.env.VUE_APP_BASE_URL}/`),
+          from: new RegExp(`${process.env.VUE_APP_BASE_URL}`),
           to: "index.html"
         } // index.html に飛ばす
       ]

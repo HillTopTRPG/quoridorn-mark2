@@ -33,12 +33,17 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { TabInfo, WindowInfo, WindowTableDeclareInfo } from "@/@types/window";
-import SimpleTableComponent from "@/app/core/component/table/SimpleTableComponent.vue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
+import { Prop, Vue, Watch } from "vue-property-decorator";
+import SimpleTabComponent from "../SimpleTabComponent.vue";
+import SimpleTableComponent from "./SimpleTableComponent.vue";
+import { permissionCheck } from "../../api/app-server/SocketFacade";
+import { StoreUseData } from "../../../../@types/store";
+import {
+  TabInfo,
+  WindowInfo,
+  WindowTableDeclareInfo
+} from "../../../../@types/window";
+import VueEvent from "../../decorator/VueEvent";
 
 @Component({
   components: { SimpleTabComponent, SimpleTableComponent }
@@ -63,8 +68,9 @@ export default class TableComponent extends Vue {
   @Prop({ required: true })
   private value!: string | number | null;
 
-  @Emit("input")
-  public input(val: string | number | null) {}
+  public input(val: string | number | null) {
+    this.$emit("input", val);
+  }
 
   public get localValue(): string | number | null {
     return this.value;
@@ -91,22 +97,31 @@ export default class TableComponent extends Vue {
     this.localValue = null;
   }
 
-  @Emit("adjustWidth")
-  private adjustWidth(totalWidth: number) {}
+  @VueEvent
+  private adjustWidth(totalWidth: number) {
+    this.$emit("adjustWidth", totalWidth);
+  }
 
-  @Emit("selectLine")
-  private selectLine(key: string | number) {}
+  @VueEvent
+  private selectLine(key: string | number) {
+    this.$emit("selectLine", key);
+  }
 
-  @Emit("doubleClick")
-  private doubleClick(key: string | number) {}
+  @VueEvent
+  private doubleClick(key: string | number) {
+    this.$emit("doubleClick", key);
+  }
 
-  @Emit("enter")
-  private enter(key: string | number | null) {}
+  @VueEvent
+  private enter(key: string | number | null) {
+    this.$emit("enter", key);
+  }
 
   private get useDataList() {
     return this.dataList.filter(d => permissionCheck(d, "view"));
   }
 
+  @VueEvent
   private get viewDataList() {
     if (this.currentTabInfo) {
       if (typeof this.currentTabInfo.target === "string") {

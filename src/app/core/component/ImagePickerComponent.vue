@@ -72,16 +72,16 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
-import { StoreUseData } from "@/@types/store";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { Direction, MediaInfo } from "@/@types/room";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
-import ImageTagSelect from "@/app/basic/common/components/select/ImageTagSelect.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { getSrc } from "@/app/core/utility/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import ComponentVue from "../window/ComponentVue";
+import { Direction, MediaInfo } from "../../../@types/room";
+import CtrlButton from "./CtrlButton.vue";
+import { getSrc } from "../utility/Utility";
+import GameObjectManager from "../../basic/GameObjectManager";
+import ImageTagSelect from "../../basic/common/components/select/ImageTagSelect.vue";
+import DirectionTypeSelect from "../../basic/common/components/select/DirectionTypeSelect.vue";
+import VueEvent from "../decorator/VueEvent";
 
 @Component({
   components: {

@@ -37,10 +37,10 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { WindowInfo } from "@/@types/window";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LanguageManager from "@/LanguageManager";
+import ComponentVue from "../../core/window/ComponentVue";
+import LanguageManager from "../../../LanguageManager";
+import { WindowInfo } from "../../../@types/window";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component
 export default class ChatInputInfoComponent extends Mixins<ComponentVue>(

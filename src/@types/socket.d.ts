@@ -1,6 +1,6 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import { TargetVersion } from "@/app/core/api/Github";
+import { StoreObj, StoreUseData } from "./store";
+import { TargetVersion } from "../app/core/api/Github";
 
 type WindowSetting =
   | "not-use" // 使えなくします

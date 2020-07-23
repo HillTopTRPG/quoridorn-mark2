@@ -1,7 +1,7 @@
 import { Address, Anchor, Matrix, Point, Rectangle, Size } from "address";
-import { WindowSize } from "@/@types/window";
-import { getCssPxNum } from "@/app/core/css/Css";
-import WindowManager from "@/app/core/window/WindowManager";
+import { getCssPxNum } from "../css/Css";
+import { WindowSize } from "../../../@types/window";
+import WindowManager from "../window/WindowManager";
 
 export function createPoint(x: number, y: number): Point {
   return { x, y };

@@ -1,8 +1,8 @@
 import yaml from "js-yaml";
 import { Size } from "address";
-import { StandImageInfo } from "@/@types/room";
-import { convertNumberNull } from "@/app/core/utility/PrimaryDataUtility";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
+import { StandImageInfo } from "../../../@types/room";
+import { convertNumberNull } from "./PrimaryDataUtility";
+import { createSize } from "./CoordinateUtility";
 
 /**
  * テキストファイルをロードする

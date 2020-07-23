@@ -129,7 +129,7 @@
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
 import { markdown } from "../../core/markdown/markdown";
-import OtherTextSpanComponent from "@/app/basic/other-text/OtherTextSpanComponent.vue";
+import OtherTextSpanComponent from "./OtherTextSpanComponent.vue";
 
 @Component({
   components: { OtherTextSpanComponent }

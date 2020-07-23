@@ -7,7 +7,7 @@ import {
   TaskProcess,
   TaskResult
 } from "task";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { ApplicationError } from "../error/ApplicationError";
 
 const uuid = require("uuid");
 

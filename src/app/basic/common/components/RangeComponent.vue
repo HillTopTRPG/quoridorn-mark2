@@ -39,14 +39,12 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import ChatColorTypeSelect from "./select/ChatColorTypeSelect.vue";
 
 @Component({ components: { ChatColorTypeSelect } })
-export default class TrRangeComponent extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class RangeComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, default: "div" })
   private tag!: string;
 

@@ -10,8 +10,8 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "../../../core/window/ComponentVue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component
 export default class CardSimulatorComponent extends Mixins<ComponentVue>(

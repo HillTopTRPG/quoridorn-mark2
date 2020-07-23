@@ -41,16 +41,16 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import draggable from "vuedraggable";
-import EditSceneLayerComponent from "@/app/basic/map/EditSceneLayerComponent.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import { StoreUseData } from "../../../@types/store";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import EditSceneLayerComponent from "./EditSceneLayerComponent.vue";
+import TaskManager from "../../core/task/TaskManager";
+import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import GameObjectManager from "../GameObjectManager";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
 export default class EditSceneLayerChooserComponent extends Vue {

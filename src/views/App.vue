@@ -22,7 +22,7 @@
       <!-- 右ペイン (z-index: 2) -->
       <right-pane />
       <!-- 右クリックメニュー (z-index: 4) -->
-      <context />
+      <Context />
     </template>
     <!-- 小画面エリア (z-index: 3) -->
     <window-area />
@@ -57,27 +57,18 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import GameTable from "@/app/basic/map/GameTable.vue";
-import Menu from "@/app/basic/menu/Menu.vue";
-import TaskManager from "@/app/core/task/TaskManager";
-import Context from "@/app/core/context/Context.vue";
-import EventProcessor from "@/app/core/event/EventProcessor";
-import WindowArea from "@/app/core/window/WindowArea.vue";
-import WindowManager from "@/app/core/window/WindowManager";
 import { Point, Size } from "address";
+import { Task, TaskResult } from "task";
+import { ModeInfo } from "mode";
+import { disableBodyScroll } from "body-scroll-lock";
+import LifeCycle from "../app/core/decorator/LifeCycle";
+import TaskProcessor from "../app/core/task/TaskProcessor";
+import { OtherTextViewInfo } from "../@types/gameObject";
 import {
   createPoint,
   createSize,
   getEventPoint
-} from "@/app/core/utility/CoordinateUtility";
-import RightPane from "@/app/core/pane/RightPane.vue";
-import CssManager from "@/app/core/css/CssManager";
-import { WindowOpenInfo } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+} from "../app/core/utility/CoordinateUtility";
 import {
   ClientRoomInfo,
   GetRoomListResponse,
@@ -85,46 +76,51 @@ import {
   RoomViewResponse,
   SendDataRequest,
   ServerTestResult
-} from "@/@types/socket";
-import { StoreUseData } from "@/@types/store";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
-import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
-import { OtherTextViewInfo } from "@/@types/gameObject";
-import { ModeInfo } from "mode";
-import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
-import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
+} from "../@types/socket";
 import {
   BgmPlayInfo,
   DropPieceInfo,
   TabMoveInfo,
   ThrowParabolaInfo
 } from "task-info";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { CutInDeclareInfo } from "@/@types/room";
-import { disableBodyScroll } from "body-scroll-lock";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
-import DropArea from "@/app/basic/media/DropArea.vue";
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
-import { getDropFileList } from "@/app/core/utility/DropFileUtility";
-import { MediaUploadInfo } from "window-info";
-import LanguageManager from "@/LanguageManager";
-import YoutubeManager from "@/app/basic/cut-in/bgm/YoutubeManager";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-
+import { getDropFileList } from "../app/core/utility/DropFileUtility";
+import WindowManager from "../app/core/window/WindowManager";
+import { StoreUseData } from "../@types/store";
+import CssManager from "../app/core/css/CssManager";
+import GameObjectManager from "../app/basic/GameObjectManager";
+import { CutInDeclareInfo, MediaUploadInfo } from "../@types/room";
+import SocketFacade from "../app/core/api/app-server/SocketFacade";
+import VueEvent from "../app/core/decorator/VueEvent";
+import { convertNumberZero } from "../app/core/utility/PrimaryDataUtility";
+import YoutubeManager from "../app/basic/cut-in/bgm/YoutubeManager";
+import TaskManager from "../app/core/task/TaskManager";
+import LanguageManager from "../LanguageManager";
+import { WindowOpenInfo } from "../@types/window";
+import EventProcessor from "../app/core/event/EventProcessor";
+import BcdiceManager from "../app/core/api/bcdice/BcdiceManager";
+import BgmManager from "../app/basic/cut-in/bgm/BgmManager";
+import DropArea from "../app/basic/media/DropArea.vue";
+import GameTable from "../app/basic/map/GameTable.vue";
+import Menu from "../app/basic/menu/Menu.vue";
+import RightPane from "../app/core/pane/RightPane.vue";
+import Context from "../app/core/context/Context.vue";
+import WindowArea from "../app/core/window/WindowArea.vue";
+import OtherTextFrame from "../app/basic/other-text/OtherTextFrame.vue";
+import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimulator.vue";
+import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
+import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 @Component({
   components: {
-    DropArea,
     CardDeckBuilder,
     ThrowParabolaContainer,
     ThrowParabolaSimulator,
     OtherTextFrame,
-    RightPane,
     WindowArea,
     Context,
+    RightPane,
     Menu,
     GameTable,
-    BaseInput
+    DropArea
   }
 })
 export default class App extends Vue {
@@ -151,7 +147,9 @@ export default class App extends Vue {
   }
 
   @LifeCycle
-  public async created() {}
+  public async created() {
+    window.console.log("App.vue");
+  }
 
   @LifeCycle
   private async beforeMount() {

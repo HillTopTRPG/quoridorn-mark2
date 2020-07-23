@@ -34,15 +34,15 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
-import BgmInfoForm from "@/app/basic/cut-in/bgm/BgmInfoForm.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import { CutInDeclareInfo, MediaInfo } from "../../../../@types/room";
+import WindowVue from "../../../core/window/WindowVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
+import BgmManager from "./BgmManager";
+import BgmInfoForm from "./BgmInfoForm.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: {

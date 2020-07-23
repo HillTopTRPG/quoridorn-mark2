@@ -20,10 +20,10 @@
 
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import ColorPickerComponent from "../../../core/component/ColorPickerComponent.vue";
+import ChatColorTypeSelect from "./select/ChatColorTypeSelect.vue";
 
 @Component({ components: { ColorPickerComponent, ChatColorTypeSelect } })
 export default class TrChatColorInputComponent extends Mixins<ComponentVue>(

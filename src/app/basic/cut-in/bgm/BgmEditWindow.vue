@@ -36,19 +36,19 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import { DataReference } from "@/@types/data";
-import { CutInDeclareInfo } from "@/@types/room";
+import LifeCycle from "../../../core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
-import BgmInfoForm from "@/app/basic/cut-in/bgm/BgmInfoForm.vue";
+} from "../../../core/api/app-server/SocketFacade";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import WindowVue from "../../../core/window/WindowVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import { CutInDeclareInfo } from "../../../../@types/room";
+import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
+import BgmManager from "./BgmManager";
+import { DataReference } from "../../../../@types/data";
+import BgmInfoForm from "./BgmInfoForm.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: {

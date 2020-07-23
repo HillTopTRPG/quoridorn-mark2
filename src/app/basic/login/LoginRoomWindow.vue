@@ -26,13 +26,13 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { LoginRoomInput } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { LoginRoomInput } from "../../../@types/socket";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

@@ -27,13 +27,12 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { CardMeta } from "@/@types/gameObject";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { StoreUseData } from "@/@types/store";
 import { Size } from "address";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
+import ComponentVue from "../../core/window/ComponentVue";
+import { StoreUseData } from "../../../@types/store";
+import { createSize } from "../../core/utility/CoordinateUtility";
+import { CardMeta } from "../../../@types/gameObject";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component
 export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {

@@ -53,27 +53,27 @@
 
 <script lang="ts">
 import { Component, Emit, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
-import { CutInDeclareInfo } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { WindowResizeInfo, WindowTableColumn } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import LanguageManager from "@/LanguageManager";
+import InitiativeInputComponent from "./InitiativeInputComponent.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
 import {
   convertNumberNull,
   listToEmpty
-} from "@/app/core/utility/PrimaryDataUtility";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { DataReference } from "@/@types/data";
-import InitiativeInputComponent from "@/app/basic/initiative/InitiativeInputComponent.vue";
+} from "../../core/utility/PrimaryDataUtility";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import TableComponent from "../../core/component/table/TableComponent.vue";
+import { WindowResizeInfo, WindowTableColumn } from "../../../@types/window";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import { CutInDeclareInfo } from "../../../@types/room";
+import BgmManager from "../cut-in/bgm/BgmManager";
+import { DataReference } from "../../../@types/data";
 
 const uuid = require("uuid");
 

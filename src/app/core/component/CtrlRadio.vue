@@ -19,7 +19,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-import { HtmlOptionInfo } from "@/@types/window";
+import { HtmlOptionInfo } from "../../../@types/window";
+import VueEvent from "../decorator/VueEvent";
 
 @Component
 export default class CtrlRadio extends Vue {
@@ -41,8 +42,10 @@ export default class CtrlRadio extends Vue {
   @Prop({ type: Boolean, default: false })
   private test!: boolean;
 
-  @Emit("input")
-  public input(value: string | null) {}
+  @VueEvent
+  public input(value: string | null) {
+    this.$emit("input", value);
+  }
 
   private get localValue(): string | null {
     if (this.test)

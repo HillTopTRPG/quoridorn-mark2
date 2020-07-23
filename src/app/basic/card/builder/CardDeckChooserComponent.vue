@@ -14,15 +14,12 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
-import CardDeckSetComponent, {
-  DeckInfo
-} from "@/app/basic/card/CardDeckSetComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "../../../core/window/ComponentVue";
+import CardDeckSetComponent, { DeckInfo } from "../CardDeckSetComponent.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
-  components: { CardDeckSetComponent, CardComponent }
+  components: { CardDeckSetComponent }
 })
 export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
   ComponentVue

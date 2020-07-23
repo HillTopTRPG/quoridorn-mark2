@@ -26,18 +26,18 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
-import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import LanguageManager from "@/LanguageManager";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import { CardMeta } from "@/@types/gameObject";
-import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
-import { importText } from "@/app/core/utility/FileUtility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { StoreUseData } from "../../../../@types/store";
+import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import GameObjectManager from "../../GameObjectManager";
+import LanguageManager from "../../../../LanguageManager";
+import { createEmptyStoreUseData } from "../../../core/utility/Utility";
+import SButton from "../../common/components/SButton.vue";
+import BaseInput from "../../../core/component/BaseInput.vue";
+import { CardMeta } from "../../../../@types/gameObject";
+import CardDeckBuilder from "./CardDeckBuilder.vue";
+import { importText } from "../../../core/utility/FileUtility";
+import VueEvent from "../../../core/decorator/VueEvent";
 const uuid = require("uuid");
 
 @Component({

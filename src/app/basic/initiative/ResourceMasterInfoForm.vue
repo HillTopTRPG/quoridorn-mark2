@@ -150,20 +150,20 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { Direction } from "@/@types/room";
-import { TabInfo } from "@/@types/window";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { ResourceType } from "@/@types/gameObject";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
-import TrResourceTypeSelectComponent from "@/app/basic/common/components/TrResourceTypeSelectComponent.vue";
-import TrRefPropertySelectComponent from "@/app/basic/common/components/TrRefPropertySelectComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import ComponentVue from "../../core/window/ComponentVue";
+import { ResourceType } from "../../../@types/gameObject";
+import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
+import TrRefPropertySelectComponent from "../common/components/TrRefPropertySelectComponent.vue";
+import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
+import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
+import TrResourceTypeSelectComponent from "../common/components/TrResourceTypeSelectComponent.vue";
+import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
+import { TabInfo } from "../../../@types/window";
+import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import { Direction } from "../../../@types/room";
 
 @Component({
   components: {

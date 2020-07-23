@@ -24,13 +24,13 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { DeleteRoomInput } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import { DeleteRoomInput } from "../../../@types/socket";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: { BaseInput, CtrlButton }

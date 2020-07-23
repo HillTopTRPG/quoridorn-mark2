@@ -44,21 +44,21 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreUseData } from "@/@types/store";
-import { SceneAndObject } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { SceneObject } from "@/@types/gameObject";
 import { Address } from "address";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import draggable from "vuedraggable";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import EditSceneObjectComponent from "@/app/basic/map/EditSceneObjectComponent.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import { StoreUseData } from "../../../@types/store";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import ComponentVue from "../../core/window/ComponentVue";
+import { SceneObject } from "../../../@types/gameObject";
+import TaskManager from "../../core/task/TaskManager";
+import { SceneAndObject } from "../../../@types/room";
+import GameObjectManager from "../GameObjectManager";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import { clone } from "../../core/utility/PrimaryDataUtility";
+import EditSceneObjectComponent from "./EditSceneObjectComponent.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({ components: { EditSceneObjectComponent, BaseInput, draggable } })
 export default class EditSceneObjectChooserComponent extends Mixins<

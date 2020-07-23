@@ -6,11 +6,13 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import SelectBase from "@/app/basic/common/components/select/base/SelectBase.vue";
-import { SupportLangInfo, supportLangList } from "@/LanguageManager";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import {
+  SupportLangInfo,
+  supportLangList
+} from "../../../../../LanguageManager";
+import VueEvent from "../../../../core/decorator/VueEvent";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

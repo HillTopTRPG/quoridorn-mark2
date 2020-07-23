@@ -1,8 +1,8 @@
 import urljoin from "url-join";
-import { StoreUseData } from "@/@types/store";
-import LanguageManager from "@/LanguageManager";
-import { Texture } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { Texture } from "../../../@types/room";
+import { StoreUseData } from "../../../@types/store";
+import GameObjectManager from "../../basic/GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
 
 export function getSrc(path: string): string {
   if (!path) return "";

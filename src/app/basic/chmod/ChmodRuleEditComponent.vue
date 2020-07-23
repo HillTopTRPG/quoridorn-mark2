@@ -39,19 +39,19 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { listToEmpty } from "../../core/utility/PrimaryDataUtility";
 import {
   PermissionNodeType,
   PermissionRule,
   PermissionRuleType
-} from "@/@types/store";
-import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
-import PermissionNodeTypeSelect from "@/app/basic/common/components/select/PermissionNodeTypeSelect.vue";
-import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+} from "../../../@types/store";
+import PermissionNodeTypeSelect from "../common/components/select/PermissionNodeTypeSelect.vue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import ActorGroupSelect from "../common/components/select/ActorGroupSelect.vue";
+import SCheck from "../common/components/SCheck.vue";
+import ActorSelect from "../common/components/select/ActorSelect.vue";
+import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
 
 @Component({
   components: {

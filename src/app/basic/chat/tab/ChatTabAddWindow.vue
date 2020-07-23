@@ -33,7 +33,7 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
-import { PermissionNode } from "@/@types/store";
+import { PermissionNode } from "../../../../@types/store";
 
 @Component({
   components: { CtrlButton, BaseInput }

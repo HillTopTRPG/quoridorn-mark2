@@ -8,13 +8,13 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import animations from "create-keyframe-animation";
 import { ThrowParabolaInfo } from "task-info";
-import { calcParabola } from "@/app/core/throwParabola/parabolaUtil";
 import { Point } from "address";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import TaskProcessor from "../task/TaskProcessor";
+import ComponentVue from "../window/ComponentVue";
+import { calcParabola } from "./parabolaUtil";
 const uuid = require("uuid");
 
 @Component

@@ -1,4 +1,3 @@
-import TaskManager from "./TaskManager";
 import { TaskProcess } from "task";
 import { NoSuchMethodError } from "../error/NoSuchMethodError";
 const changeCase = require("change-case");

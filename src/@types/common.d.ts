@@ -46,24 +46,6 @@ declare module "address" {
     | "right-bottom";
 }
 
-declare module "window-info" {
-  import { CutInDeclareInfo } from "@/@types/room";
-
-  type PlayBgmInfo =
-    | {
-        targetId: string;
-        data: null;
-      }
-    | {
-        targetId: null;
-        data: CutInDeclareInfo;
-      };
-
-  type MediaUploadInfo = {
-    resultList: (File | string)[];
-  };
-}
-
 declare module "compare" {
   type Operand =
     | { refType: "variable-myself" }

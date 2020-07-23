@@ -32,27 +32,22 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { DataReference } from "@/@types/data";
-import { BackgroundSize, Direction } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import { SceneObject } from "../../../../@types/gameObject";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { SceneObject } from "@/@types/gameObject";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ChitInfoForm from "@/app/basic/object/chit/ChitInfoForm.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import WindowVue from "@/app/core/window/WindowVue";
+} from "../../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { BackgroundSize, Direction } from "../../../../@types/room";
+import WindowVue from "../../../core/window/WindowVue";
+import ChitInfoForm from "./ChitInfoForm.vue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import GameObjectManager from "../../GameObjectManager";
+import { DataReference } from "../../../../@types/data";
 
-@Component({
-  components: {
-    ChitInfoForm,
-    CtrlButton
-  }
-})
+@Component({ components: { ChitInfoForm, CtrlButton } })
 export default class ChitEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {

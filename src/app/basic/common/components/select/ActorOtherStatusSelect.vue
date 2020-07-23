@@ -8,12 +8,12 @@
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-import CtrlSelect from "@/components/parts/CtrlSelect.vue";
 
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import VueEvent from "../../../../core/decorator/VueEvent";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

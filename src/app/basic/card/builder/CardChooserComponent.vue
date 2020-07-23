@@ -99,18 +99,18 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreUseData } from "../../../../@types/store";
 import {
   createRectangle,
   createSize
-} from "@/app/core/utility/CoordinateUtility";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import CardSearchCountChooser from "@/app/basic/common/components/CardSearchCountChooser.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { CardMeta } from "@/@types/gameObject";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+} from "../../../core/utility/CoordinateUtility";
+import ComponentVue from "../../../core/window/ComponentVue";
+import CardSearchCountChooser from "../../common/components/CardSearchCountChooser.vue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import SButton from "../../common/components/SButton.vue";
+import { CardMeta } from "../../../../@types/gameObject";
+import CardComponent from "../CardComponent.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 export type CardCountInfo = {
   id: string;
@@ -239,7 +239,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
     elm: HTMLElement
   ) {
     this.hoverCardId = isHover ? card.id! : null;
-    const rect = elm.getBoundingClientRect();
+    const rect: any = elm.getBoundingClientRect();
     const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
     this.$emit("hover-card", card, isHover, r);
   }

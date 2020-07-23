@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import VueEvent from "../decorator/VueEvent";
 
 @Component
 export default class ResizeKnob extends Vue {

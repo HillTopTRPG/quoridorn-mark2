@@ -1,5 +1,5 @@
 import { Address, Point, Rectangle } from "address";
-import { Direction, Texture } from "@/@types/room";
+import { Direction, Texture } from "./room";
 
 type SceneObjectType =
   | "character"
@@ -61,7 +61,6 @@ type ActorStatusStore = {
   chatPaletteInfoId: string | null; // id
 };
 
-// import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
 type StandImageDiffInfo = Point & {
   texture: Texture;
   stackType: number; // 重ね方
@@ -76,7 +75,6 @@ type StandImageInfo = {
   diffList: StandImageDiffInfo[];
 };
 
-// import { ChatPaletteInfo } from "@/app/basic/chat-palette/ChatPalette";
 type ChatPaletteInfo = {
   parentId: string;
   list: string[];

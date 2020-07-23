@@ -5,8 +5,8 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "./core/decorator/LifeCycle";
+import WindowVue from "./core/window/WindowVue";
 
 @Component
 export default class TemplateWindow extends Mixins<WindowVue<string, never>>(

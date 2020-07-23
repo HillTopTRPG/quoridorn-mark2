@@ -13,14 +13,13 @@
 </template>
 
 <script lang="ts">
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { ServerTestResult } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { TargetVersion } from "@/app/core/api/Github";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import { ServerTestResult } from "../../../@types/socket";
+import VersionInfoComponent from "./VersionInfoComponent.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

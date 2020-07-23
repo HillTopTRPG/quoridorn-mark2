@@ -22,23 +22,19 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { AddObjectInfo } from "@/@types/data";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import LanguageManager from "@/LanguageManager";
-import MapMaskInfoForm from "@/app/basic/object/map-mask/MapMaskInfoForm.vue";
-import { parseColor } from "@/app/core/utility/ColorUtility";
-import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import MapMaskInfoForm from "./MapMaskInfoForm.vue";
+import TaskManager from "../../../core/task/TaskManager";
+import WindowVue from "../../../core/window/WindowVue";
+import GameObjectManager from "../../GameObjectManager";
+import LanguageManager from "../../../../LanguageManager";
+import { AddObjectInfo } from "../../../../@types/data";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { parseColor } from "../../../core/utility/ColorUtility";
 
-@Component({
-  components: {
-    MapMaskInfoForm
-  }
-})
+@Component({ components: { MapMaskInfoForm } })
 export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {

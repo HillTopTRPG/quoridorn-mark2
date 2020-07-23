@@ -28,7 +28,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { Point } from "address";
 import ResizeKnob from "../window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
@@ -43,8 +42,13 @@ import {
 } from "../utility/CoordinateUtility";
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { getCssPxNum } from "@/app/core/css/Css";
+import LifeCycle from "../decorator/LifeCycle";
+import {
+  PaneMoveInfo,
+  WindowInfo,
+  WindowMoveInfo
+} from "../../../@types/window";
+import { getCssPxNum } from "../css/Css";
 
 @Component({
   components: { PaneFrame, ResizeKnob }
@@ -391,6 +395,7 @@ export default class RightPane extends Vue {
     );
     if (!useList.length) return 2000;
     const scrollBarWidth = getCssPxNum("--scroll-bar-width");
+
     return Math.max(
       ...useList.map(info => {
         const px = info.declare.maxSize!.widthPx;

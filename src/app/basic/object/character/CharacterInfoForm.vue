@@ -113,33 +113,29 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import { BackgroundSize, Direction } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { TabInfo } from "@/@types/window";
-import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { getSrc } from "@/app/core/utility/Utility";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { BackgroundSize, Direction } from "../../../../@types/room";
+import { getSrc } from "../../../core/utility/Utility";
+import GameObjectManager from "../../GameObjectManager";
+import { TabInfo } from "../../../../@types/window";
+import VueEvent from "../../../core/decorator/VueEvent";
+import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
+import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
+import BackgroundLocationSelect from "../../common/components/select/BackgroundLocationSelect.vue";
+import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
+import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 
 @Component({
   components: {
-    TrNumberInputComponent,
-    TrStringInputComponent,
     SceneLayerSelect,
-    BackgroundLocationSelect,
-    SimpleTabComponent,
     ImagePickerComponent,
-    BaseInput,
-    CtrlButton
+    SimpleTabComponent,
+    BackgroundLocationSelect,
+    TrNumberInputComponent,
+    TrStringInputComponent
   }
 })
 export default class CharacterInfoForm extends Mixins<ComponentVue>(
