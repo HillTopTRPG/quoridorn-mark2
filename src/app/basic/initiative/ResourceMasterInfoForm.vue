@@ -37,15 +37,16 @@
             <tr-resource-type-select-component
               labelName="resource-type"
               width="100%"
+              :readonly="systemColumnType"
               v-model="resourceTypeVolatile"
             />
           </tr>
           <tr>
             <tr-ref-property-select-component
               v-if="
-                resourceType === 'ref-actor' ||
-                  resourceType === 'ref-map-object'
+                resourceType === 'ref-normal' || resourceType === 'ref-owner'
               "
+              :readonly="systemColumnType"
               labelName="ref-property"
               width="100%"
               v-model="refPropertyVolatile"
@@ -77,14 +78,19 @@
           </tr>
           <tr>
             <tr-string-input-component
-              v-if="
-                resourceType === 'radio' ||
-                  resourceType === 'select' ||
-                  resourceType === 'combo'
-              "
+              v-if="resourceType === 'select' || resourceType === 'combo'"
               labelName="value-selection"
               width="100%"
               v-model="selectionStrVolatile"
+            />
+          </tr>
+          <tr>
+            <tr-selection-value-select-component
+              v-if="resourceType === 'select'"
+              labelName="value-selection-value"
+              :selection="selectionStrVolatile"
+              width="100%"
+              v-model="defaultValueStrVolatile"
             />
           </tr>
           <tr>
@@ -164,9 +170,11 @@ import { TabInfo } from "../../../@types/window";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Direction } from "../../../@types/room";
+import TrSelectionValueSelectComponent from "../common/components/TrSelectionValueSelectComponent.vue";
 
 @Component({
   components: {
+    TrSelectionValueSelectComponent,
     ImagePickerComponent,
     TrColorPickerComponent,
     TrNumberInputComponent,
@@ -185,6 +193,9 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: "basic" })
   private initTabTarget!: string;
+
+  @Prop({ type: String, default: null })
+  private systemColumnType!: "name" | "initiative" | null;
 
   @Prop({ type: Boolean, required: true })
   private isAdd!: boolean;

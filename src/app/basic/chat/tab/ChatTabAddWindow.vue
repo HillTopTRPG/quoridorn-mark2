@@ -1,13 +1,13 @@
 <template>
   <div class="container" ref="window-container">
-    <label>
-      <span v-t="'label.name'" class="label-input"></span>
-      <base-input
-        type="text"
-        :value="tabName"
-        @input="tabName = $event.target.value"
-      />
-    </label>
+    <chat-tab-info-form
+      :windowKey="windowKey"
+      :isAdd="true"
+      initTabTarget="basic"
+      :tabName.sync="tabName"
+      :useReadAloud.sync="useReadAloud"
+      :readAloudVolume.sync="readAloudVolume"
+    />
 
     <div class="button-area">
       <ctrl-button @click="commit()" :disabled="isDuplicate || !tabName">
@@ -28,15 +28,15 @@ import WindowVue from "../../../core/window/WindowVue";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import LanguageManager from "../../../../LanguageManager";
-import BaseInput from "../../../core/component/BaseInput.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import { PermissionNode } from "../../../../@types/store";
+import ChatTabInfoForm from "./ChatTabInfoForm.vue";
 
 @Component({
-  components: { CtrlButton, BaseInput }
+  components: { ChatTabInfoForm, CtrlButton }
 })
 export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
@@ -47,6 +47,8 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
   private cc = SocketFacade.instance.chatTabListCC();
 
   private tabName: string = "";
+  private useReadAloud: boolean = false;
+  private readAloudVolume: number = 0.5;
 
   @LifeCycle
   public async mounted() {
@@ -83,7 +85,14 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
         id: gameMastersActorGroup.id!
       };
       await this.cc!.addDirect(
-        [{ name: this.tabName, isSystem: false }],
+        [
+          {
+            name: this.tabName,
+            isSystem: false,
+            useReadAloud: this.useReadAloud,
+            readAloudVolume: this.readAloudVolume
+          }
+        ],
         [
           {
             permission: {
@@ -124,7 +133,12 @@ export default class ChatTabAddWindow extends Mixins<WindowVue<string, never>>(
 @import "../../../../assets/common";
 
 .container {
+  @include flex-box(column, flex-start, center);
   width: 100%;
   height: 100%;
+}
+
+.button-area {
+  align-self: center;
 }
 </style>

@@ -33,6 +33,7 @@ import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "../../../../@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { parseColor } from "../../../core/utility/ColorUtility";
+import SocketFacade from "../../../core/api/app-server/SocketFacade";
 
 @Component({ components: { MapMaskInfoForm } })
 export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
@@ -45,9 +46,9 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
   private height: number = 1;
   private width: number = 1;
   private isMounted: boolean = false;
-  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
-  )[0].id!;
+  )!.id!;
   private otherText: string = "";
 
   @LifeCycle
@@ -96,38 +97,40 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
     const colorObj = parseColor(this.color);
     const backgroundColor = colorObj.getRGBA();
     const fontColor = colorObj.getRGBReverse();
-    await GameObjectManager.instance.addSceneObject({
-      type: "map-mask",
-      tag: this.tag,
-      name: this.name,
-      x: point.x,
-      y: point.y,
-      row: matrix.row,
-      column: matrix.column,
-      rows: this.height,
-      columns: this.width,
-      actorId: null,
-      place: "field",
-      isHideBorder: false,
-      isHideHighlight: false,
-      isLock: false,
-      otherText: this.otherText,
-      layerId: this.layerId,
-      textures: [
-        {
-          type: "color",
-          backgroundColor,
-          fontColor,
-          text: this.text
-        }
-      ],
-      textureIndex: 0,
-      angle: 0,
-      url: "",
-      subType: "",
-      pips: 0,
-      faceNum: 0
-    });
+    await SocketFacade.instance.sceneObjectCC().addDirect([
+      {
+        type: "map-mask",
+        tag: this.tag,
+        name: this.name,
+        x: point.x,
+        y: point.y,
+        row: matrix.row,
+        column: matrix.column,
+        rows: this.height,
+        columns: this.width,
+        actorId: null,
+        place: "field",
+        isHideBorder: false,
+        isHideHighlight: false,
+        isLock: false,
+        otherText: this.otherText,
+        layerId: this.layerId,
+        textures: [
+          {
+            type: "color",
+            backgroundColor,
+            fontColor,
+            text: this.text
+          }
+        ],
+        textureIndex: 0,
+        angle: 0,
+        url: "",
+        subType: "",
+        pips: 0,
+        faceNum: 0
+      }
+    ]);
 
     task.resolve();
   }

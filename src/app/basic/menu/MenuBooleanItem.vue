@@ -14,20 +14,15 @@ export default class MenuBooleanItem extends Vue {
   @Prop({ type: String, required: true })
   private property!: string;
 
-  @Action("reversePropertyDeprecated") private reversePropertyDeprecated: any;
-  @Getter("isWindowOpenDeprecated") private isWindowOpenDeprecated: any;
-
   @Emit("click")
-  private itemOnClick() {
-    this.reversePropertyDeprecated({ property: this.property });
-  }
+  private itemOnClick() {}
 
   private mouseEnter(event: any) {
     this.$emit("mouseenter", event);
   }
 
   private get propValue() {
-    return this.isWindowOpenDeprecated(this.property);
+    return false;
   }
 }
 </script>

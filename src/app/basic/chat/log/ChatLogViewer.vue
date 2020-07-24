@@ -8,18 +8,20 @@
       @settingOpen="onSettingOpen()"
     >
       <div class="chat-line-container selectable">
-        <chat-log-line-component
-          v-for="chat in chatList"
-          :key="chat.id"
-          :chat="chat"
-          :userList="userList"
-          :actorList="actorList"
-          :groupChatTabList="groupChatTabList"
-          :editedMessage="editedMessage"
-          :userTypeLanguageMap="userTypeLanguageMap"
-          @edit="id => $emit('edit', id)"
-          @delete="id => $emit('delete', id)"
-        />
+        <template v-for="chat in chatList">
+          <chat-log-line-component
+            v-if="chat.data.tabId === currentTabInfo.target"
+            :key="chat.id"
+            :chat="chat"
+            :userList="userList"
+            :actorList="actorList"
+            :groupChatTabList="groupChatTabList"
+            :editedMessage="editedMessage"
+            :userTypeLanguageMap="userTypeLanguageMap"
+            @edit="id => $emit('edit', id)"
+            @delete="id => $emit('delete', id)"
+          />
+        </template>
       </div>
     </simple-tab-component>
   </div>
@@ -28,7 +30,6 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import TaskManager from "../../../core/task/TaskManager";
 import ChatLogLineComponent from "./ChatLogLineComponent.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
 import {
@@ -44,6 +45,7 @@ import { StoreUseData } from "../../../../@types/store";
 import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
 import { UserType } from "../../../../@types/socket";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import App from "../../../../views/App.vue";
 
 @Component({
   components: {
@@ -80,6 +82,11 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
 
+  @Watch("currentTabInfo")
+  private onChangeCurrentTabInfo() {
+    this.$emit("changeTab", this.currentTabInfo!.target);
+  }
+
   @Watch("chatTabList", { immediate: true, deep: true })
   private onChangeChatTabList() {
     this.tabList = this.chatTabList
@@ -98,13 +105,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private async onSettingOpen() {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "chat-tab-list-window"
-      }
-    });
+    await App.openSimpleWindow("chat-setting-window");
   }
 }
 </script>

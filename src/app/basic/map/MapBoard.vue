@@ -32,6 +32,8 @@ import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
 import SceneLayerComponent from "./SceneLayerComponent.vue";
 import GameObjectManager from "../GameObjectManager";
 import { RoomData, Scene } from "../../../@types/room";
+import { findRequireById } from "../../core/utility/Utility";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: { SceneLayerComponent }
@@ -46,19 +48,19 @@ export default class MapBoard extends Vue {
   private scene!: Scene | null;
 
   private roomData: RoomData = GameObjectManager.instance.roomData;
-  private key = "map-board";
   private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
 
   private isMounted: boolean = false;
 
+  @VueEvent
   private get useLayerList() {
     return this.sceneAndLayerList
       .filter(
         mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
       )
       .map(mal => mal.data!.layerId)
-      .map(layerId => this.sceneLayerList.filter(ml => ml.id === layerId)[0])
+      .map(layerId => findRequireById(this.sceneLayerList, layerId))
       .filter(ml => ml);
   }
 
@@ -79,6 +81,12 @@ export default class MapBoard extends Vue {
           }
         }
       });
+      performance.mark("room-init-end");
+      performance.measure("room-init-time", "room-init-start", "room-init-end");
+      const durationMs = performance.getEntriesByName("room-init-time")[0]
+        .duration;
+      const durationS = Math.round(durationMs / 100) / 10;
+      window.console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
     });
   }
 

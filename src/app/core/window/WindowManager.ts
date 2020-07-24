@@ -16,6 +16,7 @@ import { Point } from "address";
 import TaskManager from "../task/TaskManager";
 import { ApplicationError } from "../error/ApplicationError";
 import { clone } from "../utility/PrimaryDataUtility";
+import { findRequireByKey } from "../utility/Utility";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -57,9 +58,7 @@ export default class WindowManager {
   }
 
   public getWindowInfo<T>(key: string): WindowInfo<T> {
-    return this.__windowInfoList.filter(
-      info => info.key === key
-    )[0] as WindowInfo<T>;
+    return findRequireByKey(this.__windowInfoList, key) as WindowInfo<T>;
   }
 
   private resist<T>(
@@ -128,9 +127,7 @@ export default class WindowManager {
   }
 
   public arrangePoint(targetKey: string, flg: boolean = false) {
-    const target = this.__windowInfoList.filter(
-      info => info.key === targetKey
-    )[0];
+    const target = findRequireByKey(this.__windowInfoList, targetKey);
     const position = target.declare.position;
     if (flg) {
       const menuHeight = getCssPxNum("--menu-bar-height");

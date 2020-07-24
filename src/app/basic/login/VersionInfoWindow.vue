@@ -20,6 +20,7 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import { ServerTestResult } from "../../../@types/socket";
 import VersionInfoComponent from "./VersionInfoComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
 
 @Component({
   components: {
@@ -35,7 +36,19 @@ export default class VersionInfoWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.serverTestResult = this.windowInfo.args!;
+    if (this.windowInfo.args) {
+      this.serverTestResult = this.windowInfo.args;
+    } else {
+      let resp: ServerTestResult;
+      const url = SocketFacade.instance.appServerUrl;
+      try {
+        resp = await SocketFacade.instance.testServer(url);
+      } catch (err) {
+        window.console.warn(`${err}. url:${url}`);
+        return;
+      }
+      this.serverTestResult = resp;
+    }
   }
 
   @VueEvent

@@ -56,6 +56,7 @@ import { clone } from "../utility/PrimaryDataUtility";
 import { DataReference } from "../../../@types/data";
 import LifeCycle from "../decorator/LifeCycle";
 import LanguageManager from "../../../LanguageManager";
+import { findById } from "../utility/Utility";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -78,13 +79,12 @@ export default class Context extends Vue {
   private target: string | null = null;
   private x: number | null = null;
   private y: number | null = null;
-
-  private key = "context";
   private title: string = "";
 
   private itemList: Item[] = [];
   private hoverIdxList: number[] = [0];
 
+  @VueEvent
   private getElm(): HTMLElement {
     return document.getElementById("context") as HTMLElement;
   }
@@ -107,9 +107,9 @@ export default class Context extends Vue {
     const levelList = this.hoverIdxList.map((_idx, idx) => idx);
     const lastLevel = this.hoverIdxList.length - 1;
     const lastLevelIdx = this.hoverIdxList[this.hoverIdxList.length - 1];
-    const hoverItem = this.itemList.filter(
+    const hoverItem = this.itemList.find(
       item => item.level === lastLevel && item.idx === lastLevelIdx
-    )[0];
+    );
     if (hoverItem && hoverItem.hasChild)
       levelList.push(this.hoverIdxList.length);
     return levelList;
@@ -153,7 +153,7 @@ export default class Context extends Vue {
     this.hoverIdxList = [0];
 
     const list = GameObjectManager.instance.getList(this.type)!;
-    const obj: any = list ? list.filter(o => o.id === this.target)[0] : null;
+    const obj: any = list ? findById(list, this.target) : null;
     const name =
       obj && obj.data && "name" in obj.data
         ? " " + obj.data.name.toString()

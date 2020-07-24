@@ -196,8 +196,6 @@ import CardChooserComponent from "./CardChooserComponent.vue";
 import CardDeckFrameSettingComponent from "./CardDeckFrameSettingComponent.vue";
 import TextFrame from "./TextFrame.vue";
 
-const cardDeckYamlPath = "/static/conf/deck.yaml";
-
 type DeckInfo = {
   cardDeckBig: StoreUseData<CardDeckBig>;
   cardMetaList: StoreUseData<CardMeta>[];
@@ -413,50 +411,58 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     });
 
     // プリセットデッキの読み込み
-    (await loadYaml<CardYamlInfo[]>(cardDeckYamlPath)).forEach(
-      (presetDeck: CardYamlInfo, deckIdx: number) => {
-        const name = presetDeck.title;
-        const id = `preset-deck-${name}-${deckIdx}`;
-        const cardDeckBig = createEmptyStoreUseData(id, { name });
-        const cardMetaList: StoreUseData<CardMeta>[] = presetDeck.cards.map(
-          (c: InputCardInfo, cardIdx: number) => {
-            const cardId = `preset-card-${deckIdx}-${cardIdx}`;
-            const basePath = presetDeck.basePath || "";
-            const cardMeta: CardMeta = {
-              width: presetDeck.width,
-              height: presetDeck.height,
-              padHorizontal: presetDeck.padHorizontal || 0,
-              padTop: presetDeck.padTop || 0,
-              padBottom: presetDeck.padBottom || 0,
-              radius: presetDeck.radius || 0,
-              frontImage: c.imagePath
-                ? `url(${getSrc(urljoin(basePath, c.imagePath))})`
-                : "",
-              frontBackgroundColor: c.backgroundColor || "#ffffff",
-              backImage: presetDeck.back.imagePath
-                ? `url(${getSrc(urljoin(basePath, presetDeck.back.imagePath))})`
-                : "",
-              backBackgroundColor: presetDeck.back.backgroundColor || "#ffffff",
-              fontColor: c.fontColor || "#000000",
-              name: c.name || "",
-              nameHeight: presetDeck.nameHeight || 0,
-              nameFontSize: presetDeck.nameFontSize || 20,
-              nameBackgroundColor:
-                presetDeck.nameBackgroundColor || "rgba(0, 0, 0, 0)",
-              text: c.text || "",
-              textHeight: presetDeck.textHeight || 0,
-              textFontSize: presetDeck.textFontSize || 11,
-              textPadding: presetDeck.textPadding || 0,
-              textBackgroundColor:
-                presetDeck.textBackgroundColor || "rgba(0, 0, 0, 0)"
-            };
-            if (!cardMeta.radius) cardMeta.radius = 0;
-            return createEmptyStoreUseData(cardId, cardMeta);
-          }
-        );
-        this.presetDeckList.push({ cardDeckBig, cardMetaList });
-      }
-    );
+    // 読み込み必須でないためthrowは伝搬しないで警告だけ表示
+    try {
+      (await loadYaml<CardYamlInfo[]>("/static/conf/deck.yaml")).forEach(
+        (presetDeck: CardYamlInfo, deckIdx: number) => {
+          const name = presetDeck.title;
+          const id = `preset-deck-${name}-${deckIdx}`;
+          const cardDeckBig = createEmptyStoreUseData(id, { name });
+          const cardMetaList: StoreUseData<CardMeta>[] = presetDeck.cards.map(
+            (c: InputCardInfo, cardIdx: number) => {
+              const cardId = `preset-card-${deckIdx}-${cardIdx}`;
+              const basePath = presetDeck.basePath || "";
+              const cardMeta: CardMeta = {
+                width: presetDeck.width,
+                height: presetDeck.height,
+                padHorizontal: presetDeck.padHorizontal || 0,
+                padTop: presetDeck.padTop || 0,
+                padBottom: presetDeck.padBottom || 0,
+                radius: presetDeck.radius || 0,
+                frontImage: c.imagePath
+                  ? `url(${getSrc(urljoin(basePath, c.imagePath))})`
+                  : "",
+                frontBackgroundColor: c.backgroundColor || "#ffffff",
+                backImage: presetDeck.back.imagePath
+                  ? `url(${getSrc(
+                      urljoin(basePath, presetDeck.back.imagePath)
+                    )})`
+                  : "",
+                backBackgroundColor:
+                  presetDeck.back.backgroundColor || "#ffffff",
+                fontColor: c.fontColor || "#000000",
+                name: c.name || "",
+                nameHeight: presetDeck.nameHeight || 0,
+                nameFontSize: presetDeck.nameFontSize || 20,
+                nameBackgroundColor:
+                  presetDeck.nameBackgroundColor || "rgba(0, 0, 0, 0)",
+                text: c.text || "",
+                textHeight: presetDeck.textHeight || 0,
+                textFontSize: presetDeck.textFontSize || 11,
+                textPadding: presetDeck.textPadding || 0,
+                textBackgroundColor:
+                  presetDeck.textBackgroundColor || "rgba(0, 0, 0, 0)"
+              };
+              if (!cardMeta.radius) cardMeta.radius = 0;
+              return createEmptyStoreUseData(cardId, cardMeta);
+            }
+          );
+          this.presetDeckList.push({ cardDeckBig, cardMetaList });
+        }
+      );
+    } catch (err) {
+      window.console.warn(err.toString());
+    }
   }
 
   @VueEvent

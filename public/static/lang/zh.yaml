@@ -23,6 +23,7 @@ button:
   read: 読込
   regist-cut-in: カットイン登録
   setting: 設定
+  open-resource-master-list-window: リソース一覧
 
 type:
   map-mask: 地图遮罩
@@ -41,6 +42,9 @@ type:
   card: カード
   card-object: カード/山札
   card-deck-small: 山札
+  GM: GM
+  PL: PL
+  VISITOR: 見学者
 
 option:
   chat-color-type:
@@ -79,8 +83,6 @@ context:
   placement-reset: 配置リセット
   ref-url: データ参照先URLを開く
   edit-actor: コマのアクターを編集
-  add-resource-master: リソース追加
-  view-resource-master-list: リソース一覧
 
 label:
   terms-of-use: 使用条款
@@ -273,8 +275,8 @@ label:
   resource: リソース
   resource-type: 種類
   resource-type-no-contents: 内容なし
-  resource-type-ref-actor: アクター情報参照
-  resource-type-ref-map-object: 情報参照
+  resource-type-ref-normal: 情報参照
+  resource-type-ref-owner: 情報参照(オーナー)
   resource-type-text: 固定テキスト
   resource-type-input-text: 入力テキスト
   resource-type-number: 数値
@@ -284,13 +286,31 @@ label:
   resource-type-color: 色
   ref-property: 参照プロパティ
   ref-property-name: 名前
+  ref-property-type: 種類
+  ref-property-tag: タグ
+  ref-property-actor-name: 名前(アクター)
+  ref-property-actor-type: 種類(アクター)
+  ref-property-actor-tag: タグ(アクター)
+  ref-property-owner-name: 名前(オーナー)
+  ref-property-owner-type: 種類(オーナー)
+  ref-property-object-other-text: その他欄
+  ref-property-object-layer: レイヤー
+  ref-property-actor-status-name: ステータス
+  ref-property-actor-chat-text-color: チャット文字色
+  ref-property-actor-stand-image-position: 立ち絵の位置
   value-min: 最小値
   value-max: 最大値
   value-interval: 変化値
   value-default: デフォルト値
   value-selection: 選択肢(カンマ区切り)
+  value-selection-value: 選択肢の初期値
   auto-add-actor: イニシアティブ表の列（アクター）
   auto-add-map-object: イニシアティブ表の列（コマ）
+  selection-value: 選択肢の値
+  read-aloud: 読み上げ
+  read-aloud-volume: 読み上げ音量
+  tab-list: タブ一覧
+  other: その他
 
 message:
   copy-to-clipboard: 复制到剪贴板
@@ -298,6 +318,8 @@ message:
   processing: 処理中です！
   creating-room: お部屋を作成しています！
   entering-room: お部屋に入ります！
+  add-preset-room: プリセットデータを登録しています！
+  last-process-room: お部屋を表示するために頑張ってます！
   delete-deck: 山札を削除しますか？
 
 test-window:
@@ -458,8 +480,8 @@ chat-window:
     delete-chat: "本当にこのチャットを消しますか？\nこの操作は取り消せません。"
     delete-failure: 削除に失敗しました。
 
-chat-tab-list-window:
-  window-title: チャットタブ一覧
+chat-setting-window:
+  window-title: チャット設定
   dialog:
     delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
   message-list:
@@ -562,7 +584,7 @@ character-edit-window:
   window-title: キャラクター編集
 
 initiative-window:
-  window-title: イニシアティブ
+  window-title: イニシアティブ(INI)表
 
 resource-master-add-window:
   window-title: リソース追加

@@ -37,7 +37,6 @@ import ChatTabEditWindow from "./app/basic/chat/tab/ChatTabEditWindow.vue";
 import MediaListWindow from "./app/basic/media/MediaListWindow.vue";
 import MediaUploadWindow from "./app/basic/media/MediaUploadWindow.vue";
 import BcdiceApiServerSettingWindow from "./app/basic/login/BcdiceApiServerSettingWindow.vue";
-import ChatTabListWindow from "./app/basic/chat/tab/ChatTabListWindow.vue";
 import CardDeckSmallEditWindow from "./app/basic/card/CardDeckSmallEditWindow.vue";
 import LanguageManager from "./LanguageManager";
 import ResourceMasterEditWindow from "./app/basic/initiative/ResourceMasterEditWindow.vue";
@@ -45,6 +44,8 @@ import ChmodWindow from "./app/basic/chmod/ChmodWindow.vue";
 import PlayYoutubeWindow from "./app/basic/cut-in/bgm/PlayYoutubeWindow.vue";
 import ConfirmWindow from "./app/core/window/ConfirmWindow.vue";
 import PlayBgmFileWindow from "./app/basic/cut-in/bgm/PlayBgmFileWindow.vue";
+import ReadAloudManager from "./ReadAloudManager";
+import ChatSettingWindow from "./app/basic/chat/ChatSettingWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -56,6 +57,9 @@ let isYoutubeApiReady = false;
 };
 
 async function main(): Promise<void> {
+  // 最初に読み上げ音声一覧を取得する
+  await ReadAloudManager.init();
+
   Vue.component("cut-in-list-window", CutInListWindow);
   Vue.component("play-youtube-window", PlayYoutubeWindow);
   Vue.component("login-window", LoginWindow);
@@ -79,7 +83,7 @@ async function main(): Promise<void> {
   Vue.component("bgm-add-window", BgmAddWindow);
   Vue.component("bgm-edit-window", BgmEditWindow);
   Vue.component("chat-window", ChatWindow);
-  Vue.component("chat-tab-list-window", ChatTabListWindow);
+  Vue.component("chat-setting-window", ChatSettingWindow);
   Vue.component("chat-tab-add-window", ChatTabAddWindow);
   Vue.component("chat-tab-edit-window", ChatTabEditWindow);
   Vue.component("actor-add-window", ActorAddWindow);
@@ -100,8 +104,6 @@ async function main(): Promise<void> {
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow
   );
-
-  window.console.log(123);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

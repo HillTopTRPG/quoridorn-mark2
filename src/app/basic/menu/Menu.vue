@@ -178,7 +178,6 @@
      ! ヘルプ
      !-------------------------------------------------->
     <div class="hoverMenu hoverMenu7" v-show="isShow('ヘルプ')">
-      <div class="item" @click="clickWelcome">ようこそ画面</div>
       <div class="item" @click="clickVersion">バージョン</div>
       <div class="item" @click="clickManual">マニュアル</div>
       <hr />
@@ -189,7 +188,7 @@
      !-------------------------------------------------->
     <div class="hoverMenu hoverMenu8" v-show="isShow('ウィンドウ')">
       <menu-boolean-item
-        @click="menuClick"
+        @click="openChatWindow"
         property="private.display.chatWindow"
       >
         チャット表示
@@ -198,13 +197,13 @@
         ダイス表示
       </menu-boolean-item>
       <menu-boolean-item
-        @click="menuClick"
+        @click="openPlayerBoxWindow"
         property="private.display.playerBoxWindow"
       >
         プレイヤーボックス表示
       </menu-boolean-item>
       <menu-boolean-item
-        @click="openInitiative"
+        @click="openInitiativeWindow"
         property="private.display.initiativeWindow"
       >
         イニシアティブ表示
@@ -251,6 +250,8 @@ import { UserData } from "../../../@types/room";
 import GameObjectManager from "../GameObjectManager";
 import { WindowOpenInfo } from "../../../@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
+import App from "../../../views/App.vue";
+import { someByStr } from "../../core/utility/Utility";
 
 @Component({
   components: {
@@ -263,13 +264,6 @@ import VueEvent from "../../core/decorator/VueEvent";
 })
 export default class Menu extends Vue {
   private roomData = GameObjectManager.instance.roomData;
-  @Action("windowOpenDeprecated") private windowOpenDeprecated: any;
-  @Action("setPropertyDeprecated") private setPropertyDeprecated: any;
-  @Action("doResetWindowLocateDeprecated")
-  private doResetWindowLocateDeprecated: any;
-  @Action("exportStartDeprecated") private exportStartDeprecated: any;
-  @Action("addListObjDeprecated") private addListObjDeprecated: any;
-  @Action("saveChatLogHtmlDeprecated") private saveChatLogHtmlDeprecated: any;
 
   private isConnectHover: boolean = false;
   private isSelecting: boolean = false;
@@ -287,21 +281,25 @@ export default class Menu extends Vue {
   }
 
   @VueEvent
-  private async openInitiative() {
+  private async openChatWindow() {
     this.menuClick();
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "initiative-window"
-      }
-    });
+    await App.openSimpleWindow("chat-window");
+  }
+
+  @VueEvent
+  private async openPlayerBoxWindow() {
+    this.menuClick();
+    await App.openSimpleWindow("player-box-window");
+  }
+
+  @VueEvent
+  private async openInitiativeWindow() {
+    this.menuClick();
+    await App.openSimpleWindow("initiative-window");
   }
 
   isShow(...props: any[]): any {
-    return (
-      this.isSelecting && props.filter(prop => prop === this.currentMenu)[0]
-    );
+    return this.isSelecting && someByStr(props, this.currentMenu);
   }
 
   menuHover(prop: string): void {
@@ -315,26 +313,12 @@ export default class Menu extends Vue {
   /** 部屋情報ボタン押下 */
   @VueEvent
   private async clickRoomInfo(): Promise<void> {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, void>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "room-info-window"
-      }
-    });
+    await App.openSimpleWindow("room-info-window");
   }
 
   /** 共有メモボタン押下 */
   @VueEvent
-  private clickPublicMemo() {
-    this.addListObjDeprecated({
-      propName: "publicMemo",
-      kind: "publicMemo",
-      targetList: [],
-      title: "共有メモ",
-      tabList: []
-    });
-  }
+  private clickPublicMemo() {}
 
   /** ログアウトボタン押下 */
   @VueEvent
@@ -347,24 +331,16 @@ export default class Menu extends Vue {
    * ----------------- */
   /** セーブ */
   clickExport(): void {
-    this.exportStartDeprecated(true);
     this.menuClick();
   }
 
   /** ロード */
   clickImport(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "ロード",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** チャットログ保存 */
   clickChatLog(): void {
-    this.saveChatLogHtmlDeprecated();
     this.menuClick();
   }
 
@@ -372,19 +348,14 @@ export default class Menu extends Vue {
    * 表示
    * ----------------- */
   /** フォントサイズ調整 */
-  clickSettingFontSize(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "フォントサイズ変更",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
+  private async clickSettingFontSize(): Promise<void> {
     this.menuClick();
+    alert("プレイヤーボックス画面から行う仕様です。");
+    await App.openSimpleWindow("player-box-window");
   }
 
   /** ウィンドウ配置初期化 */
   clickResetWindowLocate(): void {
-    this.doResetWindowLocateDeprecated();
     this.menuClick();
   }
 
@@ -392,92 +363,82 @@ export default class Menu extends Vue {
    * コマ
    * ----------------- */
   /** キャラクター追加 */
-  clickAddCharacter(): void {
-    this.windowOpenDeprecated("private.display.addCharacterSettingWindow");
+  private async clickAddCharacter(): Promise<void> {
     this.menuClick();
+    await App.openSimpleWindow("character-add-window");
   }
 
   /** 範囲追加 */
   clickAddRange(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "範囲追加",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
+    alert("未実装です！ごめんなさい！");
   }
 
   /** チット作成 */
-  clickAddChit(): void {
-    this.windowOpenDeprecated("private.display.addChitWindow");
+  private async clickAddChit(): Promise<void> {
     this.menuClick();
+    await App.openSimpleWindow("chit-add-window");
   }
 
   /** 墓場 */
-  clickGraveyard(): void {
-    alert("「墓場」はプレイヤーボックス画面に統合されました。");
+  private async clickGraveyard(): Promise<void> {
     this.menuClick();
+    alert(
+      "「墓場」はプレイヤーボックス画面に統合されます！\n未実装だったらごめんなさい！"
+    );
+    await App.openSimpleWindow("player-box-window");
   }
 
   /** キャラクター待合室 */
-  clickWaitingRoom(): void {
-    alert("「キャラクター待合室」はプレイヤーボックス画面に統合されました。");
+  private async clickWaitingRoom(): Promise<void> {
     this.menuClick();
+    alert(
+      "「キャラクター待合室」はプレイヤーボックス画面に統合されます！\n未実装だったらごめんなさい！"
+    );
+    await App.openSimpleWindow("player-box-window");
   }
 
   /* --------------------
    * マップ
    * ----------------- */
   /** マップ変更 */
-  clickChangeMap(): void {
-    this.windowOpenDeprecated("private.display.editMapWindow");
+  private async clickChangeMap(): Promise<void> {
     this.menuClick();
+    await App.openSimpleWindow("scene-list-window");
   }
 
   /** フロアタイル追加 */
-  clickAddFloorTile(): void {
-    this.windowOpenDeprecated("private.display.addFloorTileWindow");
+  private async clickAddFloorTile(): Promise<void> {
     this.menuClick();
+    alert(
+      "フロアタイルは未実装です。\nマップマスクを工夫して代用してください。"
+    );
+    await App.openSimpleWindow("map-mask-add-window");
   }
 
   /** マップマスク追加 */
-  clickAddMapMask(): void {
-    this.windowOpenDeprecated("private.display.addMapMaskWindow");
+  private async clickAddMapMask(): Promise<void> {
     this.menuClick();
+    await App.openSimpleWindow("map-mask-add-window");
   }
 
   /** 簡易マップ作成 */
-  clickCreateEasyMap(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "簡易マップ",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
+  private async clickCreateEasyMap(): Promise<void> {
     this.menuClick();
   }
 
   /** マップ状態保存 */
-  clickSaveMap(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "マップ保存",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
+  private async clickSaveMap(): Promise<void> {
     this.menuClick();
+    alert("シーンリスト画面から行う仕様です。\n未実装だったらごめんなさい！");
+    await App.openSimpleWindow("scene-list-window");
   }
 
   /** マップ切り替え */
-  clickSwitchMap(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "マップ切り替え",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
+  private async clickSwitchMap(): Promise<void> {
     this.menuClick();
+    alert("シーンリスト画面から行う仕様です。\n未実装だったらごめんなさい！");
+    await App.openSimpleWindow("scene-list-window");
   }
 
   /* --------------------
@@ -485,61 +446,36 @@ export default class Menu extends Vue {
    * ----------------- */
   /** ファイルアップローダー */
   clickFileUploader(): void {
-    this.windowOpenDeprecated("private.display.fileUploaderWindow");
     this.menuClick();
   }
 
   /** タグ編集 */
   clickTagEdit(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "画像タグ編集",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** 画像削除 */
   clickDeleteImage(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "画像削除",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /* --------------------
    * ヘルプ
    * ----------------- */
-  /** ようこそ */
-  clickWelcome(): void {
-    this.windowOpenDeprecated("private.display.welcomeWindow");
-    this.menuClick();
-  }
-
   /** バージョン */
-  clickVersion(): void {
-    this.windowOpenDeprecated("private.display.versionWindow");
+  private async clickVersion(): Promise<void> {
     this.menuClick();
+    await App.openSimpleWindow("version-info-window");
   }
 
   /** マニュアル */
   clickManual(): void {
-    this.setPropertyDeprecated({
-      property: "private.display.unSupportWindow.title",
-      value: "マニュアル",
-      logOff: true
-    });
-    this.windowOpenDeprecated("private.display.unSupportWindow");
     this.menuClick();
   }
 
   /** オフィシャルサイトへ */
   clickOfficialSite(): void {
-    window.open("http://quoridorn.com/", "_blank");
+    window.open("https://quoridorn.com/", "_blank");
     this.menuClick();
   }
 
@@ -548,7 +484,6 @@ export default class Menu extends Vue {
    * ----------------- */
   /** 開発履歴 */
   clickDevHistory(): void {
-    this.windowOpenDeprecated("private.display.devLogWindow");
     this.menuClick();
   }
 

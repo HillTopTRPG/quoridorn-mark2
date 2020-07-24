@@ -13,6 +13,7 @@
       :groupChatTabList="groupChatTabList"
       @edit="editChat"
       @delete="deleteChat"
+      @changeTab="value => (tabId = value)"
     />
 
     <!-- 操作盤 -->
@@ -107,10 +108,17 @@ import SocketFacade, {
 } from "../../core/api/app-server/SocketFacade";
 import ChatLogViewer from "./log/ChatLogViewer.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import { createEmptyStoreUseData } from "../../core/utility/Utility";
+import {
+  createEmptyStoreUseData,
+  findById,
+  findRequireById,
+  findRequireByOwner
+} from "../../core/utility/Utility";
 import LanguageManager from "../../../LanguageManager";
 import { UserType } from "../../../@types/socket";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import ReadAloudManager from "../../../ReadAloudManager";
+import { Getter } from "vuex-class";
 
 @Component({
   components: {
@@ -125,6 +133,9 @@ import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   WindowVue
 ) {
+  @Getter("useReadAloud")
+  private useReadAloud!: boolean;
+
   // List
   private unitList:
     | { value: number; name: string; unit: string }[]
@@ -173,6 +184,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private system: string = "DiceBot";
   /** BCDice-APIのURL */
   private bcdiceUrl: string = "";
+
+  private lastChatNum: number = -1;
 
   /*
    * local flags
@@ -236,12 +249,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private volatileActiveTab: string | null = null;
   private volatileTargetTab: string | null | undefined = undefined;
   private volatileIsSecret: boolean | null = null;
+  private isMounted: boolean = false;
 
   /*
    * getters
    */
   private get targetList(): StoreUseData<GroupChatTabInfo | ActorStore>[] {
     return [...this.groupChatTabList, ...this.actorList];
+  }
+
+  private get windowElm(): HTMLDivElement {
+    return this.$refs["window-container"] as HTMLDivElement;
   }
 
   private get useCommandActorList(): {
@@ -268,29 +286,27 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     return resultList;
   }
 
+  @VueEvent
   private get sender(): string {
     return this.getName(this.actorId, "actor", true);
   }
 
+  @VueEvent
   private get targetType(): string {
-    const groupChatTabInfo = this.groupChatTabList.filter(
-      gct => gct.id === this.targetId
-    )[0];
+    const groupChatTabInfo = findById(this.groupChatTabList, this.targetId);
     if (groupChatTabInfo)
       return groupChatTabInfo.data!.isSystem ? "default" : "group";
     return "direct";
   }
 
+  @VueEvent
   private get targetName(): string {
-    const groupChatTabInfo = this.groupChatTabList.filter(
-      gct => gct.id === this.targetId
-    )[0];
+    const groupChatTabInfo = findById(this.groupChatTabList, this.targetId);
     if (groupChatTabInfo) {
       return groupChatTabInfo.data!.name;
     }
 
-    const actor = this.actorList.filter(a => a.id === this.targetId)[0];
-    return actor.data!.name;
+    return findRequireById(this.actorList, this.targetId).data!.name;
   }
 
   private getName(
@@ -300,22 +316,20 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   ): string {
     if (!id) return "";
     if (type === "group") {
-      const gct = this.groupChatTabList.filter(gct => gct.id === id)[0];
+      const gct = findRequireById(this.groupChatTabList, id);
       if (gct.data!.isSystem) return "";
       return gct.data!.name;
     } else {
-      const actor = this.actorList.filter(a => a.id === id)[0];
+      const actor = findRequireById(this.actorList, id);
       let userTypeStr = "";
       if (actor.data!.type === "user") {
-        const user = this.userList.filter(u => u.id === actor.owner)[0];
+        const user = findRequireById(this.userList, actor.owner);
         const userType = this.userTypeLanguageMap[user.data!.type];
         userTypeStr = `(${userType})`;
       }
       let statusStr = "";
       if (addStatus) {
-        const status = this.actorStatusList.filter(
-          as => as.owner === this.actorId
-        )[0];
+        const status = findRequireByOwner(this.actorStatusList, this.actorId);
         statusStr = `-${status.data!.name}`;
       }
       return `${actor.data!.name}${userTypeStr}${statusStr}`;
@@ -326,22 +340,21 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     return !this.outputTabId;
   }
 
+  @VueEvent
   private get outputTabName(): string {
     if (!this.outputTabId) return this.selectedItemLabel;
-    const tab = this.chatTabList.filter(t => t.id === this.outputTabId)[0];
-    return tab.data!.name;
+    return findRequireById(this.chatTabList, this.outputTabId).data!.name;
   }
 
   private get actorStatusId(): string {
-    const status = this.actorStatusList.filter(
-      as => as.owner === this.actorId
-    )[0];
-    return status.id!;
+    return findRequireByOwner(this.actorStatusList, this.actorId).id!;
   }
 
   @LifeCycle
   public async mounted() {
     await this.init();
+    this.setFontColors();
+    this.isMounted = true;
   }
 
   @Watch("actorList", { immediate: true, deep: true })
@@ -349,6 +362,24 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.selfActors = this.actorList.filter(
       a => a.owner === GameObjectManager.instance.mySelfUserId
     );
+
+    if (this.isMounted) this.setFontColors();
+  }
+
+  private setFontColors() {
+    const getFontColor = (actor: StoreUseData<ActorStore>) => {
+      let cActor: StoreUseData<ActorStore> = actor;
+      if (cActor.data!.chatFontColorType !== "original") {
+        const cActorOwner = findRequireById(this.userList, cActor.owner);
+        cActor = findRequireByOwner(this.actorList, cActorOwner.id);
+      }
+      return cActor.data!.chatFontColor;
+    };
+
+    this.actorList.forEach(actor => {
+      const fontColor = getFontColor(actor);
+      this.windowElm.style.setProperty(`--font-color-${actor.id}`, fontColor);
+    });
   }
 
   @Watch("groupChatTabList", { immediate: true, deep: true })
@@ -401,7 +432,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private onChangeActorId() {
     this.chatPublicInfo.actorId = this.actorId;
     this.isActorChanging = true;
-    const actor = this.actorList.filter(a => a.id === this.actorId)[0];
+    const actor = findRequireById(this.actorList, this.actorId);
     this.statusId = actor.data!.statusId;
   }
 
@@ -423,18 +454,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private onChangeTargetId() {
     this.chatPublicInfo.targetId = this.targetId;
 
-    const groupChatTabInfo = this.groupChatTabList.filter(
-      gct => gct.id === this.targetId
-    )[0];
+    const groupChatTabInfo = findById(this.groupChatTabList, this.targetId);
     if (groupChatTabInfo) {
       const outputChatTabId = groupChatTabInfo.data!.outputChatTabId;
       if (outputChatTabId) {
         this.tabId = outputChatTabId;
       }
 
-      const actorGroupInfo = this.actorGroupList.filter(
-        ag => ag.id === groupChatTabInfo.data!.actorGroupId
-      )[0];
+      const actorGroupId = groupChatTabInfo.data!.actorGroupId;
+      const actorGroupInfo = findRequireById(this.actorGroupList, actorGroupId);
 
       let isMatchCurrentActor = false;
       let otherMatchActorId: string | null = null;
@@ -444,7 +472,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
           isMatchCurrentActor = true;
           return;
         }
-        const actor = this.actorList.filter(a => a.id === actorRef.id)[0];
+        const actor = findRequireById(this.actorList, actorRef.id);
         if (
           actor.owner === GameObjectManager.instance.mySelfUserId &&
           !otherMatchActorId
@@ -655,7 +683,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   // アクターステータスを切り替える
   private async updateActorStatus(statusId: string) {
     await this.actorCC.touchModify([this.actorId]);
-    const actorInfo = this.actorList.filter(a => a.id === this.actorId)[0];
+    const actorInfo = findRequireById(this.actorList, this.actorId);
     const actorData = actorInfo.data!;
     actorData.statusId = statusId;
     await this.actorCC.update([this.actorId], [actorData]);
@@ -686,7 +714,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       0,
       createEmptyStoreUseData<ChatTabInfo>(null, {
         name: this.selectedItemLabel,
-        isSystem: true
+        isSystem: true,
+        useReadAloud: false,
+        readAloudVolume: 1
       })
     );
     this.outputTabList = outputTabList;
@@ -707,6 +737,28 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     // TODO Open view tab setting.
   }
 
+  @Watch("chatList", { deep: true })
+  private onChangeChatList() {
+    if (!this.chatList.length) return;
+    if (this.lastChatNum < this.chatList.length) {
+      const chatInfo = this.chatList[this.chatList.length - 1].data!;
+      // テキスト読み上げ機能（ダイス結果でない物を読み上げ）
+      if (this.useReadAloud && !chatInfo.dices.length) {
+        let text = chatInfo.text;
+        const actor = this.actorList.find(a => a.id === chatInfo.actorId);
+        if (actor) text = `${actor.data!.name}, ${text}`;
+        const tabId = chatInfo.tabId;
+        const tab = this.chatTabList.find(ct => ct.id === tabId);
+        if (tab && tab.data!.useReadAloud) {
+          window.console.log(text);
+          ReadAloudManager.instance.volume = tab.data!.readAloudVolume || 1;
+          ReadAloudManager.instance.speakVoice(text);
+        }
+      }
+    }
+    this.lastChatNum = this.chatList.length;
+  }
+
   @VueEvent
   private async editChat(id: string) {
     try {
@@ -715,7 +767,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       // TODO error show.
       return;
     }
-    const chat = this.chatList.filter(c => c.id === id)[0];
+    const chat = findRequireById(this.chatList, id);
     this.edittingChat = chat;
     this.inputtingChatText = chat.data!.text;
   }
@@ -768,13 +820,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     // チャット送信オプション選択中のEnterは特別仕様
     if (this.chatOptionSelectMode !== "none") {
       if (this.chatOptionSelectMode === "select-chat-format") {
-        const chatFormat: any = GameObjectManager.instance.chatFormatList.filter(
+        const chatFormat: any = GameObjectManager.instance.chatFormatList.find(
           format => format.chatText === this.partsFormat
-        )[0];
+        )!;
         this.inputtingChatText =
           this.inputtingChatText.replace(/[&＆]$/, "") + chatFormat.chatText;
         // this.partsFormat = GameObjectManager.instance.chatFormatList[0].chatText;
       } else {
+        // if (this.chatOptionSelectMode === "select-output-tab") {
+        //   this.tabId = this.outputTabId;
+        //   this.outputTabId = null;
+        // }
         this.inputtingChatText = "";
       }
       this.chatOptionSelectMode = "none";
@@ -807,7 +863,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       {
         actorId: this.actorId,
         text,
-        tabId: this.tabId,
+        tabId: this.outputTabId || this.tabId,
         statusId: null, // Actorに設定されているものを使う
         targetId: this.targetId,
         system: this.system,

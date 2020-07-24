@@ -44,7 +44,6 @@ export default class ActorStatusTabComponent extends Vue {
   private actor!: any;
 
   @Action("addActorStatus") private addActorStatus: any;
-  @Getter("getObj") private getObj: any;
 
   private statusList: any[] = [];
   private activeTabIndex: number = -1;

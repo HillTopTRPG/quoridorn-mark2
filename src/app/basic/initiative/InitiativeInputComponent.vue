@@ -2,9 +2,10 @@
   <input
     :id="elmId"
     :type="inputType"
-    :value="data.data[colDec.target]"
+    :value="dataObj.data[colDec.target]"
+    :checked="parseBoolean(dataObj.data[colDec.target])"
     @focus.stop="onFocus()"
-    @input="inputCell(data, colDec.target)"
+    @input="inputCell(dataObj, colDec.target)"
   />
 </template>
 
@@ -13,18 +14,19 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { StoreUseData } from "../../../@types/store";
 import { WindowTableColumn } from "../../../@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
+import { convertBooleanFalse } from "../../core/utility/PrimaryDataUtility";
 
 @Component
 export default class InitiativeInputComponent extends Vue {
   @Prop({ type: Object, required: true })
   private colDec!: WindowTableColumn;
   @Prop({ type: Object, required: true })
-  private data!: StoreUseData<any>;
+  private dataObj!: StoreUseData<any>;
   @Prop({ type: String, required: true })
   private inputType!: string;
 
   private get elmId(): string {
-    return `prop-${this.data.owner}-${this.colDec.target}`;
+    return `prop-${this.dataObj.owner}-${this.colDec.target}`;
   }
 
   @VueEvent
@@ -35,6 +37,10 @@ export default class InitiativeInputComponent extends Vue {
   @VueEvent
   private onFocus() {
     window.console.log("onFocus");
+  }
+
+  private parseBoolean(bool: string) {
+    return convertBooleanFalse(bool);
   }
 }
 </script>

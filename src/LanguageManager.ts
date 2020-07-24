@@ -1,6 +1,7 @@
 import VueI18n from "vue-i18n";
 import { loadYaml } from "./app/core/utility/FileUtility";
 import TaskManager from "./app/core/task/TaskManager";
+import { listToEmpty } from "./app/core/utility/PrimaryDataUtility";
 
 type LangInfo = {
   lang: string;
@@ -35,7 +36,11 @@ export default class LanguageManager {
   private constructor() {}
 
   private async loadLanguage(langInfo: LangInfo) {
-    this.messages[langInfo.lang] = await loadYaml(langInfo.path);
+    try {
+      this.messages[langInfo.lang] = await loadYaml<any>(langInfo.path);
+    } catch (err) {
+      window.console.error(err.toString());
+    }
   }
 
   public set language(locale: string) {
@@ -53,18 +58,19 @@ export default class LanguageManager {
     return this.i18n.t(target);
   }
 
-  public get defaultLanguage() {
-    const langInfo = supportLangList.filter(l => l.isDefault)[0];
+  public static get defaultLanguage() {
+    const langInfo = supportLangList.find(l => l.isDefault);
     return langInfo ? langInfo.lang : navigator.language;
   }
 
   public async init(): Promise<VueI18n> {
     const loadLanguages = async () => {
-      supportLangList.push(
-        ...((await loadYaml(
-          "/static/lang/support-lang-list.yaml"
-        )) as SupportLangInfo[])
+      // 読み込み必須のためthrowは伝搬させる
+      const supportLangInfo = await loadYaml<SupportLangInfo[]>(
+        "/static/lang/support-lang-list.yaml"
       );
+      listToEmpty(supportLangList);
+      supportLangList.push(...supportLangInfo);
 
       // loadLanguageを直列の非同期で全部実行する
       await supportLangList

@@ -33,7 +33,7 @@ import { Matrix, Point } from "address";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import { DropPieceInfo } from "task-info";
-import { getTextureStyle } from "../../core/utility/Utility";
+import { findById, getTextureStyle } from "../../core/utility/Utility";
 import TaskProcessor, {
   TaskProcessorSimple
 } from "../../core/task/TaskProcessor";
@@ -54,8 +54,6 @@ import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
 @Component({ components: { SceneLayerComponent, MapBoard } })
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
-  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
-  private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private roomData = GameObjectManager.instance.roomData;
   private sceneId: string | null = null;
   private sceneInfo: Scene | null = null;
@@ -118,7 +116,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("sceneList", { deep: true })
   private async updateScreen() {
     if (!this.isMounted) return;
-    const sceneData = this.sceneList.filter(s => s.id === this.sceneId)[0];
+    const sceneData = findById(this.sceneList, this.sceneId);
     this.sceneInfo = sceneData ? sceneData.data! : null;
     if (this.sceneInfo) {
       CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;

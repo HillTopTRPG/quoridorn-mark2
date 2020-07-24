@@ -150,6 +150,8 @@ import CtrlButton from "./app/core/component/CtrlButton.vue";
 import TabsComponent from "./app/basic/common/components/tab-component/TabsComponent.vue";
 import { saveHTML, saveJson, saveText } from "./app/core/utility/FileUtility";
 import ChatLogViewer from "./app/basic/chat/log/ChatLogViewer.vue";
+import VueEvent from "./app/core/decorator/VueEvent";
+import { findRequireByKey, someByStr } from "./app/core/utility/Utility";
 
 @Component({
   components: {
@@ -184,10 +186,12 @@ export default class ChatLog extends Vue {
     this.onMount();
   }
 
+  @VueEvent
   private onClickLegend(this: any, target: string) {
     this[target] = !this[target];
   }
 
+  @VueEvent
   private onTargetCheck(targetKey: string, check: boolean) {
     const index: number = this.targetPlayers.findIndex(
       (targetPlayer: string) => targetPlayer === targetKey
@@ -205,22 +209,23 @@ export default class ChatLog extends Vue {
     this.activeChatTab = chatTabList[0].key;
   }
 
+  @VueEvent
   private chatTabOnSelect(tabKey: string): void {
     this.activeChatTab = tabKey;
   }
 
+  @VueEvent
   private chatTabOnHover(tabKey: string): void {
     this.hoverChatTab = tabKey;
   }
 
+  @VueEvent
   private tabAddButtonOnClick(): void {}
 
   private get chatLogList(): Function {
     return (chatTab: string) => {
       const isTargetPlayer: Function = (playerKey: string) =>
-        this.targetPlayers.filter(
-          (targetPlayer: any) => targetPlayer === playerKey
-        )[0];
+        someByStr(this.targetPlayers, playerKey);
       const activeChatTab = this.getObj(chatTab);
 
       return this.chatLogs.filter((log: any) => {
@@ -256,11 +261,12 @@ export default class ChatLog extends Vue {
     };
   }
 
+  @VueEvent
   private onClickSaveAsDodontofHTML() {
     const replaceFunc: Function = (text: string) =>
       this.formatRuby(text).replace(/\[\[quot]]/g, '"');
 
-    const dateStr = moment().format("YYYYMMDD_HHmmss");
+    const dateStr = (moment() as any).format("YYYYMMDD_HHmmss");
 
     saveHTML(
       `chatLog_${dateStr}`,
@@ -298,13 +304,14 @@ export default class ChatLog extends Vue {
     );
   }
 
+  @VueEvent
   private onClickSaveAsDodontofText() {
     const replaceFunc: Function = (text: string) =>
       this.formatRuby(text)
         .replace(/\[\[quot]]/g, '"')
         .replace(/<br ?\/>/g, "\n");
 
-    const dateStr = moment().format("YYYYMMDD_HHmmss");
+    const dateStr = (moment() as any).format("YYYYMMDD_HHmmss");
 
     saveText(
       `chatLog_${dateStr}`,
@@ -368,8 +375,9 @@ export default class ChatLog extends Vue {
     return resultTexts.join("");
   }
 
+  @VueEvent
   private onClickSaveAsJson() {
-    const dateStr = moment().format("YYYYMMDD_HHmmss");
+    const dateStr = (moment() as any).format("YYYYMMDD_HHmmss");
     saveJson(`chatLog_${dateStr}`, "chat-log", this.jsonData);
   }
 
@@ -379,9 +387,7 @@ export default class ChatLog extends Vue {
     );
     chatLogs.forEach((logObj: any) => {
       // タブの指定
-      const tabObj: any = this.chatTabList.filter(
-        (tabObj: any) => tabObj.key === logObj.tab
-      )[0];
+      const tabObj: any = findRequireByKey(this.chatTabList, logObj.tab);
       logObj.tab = tabObj.name;
 
       // 色

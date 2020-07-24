@@ -8,15 +8,11 @@
     ]"
     :style="chitStyle"
     :id="storeObj.key"
-    @click.right.prevent="
-      e => openContext(e, 'private.display.diceSymbolContext')
-    "
     @mouseover="mouseover"
     @mouseout="mouseout"
     @mousedown.left.stop="leftDown"
     @mouseup.left.stop="leftUp"
     @mousedown.right.stop="rightDown"
-    @mouseup.right.stop="rightUp"
     @touchstart="leftDown"
     @touchend="leftUp"
     @touchcancel="leftUp"
@@ -40,7 +36,6 @@
 </template>
 
 <script lang="ts">
-
 import { Component } from "vue-property-decorator";
 import PieceMixin from "../../common/mixin/PieceMixin.vue";
 

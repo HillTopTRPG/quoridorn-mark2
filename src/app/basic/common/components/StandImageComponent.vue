@@ -19,6 +19,7 @@ import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { listToEmpty } from "../../../core/utility/PrimaryDataUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { findByKey } from "../../../core/utility/Utility";
 
 interface Rectangle {
   x: number;
@@ -71,9 +72,10 @@ export default class StandImageComponent extends Vue {
       new Promise((resolve: Function) => {
         let imageData = null;
         if (imageKey) {
-          const imageObj = this.imageList.filter(
-            (image: any) => image.key === imageKey.replace(":R", "")
-          )[0];
+          const imageObj: any = findByKey(
+            this.imageList,
+            imageKey.replace(":R", "")
+          );
           imageData = imageObj ? imageObj.data : null;
         }
 
@@ -288,8 +290,9 @@ export default class StandImageComponent extends Vue {
   onClick() {}
 
   @Watch("canvasSize", { deep: true })
-  @Emit("resize")
-  onChangeCanvasSize(canvasSize: any) {}
+  onChangeCanvasSize(canvasSize: any) {
+    this.$emit("resize", canvasSize);
+  }
 
   private get canvasSize(): any {
     return {

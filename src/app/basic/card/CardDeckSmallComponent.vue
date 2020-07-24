@@ -83,13 +83,20 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import {
-  copyAddress, createAddress,
+  copyAddress,
+  createAddress,
   createPoint,
   createRectangle,
   createSize,
-  getEventPoint, isContain
+  getEventPoint,
+  isContain
 } from "../../core/utility/CoordinateUtility";
-import { CardDeckLayout, CardDeckSmall, CardObject, ObjectMoveInfo } from "../../../@types/gameObject";
+import {
+  CardDeckLayout,
+  CardDeckSmall,
+  CardObject,
+  ObjectMoveInfo
+} from "../../../@types/gameObject";
 import { StoreObj, StoreUseData } from "../../../@types/store";
 import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
 import SButton from "../common/components/SButton.vue";
@@ -377,7 +384,9 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   }
 
   private static getCardRect(cardId: string): Rectangle {
-    const cardRect: any = document.getElementById(cardId)!.getBoundingClientRect();
+    const cardRect: any = document
+      .getElementById(cardId)!
+      .getBoundingClientRect();
     const gameTableRect: any = document
       .getElementById("map-canvas-container")!
       .getBoundingClientRect();

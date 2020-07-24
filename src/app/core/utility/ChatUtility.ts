@@ -4,6 +4,7 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import BcdiceManager from "../api/bcdice/BcdiceManager";
 import { sum } from "./PrimaryDataUtility";
 import SocketFacade from "../api/app-server/SocketFacade";
+import { findById, findRequireById, someByStr } from "./Utility";
 
 const config = {};
 const math = create(all, config);
@@ -36,7 +37,7 @@ const { borderStyleRegExp, styleRegExp, lineRegExp } = (() => {
   };
 })();
 
-export function transText(text: string) {
+export function transText(text: string): string {
   text = text
     .replace(/\[\[quot]]/g, "&quot;")
     .replace(/&/g, "&amp;")
@@ -149,23 +150,20 @@ export async function sendChatLog(
   payload: SendChatInfo,
   subCustomDiceBotList: CustomDiceBotInfo[]
 ) {
+  const actorList = GameObjectManager.instance.actorList;
+  const actorStatusList = GameObjectManager.instance.actorStatusList;
+  const groupChatTabList = GameObjectManager.instance.groupChatTabList;
+
   const actorId =
     payload.actorId || GameObjectManager.instance.chatPublicInfo.actorId;
   const targetId =
-    payload.targetId ||
-    GameObjectManager.instance.groupChatTabList.filter(
-      gct => gct.data!.isSystem
-    )[0].id!;
+    payload.targetId || groupChatTabList.find(gct => gct.data!.isSystem)!.id!;
 
-  const actorInfo = GameObjectManager.instance.actorList.filter(
-    actor => actor.id === actorId
-  )[0];
-  const actorStatus = GameObjectManager.instance.actorStatusList.filter(
-    as => as.id === actorInfo.data!.statusId
-  )[0];
-  const groupChatTabInfo = GameObjectManager.instance.groupChatTabList.filter(
-    gct => gct.id === targetId
-  )[0];
+  const actorStatus = findRequireById(
+    actorStatusList,
+    findRequireById(actorList, actorId).data!.statusId
+  );
+  const groupChatTabInfo = findById(groupChatTabList, targetId);
 
   const chatInfo: ChatInfo = {
     actorId,
@@ -181,7 +179,7 @@ export async function sendChatLog(
       groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
         ? groupChatTabInfo.data!.outputChatTabId
         : payload.tabId || GameObjectManager.instance.chatPublicInfo.tabId,
-    statusId: payload.statusId || actorStatus!.id!,
+    statusId: payload.statusId || actorStatus.id!,
     system: payload.system || GameObjectManager.instance.chatPublicInfo.system
   };
 
@@ -224,12 +222,12 @@ export async function sendChatLog(
       String.fromCharCode(s.charCodeAt(0) - 65248)
     )
     .toLowerCase();
-  const customDiceBotObj = BcdiceManager.instance.customDiceBotList.filter(
+  const customDiceBotObj = BcdiceManager.instance.customDiceBotList.find(
     cdb => cdb.commandName.toLowerCase() === commandStr
-  )[0];
-  const customDiceBotRoomSysObj = subCustomDiceBotList.filter(
+  );
+  const customDiceBotRoomSysObj = subCustomDiceBotList.find(
     cdb => cdb.commandName.toLowerCase() === commandStr
-  )[0];
+  );
   const useCustomDiceBotObj = customDiceBotObj || customDiceBotRoomSysObj;
   if (!useCustomDiceBotObj) {
     // 独自ダイスボットが見つからなかったので通常のチャット処理
@@ -246,9 +244,6 @@ export async function sendChatLog(
       command: diceRoll
     });
 
-    let diceRollResult: string | null = null;
-    let dices: any[] | null = null;
-    let diceResultStr: string | null = null;
     if (resultJson.ok) {
       // bcdiceとして結果が取れた
       chatInfo.diceRollResult = resultJson.result!;
@@ -413,11 +408,8 @@ export function conversion(
 
   const getUnit: Function = (
     unitName: string
-  ): { name: string[]; base: string } => {
-    return convertTable.filter(
-      unit => unit.name.filter((name: string) => name === unitName)[0]
-    )[0];
-  };
+  ): { name: string[]; base: string } | null =>
+    convertTable.find(unit => someByStr(unit.name, unitName)) || null;
   const filteredUnit = getUnit(unitName);
   if (!filteredUnit) return null;
 

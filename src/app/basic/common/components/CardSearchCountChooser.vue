@@ -48,7 +48,7 @@ export default class CardSearchCountChooser extends Mixins<ComponentVue>(
 
   @VueEvent
   private isChecked(key: string): boolean {
-    return !!this.localValue.filter(l => l === key)[0];
+    return this.localValue.some(l => l === key);
   }
 
   @VueEvent

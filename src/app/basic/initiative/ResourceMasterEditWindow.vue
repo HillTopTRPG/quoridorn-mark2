@@ -3,6 +3,7 @@
     <resource-master-info-form
       :windowKey="windowKey"
       :isAdd="false"
+      :systemColumnType="systemColumnType"
       initTabTarget="basic"
       :name.sync="name"
       :resourceType.sync="resourceType"
@@ -43,7 +44,11 @@ import ResourceMasterAddWindow from "./ResourceMasterAddWindow.vue";
 import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
-import { ResourceType } from "../../../@types/gameObject";
+import {
+  RefProperty,
+  ResourceMasterStore,
+  ResourceType
+} from "../../../@types/gameObject";
 import VueEvent from "../../core/decorator/VueEvent";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
@@ -68,12 +73,13 @@ export default class ResourceMasterEditWindow extends Mixins<
 
   private name: string = LanguageManager.instance.getText("label.resource");
   private resourceType: ResourceType = "no-contents";
+  private systemColumnType: "name" | "initiative" | null = null;
   private isAutoAddActor: boolean = false;
   private isAutoAddMapObject: boolean = true;
   private iconImageId: string | null = null;
   private iconImageTag: string | null = null;
   private iconImageDirection: Direction | null = null;
-  private refProperty: string = "name";
+  private refProperty: RefProperty | null = null;
   private min: number | null = null;
   private max: number | null = null;
   private interval: number | null = null;
@@ -109,6 +115,7 @@ export default class ResourceMasterEditWindow extends Mixins<
     this.resourceType = data.data!.type;
     this.isAutoAddActor = data.data!.isAutoAddActor;
     this.isAutoAddMapObject = data.data!.isAutoAddMapObject;
+    this.systemColumnType = data.data!.systemColumnType;
     this.iconImageId = data.data!.iconImageId;
     this.iconImageTag = data.data!.iconImageTag;
     this.iconImageDirection = data.data!.iconImageDirection;
@@ -141,20 +148,23 @@ export default class ResourceMasterEditWindow extends Mixins<
 
   @Watch("resourceType")
   private onChangeResourceType() {
-    if (["combo", "radio"].indexOf(this.resourceType) > -1) {
+    if (this.resourceType === "combo" || this.resourceType === "select") {
       if (this.selectionStr === null) {
         this.selectionStr = "";
       }
     }
-    if (["number"].indexOf(this.resourceType) > -1) {
+    if (this.resourceType === "number") {
       if (this.min === null || this.max === null || this.interval === null) {
         this.min = 0;
         this.max = 100;
         this.interval = 1;
       }
     }
-    if (["ref-actor", "ref-map-object"].indexOf(this.resourceType) > -1) {
-      if (this.refProperty === "") {
+    if (
+      this.resourceType === "ref-owner" ||
+      this.resourceType === "ref-normal"
+    ) {
+      if (this.refProperty === null) {
         this.refProperty = "name";
       }
     }
@@ -163,29 +173,39 @@ export default class ResourceMasterEditWindow extends Mixins<
   @VueEvent
   private async commit() {
     // TODO 同名プロパティチェック
-    const data = (await this.cc!.getData(this.docId))!;
-    data.data!.label = this.name;
-    data.data!.type = this.resourceType;
-    data.data!.isAutoAddActor = this.isAutoAddActor;
-    data.data!.isAutoAddMapObject = this.isAutoAddMapObject;
-    data.data!.iconImageId = this.iconImageId;
-    data.data!.iconImageTag = this.iconImageTag;
-    data.data!.iconImageDirection = this.iconImageDirection;
-    data.data!.refProperty = this.refProperty;
-    data.data!.min = this.min;
-    data.data!.max = this.max;
-    data.data!.interval = this.interval;
-    data.data!.selectionStr = this.selectionStr;
-    data.data!.defaultValue = ResourceMasterAddWindow.getDefaultValueFromType(
-      this.resourceType,
-      this.defaultValueStr,
-      this.defaultValueNumber,
-      this.defaultValueBoolean,
-      this.defaultValueColor
-    );
-    await this.cc!.update([this.docId], [data.data!]);
+    await this.cc!.update([this.docId], [this.resourceMasterData]);
     this.isProcessed = true;
     await this.close();
+  }
+
+  private get resourceMasterData(): ResourceMasterStore {
+    const isNumber = this.resourceType === "number";
+    const isRef =
+      this.resourceType === "ref-normal" || this.resourceType === "ref-owner";
+    const isSelection =
+      this.resourceType === "select" || this.resourceType === "combo";
+    return {
+      label: this.name,
+      type: this.resourceType,
+      systemColumnType: this.systemColumnType,
+      isAutoAddActor: this.isAutoAddActor,
+      isAutoAddMapObject: this.isAutoAddMapObject,
+      iconImageId: this.iconImageId,
+      iconImageTag: this.iconImageTag,
+      iconImageDirection: this.iconImageDirection,
+      refProperty: isRef ? this.refProperty : null,
+      min: isNumber ? this.min : null,
+      max: isNumber ? this.max : null,
+      interval: isNumber ? this.interval : null,
+      selectionStr: isSelection ? this.selectionStr : null,
+      defaultValue: ResourceMasterAddWindow.getDefaultValueFromType(
+        this.resourceType,
+        this.defaultValueStr,
+        this.defaultValueNumber,
+        this.defaultValueBoolean,
+        this.defaultValueColor
+      )
+    };
   }
 
   @TaskProcessor("window-close-closing")

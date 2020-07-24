@@ -4,13 +4,13 @@ import { DiceResult } from "./bcdice";
 
 export type PlayBgmInfo =
   | {
-  targetId: string;
-  data: null;
-}
+      targetId: string;
+      data: null;
+    }
   | {
-  targetId: null;
-  data: CutInDeclareInfo;
-};
+      targetId: null;
+      data: CutInDeclareInfo;
+    };
 
 export type MediaUploadInfo = {
   resultList: (File | string)[];
@@ -323,4 +323,20 @@ type ChatInfo = {
 type ChatTabInfo = {
   name: string;
   isSystem: boolean;
+  useReadAloud: boolean;
+  readAloudVolume: number;
+};
+
+type AddRoomPresetDataRequest = {
+  mediaDataList: MediaInfo[];
+  backgroundMediaIndex: number;
+  cutInDataList: CutInDeclareInfo[];
+  sceneData: Scene;
+  roomExtendInfo: RoomInfoExtend;
+  roomName: string;
+  language: {
+    mainChatTabName: string;
+    allGroupChatTabName: string;
+    nameLabel: string;
+  };
 };

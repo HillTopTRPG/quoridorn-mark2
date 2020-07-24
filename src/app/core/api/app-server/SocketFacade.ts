@@ -52,6 +52,7 @@ import {
 import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
+import { ModeInfo } from "mode";
 
 const connectYamlPath = "/static/conf/connect.yaml";
 
@@ -178,7 +179,10 @@ export default class SocketFacade {
   private constructor() {}
 
   public async init() {
-    this.__connectInfo = await loadYaml(connectYamlPath);
+    // 読み込み必須のためthrowは伝搬させる
+    this.__connectInfo = await loadYaml<ConnectInfo>(
+      "/static/conf/connect.yaml"
+    );
 
     // 相互運用性チェック
     try {
@@ -212,7 +216,20 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      // window.console.error("有効なアプリケーションサーバに接続できませんでした。");
+      swal({
+        title: "通信エラー",
+        text: "有効なアプリケーションサーバに接続できませんでした。",
+        icon: "error"
+      });
+
+      await TaskManager.instance.ignition<ModeInfo, never>({
+        type: "mode-change",
+        owner: "Quoridorn",
+        value: {
+          type: "view-progress",
+          value: { message: "", all: 0, current: 0 }
+        }
+      });
       return;
     }
     await this.setAppServerUrl(serverInfo.url);
@@ -419,7 +436,8 @@ export default class SocketFacade {
     event: string,
     callback: (err: any, result: T) => void
   ): void {
-    this.socket!.on(event, (err: any, result: T) => {
+    if (!this.socket) return;
+    this.socket.on(event, (err: any, result: T) => {
       if (err) window.console.error(err);
       callback(err, result);
     });

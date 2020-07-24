@@ -26,7 +26,7 @@ import {
   createRectangle,
   getEventPoint
 } from "../../../core/utility/CoordinateUtility";
-import { getSrc } from "../../../core/utility/Utility";
+import { findRequireById, getSrc } from "../../../core/utility/Utility";
 import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { SceneAndObject } from "../../../../@types/room";
@@ -341,9 +341,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
-      const media = this.mediaList.filter(
-        media => media.id === backInfo.imageId
-      )[0];
+      const media = findRequireById(this.mediaList, backInfo.imageId);
       this.imageSrc = getSrc(media.data!.url);
       this.elm.style.setProperty(`--image`, `url(${this.imageSrc})`);
       let direction = "";
@@ -472,7 +470,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     );
 
     const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
-    await GameObjectManager.instance.addSceneObject(data);
+    await SocketFacade.instance.sceneObjectCC().addDirect([data]);
   }
 
   @TaskProcessor("delete-object-finished")
@@ -721,23 +719,6 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     //     dragging: 0
     //   }
     // });
-  }
-
-  protected rightUp(): void {
-    // this.setProperty({ property: `map.isOverEvent`, value: true });
-    // this.$emit("rightUp", event);
-  }
-
-  protected openContext(): void {
-    // this.setProperty({
-    //   property: contextProperty,
-    //   value: {
-    //     objKey: this.objKey,
-    //     x: event.pageX,
-    //     y: event.pageY
-    //   },
-    //   logOff: true
-    // }).then(() => this.windowOpenDeprecated(contextProperty));
   }
 
   protected async mouseover(): Promise<void> {

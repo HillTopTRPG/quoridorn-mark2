@@ -12,6 +12,18 @@ declare module "socket.io";
 declare module "create-keyframe-animation";
 declare module "url-join";
 declare module "body-scroll-lock";
+declare var swal: (
+  ...pref: (
+    | string
+    | {
+        title?: string;
+        text?: string;
+        icon?: "warning" | "error" | "success" | "info";
+        button?: string;
+        dangerMode?: boolean;
+      }
+  )[]
+) => void;
 declare var YT: any;
 
 declare module "address" {

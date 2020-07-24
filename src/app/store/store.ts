@@ -4,20 +4,20 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
-  state: {},
-  actions: {
-    windowOpenDeprecated: () => {},
-    setPropertyDeprecated: () => {},
-    doResetWindowLocateDeprecated: () => {},
-    exportStartDeprecated: () => {},
-    addListObjDeprecated: () => {},
-    saveChatLogHtmlDeprecated: () => {},
-    reversePropertyDeprecated: () => {}
+  state: {
+    setting: {
+      useReadAloud: false
+    }
   },
-  mutations: {},
+  actions: {},
+  mutations: {
+    setUseReadAloud: (state, useReadAloud) => {
+      window.console.log(`store#setUseReadAloud: ${useReadAloud}`);
+      state.setting.useReadAloud = useReadAloud;
+    }
+  },
   getters: {
-    isWindowOpenDeprecated: () => () => false,
-    getObj: () => "getObjValue" // 数が多すぎて整理を一旦諦めた
+    useReadAloud: state => state.setting.useReadAloud
   }
 });
 

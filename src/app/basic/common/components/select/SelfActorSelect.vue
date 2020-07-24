@@ -17,6 +17,7 @@ import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "../../../../../@types/window";
 import GameObjectManager from "../../../GameObjectManager";
+import { findRequireById } from "../../../../core/utility/Utility";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -54,10 +55,9 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
     this.optionInfoList = this.actorList
       .filter(a => a.owner === GameObjectManager.instance.mySelfUserId)
       .map(a => {
-        const type = a.data!.type;
         let additionalText = "";
         if (a.data!.type === "user") {
-          const user = this.userList.filter(u => u.id === a.owner)[0];
+          const user = findRequireById(this.userList, a.owner);
           additionalText +=
             "(" + this.$t(`label.${user.data!.type}`)!.toString() + ")";
         }

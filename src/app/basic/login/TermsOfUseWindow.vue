@@ -1,5 +1,5 @@
 <template>
-  <div ref="window-container">
+  <div class="container" ref="window-container">
     <div class="message">
       <span class="icon-notification"></span>
       <span class="text" v-t="`${windowInfo.type}.message`"></span>
@@ -55,6 +55,13 @@ export default class TermsOfUseWindow extends Mixins<
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
+.container {
+  @include inline-flex-box(column, center, flex-start);
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+}
 
 .message {
   @include flex-box(row, flex-start, center);

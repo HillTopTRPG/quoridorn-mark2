@@ -82,18 +82,6 @@ export default class BcdiceManager {
     const url = `${baseUrl}/v1/names`;
 
     let json: any = null;
-    const option = {
-      method: "GET", // *GET, POST, PUT, DELETE, etc.
-      mode: "no-cors", // no-cors, cors, *same-origin
-      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: "include", // include, same-origin, *omit
-      headers: {
-        "Content-Type": "application/json; charset=utf-8"
-        // "Content-Type": "application/x-www-form-urlencoded",
-      },
-      redirect: "follow", // manual, *follow, error
-      referrer: "client" // no-referrer, *client
-    };
     try {
       const jsonStr = await fetch(url);
       json = await jsonStr.json();
@@ -124,7 +112,8 @@ export default class BcdiceManager {
     const loadCustomDiceBotYaml = async (ds: DiceSystem): Promise<void> => {
       const path = `/static/conf/system/${ds.system}/customDiceBot.yaml`;
       try {
-        const list = (await loadYaml(path)) as CustomDiceBotInfo[];
+        // トライアンドエラー方式読み込みのため、throwは握りつぶす
+        const list = await loadYaml<CustomDiceBotInfo[]>(path, true);
         list.forEach(cdb => {
           cdb.system = ds.system;
         });

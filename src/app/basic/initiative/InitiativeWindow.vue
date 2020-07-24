@@ -1,11 +1,9 @@
 <template>
   <div ref="window-container">
     <div class="button-area space-between margin-bottom">
-      <!--
-      <ctrl-button @click="preview" :disabled="!selectedCutInId">
-        <span v-t="'button.preview'"></span>
+      <ctrl-button @click="openResourceMasterListWindow">
+        <span v-t="'button.open-resource-master-list-window'"></span>
       </ctrl-button>
-      -->
     </div>
 
     <table-component
@@ -17,7 +15,7 @@
       :isUseHeaderI18n="false"
       keyProp="id"
       :rowClassGetter="getRowClasses"
-      v-model="selectedCutInId"
+      v-model="selectedTargetId"
       @adjustWidth="adjustWidth"
     >
       <template #header="{ colDec }">
@@ -32,16 +30,66 @@
             <initiative-input-component
               :inputType="getInputType(colDec.type)"
               :colDec="colDec"
-              :data="data"
+              :dataObj="data"
               @inputCell="inputCell"
             />
           </template>
-          <template v-else>
-            {{ data.data[colDec.target] }}
+          <template v-else-if="colDec.type === 'select'">
+            <selection-value-select
+              :id="`prop-${data.owner}-${colDec.target}`"
+              :value="data.data[colDec.target].value"
+              :selection="data.data[colDec.target].selection"
+              @input="
+                inputCell(
+                  data,
+                  colDec.target,
+                  `prop-${data.owner}-${colDec.target}`
+                )
+              "
+            />
           </template>
+          <label v-else-if="colDec.type === 'combo'">
+            <input
+              :id="`prop-${data.owner}-${colDec.target}`"
+              type="text"
+              :value="data.data[colDec.target].value"
+              :list="data.data[colDec.target].elmId"
+              @input="
+                inputCell(
+                  data,
+                  colDec.target,
+                  `prop-${data.owner}-${colDec.target}`
+                )
+              "
+            />
+          </label>
+          <label v-else>
+            {{ (__staticValue = getStaticValue(colDec, data, "-")) && null }}
+            <input
+              type="color"
+              v-if="isColorText(__staticValue)"
+              :value="__staticValue"
+              disabled="disabled"
+            />
+            <span v-else>
+              {{ __staticValue }}
+            </span>
+          </label>
         </keep-alive>
       </template>
     </table-component>
+
+    <datalist
+      v-for="selectionInfo in selectionInfoList"
+      :key="selectionInfo.elmId"
+      :id="selectionInfo.elmId"
+    >
+      <option
+        v-for="option in selectionInfo.optionList"
+        :key="option"
+        :value="option"
+      ></option>
+    </datalist>
 
     <div class="button-area">
       <ctrl-button @click="changeSettings">
@@ -71,50 +119,40 @@ import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
-import { CutInDeclareInfo } from "../../../@types/room";
-import BgmManager from "../cut-in/bgm/BgmManager";
+import { CutInDeclareInfo, UserData } from "../../../@types/room";
 import { DataReference } from "../../../@types/data";
+import {
+  ActorStore,
+  RefProperty,
+  SceneObject
+} from "../../../@types/gameObject";
+import {
+  findRequireById,
+  findRequireByOwner
+} from "../../core/utility/Utility";
+import { parseColor } from "../../core/utility/ColorUtility";
+import App from "../../../views/App.vue";
+import SelectionValueSelect from "../common/components/select/SelectionValueSelect.vue";
 
 const uuid = require("uuid");
 
 @Component({
-  components: { InitiativeInputComponent, TableComponent, CtrlButton },
-  filters: {
-    icon: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "icon-stop2";
-      if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
-      if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
-      return "icon-file-music";
-    },
-    time: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "-";
-      if (data.data!.start && data.data!.end)
-        return `${data.data!.start}〜${data.data!.end}`;
-      if (data.data!.start) return `${data.data!.start}〜`;
-      if (data.data!.end) return `〜${data.data!.end}`;
-      return "All";
-    },
-    isRepeat: (data: StoreUseData<CutInDeclareInfo>) =>
-      data.data!.url && data.data!.isRepeat ? "" : "-",
-    volume: (data: StoreUseData<CutInDeclareInfo>) =>
-      data.data!.url ? data.data!.volume : "-",
-    fade: (data: StoreUseData<CutInDeclareInfo>) => {
-      if (!data.data!.url) return "-";
-      if (data.data!.fadeIn > 0 && data.data!.fadeOut > 0) return "in/out";
-      if (data.data!.fadeIn > 0 && data.data!.fadeOut === 0) return "in";
-      if (data.data!.fadeIn === 0 && data.data!.fadeOut > 0) return "out";
-      return "-";
-    }
+  components: {
+    SelectionValueSelect,
+    InitiativeInputComponent,
+    TableComponent,
+    CtrlButton
   }
 })
 export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   WindowVue
 ) {
-  private selectedCutInId: string | null = null;
-  private propertyList = GameObjectManager.instance.propertyList;
+  private selectedTargetId: string | null = null;
+  private userList = GameObjectManager.instance.userList;
   private actorList = GameObjectManager.instance.actorList;
+  private actorStatusList = GameObjectManager.instance.actorStatusList;
+  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
-  private propertyCC = SocketFacade.instance.propertyCC();
   private fontSize: number = 12;
   private inputtingElmId: string | null = null;
   private updateDbCounter: number = 0;
@@ -127,6 +165,11 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
+  }
+
+  @VueEvent
+  private async openResourceMasterListWindow() {
+    await App.openSimpleWindow("resource-master-list-window");
   }
 
   @VueEvent
@@ -145,74 +188,271 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     }
   }
 
+  @VueEvent
+  private isColorText(text: string | null): boolean {
+    if (!text) return false;
+    try {
+      parseColor(text);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  @VueEvent
+  private getStaticValue(
+    colDec: WindowTableColumn,
+    data: any,
+    nullText: string = "-"
+  ): string {
+    const type = colDec.type;
+    const target = colDec.target;
+
+    const resourceMaster = this.resourceMasterList.filter(
+      rm => rm.data!.label === target
+    )[0];
+
+    if (!resourceMaster)
+      return data.data![target] === null ? nullText : data.data![target];
+    const refProperty = resourceMaster.data!.refProperty;
+
+    const getPropValue = (
+      resourceType: "ref-normal" | "ref-owner",
+      dataType: "scene-object" | "actor",
+      refProperty: string,
+      sceneObject: StoreUseData<SceneObject> | null,
+      actor: StoreUseData<ActorStore>
+    ): string => {
+      const owner = findRequireById(
+        this.userList,
+        dataType === "scene-object" ? sceneObject!.owner : actor.owner
+      );
+
+      actor =
+        resourceType === "ref-normal"
+          ? actor
+          : this.actorList.filter(
+              a => a.owner === owner.id && a.data!.type === "user"
+            )[0];
+
+      const status = this.actorStatusList.filter(
+        as => as.id === actor.data!.statusId
+      )[0];
+
+      const layer = sceneObject
+        ? this.sceneLayerList.filter(
+            sl => sl.id === sceneObject.data!.layerId
+          )[0]
+        : null;
+
+      let base: StoreUseData<SceneObject | ActorStore | UserData> = owner;
+      let isBaseActor: boolean = false;
+      if (resourceType !== "ref-owner") {
+        if (dataType === "actor") {
+          base = actor;
+          isBaseActor = true;
+        } else {
+          base = sceneObject!;
+        }
+      }
+
+      const getTypeStr = (
+        isActor: boolean,
+        d: StoreUseData<SceneObject | ActorStore | UserData>
+      ) => {
+        const typeText = LanguageManager.instance.getText(
+          `type.${d.data!.type}`
+        );
+        if (!isActor) return typeText;
+        const actorText = LanguageManager.instance.getText(`type.actor`);
+        return `${actorText}(${typeText})`;
+      };
+
+      switch (refProperty) {
+        case "name":
+          return base.data!.name;
+        case "type":
+          return getTypeStr(isBaseActor, base);
+        case "tag":
+          return (base.data! as any).tag === undefined
+            ? nullText
+            : (base.data! as any).tag;
+        case "actor-name":
+          return actor.data!.name;
+        case "actor-type":
+          return getTypeStr(true, actor);
+        case "actor-tag":
+          return actor.data!.tag;
+        case "owner-name":
+          return owner.data!.name;
+        case "owner-type":
+          return owner.data!.type;
+        case "object-other-text":
+          return sceneObject ? sceneObject.data!.otherText : nullText;
+        case "object-layer": {
+          if (!layer) return nullText;
+          if (!layer.data!.isSystem) return layer.data!.name!;
+          return LanguageManager.instance.getText(`type.${layer.data!.type}`)!;
+        }
+        case "actor-status-name":
+          return status.data!.name;
+        case "actor-chat-text-color": {
+          let cActor: StoreUseData<ActorStore> = actor;
+          if (cActor.data!["chatFontColorType"] !== "original") {
+            const cActorOwner = findRequireById(this.userList, cActor.owner);
+            cActor = findRequireByOwner(this.actorList, cActorOwner.id);
+          }
+          return cActor!.data!["chatFontColor"];
+        }
+        case "actor-stand-image-position":
+          return actor.data!.standImagePosition.toString(10);
+        default:
+          return nullText;
+      }
+    };
+
+    let sceneObject: StoreUseData<SceneObject> | null = null;
+    let actorId: string = data.owner;
+    if (data.ownerType === "scene-object") {
+      sceneObject = this.sceneObjectList.filter(so => so.id === data.owner)[0];
+      actorId = sceneObject.data!.actorId!;
+    }
+    const actor = this.actorList.filter(a => a.id === actorId)[0];
+
+    if (type === "ref-normal" || type === "ref-owner") {
+      return getPropValue(
+        type as "ref-normal" | "ref-owner",
+        data.ownerType,
+        refProperty as RefProperty,
+        sceneObject,
+        actor
+      );
+    }
+    return data.data[target];
+  }
+
   /**
    * イニシアティブ表で表示する行（データ持ちコマorアクターのリスト）
    */
   private get dataOwnerList(): DataReference[] {
-    const getOwnerActor = (owner: string, ownerType: string) => {
-      let actorId = owner;
-      if (ownerType !== "actor") {
-        const obj = this.sceneObjectList.filter(so => so.id === owner)[0];
-        actorId = obj.data!.actorId!;
-      }
-      return this.actorList.filter(a => a.id === actorId)[0];
+    type SortableTargetInfo = {
+      type: "scene-object" | "actor";
+      userId: string;
+      userOrder: number;
+      actorId: string;
+      actorOrder: number;
+      sceneObjectId: string | null;
+      sceneObjectOrder: number | null;
+      actorName: string;
+      initiative: number | null;
     };
+    const sortableTargetInfoList: SortableTargetInfo[] = [];
 
-    const getRef = (owner: string, ownerType: string) => {
-      if (ownerType !== "actor") {
-        return this.sceneObjectList.filter(so => so.id === owner)[0];
+    this.resourceList.forEach(r => {
+      const resourceMaster = this.resourceMasterList.filter(
+        rm => rm.id === r.data!.masterId
+      )[0];
+
+      // actorの時の値で初期化
+      let sceneObjectId: string | null = null;
+      let sceneObjectOrder: number | null = null;
+
+      let actorId: string = r.owner!;
+
+      let userId: string = "";
+
+      const initiative: number | null =
+        resourceMaster.data!.systemColumnType === "initiative"
+          ? convertNumberNull(r.data!.value)
+          : null;
+
+      if (r.ownerType === "actor") {
+        actorId = r.owner!;
+      } else {
+        sceneObjectId = r.owner;
+        const sceneObject = this.sceneObjectList.filter(
+          so => so.id === sceneObjectId
+        )[0];
+        sceneObjectOrder = sceneObject.order;
+        actorId = sceneObject.data!.actorId!;
+        userId = sceneObject.owner!;
       }
-      return this.actorList.filter(a => a.id === owner)[0];
-    };
+      const actor = this.actorList.filter(a => a.id === actorId)[0];
+      const actorOrder = actor.order;
+      const actorName = actor.data!.name;
+      if (r.ownerType === "actor") {
+        userId = actor.owner!;
+      }
 
-    const initiativeResourceMasterId: string = this.resourceMasterList.filter(
-      rm => rm.data!.isInitiative
-    )[0]!.id!;
+      const user = this.userList.filter(u => u.id === userId)[0];
+      const userOrder = user.order;
 
-    return this.resourceList
-      .filter(r => r.data!.masterId === initiativeResourceMasterId)
-      .sort((r1, r2) => {
-        const r1Val = convertNumberNull(r1.data!.value);
-        const r2Val = convertNumberNull(r2.data!.value);
-
-        // イニシアティブ値で比較できる場合は最優先
-        if (r1Val !== null && r2Val !== null) {
-          if (r1Val < r2Val) return -1;
-          if (r1Val > r2Val) return 1;
+      let sortableTargetInfo = sortableTargetInfoList.filter(
+        sti => sti.sceneObjectId === sceneObjectId && sti.actorId === actorId
+      )[0];
+      if (!sortableTargetInfo) {
+        sortableTargetInfo = {
+          type: r.ownerType === "actor" ? "actor" : "scene-object",
+          userId,
+          userOrder,
+          actorId,
+          actorOrder,
+          sceneObjectId,
+          sceneObjectOrder,
+          initiative,
+          actorName
+        };
+        sortableTargetInfoList.push(sortableTargetInfo);
+      } else {
+        if (initiative !== null) {
+          if (
+            sortableTargetInfo.initiative === null ||
+            sortableTargetInfo.initiative > initiative
+          ) {
+            sortableTargetInfo.initiative = initiative;
+          }
         }
+      }
+    });
 
-        // イニシアティブ値が片方だけ null の場合はnullを後ろへ
-        if (r1Val === null) return 1;
-        if (r2Val === null) return -1;
+    // window.console.log(JSON.stringify(sortableTargetInfoList, null, "  "));
 
-        // アクターツリーが異なる場合はアクターで並べ替え
-        const r1Actor = getOwnerActor(r1.owner!, r1.ownerType!);
-        const r2Actor = getOwnerActor(r2.owner!, r2.ownerType!);
-        if (r1Actor.order < r2Actor.order) return -1;
-        if (r1Actor.order > r2Actor.order) return 1;
-
-        // イニシアティブ値もアクターツリーも同一の場合
-        const r1Ref = getRef(r1.owner!, r1.ownerType!);
-        const r2Ref = getRef(r2.owner!, r2.ownerType!);
-
-        // アクターツリーの階層によって並び替え
-        if (r1Ref.ownerType !== r2Ref.ownerType) {
-          if (r1.ownerType === "actor") return -1;
-          if (r2.ownerType === "actor") return 1;
+    return sortableTargetInfoList
+      .sort((sti1, sti2) => {
+        if (sti1.initiative !== null && sti2.initiative !== null) {
+          // イニシアティブ値が null でないのが2つ
+          if (sti1.initiative < sti2.initiative) return -1;
+          if (sti1.initiative > sti2.initiative) return 1;
+        } else if (sti1.initiative !== null || sti2.initiative !== null) {
+          // イニシアティブ値が null でないのが1つ
+          // nullは下の方へ
+          if (sti1.initiative === null) return 1;
+          if (sti2.initiative === null) return -1;
         }
-
-        // アクターツリーの同階層の場合はorderで並び替え
-        if (r1Ref.order < r2Ref.order) return -1;
-        if (r1Ref.order > r2Ref.order) return 1;
-
+        // イニシアティブ値が同値
+        if (sti1.userOrder < sti2.userOrder) return -1;
+        if (sti1.userOrder > sti2.userOrder) return 1;
+        if (sti1.actorOrder < sti2.actorOrder) return -1;
+        if (sti1.actorOrder > sti2.actorOrder) return 1;
+        if (sti1.sceneObjectOrder !== null && sti2.sceneObjectOrder !== null) {
+          if (sti1.sceneObjectOrder < sti2.sceneObjectOrder) return -1;
+          if (sti1.sceneObjectOrder > sti2.sceneObjectOrder) return 1;
+        } else if (
+          sti1.sceneObjectOrder !== null ||
+          sti2.sceneObjectOrder !== null
+        ) {
+          if (sti1.sceneObjectOrder === null) return 1;
+          if (sti2.sceneObjectOrder === null) return -1;
+        }
         return 0;
       })
-      .map(r => ({
-        type: r.ownerType!,
-        docId: r.owner!
+      .map(sti => ({
+        type: sti.type === "actor" ? "actor" : "scene-object",
+        docId: sti.type === "actor" ? sti.actorId : sti.sceneObjectId!
       }));
   }
 
+  @VueEvent
   private get initiativeDataList(): StoreUseData<any>[] {
     const resultList: StoreUseData<any>[] = [];
 
@@ -249,9 +489,18 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           )[0]
         }))
         .forEach(obj => {
-          resultData.data[obj.resourceMaster.data!.label] = obj.resource
-            ? obj.resource.data!.value
-            : null;
+          const type = obj.resourceMaster.data!.type;
+          if (type === "select" || type === "combo") {
+            resultData.data[obj.resourceMaster.data!.label] = {
+              value: obj.resource ? obj.resource.data!.value : null,
+              selection: obj.resourceMaster.data!.selectionStr,
+              elmId: `${this.windowInfo.key}-selection-list-${obj.resourceMaster.id}`
+            };
+          } else {
+            resultData.data[obj.resourceMaster.data!.label] = obj.resource
+              ? obj.resource.data!.value
+              : null;
+          }
         });
       resultList.push(resultData);
     });
@@ -280,21 +529,33 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const elm: HTMLInputElement = document.getElementById(
       elmId
     ) as HTMLInputElement;
-    const newValue = elm.value;
+    const newValue =
+      elm.type === "checkbox" ? elm.checked.toString() : elm.value;
+
+    window.console.log(target, elm.type, newValue);
 
     this.inputtingElmId = elmId;
     // window.console.log(JSON.stringify(data, null, "  "));
     // window.console.log(target, newValue);
 
-    const property = this.propertyList.filter(
-      p => p.owner === data.owner && p.data!.label === target
+    const resourceMaster = this.resourceMasterList.filter(
+      rm => rm.data!.label === target
     )[0];
-    if (!property) {
-      window.console.error(`${target}のプロパティがありません。`);
+    if (!resourceMaster) {
+      window.console.error(`Not found resource(${target}).`);
       return;
     }
-    property.data!.value = newValue;
-    await this.propertyCC.updatePackage([property.id!], [property.data!]);
+
+    const resource = this.resourceList.filter(
+      r =>
+        r.data!.masterId === resourceMaster.id &&
+        r.ownerType === data.ownerType &&
+        r.owner === data.owner
+    )[0];
+    resource.data!.value = newValue;
+    await SocketFacade.instance
+      .resourceCC()
+      .updatePackage([resource.id!], [resource.data!]);
   }
 
   // private get commonPropertyListAll(): StoreUseData<PropertyStore>[] {
@@ -330,6 +591,25 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   //     c => c.width
   //   );
   // }
+
+  @VueEvent
+  private get selectionInfoList(): { elmId: string; optionList: string[] }[] {
+    return this.initiativeColumnList
+      .map(
+        ic =>
+          this.resourceMasterList.filter(
+            rm => rm.id === ic.data!.resourceMasterId
+          )[0]
+      )
+      .filter(rm => rm.data!.type === "select" || rm.data!.type === "combo")
+      .map(rm => ({
+        elmId: `${this.windowInfo.key}-selection-list-${rm.id}`,
+        optionList: rm
+          .data!.selectionStr!.split(",")
+          .map(s => s.trim())
+          .filter((s, idx, self) => self.indexOf(s) === idx)
+      }));
+  }
 
   /**
    * イニシアティブ表の列を自動更新する
@@ -370,6 +650,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     this.windowInfo.tableInfoList[0].columnWidthList = columnList.map(
       c => c.width
     );
+    // window.console.log(JSON.stringify(this.initiativeColumnList, null, "  "));
+    // window.console.log(JSON.stringify(columnList, null, "  "));
   }
 
   // private get initiativeList(): StoreUseData<any>[] {

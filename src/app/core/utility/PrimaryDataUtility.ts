@@ -27,7 +27,7 @@ export function convertNumberNull(
   radix: number = 10
 ): number | null {
   if (str === null) return null;
-  return str.match(/^[0-9]+$/) ? parseInt(str, radix) : null;
+  return str.match(/^-?[0-9]+$/) ? parseInt(str, radix) : null;
 }
 
 /**

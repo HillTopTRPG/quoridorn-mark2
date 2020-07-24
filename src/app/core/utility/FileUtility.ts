@@ -1,21 +1,37 @@
 import yaml from "js-yaml";
 import { Size } from "address";
-import { StandImageInfo } from "../../../@types/room";
+import { MediaInfo, StandImageInfo } from "../../../@types/room";
 import { convertNumberNull } from "./PrimaryDataUtility";
 import { createSize } from "./CoordinateUtility";
+import { ApplicationError } from "../error/ApplicationError";
+import { getYoutubeThunbnail } from "../../basic/cut-in/bgm/YoutubeManager";
+import DropBoxManager from "../api/drop-box/DropBoxManager";
+import { UploadFileRequest } from "../../../@types/socket";
+import SocketFacade from "../api/app-server/SocketFacade";
+import GameObjectManager from "../../basic/GameObjectManager";
+import { ExportDataFormat } from "../../../@types/store";
 
 /**
  * テキストファイルをロードする
  *
  * @param path
+ * @param isErrorIgnore
  */
-export async function loadText(path: string): Promise<string> {
+export async function loadText(
+  path: string,
+  isErrorIgnore: boolean = false
+): Promise<string> {
+  const xhr = new XMLHttpRequest();
+  xhr.open("HEAD", path, false); //同期モード
+  xhr.send(null);
+  window.console.log(xhr.status, path, isErrorIgnore);
+  if (xhr.status !== 200 && isErrorIgnore)
+    throw new ApplicationError(`textファイルの読み込みに失敗しました：${path}`);
   try {
     const response = await fetch(process.env.BASE_URL + path);
     return await response.text();
   } catch (err) {
-    window.console.error("textファイルの読み込みに失敗しました", path);
-    throw err;
+    throw new ApplicationError(`textファイルの読み込みに失敗しました：${path}`);
   }
 }
 
@@ -36,14 +52,19 @@ export function unicodeEscape(str: string) {
  * Yamlファイルをロードする
  *
  * @param path
+ * @param isErrorIgnore
  */
-export async function loadYaml<T>(path: string): Promise<T> {
+export async function loadYaml<T>(
+  path: string,
+  isErrorIgnore: boolean = false
+): Promise<T> {
   try {
-    const text = await loadText(path);
+    const text = await loadText(path, isErrorIgnore);
     return yaml.safeLoad(text) as T;
   } catch (err) {
-    window.console.error("yamlファイルの読み込みに失敗しました", path);
-    throw err;
+    throw new ApplicationError(
+      `yamlファイルの読み込みに失敗しました path:${path}`
+    );
   }
 }
 
@@ -57,8 +78,9 @@ export async function loadJson<T>(path: string): Promise<T> {
     const text = await loadText(path);
     return JSON.parse(text);
   } catch (err) {
-    window.console.error("jsonファイルの読み込みに失敗しました", path);
-    throw err;
+    throw new ApplicationError(
+      `jsonファイルの読み込みに失敗しました path:${path}`
+    );
   }
 }
 
@@ -90,13 +112,15 @@ async function readAsText(file: File | null): Promise<string | null> {
  *
  * @param type
  */
-export async function importJson<T>(type: string): Promise<T | null> {
+export async function importJson<T>(
+  type: string
+): Promise<ExportDataFormat<T> | null> {
   const file = await showOpenFileDialog();
   const text = await readAsText(file);
   if (!text) return null;
   try {
-    const obj: any = JSON.parse(text);
-    return obj.type === type ? (obj as T) : null;
+    const obj: ExportDataFormat<T> = JSON.parse(text);
+    return obj.type === type ? obj : null;
   } catch (err) {
     return null;
   }
@@ -130,9 +154,9 @@ export function saveText(name: string, text: string): void {
  * @param type
  * @param data
  */
-export function saveJson(name: string, type: string, data: any): void {
-  const saveData = {
-    version: process.env.VUE_APP_VERSION,
+export function saveJson<T>(name: string, type: string, data: T): void {
+  const saveData: ExportDataFormat<T> = {
+    version: process.env.VUE_APP_VERSION!,
     type,
     data
   };
@@ -168,6 +192,210 @@ export function saveFile(name: string, blob: Blob): void {
   anchor.download = name;
   anchor.href = url;
   anchor.click();
+}
+
+export type UploadMediaInfo = {
+  name: string;
+  type: string;
+  iconClass: string;
+  imageSrc: string | ArrayBuffer | null;
+  tag: string;
+  src: File | string;
+};
+
+export function getUrlType(
+  url: string
+): "youtube" | "image" | "music" | "setting" | "unknown" {
+  if (url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
+    return "youtube";
+  } else {
+    const ext = extname(url);
+    switch (ext) {
+      case "png":
+      case "gif":
+      case "jpg":
+      case "jpeg":
+        return "image";
+      case "mp3":
+      case "wav":
+      case "wave":
+        return "music";
+      case "json":
+      case "yaml":
+        return "setting";
+      default:
+        return "unknown";
+    }
+  }
+}
+
+// async function getBlobFromUrl(url: string): Promise<Blob> {
+//   return new Promise<Blob>(
+//     (resolve: (result: Blob) => void, reject: () => void) => {
+//       const xhr = new XMLHttpRequest();
+//       xhr.open("GET", url, true);
+//       xhr.responseType = "arraybuffer";
+//       xhr.onload = function(e) {
+//         if (xhr.readyState === 4) {
+//           if (xhr.status === 200) {
+//             const arrayBuffer = this.response;
+//             // Blobを生成する
+//             const blob = new Blob([arrayBuffer]);
+//             resolve(blob);
+//           } else {
+//             reject();
+//           }
+//         }
+//       };
+//       xhr.onerror = function() {
+//         reject();
+//       };
+//       xhr.ontimeout = function() {
+//         reject();
+//       };
+//       xhr.send();
+//     }
+//   );
+// }
+
+async function createUploadMediaInfo(
+  src: File | string
+): Promise<UploadMediaInfo> {
+  return new Promise<UploadMediaInfo>(
+    (resolve: (result: UploadMediaInfo) => void) => {
+      let name: string = typeof src === "string" ? src : src.name;
+      const tag = "";
+      let iconClass: string = "icon-warning";
+      let imageSrc: string | null = null;
+
+      const fr = new FileReader();
+      let isUseFileReader: boolean = false;
+
+      const type = getUrlType(name);
+      if (type === "youtube") {
+        iconClass = "icon-youtube2";
+        imageSrc = getYoutubeThunbnail(name);
+        // Youtubeの場合はユーザに名前を入力してもらう
+        name = "";
+      } else {
+        if (type === "image") {
+          iconClass = "icon-image";
+          if (typeof src === "string") {
+            imageSrc = src;
+          } else {
+            fr.readAsDataURL(src);
+            isUseFileReader = true;
+          }
+        } else if (type === "music") {
+          iconClass = "icon-music";
+        } else if (type === "setting") {
+          iconClass = "icon-text";
+        }
+        name = name.replace(/^https?:\/\/.+\//, "");
+      }
+      const result: UploadMediaInfo = {
+        name,
+        tag,
+        type,
+        iconClass,
+        imageSrc,
+        src
+      };
+      if (isUseFileReader) {
+        fr.onload = () => {
+          result.imageSrc = fr.result as string;
+          resolve(result);
+        };
+      } else {
+        resolve(result);
+      }
+    }
+  );
+}
+
+export async function createUploadMediaInfoList(
+  srcList: (File | string)[]
+): Promise<UploadMediaInfo[]> {
+  const resultList: UploadMediaInfo[] = [];
+  const func = async (src: File | string) => {
+    resultList.push(await createUploadMediaInfo(src));
+  };
+
+  // 直列の非同期で全部実行する
+  await srcList
+    .map(src => () => func(src))
+    .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+  return resultList;
+}
+
+export async function mediaUploadFromPreset(
+  uploadMediaInfoList: UploadMediaInfo[]
+): Promise<void> {}
+
+export async function mediaUpload(
+  uploadMediaInfoList: UploadMediaInfo[]
+): Promise<void> {
+  // DropBox連携
+  if (DropBoxManager.instance.ready) {
+    const uploadDropBoxFunc = async (
+      fileInfo: UploadMediaInfo
+    ): Promise<void> => {
+      const src = fileInfo.src;
+      if (typeof src === "string") return;
+      const dropBoxResult = await DropBoxManager.instance.upload(src);
+      window.console.log("::DropBoxResult::");
+      window.console.log(dropBoxResult);
+    };
+    // 直列の非同期で全部実行する
+    await uploadMediaInfoList
+      .map(umi => () => uploadDropBoxFunc(umi))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+  }
+
+  // アップロードに用いるデータを作成
+  const uploadUploadMediaInfoList: UploadFileRequest = [];
+  const createUploadUploadMediaInfo = async (
+    resultInfo: UploadMediaInfo
+  ): Promise<void> => {
+    const src = resultInfo.src;
+    uploadUploadMediaInfoList.push({
+      name: resultInfo.name,
+      src: await file2ArrayBuffer(src as File)
+    });
+  };
+  // 直列の非同期で全部実行する
+  await uploadMediaInfoList
+    .filter(resultInfo => typeof resultInfo.src !== "string")
+    .map(resultInfo => () => createUploadUploadMediaInfo(resultInfo))
+    .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
+  // アップロードする
+  const urlList = await SocketFacade.instance.socketCommunication<
+    UploadFileRequest,
+    string[]
+  >("upload-file", uploadUploadMediaInfoList);
+
+  // DBに登録する
+  let idx = 0;
+  const mediaInfoList: MediaInfo[] = uploadMediaInfoList.map(
+    (result: UploadMediaInfo) => {
+      const src = result.src;
+      const url = typeof src === "string" ? src : urlList[idx++];
+      return {
+        url,
+        name: result.name,
+        type: result.type,
+        tag: result.tag
+      };
+    }
+  );
+  await SocketFacade.instance.mediaCC().addDirect(
+    mediaInfoList,
+    mediaInfoList.map(() => ({
+      permission: GameObjectManager.PERMISSION_OWNER_VIEW
+    }))
+  );
 }
 
 export async function file2ArrayBuffer(

@@ -3,6 +3,7 @@
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :id="id"
+    :readonly="readonly"
     ref="component"
   />
 </template>
@@ -30,8 +31,8 @@ export default class ResourceTypeSelect extends Mixins<MultiMixin>(
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
     { value: "no-contents", key: "", text: "", disabled: false },
-    { value: "ref-actor", key: "", text: "", disabled: false },
-    { value: "ref-map-object", key: "", text: "", disabled: false },
+    { value: "ref-normal", key: "", text: "", disabled: false },
+    { value: "ref-owner", key: "", text: "", disabled: false },
     { value: "text", key: "", text: "", disabled: false },
     { value: "input-text", key: "", text: "", disabled: false },
     { value: "number", key: "", text: "", disabled: false },

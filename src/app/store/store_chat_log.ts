@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { findRequireByKey } from "../core/utility/Utility";
 
 Vue.use(Vuex);
 
@@ -56,22 +57,21 @@ export default new Vuex.Store({
     ): any => {
       if (!key) return null;
       const kind = key.split("-")[0];
-      const filterFunc: Function = (obj: any) => obj.key === key;
       if (kind === "groupTargetTab") {
         // グループチャットタブ
-        return rootGetters.groupTargetTabList.filter(filterFunc)[0];
+        return findRequireByKey(rootGetters.groupTargetTabList, key);
       } else if (kind === "chatTab") {
         // チャットタブ
-        return rootGetters.chatTabList.filter(filterFunc)[0];
+        return findRequireByKey(rootGetters.chatTabList, key);
       } else if (kind === "imgTag") {
         // イメージタグ
-        return rootGetters.imageTagList.filter(filterFunc)[0];
+        return findRequireByKey(rootGetters.imageTagList, key);
       } else if (kind === "player") {
         // プレイヤー
-        return rootGetters.playerList.filter(filterFunc)[0];
+        return findRequireByKey(rootGetters.playerList, key);
       } else if (kind === "character") {
         // キャラクター
-        return rootGetters.characterList.filter(filterFunc)[0];
+        return findRequireByKey(rootGetters.characterList, key);
       } else {
         // その他
         return null;

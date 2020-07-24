@@ -85,12 +85,11 @@ export default class CtrlSelect extends SelectMixin {
 
   @Watch("value", { immediate: true })
   onChangeValue(value: string | string[]) {
-    const optionInfo: HtmlOptionInfo = this.optionInfoList.filter(
-      optionInfo => {
+    const optionInfo: HtmlOptionInfo | null =
+      this.optionInfoList.find(optionInfo => {
         if (typeof value === "string") return optionInfo.value === value;
         else return value.findIndex(v => v === optionInfo.value) > -1;
-      }
-    )[0];
+      }) || null;
     this.fontColor = optionInfo && optionInfo.disabled ? "#999999" : "#000000";
   }
 }

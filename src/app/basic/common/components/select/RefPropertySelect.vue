@@ -3,6 +3,7 @@
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :id="id"
+    :readonly="readonly"
     ref="component"
   />
 </template>
@@ -29,7 +30,19 @@ export default class RefPropertySelect extends Mixins<MultiMixin>(
 ) {
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
-    { value: "name", key: "", text: "", disabled: false }
+    { value: "name", key: "", text: "", disabled: false },
+    { value: "type", key: "", text: "", disabled: false },
+    { value: "tag", key: "", text: "", disabled: false },
+    { value: "actor-name", key: "", text: "", disabled: false },
+    { value: "actor-type", key: "", text: "", disabled: false },
+    { value: "actor-tag", key: "", text: "", disabled: false },
+    { value: "owner-name", key: "", text: "", disabled: false },
+    { value: "owner-type", key: "", text: "", disabled: false },
+    { value: "object-other-text", key: "", text: "", disabled: false },
+    { value: "object-layer", key: "", text: "", disabled: false },
+    { value: "actor-status-name", key: "", text: "", disabled: false },
+    { value: "actor-chat-text-color", key: "", text: "", disabled: false },
+    { value: "actor-stand-image-position", key: "", text: "", disabled: false }
   ];
 
   @LifeCycle

@@ -81,13 +81,15 @@ import { WindowOpenInfo, WindowResizeInfo } from "../../../@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 import { StoreUseData } from "../../../@types/store";
 import TaskManager from "../../core/task/TaskManager";
-import { CutInDeclareInfo, MediaInfo } from "../../../@types/room";
+import { CutInDeclareInfo } from "../../../@types/room";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import BgmManager from "./bgm/BgmManager";
 import { DataReference } from "../../../@types/data";
+import { findById } from "../../core/utility/Utility";
+import App from "../../../views/App.vue";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -156,7 +158,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   }
 
   private get cutInInfo(): StoreUseData<CutInDeclareInfo> | null {
-    return this.cutInList.filter(c => c.id === this.selectedCutInId)[0];
+    return findById(this.cutInList, this.selectedCutInId);
   }
 
   @VueEvent
@@ -235,13 +237,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async addMusic() {
-    await TaskManager.instance.ignition<WindowOpenInfo<MediaInfo>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "bgm-add-window"
-      }
-    });
+    await App.openSimpleWindow("bgm-add-window");
   }
 
   @VueEvent

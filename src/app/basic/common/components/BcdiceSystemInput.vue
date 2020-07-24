@@ -143,7 +143,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
     for (let i: number = 0; i < this.filteredSystemList.length; i++) {
       const info = this.filteredSystemList[i];
       if (info.system === value) {
-        const systemInfo = this.systemList.filter(s => s.system === value)[0];
+        const systemInfo = this.systemList.find(s => s.system === value)!;
         this.setInputValue(systemInfo.name);
         this.onTextInput(systemInfo.name);
         this.isSelectMode = false;
@@ -241,6 +241,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
       const minRect = this.selectElm.getRect();
       const minWidth = minRect.width;
       // this.elm.style.minWidth = `calc(${minWidth}px + 0.3rem + 2em)`;
+      // TODO 整理
     });
   }
 
@@ -391,9 +392,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   @VueEvent
   private onEsc() {
     this.volatileItem = null;
-    const systemInfo = this.systemList.filter(
-      s => s.system === this.localValue
-    )[0];
+    const systemInfo = this.systemList.find(s => s.system === this.localValue)!;
     this.inputText = systemInfo.name;
     this.isSelectMode = false;
     this.inputElm.focus();

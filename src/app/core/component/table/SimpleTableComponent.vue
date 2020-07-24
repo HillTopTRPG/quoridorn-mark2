@@ -326,18 +326,17 @@ export default class SimpleTableComponent extends Vue {
   }
 
   @Watch("isMounted")
+  @Watch("localValue")
   @Watch("viewRowFirstIndex")
   @Watch("viewRowLastIndex")
   @Watch("dataList")
   private onChangeDataList() {
-    let rowList = this.dataList.map((data, index) => {
-      return {
-        isSelected: (data as any)[this.keyProp] === this.localValue,
-        isDoubleClick: (data as any)[this.keyProp] === this.doubleClickedKey,
-        dataListIndex: index,
-        data
-      };
-    });
+    const rowList = this.dataList.map((data, index) => ({
+      isSelected: (data as any)[this.keyProp] === this.localValue,
+      isDoubleClick: (data as any)[this.keyProp] === this.doubleClickedKey,
+      dataListIndex: index,
+      data
+    }));
     // if (this.tabInfo) {
     //   if (typeof this.tabInfo.target === "string") {
     //     const targetProp = this.tableDeclareInfo.classificationProp;

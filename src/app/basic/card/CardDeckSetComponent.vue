@@ -21,7 +21,7 @@
     <img
       v-if="isSelected"
       class="select-mark"
-      src="http://quoridorn.com/img/mascot/normal/mascot_normal.png"
+      src="https://quoridorn.com/img/mascot/normal/mascot_normal.png"
       alt="こっぺりん"
     />
   </div>
