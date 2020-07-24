@@ -21,12 +21,6 @@ export async function loadText(
   path: string,
   isErrorIgnore: boolean = false
 ): Promise<string> {
-  const xhr = new XMLHttpRequest();
-  xhr.open("HEAD", path, false); //同期モード
-  xhr.send(null);
-  window.console.log(xhr.status, path, isErrorIgnore);
-  if (xhr.status !== 200 && isErrorIgnore)
-    throw new ApplicationError(`textファイルの読み込みに失敗しました：${path}`);
   try {
     const response = await fetch(process.env.BASE_URL + path);
     return await response.text();
