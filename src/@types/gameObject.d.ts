@@ -58,7 +58,6 @@ type ActorStatusStore = {
   name: string; // ステータス名
   isSystem: boolean;
   standImageInfoId: string | null; // id
-  chatPaletteInfoId: string | null; // id
 };
 
 // import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
@@ -76,10 +75,18 @@ type StandImageInfo = {
   diffList: StandImageDiffInfo[];
 };
 
-// import { ChatPaletteInfo } from "@/app/basic/chat-palette/ChatPalette";
-type ChatPaletteInfo = {
-  parentId: string;
-  list: string[];
+type ChatPaletteStore = {
+  name: string;
+  paletteText: string;
+  chatFontColorType: "owner" | "original"; // チャット文字色はオーナーの色か独自の色か
+  chatFontColor: string; // 独自のチャット文字色
+  actorId: string | null;
+  sceneObjectId: string | null;
+  targetId: string | null;
+  outputTabId: string | null;
+  statusId: string | null;
+  system: string | null;
+  isSecret: boolean;
 };
 
 type TagNoteStore = {

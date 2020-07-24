@@ -216,7 +216,7 @@
       </menu-boolean-item>
       <hr />
       <menu-boolean-item
-        @click="menuClick"
+        @click="openChatPaletteWindow"
         property="private.display.chatPaletteSettingWindow"
       >
         チャットパレット表示
@@ -294,6 +294,12 @@ export default class Menu extends Vue {
   private async openInitiativeWindow() {
     this.menuClick();
     await App.openSimpleWindow("initiative-window");
+  }
+
+  @VueEvent
+  private async openChatPaletteWindow() {
+    this.menuClick();
+    await App.openSimpleWindow("chat-palette-window");
   }
 
   isShow(...props: any[]): any {

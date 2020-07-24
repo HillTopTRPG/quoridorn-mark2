@@ -30,15 +30,12 @@ import { StoreUseData } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { transText } from "@/app/core/utility/ChatUtility";
 import { ActorStore } from "@/@types/gameObject";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
 import { UserType } from "@/@types/socket";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { findRequireById } from "@/app/core/utility/Utility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 
-@Component({
-  components: { TabsComponent }
-})
+@Component
 export default class ChatLogLineComponent extends Vue {
   @Prop({ type: Object, required: true })
   private chat!: StoreUseData<ChatInfo>;

@@ -46,7 +46,8 @@ import {
   CardDeckSmall,
   ResourceMasterStore,
   ResourceStore,
-  InitiativeColumnStore
+  InitiativeColumnStore,
+  ChatPaletteStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import {
@@ -590,6 +591,10 @@ export default class SocketFacade {
     return this.roomCollectionController<CardDeckSmall>("card-deck-small-list");
   }
 
+  public chatPaletteListCC(): NekostoreCollectionController<ChatPaletteStore> {
+    return this.roomCollectionController<ChatPaletteStore>("chat-palette-list");
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
       case "chat":
@@ -646,6 +651,8 @@ export default class SocketFacade {
         return this.cardDeckBigCC();
       case "card-deck-small":
         return this.cardDeckSmallCC();
+      case "chat-palette":
+        return this.chatPaletteListCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

@@ -126,8 +126,8 @@ export type TabInfo = {
 };
 
 export type HtmlOptionInfo = {
-  value: string;
+  value: string | null;
   text: string;
-  key: string;
+  key: string | null;
   disabled: boolean;
 };

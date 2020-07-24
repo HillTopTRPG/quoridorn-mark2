@@ -141,7 +141,6 @@ fieldset {
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
 import { Action, Getter, Mutation } from "vuex-class";
 import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewerOrg.vue";
 import { Watch } from "vue-property-decorator";
@@ -157,8 +156,7 @@ import VueEvent from "@/app/core/decorator/VueEvent";
   components: {
     CtrlButton,
     ImportTypeRadio,
-    ChatLogViewer,
-    TabsComponent
+    ChatLogViewer
   }
 })
 export default class ChatLog extends Vue {

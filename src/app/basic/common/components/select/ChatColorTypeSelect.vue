@@ -18,7 +18,6 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: { CtrlSelect }

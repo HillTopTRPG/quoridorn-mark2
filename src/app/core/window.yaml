@@ -1464,3 +1464,105 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"chat-palette-window":
+  icon: keybord
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 28
+    heightRem: 0.5
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 16
+    heightRem: 0.5
+  maxSize:
+    widthPx: 600
+    widthEm: 0
+    widthRem: 0
+    heightPx: 4
+    heightEm: 40
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"chat-palette-add-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    heightPx: 4
+    heightEm: 18
+  minSize:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    heightPx: 4
+    heightEm: 18
+  maxSize:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    heightPx: 4
+    heightEm: 30
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"chat-palette-edit-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    heightPx: 2
+    heightEm: 22
+    heightRem: 0.5
+  minSize:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    heightPx: 2
+    heightEm: 18
+    heightRem: 0.5
+  maxSize:
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    heightPx: 2
+    heightEm: 50
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

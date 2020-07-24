@@ -41,14 +41,18 @@ const { borderStyleRegExp, styleRegExp, lineRegExp } = (() => {
   };
 })();
 
-export function transText(text: string): string {
-  text = text
+export function escapeHtml(text: string): string {
+  return text
     .replace(/\[\[quot]]/g, "&quot;")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/'/g, "&#39;")
     .replace(/\n/g, "<br />");
+}
+
+export function transText(text: string): string {
+  text = escapeHtml(text);
 
   const matchInfoList: any[] = [];
   let matchResult: RegExpExecArray | null;
@@ -125,7 +129,7 @@ export function transText(text: string): string {
 }
 
 type SendChatInfo = {
-  actorId: string;
+  actorId: string | null;
   text: string;
   tabId: string | null;
   statusId: string | null;
@@ -180,9 +184,10 @@ export async function sendChatLog(
     targetId,
     targetType: groupChatTabInfo ? "group" : "actor",
     tabId:
-      groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
+      payload.tabId ||
+      (groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
         ? groupChatTabInfo.data!.outputChatTabId
-        : payload.tabId || GameObjectManager.instance.chatPublicInfo.tabId,
+        : GameObjectManager.instance.chatPublicInfo.tabId),
     statusId: payload.statusId || actorStatus.id!,
     system: payload.system || GameObjectManager.instance.chatPublicInfo.system
   };

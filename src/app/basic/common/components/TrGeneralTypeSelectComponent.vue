@@ -1,15 +1,10 @@
 <template>
-  <tr class="tr-actor-status-select-component">
+  <tr class="tr-general-type-select-component">
     <th class="label-input">
       <label v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <actor-status-select
-        :actorId="actorId"
-        v-model="localValue"
-        :nullable="nullable"
-        :readonly="readonly"
-      />
+      <general-type-select v-model="localValue" :readonly="readonly" />
     </td>
   </tr>
 </template>
@@ -18,44 +13,47 @@
 import { Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import { ResourceType } from "@/@types/gameObject";
+import GeneralTypeSelect from "@/app/basic/common/components/select/GeneralTypeSelect.vue";
 
-@Component({ components: { ActorStatusSelect } })
-export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { GeneralTypeSelect, SCheck } })
+export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
-  private labelName!: string;
+  private labelName!: ResourceType;
 
-  @Prop({ type: String, default: null })
-  private actorId!: string | null;
-
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, required: true })
   private value!: string;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
 
-  @Prop({ type: Boolean, default: false })
-  private nullable!: boolean;
+  @Prop({ type: String, required: true })
+  private type!: string;
 
-  private input(value: string | null) {
+  @Prop({ type: Array, required: true })
+  private valueList!: string[];
+
+  private input(value: string) {
     this.$emit("input", value);
   }
 
-  public get localValue(): string | null {
+  public get localValue(): string {
     return this.value;
   }
-  public set localValue(value: string | null) {
+  public set localValue(value: string) {
     this.input(value);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.tr-actor-status-select-component {
+.tr-general-type-select-component {
   display: contents;
 }
+
 th,
 td {
   padding: 0;

@@ -165,7 +165,7 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
 
   @VueEvent
   private hover4(flg: boolean) {
-    this.hover("actor-list", flg);
+    this.hover("player-box", flg);
   }
 
   @VueEvent

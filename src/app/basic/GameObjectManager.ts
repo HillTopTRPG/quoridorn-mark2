@@ -31,7 +31,8 @@ import {
   CardDeckSmall,
   ResourceMasterStore,
   ResourceStore,
-  InitiativeColumnStore
+  InitiativeColumnStore,
+  ChatPaletteStore
 } from "@/@types/gameObject";
 import {
   ClientRoomInfo,
@@ -119,7 +120,8 @@ export default class GameObjectManager {
       sf.groupChatTabListCC().getList(true, this.groupChatTabList),
       sf.sceneListCC().getList(true, this.sceneList),
       sf.userCC().getList(true, this.userList),
-      sf.cutInDataCC().getList(true, this.cutInList)
+      sf.cutInDataCC().getList(true, this.cutInList),
+      sf.chatPaletteListCC().getList(true, this.chatPaletteList)
     ]);
     // 個数の量が中規模のもの
     await Promise.all([
@@ -359,6 +361,7 @@ export default class GameObjectManager {
   public readonly cardObjectList: StoreUseData<CardObject>[] = [];
   public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
   public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
+  public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -503,6 +506,10 @@ export default class GameObjectManager {
         return this.cardDeckBigList;
       case "card-deck-small":
         return this.cardDeckSmallList;
+      case "cut-in":
+        return this.cutInList;
+      case "chat-palette":
+        return this.chatPaletteList;
     }
     return null;
   }

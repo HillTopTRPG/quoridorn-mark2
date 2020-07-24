@@ -30,12 +30,9 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import TabsComponent from "@/app/basic/common/components/tab-component/TabsComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({
-  components: { TabsComponent }
-})
+@Component
 export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, required: true })
   private value!: boolean;

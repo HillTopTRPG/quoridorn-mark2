@@ -47,6 +47,9 @@ import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWin
 import ResourceMasterEditWindow from "@/app/basic/initiative/ResourceMasterEditWindow.vue";
 import ResourceMasterListWindow from "@/app/basic/initiative/ResourceMasterListWindow.vue";
 import ReadAloudManager from "@/ReadAloudManager";
+import ChatPaletteWindow from "@/app/basic/chat-palette/ChatPaletteWindow.vue";
+import ChatPaletteAddWindow from "@/app/basic/chat-palette/ChatPaletteAddWindow.vue";
+import ChatPaletteEditWindow from "@/app/basic/chat-palette/ChatPaletteEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(ImageDirective);
@@ -102,6 +105,9 @@ async function main(): Promise<void> {
   Vue.component("resource-master-add-window", ResourceMasterAddWindow);
   Vue.component("resource-master-edit-window", ResourceMasterEditWindow);
   Vue.component("resource-master-list-window", ResourceMasterListWindow);
+  Vue.component("chat-palette-window", ChatPaletteWindow);
+  Vue.component("chat-palette-add-window", ChatPaletteAddWindow);
+  Vue.component("chat-palette-edit-window", ChatPaletteEditWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

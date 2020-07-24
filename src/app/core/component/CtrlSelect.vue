@@ -8,7 +8,8 @@
     <select
       class="input"
       :class="{ pending: isPending }"
-      v-model="localValue"
+      :value="localValue === null ? 'null' : localValue"
+      @input="localValue = $event.target.value"
       :id="id || undefined"
       ref="component"
       :disabled="disabled || readonly"
@@ -87,8 +88,9 @@ export default class CtrlSelect extends SelectMixin {
   onChangeValue(value: string | string[]) {
     const optionInfo: HtmlOptionInfo | null =
       this.optionInfoList.find(optionInfo => {
+        if (value === null) return null;
         if (typeof value === "string") return optionInfo.value === value;
-        else return value.findIndex(v => v === optionInfo.value) > -1;
+        else return value.some(v => v === optionInfo.value);
       }) || null;
     this.fontColor = optionInfo && optionInfo.disabled ? "#999999" : "#000000";
   }

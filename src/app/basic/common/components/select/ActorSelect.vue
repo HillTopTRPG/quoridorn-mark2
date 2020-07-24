@@ -34,6 +34,9 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   @Prop({ type: String, default: "" })
   private userId!: string;
 
+  @Prop({ type: Boolean, default: false })
+  private nullable!: boolean;
+
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
@@ -61,6 +64,14 @@ export default class ActorSelect extends Mixins<MultiMixin>(
         text: c.data!.name,
         disabled: false
       }));
+    if (this.nullable) {
+      this.optionInfoList.unshift({
+        key: null,
+        value: "null",
+        text: this.$t("label.non-select")!.toString(),
+        disabled: false
+      });
+    }
     this.optionInfoList.unshift({
       key: "",
       value: "",

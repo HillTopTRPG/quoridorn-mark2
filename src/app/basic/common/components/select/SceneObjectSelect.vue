@@ -2,7 +2,8 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :readonly="readonly"
+    :multiple="multiple"
+    :disabled="disabled"
     ref="component"
   />
 </template>
@@ -10,14 +11,11 @@
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import { HtmlOptionInfo } from "@/@types/window";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LanguageManager from "@/LanguageManager";
-import { Task, TaskResult } from "task";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop, Watch } from "vue-property-decorator";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
@@ -25,22 +23,20 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class ActorStatusSelect extends Mixins<MultiMixin>(
+export default class SceneObjectSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
   @Prop({ type: String, default: null })
-  private actorId!: string | null;
+  private actorId!: string;
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
 
   private optionInfoList: HtmlOptionInfo[] = [];
 
-  private statusList = GameObjectManager.instance.actorStatusList;
-
   @LifeCycle
-  private created() {
+  private async created() {
     this.createOptionInfoList();
   }
 
@@ -49,30 +45,15 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
     this.createOptionInfoList();
   }
 
-  @Watch("statusList", { deep: true })
-  private onChangeStatusList() {
-    this.createOptionInfoList();
-  }
-
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    this.createOptionInfoList();
-    task.resolve();
-  }
-
   private createOptionInfoList() {
-    this.optionInfoList = this.statusList
-      .filter(s => s.owner === this.actorId)
-      .map(s => {
-        return {
-          key: s.id!,
-          value: s.id!,
-          text: s.data!.name,
-          disabled: false
-        };
-      });
+    this.optionInfoList = GameObjectManager.instance.sceneObjectList
+      .filter(so => so.data!.actorId === this.actorId)
+      .map(c => ({
+        key: c.id!,
+        value: c.id!,
+        text: c.data!.name,
+        disabled: false
+      }));
     if (this.nullable) {
       this.optionInfoList.unshift({
         key: null,
@@ -84,7 +65,7 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: this.$t("label.status")!.toString(),
+      text: this.$t("type.piece")!.toString(),
       disabled: true
     });
   }
