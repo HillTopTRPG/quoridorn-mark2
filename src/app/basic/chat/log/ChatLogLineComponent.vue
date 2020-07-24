@@ -25,17 +25,20 @@ import Vue from "vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
-import { StoreUseData } from "@/@types/store";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { transText } from "@/app/core/utility/ChatUtility";
-import { ActorStore } from "@/@types/gameObject";
-import { UserType } from "@/@types/socket";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { findRequireById } from "@/app/core/utility/Utility";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { StoreUseData } from "../../../../@types/store";
+import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
+import { ChatInfo, GroupChatTabInfo, UserData } from "../../../../@types/room";
+import { transText } from "../../../core/utility/ChatUtility";
+import { ActorStore } from "../../../../@types/gameObject";
+import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
+import { UserType } from "../../../../@types/socket";
+import VueEvent from "../../../core/decorator/VueEvent";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import { findRequireById } from "../../../core/utility/Utility";
 
-@Component
+@Component({
+  components: { TabsComponent }
+})
 export default class ChatLogLineComponent extends Vue {
   @Prop({ type: Object, required: true })
   private chat!: StoreUseData<ChatInfo>;

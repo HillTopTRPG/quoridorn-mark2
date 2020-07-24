@@ -60,21 +60,18 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import { MediaInfo } from "@/@types/room";
-import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
-import LanguageManager from "@/LanguageManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { getExt } from "@/app/core/utility/PrimaryDataUtility";
+import { StoreUseData } from "../../../@types/store";
+import { permissionCheck } from "../../core/api/app-server/SocketFacade";
+import ComponentVue from "../../core/window/ComponentVue";
+import { MediaInfo } from "../../../@types/room";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import SButton from "../common/components/SButton.vue";
+import { getYoutubeThunbnail } from "../cut-in/bgm/YoutubeManager";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
-  components: { SButton, BaseInput, CtrlButton }
+  components: { SButton }
 })
 export default class MediaItemComponent extends Mixins<ComponentVue>(
   ComponentVue

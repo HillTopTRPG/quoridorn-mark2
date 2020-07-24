@@ -61,21 +61,21 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
-import App from "@/views/App.vue";
-import { importJson, saveJson } from "@/app/core/utility/FileUtility";
-import { ResourceMasterStore } from "@/@types/gameObject";
-import { StoreUseData } from "@/@types/store";
-import LanguageManager from "@/LanguageManager";
-import moment from "moment/moment";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskManager from "../../core/task/TaskManager";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import { WindowOpenInfo } from "../../../@types/window";
+import { DataReference } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
+import { importJson, saveJson } from "../../core/utility/FileUtility";
+import { StoreUseData } from "../../../@types/store";
+import { ResourceMasterStore } from "../../../@types/gameObject";
+import LanguageManager from "../../../LanguageManager";
+import * as moment from "moment";
+import App from "../../../views/App.vue";
 
 @Component({
   components: {

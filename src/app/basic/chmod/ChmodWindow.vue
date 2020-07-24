@@ -39,23 +39,23 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { TabInfo } from "@/@types/window";
-import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
-import { Permission } from "@/@types/store";
-import PermissionNodeTypeSelect from "@/app/basic/common/components/select/PermissionNodeTypeSelect.vue";
-import ChmodRuleEditComponent from "@/app/basic/chmod/ChmodRuleEditComponent.vue";
-import { DataReference } from "@/@types/data";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import ChmodRuleEditComponent from "./ChmodRuleEditComponent.vue";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+} from "../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
+import VueEvent from "../../core/decorator/VueEvent";
+import PermissionNodeTypeSelect from "../common/components/select/PermissionNodeTypeSelect.vue";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
+import { Permission } from "../../../@types/store";
+import { TabInfo } from "../../../@types/window";
+import { DataReference } from "../../../@types/data";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

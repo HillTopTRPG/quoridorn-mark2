@@ -1,7 +1,7 @@
-import { loadYaml } from "@/app/core/utility/FileUtility";
 import VueI18n from "vue-i18n";
-import TaskManager from "@/app/core/task/TaskManager";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import { loadYaml } from "./app/core/utility/FileUtility";
+import TaskManager from "./app/core/task/TaskManager";
+import { listToEmpty } from "./app/core/utility/PrimaryDataUtility";
 
 type LangInfo = {
   lang: string;

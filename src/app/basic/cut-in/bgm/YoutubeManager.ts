@@ -1,7 +1,7 @@
 import { Size } from "address";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
-import { CutInDeclareInfo } from "@/@types/room";
-import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
+import { createSize } from "../../../core/utility/CoordinateUtility";
+import { CutInDeclareInfo } from "../../../../@types/room";
+import { getUrlParam } from "../../../core/utility/PrimaryDataUtility";
 
 type PlayerInfo = {
   player: any;

@@ -7,21 +7,21 @@
       />
     </template>
     <template v-for="sceneObject in useSceneObjectList">
-      <map-mask
+      <map-mask-piece-component
         v-if="sceneObject.data.type === 'map-mask'"
         :key="sceneObject.id"
         :docId="sceneObject.id"
         type="map-mask"
       />
 
-      <chit
+      <chit-piece-component
         v-if="sceneObject.data.type === 'chit'"
         :key="sceneObject.id"
         :docId="sceneObject.id"
         type="chit"
       />
 
-      <character
+      <character-piece-component
         v-if="sceneObject.data.type === 'character'"
         :key="sceneObject.id"
         :docId="sceneObject.id"
@@ -33,29 +33,29 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
-import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
-import Character from "@/app/basic/object/character/CharacterPieceComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import { Mixins } from "vue-mixin-decorator";
+import { StoreObj, StoreUseData } from "../../../@types/store";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import ComponentVue from "../../core/window/ComponentVue";
+import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import GameObjectManager from "../GameObjectManager";
+import CardDeckSmallComponent from "../card/CardDeckSmallComponent.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 import SocketFacade, {
   getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { Mixins } from "vue-mixin-decorator";
-import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue";
-import { findRequireById } from "@/app/core/utility/Utility";
+} from "../../core/api/app-server/SocketFacade";
+import MapMaskPieceComponent from "../object/map-mask/MapMaskPieceComponent.vue";
+import ChitPieceComponent from "../object/chit/ChitPieceComponent.vue";
+import CharacterPieceComponent from "../object/character/CharacterPieceComponent.vue";
+import { findRequireById } from "../../core/utility/Utility";
 
 @Component({
   components: {
-    CardDeckSmallComponent,
-    MapMask,
-    Chit,
-    Character
+    CharacterPieceComponent,
+    ChitPieceComponent,
+    MapMaskPieceComponent,
+    CardDeckSmallComponent
   }
 })
 export default class SceneLayerComponent extends Mixins<ComponentVue>(

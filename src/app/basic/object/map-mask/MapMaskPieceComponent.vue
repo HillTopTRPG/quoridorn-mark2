@@ -23,8 +23,8 @@
 </template>
 
 <script lang="ts">
-import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
 import { Component } from "vue-property-decorator";
+import PieceMixin from "../../common/mixin/PieceMixin.vue";
 
 @Component
 export default class MapMaskPieceComponent extends PieceMixin<"map-mask"> {}

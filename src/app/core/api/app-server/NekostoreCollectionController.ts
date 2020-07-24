@@ -4,10 +4,8 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import SocketFacade, {
-  getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
+import Query from "nekostore/lib/Query";
+import { StoreObj, StoreUseData } from "../../../../@types/store";
 import {
   AddDirectRequest,
   CreateDataRequest,
@@ -16,8 +14,8 @@ import {
   TouchModifyRequest,
   TouchRequest,
   UpdateDataRequest
-} from "@/@types/data";
-import Query from "nekostore/lib/Query";
+} from "../../../../@types/data";
+import SocketFacade, { getStoreObj } from "./SocketFacade";
 
 export default class NekostoreCollectionController<T> {
   constructor(

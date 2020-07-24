@@ -1,5 +1,5 @@
 import { Address, Point, Rectangle } from "address";
-import { Direction, Texture } from "@/@types/room";
+import { Direction, Texture } from "./room";
 
 type SceneObjectType =
   | "character"
@@ -58,6 +58,7 @@ type ActorStatusStore = {
   name: string; // ステータス名
   isSystem: boolean;
   standImageInfoId: string | null; // id
+  chatPaletteInfoId: string | null; // id
 };
 
 // import { StandImageInfo } from "@/app/basic/stand-image/StandImage";

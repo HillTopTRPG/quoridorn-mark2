@@ -45,15 +45,15 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-import { BcdiceVersionInfo } from "@/@types/bcdice";
-import LanguageManager from "@/LanguageManager";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import WindowVue from "../../core/window/WindowVue";
+import { BcdiceVersionInfo } from "../../../@types/bcdice";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import LanguageManager from "../../../LanguageManager";
+import BcdiceManager from "../../core/api/bcdice/BcdiceManager";
+import BaseInput from "../../core/component/BaseInput.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -73,7 +73,7 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.url = this.windowInfo.args!;
+    this.url = this.windowInfo.args!.toString();
   }
 
   @Watch("currentDiceBotSystem")

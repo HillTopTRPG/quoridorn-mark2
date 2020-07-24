@@ -64,16 +64,16 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TrChatColorInputComponent from "@/app/basic/common/components/TrChatColorInputComponent.vue";
-import TrGeneralTypeSelectComponent from "@/app/basic/common/components/TrGeneralTypeSelectComponent.vue";
-import TrActorStatusSelectComponent from "@/app/basic/common/components/TrActorStatusSelectComponent.vue";
-import TrActorSelectComponent from "@/app/basic/common/components/TrActorSelectComponent.vue";
-import TrSceneObjectSelectComponent from "@/app/basic/common/components/TrSceneObjectSelectComponent.vue";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+import TrActorSelectComponent from "../common/components/TrActorSelectComponent.vue";
+import TrGeneralTypeSelectComponent from "../common/components/TrGeneralTypeSelectComponent.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TrActorStatusSelectComponent from "../common/components/TrActorStatusSelectComponent.vue";
+import ComponentVue from "../../core/window/ComponentVue";
+import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
+import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
+import TrChatColorInputComponent from "../common/components/TrChatColorInputComponent.vue";
+import TrSceneObjectSelectComponent from "../common/components/TrSceneObjectSelectComponent.vue";
+import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
 
 @Component({
   components: {

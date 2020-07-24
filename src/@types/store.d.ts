@@ -27,7 +27,7 @@ type StoreMetaData = {
   id: string | null;
 };
 
-type ExportDataFormat<T> = {
+export type ExportDataFormat<T> = {
   type: string;
   version: string;
   data: T;

@@ -142,15 +142,16 @@ fieldset {
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Action, Getter, Mutation } from "vuex-class";
-import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewerOrg.vue";
 import { Watch } from "vue-property-decorator";
-import ImportTypeRadio from "@/app/basic/common/components/radio/ImportTypeRadio.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import { saveJson, saveHTML, saveText } from "@/app/core/utility/FileUtility";
 import moment from "moment";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { findRequireByKey, someByStr } from "@/app/core/utility/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "./app/core/decorator/LifeCycle";
+import ImportTypeRadio from "./app/basic/common/components/radio/ImportTypeRadio.vue";
+import CtrlButton from "./app/core/component/CtrlButton.vue";
+import TabsComponent from "./app/basic/common/components/tab-component/TabsComponent.vue";
+import { saveHTML, saveJson, saveText } from "./app/core/utility/FileUtility";
+import ChatLogViewer from "./app/basic/chat/log/ChatLogViewer.vue";
+import VueEvent from "./app/core/decorator/VueEvent";
+import { findRequireByKey, someByStr } from "./app/core/utility/Utility";
 
 @Component({
   components: {

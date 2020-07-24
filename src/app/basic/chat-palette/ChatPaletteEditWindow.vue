@@ -28,21 +28,17 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { DataReference } from "@/@types/data";
-import { BackgroundSize, Direction } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { SceneObject } from "@/@types/gameObject";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ChitInfoForm from "@/app/basic/object/chit/ChitInfoForm.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import WindowVue from "@/app/core/window/WindowVue";
-import ChatPaletteInfoForm from "@/app/basic/chat-palette/ChatPaletteInfoForm.vue";
+} from "../../core/api/app-server/SocketFacade";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import WindowVue from "../../core/window/WindowVue";
+import ChitInfoForm from "../object/chit/ChitInfoForm.vue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import ChatPaletteInfoForm from "./ChatPaletteInfoForm.vue";
+import { DataReference } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

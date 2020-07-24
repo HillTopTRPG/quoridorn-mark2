@@ -10,9 +10,8 @@
 </template>
 
 <script lang="ts">
-import PieceMixin from "@/app/basic/common/mixin/PieceMixin.vue";
-
 import { Component } from "vue-mixin-decorator";
+import PieceMixin from "../common/mixin/PieceMixin.vue";
 
 @Component
 export default class SightField extends PieceMixin<"chit"> {

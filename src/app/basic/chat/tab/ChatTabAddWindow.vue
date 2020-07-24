@@ -32,8 +32,8 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
-import { PermissionNode } from "@/@types/store";
-import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
+import { PermissionNode } from "../../../../@types/store";
+import ChatTabInfoForm from "./ChatTabInfoForm.vue";
 
 @Component({
   components: { ChatTabInfoForm, CtrlButton }

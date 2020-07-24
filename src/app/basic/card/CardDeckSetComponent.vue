@@ -21,7 +21,7 @@
     <img
       v-if="isSelected"
       class="select-mark"
-      src="http://quoridorn.com/img/mascot/normal/mascot_normal.png"
+      src="https://quoridorn.com/img/mascot/normal/mascot_normal.png"
       alt="こっぺりん"
     />
   </div>
@@ -29,16 +29,15 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { Prop, Watch } from "vue-property-decorator";
-import { CardDeckBig, CardMeta } from "@/@types/gameObject";
-import CardComponent from "@/app/basic/card/CardComponent.vue";
-import { StoreUseData } from "@/@types/store";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
-import CssManager from "@/app/core/css/CssManager";
-import { getCssPxNum } from "@/app/core/css/Css";
+import { Prop } from "vue-property-decorator";
 import { Size } from "address";
+import { StoreUseData } from "../../../@types/store";
+import { createSize } from "../../core/utility/CoordinateUtility";
+import ComponentVue from "../../core/window/ComponentVue";
+import { CardDeckBig, CardMeta } from "../../../@types/gameObject";
+import { getCssPxNum } from "../../core/css/Css";
+import VueEvent from "../../core/decorator/VueEvent";
+import CardComponent from "./CardComponent.vue";
 
 export type DeckInfo = {
   cardDeckBig: StoreUseData<CardDeckBig>;

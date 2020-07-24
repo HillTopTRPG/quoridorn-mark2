@@ -1,16 +1,16 @@
 <script lang="ts">
 import Vue from "vue";
 import { Mixin } from "vue-mixin-decorator";
+import { Matrix, Point, Rectangle } from "address";
+import CssManager from "../../../core/css/CssManager";
 import {
   arrangeAngle,
   calcAngle,
   calcCenter,
   calcDistance,
   createPoint
-} from "@/app/core/utility/CoordinateUtility";
-import { Matrix, Point, Rectangle } from "address";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import CssManager from "@/app/core/css/CssManager";
+} from "../../../core/utility/CoordinateUtility";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 type Coordinates = {
   angle: number; // 角度

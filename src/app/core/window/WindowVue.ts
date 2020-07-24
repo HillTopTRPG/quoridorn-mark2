@@ -1,10 +1,10 @@
 import Vue from "vue";
 import { Prop } from "vue-property-decorator";
-import { WindowInfo } from "@/@types/window";
 import { Mixin } from "vue-mixin-decorator";
-import TaskManager from "@/app/core/task/TaskManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
+import TaskProcessor from "../task/TaskProcessor";
+import TaskManager from "../task/TaskManager";
+import { WindowInfo } from "../../../@types/window";
 
 // @ts-ignore
 @Mixin

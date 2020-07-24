@@ -12,13 +12,13 @@ import SelectMixin from "./base/SelectMixin";
 
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import LanguageManager from "@/LanguageManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "../../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../../core/task/TaskProcessor";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import GameObjectManager from "../../../GameObjectManager";
+import LanguageManager from "../../../../../LanguageManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

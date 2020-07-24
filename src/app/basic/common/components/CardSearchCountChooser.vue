@@ -17,13 +17,13 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop } from "vue-property-decorator";
-import { HtmlOptionInfo } from "@/@types/window";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { HtmlOptionInfo } from "../../../../@types/window";
+import SCheck from "./SCheck.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: { SCheck }

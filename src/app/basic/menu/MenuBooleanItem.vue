@@ -9,7 +9,7 @@
 import { Action, Getter } from "vuex-class";
 import { Component, Emit, Prop, Vue } from "vue-property-decorator";
 
-@Component({})
+@Component
 export default class MenuBooleanItem extends Vue {
   @Prop({ type: String, required: true })
   private property!: string;

@@ -1,5 +1,5 @@
-import { ApplicationError } from "@/app/core/error/ApplicationError";
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import { ApplicationError } from "../error/ApplicationError";
+import { convertNumberZero } from "../utility/PrimaryDataUtility";
 
 type VersionInfo = {
   major: number;

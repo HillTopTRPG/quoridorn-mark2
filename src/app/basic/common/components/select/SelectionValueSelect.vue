@@ -11,13 +11,13 @@
 import SelectMixin from "./base/SelectMixin";
 
 import { Component, Mixins } from "vue-mixin-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import LanguageManager from "@/LanguageManager";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { HtmlOptionInfo } from "@/@types/window";
 import { Prop, Watch } from "vue-property-decorator";
+import TaskProcessor from "../../../../core/task/TaskProcessor";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import { HtmlOptionInfo } from "../../../../../@types/window";
+import LanguageManager from "../../../../../LanguageManager";
+import { Task, TaskResult } from "task";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

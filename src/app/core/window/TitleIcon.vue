@@ -14,15 +14,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import VueEvent from "../decorator/VueEvent";
 
-@Component({ components: {} })
+@Component
 export default class TitleIcon extends Vue {
   @Prop({ type: String, required: true })
   private className!: string;
 
-  @Emit("emit")
-  private emit(event: MouseEvent | TouchEvent) {}
+  @VueEvent
+  private emit(event: MouseEvent | TouchEvent) {
+    this.$emit("emit", event);
+  }
 }
 </script>
 

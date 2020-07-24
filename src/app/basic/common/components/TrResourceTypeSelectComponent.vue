@@ -11,13 +11,12 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import ResourceTypeSelect from "@/app/basic/common/components/select/ResourceTypeSelect.vue";
-import { ResourceType } from "@/@types/gameObject";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { ResourceType } from "../../../../@types/gameObject";
+import ResourceTypeSelect from "./select/ResourceTypeSelect.vue";
 
-@Component({ components: { ResourceTypeSelect, SCheck } })
+@Component({ components: { ResourceTypeSelect } })
 export default class TrResourceTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

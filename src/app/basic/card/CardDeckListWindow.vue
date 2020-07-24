@@ -35,23 +35,20 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { ModeInfo } from "mode";
+import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { DataReference } from "@/@types/data";
-import LanguageManager from "@/LanguageManager";
-import { ModeInfo } from "mode";
-import CardDeckSetComponent, {
-  DeckInfo
-} from "@/app/basic/card/CardDeckSetComponent.vue";
-import { createAddress } from "@/app/core/utility/CoordinateUtility";
+} from "../../core/api/app-server/SocketFacade";
+import TaskManager from "../../core/task/TaskManager";
+import WindowVue from "../../core/window/WindowVue";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import { WindowOpenInfo } from "../../../@types/window";
+import CardDeckSetComponent, { DeckInfo } from "./CardDeckSetComponent.vue";
+import { DataReference } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
+import CtrlButton from "../../core/component/CtrlButton.vue";
 
 @Component({
   components: {

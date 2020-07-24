@@ -3,7 +3,7 @@
     <div class="message-scroll-area selectable" v-if="message">
       <img
         class="logo"
-        src="http://quoridorn.com/img/bg_white_4c.svg"
+        src="https://quoridorn.com/img/bg_white_4c.svg"
         alt="logo"
         draggable="false"
       />
@@ -109,60 +109,63 @@
 
 <script lang="ts">
 import { Component, Emit, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import {
-  CreateRoomInput,
-  CreateRoomRequest,
-  ClientRoomInfo,
-  ReleaseTouchRequest,
-  TouchRequest,
-  UserLoginInput,
-  GetRoomListResponse,
-  Message,
-  AppServerSettingInput,
-  RoomViewResponse,
-  DeleteRoomInput,
-  DeleteRoomRequest,
-  LoginRoomInput,
-  UserLoginWindowInput,
-  UserLoginRequest,
-  RoomLoginRequest,
-  UserLoginResponse,
-  LoginWindowInput,
-  ServerTestResult
-} from "@/@types/socket";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import TaskManager from "@/app/core/task/TaskManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { WindowOpenInfo } from "@/@types/window";
-import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
-import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.vue";
-import LanguageManager from "@/LanguageManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { getUrlType, loadYaml } from "@/app/core/utility/FileUtility";
-import {
-  Scene,
-  CutInDeclareInfo,
-  MediaInfo,
-  AddRoomPresetDataRequest
-} from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import * as Cookies from "es-cookie";
-import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 import { ModeInfo } from "mode";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
 import {
   convertNumberNull,
   getUrlParam,
   listToEmpty
-} from "@/app/core/utility/PrimaryDataUtility";
-import { getSrc } from "@/app/core/utility/Utility";
+} from "../../core/utility/PrimaryDataUtility";
+import { ConfirmInfo } from "../../core/window/ConfirmWindow.vue";
+import {
+  AppServerSettingInput,
+  ClientRoomInfo,
+  CreateRoomInput,
+  CreateRoomRequest,
+  DeleteRoomInput,
+  DeleteRoomRequest,
+  GetRoomListResponse,
+  LoginRoomInput,
+  LoginWindowInput,
+  Message,
+  ReleaseTouchRequest,
+  RoomLoginRequest,
+  RoomViewResponse,
+  ServerTestResult,
+  TouchRequest,
+  UserLoginInput,
+  UserLoginRequest,
+  UserLoginResponse,
+  UserLoginWindowInput
+} from "../../../@types/socket";
+import { PermissionNode, StoreObj, StoreUseData } from "../../../@types/store";
+import TableComponent from "../../core/component/table/TableComponent.vue";
+import {
+  AddRoomPresetDataRequest,
+  CutInDeclareInfo,
+  MediaInfo,
+  RoomData,
+  Scene,
+  SceneLayerType
+} from "../../../@types/room";
+import WindowVue from "../../core/window/WindowVue";
+import GameObjectManager from "../GameObjectManager";
+import { ResourceMasterStore } from "../../../@types/gameObject";
+import VersionInfoComponent from "./VersionInfoComponent.vue";
+import { extname, getUrlType, loadYaml } from "../../core/utility/FileUtility";
+import { getSrc } from "../../core/utility/Utility";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import VueEvent from "../../core/decorator/VueEvent";
+import LanguageSelect from "../common/components/select/LanguageSelect.vue";
+import TaskManager from "../../core/task/TaskManager";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import LanguageManager from "../../../LanguageManager";
+import { WindowOpenInfo } from "../../../@types/window";
 
 @Component({
   components: {
@@ -1170,7 +1173,7 @@ export default class LoginWindow extends Mixins<
     margin-bottom: 0.5rem;
     flex: 1;
     background-color: var(--uni-color-white);
-    background-image: url("http://quoridorn.com/img/mascot/normal/mascot_normal.png");
+    background-image: url("https://quoridorn.com/img/mascot/normal/mascot_normal.png");
     background-size: 18rem;
     background-position: top 2rem right var(--scroll-bar-width);
     background-repeat: no-repeat;

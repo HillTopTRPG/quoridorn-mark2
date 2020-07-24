@@ -15,9 +15,9 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import CardDeckLayoutSelect from "@/app/basic/common/components/select/CardDeckLayoutSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import CardDeckLayoutSelect from "./select/CardDeckLayoutSelect.vue";
 
 @Component({ components: { CardDeckLayoutSelect } })
 export default class TrCardDeckLayoutSelectComponent extends Mixins<

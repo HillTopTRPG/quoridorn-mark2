@@ -24,25 +24,24 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import LanguageManager from "@/LanguageManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ActorInfoForm from "@/app/basic/object/actor/ActorInfoForm.vue";
-import { ActorStore } from "@/@types/gameObject";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import { ActorStore } from "../../../../@types/gameObject";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import { DataReference } from "@/@types/data";
-import { findRequireById } from "@/app/core/utility/Utility";
+} from "../../../core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
+import VueEvent from "../../../core/decorator/VueEvent";
+import WindowVue from "../../../core/window/WindowVue";
+import CtrlButton from "../../../core/component/CtrlButton.vue";
+import GameObjectManager from "../../GameObjectManager";
+import LanguageManager from "../../../../LanguageManager";
+import ActorInfoForm from "./ActorInfoForm.vue";
+import { DataReference } from "../../../../@types/data";
+import { findRequireById } from "../../../core/utility/Utility";
 
 @Component({
-  components: { ActorInfoForm, CtrlButton, BaseInput }
+  components: { ActorInfoForm, CtrlButton }
 })
 export default class ActorEditWindow extends Mixins<
   WindowVue<DataReference, never>

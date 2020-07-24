@@ -27,42 +27,31 @@
 
 <script lang="ts">
 import MapBoard from "./MapBoard.vue";
-import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
-
-import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
-import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
-
 import { Component } from "vue-mixin-decorator";
 import { Watch } from "vue-property-decorator";
+import { Matrix, Point } from "address";
+import { Task, TaskResult } from "task";
+import { ContextTaskInfo } from "context";
+import { DropPieceInfo } from "task-info";
+import { findById, getTextureStyle } from "../../core/utility/Utility";
+import TaskProcessor, {
+  TaskProcessorSimple
+} from "../../core/task/TaskProcessor";
+import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
 import {
   arrangeAngle,
   createPoint,
   getEventPoint
-} from "@/app/core/utility/CoordinateUtility";
-import { Matrix, Point } from "address";
-import { Task, TaskResult } from "task";
-import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
-import { ContextTaskInfo } from "context";
-import TaskProcessor, {
-  TaskProcessorSimple
-} from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { Scene, Texture } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { AddObjectInfo } from "@/@types/data";
-import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
-import CssManager from "@/app/core/css/CssManager";
-import { findById, getTextureStyle } from "@/app/core/utility/Utility";
-import { DropPieceInfo } from "task-info";
+} from "../../core/utility/CoordinateUtility";
+import { Scene, Texture } from "../../../@types/room";
+import { AddObjectInfo } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
+import CssManager from "../../core/css/CssManager";
+import SceneLayerComponent from "./SceneLayerComponent.vue";
+import GameObjectManager from "../GameObjectManager";
+import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
 
-@Component({
-  components: {
-    SceneLayerComponent,
-    MapBoard,
-    MapMask,
-    Chit
-  }
-})
+@Component({ components: { SceneLayerComponent, MapBoard } })
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
   private roomData = GameObjectManager.instance.roomData;

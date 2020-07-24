@@ -50,24 +50,24 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import WindowVue from "../../core/window/WindowVue";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import MediaItemComponent from "./MediaItemComponent.vue";
+import MediaUploadItemComponent from "./MediaUploadItemComponent.vue";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import MediaUploadItemComponent from "@/app/basic/media/MediaUploadItemComponent.vue";
-import MediaItemComponent from "@/app/basic/media/MediaItemComponent.vue";
-import LanguageManager from "@/LanguageManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import { MediaInfo } from "@/@types/room";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import TaskManager from "@/app/core/task/TaskManager";
-import { DataReference } from "@/@types/data";
-import { DeleteFileRequest, UploadFileRequest } from "@/@types/socket";
+} from "../../core/api/app-server/SocketFacade";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import { MediaInfo } from "../../../@types/room";
+import TaskManager from "../../core/task/TaskManager";
+import SCheck from "../common/components/SCheck.vue";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import { TabInfo, WindowOpenInfo } from "../../../@types/window";
+import { DataReference } from "../../../@types/data";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import { DeleteFileRequest } from "../../../@types/socket";
 
 @Component({
   components: {

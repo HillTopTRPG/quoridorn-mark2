@@ -5,27 +5,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch } from "vue-property-decorator";
-import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
-import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreObj, StoreUseData } from "@/@types/store";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import SocketFacade, {
-  getStoreObj
-} from "@/app/core/api/app-server/SocketFacade";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
+import ComponentVue from "../../core/window/ComponentVue";
 
-@Component({
-  components: {
-    MapMask,
-    Chit
-  }
-})
+@Component
 export default class DropArea extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, required: true })
   private isDropping!: boolean;

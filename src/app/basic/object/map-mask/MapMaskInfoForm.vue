@@ -107,36 +107,27 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { parseColor } from "@/app/core/utility/ColorUtility";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import LanguageManager from "@/LanguageManager";
-import { TabInfo } from "@/@types/window";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import ComponentVue from "../../../core/window/ComponentVue";
+import { TabInfo } from "../../../../@types/window";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { parseColor } from "../../../core/utility/ColorUtility";
+import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
+import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
+import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
+import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 
 @Component({
   components: {
-    TrColorPickerComponent,
-    TrNumberInputComponent,
-    TrStringInputComponent,
     SceneLayerSelect,
+    TrColorPickerComponent,
+    TrStringInputComponent,
     SimpleTabComponent,
-    ColorPickerComponent,
-    BaseInput,
-    SeekBarComponent,
-    CtrlButton
+    TrNumberInputComponent
   }
 })
 export default class MapMaskInfoForm extends Mixins<ComponentVue>(

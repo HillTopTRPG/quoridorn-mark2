@@ -1,10 +1,20 @@
-import {
-  PartialRoomInfoExtend,
-  RoomInfoExtend,
-  UserType
-} from "@/@types/socket";
 import { Address, Point } from "address";
-import { DiceResult } from "@/@types/bcdice";
+import { PartialRoomInfoExtend, RoomInfoExtend, UserType } from "./socket";
+import { DiceResult } from "./bcdice";
+
+export type PlayBgmInfo =
+  | {
+      targetId: string;
+      data: null;
+    }
+  | {
+      targetId: null;
+      data: CutInDeclareInfo;
+    };
+
+export type MediaUploadInfo = {
+  resultList: (File | string)[];
+};
 
 /**
  * roomDataCCのデータ定義
@@ -248,7 +258,7 @@ export type GroupChatTabInfo = {
 /**
  * cutInDataCCのデータ定義
  */
-type CutInDeclareInfo = {
+export type CutInDeclareInfo = {
   url: string;
   title: string;
   tag: string;

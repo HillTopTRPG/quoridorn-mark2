@@ -13,12 +13,11 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { Mixins } from "vue-mixin-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { HtmlOptionInfo } from "@/@types/window";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LanguageManager from "@/LanguageManager";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import LifeCycle from "../../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../../core/task/TaskProcessor";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import { HtmlOptionInfo } from "../../../../../@types/window";
 
 @Component({
   components: { CtrlSelect }

@@ -1,28 +1,31 @@
 import yaml from "js-yaml";
 import { Size } from "address";
-import { MediaInfo, StandImageInfo } from "@/@types/room";
-import { convertNumberNull } from "@/app/core/utility/PrimaryDataUtility";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
-import { ExportDataFormat } from "@/@types/store";
-import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
-import DropBoxManager from "@/app/core/api/drop-box/DropBoxManager";
-import { UploadFileRequest } from "@/@types/socket";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { MediaInfo, StandImageInfo } from "../../../@types/room";
+import { convertNumberNull } from "./PrimaryDataUtility";
+import { createSize } from "./CoordinateUtility";
+import { ApplicationError } from "../error/ApplicationError";
+import { getYoutubeThunbnail } from "../../basic/cut-in/bgm/YoutubeManager";
+import DropBoxManager from "../api/drop-box/DropBoxManager";
+import { UploadFileRequest } from "../../../@types/socket";
+import SocketFacade from "../api/app-server/SocketFacade";
+import GameObjectManager from "../../basic/GameObjectManager";
+import { ExportDataFormat } from "../../../@types/store";
 
 /**
  * テキストファイルをロードする
  *
  * @param path
+ * @param isErrorIgnore
  */
-export async function loadText(path: string): Promise<string> {
+export async function loadText(
+  path: string,
+  isErrorIgnore: boolean = false
+): Promise<string> {
   try {
     const response = await fetch(process.env.BASE_URL + path);
     return await response.text();
   } catch (err) {
-    window.console.error("textファイルの読み込みに失敗しました", path);
-    throw err;
+    throw new ApplicationError(`textファイルの読み込みに失敗しました：${path}`);
   }
 }
 
@@ -43,10 +46,14 @@ export function unicodeEscape(str: string) {
  * Yamlファイルをロードする
  *
  * @param path
+ * @param isErrorIgnore
  */
-export async function loadYaml<T>(path: string): Promise<T> {
+export async function loadYaml<T>(
+  path: string,
+  isErrorIgnore: boolean = false
+): Promise<T> {
   try {
-    const text = await loadText(path);
+    const text = await loadText(path, isErrorIgnore);
     return yaml.safeLoad(text) as T;
   } catch (err) {
     throw new ApplicationError(

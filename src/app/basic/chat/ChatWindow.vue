@@ -83,40 +83,40 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import {
-  createEmptyStoreUseData,
-  findById,
-  findRequireById,
-  findRequireByOwner
-} from "@/app/core/utility/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { Task, TaskResult } from "task";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import UnitTableComponent from "./UnitTableComponent.vue";
 import {
   ChatInfo,
   ChatTabInfo,
   CustomDiceBotInfo,
   GroupChatTabInfo
-} from "@/@types/room";
+} from "../../../@types/room";
+import { ActorStore } from "../../../@types/gameObject";
+import { StoreUseData } from "../../../@types/store";
+import ChatOperationLine from "./ChatOperationLine.vue";
+import WindowVue from "../../core/window/WindowVue";
+import GameObjectManager from "../GameObjectManager";
+import { TabInfo } from "../../../@types/window";
+import ChatOptionSelector from "./ChatOptionSelector.vue";
+import ChatInputInfoComponent from "./ChatInputInfoComponent.vue";
+import { conversion, sendChatLog } from "../../core/utility/ChatUtility";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { TabInfo } from "@/@types/window";
-import ChatOperationLine from "@/app/basic/chat/ChatOperationLine.vue";
-import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewer.vue";
-import ChatOptionSelector from "@/app/basic/chat/ChatOptionSelector.vue";
-import { StoreUseData } from "@/@types/store";
-import { ActorStore } from "@/@types/gameObject";
-import LanguageManager from "@/LanguageManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue";
-import { UserType } from "@/@types/socket";
-import UnitTableComponent from "@/app/basic/chat/UnitTableComponent.vue";
-import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
-import ReadAloudManager from "@/ReadAloudManager";
+} from "../../core/api/app-server/SocketFacade";
+import ChatLogViewer from "./log/ChatLogViewer.vue";
+import VueEvent from "../../core/decorator/VueEvent";
+import {
+  createEmptyStoreUseData,
+  findById,
+  findRequireById,
+  findRequireByOwner
+} from "../../core/utility/Utility";
+import LanguageManager from "../../../LanguageManager";
+import { UserType } from "../../../@types/socket";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import ReadAloudManager from "../../../ReadAloudManager";
 import { Getter } from "vuex-class";
 
 @Component({

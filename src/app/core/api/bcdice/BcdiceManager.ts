@@ -1,15 +1,15 @@
+import { listToEmpty } from "../../utility/PrimaryDataUtility";
+import TaskManager from "../../task/TaskManager";
 import {
+  BcdiceDiceRollInfo,
   BcdiceSystemInfo,
   BcdiceVersionInfo,
-  BcdiceDiceRollInfo,
   DiceSystem
-} from "@/@types/bcdice";
-import TaskManager from "@/app/core/task/TaskManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import LanguageManager from "@/LanguageManager";
-import { loadYaml } from "@/app/core/utility/FileUtility";
-import { CustomDiceBotInfo } from "@/@types/room";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+} from "../../../../@types/bcdice";
+import { CustomDiceBotInfo } from "../../../../@types/room";
+import SocketFacade from "../app-server/SocketFacade";
+import LanguageManager from "../../../../LanguageManager";
+import { loadYaml } from "../../utility/FileUtility";
 
 export default class BcdiceManager {
   // シングルトン
@@ -113,7 +113,7 @@ export default class BcdiceManager {
       const path = `/static/conf/system/${ds.system}/customDiceBot.yaml`;
       try {
         // トライアンドエラー方式読み込みのため、throwは握りつぶす
-        const list = await loadYaml<CustomDiceBotInfo[]>(path);
+        const list = await loadYaml<CustomDiceBotInfo[]>(path, true);
         list.forEach(cdb => {
           cdb.system = ds.system;
         });

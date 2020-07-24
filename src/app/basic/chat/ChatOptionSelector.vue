@@ -29,8 +29,8 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { StoreUseData } from "@/@types/store";
+import ComponentVue from "../../core/window/ComponentVue";
+import { StoreUseData } from "../../../@types/store";
 
 @Component
 export default class ChatOptionSelector extends Mixins<ComponentVue>(

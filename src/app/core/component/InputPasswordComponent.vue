@@ -20,7 +20,7 @@
 import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Password from "vue-password-strength-meter";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "../decorator/LifeCycle";
 
 @Component({
   components: { Password }

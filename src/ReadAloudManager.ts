@@ -70,7 +70,7 @@ export default class ReadAloudManager {
     // 音程の指定（0-2.0）
     utterThis.pitch = this.pitch;
     // 言語の指定
-    utterThis.lang = utterThis.voice.lang;
+    utterThis.lang = utterThis.voice!.lang;
 
     utterThis.text = text;
 

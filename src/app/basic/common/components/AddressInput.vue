@@ -41,13 +41,13 @@
 
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Address } from "address";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import CssManager from "@/app/core/css/CssManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "../../../core/window/ComponentVue";
+import CssManager from "../../../core/css/CssManager";
+import GameObjectManager from "../../GameObjectManager";
+import TrNumberInputComponent from "./TrNumberInputComponent.vue";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({ components: { TrNumberInputComponent } })
 export default class AddressInput extends Mixins<ComponentVue>(ComponentVue) {

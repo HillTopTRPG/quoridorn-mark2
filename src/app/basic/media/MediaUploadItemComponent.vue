@@ -41,10 +41,10 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { UploadMediaInfo } from "@/app/core/utility/FileUtility";
+import ComponentVue from "../../core/window/ComponentVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import { UploadMediaInfo } from "../../core/utility/FileUtility";
 
 @Component({
   components: { BaseInput, CtrlButton }

@@ -16,7 +16,6 @@
 import { Component, Vue } from "vue-property-decorator";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import { WindowInfo } from "@/@types/window";
 import WindowFrame from "./WindowFrame.vue";
 import WindowManager from "./WindowManager";
 import {
@@ -24,6 +23,7 @@ import {
   getWindowSize
 } from "../utility/CoordinateUtility";
 import { getCssPxNum } from "../css/Css";
+import { WindowInfo } from "../../../@types/window";
 
 @Component({
   components: { WindowFrame }

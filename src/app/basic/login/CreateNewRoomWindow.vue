@@ -45,17 +45,17 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { CreateRoomInput, RoomInfoExtend } from "@/@types/socket";
-import LanguageManager from "@/LanguageManager";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
-import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import BcdiceSystemInput from "../common/components/BcdiceSystemInput.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import WindowVue from "../../core/window/WindowVue";
+import { CreateRoomInput, RoomInfoExtend } from "../../../@types/socket";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import LanguageManager from "../../../LanguageManager";
+import BaseInput from "../../core/component/BaseInput.vue";
+import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: {

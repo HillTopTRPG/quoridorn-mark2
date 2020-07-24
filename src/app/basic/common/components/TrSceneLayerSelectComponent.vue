@@ -15,9 +15,9 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import SceneLayerSelect from "./select/SceneLayerSelect.vue";
 
 @Component({ components: { SceneLayerSelect } })
 export default class TrSceneLayerSelectComponent extends Mixins<ComponentVue>(

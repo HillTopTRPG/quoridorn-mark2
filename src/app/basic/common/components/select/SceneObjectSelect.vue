@@ -11,12 +11,12 @@
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { HtmlOptionInfo } from "@/@types/window";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Prop, Watch } from "vue-property-decorator";
+import LifeCycle from "../../../../core/decorator/LifeCycle";
+import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import { HtmlOptionInfo } from "../../../../../@types/window";
+import GameObjectManager from "../../../GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

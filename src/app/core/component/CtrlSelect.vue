@@ -44,11 +44,11 @@
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
-import { HtmlOptionInfo } from "@/@types/window";
-import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { createRectangle } from "@/app/core/utility/CoordinateUtility";
 import { Rectangle } from "address";
+import { createRectangle } from "../utility/CoordinateUtility";
+import { HtmlOptionInfo } from "../../../@types/window";
+import SelectMixin from "../../basic/common/components/select/base/SelectMixin";
+import VueEvent from "../decorator/VueEvent";
 
 @Component
 export default class CtrlSelect extends SelectMixin {
@@ -67,7 +67,7 @@ export default class CtrlSelect extends SelectMixin {
 
   public getRect(): Rectangle {
     const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
-    const r = elm.getBoundingClientRect();
+    const r: any = elm.getBoundingClientRect();
     return createRectangle(r.x, r.y, r.width, r.height);
   }
 

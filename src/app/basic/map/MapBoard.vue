@@ -23,17 +23,17 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { drawLine, drawLine2 } from "@/app/core/utility/CanvasDrawUtility";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { Scene, RoomData } from "@/@types/room";
 import { Matrix, Size } from "address";
-import { createSize } from "@/app/core/utility/CoordinateUtility";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
-import TaskManager from "@/app/core/task/TaskManager";
 import { ModeInfo } from "mode";
-import { findRequireById } from "@/app/core/utility/Utility";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { createSize } from "../../core/utility/CoordinateUtility";
+import TaskManager from "../../core/task/TaskManager";
+import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
+import SceneLayerComponent from "./SceneLayerComponent.vue";
+import GameObjectManager from "../GameObjectManager";
+import { RoomData, Scene } from "../../../@types/room";
+import { findRequireById } from "../../core/utility/Utility";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
   components: { SceneLayerComponent }

@@ -99,22 +99,22 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { DataReference } from "@/@types/data";
 import { Task, TaskResult } from "task";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrSceneLayerSelectComponent from "@/app/basic/common/components/TrSceneLayerSelectComponent.vue";
-import TrCardDeckLayoutSelectComponent from "@/app/basic/common/components/TrCardDeckLayoutSelectComponent.vue";
-import { CardDeckLayout } from "@/@types/gameObject";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+} from "../../core/api/app-server/SocketFacade";
+import VueEvent from "../../core/decorator/VueEvent";
+import { CardDeckLayout } from "../../../@types/gameObject";
+import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
+import TrSceneLayerSelectComponent from "../common/components/TrSceneLayerSelectComponent.vue";
+import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
+import { DataReference } from "../../../@types/data";
+import TrCardDeckLayoutSelectComponent from "../common/components/TrCardDeckLayoutSelectComponent.vue";
 
 @Component({
   components: {

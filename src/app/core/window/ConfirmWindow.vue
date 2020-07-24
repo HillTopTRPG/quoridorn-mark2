@@ -24,16 +24,15 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import TaskManager from "@/app/core/task/TaskManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import LanguageManager from "@/LanguageManager";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
+import TaskProcessor from "../task/TaskProcessor";
+import LifeCycle from "../decorator/LifeCycle";
+import WindowVue from "./WindowVue";
+import CtrlButton from "../component/CtrlButton.vue";
+import LanguageManager from "../../../LanguageManager";
+import BaseInput from "../component/BaseInput.vue";
+import VueEvent from "../decorator/VueEvent";
 
 export type ConfirmInfo = {
   target: string;
@@ -43,7 +42,7 @@ export type ConfirmInfo = {
 @Component({
   components: { BaseInput, CtrlButton }
 })
-export default class SimpleConfirmWindow extends Mixins<
+export default class ConfirmWindow extends Mixins<
   WindowVue<ConfirmInfo, boolean>
 >(WindowVue) {
   private info: ConfirmInfo | null = null;

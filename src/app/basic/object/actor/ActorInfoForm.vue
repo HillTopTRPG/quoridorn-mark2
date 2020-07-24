@@ -37,35 +37,17 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrNumberInputComponent from "@/app/basic/common/components/TrNumberInputComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import TrRangeComponent from "@/app/basic/common/components/TrRangeComponent.vue";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
-import TrChatColorInputComponent from "@/app/basic/common/components/TrChatColorInputComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
+import TrChatColorInputComponent from "../../common/components/TrChatColorInputComponent.vue";
+import TrRangeComponent from "../../common/components/TrRangeComponent.vue";
+import LifeCycle from "../../../core/decorator/LifeCycle";
 
 @Component({
   components: {
-    TrChatColorInputComponent,
-    TrCheckboxComponent,
     TrRangeComponent,
-    TrColorPickerComponent,
-    TrNumberInputComponent,
-    TrStringInputComponent,
-    SceneLayerSelect,
-    SimpleTabComponent,
-    ColorPickerComponent,
-    BaseInput,
-    SeekBarComponent,
-    CtrlButton
+    TrChatColorInputComponent,
+    TrStringInputComponent
   }
 })
 export default class ActorInfoForm extends Mixins<ComponentVue>(ComponentVue) {

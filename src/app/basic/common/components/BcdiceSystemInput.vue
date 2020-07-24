@@ -70,28 +70,32 @@
 
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
-import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import LanguageManager from "@/LanguageManager";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
 import { Point, Rectangle, Size } from "address";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import CtrlSelect from "../../../core/component/CtrlSelect.vue";
+import { OtherTextViewInfo } from "../../../../@types/gameObject";
+import ComponentVue from "../../../core/window/ComponentVue";
+import {
+  WindowInfo,
+  WindowMoveInfo,
+  WindowOpenInfo
+} from "../../../../@types/window";
+import { BcdiceSystemInfo, DiceSystem } from "../../../../@types/bcdice";
+import { getCssPxNum } from "../../../core/css/Css";
+import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import SButton from "./SButton.vue";
 import {
   createPoint,
   createRectangle
-} from "@/app/core/utility/CoordinateUtility";
-import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
-import { getCssPxNum } from "@/app/core/css/Css";
-import TaskManager from "@/app/core/task/TaskManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { OtherTextViewInfo } from "@/@types/gameObject";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
+} from "../../../core/utility/CoordinateUtility";
+import VueEvent from "../../../core/decorator/VueEvent";
+import TaskManager from "../../../core/task/TaskManager";
+import LanguageManager from "../../../../LanguageManager";
+import { clone } from "../../../core/utility/PrimaryDataUtility";
+import BcdiceManager from "../../../core/api/bcdice/BcdiceManager";
 
 type FilterInfo = {
   list: DiceSystem[];

@@ -17,9 +17,9 @@
 <script lang="ts">
 import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
-import { findByKey } from "@/app/core/utility/Utility";
+import { listToEmpty } from "../../../core/utility/PrimaryDataUtility";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { findByKey } from "../../../core/utility/Utility";
 
 interface Rectangle {
   x: number;

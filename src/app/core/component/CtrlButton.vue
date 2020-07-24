@@ -23,9 +23,9 @@
 
 <script lang="ts">
 import { Component, Emit, Prop } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import ComponentVue from "../window/ComponentVue";
+import VueEvent from "../decorator/VueEvent";
 
 @Component
 export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {

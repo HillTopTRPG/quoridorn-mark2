@@ -1,14 +1,10 @@
 import { all, create } from "mathjs";
-import { ChatInfo, CustomDiceBotInfo } from "@/@types/room";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-import { sum } from "@/app/core/utility/PrimaryDataUtility";
-import {
-  findById,
-  findRequireById,
-  someByStr
-} from "@/app/core/utility/Utility";
+import { ChatInfo, CustomDiceBotInfo } from "../../../@types/room";
+import GameObjectManager from "../../basic/GameObjectManager";
+import BcdiceManager from "../api/bcdice/BcdiceManager";
+import { sum } from "./PrimaryDataUtility";
+import SocketFacade from "../api/app-server/SocketFacade";
+import { findById, findRequireById, someByStr } from "./Utility";
 
 const config = {};
 const math = create(all, config);
@@ -194,7 +190,6 @@ export async function sendChatLog(
 
   const outputNormalChat = async (command: string) => {
     if (!/[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
-      // とりあえずコマンドじゃなさそう
       await addChatLog(chatInfo);
       return;
     }

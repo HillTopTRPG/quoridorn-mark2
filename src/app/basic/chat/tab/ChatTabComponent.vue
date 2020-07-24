@@ -43,17 +43,17 @@
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
+import { StoreUseData } from "../../../../@types/store";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { ChatTabInfo } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import TaskManager from "@/app/core/task/TaskManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "@/LanguageManager";
-import { DataReference } from "@/@types/data";
+} from "../../../core/api/app-server/SocketFacade";
+import TaskManager from "../../../core/task/TaskManager";
+import GameObjectManager from "../../GameObjectManager";
+import { WindowOpenInfo } from "../../../../@types/window";
+import LanguageManager from "../../../../LanguageManager";
+import { ChatTabInfo } from "../../../../@types/room";
+import { DataReference } from "../../../../@types/data";
+import VueEvent from "../../../core/decorator/VueEvent";
 
 @Component({
   components: { SButton }

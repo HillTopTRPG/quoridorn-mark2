@@ -1,4 +1,4 @@
-import { unicodeEscape } from "@/app/core/utility/FileUtility";
+import { unicodeEscape } from "../../utility/FileUtility";
 
 export default class DropBoxManager {
   // シングルトン

@@ -15,11 +15,11 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import { ResourceType } from "@/@types/gameObject";
-import SelectionValueSelect from "@/app/basic/common/components/select/SelectionValueSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import SCheck from "./SCheck.vue";
+import { ResourceType } from "../../../../@types/gameObject";
+import SelectionValueSelect from "./select/SelectionValueSelect.vue";
 
 @Component({ components: { SelectionValueSelect, SCheck } })
 export default class TrSelectionValueSelectComponent extends Mixins<

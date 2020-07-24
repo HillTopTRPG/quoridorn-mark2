@@ -6,7 +6,7 @@ Quoridorn Ver.2.0.0以降のリポジトリです。<br>
 サーバ：quoridorn-server([GitHub](https://github.com/HillTopTRPG/quoridorn-server))
 
 ## Quoridornとは？
-* [公式サイト](http://quoridorn.com)<br>
+* [公式サイト](https://quoridorn.com)<br>
 * 制作者：HillTop([Twitter](https://twitter.com/HillTop_TRPG))
 
 ## スペシャルサンクス

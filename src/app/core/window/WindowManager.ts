@@ -4,19 +4,19 @@ import {
   WindowOpenInfo,
   WindowSize,
   WindowTableInfo
-} from "@/@types/window";
+} from "../../../@types/window";
 import {
   calcWindowPosition,
   createPoint,
   createRectangle,
   getWindowSize
 } from "../utility/CoordinateUtility";
-import { Point } from "address";
 import { getCssPxNum } from "../css/Css";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
-import TaskManager from "@/app/core/task/TaskManager";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { Point } from "address";
+import TaskManager from "../task/TaskManager";
+import { ApplicationError } from "../error/ApplicationError";
+import { clone } from "../utility/PrimaryDataUtility";
+import { findRequireByKey } from "../utility/Utility";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;

@@ -38,24 +38,24 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { DataReference } from "@/@types/data";
-import { Direction } from "@/@types/room";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import ResourceMasterAddWindow from "./ResourceMasterAddWindow.vue";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
+} from "../../core/api/app-server/SocketFacade";
 import {
   RefProperty,
   ResourceMasterStore,
   ResourceType
-} from "@/@types/gameObject";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import WindowVue from "@/app/core/window/WindowVue";
-import ResourceMasterInfoForm from "@/app/basic/initiative/ResourceMasterInfoForm.vue";
-import LanguageManager from "@/LanguageManager";
-import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWindow.vue";
+} from "../../../@types/gameObject";
+import VueEvent from "../../core/decorator/VueEvent";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import LanguageManager from "../../../LanguageManager";
+import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
+import { DataReference } from "../../../@types/data";
+import { Direction } from "../../../@types/room";
 
 @Component({
   components: {

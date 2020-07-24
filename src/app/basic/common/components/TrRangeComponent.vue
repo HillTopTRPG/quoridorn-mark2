@@ -19,9 +19,9 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import RangeComponent from "@/app/basic/common/components/RangeComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import RangeComponent from "./RangeComponent.vue";
 
 @Component({ components: { RangeComponent } })
 export default class TrRangeComponent extends Mixins<ComponentVue>(

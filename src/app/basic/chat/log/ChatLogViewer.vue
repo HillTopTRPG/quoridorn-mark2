@@ -30,22 +30,22 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { TabInfo, WindowInfo } from "@/@types/window";
-import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
+import ChatLogLineComponent from "./ChatLogLineComponent.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
 import {
   ChatInfo,
   ChatTabInfo,
   GroupChatTabInfo,
   UserData
-} from "@/@types/room";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ComponentVue from "@/app/core/window/ComponentVue";
-import { StoreUseData } from "@/@types/store";
-import { ActorStore } from "@/@types/gameObject";
-import { UserType } from "@/@types/socket";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import App from "@/views/App.vue";
+} from "../../../../@types/room";
+import { ActorStore } from "../../../../@types/gameObject";
+import { TabInfo, WindowInfo, WindowOpenInfo } from "../../../../@types/window";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../../@types/store";
+import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
+import { UserType } from "../../../../@types/socket";
+import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import App from "../../../../views/App.vue";
 
 @Component({
   components: {

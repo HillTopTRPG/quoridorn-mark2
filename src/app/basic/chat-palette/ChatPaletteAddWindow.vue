@@ -27,12 +27,12 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "@/app/core/window/WindowVue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import ChatPaletteInfoForm from "@/app/basic/chat-palette/ChatPaletteInfoForm.vue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import ChatPaletteInfoForm from "./ChatPaletteInfoForm.vue";
+import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({ components: { CtrlButton, ChatPaletteInfoForm } })
 export default class ChatPaletteAddWindow extends Mixins<

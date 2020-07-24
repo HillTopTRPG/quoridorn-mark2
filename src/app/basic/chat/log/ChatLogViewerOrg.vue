@@ -37,7 +37,7 @@ import Vue from "vue";
 import { Emit, Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
-import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
+import ChatLogLineComponent from "./ChatLogLineComponent.vue";
 
 @Component({
   components: { ChatLogLineComponent, TabsComponent }

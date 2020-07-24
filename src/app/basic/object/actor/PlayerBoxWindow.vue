@@ -104,21 +104,21 @@
 
               <div class="last-line piece-list-container">
                 <template v-for="sceneObject in getSceneObjectList(actor)">
-                  <map-mask
+                  <map-mask-piece-component
                     v-if="sceneObject.data.type === 'map-mask'"
                     :key="sceneObject.id"
                     :docId="sceneObject.id"
                     type="map-mask"
                   />
 
-                  <chit
+                  <chit-piece-component
                     v-if="sceneObject.data.type === 'chit'"
                     :key="sceneObject.id"
                     :docId="sceneObject.id"
                     type="chit"
                   />
 
-                  <character
+                  <character-piece-component
                     v-if="sceneObject.data.type === 'character'"
                     :key="sceneObject.id"
                     :docId="sceneObject.id"
@@ -140,62 +140,46 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import UserSelect from "@/app/basic/common/components/select/UserSelect.vue";
+import { Task, TaskResult } from "task";
+import LifeCycle from "../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../core/task/TaskProcessor";
+import { ActorStore } from "../../../../@types/gameObject";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
-import { ActorStore } from "@/@types/gameObject";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import LanguageManager from "@/LanguageManager";
-import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
-import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
-import PlayerBoxViewTypeRadio from "@/app/basic/common/components/radio/PlayerBoxViewTypeRadio.vue";
-import RangeComponent from "@/app/basic/common/components/RangeComponent.vue";
-import SButton from "@/app/basic/common/components/SButton.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import TaskManager from "@/app/core/task/TaskManager";
-import { DataReference } from "@/@types/data";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
-import TrRangeComponent from "@/app/basic/common/components/TrRangeComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
-import TrChatColorInputComponent from "@/app/basic/common/components/TrChatColorInputComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import TrActorStatusSelectComponent from "@/app/basic/common/components/TrActorStatusSelectComponent.vue";
-import MapMask from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
-import Chit from "@/app/basic/object/chit/ChitPieceComponent.vue";
-import Character from "@/app/basic/object/character/CharacterPieceComponent.vue";
-import App from "@/views/App.vue";
-import { findRequireById } from "@/app/core/utility/Utility";
+} from "../../../core/api/app-server/SocketFacade";
+import VueEvent from "../../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../../@types/store";
+import TaskManager from "../../../core/task/TaskManager";
+import WindowVue from "../../../core/window/WindowVue";
+import GameObjectManager from "../../GameObjectManager";
+import { TabInfo, WindowOpenInfo } from "../../../../@types/window";
+import LanguageManager from "../../../../LanguageManager";
+import { DataReference } from "../../../../@types/data";
+import UserSelect from "../../common/components/select/UserSelect.vue";
+import PlayerBoxViewTypeRadio from "../../common/components/radio/PlayerBoxViewTypeRadio.vue";
+import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
+import SButton from "../../common/components/SButton.vue";
+import TrChatColorInputComponent from "../../common/components/TrChatColorInputComponent.vue";
+import TrRangeComponent from "../../common/components/TrRangeComponent.vue";
+import TrActorStatusSelectComponent from "../../common/components/TrActorStatusSelectComponent.vue";
+import MapMaskPieceComponent from "../map-mask/MapMaskPieceComponent.vue";
+import ChitPieceComponent from "../chit/ChitPieceComponent.vue";
+import CharacterPieceComponent from "../character/CharacterPieceComponent.vue";
+import { findRequireById } from "../../../core/utility/Utility";
+import App from "../../../../views/App.vue";
 
 @Component({
   components: {
+    CharacterPieceComponent,
+    ChitPieceComponent,
+    MapMaskPieceComponent,
     TrActorStatusSelectComponent,
-    BaseInput,
-    TrChatColorInputComponent,
-    TrColorPickerComponent,
     TrRangeComponent,
-    TrCheckboxComponent,
-    SCheck,
+    TrChatColorInputComponent,
     SButton,
-    RangeComponent,
-    PlayerBoxViewTypeRadio,
-    ChatColorTypeSelect,
-    ActorSelect,
     SimpleTabComponent,
-    UserSelect,
-    ColorPickerComponent,
-    MapMask,
-    Chit,
-    Character
+    PlayerBoxViewTypeRadio,
+    UserSelect
   }
 })
 export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(

@@ -27,9 +27,8 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
 
 @Component
 export default class TrRangeInputComponent extends Mixins<ComponentVue>(

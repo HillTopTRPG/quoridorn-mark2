@@ -47,26 +47,26 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { getSrc } from "../../core/utility/Utility";
+import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import { StoreUseData } from "@/@types/store";
-import { Scene } from "@/@types/room";
-import TaskManager from "@/app/core/task/TaskManager";
-import { WindowOpenInfo } from "@/@types/window";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { DataReference } from "@/@types/data";
-import LanguageManager from "@/LanguageManager";
-import { getSrc } from "@/app/core/utility/Utility";
+} from "../../core/api/app-server/SocketFacade";
+import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import { Scene } from "../../../@types/room";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import TaskManager from "../../core/task/TaskManager";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import LanguageManager from "../../../LanguageManager";
+import { WindowOpenInfo } from "../../../@types/window";
+import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
+import { DataReference } from "../../../@types/data";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

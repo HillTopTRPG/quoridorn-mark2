@@ -1,8 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import statePublic from "@/app/store/store_public_chat_log";
-import stateSetting from "@/app/store/store_setting";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "../core/utility/Utility";
 
 Vue.use(Vuex);
 
@@ -11,10 +9,6 @@ Vue.use(Vuex);
  * @type {Store}
  */
 export default new Vuex.Store({
-  modules: {
-    setting: stateSetting,
-    public: statePublic
-  },
   state: {},
   actions: {
     /**

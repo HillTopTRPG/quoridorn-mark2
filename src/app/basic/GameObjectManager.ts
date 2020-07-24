@@ -1,49 +1,49 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
-import { Permission, StoreObj, StoreUseData } from "@/@types/store";
-import {
-  SceneAndLayer,
-  SceneLayer,
-  Scene,
-  UserData,
-  ActorGroup,
-  SceneAndObject,
-  RoomData,
-  SocketUserData,
-  CutInDeclareInfo,
-  PartialRoomData,
-  ChatInfo,
-  ChatTabInfo,
-  GroupChatTabInfo,
-  MediaInfo
-} from "@/@types/room";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
-import {
-  ActorStore,
-  SceneObject,
-  PropertyFaceStore,
-  PropertySelectionStore,
-  PropertyStore,
-  TagNoteStore,
-  ActorStatusStore,
-  CardMeta,
-  CardObject,
-  CardDeckBig,
-  CardDeckSmall,
-  ResourceMasterStore,
-  ResourceStore,
-  InitiativeColumnStore,
-  ChatPaletteStore
-} from "@/@types/gameObject";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import { BgmStandByInfo } from "task-info";
+import { Permission, StoreObj, StoreUseData } from "../../@types/store";
 import {
   ClientRoomInfo,
   RoomInfoExtend,
   WindowSettings
-} from "@/@types/socket";
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { BgmStandByInfo } from "task-info";
-import LanguageManager from "@/LanguageManager";
-import { findById, getSrc } from "@/app/core/utility/Utility";
-import { loadYaml } from "@/app/core/utility/FileUtility";
+} from "../../@types/socket";
+import {
+  ActorGroup,
+  ChatInfo,
+  ChatTabInfo,
+  CutInDeclareInfo,
+  GroupChatTabInfo,
+  MediaInfo,
+  PartialRoomData,
+  RoomData,
+  Scene,
+  SceneAndLayer,
+  SceneAndObject,
+  SceneLayer,
+  SocketUserData,
+  UserData
+} from "../../@types/room";
+import {
+  ActorStatusStore,
+  ActorStore,
+  CardDeckBig,
+  CardDeckSmall,
+  CardMeta,
+  CardObject,
+  ChatPaletteStore,
+  InitiativeColumnStore,
+  PropertyFaceStore,
+  PropertySelectionStore,
+  PropertyStore,
+  ResourceMasterStore,
+  ResourceStore,
+  SceneObject,
+  TagNoteStore
+} from "../../@types/gameObject";
+import { ApplicationError } from "../core/error/ApplicationError";
+import { findById, getSrc } from "../core/utility/Utility";
+import { loadYaml } from "../core/utility/FileUtility";
+import LanguageManager from "../../LanguageManager";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -170,7 +170,7 @@ export default class GameObjectManager {
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
-      this.roomDataId,
+      this.roomDataId!,
       (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
           const d = snapshot.data.data!;

@@ -16,9 +16,9 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
+import ActorStatusSelect from "./select/ActorStatusSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
 
 @Component({ components: { ActorStatusSelect } })
 export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(

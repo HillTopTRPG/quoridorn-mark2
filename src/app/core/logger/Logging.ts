@@ -1,4 +1,4 @@
-import { generateMethodDecorator } from "@/app/core/decorator/generateMethodDecorator";
+import { generateMethodDecorator } from "../decorator/generateMethodDecorator";
 
 const logger = {
   generator: (methodName: string) => {

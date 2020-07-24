@@ -1,4 +1,4 @@
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import { convertNumberZero } from "../utility/PrimaryDataUtility";
 
 type CssInfo = {
   property: string;

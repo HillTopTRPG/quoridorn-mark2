@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
+import { Component, Prop, Vue } from "vue-property-decorator";
+import VueEvent from "../decorator/VueEvent";
 
 @Component({})
 export default class CtrlFileSelector extends Vue {
@@ -36,8 +36,10 @@ export default class CtrlFileSelector extends Vue {
     input.focus();
   }
 
-  @Emit("change")
-  private fileOnChange(event: any) {}
+  @VueEvent
+  private fileOnChange(event: any) {
+    this.$emit("change", event);
+  }
 }
 </script>
 

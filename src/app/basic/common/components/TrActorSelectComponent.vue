@@ -16,10 +16,10 @@
 
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
-import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
+import ActorStatusSelect from "./select/ActorStatusSelect.vue";
+import ComponentVue from "../../../core/window/ComponentVue";
+import ActorSelect from "./select/ActorSelect.vue";
 
 @Component({ components: { ActorSelect, ActorStatusSelect } })
 export default class TrActorSelectComponent extends Mixins<ComponentVue>(

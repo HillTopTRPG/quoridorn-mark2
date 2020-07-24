@@ -49,14 +49,14 @@ import { Task, TaskResult } from "task";
 import { judgeCompare } from "../utility/CompareUtility";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import LanguageManager from "@/LanguageManager";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { DataReference } from "@/@types/data";
-import { createPoint } from "@/app/core/utility/CoordinateUtility";
-import { findById } from "@/app/core/utility/Utility";
+import VueEvent from "../decorator/VueEvent";
+import { createPoint } from "../utility/CoordinateUtility";
+import GameObjectManager from "../../basic/GameObjectManager";
+import { clone } from "../utility/PrimaryDataUtility";
+import { DataReference } from "../../../@types/data";
+import LifeCycle from "../decorator/LifeCycle";
+import LanguageManager from "../../../LanguageManager";
+import { findById } from "../utility/Utility";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -119,13 +119,13 @@ export default class Context extends Vue {
   private getLevelStyle(level: number) {
     const elm = this.getElm();
     if (!elm) return {};
-    const cRect = elm.getBoundingClientRect();
+    const cRect: any = elm.getBoundingClientRect();
     const point = createPoint(0, 28);
     if (level > 0) {
       const hoverIdx = this.hoverIdxList[level - 1] + (level === 1 ? 1 : 0);
       const levelElm = elm.getElementsByClassName(`level-${level - 1}`)[0];
       const hoverItemElm = levelElm.children[hoverIdx];
-      const elmRect = hoverItemElm.getBoundingClientRect();
+      const elmRect: any = hoverItemElm.getBoundingClientRect();
       point.x = elmRect.x + elmRect.width - 7 - cRect.x;
       point.y = elmRect.y - cRect.y;
     }
@@ -330,7 +330,7 @@ export default class Context extends Vue {
     if (level > 1) {
       const parentElmList = elm.getElementsByClassName(`level-${level - 1}`);
       const parentElm = parentElmList[item.parentIdx];
-      const parentRect = parentElm.getBoundingClientRect();
+      const parentRect: any = parentElm.getBoundingClientRect();
       point.x = parentRect.x + parentRect.width - fontSize;
       point.y = parentRect.y;
     }

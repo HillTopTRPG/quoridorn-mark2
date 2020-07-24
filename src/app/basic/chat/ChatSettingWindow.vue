@@ -81,34 +81,34 @@ import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
+import App from "../../../views/App.vue";
+import WindowVue from "../../core/window/WindowVue";
 import { Getter, Mutation } from "vuex-class";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import App from "@/views/App.vue";
+import GameObjectManager from "../GameObjectManager";
+import { StoreUseData } from "../../../@types/store";
+import TaskProcessor from "../../core/task/TaskProcessor";
+import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "@/app/core/api/app-server/SocketFacade";
-import { ChatTabInfo } from "@/@types/room";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import TaskManager from "@/app/core/task/TaskManager";
-import WindowVue from "@/app/core/window/WindowVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SCheck from "@/app/basic/common/components/SCheck.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "@/LanguageManager";
-import { DataReference } from "@/@types/data";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
+} from "../../core/api/app-server/SocketFacade";
+import TaskManager from "../../core/task/TaskManager";
+import { TabInfo, WindowOpenInfo } from "../../../@types/window";
+import LanguageManager from "../../../LanguageManager";
+import { ChatTabInfo } from "../../../@types/room";
+import { DataReference } from "../../../@types/data";
+import VueEvent from "../../core/decorator/VueEvent";
+import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
+import ChatTabComponent from "./tab/ChatTabComponent.vue";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import SCheck from "../common/components/SCheck.vue";
 
 @Component({
   components: {
-    TrCheckboxComponent,
-    ChatTabComponent,
-    SCheck,
     SimpleTabComponent,
+    ChatTabComponent,
+    TrCheckboxComponent,
+    SCheck,
     CtrlButton,
     draggable
   }

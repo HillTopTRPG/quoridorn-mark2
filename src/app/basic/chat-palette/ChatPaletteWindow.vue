@@ -42,24 +42,24 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import WindowVue from "@/app/core/window/WindowVue";
-import TableComponent from "@/app/core/component/table/TableComponent.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { ChatPaletteStore } from "../../../@types/gameObject";
+import { CustomDiceBotInfo } from "../../../@types/room";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
+import BaseInput from "../../core/component/BaseInput.vue";
+import TableComponent from "../../core/component/table/TableComponent.vue";
+import VueEvent from "../../core/decorator/VueEvent";
+import { StoreUseData } from "../../../@types/store";
+import TaskManager from "../../core/task/TaskManager";
+import ChatPaletteListComponent from "./ChatPaletteListComponent.vue";
+import WindowVue from "../../core/window/WindowVue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import GameObjectManager from "../GameObjectManager";
+import { TabInfo, WindowOpenInfo } from "../../../@types/window";
+import { sendChatLog } from "../../core/utility/ChatUtility";
+import { DataReference } from "../../../@types/data";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import { sendChatLog } from "@/app/core/utility/ChatUtility";
-import { CustomDiceBotInfo } from "@/@types/room";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import ChatPaletteListComponent from "@/app/basic/chat-palette/ChatPaletteListComponent.vue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { StoreUseData } from "@/@types/store";
-import { ChatPaletteStore } from "@/@types/gameObject";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import TaskManager from "@/app/core/task/TaskManager";
-import { DataReference } from "@/@types/data";
 
 @Component({
   components: {

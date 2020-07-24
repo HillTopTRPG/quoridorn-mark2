@@ -31,19 +31,19 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from "vue-property-decorator";
-import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
-import BaseInput from "@/app/core/component/BaseInput.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
-import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
-import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
-import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
-import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import { BackgroundSize, Direction, Texture } from "@/@types/room";
-import { parseColor } from "@/app/core/utility/ColorUtility";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
-import TrColorPickerComponent from "@/app/basic/common/components/TrColorPickerComponent.vue";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
+import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
+import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
+import BaseInput from "../../core/component/BaseInput.vue";
+import { BackgroundSize, Direction, Texture } from "../../../@types/room";
+import { parseColor } from "../../core/utility/ColorUtility";
+import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
+import CtrlButton from "../../core/component/CtrlButton.vue";
+import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
+import BackgroundTypeRadio from "../common/components/radio/BackgroundTypeRadio.vue";
+import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
+import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

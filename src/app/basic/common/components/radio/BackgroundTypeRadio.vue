@@ -10,14 +10,13 @@
 
 <script lang="ts">
 import { Component, Prop, Emit } from "vue-property-decorator";
-import LanguageManager from "@/LanguageManager";
-import { HtmlOptionInfo } from "@/@types/window";
-import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import CtrlRadio from "@/app/core/component/CtrlRadio.vue";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import CtrlRadio from "../../../../core/component/CtrlRadio.vue";
+import LifeCycle from "../../../../core/decorator/LifeCycle";
+import TaskProcessor from "../../../../core/task/TaskProcessor";
+import ComponentVue from "../../../../core/window/ComponentVue";
+import { HtmlOptionInfo } from "../../../../../@types/window";
 
 @Component({
   components: { CtrlRadio }

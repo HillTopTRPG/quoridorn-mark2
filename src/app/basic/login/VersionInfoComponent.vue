@@ -46,9 +46,9 @@
 <script lang="ts">
 import { Prop, Vue } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
-import { ServerTestResult } from "@/@types/socket";
-import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { TargetVersion } from "@/app/core/api/Github";
+import { TargetVersion } from "../../core/api/Github";
+import LifeCycle from "../../core/decorator/LifeCycle";
+import { ServerTestResult } from "../../../@types/socket";
 
 @Component({ components: {} })
 export default class VersionInfoComponent extends Vue {
