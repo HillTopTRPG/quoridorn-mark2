@@ -3,7 +3,7 @@
     <resource-master-info-form
       :windowKey="windowKey"
       :isAdd="true"
-      :systemColumnType="systemColumnType"
+      :systemColumnType="null"
       initTabTarget="basic"
       :name.sync="name"
       :resourceType.sync="resourceType"
