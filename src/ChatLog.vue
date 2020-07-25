@@ -157,8 +157,7 @@ import { findRequireByKey, someByStr } from "./app/core/utility/Utility";
   components: {
     CtrlButton,
     ImportTypeRadio,
-    ChatLogViewer,
-    TabsComponent
+    ChatLogViewer
   }
 })
 export default class ChatLog extends Vue {

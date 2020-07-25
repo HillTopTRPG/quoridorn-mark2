@@ -2,44 +2,43 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :multiple="multiple"
-    :disabled="disabled"
+    :id="id"
+    :readonly="readonly"
     ref="component"
   />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
+
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "../../../../core/window/ComponentVue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
-import { permissionCheck } from "../../../../core/api/app-server/SocketFacade";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "../../../../../@types/window";
-import GameObjectManager from "../../../GameObjectManager";
+import { Task, TaskResult } from "task";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class ActorSelect extends Mixins<MultiMixin>(
+export default class GeneralTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  @Prop({ type: String, default: "" })
-  private userId!: string;
+  @Prop({ type: String, required: true })
+  private type!: string;
 
-  @Prop({ type: Boolean, default: false })
-  private nullable!: boolean;
+  @Prop({ type: Array, required: true })
+  private valueList!: string[];
 
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
-  private async created() {
+  private created() {
     this.createOptionInfoList();
   }
 
@@ -52,29 +51,16 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    this.optionInfoList = GameObjectManager.instance.actorList
-      .filter(a => {
-        if (this.userId && a.owner !== this.userId) return false;
-        return permissionCheck(a, "view");
-      })
-      .map(c => ({
-        key: c.id!,
-        value: c.id!,
-        text: c.data!.name,
-        disabled: false
-      }));
-    if (this.nullable) {
-      this.optionInfoList.unshift({
-        key: null,
-        value: "null",
-        text: this.$t("label.non-select")!.toString(),
-        disabled: false
-      });
-    }
+    this.optionInfoList = this.valueList.map(v => ({
+      value: v,
+      key: v,
+      text: this.$t(`label.${this.type}-${v}`)!.toString(),
+      disabled: false
+    }));
     this.optionInfoList.unshift({
-      key: "",
       value: "",
-      text: this.$t("type.actor")!.toString(),
+      key: "",
+      text: this.$t(`label.${this.type}`)!.toString(),
       disabled: true
     });
   }

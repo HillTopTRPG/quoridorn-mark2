@@ -35,7 +35,7 @@ export default class SelectMixin extends Vue {
   public get localValue(): string | string[] | null {
     if (this.test)
       window.console.log("set '" + this.value + "'", this.constructor.name);
-    return this.value || "";
+    return this.value;
   }
 
   public set localValue(value: string | string[] | null) {

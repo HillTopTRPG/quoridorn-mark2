@@ -43,6 +43,7 @@
         </tr>
       </tbody>
     </table>
+    <!--
     <div class="button-area space-between margin-bottom">
       <ctrl-button @click="downloadData">
         <span class="icon-download"></span>
@@ -53,6 +54,7 @@
         <span v-t="'button.upload'"></span>
       </ctrl-button>
     </div>
+    -->
   </div>
 </template>
 

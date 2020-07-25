@@ -24,6 +24,7 @@ button:
   regist-cut-in: カットイン登録
   setting: 設定
   open-resource-master-list-window: リソース一覧
+  clear: クリア
 
 type:
   map-mask: Map mask
@@ -311,6 +312,11 @@ label:
   read-aloud-volume: 読み上げ音量
   tab-list: タブ一覧
   other: その他
+  actor: アクター
+  secret: 秘匿
+  non-secret: 公開
+  scene-object: コマ
+  non-select: 選択なし
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -603,3 +609,12 @@ resource-master-list-window:
   dialog:
     delete-resource: "本当にこのリソースを消しますか？\nこの操作は取り消せません。"
     delete-failure: 削除に失敗しました。
+
+chat-palette-window:
+  window-title: チャットパレット
+
+chat-palette-add-window:
+  window-title: チャットパレット追加
+
+chat-palette-edit-window:
+  window-title: チャットパレット編集

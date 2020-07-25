@@ -46,6 +46,9 @@ import ConfirmWindow from "./app/core/window/ConfirmWindow.vue";
 import PlayBgmFileWindow from "./app/basic/cut-in/bgm/PlayBgmFileWindow.vue";
 import ReadAloudManager from "./ReadAloudManager";
 import ChatSettingWindow from "./app/basic/chat/ChatSettingWindow.vue";
+import ChatPaletteAddWindow from "./app/basic/chat-palette/ChatPaletteAddWindow.vue";
+import ChatPaletteWindow from "./app/basic/chat-palette/ChatPaletteWindow.vue";
+import ChatPaletteEditWindow from "./app/basic/chat-palette/ChatPaletteEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -100,6 +103,9 @@ async function main(): Promise<void> {
   Vue.component("resource-master-add-window", ResourceMasterAddWindow);
   Vue.component("resource-master-edit-window", ResourceMasterEditWindow);
   Vue.component("resource-master-list-window", ResourceMasterListWindow);
+  Vue.component("chat-palette-window", ChatPaletteWindow);
+  Vue.component("chat-palette-add-window", ChatPaletteAddWindow);
+  Vue.component("chat-palette-edit-window", ChatPaletteEditWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

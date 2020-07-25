@@ -11,13 +11,10 @@
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
-import { Prop } from "vue-property-decorator";
-import ComponentVue from "../../../../core/window/ComponentVue";
+import { Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../../core/task/TaskProcessor";
-import { permissionCheck } from "../../../../core/api/app-server/SocketFacade";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
+import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "../../../../../@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 
@@ -26,12 +23,12 @@ interface MultiMixin extends SelectMixin, ComponentVue {}
 @Component({
   components: { CtrlSelect }
 })
-export default class ActorSelect extends Mixins<MultiMixin>(
+export default class SceneObjectSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  @Prop({ type: String, default: "" })
-  private userId!: string;
+  @Prop({ type: String, default: null })
+  private actorId!: string;
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
@@ -43,20 +40,14 @@ export default class ActorSelect extends Mixins<MultiMixin>(
     this.createOptionInfoList();
   }
 
-  @TaskProcessor("language-change-finished")
-  private async languageChangeFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
+  @Watch("actorId")
+  private onChangeActorId() {
     this.createOptionInfoList();
-    task.resolve();
   }
 
   private createOptionInfoList() {
-    this.optionInfoList = GameObjectManager.instance.actorList
-      .filter(a => {
-        if (this.userId && a.owner !== this.userId) return false;
-        return permissionCheck(a, "view");
-      })
+    this.optionInfoList = GameObjectManager.instance.sceneObjectList
+      .filter(so => so.data!.actorId === this.actorId)
       .map(c => ({
         key: c.id!,
         value: c.id!,
@@ -74,7 +65,7 @@ export default class ActorSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: this.$t("type.actor")!.toString(),
+      text: this.$t("type.piece")!.toString(),
       disabled: true
     });
   }

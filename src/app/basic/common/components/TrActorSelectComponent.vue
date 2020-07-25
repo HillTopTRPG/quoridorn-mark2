@@ -1,13 +1,13 @@
 <template>
-  <tr class="tr-actor-status-select-component">
+  <tr class="tr-actor-select-component">
     <th class="label-input">
       <label v-t="`label.${labelName}`"></label>
     </th>
     <td>
-      <actor-status-select
-        :actorId="actorId"
+      <actor-select
         v-model="localValue"
         :nullable="nullable"
+        :multiple="false"
         :readonly="readonly"
       />
     </td>
@@ -19,19 +19,17 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ActorStatusSelect from "./select/ActorStatusSelect.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
+import ActorSelect from "./select/ActorSelect.vue";
 
-@Component({ components: { ActorStatusSelect } })
-export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { ActorSelect, ActorStatusSelect } })
+export default class TrActorSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, default: null })
-  private actorId!: string | null;
-
-  @Prop({ type: String, default: null })
-  private value!: string;
+  private value!: string | null;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
@@ -53,7 +51,7 @@ export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-actor-status-select-component {
+.tr-actor-select-component {
   display: contents;
 }
 th,

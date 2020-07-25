@@ -17,6 +17,7 @@ import {
   CardDeckSmall,
   CardMeta,
   CardObject,
+  ChatPaletteStore,
   InitiativeColumnStore,
   PropertyFaceStore,
   PropertySelectionStore,
@@ -53,8 +54,6 @@ import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
-
-const connectYamlPath = "/static/conf/connect.yaml";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -588,6 +587,10 @@ export default class SocketFacade {
     return this.roomCollectionController<CardDeckSmall>("card-deck-small-list");
   }
 
+  public chatPaletteListCC(): NekostoreCollectionController<ChatPaletteStore> {
+    return this.roomCollectionController<ChatPaletteStore>("chat-palette-list");
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
       case "chat":
@@ -644,6 +647,8 @@ export default class SocketFacade {
         return this.cardDeckBigCC();
       case "card-deck-small":
         return this.cardDeckSmallCC();
+      case "chat-palette":
+        return this.chatPaletteListCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

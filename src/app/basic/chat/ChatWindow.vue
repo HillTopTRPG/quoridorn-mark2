@@ -33,8 +33,7 @@
         :windowKey="windowKey"
         :tabList="targetTabList"
         v-model="currentTargetTabInfo"
-        :hasSetting="true"
-        @settingOpen="onSettingOpen()"
+        :hasSetting="false"
       >
         <div class="chat-input-box">
           <chat-input-info-component
@@ -729,12 +728,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         name: cf.label
       })
     );
-  }
-
-  @VueEvent
-  private onSettingOpen() {
-    window.console.log("## onSettingOpen");
-    // TODO Open view tab setting.
   }
 
   @Watch("chatList", { deep: true })

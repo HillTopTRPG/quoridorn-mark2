@@ -10,7 +10,6 @@
 </template>
 
 <script lang="ts">
-
 import { Component } from "vue-mixin-decorator";
 import PieceMixin from "../common/mixin/PieceMixin.vue";
 

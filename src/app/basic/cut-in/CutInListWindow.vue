@@ -148,6 +148,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   private async send(cutInId?: string) {
     const useId = cutInId || this.selectedCutInId;
     if (!useId) return;
+    window.console.log("CutInListWindow#send", useId);
 
     await SocketFacade.instance.sendData<BgmPlayInfo>({
       dataType: "bgm-play",

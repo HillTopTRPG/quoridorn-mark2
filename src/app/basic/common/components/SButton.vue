@@ -26,11 +26,8 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import TabsComponent from "./tab-component/TabsComponent.vue";
 
-@Component({
-  components: { TabsComponent }
-})
+@Component
 export default class SButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private icon!: string;

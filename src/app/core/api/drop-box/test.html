@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<body>
+<img id="img1">
+<img id="img2">
+<script>
+const postFetch = async (url, headers, body) => {
+  return await fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, cors, *same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, same-origin, *omit
+    headers,
+    redirect: "follow", // manual, *follow, error
+    referrer: "no-referrer", // no-referrer, *client
+    body
+  });
+};
+
+const postJsonFetch = async (url, accessToken, body) => {
+  const headers = {
+    "Authorization": `Bearer ${accessToken}`,
+    "Content-Type": "application/json"
+  };
+  const response = await postFetch(url, headers, body);
+  return await response.json();
+};
+
+const getFolderList = async (accessToken, path) => {
+  const url = "https://api.dropboxapi.com/2/files/list_folder";
+  const json = await postJsonFetch(url, accessToken, `{"path":"${path}"}`);
+  window.console.log(JSON.stringify(json, null, "  "));
+};
+
+const getTemporaryLink = async (accessToken, path) => {
+  const url = "https://api.dropboxapi.com/2/files/get_temporary_link";
+  const link = (await postJsonFetch(url, accessToken, `{"path":"${path}"}`)).link;
+  document.getElementById("img2").src = link;
+  window.console.log(link);
+  window.console.log(JSON.stringify(json, null, "  "));
+};
+
+const download = async (accessToken, path) => {
+  const url = "https://content.dropboxapi.com/2/files/download";
+  const headers = {
+    "Authorization": `Bearer ${accessToken}`,
+    "Dropbox-API-Arg": `{"path":"${path}"}`
+  };
+  const response = await postFetch(url, headers, undefined);
+  const blob = await response.blob();
+  const src = window.URL.createObjectURL(blob);
+  document.getElementById("img1").src = src;
+  window.console.log(src);
+};
+getFolderList("WcGAWIK3O4EAAAAAAAAJdeyQ7ZZascDSNYMbSyLizuCdfFfdUtzjfZ0bPVAUaF_1", "").then();
+getTemporaryLink("WcGAWIK3O4EAAAAAAAAJdeyQ7ZZascDSNYMbSyLizuCdfFfdUtzjfZ0bPVAUaF_1", "/pawnBlue.png").then();
+download("WcGAWIK3O4EAAAAAAAAJdeyQ7ZZascDSNYMbSyLizuCdfFfdUtzjfZ0bPVAUaF_1", "/pawnBlue.png").then();
+</script>
+</body>
+</html>

@@ -4,8 +4,6 @@ const productionGzipExtensions = ["js", "eot", "ttf"];
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
   .BundleAnalyzerPlugin;
 
-console.log(process.env.VUE_APP_BASE_URL);
-
 module.exports = {
   publicPath: `/${process.env.VUE_APP_BASE_URL}`,
   pages: {

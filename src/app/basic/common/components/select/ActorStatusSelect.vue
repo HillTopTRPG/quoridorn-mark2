@@ -28,8 +28,11 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  @Prop({ type: String, required: true })
-  private actorId!: string;
+  @Prop({ type: String, default: null })
+  private actorId!: string | null;
+
+  @Prop({ type: Boolean, default: false })
+  private nullable!: boolean;
 
   private optionInfoList: HtmlOptionInfo[] = [];
 
@@ -69,6 +72,14 @@ export default class ActorStatusSelect extends Mixins<MultiMixin>(
           disabled: false
         };
       });
+    if (this.nullable) {
+      this.optionInfoList.unshift({
+        key: null,
+        value: "null",
+        text: this.$t("label.non-select")!.toString(),
+        disabled: false
+      });
+    }
     this.optionInfoList.unshift({
       key: "",
       value: "",

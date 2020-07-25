@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "baseUrl": "/quoridorn2",
+    "baseUrl": ".",
     "types": [
       "webpack-env"
     ],
