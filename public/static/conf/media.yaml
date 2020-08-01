@@ -5,82 +5,82 @@
 #
 #=========#=========#=========#=========#=========#=========#
 - tag: マップ
-  url: ./static/img/map/background-default.jpg
+  url: static/img/map/background-default.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: マップ
-  url: ./static/img/map/field001.gif
+  url: static/img/map/field001.gif
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnBlack.png
+  url: static/img/character/pawnBlack.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnBlue.png
+  url: static/img/character/pawnBlue.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnGreen.png
+  url: static/img/character/pawnGreen.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnLightBlue.png
+  url: static/img/character/pawnLightBlue.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnOrange.png
+  url: static/img/character/pawnOrange.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnPink.png
+  url: static/img/character/pawnPink.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnPurple.png
+  url: static/img/character/pawnPurple.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnRed.png
+  url: static/img/character/pawnRed.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnWhite.png
+  url: static/img/character/pawnWhite.png
 #=========#=========#=========#=========#=========#=========#
 - tag: キャラクター
-  url: ./static/img/character/pawnYellow.png
+  url: static/img/character/pawnYellow.png
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_001.jpg
+  url: static/img/floorTiles/floorTile_001.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_008.jpg
+  url: static/img/floorTiles/floorTile_008.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_011.jpg
+  url: static/img/floorTiles/floorTile_011.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_012.jpg
+  url: static/img/floorTiles/floorTile_012.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_027.jpg
+  url: static/img/floorTiles/floorTile_027.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_038.jpg
+  url: static/img/floorTiles/floorTile_038.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_047.jpg
+  url: static/img/floorTiles/floorTile_047.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: フロアタイル
-  url: ./static/img/floorTiles/floorTile_059.jpg
+  url: static/img/floorTiles/floorTile_059.jpg
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/glass_angry.png
+  url: static/img/stand/glass_angry.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/glass_normal.png
+  url: static/img/stand/glass_normal.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/glass_smile.png
+  url: static/img/stand/glass_smile.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/sports_angry.png
+  url: static/img/stand/sports_angry.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/sports_normal.png
+  url: static/img/stand/sports_normal.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
-  url: ./static/img/stand/sports_smile.png
+  url: static/img/stand/sports_smile.png
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵
   url: https://quoridorn.com/img/mascot/normal/mascot_normal.png

@@ -413,7 +413,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     // プリセットデッキの読み込み
     // 読み込み必須でないためthrowは伝搬しないで警告だけ表示
     try {
-      (await loadYaml<CardYamlInfo[]>("/static/conf/deck.yaml")).forEach(
+      (await loadYaml<CardYamlInfo[]>("static/conf/deck.yaml")).forEach(
         (presetDeck: CardYamlInfo, deckIdx: number) => {
           const name = presetDeck.title;
           const id = `preset-deck-${name}-${deckIdx}`;

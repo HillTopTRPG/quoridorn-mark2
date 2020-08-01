@@ -180,7 +180,7 @@ export default class SocketFacade {
   public async init() {
     // 読み込み必須のためthrowは伝搬させる
     this.__connectInfo = await loadYaml<ConnectInfo>(
-      "/static/conf/connect.yaml"
+      "static/conf/connect.yaml"
     );
 
     // 相互運用性チェック

@@ -5,8 +5,8 @@ import {
   BcdiceSystemInfo,
   BcdiceVersionInfo,
   DiceSystem
-} from "../../../../@types/bcdice";
-import { CustomDiceBotInfo } from "../../../../@types/room";
+} from "@/@types/bcdice";
+import { CustomDiceBotInfo } from "@/@types/room";
 import SocketFacade from "../app-server/SocketFacade";
 import LanguageManager from "../../../../LanguageManager";
 import { loadYaml } from "../../utility/FileUtility";
@@ -110,7 +110,7 @@ export default class BcdiceManager {
 
     const customDiceBotList: CustomDiceBotInfo[] = [];
     const loadCustomDiceBotYaml = async (ds: DiceSystem): Promise<void> => {
-      const path = `/static/conf/system/${ds.system}/customDiceBot.yaml`;
+      const path = `static/conf/system/${ds.system}/customDiceBot.yaml`;
       try {
         // トライアンドエラー方式読み込みのため、throwは握りつぶす
         const list = await loadYaml<CustomDiceBotInfo[]>(path, true);
@@ -122,8 +122,14 @@ export default class BcdiceManager {
         // Nothing.
       }
     };
+    const modInfoList = await loadYaml<
+      { system: string; customDiceBot: boolean }[]
+    >("static/conf/system/mod-list.yaml");
     await diceSystemList
-      .map((ds: DiceSystem) => () => loadCustomDiceBotYaml(ds))
+      .filter(ds =>
+        modInfoList.some(mi => mi.system === ds.system && mi.customDiceBot)
+      )
+      .map(ds => () => loadCustomDiceBotYaml(ds))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     return { diceSystemList, customDiceBotList };

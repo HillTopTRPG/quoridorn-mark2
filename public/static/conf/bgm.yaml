@@ -91,7 +91,7 @@
   # タグ
   tag: "BGM"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/o12.mp3"
+  url: "static/bgm/o12.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -120,7 +120,7 @@
   # タグ
   tag: "BGM"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/n26.mp3"
+  url: "static/bgm/n26.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -352,7 +352,7 @@
   # タグ
   tag: "SE"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/tin1.mp3"
+  url: "static/bgm/tin1.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -381,7 +381,7 @@
   # タグ
   tag: "SE"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/question1.mp3"
+  url: "static/bgm/question1.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -410,7 +410,7 @@
   # タグ
   tag: "SE"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/correct1.mp3"
+  url: "static/bgm/correct1.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -439,7 +439,7 @@
   # タグ
   tag: "SE"
   # URL(空文字にすると停止命令扱い)
-  url: "./static/bgm/incorrect1.mp3"
+  url: "static/bgm/incorrect1.mp3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)

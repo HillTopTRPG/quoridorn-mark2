@@ -194,7 +194,7 @@ export default class GameObjectManager {
     try {
       // 読み込み必須でないためthrowは伝搬しないで警告だけ表示
       this.chatFormatList.push(
-        ...(await loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml"))
+        ...(await loadYaml<ChatFormatInfo[]>("static/conf/chatFormat.yaml"))
       );
     } catch (err) {
       console.warn(err.toString());

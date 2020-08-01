@@ -997,9 +997,7 @@ export default class LoginWindow extends Mixins<
      * メディアデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const mediaDataList = await loadYaml<MediaInfo[]>(
-      "./static/conf/media.yaml"
-    );
+    const mediaDataList = await loadYaml<MediaInfo[]>("static/conf/media.yaml");
     let firstImageIdx: number = -1;
 
     mediaDataList.forEach((media: MediaInfo, idx: number) => {
@@ -1044,7 +1042,7 @@ export default class LoginWindow extends Mixins<
      */
     // 読み込み必須のためthrowは伝搬させる
     const cutInDataList = await loadYaml<CutInDeclareInfo[]>(
-      "/static/conf/bgm.yaml"
+      "static/conf/bgm.yaml"
     );
     cutInDataList.forEach(cutIn => {
       cutIn.duration = 0;
