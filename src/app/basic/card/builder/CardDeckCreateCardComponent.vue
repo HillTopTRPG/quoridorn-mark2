@@ -331,7 +331,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
       })
     );
     this.setDefault();
-    window.console.log(JSON.stringify(this.cardList, null, "  "));
+    console.log(JSON.stringify(this.cardList, null, "  "));
   }
 
   private hoverCardId: string | null = null;

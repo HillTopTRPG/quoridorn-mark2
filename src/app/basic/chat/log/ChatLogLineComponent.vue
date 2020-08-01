@@ -4,12 +4,12 @@
       <span class="sender">{{ getSender(chat.data) }}：</span>
       <span class="text" v-html="transText(chat.data.text)"></span>
       <div class="icon-container">
+        <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
         <template v-if="isEditable(chat)">
           <span class="icon icon-pencil" @click="$emit('edit', chat.id)"></span>
           <span class="icon icon-bin" @click="$emit('delete', chat.id)"></span>
         </template>
         <span class="update-time">{{ getDateStr(chat.updateTime) }}</span>
-        <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
       </div>
     </div>
     <div class="chat-line dice-roll-result" v-if="chat.data.diceRollResult">
@@ -34,7 +34,7 @@ import TabsComponent from "../../common/components/tab-component/TabsComponent.v
 import { UserType } from "../../../../@types/socket";
 import VueEvent from "../../../core/decorator/VueEvent";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { findRequireById } from "../../../core/utility/Utility";
+import { findById, findRequireById } from "../../../core/utility/Utility";
 
 @Component({
   components: { TabsComponent }
@@ -106,13 +106,14 @@ export default class ChatLogLineComponent extends Vue {
     return actorName + (targetName ? delimiter + targetName : "");
   }
 
-  private getName(id: string, type: "group" | "actor") {
+  private getName(id: string | null, type: "group" | "actor" | null) {
     if (type === "group") {
       const gct = findRequireById(this.groupChatTabList, id);
       if (gct.data!.isSystem) return "";
       return gct.data!.name;
     } else {
-      const actor = findRequireById(this.actorList, id);
+      const actor = findById(this.actorList, id);
+      if (!actor) return "Quoridorn";
       const user = findRequireById(this.userList, actor.owner);
       const userType = this.userTypeLanguageMap[user.data!.type];
       const userTypeStr = actor.data!.type !== "user" ? "" : `(${userType})`;

@@ -1,12 +1,12 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
-import { Permission, StoreObj, StoreUseData } from "../../@types/store";
+import { Permission, StoreObj, StoreUseData } from "@/@types/store";
 import {
   ClientRoomInfo,
   RoomInfoExtend,
   WindowSettings
-} from "../../@types/socket";
+} from "@/@types/socket";
 import {
   ActorGroup,
   ChatInfo,
@@ -22,7 +22,7 @@ import {
   SceneLayer,
   SocketUserData,
   UserData
-} from "../../@types/room";
+} from "@/@types/room";
 import {
   ActorStatusStore,
   ActorStore,
@@ -39,7 +39,7 @@ import {
   ResourceStore,
   SceneObject,
   TagNoteStore
-} from "../../@types/gameObject";
+} from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findById, getSrc } from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
@@ -197,7 +197,7 @@ export default class GameObjectManager {
         ...(await loadYaml<ChatFormatInfo[]>("./static/conf/chatFormat.yaml"))
       );
     } catch (err) {
-      window.console.warn(err.toString());
+      console.warn(err.toString());
     }
 
     // チャット設定の初期化
@@ -236,7 +236,7 @@ export default class GameObjectManager {
       await cc.touchModify([this.roomDataId]);
     } catch (err) {
       // nothing.
-      window.console.error(err);
+      console.error(err);
       return;
     }
 
@@ -389,38 +389,14 @@ export default class GameObjectManager {
       : userInfo.data!.name;
   }
 
-  public async deleteSceneObject(id: string) {
-    const sceneAndObjectIdList: string[] = [];
-
-    const sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
-    this.sceneAndObjectList
-      .filter(sao => sao.data!.objectId === id)
-      .forEach(sao => {
-        sceneAndObjectIdList.push(sao.id!);
-      });
-
-    const sceneObjectCC = SocketFacade.instance.sceneObjectCC();
-    const failure = () => {
+  public static async deleteSceneObject(id: string) {
+    try {
+      await SocketFacade.instance.sceneObjectCC()!.deletePackage([id]);
+    } catch (err) {
       const msg =
         "Failure to delete object.\nAny data is locked.\nPlease try again latter.";
       alert(msg);
-    };
-
-    try {
-      await sceneObjectCC!.touchModify([id]);
-    } catch (err) {
-      return failure();
     }
-
-    try {
-      await sceneAndObjectCC!.touchModify(sceneAndObjectIdList);
-    } catch (err) {
-      await sceneObjectCC.releaseTouch([id]);
-      return failure();
-    }
-
-    await sceneAndObjectCC!.delete(sceneAndObjectIdList);
-    await sceneObjectCC!.delete([id]);
   }
 
   public get mySelfUser(): StoreUseData<UserData> | null {

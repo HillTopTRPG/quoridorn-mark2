@@ -66,8 +66,8 @@ export default class BgmManager {
       return;
     }
 
-    window.console.log(1, !cutInInfo.isForceNew);
-    window.console.log(JSON.stringify(cutInInfo, null, ""));
+    console.log(1, !cutInInfo.isForceNew);
+    console.log(JSON.stringify(cutInInfo, null, ""));
 
     // 再生中の画面を閉じる
     if (!cutInInfo.isForceNew) {
@@ -85,7 +85,7 @@ export default class BgmManager {
               })
               .then();
           }
-          window.console.log(
+          console.log(
             b.targetId === targetId && cutInInfo.isForceContinue,
             b.targetId === targetId || b.tag === tag
           );
@@ -123,7 +123,7 @@ export default class BgmManager {
       };
       if (!func()) intervalId = window.setInterval(func, 10);
     } else {
-      window.console.log(JSON.stringify(cutInInfo));
+      console.log(JSON.stringify(cutInInfo));
       TaskManager.instance
         .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
           type: "window-open",

@@ -450,8 +450,8 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
         [{ continuous: true }]
       );
     } catch (err) {
-      window.console.log("==========");
-      window.console.log(err);
+      console.log("==========");
+      console.log(err);
     }
   }
 
@@ -531,7 +531,7 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
         await this.cc.touchModify([this.sceneId]);
       } catch (err) {
         this.isProcessed = true;
-        window.console.warn(err);
+        console.warn(err);
         await this.close();
       }
     }

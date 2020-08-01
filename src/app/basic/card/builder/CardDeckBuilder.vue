@@ -303,8 +303,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       }))
     );
 
-    window.console.log(JSON.stringify(cardMetaList, null, "  "));
-    window.console.log(JSON.stringify(cardMetaIdList, null, "  "));
+    console.log(JSON.stringify(cardMetaList, null, "  "));
+    console.log(JSON.stringify(cardMetaIdList, null, "  "));
 
     const cardObjectList: CardObject[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
@@ -461,7 +461,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         }
       );
     } catch (err) {
-      window.console.warn(err.toString());
+      console.warn(err.toString());
     }
   }
 

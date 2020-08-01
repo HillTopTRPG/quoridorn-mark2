@@ -17,24 +17,25 @@ import {
   OtherTextViewInfo,
   SceneObject,
   SceneObjectType
-} from "../../../../@types/gameObject";
-import { StoreObj, StoreUseData } from "../../../../@types/store";
+} from "@/@types/gameObject";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   copyAddress,
   createAddress,
   createPoint,
   createRectangle,
   getEventPoint
-} from "../../../core/utility/CoordinateUtility";
-import { findRequireById, getSrc } from "../../../core/utility/Utility";
+} from "@/app/core/utility/CoordinateUtility";
+import { findRequireById, getSrc } from "@/app/core/utility/Utility";
 import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { SceneAndObject } from "../../../../@types/room";
+import { SceneAndObject } from "@/@types/room";
 import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
-import { WindowOpenInfo } from "../../../../@types/window";
-import { clone } from "../../../core/utility/PrimaryDataUtility";
-import { DataReference } from "../../../../@types/data";
+import { WindowOpenInfo } from "@/@types/window";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import { DataReference } from "@/@types/data";
+const uuid = require("uuid");
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -45,6 +46,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
   @Prop({ type: String, required: true })
   protected type!: string;
+
+  private pieceId = uuid.v4();
 
   protected isHover: boolean = false;
   protected isMoving: boolean = false;
@@ -162,20 +165,24 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   protected async mounted() {
     this.sceneObjectInfo = (await this.sceneObjectCC!.getData(this.docId))!;
 
-    await this.sceneObjectCC!.setSnapshot(this.docId, this.docId, snapshot => {
-      if (!snapshot.data) return;
-      const status = snapshot.data.status;
-      if (status === "modified" || status === "modify-touched") {
-        this.sceneObjectInfo = getStoreObj<SceneObject>(snapshot);
-        if (status === "modified") {
-          this.isMoving = false;
-          if (!this.sceneAndObjectInfo!.data!.isOriginalAddress) {
-            this.volatileInfo.moveDiff = createPoint(0, 0);
-            this.onChangePoint();
+    await this.sceneObjectCC!.setSnapshot(
+      this.pieceId,
+      this.docId,
+      snapshot => {
+        if (!snapshot.data) return;
+        const status = snapshot.data.status;
+        if (status === "modified" || status === "modify-touched") {
+          this.sceneObjectInfo = getStoreObj<SceneObject>(snapshot);
+          if (status === "modified") {
+            this.isMoving = false;
+            if (!this.sceneAndObjectInfo!.data!.isOriginalAddress) {
+              this.volatileInfo.moveDiff = createPoint(0, 0);
+              this.onChangePoint();
+            }
           }
         }
       }
-    });
+    );
 
     await this.resetSceneId(this.sceneId);
 
@@ -403,9 +410,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
-    window.console.log(
+    console.log(
       `【highlight:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
@@ -414,7 +427,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       data.data!.isHideHighlight = task.value.value;
       await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
     }
   }
 
@@ -423,9 +436,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
-    window.console.log(
+    console.log(
       `【border:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
@@ -434,7 +453,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       data.data!.isHideBorder = task.value.value;
       await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
     }
   }
 
@@ -443,9 +462,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
-    window.console.log(
+    console.log(
       `【lock:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
     try {
@@ -454,7 +479,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       data.data!.isLock = task.value.value;
       await this.sceneObjectCC!.update([this.docId], [data.data!]);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
     }
   }
 
@@ -463,13 +488,20 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
-    window.console.log(
+    console.log(
       `【copy:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
 
-    const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
+    const data: SceneObject = (await this.sceneObjectCC!.getData(this.docId))!
+      .data!;
     await SocketFacade.instance.sceneObjectCC().addDirect([data]);
   }
 
@@ -478,13 +510,19 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
-    window.console.log(
+    console.log(
       `【delete:${task.value.value}】 type: ${this.type}, docId: ${this.docId}`
     );
 
-    await GameObjectManager.instance.deleteSceneObject(this.docId);
+    await GameObjectManager.deleteSceneObject(this.docId);
   }
 
   @TaskProcessor("open-ref-url-finished")
@@ -492,7 +530,13 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
     const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
     window.open(data.url, "_blank");
@@ -503,7 +547,13 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const args = task.value.args;
-    if (args.type !== this.type || args.docId !== this.docId) return;
+    if (
+      args.type !== this.type ||
+      args.docId !== this.docId ||
+      args.pieceId !== this.pieceId
+    ) {
+      return;
+    }
 
     const data = (await this.sceneObjectCC!.getData(this.docId))!.data!;
     const actorId = data.actorId!;
@@ -535,14 +585,14 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           this.sceneAndObjectInfo!.id!
         ]);
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         return;
       }
     } else {
       try {
         await this.sceneObjectCC!.touchModify([this.docId]);
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         return;
       }
     }
@@ -567,7 +617,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   }
 
   protected rightDown(): void {
-    window.console.log("rightDown");
+    console.log("rightDown");
     // if (this.isRolling) {
     //   this.$emit("rightDown");
     // }
@@ -585,7 +635,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         : `mouse-move-end-left-finished`,
       {
         key: this.docId,
-        type: `${button}-click`
+        type: `${button}-click`,
+        pieceId: this.pieceId
       }
     );
   }
@@ -595,9 +646,10 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (!param || param.key !== this.docId) return;
+    if (!param || param.key !== this.docId || param.pieceId !== this.pieceId)
+      return;
 
-    window.console.log("mouse-move-end-left-finished", param.key, param.type);
+    console.log("mouse-move-end-left-finished", param.key, param.type);
     const address = createAddress(0, 0, 0, 0);
 
     copyAddress(this.sceneObjectInfo!.data!, address);
@@ -655,8 +707,9 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (!param || param.key !== this.docId) return;
-    window.console.log("mouse-move-end-right-finished", param.key, param.type);
+    if (!param || param.key !== this.docId || param.pieceId !== this.pieceId)
+      return;
+    console.log("mouse-move-end-right-finished", param.key, param.type);
     const point: Point = task.value!;
 
     const eventType = param ? param.type!.split("-")[1] : "";
@@ -672,6 +725,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         value: {
           type: this.type,
           target: this.docId,
+          pieceId: this.pieceId,
           x: point.x,
           y: point.y
         }
@@ -703,7 +757,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   }
 
   protected rollEnd() {
-    // // window.console.log(`rollEnd`, event.pageX, event.pageY)
+    // // console.log(`rollEnd`, event.pageX, event.pageY)
     // const mapObj: any = {
     //   rollObj: {
     //     isRolling: false

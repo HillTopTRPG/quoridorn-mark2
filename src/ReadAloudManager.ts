@@ -76,7 +76,7 @@ export default class ReadAloudManager {
 
     utterThis.onerror = function(event) {
       // エラーメッセージの出力
-      window.console.log(event.error);
+      console.log(event.error);
       swal({
         title: "自動音声に問題あり",
         text:

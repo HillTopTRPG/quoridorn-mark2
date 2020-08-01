@@ -103,7 +103,7 @@ export default class ResourceMasterListWindow extends Mixins<
 
   @VueEvent
   private async downloadData() {
-    window.console.log(JSON.stringify(this.resourceMasterList, null, "  "));
+    console.log(JSON.stringify(this.resourceMasterList, null, "  "));
     const dateTimeStr = moment().format("YYYYMMDDHHmmss");
     saveJson<StoreUseData<ResourceMasterStore>[]>(
       `Quoridorn_ResourceMaster_${dateTimeStr}`,
@@ -114,7 +114,7 @@ export default class ResourceMasterListWindow extends Mixins<
 
   @VueEvent
   private async uploadData() {
-    window.console.log(JSON.stringify(this.resourceMasterList, null, "  "));
+    console.log(JSON.stringify(this.resourceMasterList, null, "  "));
     const dataContainer = await importJson<StoreUseData<ResourceMasterStore>[]>(
       "resource-master"
     );
@@ -123,7 +123,7 @@ export default class ResourceMasterListWindow extends Mixins<
       return;
     }
     const importResourceMasterList = dataContainer.data;
-    window.console.log(JSON.stringify(importResourceMasterList, null, "  "));
+    console.log(JSON.stringify(importResourceMasterList, null, "  "));
     importResourceMasterList.filter(irm => {
       // TODO 実装
     });
@@ -151,15 +151,13 @@ export default class ResourceMasterListWindow extends Mixins<
     );
     if (!flg) return;
     try {
-      await this.cc.touchModify([id]);
+      await this.cc.deletePackage([id]);
     } catch (err) {
       alert(
         this.$t(`${this.windowInfo.type}.dialog.delete-failure`)!.toString()
       );
       return;
     }
-
-    await this.cc.delete([id]);
   }
 }
 </script>

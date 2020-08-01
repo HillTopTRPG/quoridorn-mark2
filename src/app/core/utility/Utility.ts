@@ -31,7 +31,7 @@ export function shuffleOrder(list: StoreUseData<any>[]): void {
  * @param a
  */
 export function qLog(...a: any): void {
-  // window.console.log(...arguments)
+  // console.log(...arguments)
 
   let format = "";
   const logs = [];
@@ -83,8 +83,8 @@ export function qLog(...a: any): void {
         ))
       ) {
         // (\([^)]+\))|
-        // window.console.log(arg)
-        // window.console.log(m3)
+        // console.log(arg)
+        // console.log(m3)
         if (m3[1]) {
           format += `%c${format.endsWith("\n") ? indent : ""}${m3[1]}`;
           logs.push("");
@@ -127,7 +127,7 @@ export function qLog(...a: any): void {
       }
     }
   });
-  window.console.log(format, ...logs);
+  console.log(format, ...logs);
 }
 
 /**
@@ -219,7 +219,9 @@ export function findRequireById<T extends StoreMetaData>(
 ): T {
   const result = list.find(obj => obj.id === id);
   if (!result) {
-    throw new ApplicationError(``);
+    throw new ApplicationError(
+      `findRequireById ${JSON.stringify({ id }, null, "  ")}`
+    );
   }
   return result;
 }

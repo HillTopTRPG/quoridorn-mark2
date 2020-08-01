@@ -121,7 +121,7 @@ export default class UserLoginWindow extends Mixins<
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {
-    window.console.log(system);
+    console.log(system);
   }
 
   @VueEvent

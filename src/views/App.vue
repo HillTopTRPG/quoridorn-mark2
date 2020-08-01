@@ -109,6 +109,7 @@ import OtherTextFrame from "../app/basic/other-text/OtherTextFrame.vue";
 import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
 import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
+
 @Component({
   components: {
     CardDeckBuilder,
@@ -183,7 +184,7 @@ export default class App extends Vue {
     const durationMs = performance.getEntriesByName("app-init-time")[0]
       .duration;
     const durationS = Math.round(durationMs / 100) / 10;
-    window.console.log(`アプリのセットアップにかかった時間：${durationS}秒`);
+    console.log(`アプリのセットアップにかかった時間：${durationS}秒`);
 
     disableBodyScroll();
     document.documentElement.style.setProperty(
@@ -288,7 +289,7 @@ export default class App extends Vue {
     try {
       resp = await SocketFacade.instance.testServer(url);
     } catch (err) {
-      window.console.warn(`${err}. url:${url}`);
+      console.warn(`${err}. url:${url}`);
       return;
     }
 
@@ -462,7 +463,7 @@ export default class App extends Vue {
       return;
     }
     if (event.key === "Enter") {
-      window.console.log("GLOBAL enter");
+      console.log("GLOBAL enter");
       await TaskManager.instance.ignition<never, never>({
         type: "global-enter",
         owner: "Quoridorn",
@@ -483,7 +484,7 @@ export default class App extends Vue {
       });
       return;
     }
-    // window.console.log(event.key);
+    // console.log(event.key);
   }
 
   // @EventProcessor("keyup")
@@ -577,7 +578,7 @@ export default class App extends Vue {
   private async socketConnectFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    window.console.log("socket-connect-finished");
+    console.log("socket-connect-finished");
     task.resolve();
   }
 
@@ -654,7 +655,7 @@ export default class App extends Vue {
       this.progressAll = all;
       this.progressCurrent = current;
       this.progressMessage = taskValue.value.message;
-      if (all) window.console.log(`PROGRESS: (${current} / ${all})`);
+      if (all) console.log(`PROGRESS: (${current} / ${all})`);
       task.resolve();
     }
   }
@@ -663,7 +664,7 @@ export default class App extends Vue {
   private async socketConnectErrorFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    window.console.warn("socket-connect-error-finished");
+    console.warn("socket-connect-error-finished");
     task.resolve();
   }
 
@@ -671,7 +672,7 @@ export default class App extends Vue {
   private async socketReconnectingFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    window.console.warn("socket-reconnecting-finished");
+    console.warn("socket-reconnecting-finished");
     task.resolve();
   }
 

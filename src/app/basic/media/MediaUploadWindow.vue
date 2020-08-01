@@ -146,7 +146,7 @@ export default class MediaUploadWindow extends Mixins<
       "media-upload-window.dialog.input-tag"
     );
     const tag = window.prompt(msg, "");
-    window.console.log(tag);
+    console.log(tag);
     if (tag === null || tag === undefined) return;
     this.useLocalResultList.forEach(result => {
       result.tag = tag;
@@ -200,14 +200,14 @@ export default class MediaUploadWindow extends Mixins<
     if (this.dropBoxAccessKey) {
       // TODO 疎通確認してから
       const links = await DropBoxManager.instance.getListSharedLinks("");
-      window.console.log(JSON.stringify(links, null, "  "));
+      console.log(JSON.stringify(links, null, "  "));
     }
   }
 
   @VueEvent
   private preview(fileInfo: UploadMediaInfo) {
     // TODO プレビュー
-    window.console.log("preview", JSON.stringify(fileInfo, null, "  "));
+    console.log("preview", JSON.stringify(fileInfo, null, "  "));
   }
 
   @VueEvent

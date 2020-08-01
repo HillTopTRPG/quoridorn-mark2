@@ -276,13 +276,6 @@ export type CutInDeclareInfo = {
   duration?: number; // 長さ（再生することで得られる）
 };
 
-/**
- * playListCCのデータ定義
- */
-type CutInPlayingInfo = {
-  duration: number;
-};
-
 type YoutubeVolumeChangeInfo = {
   tag: string;
   windowStatus: string;
@@ -306,11 +299,11 @@ type CustomDiceBotInfo = {
 };
 
 type ChatInfo = {
-  actorId: string;
-  statusId: string;
+  actorId: string | null;
+  statusId: string | null;
   tabId: string;
   targetId: string;
-  targetType: "group" | "actor";
+  targetType: "group" | "actor" | null;
   text: string;
   diceRollResult: string | null;
   customDiceBotResult: string | null;

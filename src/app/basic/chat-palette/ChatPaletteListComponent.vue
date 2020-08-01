@@ -42,7 +42,7 @@ export default class ChatPaletteListComponent extends Vue {
     }
     this.paletteList = this.paletteText.split("\n");
     // .map(s => s.replace(/&lt;[bB][rR] *\/?&gt;/g, "<br />"));
-    window.console.log(JSON.stringify(this.paletteList, null, "  "));
+    console.log(JSON.stringify(this.paletteList, null, "  "));
   }
 }
 </script>

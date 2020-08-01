@@ -196,7 +196,7 @@ export default class EditSceneLayerChooserComponent extends Vue {
 
   @VueEvent
   private async onSortOrderChange() {
-    window.console.log("onEndOrderChange");
+    console.log("onEndOrderChange");
     const idList: string[] = this.layerInfoList!.map(sao => sao.id!);
     const idOrderList = idList.map(id => {
       const sao = this.sceneAndLayerList.filter(

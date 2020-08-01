@@ -300,7 +300,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
     const text = await importText();
     const failure = (reason: string) => {
       alert(LanguageManager.instance.getText("label.importFailure"));
-      window.console.warn(`import failure. [${reason}]`);
+      console.warn(`import failure. [${reason}]`);
       this.cardList.splice(0, this.cardList.length);
     };
     if (!text) return failure("text is empty");

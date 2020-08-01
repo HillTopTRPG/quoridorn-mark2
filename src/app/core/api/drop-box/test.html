@@ -29,15 +29,15 @@ const postJsonFetch = async (url, accessToken, body) => {
 const getFolderList = async (accessToken, path) => {
   const url = "https://api.dropboxapi.com/2/files/list_folder";
   const json = await postJsonFetch(url, accessToken, `{"path":"${path}"}`);
-  window.console.log(JSON.stringify(json, null, "  "));
+  console.log(JSON.stringify(json, null, "  "));
 };
 
 const getTemporaryLink = async (accessToken, path) => {
   const url = "https://api.dropboxapi.com/2/files/get_temporary_link";
   const link = (await postJsonFetch(url, accessToken, `{"path":"${path}"}`)).link;
   document.getElementById("img2").src = link;
-  window.console.log(link);
-  window.console.log(JSON.stringify(json, null, "  "));
+  console.log(link);
+  console.log(JSON.stringify(json, null, "  "));
 };
 
 const download = async (accessToken, path) => {
@@ -50,7 +50,7 @@ const download = async (accessToken, path) => {
   const blob = await response.blob();
   const src = window.URL.createObjectURL(blob);
   document.getElementById("img1").src = src;
-  window.console.log(src);
+  console.log(src);
 };
 getFolderList("WcGAWIK3O4EAAAAAAAAJdeyQ7ZZascDSNYMbSyLizuCdfFfdUtzjfZ0bPVAUaF_1", "").then();
 getTemporaryLink("WcGAWIK3O4EAAAAAAAAJdeyQ7ZZascDSNYMbSyLizuCdfFfdUtzjfZ0bPVAUaF_1", "/pawnBlue.png").then();

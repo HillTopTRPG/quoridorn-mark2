@@ -1214,19 +1214,19 @@
     widthPx: 2
     widthEm: 18
     heightPx: 2
-    heightEm: 22
+    heightEm: 24
     heightRem: 0.5
   minSize:
     widthPx: 2
     widthEm: 15
     heightPx: 2
-    heightEm: 22
+    heightEm: 24
     heightRem: 0.5
   maxSize:
     widthPx: 2
     widthEm: 28
     heightPx: 2
-    heightEm: 22
+    heightEm: 24
     heightRem: 0.5
   minimizable: true
   paneContainable: true

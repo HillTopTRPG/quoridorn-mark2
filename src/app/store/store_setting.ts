@@ -29,7 +29,7 @@ export default {
       state.chatFormat.styleRegExp = new RegExp(styleRegExpStr, "gi");
 
       const regExpStr = `\\[\\[ *style((?: *${styleRegExpStr})*) *]]`;
-      // window.console.log(regExpStr);
+      // console.log(regExpStr);
       state.chatFormat.lineRegExp = new RegExp(regExpStr, "gi");
     }
   },

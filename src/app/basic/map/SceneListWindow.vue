@@ -102,10 +102,10 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   private onChangeSceneList() {
     const elmList: HTMLElement[] = this.$refs.scene as HTMLElement[];
     if (this.useSceneList.findIndex(s => !s.data) > -1) return;
-    // window.console.log(this.mapList[0].data.texture);
+    // console.log(this.mapList[0].data.texture);
     setTimeout(() => {
       this.useSceneList.forEach(async (s, index) => {
-        // window.console.log(map.texture);
+        // console.log(map.texture);
         const elm = elmList[index];
         let direction: string = "";
         let backgroundColor: string = "transparent";
@@ -199,12 +199,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       LanguageManager.instance.getText("label.really-delete")
     );
     if (!result) return;
-    try {
-      await this.cc.touchModify([this.selectedSceneId]);
-    } catch (err) {
-      return;
-    }
-    await this.cc.delete([this.selectedSceneId]);
+    await this.cc.deletePackage([this.selectedSceneId]);
   }
 
   @VueEvent

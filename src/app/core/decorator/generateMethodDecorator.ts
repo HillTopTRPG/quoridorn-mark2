@@ -21,7 +21,7 @@ export const generateMethodDecorator = (
 ) => {
   processorList.forEach(p => {
     const methodName: string = p.method || propertyKey.toString();
-    // window.console.log(p.method, propertyKey, methodName);
+    // console.log(p.method, propertyKey, methodName);
     const method: Function = descriptor.value;
     if (p.method) {
       const original = target[methodName];

@@ -592,7 +592,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       // 単位
       const unit: string = matchResult[2];
 
-      window.console.log(num, unit, matchResult);
+      console.log(num, unit, matchResult);
 
       this.unitList = conversion(num, unit) || this.unitList;
     }
@@ -743,7 +743,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         const tabId = chatInfo.tabId;
         const tab = this.chatTabList.find(ct => ct.id === tabId);
         if (tab && tab.data!.useReadAloud) {
-          window.console.log(text);
+          console.log(text);
           ReadAloudManager.instance.volume = tab.data!.readAloudVolume || 1;
           ReadAloudManager.instance.speakVoice(text);
         }
@@ -772,13 +772,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     );
     if (!flg) return;
     try {
-      await this.chatListCC.touchModify([id]);
+      await this.chatListCC.deletePackage([id]);
     } catch (err) {
       alert(this.$t("chat-window.dialog.delete-failure")!.toString());
       return;
     }
-
-    await this.chatListCC.delete([id]);
   }
 
   /**

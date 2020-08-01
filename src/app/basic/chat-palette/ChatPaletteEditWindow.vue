@@ -86,7 +86,7 @@ export default class ChatPaletteEditWindow extends Mixins<
       }
     }
 
-    window.console.log(JSON.stringify(data.data, null, " "));
+    console.log(JSON.stringify(data.data, null, " "));
 
     this.name = data.data!.name;
     this.chatFontColorType = data.data!.chatFontColorType;
@@ -101,7 +101,7 @@ export default class ChatPaletteEditWindow extends Mixins<
       try {
         await this.chatPaletteListCC.touchModify([this.docId]);
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         this.isProcessed = true;
         await this.close();
       }

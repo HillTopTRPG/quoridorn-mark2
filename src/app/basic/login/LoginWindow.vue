@@ -142,22 +142,19 @@ import {
   UserLoginRequest,
   UserLoginResponse,
   UserLoginWindowInput
-} from "../../../@types/socket";
-import { PermissionNode, StoreObj, StoreUseData } from "../../../@types/store";
+} from "@/@types/socket";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import {
   AddRoomPresetDataRequest,
   CutInDeclareInfo,
   MediaInfo,
-  RoomData,
-  Scene,
-  SceneLayerType
-} from "../../../@types/room";
+  Scene
+} from "@/@types/room";
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
-import { ResourceMasterStore } from "../../../@types/gameObject";
 import VersionInfoComponent from "./VersionInfoComponent.vue";
-import { extname, getUrlType, loadYaml } from "../../core/utility/FileUtility";
+import { getUrlType, loadYaml } from "../../core/utility/FileUtility";
 import { getSrc } from "../../core/utility/Utility";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -165,7 +162,8 @@ import LanguageSelect from "../common/components/select/LanguageSelect.vue";
 import TaskManager from "../../core/task/TaskManager";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
-import { WindowOpenInfo } from "../../../@types/window";
+import { WindowOpenInfo } from "@/@types/window";
+import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 
 @Component({
   components: {
@@ -353,11 +351,11 @@ export default class LoginWindow extends Mixins<
           type: "app-server-setting-window"
         }
       });
-      window.console.log(appServerSettingInputList);
+      console.log(appServerSettingInputList);
       appServerSettingInput = appServerSettingInputList[0];
       this.isInputtingServerSetting = false;
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       this.isInputtingServerSetting = false;
       return;
     }
@@ -406,7 +404,7 @@ export default class LoginWindow extends Mixins<
       try {
         resp = await SocketFacade.instance.testServer(url);
       } catch (err) {
-        window.console.warn(`${err}. url:${url}`);
+        console.warn(`${err}. url:${url}`);
         return;
       }
       this.serverTestResult = resp;
@@ -423,7 +421,7 @@ export default class LoginWindow extends Mixins<
       }
       this.message = serverInfo.message;
     } catch (err) {
-      window.console.error(err);
+      console.error(err);
     }
   }
 
@@ -493,7 +491,7 @@ export default class LoginWindow extends Mixins<
       });
       confirmResult = confirmResultList[0];
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       await this.releaseTouchRoom(order);
       this.roomStatus = "normal";
       return;
@@ -521,7 +519,7 @@ export default class LoginWindow extends Mixins<
       });
       deleteRoomInput = deleteRoomInputList[0];
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       await this.releaseTouchRoom(order);
       this.roomStatus = "normal";
       return;
@@ -546,7 +544,7 @@ export default class LoginWindow extends Mixins<
         ...deleteRoomInput
       });
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       await this.releaseTouchRoom(order);
       this.roomStatus = "normal";
       return;
@@ -582,7 +580,7 @@ export default class LoginWindow extends Mixins<
       );
       return true;
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       return false;
     }
   }
@@ -628,7 +626,7 @@ export default class LoginWindow extends Mixins<
       });
       createRoomInput = roomInfoList[0];
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       await this.releaseTouchRoom();
       this.roomStatus = "normal";
       return;
@@ -671,7 +669,7 @@ export default class LoginWindow extends Mixins<
         return;
       }
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       await this.releaseTouchRoom();
       this.roomStatus = "normal";
       return;
@@ -702,7 +700,7 @@ export default class LoginWindow extends Mixins<
         ...createRoomInput
       });
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
 
       await LoginWindow.viewProcessView("");
 
@@ -737,7 +735,7 @@ export default class LoginWindow extends Mixins<
         UserLoginResponse
       >("user-login", userLoginInput);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       alert("ログイン失敗");
 
       await LoginWindow.viewProcessView("");
@@ -790,6 +788,8 @@ export default class LoginWindow extends Mixins<
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
+    await sendSystemChatLog(`${userLoginInput.name} が入室しました。`);
+
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
       type: "room-initialize",
       owner: "Quoridorn",
@@ -822,7 +822,7 @@ export default class LoginWindow extends Mixins<
       if (this.urlPlayerName) {
         // const roomId = this.roomList.filter(r => r.order === no)[0].id;
         // const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
-        // window.console.log(`token: ${cookieToken}`);
+        // console.log(`token: ${cookieToken}`);
       } else {
         if (!this.disabledLogin) await this.login();
       }
@@ -875,7 +875,7 @@ export default class LoginWindow extends Mixins<
           return;
         }
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         await this.releaseTouchRoom();
         this.roomStatus = "normal";
         return;
@@ -897,7 +897,7 @@ export default class LoginWindow extends Mixins<
         ...loginRoomInput
       });
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       alert("ログイン失敗");
       this.roomStatus = "normal";
       return;
@@ -934,7 +934,7 @@ export default class LoginWindow extends Mixins<
         return;
       }
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       this.roomStatus = "normal";
       return;
     }
@@ -949,7 +949,7 @@ export default class LoginWindow extends Mixins<
         UserLoginResponse
       >("user-login", userLoginInput);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       alert("ログイン失敗");
       this.roomStatus = "normal";
       SocketFacade.instance.roomCollectionPrefix = null;
@@ -977,6 +977,8 @@ export default class LoginWindow extends Mixins<
     params.append("no", loginResult.roomNo.toString(10));
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
+
+    await sendSystemChatLog(`${userLoginInput.name} が入室しました。`);
 
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
       type: "room-initialize",

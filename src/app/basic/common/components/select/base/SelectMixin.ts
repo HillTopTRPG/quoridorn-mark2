@@ -34,13 +34,12 @@ export default class SelectMixin extends Vue {
 
   public get localValue(): string | string[] | null {
     if (this.test)
-      window.console.log("set '" + this.value + "'", this.constructor.name);
+      console.log("set '" + this.value + "'", this.constructor.name);
     return this.value;
   }
 
   public set localValue(value: string | string[] | null) {
-    if (this.test)
-      window.console.log("return '" + value + "'", this.constructor.name);
+    if (this.test) console.log("return '" + value + "'", this.constructor.name);
     this.input(value);
   }
 
@@ -49,7 +48,7 @@ export default class SelectMixin extends Vue {
   //   optionValueStrList.push("");
   //
   //   if (this.test) {
-  //     window.console.log("updated", this.value, this.constructor.name, optionValueStrList);
+  //     console.log("updated", this.value, this.constructor.name, optionValueStrList);
   //   }
   //
   //   this.onChangeValue(this.value);
@@ -58,8 +57,8 @@ export default class SelectMixin extends Vue {
   //     option => option === this.localValue
   //   );
   //   if (index === -1) {
-  //     // window.console.log(optionValueStrList);
-  //     // window.console.log("select reset", this.localValue, "-> ''");
+  //     // console.log(optionValueStrList);
+  //     // console.log("select reset", this.localValue, "-> ''");
   //     this.localValue = "";
   //   }
   // }

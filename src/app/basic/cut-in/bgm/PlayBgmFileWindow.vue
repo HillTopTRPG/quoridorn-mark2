@@ -136,17 +136,13 @@ export default class PlayBgmFileWindow
         await this.timeUpdate(this.jukeboxAudio.currentTime);
       });
       this.jukeboxAudio.addEventListener("emptied", () =>
-        window.console.log("emptied")
+        console.log("emptied")
       );
       this.jukeboxAudio.addEventListener("stalled", () =>
-        window.console.log("stalled")
+        console.log("stalled")
       );
-      this.jukeboxAudio.addEventListener("abort", () =>
-        window.console.log("abort")
-      );
-      this.jukeboxAudio.addEventListener("error", () =>
-        window.console.log("error")
-      );
+      this.jukeboxAudio.addEventListener("abort", () => console.log("abort"));
+      this.jukeboxAudio.addEventListener("error", () => console.log("error"));
       this.jukeboxAudio.addEventListener("ended", async () => {
         await this.close();
       });
@@ -248,7 +244,7 @@ export default class PlayBgmFileWindow
 
   public onReady(): void {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onReady");
+    if (this.isIpadTesting) console.log("onReady");
     const windowTitle = LanguageManager.instance.getText(
       `${this.windowInfo.type}.window-title`
     );
@@ -261,7 +257,7 @@ export default class PlayBgmFileWindow
       this.windowFrameElm.style.visibility = "visible";
 
       if (this.isStandByBgm) {
-        if (this.isIpadTesting) window.console.log("isStandByBgm to pause");
+        if (this.isIpadTesting) console.log("isStandByBgm to pause");
         BgmManager.instance.notifyOpenedStandByWindow(
           this.targetId!,
           this.windowKey
@@ -274,11 +270,11 @@ export default class PlayBgmFileWindow
   }
 
   public onError(error: any): void {
-    window.console.error(error);
+    console.error(error);
   }
 
   public onPaused(): void {
-    if (this.isIpadTesting) window.console.log("onPaused");
+    if (this.isIpadTesting) console.log("onPaused");
     if (!this.isSeekChanging) {
       this.isPlay = false;
     }
@@ -286,7 +282,7 @@ export default class PlayBgmFileWindow
 
   public async onPlaying(duration: number): Promise<void> {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onPlaying");
+    if (this.isIpadTesting) console.log("onPlaying");
     // if (this.isFirstOnReady) {
     //   setTimeout(() => {
     //     // iPad対応(まだ完全ではない)
@@ -383,7 +379,7 @@ export default class PlayBgmFileWindow
 
   public onEnded(): void {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onEnded");
+    if (this.isIpadTesting) console.log("onEnded");
     if (this.bgmInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(
@@ -404,8 +400,8 @@ export default class PlayBgmFileWindow
   @VueEvent
   private onChangeMute() {
     this.isMute = !this.isMute;
-    window.console.warn("onChangeMute");
-    if (this.isIpadTesting) window.console.log("onChangeMute", this.isMute);
+    console.warn("onChangeMute");
+    if (this.isIpadTesting) console.log("onChangeMute", this.isMute);
   }
 
   private isSeekToBefore: boolean = false;
@@ -413,7 +409,7 @@ export default class PlayBgmFileWindow
 
   @VueEvent
   private seekTo(seek: number, allowSeekAhead: boolean) {
-    if (this.isIpadTesting) window.console.log("seekTo");
+    if (this.isIpadTesting) console.log("seekTo");
     this.isSeekToBefore = seek < this.bgmStart;
     this.isSeekToAfter = this.bgmEnd < seek;
     setTimeout(async () => {
@@ -443,7 +439,7 @@ export default class PlayBgmFileWindow
   @Watch("volume")
   private async onChangeVolume() {
     if (!this.isMounted) return;
-    if (this.isIpadTesting) window.console.log("onChangeVolume");
+    if (this.isIpadTesting) console.log("onChangeVolume");
 
     if (this.bgmInfo) {
       if (this.status === "window") {
@@ -481,7 +477,7 @@ export default class PlayBgmFileWindow
   @Watch("isMute")
   private async onChangeIsPlay() {
     if (!this.isMounted) return;
-    if (this.isIpadTesting) window.console.log("onChangeIsMute");
+    if (this.isIpadTesting) console.log("onChangeIsMute");
 
     if (this.bgmInfo) {
       if (this.status === "window") {

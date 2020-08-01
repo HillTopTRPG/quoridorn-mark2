@@ -92,7 +92,7 @@ export default class NekostoreCollectionController<T> {
               if (i1[sortColumn] > i2[sortColumn]) return 1;
               return 0;
             });
-            // window.console.log("sorted", argList!);
+            // console.log("sorted", argList!);
           }
         });
       }
@@ -240,6 +240,17 @@ export default class NekostoreCollectionController<T> {
     });
     await SocketFacade.instance.socketCommunication<DeleteDataRequest, never>(
       "delete-data",
+      {
+        collection: this.collectionName,
+        idList
+      }
+    );
+  }
+
+  public async deletePackage(idList: string[]): Promise<void> {
+    console.log("deletePackage");
+    await SocketFacade.instance.socketCommunication<DeleteDataRequest, never>(
+      "delete-data-package",
       {
         collection: this.collectionName,
         idList

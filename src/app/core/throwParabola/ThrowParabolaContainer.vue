@@ -55,7 +55,7 @@ export default class ThrowParabolaContainer extends Mixins<ComponentVue>(
         opacity: 1
       };
     });
-    // window.console.log(JSON.stringify(obj, null, "  "));
+    // console.log(JSON.stringify(obj, null, "  "));
     this.objList.push(tpObj);
 
     // リストへの追加が要素に反映されるのを待つためにsetTimeout

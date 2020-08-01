@@ -36,7 +36,7 @@ export default class InitiativeInputComponent extends Vue {
 
   @VueEvent
   private onFocus() {
-    window.console.log("onFocus");
+    console.log("onFocus");
   }
 
   private parseBoolean(bool: string) {

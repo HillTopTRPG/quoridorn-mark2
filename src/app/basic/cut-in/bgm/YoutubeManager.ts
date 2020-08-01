@@ -81,7 +81,7 @@ export default class YoutubeManager {
     } else {
       // プレイヤー要素の切替の場合は以前のプレイヤーを破棄する
       if (playerObj) {
-        window.console.log("destroy player", elementId);
+        console.log("destroy player", elementId);
         this.destroyed(elementId);
       }
       const videoId = YoutubeManager.getUrlParam("v", url);
@@ -180,7 +180,7 @@ export default class YoutubeManager {
   private doPlayerMethod(methodName: string, ...args: any[]) {
     const yPlayer = this.playerMapping[args.shift()];
     if (!yPlayer) return;
-    // window.console.log('doPlayerMethod', methodName, ...args)
+    // console.log('doPlayerMethod', methodName, ...args)
     let result = null;
     try {
       result = yPlayer.player[methodName](...args);
@@ -201,7 +201,7 @@ export default class YoutubeManager {
 
     const videoId = YoutubeManager.getUrlParam("v", url);
     try {
-      window.console.warn(typeof playerObj.player.loadVideoById, elementId);
+      console.warn(typeof playerObj.player.loadVideoById, elementId);
       playerObj.player.loadVideoById({
         videoId,
         startSeconds: start,
@@ -209,7 +209,7 @@ export default class YoutubeManager {
         suggestedQuality
       });
     } catch (err) {
-      window.console.log(err);
+      console.log(err);
     }
   }
 
@@ -328,7 +328,7 @@ export default class YoutubeManager {
   //   ...args: any[]
   // ) => {
   //   if (eventName !== "timeUpdate") {
-  //     // window.console.log(`--- ${eventName} => ${index}`, ...args)
+  //     // console.log(`--- ${eventName} => ${index}`, ...args)
   //   }
   //
   //   const playerObj = this.playerMapping[elementId];
@@ -380,7 +380,7 @@ export default class YoutubeManager {
           });
         }, 100);
       } catch (error) {
-        window.console.error(error);
+        console.error(error);
       }
       this.playerMapping[elementId].eventHandlers.forEach(eh => {
         eh.onPlaying(event.target.getDuration(), event.target);

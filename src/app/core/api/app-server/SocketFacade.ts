@@ -266,7 +266,7 @@ export default class SocketFacade {
       });
     });
     this.socket.on("connect_timeout", async (timeout: any) => {
-      window.console.log("connect_timeout", timeout);
+      console.log("connect_timeout", timeout);
     });
   }
 
@@ -286,7 +286,7 @@ export default class SocketFacade {
     try {
       resp = await this.testServer(url);
     } catch (err) {
-      window.console.error(`${err}. url:${url}`);
+      console.error(`${err}. url:${url}`);
       return;
     }
     this.appServerUrlList.push({
@@ -373,7 +373,7 @@ export default class SocketFacade {
       const timeoutId = window.setTimeout(() => {
         socket.off("result-get-version");
         socket.disconnect();
-        window.console.warn("timeout");
+        console.warn("timeout");
         reject("not-quoridorn");
       }, this.__connectInfo!.socketTimeout + 100);
       socket.once(
@@ -389,14 +389,14 @@ export default class SocketFacade {
           // タイトルチェック（サーバ側で必ず値は設定してくる）
           const title: string = result.title;
           if (!title) {
-            window.console.warn("title-check");
+            console.warn("title-check");
             reject("not-quoridorn");
             return;
           }
 
           const serverVersion: string = result.version;
           if (!serverVersion || !serverVersion.startsWith("Quoridorn ")) {
-            window.console.warn("version format");
+            console.warn("version format");
             reject("not-quoridorn");
             return;
           }
@@ -437,7 +437,7 @@ export default class SocketFacade {
   ): void {
     if (!this.socket) return;
     this.socket.on(event, (err: any, result: T) => {
-      if (err) window.console.error(err);
+      if (err) console.error(err);
       callback(err, result);
     });
   }

@@ -6,10 +6,43 @@
     :class="{ multiple, disabled: disabled || readonly }"
   >
     <select
+      v-if="!multiple"
       class="input"
       :class="{ pending: isPending }"
-      :value="localValue === null ? 'null' : localValue"
-      @input="localValue = $event.target.value"
+      :value="localValue === null ? 'null' : selectionValue"
+      @input="localValue = getSelectionValue(1)"
+      :id="id || undefined"
+      ref="component"
+      :disabled="disabled || readonly"
+      :style="{
+        webkitTextFillColor: fontColor,
+        mozTextFillColor: fontColor,
+        maxWidth: maxWidth ? `${maxWidth}em` : undefined
+      }"
+      :multiple="multiple"
+      @dblclick="onDblClick"
+      @mousedown.stop
+      @mouseup.stop
+      @keydown.enter.stop
+      @keyup.enter.stop
+      @keydown.229.stop
+      @keyup.229.stop
+      :tabindex="disabled ? -1 : 0"
+    >
+      <option
+        v-for="optionInfo in optionInfoList"
+        :key="optionInfo.key"
+        :value="optionInfo.value"
+        :disabled="optionInfo.disabled"
+      >
+        {{ optionInfo.text }}
+      </option>
+    </select>
+    <select
+      v-else
+      class="input"
+      :class="{ pending: isPending }"
+      @input="localValue = getSelectionValue(1)"
       :id="id || undefined"
       ref="component"
       :disabled="disabled || readonly"
@@ -65,6 +98,37 @@ export default class CtrlSelect extends SelectMixin {
     elm.focus();
   }
 
+  @VueEvent
+  private getSelectionValue() {
+    const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
+    const optionElmList = Array.prototype.slice.call(
+      elm.options
+    ) as HTMLOptionElement[];
+    const valueList: string[] = optionElmList
+      .filter(o => o.selected)
+      .map(o => o.value);
+    if (this.multiple) return valueList;
+    return valueList[0] || null;
+  }
+
+  @Watch("localValue", { deep: true })
+  private onChangeLocalValue() {
+    if (!this.multiple) return;
+    const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
+    const optionElmList = Array.prototype.slice.call(
+      elm.options
+    ) as HTMLOptionElement[];
+    optionElmList.forEach(o => {
+      o.selected = (this.localValue as string[]).some(v => v === o.value);
+    });
+  }
+
+  @VueEvent
+  private get selectionValue() {
+    if (this.multiple && Array.isArray(this.localValue)) return undefined;
+    return this.localValue;
+  }
+
   public getRect(): Rectangle {
     const elm: HTMLSelectElement = this.$refs.component as HTMLSelectElement;
     const r: any = elm.getBoundingClientRect();
@@ -80,7 +144,7 @@ export default class CtrlSelect extends SelectMixin {
   @Watch("optionInfoList", { immediate: true })
   onChangeOptionInfoList() {
     if (this["test"]) {
-      window.console.log(this.optionInfoList);
+      console.log(this.optionInfoList);
     }
   }
 

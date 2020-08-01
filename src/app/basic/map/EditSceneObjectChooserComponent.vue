@@ -152,7 +152,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
 
   @VueEvent
   private async onSortOrderChange() {
-    window.console.log("onEndOrderChange");
+    console.log("onEndOrderChange");
     const idList: string[] = this.sceneObjectInfoList.map(sao => sao.id!);
     const idOrderList = idList.map(id => {
       const sao = this.sceneAndObjectList.filter(

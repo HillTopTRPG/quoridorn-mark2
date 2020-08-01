@@ -190,12 +190,11 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.mediaCC.touchModify([media.id!]);
+      await this.mediaCC.deletePackage([media.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.mediaCC.delete([media.id!]);
 
     await SocketFacade.instance.socketCommunication<DeleteFileRequest, void>(
       "delete-file",

@@ -12,7 +12,7 @@ const store = new Vuex.Store({
   actions: {},
   mutations: {
     setUseReadAloud: (state, useReadAloud) => {
-      window.console.log(`store#setUseReadAloud: ${useReadAloud}`);
+      console.log(`store#setUseReadAloud: ${useReadAloud}`);
       state.setting.useReadAloud = useReadAloud;
     }
   },

@@ -117,7 +117,7 @@ export default class CharacterEditWindow extends Mixins<
       try {
         await this.cc.touchModify([this.docId]);
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         this.isProcessed = true;
         await this.close();
       }

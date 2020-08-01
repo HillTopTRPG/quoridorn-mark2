@@ -39,7 +39,7 @@ export default class BaseInput extends Vue {
 
   @VueEvent
   public blur() {
-    window.console.log("blur");
+    console.log("blur");
     this.elm.blur();
   }
 

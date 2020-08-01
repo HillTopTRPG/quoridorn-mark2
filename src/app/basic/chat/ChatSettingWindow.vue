@@ -247,12 +247,11 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.chatTabListCC.touchModify([tabInfo.id!]);
+      await this.chatTabListCC.deletePackage([tabInfo.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.chatTabListCC.delete([tabInfo.id!]);
   }
 
   @VueEvent
@@ -343,7 +342,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async onSortOrderChange() {
-    window.console.log("onEndOrderChange");
+    console.log("onEndOrderChange");
     const idOrderList = this.filteredChatTabList.map(ct => ({
       id: ct.id!,
       order: ct.order,

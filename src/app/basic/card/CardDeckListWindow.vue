@@ -157,12 +157,11 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     );
     if (!result) return;
     try {
-      await this.cardDeckBigCC.touchModify([this.selectedCardDeckBigId]);
+      await this.cardDeckBigCC.deletePackage([this.selectedCardDeckBigId]);
     } catch (err) {
       // TODO show message.
       return;
     }
-    await this.cardDeckBigCC.delete([this.selectedCardDeckBigId]);
   }
 }
 </script>

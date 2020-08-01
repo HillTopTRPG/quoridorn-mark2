@@ -338,8 +338,8 @@ export async function mediaUpload(
       const src = fileInfo.src;
       if (typeof src === "string") return;
       const dropBoxResult = await DropBoxManager.instance.upload(src);
-      window.console.log("::DropBoxResult::");
-      window.console.log(dropBoxResult);
+      console.log("::DropBoxResult::");
+      console.log(dropBoxResult);
     };
     // 直列の非同期で全部実行する
     await uploadMediaInfoList

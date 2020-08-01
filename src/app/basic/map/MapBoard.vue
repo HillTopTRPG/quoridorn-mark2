@@ -86,7 +86,7 @@ export default class MapBoard extends Vue {
       const durationMs = performance.getEntriesByName("room-init-time")[0]
         .duration;
       const durationS = Math.round(durationMs / 100) / 10;
-      window.console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
+      console.log(`部屋のセットアップにかかった時間：${durationS}秒`);
     });
   }
 
@@ -190,7 +190,7 @@ export default class MapBoard extends Vue {
     }
     drawLine(ctx, mouseMark.x, mouseMark.y, 20, 20)
     drawLine(ctx, mouseMark.x + 20, mouseMark.y, -20, 20)
-    // window.console.log(this.mouseOnCanvasLocate)
+    // console.log(this.mouseOnCanvasLocate)
     */
   }
 

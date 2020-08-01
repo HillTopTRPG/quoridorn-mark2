@@ -53,7 +53,7 @@ import VueEvent from "../decorator/VueEvent";
 import { createPoint } from "../utility/CoordinateUtility";
 import GameObjectManager from "../../basic/GameObjectManager";
 import { clone } from "../utility/PrimaryDataUtility";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import LifeCycle from "../decorator/LifeCycle";
 import LanguageManager from "../../../LanguageManager";
 import { findById } from "../utility/Utility";
@@ -77,6 +77,7 @@ type Item = {
 export default class Context extends Vue {
   private type: string | null = null;
   private target: string | null = null;
+  private pieceId: string | undefined = undefined;
   private x: number | null = null;
   private y: number | null = null;
   private title: string = "";
@@ -147,6 +148,7 @@ export default class Context extends Vue {
   ): Promise<TaskResult<never> | void> {
     this.type = task.value!.type;
     this.target = task.value!.target;
+    this.pieceId = task.value!.pieceId;
     this.x = task.value!.x - 10;
     this.y = task.value!.y - 10;
 
@@ -163,9 +165,7 @@ export default class Context extends Vue {
       `type.${this.type}`
     )})${name}`;
 
-    window.console.log(
-      `【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`
-    );
+    console.log(`【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`);
 
     // 表示項目をリセット
     this.itemList.splice(0, this.itemList.length);
@@ -222,6 +222,7 @@ export default class Context extends Vue {
 
     const type = this.type!;
     const target = this.target!;
+    const pieceId = this.pieceId;
     const isViewCompare = contextItem.isViewCompare;
 
     // 項目を表示するかどうかの判定
@@ -234,9 +235,10 @@ export default class Context extends Vue {
       // 非活性の判定
       const disabled = !(await judgeCompare(isDisabledCompare, type, target));
 
-      const argObj: DataReference = {
+      const argObj: DataReference & { pieceId?: string } = {
         type,
-        docId: target
+        docId: target,
+        pieceId
       };
       if (!contextItem.taskArg) {
         contextItem.taskArg = {

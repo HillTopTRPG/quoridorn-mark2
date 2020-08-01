@@ -35,7 +35,7 @@ export default class WindowVue<T, U> extends Vue {
             this.windowInfo.taskKey
           );
           if (!task) {
-            window.console.warn(`No such task. type=${this.windowInfo.type}`);
+            console.warn(`No such task. type=${this.windowInfo.type}`);
             return;
           }
           task.resolve();

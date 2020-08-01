@@ -7,7 +7,7 @@
 
     <div class="chmod-container" v-if="permissionRule.type !== 'none'">
       <label class="select-label">
-        <span v-t="'label.group'"></span>
+        <span v-t="'type.actor-group'"></span>
         <actor-group-select
           v-model="groupListInput"
           :multiple="true"
@@ -46,7 +46,6 @@ import {
   PermissionRule,
   PermissionRuleType
 } from "../../../@types/store";
-import PermissionNodeTypeSelect from "../common/components/select/PermissionNodeTypeSelect.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import ActorGroupSelect from "../common/components/select/ActorGroupSelect.vue";
 import SCheck from "../common/components/SCheck.vue";
@@ -59,7 +58,6 @@ import PermissionTypeSelect from "../common/components/select/PermissionTypeSele
     CtrlButton,
     ActorGroupSelect,
     ActorSelect,
-    PermissionNodeTypeSelect,
     PermissionTypeSelect
   }
 })

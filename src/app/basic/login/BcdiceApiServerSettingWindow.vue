@@ -78,12 +78,12 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {
-    window.console.log(system);
+    console.log(system);
   }
 
   @VueEvent
   private async test() {
-    window.console.log("test");
+    console.log("test");
     this.testStatus = "testing";
     try {
       const info: BcdiceVersionInfo = await BcdiceManager.getBcdiceVersionInfo(

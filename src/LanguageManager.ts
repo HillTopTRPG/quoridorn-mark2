@@ -39,7 +39,7 @@ export default class LanguageManager {
     try {
       this.messages[langInfo.lang] = await loadYaml<any>(langInfo.path);
     } catch (err) {
-      window.console.error(err.toString());
+      console.error(err.toString());
     }
   }
 

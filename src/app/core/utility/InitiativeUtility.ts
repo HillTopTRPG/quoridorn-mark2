@@ -11,12 +11,12 @@ export function toInitiativeObjList(
   const absoluteTrans = (list: any[], index: number): boolean => {
     // 全角文字を半角に変換
     if (/^(ー?[０-９]+|？)$/.test(list[index])) {
-      window.console.log(list[index]);
+      console.log(list[index]);
       list[index] = list[index].replace(/[ー０-９？]/g, (s: string) => {
         if (s === "ー") return "-";
         return String.fromCharCode(s.charCodeAt(0) - 0xfee0);
       });
-      window.console.log(list[index]);
+      console.log(list[index]);
     }
     if (list[index] === "?") return true;
     if (/^-?[0-9]+$/.test(list[index])) {

@@ -148,7 +148,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   private async send(cutInId?: string) {
     const useId = cutInId || this.selectedCutInId;
     if (!useId) return;
-    window.console.log("CutInListWindow#send", useId);
+    console.log("CutInListWindow#send", useId);
 
     await SocketFacade.instance.sendData<BgmPlayInfo>({
       dataType: "bgm-play",
@@ -229,7 +229,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async preview() {
-    window.console.log("preview");
+    console.log("preview");
     await BgmManager.instance.callBgm({
       targetId: this.selectedCutInId!,
       data: null
@@ -280,8 +280,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async deleteMusic() {
-    await this.cc.touchModify([this.selectedCutInId!]);
-    await this.cc.delete([this.selectedCutInId!]);
+    await this.cc.deletePackage([this.selectedCutInId!]);
     this.selectedCutInId = null;
   }
 }

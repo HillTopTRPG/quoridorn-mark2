@@ -351,7 +351,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
         `==【${info.name}専用】====================\n` +
         info.info;
     } catch (err) {
-      window.console.error(err);
+      console.error(err);
       this.helpMessage = "ヘルプ文言の取得に失敗しました。";
     }
   }

@@ -127,12 +127,11 @@ export default class ChatTabComponent extends Vue {
     if (!result) return;
 
     try {
-      await this.chatTabListCC.touchModify([tabInfo.id!]);
+      await this.chatTabListCC.deletePackage([tabInfo.id!]);
     } catch (err) {
       // TODO error message.
       return;
     }
-    await this.chatTabListCC.delete([tabInfo.id!]);
   }
 
   @VueEvent

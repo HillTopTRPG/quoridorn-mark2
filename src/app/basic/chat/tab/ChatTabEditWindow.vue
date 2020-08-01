@@ -83,7 +83,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
       try {
         await this.cc.touchModify([this.docId]);
       } catch (err) {
-        window.console.warn(err);
+        console.warn(err);
         this.isProcessed = true;
         await this.close();
       }
@@ -103,7 +103,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   private onChangeIsDuplicate() {
     if (this.docId === null) return;
     const tab = this.chatTabList.filter(ct => ct.id === this.docId)[0];
-    window.console.log(tab, this.chatTabList.concat());
+    console.log(tab, this.chatTabList.concat());
     this.windowInfo.message = this.isDuplicate
       ? ChatTabEditWindow.getDialogMessage("duplicate")
       : ChatTabEditWindow.getDialogMessage("default").replace(

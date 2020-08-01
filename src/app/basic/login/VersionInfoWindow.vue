@@ -44,7 +44,7 @@ export default class VersionInfoWindow extends Mixins<
       try {
         resp = await SocketFacade.instance.testServer(url);
       } catch (err) {
-        window.console.warn(`${err}. url:${url}`);
+        console.warn(`${err}. url:${url}`);
         return;
       }
       this.serverTestResult = resp;

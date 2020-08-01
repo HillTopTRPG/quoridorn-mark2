@@ -225,7 +225,7 @@ export default class PlayYoutubeWindow
 
   public onReady(): void {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onReady");
+    if (this.isIpadTesting) console.log("onReady");
     const windowTitle = LanguageManager.instance.getText(
       `${this.windowInfo.type}.window-title`
     );
@@ -241,7 +241,7 @@ export default class PlayYoutubeWindow
       this.windowFrameElm.style.visibility = "visible";
 
       if (this.isStandByBgm) {
-        if (this.isIpadTesting) window.console.log("isStandByBgm to pause");
+        if (this.isIpadTesting) console.log("isStandByBgm to pause");
         BgmManager.instance.notifyOpenedStandByWindow(
           this.targetId!,
           this.windowKey
@@ -259,7 +259,7 @@ export default class PlayYoutubeWindow
   }
 
   private playStart() {
-    if (this.isIpadTesting) window.console.log("# playStart");
+    if (this.isIpadTesting) console.log("# playStart");
     if (this.isFirstOnReady) {
       this.onChangeMute();
     }
@@ -269,11 +269,11 @@ export default class PlayYoutubeWindow
   }
 
   public onError(error: any): void {
-    window.console.error(error);
+    console.error(error);
   }
 
   public onPaused(): void {
-    if (this.isIpadTesting) window.console.log("onPaused");
+    if (this.isIpadTesting) console.log("onPaused");
     if (!this.isSeekChanging) {
       this.isPlay = false;
     }
@@ -281,7 +281,7 @@ export default class PlayYoutubeWindow
 
   public async onPlaying(duration: number): Promise<void> {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onPlaying");
+    if (this.isIpadTesting) console.log("onPlaying");
 
     if (this.isFirstOnReady) {
       setTimeout(() => {
@@ -387,7 +387,7 @@ export default class PlayYoutubeWindow
 
   public onEnded(): void {
     if (this.status !== "window") return;
-    if (this.isIpadTesting) window.console.log("onEnded");
+    if (this.isIpadTesting) console.log("onEnded");
     if (this.bgmInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(
@@ -408,7 +408,7 @@ export default class PlayYoutubeWindow
   @VueEvent
   private onChangeMute() {
     this.isMute = !this.isMute;
-    if (this.isIpadTesting) window.console.log("onChangeMute", this.isMute);
+    if (this.isIpadTesting) console.log("onChangeMute", this.isMute);
   }
 
   private isSeekToBefore: boolean = false;
@@ -416,7 +416,7 @@ export default class PlayYoutubeWindow
 
   @VueEvent
   private seekTo(seek: number, allowSeekAhead: boolean) {
-    if (this.isIpadTesting) window.console.log("seekTo");
+    if (this.isIpadTesting) console.log("seekTo");
     this.isSeekToBefore = seek < this.bgmStart;
     this.isSeekToAfter = this.bgmEnd < seek;
     setTimeout(() => {
@@ -450,7 +450,7 @@ export default class PlayYoutubeWindow
   @Watch("volume")
   private async onChangeVolume() {
     if (!this.isMounted) return;
-    if (this.isIpadTesting) window.console.log("onChangeVolume");
+    if (this.isIpadTesting) console.log("onChangeVolume");
 
     if (this.bgmInfo) {
       if (this.status === "window") {
@@ -489,7 +489,7 @@ export default class PlayYoutubeWindow
   @Watch("isMute")
   private async onChangeIsMute() {
     if (!this.isMounted) return;
-    if (this.isIpadTesting) window.console.log("onChangeIsMute");
+    if (this.isIpadTesting) console.log("onChangeIsMute");
 
     if (this.bgmInfo) {
       if (this.status === "window") {

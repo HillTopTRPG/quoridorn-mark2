@@ -2,7 +2,7 @@ import { generateMethodDecorator } from "../decorator/generateMethodDecorator";
 
 const logger = {
   generator: (methodName: string) => {
-    window.console.log(`👁️${methodName}`);
+    console.log(`👁️${methodName}`);
   }
 };
 

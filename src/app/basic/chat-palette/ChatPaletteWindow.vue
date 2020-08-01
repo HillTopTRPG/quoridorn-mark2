@@ -132,7 +132,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     if (!this.currentTargetTabInfo || !matchCurrent) {
       this.currentTargetTabInfo = this.targetTabList[0];
     }
-    window.console.log(JSON.stringify(this.currentTargetTabInfo, null, "  "));
+    console.log(JSON.stringify(this.currentTargetTabInfo, null, "  "));
   }
 
   @VueEvent
@@ -179,7 +179,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     await sendChatLog(
       {
         actorId: this.actorId,
-        text: this.sendText.replace(/<[bB][rR] *\/?>/g, "\n"),
+        text: this.sendText.replace(/\\n/g, "\n"),
         tabId: this.outputTabId,
         statusId: this.statusId, // Actorに設定されているものを使う
         targetId: this.targetId,

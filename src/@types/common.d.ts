@@ -246,6 +246,7 @@ declare module "context" {
   interface ContextTaskInfo extends Point {
     type: string;
     target: string | null;
+    pieceId?: string;
   }
 
   // 項目(表示条件ありなし)

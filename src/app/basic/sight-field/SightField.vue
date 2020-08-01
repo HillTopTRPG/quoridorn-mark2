@@ -68,7 +68,7 @@ export default class SightField extends PieceMixin<"chit"> {
   //     x: rect.left + rect.width / 2,
   //     y: rect.top + rect.height / 2
   //   };
-  //   // window.console.log(`center:(${center.x}, ${center.y})`)
+  //   // console.log(`center:(${center.x}, ${center.y})`)
   //
   //   const obstacleList = this.getAllObstacle;
   //
@@ -158,7 +158,7 @@ export default class SightField extends PieceMixin<"chit"> {
   //     const right: number = obstacle.left + width;
   //     const top: number = obstacle.top;
   //     const bottom: number = obstacle.top + height;
-  //     // window.console.log(`rect:${left},${right},${top},${bottom}`)
+  //     // console.log(`rect:${left},${right},${top},${bottom}`)
   //
   //     const obsCenter: any = createCornerFunc(
   //       left + width / 2,
@@ -238,7 +238,7 @@ export default class SightField extends PieceMixin<"chit"> {
   //     const sinMax = Math.sin(maxPI);
   //     /* ========== */
   //
-  //     // window.console.log(`range:(${info.angle.min.index})${info.angle.min.angle}~(${info.angle.max.index})${info.angle.max.angle}`)
+  //     // console.log(`range:(${info.angle.min.index})${info.angle.min.angle}~(${info.angle.max.index})${info.angle.max.angle}`)
   //     info.angle.min.arc.x = this.centerX + arcDistance * cosMin;
   //     info.angle.min.arc.y = this.centerY + arcDistance * sinMin;
   //     info.angle.max.arc.x = this.centerX + arcDistance * cosMax;
@@ -254,16 +254,16 @@ export default class SightField extends PieceMixin<"chit"> {
   //     const RB: any = { x: this.width, y: this.height };
   //     const LB: any = { x: 0, y: this.height };
   //
-  //     // window.console.log('LT:', LT.x, LT.y)
-  //     // window.console.log('RT:', RT.x, RT.y)
-  //     // window.console.log('RB:', RB.x, RB.y)
-  //     // window.console.log('LB:', LB.x, LB.y)
+  //     // console.log('LT:', LT.x, LT.y)
+  //     // console.log('RT:', RT.x, RT.y)
+  //     // console.log('RB:', RB.x, RB.y)
+  //     // console.log('LB:', LB.x, LB.y)
   //
   //     /* ==========
   //      * ブロックの算出
   //      */
   //     aList.forEach((a, i) => {
-  //       // window.console.log('a:', a)
+  //       // console.log('a:', a)
   //       const c = (8 - i) * 2;
   //       if (info.angle.min.angle === a) {
   //         info.angle.min.block = c;

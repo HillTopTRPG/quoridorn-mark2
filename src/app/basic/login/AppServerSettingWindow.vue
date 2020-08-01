@@ -104,12 +104,12 @@ export default class AppServerSettingWindow extends Mixins<
 
   @Watch("currentDiceBotSystem")
   private onChangeCurrentDiceBotSystem(system: string) {
-    window.console.log(system);
+    console.log(system);
   }
 
   @VueEvent
   private async test() {
-    window.console.log("test");
+    console.log("test");
     this.testStatus = "testing";
     try {
       const info = await SocketFacade.instance.testServer(this.url);

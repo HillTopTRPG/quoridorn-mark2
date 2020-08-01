@@ -5,6 +5,7 @@ import BcdiceManager from "../api/bcdice/BcdiceManager";
 import { sum } from "./PrimaryDataUtility";
 import SocketFacade from "../api/app-server/SocketFacade";
 import { findById, findRequireById, someByStr } from "./Utility";
+import { async } from "q";
 
 const config = {};
 const math = create(all, config);
@@ -135,7 +136,7 @@ type SendChatInfo = {
 };
 
 async function addChatLog(chatInfo: ChatInfo) {
-  window.console.log(JSON.stringify(chatInfo, null, "  "));
+  console.log(JSON.stringify(chatInfo, null, "  "));
   await SocketFacade.instance.chatListCC().addDirect(
     [chatInfo],
     [
@@ -150,6 +151,21 @@ async function addChatLog(chatInfo: ChatInfo) {
   );
 }
 
+export async function sendSystemChatLog(text: string) {
+  await sendChatLog(
+    {
+      actorId: null,
+      text,
+      tabId: null,
+      statusId: null,
+      targetId: null,
+      system: null,
+      isSecret: false
+    },
+    []
+  );
+}
+
 export async function sendChatLog(
   payload: SendChatInfo,
   subCustomDiceBotList: CustomDiceBotInfo[]
@@ -159,13 +175,16 @@ export async function sendChatLog(
   const groupChatTabList = GameObjectManager.instance.groupChatTabList;
 
   const actorId =
-    payload.actorId || GameObjectManager.instance.chatPublicInfo.actorId;
+    payload.actorId === undefined
+      ? GameObjectManager.instance.chatPublicInfo.actorId
+      : payload.actorId;
   const targetId =
     payload.targetId || groupChatTabList.find(gct => gct.data!.isSystem)!.id!;
 
-  const actorStatus = findRequireById(
+  const actor = findById(actorList, actorId);
+  const actorStatus = findById(
     actorStatusList,
-    findRequireById(actorList, actorId).data!.statusId
+    actor ? actor.data!.statusId : null
   );
   const groupChatTabInfo = findById(groupChatTabList, targetId);
 
@@ -184,7 +203,12 @@ export async function sendChatLog(
       (groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
         ? groupChatTabInfo.data!.outputChatTabId
         : GameObjectManager.instance.chatPublicInfo.tabId),
-    statusId: payload.statusId || actorStatus.id!,
+    statusId:
+      payload.statusId !== undefined
+        ? payload.statusId
+        : actorStatus
+        ? actorStatus.id!
+        : null,
     system: payload.system || GameObjectManager.instance.chatPublicInfo.system
   };
 
@@ -421,7 +445,7 @@ export function conversion(
   const base = filteredUnit.base;
   const name = filteredUnit.name[0];
 
-  // window.console.log(num, unitName, base, name);
+  // console.log(num, unitName, base, name);
 
   return (
     convertTable
@@ -429,12 +453,12 @@ export function conversion(
       .map(targetUnit => targetUnit.name[0])
       .map((unit: string) => `${num}${name} to ${unit}`)
       // .map((unit: string) => {
-      //   window.console.log(unit);
+      //   console.log(unit);
       //   return unit;
       // })
       .map((unit: string) => math.eval(unit).format())
       .map((result: string) => {
-        // window.console.log(result);
+        // console.log(result);
         const mr: any = result.match(/([^ ]+) (.+)/);
         const floatValue: number = parseFloat(mr[1]);
         const unitStr: string = mr[2];

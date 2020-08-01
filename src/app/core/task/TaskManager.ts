@@ -16,6 +16,7 @@ const taskDeclareJsonList: TaskDeclareJson[] = require("./task.yaml");
 export type MouseMoveParam = {
   key: string;
   type: string | null;
+  pieceId?: string;
 };
 
 export default class TaskManager {
@@ -125,7 +126,7 @@ export default class TaskManager {
 
     // 一定時間以上放置されたタスクを警告する
     const timeoutID = window.setTimeout(() => {
-      window.console.warn(`🐧💢${taskInput.type}`);
+      console.warn(`🐧💢${taskInput.type}`);
     }, 300);
 
     return new Promise(
@@ -233,7 +234,7 @@ export default class TaskManager {
     const param: any = this.taskParam[eventName];
     if (task.isIgniteWithParam && !param) {
       // パラメータ必須タスクでパラメータがないため実施しない
-      if (task.isTest) window.console.log(`${logText}🏷️🈚`);
+      if (task.isTest) console.log(`${logText}🏷️🈚`);
       return null;
     }
     const processContainer: {
@@ -247,12 +248,12 @@ export default class TaskManager {
         : [];
     if (!processList || !processList.length) {
       // 登録された処理がない
-      if (task.isTest) window.console.log(`${logText}🈳`);
+      if (task.isTest) console.log(`${logText}🈳`);
       return null;
     }
 
     if (task.isTest) {
-      window.console.warn(
+      console.warn(
         `${logText}💥`,
         task.value,
         "🏷️" + (param ? "" : "️🈚"),

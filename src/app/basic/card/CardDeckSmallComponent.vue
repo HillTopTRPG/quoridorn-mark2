@@ -222,7 +222,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   @VueEvent
   private async openCardDeckSmallContext(event: MouseEvent) {
-    window.console.log("openCardDeckSmallContext");
+    console.log("openCardDeckSmallContext");
     const point = getEventPoint(event);
     // const planePoint = this.getPoint(point);
     await TaskManager.instance.ignition<ContextTaskInfo, never>({
@@ -356,12 +356,12 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   @VueEvent
   private async contentsLeftDown(event: MouseEvent) {
-    window.console.log("contentsLeftDown");
+    console.log("contentsLeftDown");
     event.stopPropagation();
     try {
       await this.cardDeckSmallCC!.touchModify([this.docId]);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       return;
     }
     const clientRect = (event.target as any).getBoundingClientRect();
@@ -413,12 +413,12 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     cardObject: StoreUseData<CardObject>,
     event: MouseEvent
   ) {
-    window.console.log("cardLeftDown");
+    console.log("cardLeftDown");
     event.stopPropagation();
     try {
       await this.cardDeckSmallCC!.touchModify([this.docId]);
     } catch (err) {
-      window.console.warn(err);
+      console.warn(err);
       return;
     }
     const point = getEventPoint(event);
@@ -447,7 +447,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
    */
   @VueEvent
   protected rightDown(): void {
-    window.console.log("rightDown");
+    console.log("rightDown");
     this.mouseDown("right");
   }
 
@@ -501,7 +501,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.docId) return;
 
-    window.console.log("mouse-move-end-left-finished", param.key, param.type);
+    console.log("mouse-move-end-left-finished", param.key, param.type);
 
     if (this.movingMode === "container") {
       await this.fixDeckLocate();
@@ -633,7 +633,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
             total: this.deck.data!.total - 1
           });
         } catch (err) {
-          window.console.error(err);
+          console.error(err);
         }
       }
 
@@ -656,7 +656,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   @VueEvent
   private consoleButton() {
-    window.console.log(
+    console.log(
       JSON.stringify(
         this.useCardObjectList.map(co => {
           const cardMeta = this.cardMetaList.filter(
@@ -679,12 +679,11 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const msg = LanguageManager.instance.getText("message.delete-deck");
     if (!window.confirm(msg)) return;
     try {
-      await this.cardDeckSmallCC.touchModify([this.docId]);
+      await this.cardDeckSmallCC.deletePackage([this.docId]);
     } catch (err) {
       // Nothing.
       return;
     }
-    await this.cardDeckSmallCC.delete([this.docId]);
   }
 
   private async updateDeck(
@@ -744,7 +743,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     // TODO
     const cardObject = this.getTaskCardObject(task);
     if (!cardObject) return;
-    window.console.log("Do draw!!!");
+    console.log("Do draw!!!");
   }
 
   @TaskProcessor("card-turn-on-finished")
@@ -805,7 +804,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     performance.measure("time", "start", "end");
     const durationMs = performance.getEntriesByName("time")[0].duration;
     const durationS = Math.round(durationMs / 100) / 10;
-    window.console.log(`経過時間：${durationS}秒`);
+    console.log(`経過時間：${durationS}秒`);
   }
 
   @TaskProcessor("card-shuffle-from-card-finished")
@@ -992,7 +991,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.docId) return;
-    window.console.log("mouse-move-end-right-finished", param.key, param.type);
+    console.log("mouse-move-end-right-finished", param.key, param.type);
     const point: Point = task.value!;
 
     const eventType = param ? param.type!.split("-")[1] : "";

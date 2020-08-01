@@ -87,8 +87,8 @@ export default class BcdiceManager {
       json = await jsonStr.json();
     } catch (err) {
       alert("BCDice-APIとの通信に失敗しました。");
-      window.console.error("[!!CAUTION!!] これは問題ですっ！🐧💦");
-      window.console.error(err);
+      console.error("[!!CAUTION!!] これは問題ですっ！🐧💦");
+      console.error(err);
       // TODO 対症療法
       return { diceSystemList: [], customDiceBotList: [] };
       // throw err;
