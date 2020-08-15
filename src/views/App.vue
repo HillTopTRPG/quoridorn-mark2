@@ -596,13 +596,11 @@ export default class App extends Vue {
     this.otherTextViewInfo = null;
   }
 
-  public static async openSimpleWindow(type: string) {
+  public static async openSimpleWindow(type: string): Promise<void> {
     await TaskManager.instance.ignition<WindowOpenInfo<void>, null>({
       type: "window-open",
       owner: "Quoridorn",
-      value: {
-        type
-      }
+      value: { type }
     });
   }
 
@@ -614,6 +612,15 @@ export default class App extends Vue {
     this.roomInitialized = true;
     await App.openSimpleWindow("chat-window");
     await App.openSimpleWindow("initiative-window");
+    if (
+      GameObjectManager.instance.keepBcdiceDiceRollResultList.some(
+        kbdrr =>
+          kbdrr.data!.type === "secret-dice-roll" &&
+          kbdrr.owner === GameObjectManager.instance.mySelfUserId
+      )
+    ) {
+      await App.openSimpleWindow("secret-dice-roll-window");
+    }
 
     task.resolve();
   }

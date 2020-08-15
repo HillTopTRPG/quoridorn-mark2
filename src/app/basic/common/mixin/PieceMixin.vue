@@ -575,6 +575,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           await keepBcdiceDiceRollResultListCC.addDirect([
             {
               type: "hide-dice-symbol-roll",
+              text: command,
               targetId: data.id!,
               bcdiceDiceRollResult: resultJson
             }

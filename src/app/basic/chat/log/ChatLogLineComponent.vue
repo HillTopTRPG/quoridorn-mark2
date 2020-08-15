@@ -8,14 +8,17 @@
       <span class="text" v-html="transText(chat.data.text)"></span>
       <div class="icon-container">
         <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
-        <template v-if="isEditable(chat)">
+        <template v-if="isEditable(chat) && chat.data.chatType === 'chat'">
           <span class="icon icon-pencil" @click="$emit('edit', chat.id)"></span>
           <span class="icon icon-bin" @click="$emit('delete', chat.id)"></span>
         </template>
         <span class="update-time">{{ getDateStr(chat.updateTime) }}</span>
       </div>
     </div>
-    <div class="chat-line dice-roll-result" v-if="chat.data.diceRollResult">
+    <div
+      class="chat-line dice-roll-result"
+      v-if="!chat.data.isSecretDice && chat.data.diceRollResult"
+    >
       <span class="sender">{{ chat.data.system }}</span>
       <span>：</span>
       <span>{{ chat.data.diceRollResult }}</span>

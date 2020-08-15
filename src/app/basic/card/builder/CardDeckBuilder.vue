@@ -434,9 +434,9 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
                   : "",
                 frontBackgroundColor: c.backgroundColor || "#ffffff",
                 backImage: presetDeck.back.imagePath
-                  ? `url(${getSrc(
-                      urljoin(basePath, presetDeck.back.imagePath)
-                    ).url})`
+                  ? `url(${
+                      getSrc(urljoin(basePath, presetDeck.back.imagePath)).url
+                    })`
                   : "",
                 backBackgroundColor:
                   presetDeck.back.backgroundColor || "#ffffff",

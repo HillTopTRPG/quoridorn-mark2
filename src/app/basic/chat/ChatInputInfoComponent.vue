@@ -39,7 +39,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../core/window/ComponentVue";
 import LanguageManager from "../../../LanguageManager";
-import { WindowInfo } from "../../../@types/window";
+import { WindowInfo } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 
 @Component

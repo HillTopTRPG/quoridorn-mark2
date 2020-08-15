@@ -25,6 +25,7 @@ button:
   setting: 設定
   open-resource-master-list-window: リソース一覧
   clear: クリア
+  open-dice-roll-result: 結果公開
 
 type:
   map-mask: Map mask
@@ -342,6 +343,8 @@ message:
   hide-dice-symbol: ダイスシンボルを秘匿
   view-dice-symbol: ダイスシンボルを公開（{0}：{1}）
   view-dice-symbol-dice-roll: ダイスシンボルを公開（{0}：{1}）ダイスロール結果：{2}
+  dice-roll-secret-dice: シークレットダイスをロール
+  open-secret-dice: シークレットダイスを公開
 
 play-youtube-window:
   window-title: Youtube Player
@@ -635,3 +638,6 @@ dice-symbol-add-window:
 
 dice-symbol-edit-window:
   window-title: ダイスシンボル編集
+
+secret-dice-roll-window:
+  window-title: 隠しダイスロール結果

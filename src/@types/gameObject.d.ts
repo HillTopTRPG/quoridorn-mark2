@@ -280,6 +280,7 @@ type DiceMaterial = { [P: string]: DiceInfo[] };
 
 type KeepBcdiceDiceRollResult = {
   type: "secret-dice-roll" | "hide-dice-symbol-roll";
+  text: string;
   targetId: string;
   bcdiceDiceRollResult: BcdiceDiceRollResult;
 };

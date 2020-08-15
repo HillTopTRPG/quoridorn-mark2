@@ -6,7 +6,11 @@ import { createSize } from "./CoordinateUtility";
 import { ApplicationError } from "../error/ApplicationError";
 import { getYoutubeThunbnail } from "../../basic/cut-in/bgm/YoutubeManager";
 import DropBoxManager from "../api/drop-box/DropBoxManager";
-import { UploadMediaInfo, UploadMediaRequest, UploadMediaResponse } from "@/@types/socket";
+import {
+  UploadMediaInfo,
+  UploadMediaRequest,
+  UploadMediaResponse
+} from "@/@types/socket";
 import SocketFacade from "../api/app-server/SocketFacade";
 import { ExportDataFormat } from "@/@types/store";
 import { getSrc } from "@/app/core/utility/Utility";
@@ -196,16 +200,9 @@ export type IconClass =
   | "icon-music"
   | "icon-text";
 
-export type UrlType =
-  | "youtube"
-  | "image"
-  | "music"
-  | "setting"
-  | "unknown";
+export type UrlType = "youtube" | "image" | "music" | "setting" | "unknown";
 
-function getUrlTypes(
-  url: string
-): { urlType: UrlType; iconClass: IconClass } {
+function getUrlTypes(url: string): { urlType: UrlType; iconClass: IconClass } {
   if (url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
     return { urlType: "youtube", iconClass: "icon-youtube2" };
   } else {
@@ -237,9 +234,10 @@ async function raw2UploadMediaInfo(
   const tag = "";
   const { urlType, iconClass } = getUrlTypes(rawText);
 
-  let { url, dataLocation } = typeof raw === "string"
-    ? getSrc(raw)
-    : { url: "", dataLocation: "server" as "server" };
+  let { url, dataLocation } =
+    typeof raw === "string"
+      ? getSrc(raw)
+      : { url: "", dataLocation: "server" as "server" };
 
   let imageSrc: string = "";
 
@@ -293,15 +291,21 @@ async function raw2UploadMediaInfo(
 export async function raw2UploadMediaInfoList(
   rawList: (string | File)[]
 ): Promise<UploadMediaInfo[]> {
-  const resultList: { uploadMediaInfo: UploadMediaInfo; raw: string | File }[] = [];
+  const resultList: {
+    uploadMediaInfo: UploadMediaInfo;
+    raw: string | File;
+  }[] = [];
   await Promise.all(
-    rawList.map(raw => (async () => {
-      resultList.push(await raw2UploadMediaInfo(raw));
-    })())
+    rawList.map(raw =>
+      (async () => {
+        resultList.push(await raw2UploadMediaInfo(raw));
+      })()
+    )
   );
 
-  // 非同期処理は並列で行った代わりに、順序を保証するためにソートする
-  const getStr = (data: string | File) => typeof data === "string" ? data : data.name;
+  // 非同期処理は並列で行った代わりに、順序を保証するためにソートするaa
+  const getStr = (data: string | File) =>
+    typeof data === "string" ? data : data.name;
   const rawStrList = rawList.map(r => getStr(r));
   resultList.sort((umi1, umi2) => {
     const umi1Str = getStr(umi1.raw);
@@ -375,9 +379,7 @@ async function url2Blob(url: string): Promise<Blob> {
   return new Blob([await url2ArrayBuffer(url)]);
 }
 
-async function blob2ArrayBuffer(
-  blob: Blob | File
-): Promise<ArrayBuffer> {
+async function blob2ArrayBuffer(blob: Blob | File): Promise<ArrayBuffer> {
   return new Promise<ArrayBuffer>((resolve, reject) => {
     const fr = new FileReader();
     fr.readAsArrayBuffer(blob);

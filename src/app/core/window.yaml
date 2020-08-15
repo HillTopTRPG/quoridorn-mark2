@@ -1610,3 +1610,38 @@
   fontSizePickable: true
   resizable: false
   tableInfoList: []
+
+"secret-dice-roll-window":
+  icon: dice
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 4
+    widthEm: 22
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 8
+    heightRem: 0.5
+  minSize:
+    widthPx: 4
+    widthEm: 12
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 4
+    heightRem: 0
+  maxSize:
+    widthPx: 4
+    widthEm: 42
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 20
+    heightRem: 1.5
+  minimizable: true
+  paneContainable: true
+  closable: false
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

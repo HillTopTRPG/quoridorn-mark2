@@ -6,6 +6,9 @@ import { sum } from "./PrimaryDataUtility";
 import SocketFacade from "../api/app-server/SocketFacade";
 import { findById, someByStr } from "./Utility";
 import { BcdiceDiceRollResult, DiceResult } from "@/@types/bcdice";
+import LanguageManager from "@/LanguageManager";
+import App from "@/views/App.vue";
+import WindowManager from "@/app/core/window/WindowManager";
 
 const config = {};
 const math = create(all, config);
@@ -139,9 +142,9 @@ export type SendChatInfo = {
   dices?: DiceResult[];
 };
 
-async function addChatLog(chatInfo: ChatInfo) {
+async function addChatLog(chatInfo: ChatInfo): Promise<string> {
   console.log(JSON.stringify(chatInfo, null, "  "));
-  await SocketFacade.instance.chatListCC().addDirect(
+  const idList = await SocketFacade.instance.chatListCC().addDirect(
     [chatInfo],
     [
       {
@@ -153,11 +156,13 @@ async function addChatLog(chatInfo: ChatInfo) {
       }
     ]
   );
+  return idList[0];
 }
 
 export async function sendSystemChatLog(text: string) {
   await sendChatLog(
     {
+      chatType: "system-message",
       actorId: null,
       text,
       tabId: null,
@@ -238,12 +243,32 @@ export async function sendChatLog(
       // bcdiceとして結果は取れなかった
     }
 
-    // TODO ダイス結果を画面から非表示にする
+    const oldText = chatInfo.text;
+    if (chatInfo.isSecretDice) {
+      chatInfo.chatType = "system-message";
+      chatInfo.text = LanguageManager.instance.getText(
+        "message.dice-roll-secret-dice"
+      );
+    }
 
-    await addChatLog(chatInfo);
+    const chatId = await addChatLog(chatInfo);
 
     if (chatInfo.isSecretDice) {
-      // TODO シークレットダイスの画面表示処理
+      const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
+      await keepBcdiceDiceRollResultListCC.addDirect([
+        {
+          type: "secret-dice-roll",
+          text: oldText,
+          targetId: chatId!,
+          bcdiceDiceRollResult: resultJson
+        }
+      ]);
+      const windowInfoList = WindowManager.instance.windowInfoList;
+      if (!windowInfoList.some(w => w.type === "secret-dice-roll")) {
+        // 開いてなかったら開く
+        // @ts-ignore
+        await App.openSimpleWindow("secret-dice-roll-window");
+      }
     }
 
     return resultJson.ok ? resultJson : null;
