@@ -27,6 +27,13 @@
         :docId="sceneObject.id"
         type="character"
       />
+
+      <dice-symbol-piece-component
+        v-if="sceneObject.data.type === 'dice-symbol'"
+        :key="sceneObject.id"
+        :docId="sceneObject.id"
+        type="dice-symbol"
+      />
     </template>
   </div>
 </template>
@@ -35,10 +42,10 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj, StoreUseData } from "../../../@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
-import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import CardDeckSmallComponent from "../card/CardDeckSmallComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -49,9 +56,11 @@ import MapMaskPieceComponent from "../object/map-mask/MapMaskPieceComponent.vue"
 import ChitPieceComponent from "../object/chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../object/character/CharacterPieceComponent.vue";
 import { findRequireById } from "../../core/utility/Utility";
+import DiceSymbolPieceComponent from "@/app/basic/object/dice-symbol/DiceSymbolPieceComponent.vue";
 
 @Component({
   components: {
+    DiceSymbolPieceComponent,
     CharacterPieceComponent,
     ChitPieceComponent,
     MapMaskPieceComponent,

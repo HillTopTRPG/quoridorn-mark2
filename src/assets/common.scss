@@ -137,6 +137,15 @@
     box-shadow
     */
   }
+
+  &.hide-sub-type {
+    &.non-owners:before {
+      background-image: none;
+    }
+    &:before {
+      background-color: black;
+    }
+  }
 }
 
 @mixin btn-skyblue() {

@@ -1,6 +1,8 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
 import { StoreObj, StoreUseData } from "./store";
-import { TargetVersion } from "../app/core/api/Github";
+import { TargetVersion } from "@/app/core/api/Github";
+import { MediaInfo } from "@/@types/room";
+import { UrlType } from "@/app/core/utility/FileUtility";
 
 type WindowSetting =
   | "not-use" // 使えなくします
@@ -149,12 +151,40 @@ export type SendDataRequest<T> = {
   data: T | null;
 };
 
-export type UploadFileInfo = {
-  name: string;
-  src: string | ArrayBuffer | null;
+export type UploadMediaInfo = MediaInfo & (
+  | { dataLocation: "direct"; }
+  | {
+    dataLocation: "server";
+    blob: Blob;
+    arrayBuffer: ArrayBuffer;
+  }
+);
+
+export type DiceType = {
+  faceNum: string;
+  subType: string;
+  label: string;
 };
 
-export type UploadFileRequest = UploadFileInfo[];
+export type DiceAndPips = {
+  diceTypeId: string;
+  pips: string;
+  mediaId: string;
+};
+
+export type UploadMediaResponse = {
+  docId: string;
+  oldUrl: string;
+  url: string;
+  name: string;
+  tag: string;
+  urlType: UrlType;
+}[];
+
+export type UploadMediaRequest = {
+  uploadMediaInfoList: UploadMediaInfo[];
+  option: Partial<StoreObj<any>>;
+};
 
 export type DeleteFileRequest = {
   urlList: string[];

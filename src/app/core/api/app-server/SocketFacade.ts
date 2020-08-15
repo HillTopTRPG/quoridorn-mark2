@@ -8,7 +8,7 @@ import {
   PermissionRule,
   StoreObj,
   StoreUseData
-} from "../../../../@types/store";
+} from "@/@types/store";
 import { compareVersion, getFileRow, TargetVersion } from "../Github";
 import {
   ActorStatusStore,
@@ -17,16 +17,15 @@ import {
   CardDeckSmall,
   CardMeta,
   CardObject,
+  KeepBcdiceDiceRollResult,
   ChatPaletteStore,
   InitiativeColumnStore,
-  PropertyFaceStore,
   PropertySelectionStore,
-  PropertyStore,
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
   TagNoteStore
-} from "../../../../@types/gameObject";
+} from "@/@types/gameObject";
 import {
   ActorGroup,
   ChatInfo,
@@ -41,15 +40,17 @@ import {
   SceneLayer,
   SocketUserData,
   UserData
-} from "../../../../@types/room";
+} from "@/@types/room";
 import GameObjectManager from "../../../basic/GameObjectManager";
 import { ApplicationError } from "../../error/ApplicationError";
 import {
   DefaultServerInfo,
+  DiceAndPips,
+  DiceType,
   GetVersionResponse,
   SendDataRequest,
   ServerTestResult
-} from "../../../../@types/socket";
+} from "@/@types/socket";
 import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
@@ -525,10 +526,6 @@ export default class SocketFacade {
     return this.roomCollectionController<SocketUserData>("socket-user-list");
   }
 
-  public propertyCC(): NekostoreCollectionController<PropertyStore> {
-    return this.roomCollectionController<PropertyStore>("property-list");
-  }
-
   public resourceMasterCC(): NekostoreCollectionController<
     ResourceMasterStore
   > {
@@ -554,12 +551,6 @@ export default class SocketFacade {
   > {
     return this.roomCollectionController<PropertySelectionStore>(
       "property-selection-list"
-    );
-  }
-
-  public propertyFaceCC(): NekostoreCollectionController<PropertyFaceStore> {
-    return this.roomCollectionController<PropertyFaceStore>(
-      "property-face-list"
     );
   }
 
@@ -591,6 +582,22 @@ export default class SocketFacade {
     return this.roomCollectionController<ChatPaletteStore>("chat-palette-list");
   }
 
+  public diceTypeListCC(): NekostoreCollectionController<DiceType> {
+    return this.roomCollectionController<DiceType>("dice-type-list");
+  }
+
+  public diceAndPipsListCC(): NekostoreCollectionController<DiceAndPips> {
+    return this.roomCollectionController<DiceAndPips>("dice-and-pips-list");
+  }
+
+  public keepBcdiceDiceRollResultListCC(): NekostoreCollectionController<
+    KeepBcdiceDiceRollResult
+  > {
+    return this.roomCollectionController<KeepBcdiceDiceRollResult>(
+      "chat-bcdice-dice-roll-result-list"
+    );
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
       case "chat":
@@ -611,8 +618,6 @@ export default class SocketFacade {
         return this.cutInDataCC();
       case "user":
         return this.userCC();
-      case "property":
-        return this.propertyCC();
       case "resource-master":
         return this.resourceMasterCC();
       case "resource":
@@ -621,8 +626,6 @@ export default class SocketFacade {
         return this.initiativeColumnCC();
       case "property-selection":
         return this.propertySelectionCC();
-      case "property-face":
-        return this.propertyFaceCC();
       case "character":
       case "dice-symbol":
       case "floor-tile":
@@ -649,6 +652,12 @@ export default class SocketFacade {
         return this.cardDeckSmallCC();
       case "chat-palette":
         return this.chatPaletteListCC();
+      case "dice-type":
+        return this.diceTypeListCC();
+      case "dice-and-pips":
+        return this.diceAndPipsListCC();
+      case "chat-bcdice-dice-roll-result":
+        return this.keepBcdiceDiceRollResultListCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

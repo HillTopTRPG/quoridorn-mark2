@@ -1,6 +1,8 @@
 import { Address, Point } from "address";
 import { PartialRoomInfoExtend, RoomInfoExtend, UserType } from "./socket";
 import { DiceResult } from "./bcdice";
+import { IconClass, UrlType } from "@/app/core/utility/FileUtility";
+import { DiceMaterial } from "@/@types/gameObject";
 
 export type PlayBgmInfo =
   | {
@@ -225,10 +227,13 @@ type StandImageInfo = Point & {
 };
 
 type MediaInfo = {
-  tag: string;
   name: string;
+  tag: string;
   url: string;
-  type: string;
+  urlType: UrlType;
+  iconClass: IconClass;
+  imageSrc: string;
+  dataLocation: "server" | "direct";
 };
 
 export type ActorRef = {
@@ -299,6 +304,7 @@ type CustomDiceBotInfo = {
 };
 
 type ChatInfo = {
+  chatType: "chat" | "system-message";
   actorId: string | null;
   statusId: string | null;
   tabId: string;
@@ -307,8 +313,8 @@ type ChatInfo = {
   text: string;
   diceRollResult: string | null;
   customDiceBotResult: string | null;
-  isSecret: boolean;
-  isSecretDice: boolean;
+  isSecret: boolean; // 秘匿チャット
+  isSecretDice: boolean; // BCDiceのシークレットダイス
   dices: DiceResult[];
   system: string;
 };
@@ -321,8 +327,7 @@ type ChatTabInfo = {
 };
 
 type AddRoomPresetDataRequest = {
-  mediaDataList: MediaInfo[];
-  backgroundMediaIndex: number;
+  diceMaterial: DiceMaterial,
   cutInDataList: CutInDeclareInfo[];
   sceneData: Scene;
   roomExtendInfo: RoomInfoExtend;

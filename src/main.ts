@@ -49,6 +49,8 @@ import ChatSettingWindow from "./app/basic/chat/ChatSettingWindow.vue";
 import ChatPaletteAddWindow from "./app/basic/chat-palette/ChatPaletteAddWindow.vue";
 import ChatPaletteWindow from "./app/basic/chat-palette/ChatPaletteWindow.vue";
 import ChatPaletteEditWindow from "./app/basic/chat-palette/ChatPaletteEditWindow.vue";
+import DiceSymbolEditWindow from "@/app/basic/object/dice-symbol/DiceSymbolEditWindow.vue";
+import DiceSymbolAddWindow from "@/app/basic/object/dice-symbol/DiceSymbolAddWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -106,6 +108,8 @@ async function main(): Promise<void> {
   Vue.component("chat-palette-window", ChatPaletteWindow);
   Vue.component("chat-palette-add-window", ChatPaletteAddWindow);
   Vue.component("chat-palette-edit-window", ChatPaletteEditWindow);
+  Vue.component("dice-symbol-add-window", DiceSymbolAddWindow);
+  Vue.component("dice-symbol-edit-window", DiceSymbolEditWindow);
   Vue.component(
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow

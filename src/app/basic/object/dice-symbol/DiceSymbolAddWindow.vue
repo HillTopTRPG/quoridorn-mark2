@@ -1,19 +1,16 @@
 <template>
   <div class="container" ref="window-container">
-    <chit-info-form
+    <dice-symbol-info-form
       :windowKey="windowKey"
       :isAdd="true"
-      initTabTarget="image"
+      initTabTarget="background"
       :name.sync="name"
+      :color.sync="color"
       :tag.sync="tag"
-      :otherText.sync="otherText"
-      :width.sync="width"
-      :height.sync="height"
-      :imageDocId.sync="imageDocId"
-      :imageTag.sync="imageTag"
-      :direction.sync="direction"
-      :backgroundSize.sync="backgroundSize"
+      :size.sync="size"
       :layerId.sync="layerId"
+      :diceTypeId.sync="diceTypeId"
+      :pips.sync="pips"
       @drag-start="dragStart"
       @drag-end="dragEnd"
     />
@@ -27,47 +24,63 @@ import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { BackgroundSize, Direction } from "@/@types/room";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
-import ChitInfoForm from "./ChitInfoForm.vue";
 import GameObjectManager from "../../GameObjectManager";
 import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import DiceSymbolInfoForm from "@/app/basic/object/dice-symbol/DiceSymbolInfoForm.vue";
 
-@Component({ components: { ChitInfoForm } })
-export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
-  WindowVue
-) {
-  private name: string = LanguageManager.instance.getText("type.chit");
+@Component({ components: { DiceSymbolInfoForm } })
+export default class DiceSymbolAddWindow extends Mixins<
+  WindowVue<string, never>
+>(WindowVue) {
+  private diceTypeList = GameObjectManager.instance.diceTypeList;
+  private diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
+
+  private name: string = "";
   private tag: string = "";
-  private otherText: string = "";
-  private height: number = 1;
-  private width: number = 1;
-  private imageDocId: string | null = null;
-  private imageTag: string | null = null;
-  private direction: Direction = "none";
+  private color: string = "rgba(255, 255, 255, 1)";
+  private size: number = 1;
   private isMounted: boolean = false;
-  private backgroundSize: BackgroundSize = "contain";
   private layerId: string = GameObjectManager.instance.sceneLayerList.find(
-    ml => ml.data!.type === "character"
+    ml => ml.data!.type === "dice-symbol"
   )!.id!;
+  private diceTypeId: string = "";
+  private pips: string = "1";
+
+  @LifeCycle
+  private created() {
+    const diceType =
+      this.diceTypeList.find(dt => dt.data!.faceNum === "6") ||
+      this.diceTypeList[0];
+    this.diceTypeId = diceType.id!;
+    const pipsList = this.diceAndPipsList
+      .filter(dap => dap.data!.diceTypeId === this.diceTypeId)
+      .map(dap => dap.data!.pips);
+    this.pips = pipsList.find(p => p === "1") || pipsList[0];
+
+    console.log({
+      faceNum: diceType.data!.faceNum,
+      subType: diceType.data!.subType,
+      pips: pipsList
+    });
+  }
+
+  @Watch("diceTypeId")
+  private onChangeDiceTypeId() {
+    console.log("diceTypeId", this.diceTypeId);
+  }
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = LanguageManager.instance.getText("type.character");
     this.isMounted = true;
-  }
-
-  @Watch("imageDocId", { immediate: true })
-  private onChangeImageDocId() {
     this.windowInfo.message = LanguageManager.instance.getText(
-      `${this.windowInfo.type}.message-list.${
-        this.imageDocId ? "drag-piece" : "choose-image"
-      }`
+      `${this.windowInfo.type}.message-list.drag-piece`
     );
   }
 
@@ -81,7 +94,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
         value: "on" as "on"
       }
     });
-    event.dataTransfer!.setData("dropType", "chit");
+    event.dataTransfer!.setData("dropType", "map-mask");
     event.dataTransfer!.setData("dropWindow", this.key);
   }
 
@@ -105,38 +118,40 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
+    const colorObj = parseColor(this.color);
+    const backgroundColor = colorObj.getRGBA();
+    const fontColor = colorObj.getRGBReverse();
     await SocketFacade.instance.sceneObjectCC().addDirect([
       {
-        type: "chit",
+        type: "dice-symbol",
         tag: this.tag,
         name: this.name,
         x: point.x,
         y: point.y,
         row: matrix.row,
         column: matrix.column,
+        rows: this.size,
+        columns: this.size,
         actorId: null,
-        columns: this.width,
-        rows: this.height,
         place: "field",
         isHideBorder: false,
         isHideHighlight: false,
         isLock: false,
-        otherText: this.otherText,
+        otherText: "",
         layerId: this.layerId,
         textures: [
           {
-            type: "image",
-            imageTag: this.imageTag!,
-            imageId: this.imageDocId!,
-            direction: this.direction,
-            backgroundSize: this.backgroundSize!
+            type: "color",
+            backgroundColor,
+            fontColor,
+            text: ""
           }
         ],
         textureIndex: 0,
         angle: 0,
         url: "",
-        subTypeId: "",
-        subTypeValue: "",
+        subTypeId: this.diceTypeId,
+        subTypeValue: this.pips,
         isHideSubType: false
       }
     ]);

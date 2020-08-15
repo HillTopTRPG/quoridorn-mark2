@@ -7,7 +7,7 @@
       :hasSetting="true"
       @settingOpen="onSettingOpen()"
     >
-      <div class="chat-line-container selectable">
+      <div class="chat-line-container selectable" ref="chat-line-container">
         <template v-for="chat in chatList">
           <chat-log-line-component
             v-if="chat.data.tabId === currentTabInfo.target"
@@ -37,15 +37,16 @@ import {
   ChatTabInfo,
   GroupChatTabInfo,
   UserData
-} from "../../../../@types/room";
-import { ActorStore } from "../../../../@types/gameObject";
-import { TabInfo, WindowInfo, WindowOpenInfo } from "../../../../@types/window";
+} from "@/@types/room";
+import { ActorStore } from "@/@types/gameObject";
+import { TabInfo, WindowInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../../@types/store";
-import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
-import { UserType } from "../../../../@types/socket";
+import { StoreUseData } from "@/@types/store";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import App from "../../../../views/App.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
   components: {
@@ -81,6 +82,31 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   // tab controls
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
+
+  private lastLineLength: number = 0;
+
+  @LifeCycle
+  private mounted() {
+    this.autoScrollEnd();
+  }
+
+  @LifeCycle
+  private updated() {
+    this.autoScrollEnd();
+  }
+
+  private autoScrollEnd() {
+    const elm = this.$refs["chat-line-container"] as HTMLElement;
+    if (this.lastLineLength < this.chatList.length) {
+      if (elm) {
+        // 入室直後はsetTimeoutしないと反映されない
+        setTimeout(() => {
+          elm.scroll(0, elm.scrollHeight);
+        });
+      }
+    }
+    this.lastLineLength = this.chatList.length;
+  }
 
   @Watch("currentTabInfo")
   private onChangeCurrentTabInfo() {

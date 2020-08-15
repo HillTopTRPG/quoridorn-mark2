@@ -44,7 +44,7 @@ import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../core/window/ComponentVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { UploadMediaInfo } from "../../core/utility/FileUtility";
+import { UploadMediaInfo } from "@/@types/socket";
 
 @Component({
   components: { BaseInput, CtrlButton }

@@ -73,11 +73,10 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import ComponentVue from "../window/ComponentVue";
-import { Direction, MediaInfo } from "../../../@types/room";
+import { Direction, MediaInfo } from "@/@types/room";
 import CtrlButton from "./CtrlButton.vue";
-import { getSrc } from "../utility/Utility";
 import GameObjectManager from "../../basic/GameObjectManager";
 import ImageTagSelect from "../../basic/common/components/select/ImageTagSelect.vue";
 import DirectionTypeSelect from "../../basic/common/components/select/DirectionTypeSelect.vue";
@@ -121,11 +120,6 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   private useImageList: StoreUseData<MediaInfo>[] = [];
   private searchText: string = "";
 
-  @VueEvent
-  private getSrc(data: string) {
-    return getSrc(data);
-  }
-
   @Watch("isMounted")
   @Watch("selectImageTag")
   @Watch("searchText")
@@ -151,7 +145,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @LifeCycle
   private mounted() {
     this.rawImageList = GameObjectManager.instance.mediaList.filter(
-      media => media.data!.type === "image"
+      media => media.data!.urlType === "image"
     );
     this.isMounted = true;
   }

@@ -27,8 +27,9 @@
           ]"
           @click.left.stop="emitEvent(item)"
           @mouseenter="onHoverItem(level, idx)"
-          v-t="item.text"
-        ></div>
+        >
+          {{ item.isRawText ? item.text : $t(item.text) }}
+        </div>
       </template>
     </div>
   </div>
@@ -57,6 +58,8 @@ import { DataReference } from "@/@types/data";
 import LifeCycle from "../decorator/LifeCycle";
 import LanguageManager from "../../../LanguageManager";
 import { findById } from "../utility/Utility";
+import { StoreUseData } from "@/@types/store";
+import { SceneObject } from "@/@types/gameObject";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -65,6 +68,7 @@ type Item = {
   type: string;
   idx: number;
   text?: string;
+  isRawText?: boolean;
   taskName?: string;
   arg?: any;
   disabled?: boolean;
@@ -248,6 +252,23 @@ export default class Context extends Vue {
       if (!contextItem.taskArg.arg) {
         contextItem.taskArg.args = argObj;
       }
+
+      if (contextItem.argRef === "dice-pips-select") {
+        const list = GameObjectManager.instance.getList(this.type!)!;
+        const obj: StoreUseData<SceneObject> | null = findById(list, target);
+        const diceTypeId = obj!.data!.subTypeId;
+        const diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
+        const pipsList = diceAndPipsList
+          .filter(dap => dap.data!.diceTypeId === diceTypeId)
+          .map(dap => dap.data!.pips);
+        contextItem.children = pipsList.map(pips => ({
+          text: pips,
+          isRawText: true,
+          taskName: "dice-pips-change",
+          taskArg: { value: pips }
+        }));
+      }
+
       this.itemList.push({
         type: "item",
         level,
@@ -255,6 +276,7 @@ export default class Context extends Vue {
         idx: ++levelIdxList[1],
         taskName: contextItem.taskName || "default",
         text: contextItem.text || "default",
+        isRawText: contextItem.isRawText,
         arg: contextItem.taskArg,
         disabled,
         hasChild: !!contextItem.children

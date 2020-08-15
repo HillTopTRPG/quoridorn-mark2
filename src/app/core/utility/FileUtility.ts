@@ -1,15 +1,16 @@
 import yaml from "js-yaml";
 import { Size } from "address";
-import { MediaInfo, StandImageInfo } from "../../../@types/room";
-import { convertNumberNull } from "./PrimaryDataUtility";
+import { StandImageInfo } from "@/@types/room";
+import { convertNumberNull, getFileName } from "./PrimaryDataUtility";
 import { createSize } from "./CoordinateUtility";
 import { ApplicationError } from "../error/ApplicationError";
 import { getYoutubeThunbnail } from "../../basic/cut-in/bgm/YoutubeManager";
 import DropBoxManager from "../api/drop-box/DropBoxManager";
-import { UploadFileRequest } from "../../../@types/socket";
+import { UploadMediaInfo, UploadMediaRequest, UploadMediaResponse } from "@/@types/socket";
 import SocketFacade from "../api/app-server/SocketFacade";
-import GameObjectManager from "../../basic/GameObjectManager";
-import { ExportDataFormat } from "../../../@types/store";
+import { ExportDataFormat } from "@/@types/store";
+import { getSrc } from "@/app/core/utility/Utility";
+import LanguageManager from "@/LanguageManager";
 
 /**
  * テキストファイルをロードする
@@ -188,20 +189,25 @@ export function saveFile(name: string, blob: Blob): void {
   anchor.click();
 }
 
-export type UploadMediaInfo = {
-  name: string;
-  type: string;
-  iconClass: string;
-  imageSrc: string | ArrayBuffer | null;
-  tag: string;
-  src: File | string;
-};
+export type IconClass =
+  | "icon-warning"
+  | "icon-youtube2"
+  | "icon-image"
+  | "icon-music"
+  | "icon-text";
 
-export function getUrlType(
+export type UrlType =
+  | "youtube"
+  | "image"
+  | "music"
+  | "setting"
+  | "unknown";
+
+function getUrlTypes(
   url: string
-): "youtube" | "image" | "music" | "setting" | "unknown" {
+): { urlType: UrlType; iconClass: IconClass } {
   if (url.match(/^https?:\/\/www.youtube.com\/watch\?v=/)) {
-    return "youtube";
+    return { urlType: "youtube", iconClass: "icon-youtube2" };
   } else {
     const ext = extname(url);
     switch (ext) {
@@ -209,197 +215,174 @@ export function getUrlType(
       case "gif":
       case "jpg":
       case "jpeg":
-        return "image";
+        return { urlType: "image", iconClass: "icon-image" };
       case "mp3":
       case "wav":
       case "wave":
-        return "music";
+        return { urlType: "music", iconClass: "icon-music" };
       case "json":
       case "yaml":
-        return "setting";
+        return { urlType: "setting", iconClass: "icon-text" };
       default:
-        return "unknown";
+        return { urlType: "unknown", iconClass: "icon-warning" };
     }
   }
 }
 
-// async function getBlobFromUrl(url: string): Promise<Blob> {
-//   return new Promise<Blob>(
-//     (resolve: (result: Blob) => void, reject: () => void) => {
-//       const xhr = new XMLHttpRequest();
-//       xhr.open("GET", url, true);
-//       xhr.responseType = "arraybuffer";
-//       xhr.onload = function(e) {
-//         if (xhr.readyState === 4) {
-//           if (xhr.status === 200) {
-//             const arrayBuffer = this.response;
-//             // Blobを生成する
-//             const blob = new Blob([arrayBuffer]);
-//             resolve(blob);
-//           } else {
-//             reject();
-//           }
-//         }
-//       };
-//       xhr.onerror = function() {
-//         reject();
-//       };
-//       xhr.ontimeout = function() {
-//         reject();
-//       };
-//       xhr.send();
-//     }
-//   );
-// }
+async function raw2UploadMediaInfo(
+  raw: string | File
+): Promise<{ uploadMediaInfo: UploadMediaInfo; raw: string | File }> {
+  let rawText: string = typeof raw === "string" ? raw : raw.name;
+  let name = ""; // 後で必ず上書き
+  const tag = "";
+  const { urlType, iconClass } = getUrlTypes(rawText);
 
-async function createUploadMediaInfo(
-  src: File | string
-): Promise<UploadMediaInfo> {
-  return new Promise<UploadMediaInfo>(
-    (resolve: (result: UploadMediaInfo) => void) => {
-      let name: string = typeof src === "string" ? src : src.name;
-      const tag = "";
-      let iconClass: string = "icon-warning";
-      let imageSrc: string | null = null;
+  let { url, dataLocation } = typeof raw === "string"
+    ? getSrc(raw)
+    : { url: "", dataLocation: "server" as "server" };
 
-      const fr = new FileReader();
-      let isUseFileReader: boolean = false;
+  let imageSrc: string = "";
 
-      const type = getUrlType(name);
-      if (type === "youtube") {
-        iconClass = "icon-youtube2";
-        imageSrc = getYoutubeThunbnail(name);
-        // Youtubeの場合はユーザに名前を入力してもらう
-        name = "";
-      } else {
-        if (type === "image") {
-          iconClass = "icon-image";
-          if (typeof src === "string") {
-            imageSrc = src;
-          } else {
-            fr.readAsDataURL(src);
-            isUseFileReader = true;
-          }
-        } else if (type === "music") {
-          iconClass = "icon-music";
-        } else if (type === "setting") {
-          iconClass = "icon-text";
-        }
-        name = name.replace(/^https?:\/\/.+\//, "");
-      }
-      const result: UploadMediaInfo = {
-        name,
-        tag,
-        type,
-        iconClass,
-        imageSrc,
-        src
-      };
-      if (isUseFileReader) {
-        fr.onload = () => {
-          result.imageSrc = fr.result as string;
-          resolve(result);
-        };
-      } else {
-        resolve(result);
-      }
+  if (urlType === "youtube") {
+    imageSrc = getYoutubeThunbnail(rawText);
+    name = LanguageManager.instance.getText("label.no-target");
+  } else {
+    name = getFileName(rawText);
+  }
+
+  if (urlType === "image") {
+    if (typeof raw === "string") {
+      imageSrc = raw;
+    } else {
+      imageSrc = await file2Base64(raw);
     }
-  );
+  }
+
+  let result: UploadMediaInfo | null = null;
+
+  if (dataLocation === "direct") {
+    // Base64フォーマット文字列か、外部URL
+    result = { name, tag, url, urlType, iconClass, imageSrc, dataLocation };
+  } else {
+    let blob: Blob | undefined = undefined;
+    let arrayBuffer: ArrayBuffer | undefined = undefined;
+    if (typeof raw === "string") {
+      // クライアントに置かれているファイルへの参照
+      arrayBuffer = await url2ArrayBuffer(url);
+      blob = new Blob([arrayBuffer]);
+    } else {
+      // ファイルをドロップインされた
+      blob = raw;
+      arrayBuffer = await blob2ArrayBuffer(blob);
+    }
+    result = {
+      name,
+      tag,
+      url,
+      urlType,
+      iconClass,
+      imageSrc,
+      dataLocation,
+      blob,
+      arrayBuffer
+    };
+  }
+  return { uploadMediaInfo: result, raw };
 }
 
-export async function createUploadMediaInfoList(
-  srcList: (File | string)[]
+export async function raw2UploadMediaInfoList(
+  rawList: (string | File)[]
 ): Promise<UploadMediaInfo[]> {
-  const resultList: UploadMediaInfo[] = [];
-  const func = async (src: File | string) => {
-    resultList.push(await createUploadMediaInfo(src));
-  };
+  const resultList: { uploadMediaInfo: UploadMediaInfo; raw: string | File }[] = [];
+  await Promise.all(
+    rawList.map(raw => (async () => {
+      resultList.push(await raw2UploadMediaInfo(raw));
+    })())
+  );
 
-  // 直列の非同期で全部実行する
-  await srcList
-    .map(src => () => func(src))
-    .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
-  return resultList;
+  // 非同期処理は並列で行った代わりに、順序を保証するためにソートする
+  const getStr = (data: string | File) => typeof data === "string" ? data : data.name;
+  const rawStrList = rawList.map(r => getStr(r));
+  resultList.sort((umi1, umi2) => {
+    const umi1Str = getStr(umi1.raw);
+    const umi2Str = getStr(umi2.raw);
+    const idx1 = rawStrList.findIndex(rs => umi1Str === rs);
+    const idx2 = rawStrList.findIndex(rs => umi2Str === rs);
+    if (idx1 < idx2) return -1;
+    if (idx1 > idx2) return 1;
+    return 0;
+  });
+  return resultList.map(r => r.uploadMediaInfo);
 }
-
-export async function mediaUploadFromPreset(
-  uploadMediaInfoList: UploadMediaInfo[]
-): Promise<void> {}
 
 export async function mediaUpload(
-  uploadMediaInfoList: UploadMediaInfo[]
-): Promise<void> {
+  uploadMediaRequest: UploadMediaRequest
+): Promise<UploadMediaResponse> {
   // DropBox連携
   if (DropBoxManager.instance.ready) {
     const uploadDropBoxFunc = async (
-      fileInfo: UploadMediaInfo
+      uploadMediaInfo: UploadMediaInfo
     ): Promise<void> => {
-      const src = fileInfo.src;
-      if (typeof src === "string") return;
-      const dropBoxResult = await DropBoxManager.instance.upload(src);
+      if (uploadMediaInfo.dataLocation === "direct") return;
+      const dropBoxResult = await DropBoxManager.instance.upload(
+        uploadMediaInfo.blob,
+        uploadMediaInfo.name
+      );
       console.log("::DropBoxResult::");
       console.log(dropBoxResult);
     };
     // 直列の非同期で全部実行する
-    await uploadMediaInfoList
+    await uploadMediaRequest.uploadMediaInfoList
       .map(umi => () => uploadDropBoxFunc(umi))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
-  // アップロードに用いるデータを作成
-  const uploadUploadMediaInfoList: UploadFileRequest = [];
-  const createUploadUploadMediaInfo = async (
-    resultInfo: UploadMediaInfo
-  ): Promise<void> => {
-    const src = resultInfo.src;
-    uploadUploadMediaInfoList.push({
-      name: resultInfo.name,
-      src: await file2ArrayBuffer(src as File)
-    });
-  };
-  // 直列の非同期で全部実行する
-  await uploadMediaInfoList
-    .filter(resultInfo => typeof resultInfo.src !== "string")
-    .map(resultInfo => () => createUploadUploadMediaInfo(resultInfo))
-    .reduce((prev, curr) => prev.then(curr), Promise.resolve());
-
   // アップロードする
-  const urlList = await SocketFacade.instance.socketCommunication<
-    UploadFileRequest,
-    string[]
-  >("upload-file", uploadUploadMediaInfoList);
+  return await SocketFacade.instance.socketCommunication<
+    UploadMediaRequest,
+    UploadMediaResponse
+  >("upload-media", uploadMediaRequest);
+}
 
-  // DBに登録する
-  let idx = 0;
-  const mediaInfoList: MediaInfo[] = uploadMediaInfoList.map(
-    (result: UploadMediaInfo) => {
-      const src = result.src;
-      const url = typeof src === "string" ? src : urlList[idx++];
-      return {
-        url,
-        name: result.name,
-        type: result.type,
-        tag: result.tag
+async function url2ArrayBuffer(url: string): Promise<ArrayBuffer> {
+  return new Promise<ArrayBuffer>(
+    (resolve: (result: ArrayBuffer) => void, reject: () => void) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = function(e) {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            const arrayBuffer: ArrayBuffer = this.response;
+            resolve(arrayBuffer);
+          } else {
+            reject();
+          }
+        }
       };
+      xhr.onerror = function() {
+        reject();
+      };
+      xhr.ontimeout = function() {
+        reject();
+      };
+      xhr.send();
     }
-  );
-  await SocketFacade.instance.mediaCC().addDirect(
-    mediaInfoList,
-    mediaInfoList.map(() => ({
-      permission: GameObjectManager.PERMISSION_OWNER_VIEW
-    }))
   );
 }
 
-export async function file2ArrayBuffer(
-  file: File
-): Promise<string | ArrayBuffer | null> {
-  return new Promise<string | ArrayBuffer | null>((resolve, reject) => {
+async function url2Blob(url: string): Promise<Blob> {
+  return new Blob([await url2ArrayBuffer(url)]);
+}
+
+async function blob2ArrayBuffer(
+  blob: Blob | File
+): Promise<ArrayBuffer> {
+  return new Promise<ArrayBuffer>((resolve, reject) => {
     const fr = new FileReader();
-    fr.readAsArrayBuffer(file);
+    fr.readAsArrayBuffer(blob);
     fr.onload = event => {
-      resolve(event.target!.result);
+      resolve(event.target!.result as ArrayBuffer);
     };
     fr.onerror = err => {
       reject(err);
@@ -411,11 +394,11 @@ export function extname(path: string): string {
   return path.replace(/^.+\./, "");
 }
 
-export async function fileToBase64(file: File) {
+export async function file2Base64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
+    reader.onload = () => resolve(reader.result!.toString());
     reader.onerror = error => reject(error);
   });
 }

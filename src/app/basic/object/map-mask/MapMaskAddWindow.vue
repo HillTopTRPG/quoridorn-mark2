@@ -30,9 +30,9 @@ import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
 import LanguageManager from "../../../../LanguageManager";
-import { AddObjectInfo } from "../../../../@types/data";
+import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { parseColor } from "../../../core/utility/ColorUtility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 
 @Component({ components: { MapMaskInfoForm } })
@@ -126,9 +126,9 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
         textureIndex: 0,
         angle: 0,
         url: "",
-        subType: "",
-        pips: 0,
-        faceNum: 0
+        subTypeId: "",
+        subTypeValue: "",
+        isHideSubType: false
       }
     ]);
 

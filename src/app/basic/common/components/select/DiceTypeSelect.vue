@@ -2,38 +2,34 @@
   <ctrl-select
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :id="id"
+    :multiple="multiple"
+    :disabled="disabled"
     ref="component"
   />
 </template>
 
 <script lang="ts">
 import SelectMixin from "./base/SelectMixin";
-
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
+import ComponentVue from "../../../../core/window/ComponentVue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
-import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({
   components: { CtrlSelect }
 })
-export default class DirectionTypeSelect extends Mixins<MultiMixin>(
+export default class PipsSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  private optionInfoList: HtmlOptionInfo[] = [
-    { value: "", key: "", text: "", disabled: true },
-    { value: "none", key: "", text: "", disabled: false },
-    { value: "horizontal", key: "", text: "", disabled: false },
-    { value: "vertical", key: "", text: "", disabled: false },
-    { value: "180", key: "", text: "", disabled: false }
-  ];
+  private diceTypeList = GameObjectManager.instance.diceTypeList;
+  private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
   private created() {
@@ -49,11 +45,25 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
   }
 
   private createOptionInfoList() {
-    this.optionInfoList.forEach(o => {
-      const suffix = o.value ? `-${o.value}` : "";
-      o.text = this.$t(`label.direction${suffix}`)!.toString();
-      o.key = o.value;
+    const optionInfoList: HtmlOptionInfo[] = this.diceTypeList.map(dt => ({
+      key: dt.id!,
+      value: dt.id!,
+      text: `D${dt.data!.faceNum}-${dt.data!.label}`,
+      disabled: false
+    }));
+
+    if (!optionInfoList.some(o => o.value === this.localValue)) {
+      this.localValue = optionInfoList[0].value;
+    }
+
+    optionInfoList.unshift({
+      key: "",
+      value: "",
+      text: this.$t("label.dice-type")!.toString(),
+      disabled: true
     });
+
+    this.optionInfoList = optionInfoList;
   }
 }
 </script>

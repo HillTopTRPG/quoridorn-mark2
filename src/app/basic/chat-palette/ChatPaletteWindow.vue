@@ -43,21 +43,21 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { ChatPaletteStore } from "../../../@types/gameObject";
-import { CustomDiceBotInfo } from "../../../@types/room";
+import { ChatPaletteStore } from "@/@types/gameObject";
+import { CustomDiceBotInfo } from "@/@types/room";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import BaseInput from "../../core/component/BaseInput.vue";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import ChatPaletteListComponent from "./ChatPaletteListComponent.vue";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
-import { TabInfo, WindowOpenInfo } from "../../../@types/window";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import { sendChatLog } from "../../core/utility/ChatUtility";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 

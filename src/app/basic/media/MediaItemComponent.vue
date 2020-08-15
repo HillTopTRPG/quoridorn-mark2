@@ -84,14 +84,14 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get typeStr(): string {
-    const type = this.media.data!.type;
+    const urlType = this.media.data!.urlType;
     let target = "label.";
-    switch (type) {
+    switch (urlType) {
       case "image":
       case "music":
       case "setting":
       case "youtube":
-        target += type;
+        target += urlType;
         break;
       default:
         target += "unknown";
@@ -112,7 +112,7 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get isBgm(): boolean {
-    switch (this.media.data!.type) {
+    switch (this.media.data!.urlType) {
       case "youtube":
       case "music":
         return true;
@@ -123,22 +123,19 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get iconClass(): string | undefined {
-    const type = this.media.data!.type;
-    if (type === "image")
-      return this.isViewThumbnail ? undefined : "icon-image";
-    if (type === "music") return "icon-music";
-    if (type === "setting") return "icon-text";
-    if (type === "youtube")
-      return this.isViewThumbnail ? undefined : "icon-youtube";
-    return "icon-warning";
+    const urlType = this.media.data!.urlType;
+    const iconClass = this.media.data!.iconClass;
+    if (this.isViewThumbnail && (urlType === "image" || urlType === "youtube"))
+      return undefined;
+    return iconClass;
   }
 
   @VueEvent
   private get thumbnailSrc(): string {
-    const type = this.media.data!.type;
+    const urlType = this.media.data!.urlType;
     const url = this.media.data!.url;
-    if (type === "youtube") return getYoutubeThunbnail(url);
-    if (type === "image") return url;
+    if (urlType === "youtube") return getYoutubeThunbnail(url);
+    if (urlType === "image") return url;
     return "";
   }
 

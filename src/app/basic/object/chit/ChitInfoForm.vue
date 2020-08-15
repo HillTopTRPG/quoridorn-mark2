@@ -117,10 +117,9 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { BackgroundSize, Direction } from "../../../../@types/room";
-import { getSrc } from "../../../core/utility/Utility";
+import { BackgroundSize, Direction } from "@/@types/room";
 import GameObjectManager from "../../GameObjectManager";
-import { TabInfo } from "../../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
 import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
 import BackgroundLocationSelect from "../../common/components/select/BackgroundLocationSelect.vue";
@@ -327,8 +326,8 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
       obj => obj.id === this.imageDocId
     )[0];
     if (!imageObj) return;
-    this.imageSrc = getSrc(imageObj.data!.url);
-    this.objectElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
+    this.imageSrc = imageObj.data!.url;
+    this.objectElm.style.setProperty("--imageSrc", `url('${this.imageSrc}')`);
     let direction = "";
     if (this.direction === "horizontal") direction = "scale(-1, 1)";
     if (this.direction === "vertical") direction = "scale(1, -1)";

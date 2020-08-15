@@ -6,6 +6,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     setting: {
+      // テキスト読み上げ機能を使うかどうか
       useReadAloud: false
     }
   },

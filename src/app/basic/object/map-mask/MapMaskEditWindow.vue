@@ -33,17 +33,17 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import MapMaskInfoForm from "./MapMaskInfoForm.vue";
-import { SceneObject } from "../../../../@types/gameObject";
+import { SceneObject } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { parseColor } from "../../../core/utility/ColorUtility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
-import { DataReference } from "../../../../@types/data";
+import { DataReference } from "@/@types/data";
 
 @Component({ components: { MapMaskInfoForm, CtrlButton } })
 export default class MapMastEditWindow extends Mixins<

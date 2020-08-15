@@ -251,11 +251,13 @@ declare module "context" {
 
   // 項目(表示条件ありなし)
   type ContextTextItem<T> = {
-    taskName?: string;
     text: string;
-    taskArg: T;
+    isRawText?: boolean,
+    taskName?: string;
     isViewCompare?: CompareInfo;
     isDisabledCompare?: CompareInfo;
+    taskArg: T;
+    argRef?: string;
     children?: ContextItemDeclare[];
   };
 

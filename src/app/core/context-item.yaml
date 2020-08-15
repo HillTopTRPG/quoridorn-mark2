@@ -339,3 +339,81 @@ card-deck-layout-select-from-deck:
 card-deck-setting-change-from-deck:
   text: context.setting-change
   taskName: card-setting-change-from-deck
+
+dice-roll:
+  text: context.dice-roll
+  taskName: dice-roll
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+
+dice-pips-change:
+  text: context.dice-pips-change
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  argRef: dice-pips-select
+
+dice-hide:
+  text: context.dice-hide
+  taskName: change-dice-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideSubType
+    rhs: false
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: true
+
+dice-view:
+  text: context.dice-view
+  taskName: change-dice-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideSubType
+    rhs: true
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: false

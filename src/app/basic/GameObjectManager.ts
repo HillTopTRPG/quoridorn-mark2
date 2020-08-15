@@ -4,6 +4,8 @@ import { BgmStandByInfo } from "task-info";
 import { Permission, StoreObj, StoreUseData } from "@/@types/store";
 import {
   ClientRoomInfo,
+  DiceAndPips,
+  DiceType,
   RoomInfoExtend,
   WindowSettings
 } from "@/@types/socket";
@@ -30,18 +32,17 @@ import {
   CardDeckSmall,
   CardMeta,
   CardObject,
+  KeepBcdiceDiceRollResult,
   ChatPaletteStore,
   InitiativeColumnStore,
-  PropertyFaceStore,
   PropertySelectionStore,
-  PropertyStore,
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
   TagNoteStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
-import { findById, getSrc } from "../core/utility/Utility";
+import { findById } from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
 import LanguageManager from "../../LanguageManager";
 
@@ -103,44 +104,53 @@ export default class GameObjectManager {
    */
   private async initialize() {
     const sf = SocketFacade.instance;
-    // 個数の量が微量のもの
-    await Promise.all([
-      sf.sceneLayerCC().getList(true, this.sceneLayerList),
-      sf.actorCC().getList(true, this.actorList),
-      sf.cardDeckBigCC().getList(true, this.cardDeckBigList),
-      sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList),
-      sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList),
-      sf.initiativeColumnCC().getList(true, this.initiativeColumnList),
-      sf.actorStatusCC().getList(true, this.actorStatusList)
-    ]);
-    // 個数の量が小規模のもの
-    await Promise.all([
-      sf.propertySelectionCC().getList(true, this.propertySelectionList),
-      sf.chatTabListCC().getList(true, this.chatTabList),
-      sf.groupChatTabListCC().getList(true, this.groupChatTabList),
-      sf.sceneListCC().getList(true, this.sceneList),
-      sf.userCC().getList(true, this.userList),
-      sf.cutInDataCC().getList(true, this.cutInList),
-      sf.chatPaletteListCC().getList(true, this.chatPaletteList)
-    ]);
-    // 個数の量が中規模のもの
-    await Promise.all([
-      sf.sceneObjectCC().getList(true, this.sceneObjectList),
-      sf.socketUserCC().getList(true, this.socketUserList),
-      sf.propertyFaceCC().getList(true, this.propertyFaceList),
-      sf.propertyCC().getList(true, this.propertyList),
-      sf.resourceMasterCC().getList(true, this.resourceMasterList),
-      sf.actorGroupCC().getList(true, this.actorGroupList),
-      sf.tagNoteCC().getList(true, this.tagNoteList)
-    ]);
-    // 個数の量が大規模のもの
+    // Block 1
     await Promise.all([
       sf.chatListCC().getList(true, this.chatList),
-      sf.mediaCC().getList(true, this.mediaList),
-      sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList),
+      sf.cardDeckBigCC().getList(true, this.cardDeckBigList),
       sf.cardMetaCC().getList(true, this.cardMetaList),
+      sf.socketUserCC().getList(true, this.socketUserList),
+      sf.tagNoteCC().getList(true, this.tagNoteList)
+    ]);
+    // Block 2
+    await Promise.all([
+      sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList),
+      sf.resourceMasterCC().getList(true, this.resourceMasterList),
+      sf.actorGroupCC().getList(true, this.actorGroupList),
+      sf.cutInDataCC().getList(true, this.cutInList),
+      sf.diceTypeListCC().getList(true, this.diceTypeList)
+    ]);
+    // Block 3
+    await Promise.all([
       sf.resourceCC().getList(true, this.resourceList),
-      sf.cardObjectCC().getList(true, this.cardObjectList)
+      sf.cardDeckSmallCC().getList(true, this.cardDeckSmallList),
+      sf.userCC().getList(true, this.userList),
+      sf.chatPaletteListCC().getList(true, this.chatPaletteList),
+      sf.diceAndPipsListCC().getList(true, this.diceAndPipsList)
+    ]);
+    // Block 4
+    await Promise.all([
+      sf.actorStatusCC().getList(true, this.actorStatusList),
+      sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList),
+      sf.propertySelectionCC().getList(true, this.propertySelectionList),
+      sf.sceneListCC().getList(true, this.sceneList),
+      sf
+        .keepBcdiceDiceRollResultListCC()
+        .getList(true, this.keepBcdiceDiceRollResultList)
+    ]);
+    // Block 5
+    await Promise.all([
+      sf.mediaCC().getList(true, this.mediaList),
+      sf.cardObjectCC().getList(true, this.cardObjectList),
+      sf.actorCC().getList(true, this.actorList),
+      sf.chatTabListCC().getList(true, this.chatTabList)
+    ]);
+    // Block 6
+    await Promise.all([
+      sf.sceneObjectCC().getList(true, this.sceneObjectList),
+      sf.sceneLayerCC().getList(true, this.sceneLayerList),
+      sf.initiativeColumnCC().getList(true, this.initiativeColumnList),
+      sf.groupChatTabListCC().getList(true, this.groupChatTabList)
     ]);
 
     const roomDataCC = sf.roomDataCC();
@@ -183,10 +193,11 @@ export default class GameObjectManager {
 
     // 画像のプリロード
     this.mediaList.forEach(media => {
-      const src = getSrc(media.data!.url);
-      if (!src.startsWith("data")) {
+      const url = media.data!.url;
+      const urlType = media.data!.urlType;
+      if (!url.startsWith("data") && urlType === "image") {
         const imgElm = document.createElement("img");
-        imgElm.src = src;
+        imgElm.src = url;
       }
     });
 
@@ -340,13 +351,11 @@ export default class GameObjectManager {
   public readonly userList: StoreUseData<UserData>[] = [];
   public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
   public readonly actorList: StoreUseData<ActorStore>[] = [];
-  public readonly propertyFaceList: StoreUseData<PropertyFaceStore>[] = [];
   public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
   public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
   public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
   public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
   public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
-  public readonly propertyList: StoreUseData<PropertyStore>[] = [];
   public readonly resourceMasterList: StoreUseData<ResourceMasterStore>[] = [];
   public readonly resourceList: StoreUseData<ResourceStore>[] = [];
   public readonly initiativeColumnList: StoreUseData<
@@ -362,6 +371,11 @@ export default class GameObjectManager {
   public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
   public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
   public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
+  public readonly diceTypeList: StoreUseData<DiceType>[] = [];
+  public readonly diceAndPipsList: StoreUseData<DiceAndPips>[] = [];
+  public readonly keepBcdiceDiceRollResultList: StoreUseData<
+    KeepBcdiceDiceRollResult
+  >[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -452,16 +466,12 @@ export default class GameObjectManager {
         return this.actorStatusList;
       case "actor":
         return this.actorList;
-      case "property-face":
-        return this.propertyFaceList;
       case "scene-layer":
         return this.sceneLayerList;
       case "scene-and-layer":
         return this.sceneAndLayerList;
       case "scene-and-object":
         return this.sceneAndObjectList;
-      case "property":
-        return this.propertyList;
       case "resource-master":
         return this.resourceMasterList;
       case "resource":
@@ -486,6 +496,12 @@ export default class GameObjectManager {
         return this.cutInList;
       case "chat-palette":
         return this.chatPaletteList;
+      case "dice-type":
+        return this.diceTypeList;
+      case "dice-and-pips":
+        return this.diceAndPipsList;
+      case "chat-bcdice-dice-roll-result":
+        return this.keepBcdiceDiceRollResultList;
     }
     return null;
   }

@@ -1,20 +1,17 @@
 <template>
   <div class="container" ref="window-container">
-    <chit-info-form
+    <dice-symbol-info-form
       :windowKey="windowKey"
       v-if="isMounted"
       :isAdd="false"
-      initTabTarget="image"
+      initTabTarget="background"
       :name.sync="name"
+      :color.sync="color"
       :tag.sync="tag"
-      :otherText.sync="otherText"
-      :width.sync="width"
-      :height.sync="height"
-      :imageDocId.sync="imageDocId"
-      :imageTag.sync="imageTag"
-      :direction.sync="direction"
-      :backgroundSize.sync="backgroundSize"
+      :size.sync="size"
       :layerId.sync="layerId"
+      :diceTypeId.sync="diceTypeId"
+      :pips.sync="pips"
     />
 
     <div class="button-area">
@@ -34,41 +31,56 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { SceneObject } from "@/@types/gameObject";
+import { SceneObject, DiceMaterial } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { BackgroundSize, Direction } from "@/@types/room";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import WindowVue from "../../../core/window/WindowVue";
-import ChitInfoForm from "./ChitInfoForm.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
+import DiceSymbolInfoForm from "@/app/basic/object/dice-symbol/DiceSymbolInfoForm.vue";
+import { Getter } from "vuex-class";
 
-@Component({ components: { ChitInfoForm, CtrlButton } })
-export default class ChitEditWindow extends Mixins<
+@Component({ components: { DiceSymbolInfoForm, CtrlButton } })
+export default class DiceSymbolEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
+  private diceTypeList = GameObjectManager.instance.diceTypeList;
+  private diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
+
   private docId: string = "";
   private cc: NekostoreCollectionController<
     SceneObject
   > = SocketFacade.instance.sceneObjectCC();
-  private tag: string = "";
+
   private name: string = "";
-  private isProcessed: boolean = false;
-  private otherText: string = "";
-  private height: number = 1;
-  private width: number = 1;
-  private imageDocId: string | null = null;
-  private imageTag: string | null = null;
-  private direction: Direction = "none";
+  private tag: string = "";
+  private color: string = "rgba(255, 255, 255, 1)";
+  private size: number = 1;
   private isMounted: boolean = false;
-  private backgroundSize: BackgroundSize = "contain";
+
+  private isProcessed: boolean = false;
   private layerId: string = GameObjectManager.instance.sceneLayerList.find(
-    ml => ml.data!.type === "character"
+    ml => ml.data!.type === "dice-symbol"
   )!.id!;
+  private diceTypeId: string = "";
+  private pips: string = "1";
+
+  @LifeCycle
+  private created() {
+    const diceType =
+      this.diceTypeList.find(dt => dt.data!.faceNum === "6") ||
+      this.diceTypeList[0];
+    this.diceTypeId = diceType.id!;
+    const pipsList = this.diceAndPipsList
+      .filter(dap => dap.data!.diceTypeId === this.diceTypeId)
+      .map(dap => dap.data!.pips);
+    this.pips = pipsList.find(p => p === "1") || pipsList[0];
+  }
 
   @LifeCycle
   public async mounted() {
@@ -92,19 +104,16 @@ export default class ChitEditWindow extends Mixins<
       }
     }
 
-    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
-    if (backgroundInfo.type === "image") {
-      this.imageDocId = backgroundInfo.imageId;
-      this.imageTag = backgroundInfo.imageTag;
-      this.backgroundSize = backgroundInfo.backgroundSize;
-      this.direction = backgroundInfo.direction;
+    const texture = data.data!.textures[data.data!.textureIndex];
+    if (texture.type === "color") {
+      this.color = texture.backgroundColor;
     }
-    this.tag = data.data!.tag;
     this.name = data.data!.name;
-    this.width = data.data!.columns;
-    this.height = data.data!.rows;
-    this.otherText = data.data!.otherText;
+    this.tag = data.data!.tag;
+    this.size = data.data!.columns;
     this.layerId = data.data!.layerId;
+    this.diceTypeId = data.data!.subTypeId;
+    this.pips = data.data!.subTypeValue;
 
     if (this.windowInfo.status === "window") {
       try {
@@ -120,21 +129,21 @@ export default class ChitEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
-    if (backgroundInfo.type === "image") {
-      backgroundInfo.imageId = this.imageDocId!;
-      backgroundInfo.imageTag = this.imageTag!;
-      backgroundInfo.backgroundSize = this.backgroundSize;
-      backgroundInfo.direction = this.direction;
+    const data = (await this.cc!.getData(this.docId))!.data!;
+    const texture = data.textures[data.textureIndex];
+    if (texture.type === "color") {
+      const colorObj = parseColor(this.color);
+      texture.backgroundColor = colorObj.getRGBA();
+      texture.fontColor = colorObj.getRGBReverse();
     }
-    data.data!.tag = this.tag;
-    data.data!.name = this.name;
-    data.data!.rows = this.height;
-    data.data!.columns = this.width;
-    data.data!.otherText = this.otherText;
-    data.data!.layerId = this.layerId;
-    await this.cc!.update([this.docId], [data.data!]);
+    data.name = this.name;
+    data.tag = this.tag;
+    data.rows = this.size;
+    data.columns = this.size;
+    data.layerId = this.layerId;
+    data.subTypeId = this.diceTypeId;
+    data.subTypeValue = this.pips;
+    await this.cc!.update([this.docId], [data]);
     this.isProcessed = true;
     await this.close();
   }

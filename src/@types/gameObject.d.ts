@@ -1,5 +1,6 @@
 import { Address, Point, Rectangle } from "address";
 import { Direction, Texture } from "./room";
+import { BcdiceDiceRollResult } from "@/@types/bcdice";
 
 type SceneObjectType =
   | "character"
@@ -37,9 +38,9 @@ type SceneObject = Address & {
   textureIndex: number;
   angle: number;
   url: string; // character
-  subType: string; // サイコロの色など
-  pips: number; // 出目
-  faceNum: number; // 出目の最大数
+  subTypeId: string; // サイコロの種類など
+  subTypeValue: string; // 出目など
+  isHideSubType: boolean; // 出目を隠すかどうか
 };
 
 type ActorStore = {
@@ -94,13 +95,6 @@ type TagNoteStore = {
   fontColor: string;
   backgroundColor: string;
   text: string;
-};
-
-type PropertyFaceStore = {
-  owner: string;
-  label: string;
-  permissionType: "ALL" | "OK" | "NG";
-  targets: string[];
 };
 
 // リソース定義
@@ -158,27 +152,6 @@ type ResourceStore = {
   // 誰のリソースかはownerで表現
   masterId: string;
   type: ResourceType;
-  value: string;
-};
-
-type PropertyStore = {
-  label: string;
-  type:
-    | "title"
-    | "subTitle"
-    | "text"
-    | "input-text"
-    | "number"
-    | "check"
-    | "radio"
-    | "select"
-    | "combo"
-    | "image"
-    | "color";
-  min?: number;
-  max?: number;
-  interval?: number;
-  selection?: string;
   value: string;
 };
 
@@ -296,4 +269,17 @@ type CardYamlInfo = {
     }[];
   };
   cards: InputCardInfo[];
+};
+
+type DiceInfo = {
+  type: string;
+  label: string;
+  pips: { [P: string]: string };
+};
+type DiceMaterial = { [P: string]: DiceInfo[] };
+
+type KeepBcdiceDiceRollResult = {
+  type: "secret-dice-roll" | "hide-dice-symbol-roll";
+  targetId: string;
+  bcdiceDiceRollResult: BcdiceDiceRollResult;
 };

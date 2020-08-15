@@ -21,7 +21,7 @@ export type DiceResult = {
   value: number;
 };
 
-export type BcdiceDiceRollInfo = {
+export type BcdiceDiceRollResult = {
   ok: string;
   result?: string;
   secret?: boolean;

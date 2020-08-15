@@ -48,24 +48,23 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { getSrc } from "../../core/utility/Utility";
 import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
 import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { Scene } from "../../../@types/room";
+import { Scene } from "@/@types/room";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
-import { WindowOpenInfo } from "../../../@types/window";
+import { WindowOpenInfo } from "@/@types/window";
 import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({
@@ -119,7 +118,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
             .mediaCC()
             .getData(texture.imageId);
           if (imageData && imageData.data) {
-            backgroundImage = `url("${getSrc(imageData.data.url)}")`;
+            backgroundImage = `url('${imageData.data.url}')`;
           }
           if (texture.direction === "horizontal") direction = "scale(-1, 1)";
           if (texture.direction === "vertical") direction = "scale(1, -1)";

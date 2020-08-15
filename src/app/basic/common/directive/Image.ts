@@ -37,7 +37,7 @@ export default {
 
       img.onload = () => {
         setTimeout(() => {
-          el.style.backgroundImage = `url(${imgData})`;
+          el.style.backgroundImage = `url('${imgData}')`;
           el.style.opacity = "1";
           el.classList.add("loaded");
           if (el.className.indexOf("animation") >= 0) {

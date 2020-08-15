@@ -116,10 +116,9 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { BackgroundSize, Direction } from "../../../../@types/room";
-import { getSrc } from "../../../core/utility/Utility";
+import { BackgroundSize, Direction } from "@/@types/room";
 import GameObjectManager from "../../GameObjectManager";
-import { TabInfo } from "../../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
@@ -328,7 +327,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
       obj => obj.id === this.imageDocId
     )[0];
     if (!imageObj) return;
-    this.imageSrc = getSrc(imageObj.data!.url);
+    this.imageSrc = imageObj.data!.url;
     this.objectElm.style.setProperty("--imageSrc", `url(${this.imageSrc})`);
     let direction = "";
     if (this.direction === "horizontal") direction = "scale(-1, 1)";

@@ -44,13 +44,19 @@ export default class DropBoxManager {
     return await response.json();
   }
 
-  public async upload(file: File, path: string = file.name): Promise<string> {
+  public async upload(blob: Blob, path: string): Promise<string> {
+    const file: File = new File([blob], path, {
+      type: "application/octet-stream"
+    });
     path = unicodeEscape("/" + path);
     await this.uploadFile(file, path);
     return await this.createSharedLink(path);
   }
 
-  private async uploadFile(file: File, path: string = file.name) {
+  private async uploadFile(blob: Blob, path: string) {
+    const file: File = new File([blob], path, {
+      type: "application/octet-stream"
+    });
     const url = "https://content.dropboxapi.com/2/files/upload";
     const headers: any = {
       Authorization: `Bearer ${this.accessToken}`,

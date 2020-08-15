@@ -134,3 +134,13 @@ export function getExt(fileName: string): string {
   const matchExt: string[] | null = fileName.match(/[^.]+$/);
   return matchExt ? matchExt[0] : "";
 }
+
+/**
+ * ファイル名を取得する
+ *
+ * @param url
+ */
+export function getFileName(url: string): string {
+  const matchExt: string[] | null = url.match(/[^/]+$/);
+  return matchExt ? matchExt[0] : "";
+}

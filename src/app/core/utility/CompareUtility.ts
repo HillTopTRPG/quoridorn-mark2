@@ -2,7 +2,7 @@ import { CompareInfo, Operand, SimpleCompareInfo } from "compare";
 import GameObjectManager from "../../basic/GameObjectManager";
 import { ApplicationError } from "../error/ApplicationError";
 import SocketFacade, { permissionCheck } from "../api/app-server/SocketFacade";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import { findRequireById } from "./Utility";
 
 /**

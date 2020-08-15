@@ -300,7 +300,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   private getImageUrl(mediaId: string): string {
     const media = this.mediaList.filter(m => m.id === mediaId)[0];
     if (!media) return "";
-    return `url(${media.data!.url})`;
+    return `url('${media.data!.url}')`;
   }
 
   @VueEvent

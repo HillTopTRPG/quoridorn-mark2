@@ -16,10 +16,10 @@ import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 import LanguageManager from "../../../../../LanguageManager";
-import { findRequireById } from "../../../../core/utility/Utility";
+import { findRequireById } from "@/app/core/utility/Utility";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

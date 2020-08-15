@@ -1,7 +1,7 @@
 import { listToEmpty } from "../../utility/PrimaryDataUtility";
 import TaskManager from "../../task/TaskManager";
 import {
-  BcdiceDiceRollInfo,
+  BcdiceDiceRollResult,
   BcdiceSystemInfo,
   BcdiceVersionInfo,
   DiceSystem
@@ -178,7 +178,7 @@ export default class BcdiceManager {
   }: {
     system: string;
     command: string;
-  }): Promise<BcdiceDiceRollInfo> {
+  }): Promise<BcdiceDiceRollResult> {
     const params: string = [
       `system=${system}`,
       `command=${encodeURIComponent(command)}`
@@ -189,6 +189,6 @@ export default class BcdiceManager {
     if (json.ok) {
       json.result = json.result.replace(/(^: )/g, "").replace(/＞/g, "→");
     }
-    return json as BcdiceDiceRollInfo;
+    return json as BcdiceDiceRollResult;
   }
 }

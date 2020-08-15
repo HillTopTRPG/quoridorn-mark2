@@ -28,12 +28,12 @@ import { ModeInfo } from "mode";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CharacterInfoForm from "./CharacterInfoForm.vue";
-import { BackgroundSize, Direction } from "../../../../@types/room";
+import { BackgroundSize, Direction } from "@/@types/room";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
 import LanguageManager from "../../../../LanguageManager";
-import { AddObjectInfo } from "../../../../@types/data";
+import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 
@@ -135,9 +135,9 @@ export default class CharacterAddWindow extends Mixins<
         textureIndex: 0,
         angle: 0,
         url: this.url,
-        subType: "",
-        pips: 0,
-        faceNum: 0
+        subTypeId: "",
+        subTypeValue: "",
+        isHideSubType: false
       }
     ]);
 

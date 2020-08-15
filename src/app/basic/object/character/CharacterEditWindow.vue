@@ -35,17 +35,17 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CharacterInfoForm from "./CharacterInfoForm.vue";
-import { SceneObject } from "../../../../@types/gameObject";
+import { SceneObject } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { BackgroundSize, Direction } from "../../../../@types/room";
+import { BackgroundSize, Direction } from "@/@types/room";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
-import { DataReference } from "../../../../@types/data";
+import { DataReference } from "@/@types/data";
 
 @Component({
   components: {
@@ -64,14 +64,12 @@ export default class CharacterEditWindow extends Mixins<
   private url: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private mediaList = GameObjectManager.instance.mediaList;
   private otherText: string = "";
   private size: number = 1;
   private imageDocId: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
-  private imageSrc: string = "";
   private backgroundSize: BackgroundSize = "contain";
   private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "character"

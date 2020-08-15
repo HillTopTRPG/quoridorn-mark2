@@ -565,9 +565,6 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       .updatePackage([resource.id!], [resource.data!]);
   }
 
-  // private get commonPropertyListAll(): StoreUseData<PropertyStore>[] {
-  //   return this.propertyList.filter(p => !p.owner);
-  // }
   //
   // @Watch("commonPropertyListAll", { immediate: true, deep: true })
   // private onChangeCommonPropertyListAll() {

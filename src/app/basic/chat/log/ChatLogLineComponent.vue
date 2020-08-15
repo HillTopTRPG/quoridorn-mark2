@@ -1,6 +1,9 @@
 <template>
   <div class="chat-log-line-component">
-    <div class="chat-line">
+    <div
+      class="chat-line"
+      :class="{ system: chat.data.chatType === 'system-message' }"
+    >
       <span class="sender">{{ getSender(chat.data) }}：</span>
       <span class="text" v-html="transText(chat.data.text)"></span>
       <div class="icon-container">
@@ -25,16 +28,16 @@ import Vue from "vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { StoreUseData } from "../../../../@types/store";
-import { permissionCheck } from "../../../core/api/app-server/SocketFacade";
-import { ChatInfo, GroupChatTabInfo, UserData } from "../../../../@types/room";
-import { transText } from "../../../core/utility/ChatUtility";
-import { ActorStore } from "../../../../@types/gameObject";
+import { StoreUseData } from "@/@types/store";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
+import { transText } from "@/app/core/utility/ChatUtility";
+import { ActorStore } from "@/@types/gameObject";
 import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
-import { UserType } from "../../../../@types/socket";
+import { UserType } from "@/@types/socket";
 import VueEvent from "../../../core/decorator/VueEvent";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { findById, findRequireById } from "../../../core/utility/Utility";
+import { findById, findRequireById } from "@/app/core/utility/Utility";
 
 @Component({
   components: { TabsComponent }
@@ -140,6 +143,10 @@ export default class ChatLogLineComponent extends Vue {
   min-height: 2em;
   line-height: 1.7em;
   white-space: pre-wrap;
+
+  &.system {
+    background-color: var(--uni-color-light-green);
+  }
 
   &:hover {
     background-color: var(--uni-color-light-skyblue);

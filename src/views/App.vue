@@ -12,7 +12,7 @@
     <div id="back-scene"></div>
 
     <!-- 最も手前でドロップを受ける領域 (z-index: 100) -->
-    <drop-area :isDropping="isDropping" />
+    <drop-area @drop.prevent.stop="dropFile" :isDropping="isDropping" />
 
     <template v-if="roomInitialized">
       <!-- プレイマット (z-index: 1) -->
@@ -20,7 +20,9 @@
       <!-- メニュー (z-index: 5) -->
       <Menu />
       <!-- 右ペイン (z-index: 2) -->
+      <!-- 著しいレイアウト崩れが発生する環境があるようなので、一旦OFF
       <right-pane />
+      -->
       <!-- 右クリックメニュー (z-index: 4) -->
       <Context />
     </template>
@@ -63,12 +65,12 @@ import { ModeInfo } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
 import LifeCycle from "../app/core/decorator/LifeCycle";
 import TaskProcessor from "../app/core/task/TaskProcessor";
-import { OtherTextViewInfo } from "../@types/gameObject";
+import { OtherTextViewInfo } from "@/@types/gameObject";
 import {
   createPoint,
   createSize,
   getEventPoint
-} from "../app/core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import {
   ClientRoomInfo,
   GetRoomListResponse,
@@ -76,26 +78,26 @@ import {
   RoomViewResponse,
   SendDataRequest,
   ServerTestResult
-} from "../@types/socket";
+} from "@/@types/socket";
 import {
   BgmPlayInfo,
   DropPieceInfo,
   TabMoveInfo,
   ThrowParabolaInfo
 } from "task-info";
-import { getDropFileList } from "../app/core/utility/DropFileUtility";
+import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import WindowManager from "../app/core/window/WindowManager";
-import { StoreUseData } from "../@types/store";
+import { StoreUseData } from "@/@types/store";
 import CssManager from "../app/core/css/CssManager";
 import GameObjectManager from "../app/basic/GameObjectManager";
-import { CutInDeclareInfo, MediaUploadInfo } from "../@types/room";
+import { CutInDeclareInfo, MediaUploadInfo } from "@/@types/room";
 import SocketFacade from "../app/core/api/app-server/SocketFacade";
 import VueEvent from "../app/core/decorator/VueEvent";
-import { convertNumberZero } from "../app/core/utility/PrimaryDataUtility";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import YoutubeManager from "../app/basic/cut-in/bgm/YoutubeManager";
 import TaskManager from "../app/core/task/TaskManager";
 import LanguageManager from "../LanguageManager";
-import { WindowOpenInfo } from "../@types/window";
+import { WindowOpenInfo } from "@/@types/window";
 import EventProcessor from "../app/core/event/EventProcessor";
 import BcdiceManager from "../app/core/api/bcdice/BcdiceManager";
 import BgmManager from "../app/basic/cut-in/bgm/BgmManager";
@@ -340,7 +342,6 @@ export default class App extends Vue {
 
     // ファイルをドロップインしている場合
     const resultList = await getDropFileList(event.dataTransfer!);
-
     await TaskManager.instance.ignition<WindowOpenInfo<MediaUploadInfo>, never>(
       {
         type: "window-open",

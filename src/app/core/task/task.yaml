@@ -1,3 +1,4 @@
+# test
 - taskAttribute:
     isIgniteWithParam: false
     isLastValueCapture: false
@@ -5,12 +6,9 @@
     isTest: true
     statusList:
       - finished
-  types:
-    - context-open
-    - window-minimize
-    - window-normalize
-    - left-pane-frame-moving
+  types: []
 
+# product
 - taskAttribute:
     isIgniteWithParam: false
     isLastValueCapture: false
@@ -19,6 +17,10 @@
     statusList:
       - finished
   types:
+    - context-open
+    - window-minimize
+    - window-normalize
+    - left-pane-frame-moving
     - action-wheel
     - window-moving
     - window-move-end
@@ -78,15 +80,9 @@
     - card-setting-change-from-deck
     - open-ref-url
     - edit-actor
-
-- taskAttribute:
-    isIgniteWithParam: false
-    isLastValueCapture: false
-    isTraceFinally: false
-    isTest: true
-    statusList:
-      - finished
-  types: []
+    - dice-roll
+    - dice-pips-change
+    - change-dice-view
 
 - taskAttribute:
     isIgniteWithParam: false

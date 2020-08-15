@@ -138,6 +138,7 @@ import {
   RoomViewResponse,
   ServerTestResult,
   TouchRequest,
+  UploadMediaInfo,
   UserLoginInput,
   UserLoginRequest,
   UserLoginResponse,
@@ -154,7 +155,11 @@ import {
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
 import VersionInfoComponent from "./VersionInfoComponent.vue";
-import { getUrlType, loadYaml } from "../../core/utility/FileUtility";
+import {
+  loadYaml,
+  mediaUpload,
+  raw2UploadMediaInfoList
+} from "../../core/utility/FileUtility";
 import { getSrc } from "../../core/utility/Utility";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -164,6 +169,8 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
+import { DiceMaterial } from "@/@types/gameObject";
+import { Mutation } from "vuex-class";
 
 @Component({
   components: {
@@ -997,44 +1004,12 @@ export default class LoginWindow extends Mixins<
      * メディアデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const mediaDataList = await loadYaml<MediaInfo[]>("static/conf/media.yaml");
-    let firstImageIdx: number = -1;
+    const mediaDataList = await loadYaml<Partial<MediaInfo>[]>(
+      "static/conf/media.yaml"
+    );
 
-    mediaDataList.forEach((media: MediaInfo, idx: number) => {
+    mediaDataList.forEach((media: Partial<MediaInfo>) => {
       if (!media.tag) media.tag = "";
-      media.url = getSrc(media.url);
-
-      const type = getUrlType(media.url);
-      media.type = type;
-      if (type === "youtube") {
-        if (!media.name)
-          media.name = LanguageManager.instance.getText("label.no-target");
-      } else {
-        if (type === "image") {
-          if (firstImageIdx === -1) firstImageIdx = idx;
-        }
-        if (!media.name) {
-          // ファイル名を名前とする
-          media.name = media.url.replace(/^https?:\/\/.+\//, "");
-        }
-      }
-      // if (image.standImageInfo) {
-      //   // 立ち絵パラメータの値を正しく設定
-      //   const si = image.standImageInfo;
-      //   if (!si.status) si.status = "";
-      //   if (si.type !== "pile" && si.type !== "replace") si.type = "pile";
-      //   if (
-      //     si.viewStart === undefined ||
-      //     si.viewStart < 0 ||
-      //     si.viewStart > 100
-      //   )
-      //     si.viewStart = 0;
-      //   if (si.viewEnd === undefined || si.viewEnd < 0 || si.viewEnd > 100)
-      //     si.viewEnd = 100;
-      // } else {
-      //   // 立ち絵パラメータを推測＆設定
-      //   image.standImageInfo = getFileNameArgList(image.data) || null;
-      // }
     });
 
     /* --------------------------------------------------
@@ -1046,25 +1021,70 @@ export default class LoginWindow extends Mixins<
     );
     cutInDataList.forEach(cutIn => {
       cutIn.duration = 0;
-      cutIn.url = getSrc(cutIn.url);
 
       const mediaInfo = mediaDataList.find(m => m.url === cutIn.url);
       if (mediaInfo) {
         // 上書き
-        mediaInfo.name = cutIn.title;
-        mediaInfo.tag = cutIn.tag;
+        if (cutIn.title !== undefined) mediaInfo.name = cutIn.title;
+        if (cutIn.tag !== undefined) mediaInfo.name = cutIn.tag;
       } else {
         // 追加
         if (cutIn.url) {
           mediaDataList.push({
             name: cutIn.title,
-            url: cutIn.url,
             tag: cutIn.tag,
-            type: getUrlType(cutIn.url)
+            url: cutIn.url
           });
         }
       }
     });
+
+    // ダイスデータを用意する
+    const diceMaterial = await loadYaml<DiceMaterial>("static/conf/dice.yaml");
+    Object.keys(diceMaterial).forEach(faceNum => {
+      const diceSetList = diceMaterial[faceNum];
+      diceSetList.forEach(diceSet => {
+        const diceSetType = diceSet.type;
+        const diceSetPips = diceSet.pips;
+        Object.keys(diceSetPips).forEach(pips => {
+          const url = diceSetPips[pips];
+          mediaDataList.push({
+            name: `dice-${faceNum}-${diceSetType}-${pips}`,
+            tag: "dice",
+            url
+          });
+        });
+      });
+    });
+
+    const uploadMediaInfoList = await raw2UploadMediaInfoList(
+      mediaDataList.map(md => md.url!)
+    );
+    uploadMediaInfoList.forEach((umi: UploadMediaInfo, idx: number) => {
+      const mediaData = mediaDataList[idx];
+      if (mediaData.name !== undefined) umi.name = mediaData.name;
+      if (mediaData.tag !== undefined) umi.tag = mediaData.tag;
+    });
+
+    const uploadMediaResponse = await mediaUpload({
+      uploadMediaInfoList,
+      option: { ownerType: null, owner: null }
+    });
+
+    uploadMediaResponse.forEach(umr => {
+      if (umr.tag === "dice" && umr.urlType === "image") {
+        const nameSplit = umr.name.split("-");
+        if (nameSplit.length < 4) return;
+        if (nameSplit.shift() !== "dice") return;
+        const faceNum = nameSplit.shift()!;
+        const pips = nameSplit.pop()!;
+        const diceType = nameSplit.join("-");
+        diceMaterial[faceNum].find(dm => dm.type === diceType)!.pips[pips] =
+          umr.docId;
+      }
+    });
+
+    const imageInfo = uploadMediaResponse.find(umr => umr.urlType === "image")!;
 
     /* --------------------------------------------------
      * マップデータのプリセットデータを用意する
@@ -1088,16 +1108,16 @@ export default class LoginWindow extends Mixins<
       shapeType: "square",
       texture: {
         type: "image",
-        imageTag: "", // サーバサイドで自動投入
-        imageId: "", // サーバサイドで自動投入
+        imageTag: imageInfo.tag,
+        imageId: imageInfo.docId,
         direction: "none",
         backgroundSize: "100%"
       },
       background: {
         texture: {
           type: "image",
-          imageTag: "", // サーバサイドで自動投入
-          imageId: "", // サーバサイドで自動投入
+          imageTag: imageInfo.tag,
+          imageId: imageInfo.docId,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1107,8 +1127,8 @@ export default class LoginWindow extends Mixins<
         useTexture: "original",
         texture: {
           type: "image",
-          imageTag: "", // サーバサイドで自動投入
-          imageId: "", // サーバサイドで自動投入
+          imageTag: imageInfo.tag,
+          imageId: imageInfo.docId,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1136,8 +1156,7 @@ export default class LoginWindow extends Mixins<
       AddRoomPresetDataRequest,
       void
     >("add-room-preset-data", {
-      mediaDataList,
-      backgroundMediaIndex: firstImageIdx,
+      diceMaterial,
       cutInDataList,
       sceneData: scene,
       roomExtendInfo: createRoomInput.extend,

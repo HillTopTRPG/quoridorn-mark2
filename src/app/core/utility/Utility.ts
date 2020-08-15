@@ -1,19 +1,22 @@
 import urljoin from "url-join";
-import { Texture } from "../../../@types/room";
-import { StoreMetaData, StoreUseData } from "../../../@types/store";
+import { Texture } from "@/@types/room";
+import { StoreMetaData, StoreUseData } from "@/@types/store";
 import GameObjectManager from "../../basic/GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { ApplicationError } from "../error/ApplicationError";
 
-export function getSrc(path: string): string {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  if (path.startsWith("data:")) return path;
+export function getSrc(
+  path: string
+): { url: string; dataLocation: "server" | "direct" } {
+  if (!path) return { url: path, dataLocation: "direct" };
+  if (path.startsWith("http")) return { url: path, dataLocation: "direct" };
+  if (path.startsWith("data:")) return { url: path, dataLocation: "direct" };
   if (path.startsWith(".")) path = path.replace(/^\./, "");
   const protocol = window.location.protocol;
   const host = window.location.host;
   const baseUrl = process.env.BASE_URL;
-  return urljoin(protocol, host, baseUrl, path);
+  const url = urljoin(protocol, host, baseUrl, path);
+  return { url, dataLocation: "server" };
 }
 
 export function shuffleOrder(list: StoreUseData<any>[]): void {
@@ -174,7 +177,7 @@ export function getTextureStyle(texture: Texture) {
     const mediaList = GameObjectManager.instance.mediaList;
     const imageData = findById(mediaList, texture.imageId);
     if (imageData && imageData.data) {
-      style.backgroundImage = `url("${getSrc(imageData.data.url)}")`;
+      style.backgroundImage = `url('${imageData.data.url}')`;
     }
     if (texture.direction === "horizontal") style.transform = "scale(-1, 1)";
     if (texture.direction === "vertical") style.transform = "scale(1, -1)";
@@ -207,9 +210,10 @@ export function someByStr(list: string[], str: string | null): boolean {
 }
 
 export function findById<T extends StoreMetaData>(
-  list: T[],
+  list: T[] | null,
   id: string | null
 ): T | null {
+  if (!list) return null;
   return list.find(obj => obj.id === id) || null;
 }
 

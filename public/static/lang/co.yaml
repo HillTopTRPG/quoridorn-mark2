@@ -84,6 +84,11 @@ context:
   placement-reset: 配置リセット
   ref-url: データ参照先URLを開く
   edit-actor: コマのアクターを編集
+  add-dice-symbol: ダイスシンボル追加
+  dice-pips-change: 出目変更
+  dice-hide: 出目を隠す
+  dice-view: 出目を表示
+  dice-roll: ダイスロール
 
 label:
   terms-of-use: 이용 약관
@@ -317,6 +322,9 @@ label:
   non-secret: 公開
   scene-object: コマ
   non-select: 選択なし
+  dice-type: ダイス
+  pips: 出目
+  dice-roll: ダイスロール
 
 message:
   copy-to-clipboard: 클립 보드에 복사했습니다
@@ -327,12 +335,13 @@ message:
   add-preset-room: プリセットデータを登録しています！
   last-process-room: お部屋を表示するために頑張ってます！
   delete-deck: 山札を削除しますか？
-
-test-window:
-  window-title: 시험 화면
-
-sample-window:
-  window-title: 샘플 화면
+  change-pips-dice-symbol: ダイスシンボルの目を変更（{0}：{1} -> {2}）
+  change-pips-dice-symbol-hide: ダイスシンボル（秘匿）の目を変更
+  dice-roll-dice-symbol: ダイスシンボル（秘匿）の目を変更（ダイスロール）
+  dice-roll-dice-symbol-hide: ダイスシンボルの目を変更（ダイスロール）
+  hide-dice-symbol: ダイスシンボルを秘匿
+  view-dice-symbol: ダイスシンボルを公開（{0}：{1}）
+  view-dice-symbol-dice-roll: ダイスシンボルを公開（{0}：{1}）ダイスロール結果：{2}
 
 play-youtube-window:
   window-title: Youtube 재생
@@ -618,3 +627,11 @@ chat-palette-add-window:
 
 chat-palette-edit-window:
   window-title: チャットパレット編集
+
+dice-symbol-add-window:
+  window-title: ダイスシンボル追加
+  message-list:
+    drag-piece: マップにドラッグすると追加できます。
+
+dice-symbol-edit-window:
+  window-title: ダイスシンボル編集
