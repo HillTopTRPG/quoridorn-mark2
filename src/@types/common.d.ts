@@ -12,6 +12,7 @@ declare module "socket.io";
 declare module "create-keyframe-animation";
 declare module "url-join";
 declare module "body-scroll-lock";
+declare module "jsonp";
 declare var swal: (
   ...pref: (
     | string
@@ -252,7 +253,7 @@ declare module "context" {
   // 項目(表示条件ありなし)
   type ContextTextItem<T> = {
     text: string;
-    isRawText?: boolean,
+    isRawText?: boolean;
     taskName?: string;
     isViewCompare?: CompareInfo;
     isDisabledCompare?: CompareInfo;

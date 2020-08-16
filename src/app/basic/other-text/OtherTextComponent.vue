@@ -1,5 +1,9 @@
 <template>
-  <div class="other-text-container selectable" ref="component">
+  <div
+    class="other-text-container selectable"
+    :class="{ useScroll }"
+    ref="component"
+  >
     <div class="html">
       <template v-for="(block, blockIdx) in json">
         <!-- RAW-BLOCK -->
@@ -27,12 +31,30 @@
             <div :key="`${blockIdx}-${lineIdx}`" v-else-if="line.type === 'nl'">
               <br />
             </div>
+            <blockquote
+              :key="`${blockIdx}-${lineIdx}`"
+              v-else-if="line.type === '>'"
+            >
+              <other-text-span-component
+                tag="div"
+                :spans="line.value"
+                @check="onChangeCheck"
+                @select="onChangeSelect"
+              />
+            </blockquote>
             <component
               :key="`${blockIdx}-${lineIdx}`"
               v-bind:is="line.type"
               v-else
             >
-              {{ line.value }}
+              <other-text-span-component
+                tag="div"
+                v-if="typeof line.value !== 'string'"
+                :spans="line.value"
+                @check="onChangeCheck"
+                @select="onChangeSelect"
+              />
+              <template v-else>{{ line.value }}</template>
             </component>
             <div
               :key="`${blockIdx}-${lineIdx}-space`"
@@ -138,6 +160,9 @@ export default class OtherTextComponent extends Vue {
   @Prop({ type: String, required: true })
   private value!: string;
 
+  @Prop({ type: Boolean, default: false })
+  private useScroll!: boolean;
+
   private json: any[] = [];
   private readonly checkRegExp: RegExp = new RegExp(
     "\\[[ x]](\\([^\\r\\n]*\\))?",
@@ -182,13 +207,18 @@ export default class OtherTextComponent extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "../../../assets/common";
 
 .other-text-container {
   @include flex-box(row, flex-start, center);
+  background-color: white;
   width: 100%;
   height: 100%;
+
+  &.useScroll {
+    overflow-y: scroll;
+  }
 
   > * {
     width: 100%;
@@ -206,13 +236,22 @@ export default class OtherTextComponent extends Vue {
     white-space: pre-wrap;
   }
 
+  select {
+    height: 2em;
+  }
+
   table {
     border: 1px solid gray;
+
+    th {
+      background-color: var(--uni-color-light-green);
+    }
 
     th,
     td {
       border: 1px solid gray;
       padding: 0.2rem;
+      vertical-align: middle;
     }
 
     .left {
@@ -234,7 +273,45 @@ export default class OtherTextComponent extends Vue {
   h4,
   h5,
   h6 {
-    margin: 0;
+    @include inline-flex-box(row, flex-start, center);
+    margin: 0.2rem 0;
+  }
+
+  h1,
+  h4 {
+    border-style: solid;
+    border-width: 2px 0;
+    font-size: 1.4em;
+    padding: 0 5em 0 0.5em;
+  }
+
+  h2,
+  h5 {
+    border-style: solid;
+    border-width: 0 0 0 5px;
+    font-size: 1.2em;
+    padding: 0 5em 0 0.5em;
+  }
+
+  h3,
+  h6 {
+    border-radius: 0.2em;
+    font-size: 1em;
+    padding: 0 5em 0 0.5em;
+  }
+
+  h1,
+  h2,
+  h3 {
+    border-color: var(--uni-color-blue);
+    background-color: var(--uni-color-light-skyblue);
+  }
+
+  h4,
+  h5,
+  h6 {
+    border-color: var(--uni-color-pink);
+    background-color: var(--uni-color-light-pink);
   }
 
   pre {
@@ -249,5 +326,16 @@ export default class OtherTextComponent extends Vue {
     margin: 0;
     padding-left: 20px;
   }
+}
+
+blockquote {
+  position: relative;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+  font-style: italic;
+  background: #efefef;
+  border-left: 3px solid darkgray;
+  color: #555;
+  margin: 0;
 }
 </style>

@@ -69,10 +69,10 @@ export default class CtrlRadio extends Vue {
 @import "../../../assets/common";
 
 .ctrl-radio {
-  @include inline-flex-box(row, flex-start, center);
+  @include flex-box(row, flex-start, center);
 
   label {
-    @include inline-flex-box(row, flex-start, center);
+    @include flex-box(row, flex-start, center);
     height: 2em;
 
     &:not(:first-child) {

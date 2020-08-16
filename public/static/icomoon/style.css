@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?lstueq');
-  src:  url('fonts/icomoon.eot?lstueq#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?lstueq') format('truetype'),
-    url('fonts/icomoon.woff?lstueq') format('woff'),
-    url('fonts/icomoon.svg?lstueq#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?sjzqsd');
+  src:  url('fonts/icomoon.eot?sjzqsd#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?sjzqsd') format('truetype'),
+    url('fonts/icomoon.woff?sjzqsd') format('woff'),
+    url('fonts/icomoon.svg?sjzqsd#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -325,27 +325,18 @@
 .icon-bold:before {
   content: "\ea63";
 }
-.icon-underline:before {
-  content: "\ea64";
-}
 .icon-italic:before {
   content: "\ea65";
-}
-.icon-strikethrough:before {
-  content: "\ea66";
 }
 .icon-table2:before {
   content: "\ea71";
 }
-.icon-section:before {
-  content: "\ea76";
+.icon-quotes-left:before {
+  content: "\e977";
 }
-.icon-paragraph-left:before {
-  content: "\ea77";
+.icon-circle-down:before {
+  content: "\ea43";
 }
-.icon-paragraph-center:before {
-  content: "\ea78";
-}
-.icon-paragraph-right:before {
-  content: "\ea79";
+.icon-pagebreak:before {
+  content: "\ea6e";
 }

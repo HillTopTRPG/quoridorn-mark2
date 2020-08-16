@@ -26,6 +26,7 @@ button:
   open-resource-master-list-window: リソース一覧
   clear: クリア
   open-dice-roll-result: 結果公開
+  read-character-sheet: その他欄を参照先から生成
 
 type:
   map-mask: Masque de carte

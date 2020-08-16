@@ -1,7 +1,11 @@
 <template>
   <component v-bind:is="tag" v-bind="$attrs" v-on="listeners" class="line">
     <template v-for="(span, idx) in spans">
-      <span :key="idx" v-if="span.type === '.'">{{ span.value }}</span>
+      <span
+        :key="idx"
+        v-if="span.type === '.'"
+        v-html="span.value.replace(/\\n/g, '<br />')"
+      ></span>
       <i :key="idx" v-if="span.type === 'i'">{{ span.value }}</i>
       <b :key="idx" v-if="span.type === 'b'">{{ span.value }}</b>
       <b :key="idx" v-if="span.type === 'bi'">
@@ -67,14 +71,19 @@ export default class OtherTextSpanComponent extends Vue {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 @import "../../../assets/common";
+
 .line {
   line-height: 1.5em;
+  vertical-align: middle;
 }
 pre {
   &.inline {
     display: inline;
   }
+}
+label {
+  @include inline-flex-box(row, flex-start, center);
 }
 </style>

@@ -37,8 +37,7 @@ import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { DataReference } from "@/@types/data";
-import { SendChatInfo, sendChatLog } from "@/app/core/utility/ChatUtility";
-import LanguageManager from "@/LanguageManager";
+import { sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 const uuid = require("uuid");
 

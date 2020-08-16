@@ -18,7 +18,7 @@ import { Point, Rectangle, Size } from "address";
 import { Task, TaskResult } from "task";
 import { Mixins } from "vue-mixin-decorator";
 import TaskProcessor from "../../core/task/TaskProcessor";
-import { OtherTextViewInfo } from "../../../@types/gameObject";
+import { OtherTextViewInfo } from "@/@types/gameObject";
 import {
   createPoint,
   createRectangle,
@@ -30,9 +30,7 @@ import { MouseMoveParam } from "../../core/task/TaskManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
 
-@Component({
-  components: { OtherTextComponent }
-})
+@Component({ components: { OtherTextComponent } })
 export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, default: null })
   private otherTextViewInfo!: OtherTextViewInfo;
@@ -176,13 +174,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
     const cc = SocketFacade.instance.getCC(type);
     const data: any = (await cc.getData(docId))!.data;
     data.otherText = this.rawText;
-    try {
-      await cc.touchModify([docId]);
-    } catch (err) {
-      alert("他の人が操作中のオブジェクトのため、更新に失敗しました。");
-      return;
-    }
-    await cc.update([docId], [data]);
+    await cc.updatePackage([docId], [data]);
   }
 
   private get elm(): HTMLElement {
@@ -231,7 +223,6 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
   overflow: auto;
   left: 0;
   top: 0;
-  background-color: white;
   border: 2px solid gray;
   /* JavaScriptで設定されるプロパティ
   transform
