@@ -84,7 +84,7 @@ function fixSpans(spans, isRow) {
 <*><<EOF>>                 return lex.call(this, 'EOF');
 <INITIAL,SPAN>'['(' '|'x')']'
                            return lex.call(this, 'check', 'SPAN');
-<INITIAL,SPAN>('{'.+?'}')?'['[^\]]+?']('.*')'
+<INITIAL,SPAN>('{'[^}]+?'}')?'['[^\]]+?']('[^\)]*')'
                            return lex.call(this, 'select', 'SPAN');
 <INITIAL,SPAN>' '*'|'' '*  return lex.call(this, '|', 'SPAN');
 <INITIAL>' '*('*'|'-')' '  return lex.call(this, 'ul', 'SPAN');

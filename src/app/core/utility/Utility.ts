@@ -4,6 +4,7 @@ import { StoreMetaData, StoreUseData } from "@/@types/store";
 import GameObjectManager from "../../basic/GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { ApplicationError } from "../error/ApplicationError";
+import * as jsonp from "jsonp";
 
 export function getSrc(
   path: string
@@ -257,4 +258,26 @@ export function findRequireByOwner<T extends { owner: string | null }>(
     throw new ApplicationError(``);
   }
   return result;
+}
+
+export async function getJson(url: string): Promise<any> {
+  return new Promise((resolve, reject) => {
+    jsonp(url, { name: "getJson" }, (err: any, result: any) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+}
+
+export async function getJsonForTrpgSystemData<T>(
+  url: string,
+  regexpFrom: RegExp,
+  jsonUrlFormat: string
+): Promise<T | null> {
+  const matchResult = url.match(regexpFrom);
+  if (!matchResult) return null;
+  const key = matchResult[1];
+  // const editUrl = 'https://character-sheets.appspot.com/shinobigami/edit.html?key=' + key;
+  const jsonUrl = jsonUrlFormat.replace("{key}", key);
+  return (await getJson(jsonUrl)) as T;
 }
