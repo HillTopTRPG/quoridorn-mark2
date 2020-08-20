@@ -118,6 +118,7 @@ import LifeCycle from "../../core/decorator/LifeCycle";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import {
   convertNumberNull,
+  getExt,
   getUrlParam,
   listToEmpty
 } from "../../core/utility/PrimaryDataUtility";
@@ -160,7 +161,6 @@ import {
   mediaUpload,
   raw2UploadMediaInfoList
 } from "../../core/utility/FileUtility";
-import { getSrc } from "../../core/utility/Utility";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
 import LanguageSelect from "../common/components/select/LanguageSelect.vue";
@@ -170,7 +170,6 @@ import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import { DiceMaterial } from "@/@types/gameObject";
-import { Mutation } from "vuex-class";
 
 @Component({
   components: {
@@ -1049,7 +1048,7 @@ export default class LoginWindow extends Mixins<
         Object.keys(diceSetPips).forEach(pips => {
           const url = diceSetPips[pips];
           mediaDataList.push({
-            name: `dice-${faceNum}-${diceSetType}-${pips}`,
+            name: `dice-${faceNum}-${diceSetType}-${pips}.${getExt(url)}`,
             tag: "dice",
             url
           });
