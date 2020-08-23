@@ -17,7 +17,6 @@
     "@types/node-fetch": "^2.5.4",
     "@types/socket.io-client": "^1.4.32",
     "@types/uuid": "^3.4.6",
-    "ajax-client": "^1.2.1",
     "body-scroll-lock": "^2.6.4",
     "bufferutil": "^4.0.1",
     "change-case": "^3.1.0",
