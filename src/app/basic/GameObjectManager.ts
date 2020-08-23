@@ -446,6 +446,14 @@ export default class GameObjectManager {
     owner: string
   ): Promise<void> {
     const memoCC = SocketFacade.instance.memoCC();
+    const deleteIdList = GameObjectManager.instance.memoList
+      .filter(
+        m =>
+          m.ownerType === ownerType &&
+          m.owner === owner &&
+          !dataList.some(d => d.id === m.id)
+      )
+      .map(m => m.id!);
     await memoCC.updatePackage(
       dataList.filter(ot => ot.owner).map(ot => ot.id!),
       dataList.filter(ot => ot.owner).map(ot => ot.data!),
@@ -473,14 +481,6 @@ export default class GameObjectManager {
           .filter(data => data.order !== undefined && data.order > -1)
       );
     }
-    const deleteIdList = GameObjectManager.instance.memoList
-      .filter(
-        m =>
-          m.ownerType === ownerType &&
-          m.owner === owner &&
-          !dataList.some(d => d.id === m.id)
-      )
-      .map(m => m.id!);
     if (deleteIdList.length) {
       await memoCC.deletePackage(deleteIdList);
     }
