@@ -6,7 +6,7 @@
       initTabTarget="image"
       :name.sync="name"
       :tag.sync="tag"
-      :otherText.sync="otherText"
+      :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
       :imageDocId.sync="imageDocId"
@@ -36,6 +36,10 @@ import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import { StoreUseData } from "@/@types/store";
+import { MemoStore } from "@/@types/gameObject";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+const uuid = require("uuid");
 
 @Component({ components: { ChitInfoForm } })
 export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
@@ -43,7 +47,12 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private name: string = LanguageManager.instance.getText("type.chit");
   private tag: string = "";
-  private otherText: string = "";
+  private otherTextList: StoreUseData<MemoStore>[] = [
+    createEmptyStoreUseData(uuid.v4(), {
+      tab: "",
+      text: ""
+    })
+  ];
   private height: number = 1;
   private width: number = 1;
   private imageDocId: string | null = null;
@@ -105,41 +114,50 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
-    await SocketFacade.instance.sceneObjectCC().addDirect([
-      {
-        type: "chit",
-        tag: this.tag,
-        name: this.name,
-        x: point.x,
-        y: point.y,
-        row: matrix.row,
-        column: matrix.column,
-        actorId: null,
-        columns: this.width,
-        rows: this.height,
-        place: "field",
-        isHideBorder: false,
-        isHideHighlight: false,
-        isLock: false,
-        otherText: this.otherText,
-        layerId: this.layerId,
-        textures: [
-          {
-            type: "image",
-            imageTag: this.imageTag!,
-            imageId: this.imageDocId!,
-            direction: this.direction,
-            backgroundSize: this.backgroundSize!
-          }
-        ],
-        textureIndex: 0,
-        angle: 0,
-        url: "",
-        subTypeId: "",
-        subTypeValue: "",
-        isHideSubType: false
-      }
-    ]);
+    const sceneObjectId = (
+      await SocketFacade.instance.sceneObjectCC().addDirect([
+        {
+          type: "chit",
+          tag: this.tag,
+          name: this.name,
+          x: point.x,
+          y: point.y,
+          row: matrix.row,
+          column: matrix.column,
+          actorId: null,
+          columns: this.width,
+          rows: this.height,
+          place: "field",
+          isHideBorder: false,
+          isHideHighlight: false,
+          isLock: false,
+          layerId: this.layerId,
+          textures: [
+            {
+              type: "image",
+              imageTag: this.imageTag!,
+              imageId: this.imageDocId!,
+              direction: this.direction,
+              backgroundSize: this.backgroundSize!
+            }
+          ],
+          textureIndex: 0,
+          angle: 0,
+          url: "",
+          subTypeId: "",
+          subTypeValue: "",
+          isHideSubType: false
+        }
+      ])
+    )[0];
+
+    await SocketFacade.instance.memoCC().addDirect(
+      this.otherTextList.map(ot => ot.data!),
+      this.otherTextList.map(() => ({
+        ownerType: "scene-object",
+        owner: sceneObjectId
+      }))
+    );
 
     task.resolve();
   }

@@ -5,7 +5,7 @@ import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentReference from "nekostore/src/DocumentReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import Query from "nekostore/lib/Query";
-import { StoreObj, StoreUseData } from "../../../../@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   AddDirectRequest,
   CreateDataRequest,
@@ -14,8 +14,10 @@ import {
   TouchModifyRequest,
   TouchRequest,
   UpdateDataRequest
-} from "../../../../@types/data";
-import SocketFacade, { getStoreObj } from "./SocketFacade";
+} from "@/@types/data";
+import SocketFacade, {
+  getStoreObj
+} from "@/app/core/api/app-server/SocketFacade";
 
 export default class NekostoreCollectionController<T> {
   constructor(
@@ -248,7 +250,6 @@ export default class NekostoreCollectionController<T> {
   }
 
   public async deletePackage(idList: string[]): Promise<void> {
-    console.log("deletePackage");
     await SocketFacade.instance.socketCommunication<DeleteDataRequest, never>(
       "delete-data-package",
       {

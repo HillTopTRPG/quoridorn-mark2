@@ -55,7 +55,7 @@
 import { Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { UserData } from "../../../@types/room";
+import { UserData } from "@/@types/room";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import BaseInput from "../../core/component/BaseInput.vue";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -63,8 +63,8 @@ import {
   UserLoginInput,
   UserLoginWindowInput,
   UserType
-} from "../../../@types/socket";
-import { StoreUseData } from "../../../@types/store";
+} from "@/@types/socket";
+import { StoreUseData } from "@/@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import UserTypeSelect from "../common/components/select/UserTypeSelect.vue";

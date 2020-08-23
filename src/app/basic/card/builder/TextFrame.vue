@@ -6,7 +6,11 @@
     @wheel.stop
     ref="elm"
   >
-    <other-text-component v-if="rawText !== null" v-model="rawText" />
+    <other-text-component
+      v-if="useMemoList.length"
+      :value="useMemoList"
+      :windowKey="windowKey"
+    />
   </div>
 </template>
 
@@ -17,29 +21,33 @@ import { Task, TaskResult } from "task";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { OtherTextViewInfo } from "../../../../@types/gameObject";
+import { MemoStore, OtherTextViewInfo } from "@/@types/gameObject";
 import {
   createPoint,
   createRectangle,
   createSize
-} from "../../../core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "../../../core/window/ComponentVue";
 import OtherTextComponent from "../../other-text/OtherTextComponent.vue";
 import CssManager from "../../../core/css/CssManager";
-import { MouseMoveParam } from "../../../core/task/TaskManager";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import { MouseMoveParam } from "@/app/core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { StoreUseData } from "@/@types/store";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: { OtherTextComponent }
 })
 export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
+  @Prop({ type: String, required: true })
+  private windowKey!: string;
+
   @Prop({ type: Object, default: null })
   private otherTextViewInfo!: OtherTextViewInfo;
 
   private static DEFAULT_FONT_SIZE = 14;
 
-  private rawText: string | null = null;
+  private useMemoList: StoreUseData<MemoStore>[] = [];
   private docId: string | null = null;
   private isMounted: boolean = false;
 
@@ -76,7 +84,7 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
   private onChangeInfo() {
     const ws = createSize(window.innerWidth, window.innerHeight);
 
-    this.rawText = this.otherTextViewInfo.text;
+    this.useMemoList = this.otherTextViewInfo.dataList;
     if (!this.isMounted) return;
     const gridSize = CssManager.instance.propMap.gridSize;
     const info = this.otherTextViewInfo;
@@ -158,31 +166,22 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
     return createRectangle(rect.x, rect.y, rect.width, rect.height);
   }
 
-  @Watch("rawText")
-  private async onChangeRawText() {
+  @Watch("useMemoList", { deep: true })
+  private async onChangeUseMemoList() {
     if (this.docId) {
       if (this.docId !== this.otherTextViewInfo.docId) {
         this.isChanged = true;
       } else {
-        await this.updateOtherText();
+        const type = this.otherTextViewInfo.type;
+        const docId = this.otherTextViewInfo.docId;
+        await GameObjectManager.instance.updateMemoList(
+          this.useMemoList,
+          type,
+          docId
+        );
       }
     }
     this.docId = this.otherTextViewInfo.docId;
-  }
-
-  private async updateOtherText() {
-    const type = this.otherTextViewInfo.type;
-    const docId = this.otherTextViewInfo.docId;
-    const cc = SocketFacade.instance.getCC(type);
-    const data: any = (await cc.getData(docId))!.data;
-    data.otherText = this.rawText;
-    try {
-      await cc.touchModify([docId]);
-    } catch (err) {
-      alert("他の人が操作中のオブジェクトのため、更新に失敗しました。");
-      return;
-    }
-    await cc.update([docId], [data]);
   }
 
   private get elm(): HTMLElement {

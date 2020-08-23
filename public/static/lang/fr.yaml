@@ -327,6 +327,9 @@ label:
   dice-type: ダイス
   pips: 出目
   dice-roll: ダイスロール
+  tab: タブ
+  non-tab: タブ無し
+  input-tab: タブの文字を入力
 
 message:
   copy-to-clipboard: Copié dans le presse-papiers.
@@ -459,6 +462,9 @@ edit-scene-window:
     object-order: ドラッグでオブジェクトの順番を入れ替えます。
 
 chmod-window:
+  window-title: 権限変更
+
+chmod-input-window:
   window-title: 権限変更
 
 bgm-add-window:
@@ -642,3 +648,9 @@ dice-symbol-edit-window:
 
 secret-dice-roll-window:
   window-title: 隠しダイスロール結果
+
+simple-text-input-window:
+  window-title: テキスト入力（この文言は実際には表示されない）
+
+memo-tab-setting-window:
+  window-title: メモタブ設定

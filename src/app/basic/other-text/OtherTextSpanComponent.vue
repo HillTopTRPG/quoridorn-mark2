@@ -18,12 +18,16 @@
         <input
           type="checkbox"
           class="input"
+          :disabled="disabled"
           :checked="span.value"
           @change="onChangeChecked(span.index, $event.target.checked)"
         />
       </label>
       <label :key="idx" v-if="span.type === 'select'">
-        <select @change="onChangeSelect(span.index, $event.target.value)">
+        <select
+          @change="onChangeSelect(span.index, $event.target.value)"
+          :disabled="disabled"
+        >
           <option value="" disabled v-if="span.title">{{ span.title }}</option>
           <option
             v-for="(optionValue, idx) in span.list"
@@ -49,6 +53,9 @@ import VueEvent from "../../core/decorator/VueEvent";
 export default class OtherTextSpanComponent extends Vue {
   @Prop({ type: String, required: true })
   private tag!: string;
+
+  @Prop({ type: Boolean, required: true })
+  private disabled!: boolean;
 
   @Prop({ type: Array, required: true })
   private spans!: any[];

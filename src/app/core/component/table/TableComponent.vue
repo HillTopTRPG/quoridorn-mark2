@@ -177,6 +177,7 @@ export default class TableComponent extends Vue {
         let isFirst = true;
         while (current < list.length) {
           const tabInfo: TabInfo = {
+            key: (current + ordinal).toString(),
             text: `${current + ordinal}-`,
             target: {
               from: current,
@@ -206,6 +207,7 @@ export default class TableComponent extends Vue {
       });
       targetValueList.forEach((val, idx: number) => {
         const tabInfo = {
+          key: val.toString(),
           text: val.toString(),
           target: val.toString()
         };

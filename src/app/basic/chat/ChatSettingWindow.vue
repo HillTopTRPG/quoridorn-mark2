@@ -136,8 +136,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   private isUseAllTab: boolean = false;
 
   private tabList: TabInfo[] = [
-    { target: "tab-list", text: "" },
-    { target: "other", text: "" }
+    { key: "1", target: "tab-list", text: "" },
+    { key: "2", target: "other", text: "" }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 

@@ -24,7 +24,8 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  TagNoteStore
+  TagNoteStore,
+  MemoStore
 } from "@/@types/gameObject";
 import {
   ActorGroup,
@@ -55,6 +56,7 @@ import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
+import MemoryStore from "nekostore/lib/store/MemoryStore";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -88,11 +90,13 @@ export function getStoreObj<T>(
  * パーミッションチェックを行う。
  * @param data
  * @param type
+ * @param ownerLevel
  * @return 許可されているならtrue
  */
 export function permissionCheck(
   data: StoreObj<unknown>,
-  type: "view" | "edit" | "chmod"
+  type: "view" | "edit" | "chmod",
+  ownerLevel: number = 0
 ): boolean {
   if (!data!.permission) return true;
 
@@ -129,7 +133,11 @@ export function permissionCheck(
         if (pn.id === GameObjectManager.instance.mySelfActorId) return true;
       }
       if (pn.type === "owner") {
-        if (data.owner === SocketFacade.instance.userId) return true;
+        let obj = data;
+        for (let i = 0; i < ownerLevel; i++) {
+          obj = GameObjectManager.instance.getOwner(obj)!;
+        }
+        if (obj.owner === SocketFacade.instance.userId) return true;
       }
       return false;
     };
@@ -590,6 +598,10 @@ export default class SocketFacade {
     return this.roomCollectionController<DiceAndPips>("dice-and-pips-list");
   }
 
+  public memoCC(): NekostoreCollectionController<MemoStore> {
+    return this.roomCollectionController<MemoStore>("memo-list");
+  }
+
   public keepBcdiceDiceRollResultListCC(): NekostoreCollectionController<
     KeepBcdiceDiceRollResult
   > {
@@ -658,6 +670,8 @@ export default class SocketFacade {
         return this.diceAndPipsListCC();
       case "chat-bcdice-dice-roll-result":
         return this.keepBcdiceDiceRollResultListCC();
+      case "memo":
+        return this.memoCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

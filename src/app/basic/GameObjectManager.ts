@@ -39,7 +39,8 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  TagNoteStore
+  TagNoteStore,
+  MemoStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findById } from "../core/utility/Utility";
@@ -143,7 +144,8 @@ export default class GameObjectManager {
       sf.mediaCC().getList(true, this.mediaList),
       sf.cardObjectCC().getList(true, this.cardObjectList),
       sf.actorCC().getList(true, this.actorList),
-      sf.chatTabListCC().getList(true, this.chatTabList)
+      sf.chatTabListCC().getList(true, this.chatTabList),
+      sf.memoCC().getList(true, this.memoList)
     ]);
     // Block 6
     await Promise.all([
@@ -376,6 +378,7 @@ export default class GameObjectManager {
   public readonly keepBcdiceDiceRollResultList: StoreUseData<
     KeepBcdiceDiceRollResult
   >[] = [];
+  public readonly memoList: StoreUseData<MemoStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -435,6 +438,61 @@ export default class GameObjectManager {
     return this.actorList.find(
       a => a.data!.type === "user" && a.owner === this.mySelfUserId
     )!.id!;
+  }
+
+  public async updateMemoList(
+    dataList: StoreUseData<MemoStore>[],
+    ownerType: string,
+    owner: string
+  ): Promise<void> {
+    const memoCC = SocketFacade.instance.memoCC();
+    await memoCC.updatePackage(
+      dataList.filter(ot => ot.owner).map(ot => ot.id!),
+      dataList.filter(ot => ot.owner).map(ot => ot.data!),
+      dataList
+        .map(
+          (ot, idx: number): Partial<StoreObj<any>> => ({
+            order: ot.owner ? idx : -1,
+            permission: ot.permission
+          })
+        )
+        .filter(data => data.order !== undefined && data.order > -1)
+    );
+    if (dataList.filter(ot => !ot.owner).length) {
+      await memoCC.addDirect(
+        dataList.filter(ot => !ot.owner).map(ot => ot.data!),
+        dataList
+          .map(
+            (ot, idx: number): Partial<StoreObj<any>> => ({
+              ownerType,
+              owner,
+              order: ot.owner ? -1 : idx,
+              permission: ot.permission
+            })
+          )
+          .filter(data => data.order !== undefined && data.order > -1)
+      );
+    }
+    const deleteIdList = GameObjectManager.instance.memoList
+      .filter(
+        m =>
+          m.ownerType === ownerType &&
+          m.owner === owner &&
+          !dataList.some(d => d.id === m.id)
+      )
+      .map(m => m.id!);
+    if (deleteIdList.length) {
+      await memoCC.deletePackage(deleteIdList);
+    }
+  }
+
+  public getOwner<T>(data: StoreObj<T>): StoreObj<T> | null {
+    const ownerType = data.ownerType;
+    const owner = data.owner;
+    if (!ownerType) return null;
+    return GameObjectManager.instance
+      .getList(ownerType!)!
+      .find(o => o.id === owner) as StoreObj<T>;
   }
 
   public getList(type: string): StoreUseData<any>[] | null {
@@ -502,6 +560,8 @@ export default class GameObjectManager {
         return this.diceAndPipsList;
       case "chat-bcdice-dice-roll-result":
         return this.keepBcdiceDiceRollResultList;
+      case "memo":
+        return this.memoList;
     }
     return null;
   }

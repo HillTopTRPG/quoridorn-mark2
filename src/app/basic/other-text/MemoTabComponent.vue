@@ -15,7 +15,7 @@
     @onMouseUp="changeOrderId = ''"
   >
     <span class="icon-menu drag-mark"></span>
-    <span>{{ tab.data.name }}</span>
+    <span>{{ tab.data.tab || $t("label.non-tab") }}</span>
 
     <div class="icon-box">
       <s-button
@@ -44,23 +44,15 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { StoreUseData } from "@/@types/store";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import TaskManager from "../../../core/task/TaskManager";
-import GameObjectManager from "../../GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "../../../../LanguageManager";
-import { ChatTabInfo } from "@/@types/room";
-import { DataReference } from "@/@types/data";
-import VueEvent from "../../../core/decorator/VueEvent";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import { MemoStore } from "@/@types/gameObject";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
-@Component({
-  components: { SButton }
-})
-export default class ChatTabComponent extends Vue {
+@Component({ components: { SButton } })
+export default class MemoTabComponent extends Vue {
   @Prop({ type: Object, required: true })
-  private tab!: StoreUseData<ChatTabInfo>;
+  private tab!: StoreUseData<MemoStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
@@ -68,86 +60,48 @@ export default class ChatTabComponent extends Vue {
   @Prop({ type: String, required: true })
   private changeOrderId: string = "";
 
-  private chatTabListCC = SocketFacade.instance.chatTabListCC();
-
   @VueEvent
-  private isEditable(tabInfo: StoreUseData<ChatTabInfo>) {
-    return permissionCheck(tabInfo, "edit");
+  private isEditable(tabInfo: StoreUseData<MemoStore>) {
+    return permissionCheck(tabInfo, "edit", 1);
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async editTab(tabInfo: StoreUseData<MemoStore>) {
     if (!this.isEditable(tabInfo)) return;
-
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "chat-tab-edit-window",
-        args: tabInfo.id!
-      }
-    });
+    this.$emit("edit", tabInfo);
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreUseData<ChatTabInfo>) {
-    return permissionCheck(tabInfo, "chmod");
+  private isChmodAble(tabInfo: StoreUseData<MemoStore>) {
+    return permissionCheck(tabInfo, "chmod", 1);
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async chmodTab(tabInfo: StoreUseData<MemoStore>) {
     if (!this.isChmodAble(tabInfo)) return;
-
-    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
-      type: "window-open",
-      owner: "Quoridorn",
-      value: {
-        type: "chmod-window",
-        args: {
-          type: "chat-tab",
-          docId: tabInfo.id!
-        }
-      }
-    });
+    this.$emit("chmod", tabInfo);
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreUseData<ChatTabInfo>) {
-    return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
+  private isDeletable(tabInfo: StoreUseData<MemoStore>) {
+    return permissionCheck(tabInfo, "edit", 1);
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async deleteTab(tabInfo: StoreUseData<MemoStore>) {
     if (!this.isDeletable(tabInfo)) return;
-    const msg = ChatTabComponent.getDialogMessage("delete-tab").replace(
-      "$1",
-      tabInfo.data!.name
-    );
-    const result = window.confirm(msg);
-    if (!result) return;
-
-    try {
-      await this.chatTabListCC.deletePackage([tabInfo.id!]);
-    } catch (err) {
-      // TODO error message.
-      return;
-    }
+    this.$emit("delete", tabInfo);
   }
 
   @VueEvent
   private getExclusionOwner(exclusionOwner: string) {
     return GameObjectManager.instance.getExclusionOwnerName(exclusionOwner);
   }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-setting-window.dialog." + target;
-    return LanguageManager.instance.getText(msgTarget);
-  }
 }
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .tab-info {
   @include flex-box(row, flex-start, center);

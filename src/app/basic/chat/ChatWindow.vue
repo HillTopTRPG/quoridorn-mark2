@@ -386,6 +386,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.targetTabList = this.groupChatTabList
       .filter(gct => permissionCheck(gct, "view"))
       .map(ct => ({
+        key: ct.id!,
         text: ct.data!.name,
         target: ct.id!
       }));

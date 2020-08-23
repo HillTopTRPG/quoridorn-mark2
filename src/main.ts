@@ -20,7 +20,6 @@ import ActorEditWindow from "./app/basic/object/actor/ActorEditWindow.vue";
 import AppServerSettingWindow from "./app/basic/login/AppServerSettingWindow.vue";
 import ActorAddWindow from "./app/basic/object/actor/ActorAddWindow.vue";
 import ChatWindow from "./app/basic/chat/ChatWindow.vue";
-import EditOtherTextWindow from "./app/basic/other-text/EditOtherTextWindow.vue";
 import InitiativeWindow from "./app/basic/initiative/InitiativeWindow.vue";
 import TermsOfUseWindow from "./app/basic/login/TermsOfUseWindow.vue";
 import MapMastAddWindow from "./app/basic/object/map-mask/MapMaskAddWindow.vue";
@@ -41,6 +40,7 @@ import CardDeckSmallEditWindow from "./app/basic/card/CardDeckSmallEditWindow.vu
 import LanguageManager from "./LanguageManager";
 import ResourceMasterEditWindow from "./app/basic/initiative/ResourceMasterEditWindow.vue";
 import ChmodWindow from "./app/basic/chmod/ChmodWindow.vue";
+import ChmodInputWindow from "./app/basic/chmod/ChmodInputWindow.vue";
 import PlayYoutubeWindow from "./app/basic/cut-in/bgm/PlayYoutubeWindow.vue";
 import ConfirmWindow from "./app/core/window/ConfirmWindow.vue";
 import PlayBgmFileWindow from "./app/basic/cut-in/bgm/PlayBgmFileWindow.vue";
@@ -52,6 +52,8 @@ import ChatPaletteEditWindow from "./app/basic/chat-palette/ChatPaletteEditWindo
 import DiceSymbolEditWindow from "@/app/basic/object/dice-symbol/DiceSymbolEditWindow.vue";
 import DiceSymbolAddWindow from "@/app/basic/object/dice-symbol/DiceSymbolAddWindow.vue";
 import SecretDiceRollWindow from "@/app/basic/chat/secret-dice/SecretDiceRollWindow.vue";
+import SimpleTextInputWindow from "@/app/core/window/SimpleTextInputWindow.vue";
+import MemoTabSettingWindow from "@/app/basic/other-text/MemoTabSettingWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -82,7 +84,6 @@ async function main(): Promise<void> {
   Vue.component("map-mask-edit-window", MapMastEditWindow);
   Vue.component("chit-add-window", ChitAddWindow);
   Vue.component("chit-edit-window", ChitEditWindow);
-  Vue.component("edit-other-text-window", EditOtherTextWindow);
   Vue.component("scene-list-window", SceneListWindow);
   Vue.component("edit-scene-window", EditSceneWindow);
   Vue.component("chmod-window", ChmodWindow);
@@ -116,6 +117,9 @@ async function main(): Promise<void> {
     "bcdice-api-server-setting-window",
     BcdiceApiServerSettingWindow
   );
+  Vue.component("chmod-input-window", ChmodInputWindow);
+  Vue.component("simple-text-input-window", SimpleTextInputWindow);
+  Vue.component("memo-tab-setting-window", MemoTabSettingWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

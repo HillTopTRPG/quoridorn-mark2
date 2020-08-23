@@ -76,26 +76,24 @@ import { Point, Rectangle, Size } from "address";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../core/component/CtrlSelect.vue";
-import { OtherTextViewInfo } from "../../../../@types/gameObject";
+import { OtherTextViewInfo } from "@/@types/gameObject";
 import ComponentVue from "../../../core/window/ComponentVue";
-import {
-  WindowInfo,
-  WindowMoveInfo,
-  WindowOpenInfo
-} from "../../../../@types/window";
-import { BcdiceSystemInfo, DiceSystem } from "../../../../@types/bcdice";
-import { getCssPxNum } from "../../../core/css/Css";
+import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
+import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
+import { getCssPxNum } from "@/app/core/css/Css";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import SButton from "./SButton.vue";
 import {
   createPoint,
   createRectangle
-} from "../../../core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
 import TaskManager from "../../../core/task/TaskManager";
 import LanguageManager from "../../../../LanguageManager";
-import { clone } from "../../../core/utility/PrimaryDataUtility";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import BcdiceManager from "../../../core/api/bcdice/BcdiceManager";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+const uuid = require("uuid");
 
 type FilterInfo = {
   list: DiceSystem[];
@@ -168,7 +166,12 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
           value: {
             type: "",
             docId: this.windowInfo.key,
-            text: this.helpMessage,
+            dataList: [
+              createEmptyStoreUseData(uuid.v4(), {
+                tab: "",
+                text: this.helpMessage
+              })
+            ],
             rect: createRectangle(rect.x, rect.y, rect.width + 1, rect.height),
             isFix: true
           }

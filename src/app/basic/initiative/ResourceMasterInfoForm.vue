@@ -411,8 +411,8 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { target: "basic", text: "" },
-    { target: "icon", text: "" }
+    { key: "1", target: "basic", text: "" },
+    { key: "2", target: "icon", text: "" }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 

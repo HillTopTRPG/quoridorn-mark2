@@ -4,7 +4,7 @@
       <div
         class="tab"
         v-for="(tab, index) in tabList"
-        :class="{ isActive: tab.text === localValue.text }"
+        :class="{ isActive: tab.key === localValue.key }"
         :key="index"
         @click="localValue = tab"
         tabindex="0"
@@ -26,7 +26,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import { TabMoveInfo } from "task-info";
 import { Task, TaskResult } from "task";
 import ComponentVue from "../window/ComponentVue";
-import { TabInfo } from "../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import TaskProcessor from "../task/TaskProcessor";
 
 @Component
@@ -99,12 +99,17 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
 <style lang="scss">
 @import "../../../assets/common";
 .simple-tab-component {
-  @include flex-box(column, flex-start, flex-start);
+  @include flex-box(column, stretch, flex-start);
+
+  > :not(.tab-area) {
+    z-index: 0;
+  }
 }
 .tab-area {
   @include flex-box(row, flex-start, center);
   position: relative;
   z-index: 1;
+  margin-bottom: -1px;
 }
 
 .tab {

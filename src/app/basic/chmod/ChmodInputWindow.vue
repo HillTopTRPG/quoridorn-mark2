@@ -55,6 +55,7 @@ import { Permission } from "@/@types/store";
 import { TabInfo } from "@/@types/window";
 import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {
@@ -64,14 +65,10 @@ import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
     CtrlButton
   }
 })
-export default class ChmodWindow extends Mixins<
-  WindowVue<DataReference, never>
+export default class ChmodInputWindow extends Mixins<
+  WindowVue<Permission, Permission>
 >(WindowVue) {
-  private isMounted: boolean = false;
-  private docId: string = "";
-  private isProcessed: boolean = false;
   private permission: Permission | null = null;
-  private cc: NekostoreCollectionController<unknown> | null = null;
 
   private tabList: TabInfo[] = [
     { key: "1", target: "view", text: "" },
@@ -102,77 +99,17 @@ export default class ChmodWindow extends Mixins<
   @LifeCycle
   private async mounted() {
     await this.init();
-
-    this.isMounted = true;
-    const type = this.windowInfo.args!.type;
-    this.docId = this.windowInfo.args!.docId;
-    this.cc = SocketFacade.instance.getCC(type);
-    const data = (await this.cc!.getData(this.docId))!;
-    this.permission = data.permission;
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "chmod")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    try {
-      await this.cc.touchModify([this.docId]);
-    } catch (err) {
-      console.warn(err);
-      this.isProcessed = true;
-      await this.close();
-    }
+    this.permission = clone(this.windowInfo.args!)!;
   }
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    await this.cc!.update(
-      [this.docId],
-      [data.data!],
-      [
-        {
-          permission: this.permission || undefined
-        }
-      ]
-    );
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+    await this.finally(this.permission || undefined);
   }
 
   @VueEvent
   private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docId]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
+    await this.finally();
   }
 
   @VueEvent

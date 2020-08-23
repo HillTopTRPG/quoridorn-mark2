@@ -60,6 +60,7 @@ import { sendChatLog } from "../../core/utility/ChatUtility";
 import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
+const uuid = require("uuid");
 
 @Component({
   components: {
@@ -121,6 +122,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   @Watch("chatPaletteList", { immediate: true })
   private onChangeChatPaletteList() {
     this.targetTabList = this.chatPaletteList.map(cp => ({
+      key: uuid.v4(),
       target: cp.id!,
       text: cp.data!.name
     }));

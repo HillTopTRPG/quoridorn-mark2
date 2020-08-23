@@ -15,6 +15,7 @@ import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import {
   KeepBcdiceDiceRollResult,
+  MemoStore,
   ObjectMoveInfo,
   OtherTextViewInfo,
   SceneObject,
@@ -60,6 +61,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   protected sceneObjectCC = SocketFacade.instance.sceneObjectCC();
   protected sceneAndObjectCC = SocketFacade.instance.sceneAndObjectCC();
   private mediaList = GameObjectManager.instance.mediaList;
+  private memoList = GameObjectManager.instance.memoList;
 
   protected isMounted: boolean = false;
   protected sceneObjectInfo: StoreUseData<SceneObject> | null = null;
@@ -110,7 +112,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   }
 
   // HTMLで参照する項目
-  protected otherText: string = "";
+  protected otherTextList: StoreUseData<MemoStore>[] = [];
 
   private volatileInfo: ObjectMoveInfo = {
     fromPoint: createPoint(0, 0),
@@ -276,9 +278,11 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   }
 
   @Watch("isMounted")
-  @Watch("sceneObjectInfo.data.otherText")
+  @Watch("memoList", { deep: true })
   private onChangeOtherText() {
-    this.otherText = this.sceneObjectInfo!.data!.otherText;
+    this.otherTextList = this.memoList.filter(
+      m => m.ownerType === "scene-object" && m.owner === this.docId
+    );
   }
 
   @Watch("isMounted")
@@ -547,14 +551,10 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
     const data = (await this.sceneObjectCC!.getData(this.docId))!;
-    const faceNum = GameObjectManager.instance.diceTypeList.find(
-      dt => dt.id === data.data!.subTypeId
-    )!.data!.faceNum;
     const pipsList = GameObjectManager.instance.diceAndPipsList
       .filter(dap => dap.data!.diceTypeId === data.data!.subTypeId)
       .map(dap => dap.data!.pips);
     const pipsLength = pipsList.filter(p => p && p !== "0").length;
-    const oldPips: string = data.data!.subTypeValue;
     let pips: string = "";
 
     if (data.data!.isHideSubType) {
@@ -975,7 +975,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   protected async mouseover(): Promise<void> {
     this.isHover = true;
     const data = this.sceneObjectInfo!.data!;
-    if (!data.otherText) return;
+    if (!this.otherTextList.length) return;
     const rect = this.elm.getBoundingClientRect();
     await TaskManager.instance.ignition<OtherTextViewInfo, never>({
       type: "other-text-view",
@@ -983,7 +983,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       value: {
         type: this.type,
         docId: this.docId,
-        text: data.otherText,
+        dataList: this.otherTextList,
         rect: createRectangle(data.x, data.y, rect.width, rect.height),
         isFix: false
       }
@@ -993,8 +993,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   @VueEvent
   protected async mouseout(): Promise<void> {
     this.isHover = false;
-    const data = this.sceneObjectInfo!.data!;
-    if (!data.otherText) return;
+    if (!this.otherTextList.length) return;
     await TaskManager.instance.ignition<string, never>({
       type: "other-text-hide",
       owner: "Quoridorn",

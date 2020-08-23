@@ -116,6 +116,7 @@ export interface WindowInfo<T>
 }
 
 export type TabInfo = {
+  key: string;
   text: string;
   target:
     | string

@@ -8,7 +8,7 @@
       :text.sync="text"
       :color.sync="color"
       :tag.sync="tag"
-      :otherText.sync="otherText"
+      :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
       :layerId.sync="layerId"
@@ -34,6 +34,10 @@ import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { parseColor } from "@/app/core/utility/ColorUtility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import { StoreUseData } from "@/@types/store";
+import { MemoStore } from "@/@types/gameObject";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+const uuid = require("uuid");
 
 @Component({ components: { MapMaskInfoForm } })
 export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
@@ -49,7 +53,12 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
   private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
   )!.id!;
-  private otherText: string = "";
+  private otherTextList: StoreUseData<MemoStore>[] = [
+    createEmptyStoreUseData(uuid.v4(), {
+      tab: "",
+      text: ""
+    })
+  ];
 
   @LifeCycle
   public async mounted() {
@@ -97,40 +106,50 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
     const colorObj = parseColor(this.color);
     const backgroundColor = colorObj.getRGBA();
     const fontColor = colorObj.getRGBReverse();
-    await SocketFacade.instance.sceneObjectCC().addDirect([
-      {
-        type: "map-mask",
-        tag: this.tag,
-        name: this.name,
-        x: point.x,
-        y: point.y,
-        row: matrix.row,
-        column: matrix.column,
-        rows: this.height,
-        columns: this.width,
-        actorId: null,
-        place: "field",
-        isHideBorder: false,
-        isHideHighlight: false,
-        isLock: false,
-        otherText: this.otherText,
-        layerId: this.layerId,
-        textures: [
-          {
-            type: "color",
-            backgroundColor,
-            fontColor,
-            text: this.text
-          }
-        ],
-        textureIndex: 0,
-        angle: 0,
-        url: "",
-        subTypeId: "",
-        subTypeValue: "",
-        isHideSubType: false
-      }
-    ]);
+
+    const sceneObjectId = (
+      await SocketFacade.instance.sceneObjectCC().addDirect([
+        {
+          type: "map-mask",
+          tag: this.tag,
+          name: this.name,
+          x: point.x,
+          y: point.y,
+          row: matrix.row,
+          column: matrix.column,
+          rows: this.height,
+          columns: this.width,
+          actorId: null,
+          place: "field",
+          isHideBorder: false,
+          isHideHighlight: false,
+          isLock: false,
+          layerId: this.layerId,
+          textures: [
+            {
+              type: "color",
+              backgroundColor,
+              fontColor,
+              text: this.text
+            }
+          ],
+          textureIndex: 0,
+          angle: 0,
+          url: "",
+          subTypeId: "",
+          subTypeValue: "",
+          isHideSubType: false
+        }
+      ])
+    )[0];
+
+    await SocketFacade.instance.memoCC().addDirect(
+      this.otherTextList.map(ot => ot.data!),
+      this.otherTextList.map(() => ({
+        ownerType: "scene-object",
+        owner: sceneObjectId
+      }))
+    );
 
     task.resolve();
   }

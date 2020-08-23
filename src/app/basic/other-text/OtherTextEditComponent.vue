@@ -1,15 +1,5 @@
 <template>
   <div class="other-text-edit-component">
-    <textarea
-      v-show="mode === 'edit'"
-      v-model="localValue"
-      ref="textarea"
-    ></textarea>
-    <other-text-component
-      v-show="mode === 'preview'"
-      v-model="localValue"
-      :useScroll="true"
-    />
     <div class="operation-block">
       <template v-if="mode === 'edit'">
         <span class="btn icon-bold" @click="onCLickBold()"></span>
@@ -26,40 +16,119 @@
         <span class="btn" @click="onCLickHeader(4)">h4</span>
         <span class="btn" @click="onCLickHeader(5)">h5</span>
         <span class="btn" @click="onCLickHeader(6)">h6</span>
+        <!--
+        <span class="space"></span>
+        <ctrl-button @click="onCLickAddTab()">
+          <span v-t="'button.add-tab'"></span>
+        </ctrl-button>
+        <ctrl-button @click="onCLickEditTab()">
+          <span v-t="'button.edit-tab'"></span>
+        </ctrl-button>
+        <ctrl-button @click="onCLickChmodTab()">
+          <span v-t="'button.chmod-tab'"></span>
+        </ctrl-button>
+        <ctrl-button
+          @click="onCLickDeleteTab()"
+          :disabled="localValue.length <= 1"
+        >
+          <span v-t="'button.delete-tab'"></span>
+        </ctrl-button>
+        -->
       </template>
       <other-text-edit-mode-radio v-model="mode" />
     </div>
+    <simple-tab-component
+      v-if="currentTabInfo"
+      v-show="mode === 'edit'"
+      v-model="currentTabInfo"
+      :windowKey="windowKey"
+      :tabList="tabList"
+      :hasSetting="true"
+      @settingOpen="onSettingOpen()"
+    >
+      <label>
+        <textarea
+          v-model="
+            localValue.find(lv => lv.id === currentTabInfo.target).data.text
+          "
+          ref="textarea"
+        ></textarea>
+      </label>
+    </simple-tab-component>
+    <other-text-component
+      v-if="mode === 'preview'"
+      :value="localValue"
+      :windowKey="windowKey"
+      :useScroll="true"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import ComponentVue from "@/app/core/window/ComponentVue";
+import ComponentVue from "../../core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import VueEvent from "@/app/core/decorator/VueEvent";
-import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import { MemoStore } from "@/@types/gameObject";
 import CtrlRadio from "@/app/core/component/CtrlRadio.vue";
+import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { Permission, StoreUseData } from "@/@types/store";
 import OtherTextEditModeRadio from "@/app/basic/common/components/radio/OtherTextEditModeRadio.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+const uuid = require("uuid");
+
 @Component({
-  components: { OtherTextEditModeRadio, CtrlRadio, OtherTextComponent }
+  components: {
+    CtrlButton,
+    SimpleTabComponent,
+    OtherTextEditModeRadio,
+    CtrlRadio,
+    OtherTextComponent
+  }
 })
 export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  @Prop({ default: "" })
-  public value!: string;
+  @Prop({ type: String, required: true })
+  public windowKey!: string;
+
+  @Prop({ type: Array, required: true })
+  public value!: StoreUseData<MemoStore>[];
 
   private mode: "edit" | "preview" = "edit";
 
-  public input(value: string) {
+  private tabList: TabInfo[] = [];
+  private currentTabInfo: TabInfo | null = null;
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+  }
+
+  private createTabInfoList() {
+    this.tabList = this.localValue.map(lv => ({
+      key: lv.id!,
+      target: lv.id!,
+      text: lv.data!.tab || this.$t("label.non-tab").toString()
+    }));
+    this.currentTabInfo = this.tabList[0];
+  }
+
+  public input(value: StoreUseData<MemoStore>[]) {
     this.$emit("input", value);
   }
 
-  public get localValue(): string {
+  public get localValue(): StoreUseData<MemoStore>[] {
     return this.value;
   }
 
-  public set localValue(value: string) {
+  public set localValue(value: StoreUseData<MemoStore>[]) {
     this.input(value);
   }
 
@@ -80,11 +149,16 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     const selectionEnd = textareaElm.selectionEnd;
     const middleLength = selectionEnd - selectionStart;
 
-    const beforeText = this.localValue.substr(0, selectionStart);
-    const middleText = this.localValue
+    const currentValue = this.localValue.find(
+      lv => lv.id === this.currentTabInfo!.target
+    )!;
+    const text = currentValue.data!.text;
+
+    const beforeText = text.substr(0, selectionStart);
+    const middleText = text
       .substr(selectionStart, middleLength)
       .replace(/(^\r?\n)|(\r?\n$)/, "");
-    const afterText = this.localValue.substr(selectionEnd);
+    const afterText = text.substr(selectionEnd);
 
     let newCaretStartIndex = -1;
     let newCaretEndIndex = -1;
@@ -119,7 +193,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
 
     strList.push(afterText);
 
-    this.localValue = strList.join("");
+    currentValue.data!.text = strList.join("");
 
     setTimeout(() => {
       textareaElm.selectionStart = newCaretStartIndex;
@@ -211,20 +285,126 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
+  private async onSettingOpen() {
+    const result = (
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<StoreUseData<MemoStore>[]>,
+        StoreUseData<MemoStore>[]
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "memo-tab-setting-window",
+          args: this.localValue
+        }
+      })
+    )[0];
+    if (result) {
+      listToEmpty(this.localValue);
+      this.localValue.push(...result);
+      const oldTarget = this.currentTabInfo!.target;
+      this.createTabInfoList();
+      const newTab = this.tabList.find(t => t.target === oldTarget);
+      if (newTab) {
+        this.currentTabInfo = newTab;
+      }
+    }
+  }
+
+  @VueEvent
+  private async onCLickAddTab() {
+    const target = this.currentTabInfo!.target;
+    const idx = this.localValue.findIndex(lv => lv.id === target);
+    const tabText = await this.getInputTab("");
+    if (tabText === undefined) return;
+    this.localValue.splice(
+      idx + 1,
+      0,
+      createEmptyStoreUseData(uuid.v4(), {
+        tab: tabText,
+        text: ""
+      })
+    );
+    this.createTabInfoList();
+    this.currentTabInfo = this.tabList[idx + 1];
+  }
+
+  @VueEvent
+  private async onCLickEditTab() {
+    const target = this.currentTabInfo!.target;
+    const currentValue = this.localValue.find(lv => lv.id === target)!;
+    const text = await this.getInputTab(currentValue.data!.tab);
+    if (text === undefined) return;
+    currentValue.data!.tab = text;
+    this.createTabInfoList();
+  }
+
+  @VueEvent
+  private async onCLickChmodTab() {
+    const target = this.currentTabInfo!.target;
+    const currentValue = this.localValue.find(lv => lv.id === target)!;
+    currentValue.permission = (
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<Permission>,
+        Permission
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "chmod-input-window",
+          args: currentValue.permission!
+        }
+      })
+    )[0];
+  }
+
+  @VueEvent
+  private onCLickDeleteTab() {
+    const target = this.currentTabInfo!.target;
+    const idx = this.localValue.findIndex(lv => lv.id === target);
+    this.localValue.splice(idx, 1);
+    this.createTabInfoList();
+    this.currentTabInfo = this.tabList[
+      this.localValue.length <= idx ? this.localValue.length - 1 : idx
+    ];
+  }
+
+  private async getInputTab(tab: string): Promise<string | undefined> {
+    return (
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<{ title: string; label: string; text: string }>,
+        string
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "simple-text-input-window",
+          args: {
+            text: tab,
+            label: this.$t("label.tab").toString(),
+            title: this.$t("label.input-tab").toString()
+          }
+        }
+      })
+    )[0];
+  }
+
+  @VueEvent
   private onCLickList(isNumbered: boolean) {
     const textareaElm = this.getTextAreaElm();
     const selectionStart = textareaElm.selectionStart;
     const selectionEnd = textareaElm.selectionEnd;
 
-    const beforeText = this.localValue
-      .substr(0, selectionStart)
-      .replace(/\r?\n$/, "");
-    const middleText = this.localValue
+    const currentValue = this.localValue.find(
+      lv => lv.id === this.currentTabInfo!.target
+    )!;
+    const text = currentValue.data!.text;
+
+    const beforeText = text.substr(0, selectionStart).replace(/\r?\n$/, "");
+    const middleText = text
       .substr(selectionStart, selectionEnd - selectionStart)
       .replace(/(^\r?\n)|(\r?\n$)/, "");
-    const afterText = this.localValue
-      .substr(selectionEnd)
-      .replace(/^\r?\n/, "");
+    const afterText = text.substr(selectionEnd).replace(/^\r?\n/, "");
 
     let newCaretStartIndex = -1;
     let newCaretEndIndex = -1;
@@ -262,7 +442,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     }
 
     strList.push(afterText);
-    this.localValue = strList.join("\n");
+    currentValue.data!.text = strList.join("\n");
 
     setTimeout(() => {
       textareaElm.selectionStart = newCaretStartIndex;
@@ -274,12 +454,23 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../assets/common";
 
 .other-text-edit-component {
-  @include flex-box(column, stretch, stretch);
+  @include flex-box(column, stretch, flex-start);
   margin: 0;
   padding: 0 !important;
+}
+
+.simple-tab-component {
+  flex: 1;
+
+  > label {
+    @include flex-box(column, stretch, stretch);
+    align-self: stretch;
+    flex: 1;
+    border-top: 1px solid gray;
+  }
 }
 
 textarea {
@@ -301,13 +492,18 @@ textarea {
     @include inline-flex-box(row, flex-end, center);
   }
 
+  > .space {
+    flex: 1;
+    flex-flow: revert;
+  }
+
   > .btn {
-    @include flex-box(row, center, center);
+    @include inline-flex-box(row, center, center);
     background-color: white;
     border: 1px solid black;
     margin: 0.1em;
     border-radius: 0.2rem;
-    width: 1.8em;
+    min-width: 1.8em;
     height: 1.8em;
     cursor: pointer;
     box-sizing: border-box;

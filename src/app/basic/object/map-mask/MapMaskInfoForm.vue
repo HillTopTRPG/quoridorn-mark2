@@ -249,9 +249,9 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { target: "background", text: "" },
-    { target: "additional-info", text: "" },
-    { target: "other-text", text: "" }
+    { key: "1", target: "background", text: "" },
+    { key: "2", target: "additional-info", text: "" },
+    { key: "3", target: "other-text", text: "" }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 

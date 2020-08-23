@@ -153,6 +153,7 @@
 
     <text-frame
       class="text-frame"
+      :windowKey="key"
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
@@ -175,17 +176,17 @@ import {
   CardYamlInfo,
   InputCardInfo,
   OtherTextViewInfo
-} from "../../../../@types/gameObject";
+} from "@/@types/gameObject";
 import {
   createAddress,
   createPoint
-} from "../../../core/utility/CoordinateUtility";
-import { createEmptyStoreUseData, getSrc } from "../../../core/utility/Utility";
+} from "@/app/core/utility/CoordinateUtility";
+import { createEmptyStoreUseData, getSrc } from "@/app/core/utility/Utility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import { CardCountInfo } from "./CardChooserComponent.vue";
-import { loadYaml } from "../../../core/utility/FileUtility";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
 import CardDeckChooserComponent from "./CardDeckChooserComponent.vue";
@@ -195,6 +196,7 @@ import CardDeckCreateCardComponent from "./CardDeckCreateCardComponent.vue";
 import CardChooserComponent from "./CardChooserComponent.vue";
 import CardDeckFrameSettingComponent from "./CardDeckFrameSettingComponent.vue";
 import TextFrame from "./TextFrame.vue";
+const uuid = require("uuid");
 
 type DeckInfo = {
   cardDeckBig: StoreUseData<CardDeckBig>;
@@ -372,7 +374,12 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       this.otherTextViewInfo = {
         type: "card-meta",
         docId: card.id!,
-        text,
+        dataList: [
+          createEmptyStoreUseData(uuid.v4(), {
+            tab: "",
+            text
+          })
+        ],
         rect,
         isFix: true
       };

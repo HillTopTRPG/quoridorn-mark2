@@ -108,8 +108,8 @@ export default class MediaUploadWindow extends Mixins<
   }
 
   private tabList: TabInfo[] = [
-    { target: "local", text: "" },
-    { target: "dropbox", text: "" }
+    { key: "1", target: "local", text: "" },
+    { key: "2", target: "dropbox", text: "" }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 

@@ -630,41 +630,6 @@
   resizable: true
   tableInfoList: []
 
-"edit-other-text-window":
-  icon: pencil
-  parentTypeList: []
-  isInputWindow: false
-  isMovingRendering: false
-  message: ""
-  position: center
-  size:
-    widthPx: 600
-    widthEm: 0
-    widthRem: 0
-    heightPx: 600
-    heightEm: 5.5
-    heightRem: 0.7
-  minSize:
-    widthPx: 400
-    widthEm: 0
-    widthRem: 0
-    heightPx: 2
-    heightEm: 5.5
-    heightRem: 0.7
-  maxSize:
-    widthPx: 1000
-    widthEm: 0
-    widthRem: 0
-    heightPx: 1500
-    heightEm: 5.5
-    heightRem: 0.7
-  minimizable: true
-  paneContainable: true
-  closable: true
-  fontSizePickable: true
-  resizable: true
-  tableInfoList: []
-
 "scene-list-window":
   icon: display
   parentTypeList: []
@@ -740,6 +705,41 @@
   tableInfoList: []
 
 "chmod-window":
+  icon: user-tie
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 400
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 30
+    heightRem: 0
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 20
+    heightRem: 0
+  maxSize:
+    widthPx: 800
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 50
+    heightRem: 0
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"chmod-input-window":
   icon: user-tie
   parentTypeList: []
   isInputWindow: true
@@ -1642,6 +1642,73 @@
   minimizable: true
   paneContainable: true
   closable: false
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"simple-text-input-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 200
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 4
+    heightRem: 0.5
+  minSize:
+    widthPx: 100
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 4
+    heightRem: 0.5
+  maxSize:
+    widthPx: 400
+    widthEm: 0
+    widthRem: 0
+    heightPx: 0
+    heightEm: 4
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"memo-tab-setting-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthEm: 22
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 14
+    heightRem: 0.5
+  minSize:
+    widthEm: 18
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 10
+    heightRem: 0.5
+  maxSize:
+    widthEm: 30
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 26
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
   fontSizePickable: true
   resizable: true
   tableInfoList: []

@@ -118,6 +118,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
     this.tabList = this.chatTabList
       .filter(ct => permissionCheck(ct, "view"))
       .map(ct => ({
+        key: ct.id!,
         text: ct.data!.name,
         target: ct.id!
       }));

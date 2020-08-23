@@ -7,7 +7,7 @@
       initTabTarget="image"
       :name.sync="name"
       :tag.sync="tag"
-      :otherText.sync="otherText"
+      :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
       :imageDocId.sync="imageDocId"
@@ -34,7 +34,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { SceneObject } from "@/@types/gameObject";
+import { MemoStore, SceneObject } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -46,6 +46,8 @@ import ChitInfoForm from "./ChitInfoForm.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
+import { StoreUseData } from "@/@types/store";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { ChitInfoForm, CtrlButton } })
 export default class ChitEditWindow extends Mixins<
@@ -58,9 +60,9 @@ export default class ChitEditWindow extends Mixins<
   private tag: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private otherText: string = "";
   private height: number = 1;
   private width: number = 1;
+  private otherTextList: StoreUseData<MemoStore>[] = [];
   private imageDocId: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
@@ -103,8 +105,13 @@ export default class ChitEditWindow extends Mixins<
     this.name = data.data!.name;
     this.width = data.data!.columns;
     this.height = data.data!.rows;
-    this.otherText = data.data!.otherText;
     this.layerId = data.data!.layerId;
+
+    this.otherTextList = clone(
+      GameObjectManager.instance.memoList.filter(
+        m => m.ownerType === "scene-object" && m.owner === this.docId
+      )
+    )!;
 
     if (this.windowInfo.status === "window") {
       try {
@@ -132,9 +139,15 @@ export default class ChitEditWindow extends Mixins<
     data.data!.name = this.name;
     data.data!.rows = this.height;
     data.data!.columns = this.width;
-    data.data!.otherText = this.otherText;
     data.data!.layerId = this.layerId;
     await this.cc!.update([this.docId], [data.data!]);
+
+    await GameObjectManager.instance.updateMemoList(
+      this.otherTextList,
+      "scene-object",
+      this.docId
+    );
+
     this.isProcessed = true;
     await this.close();
   }

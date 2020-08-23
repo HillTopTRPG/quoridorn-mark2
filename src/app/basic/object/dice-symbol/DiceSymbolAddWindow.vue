@@ -137,7 +137,6 @@ export default class DiceSymbolAddWindow extends Mixins<
         isHideBorder: false,
         isHideHighlight: false,
         isLock: false,
-        otherText: "",
         layerId: this.layerId,
         textures: [
           {

@@ -49,11 +49,13 @@
       />
 
       <!-- 右ペイン格納 -->
+      <!--
       <title-icon
         className="icon-arrow-right"
         @emit="storeRightPane"
         v-if="windowInfo.declare.paneContainable"
       />
+      -->
 
       <!-- 閉じる -->
       <title-icon

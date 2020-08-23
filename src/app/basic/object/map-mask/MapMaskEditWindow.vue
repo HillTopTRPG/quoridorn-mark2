@@ -9,7 +9,7 @@
       :text.sync="text"
       :color.sync="color"
       :tag.sync="tag"
-      :otherText.sync="otherText"
+      :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
       :layerId.sync="layerId"
@@ -33,7 +33,7 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import MapMaskInfoForm from "./MapMaskInfoForm.vue";
-import { SceneObject } from "@/@types/gameObject";
+import { MemoStore, SceneObject } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -44,6 +44,8 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
+import { StoreUseData } from "@/@types/store";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { MapMaskInfoForm, CtrlButton } })
 export default class MapMastEditWindow extends Mixins<
@@ -66,7 +68,7 @@ export default class MapMastEditWindow extends Mixins<
   private layerId: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
   )!.id!;
-  private otherText: string = "";
+  private otherTextList: StoreUseData<MemoStore>[] = [];
 
   @LifeCycle
   public async mounted() {
@@ -99,7 +101,13 @@ export default class MapMastEditWindow extends Mixins<
     this.tag = data.data!.tag;
     this.width = data.data!.columns;
     this.height = data.data!.rows;
-    this.otherText = data.data!.otherText;
+
+    this.otherTextList = clone(
+      GameObjectManager.instance.memoList.filter(
+        m => m.ownerType === "scene-object" && m.owner === this.docId
+      )
+    )!;
+
     this.layerId = data.data!.layerId;
 
     if (this.windowInfo.status === "window") {
@@ -128,9 +136,15 @@ export default class MapMastEditWindow extends Mixins<
     data.tag = this.tag;
     data.rows = this.height;
     data.columns = this.width;
-    data.otherText = this.otherText;
     data.layerId = this.layerId;
     await this.cc!.update([this.docId], [data]);
+
+    await GameObjectManager.instance.updateMemoList(
+      this.otherTextList,
+      "scene-object",
+      this.docId
+    );
+
     this.isProcessed = true;
     await this.close();
   }

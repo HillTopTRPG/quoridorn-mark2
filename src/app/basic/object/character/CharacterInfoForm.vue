@@ -110,7 +110,8 @@
       <!-- その他欄タブ -->
       <other-text-edit-component
         v-if="currentTabInfo.target === 'other-text'"
-        v-model="otherTextVolatile"
+        v-model="otherTextListVolatile"
+        :windowKey="windowKey"
       />
     </simple-tab-component>
   </div>
@@ -133,7 +134,7 @@ import BackgroundLocationSelect from "../../common/components/select/BackgroundL
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
 import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
-import OtherTextEditComponent from "@/app/basic/object/character/OtherTextEditComponent.vue";
+import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import {
   createShinobigamiChatPalette,
@@ -143,6 +144,10 @@ import {
   createNechronicaChatPalette,
   isNechronicaUrl
 } from "@/app/core/utility/trpg_system/nechronica";
+import { StoreUseData } from "@/@types/store";
+import { MemoStore } from "@/@types/gameObject";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+const uuid = require("uuid");
 
 @Component({
   components: {
@@ -213,17 +218,16 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     this.$emit("update:url", value);
   }
 
-  @Prop({ type: String, required: true })
-  private otherText!: string;
-
-  private otherTextVolatile: string = "";
-  @Watch("otherText", { immediate: true })
-  private onChangeOtherText(value: string) {
-    this.otherTextVolatile = value;
+  @Prop({ type: Array, required: true })
+  private otherTextList!: StoreUseData<MemoStore>[];
+  private otherTextListVolatile: StoreUseData<MemoStore>[] = [];
+  @Watch("otherTextList", { immediate: true })
+  private onChangeOtherTextList(value: StoreUseData<MemoStore>[]) {
+    this.otherTextListVolatile = value;
   }
-  @Watch("otherTextVolatile")
-  private onChangeOtherTextVolatile(value: string) {
-    this.$emit("update:otherText", value);
+  @Watch("otherTextListVolatile")
+  private onChangeOtherTextListVolatile(value: StoreUseData<MemoStore>[]) {
+    this.$emit("update:otherTextList", value);
   }
 
   @Prop({ type: Number, required: true })
@@ -305,9 +309,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { target: "image", text: "" },
-    { target: "additional-info", text: "" },
-    { target: "other-text", text: "" }
+    { key: "1", target: "image", text: "" },
+    { key: "2", target: "additional-info", text: "" },
+    { key: "3", target: "other-text", text: "" }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
@@ -426,12 +430,18 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   @VueEvent
   private async readCharacterSheet() {
     if (this.characterSheetType === "シノビガミ") {
-      const result = await createShinobigamiChatPalette(this.urlVolatile);
-      if (result) this.otherTextVolatile = result;
+      const resultList = await createShinobigamiChatPalette(this.urlVolatile);
+      if (!resultList) return;
+      this.otherTextListVolatile.push(
+        ...resultList.map(r => createEmptyStoreUseData(uuid.v4(), r))
+      );
     }
     if (this.characterSheetType === "ネクロニカ") {
-      const result = await createNechronicaChatPalette(this.urlVolatile);
-      if (result) this.otherTextVolatile = result;
+      const resultList = await createNechronicaChatPalette(this.urlVolatile);
+      if (!resultList) return;
+      this.otherTextListVolatile.push(
+        ...resultList.map(r => createEmptyStoreUseData(uuid.v4(), r))
+      );
     }
   }
 }

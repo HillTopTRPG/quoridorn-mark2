@@ -456,10 +456,10 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private tabList: TabInfo[] = [
-    { target: "map", text: "" },
-    { target: "margin", text: "" },
-    { target: "background", text: "" },
-    { target: "layer", text: "" }
+    { key: "1", target: "map", text: "" },
+    { key: "2", target: "margin", text: "" },
+    { key: "3", target: "background", text: "" },
+    { key: "4", target: "layer", text: "" }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 

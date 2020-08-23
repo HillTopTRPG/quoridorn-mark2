@@ -288,7 +288,10 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         case "owner-type":
           return owner.data!.type;
         case "object-other-text":
-          return sceneObject ? sceneObject.data!.otherText : nullText;
+          const memo = GameObjectManager.instance.memoList.filter(
+            m => m.owner === base.id
+          )[0];
+          return memo ? memo.data!.text : nullText;
         case "object-layer": {
           if (!layer) return nullText;
           if (!layer.data!.isSystem) return layer.data!.name!;

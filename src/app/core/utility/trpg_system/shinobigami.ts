@@ -1,4 +1,6 @@
 import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
+import { MemoStore } from "@/@types/gameObject";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 export async function isShinobigamiUrl(url: string) {
   return !!url.match(
@@ -169,7 +171,7 @@ function createShinobigamiData(url: string, json: any): Shinobigami {
 
 export async function createShinobigamiChatPalette(
   url: string
-): Promise<string | null> {
+): Promise<MemoStore[] | null> {
   const json = await getJsonForTrpgSystemData<any>(
     url,
     /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/,
@@ -180,8 +182,10 @@ export async function createShinobigamiChatPalette(
 
   console.log(JSON.stringify(shinobigamiData, null, "  "));
 
+  const resultList: MemoStore[] = [];
   const strList: string[] = [];
 
+  // 基本情報
   strList.push("## 基本情報");
   strList.push(`PL: ${shinobigamiData.playerName}`);
   strList.push(
@@ -201,6 +205,33 @@ export async function createShinobigamiChatPalette(
   );
   strList.push(`流儀: ${shinobigamiData.stylerule}`);
   strList.push("");
+
+  // 人物欄
+  strList.push("## 人物欄");
+  strList.push("|キャラ|居|情|奥|感情|");
+  strList.push("|:---|:---|:---|:---|:---|");
+  strList.push(
+    "|PC1|[ ]|[ ]|[ ]|{感情}[なし|1:共感(+)|1:不信(-)|2:友情(+)|2:怒り(-)|3:愛情(+)|3:妬み(-)|4:忠誠(+)|4:侮蔑(-)|5:憧憬(+)|5:劣等感(-)|6:狂信(+)|6:殺意(-)](なし)|"
+  );
+  strList.push(
+    "|PC2|[ ]|[ ]|[ ]|{感情}[なし|1:共感(+)|1:不信(-)|2:友情(+)|2:怒り(-)|3:愛情(+)|3:妬み(-)|4:忠誠(+)|4:侮蔑(-)|5:憧憬(+)|5:劣等感(-)|6:狂信(+)|6:殺意(-)](なし)|"
+  );
+  strList.push("");
+
+  // 背景
+  strList.push("## 背景");
+  strList.push("|名称|種別|功績点|効果|");
+  strList.push("|:---|:---|:---|:---|");
+  strList.push(
+    ...shinobigamiData.backgroundList.map(
+      n => `|${n.name}|${n.type}|${n.point}|${n.effect}|`
+    )
+  );
+
+  resultList.push({ tab: "基本情報", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  // 特技
   strList.push("## 特技");
   strList.push(
     `|[${
@@ -234,7 +265,11 @@ export async function createShinobigamiChatPalette(
         .join("") + `|${rIdx + 2}|`
     );
   });
-  strList.push("");
+
+  resultList.push({ tab: "特技", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  // 忍法
   strList.push("## 忍法");
   strList.push("|忍法|タイプ|指定特技|間合|コスト|効果|");
   strList.push("|:---|:---|:---|---:|---:|:---|");
@@ -244,25 +279,9 @@ export async function createShinobigamiChatPalette(
         `|${n.name}|${n.type}|${n.targetSkill}|${n.range}|${n.cost}|${n.effect}|`
     )
   );
-  strList.push("");
-  strList.push("## 背景");
-  strList.push("|名称|種別|功績点|効果|");
-  strList.push("|:---|:---|:---|:---|");
-  strList.push(
-    ...shinobigamiData.backgroundList.map(
-      n => `|${n.name}|${n.type}|${n.point}|${n.effect}|`
-    )
-  );
-  strList.push("");
-  strList.push("## 人物欄");
-  strList.push("|キャラ|居|情|奥|感情|");
-  strList.push("|:---|:---|:---|:---|:---|");
-  strList.push(
-    "|PC1|[ ]|[ ]|[ ]|{感情}[なし|1:共感(+)|1:不信(-)|2:友情(+)|2:怒り(-)|3:愛情(+)|3:妬み(-)|4:忠誠(+)|4:侮蔑(-)|5:憧憬(+)|5:劣等感(-)|6:狂信(+)|6:殺意(-)](なし)|"
-  );
-  strList.push(
-    "|PC2|[ ]|[ ]|[ ]|{感情}[なし|1:共感(+)|1:不信(-)|2:友情(+)|2:怒り(-)|3:愛情(+)|3:妬み(-)|4:忠誠(+)|4:侮蔑(-)|5:憧憬(+)|5:劣等感(-)|6:狂信(+)|6:殺意(-)](なし)|"
-  );
 
-  return strList.join("\r\n");
+  resultList.push({ tab: "忍法", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  return resultList;
 }

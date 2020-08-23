@@ -1,6 +1,7 @@
 import { Address, Point, Rectangle } from "address";
 import { Direction, Texture } from "./room";
 import { BcdiceDiceRollResult } from "@/@types/bcdice";
+import { StoreUseData } from "@/@types/store";
 
 type SceneObjectType =
   | "character"
@@ -31,7 +32,6 @@ type SceneObject = Address & {
   isHideBorder: boolean;
   isHideHighlight: boolean;
   isLock: boolean;
-  otherText: string;
   place: Place;
   layerId: string;
   textures: Texture[];
@@ -94,6 +94,12 @@ type ChatPaletteStore = {
 type TagNoteStore = {
   fontColor: string;
   backgroundColor: string;
+  text: string;
+};
+
+type MemoStore = {
+  // 所有者はownerで表現(characterだとその他欄, publicMemoだと共有メモといった具合)
+  tab: string;
   text: string;
 };
 
@@ -164,7 +170,7 @@ type PropertySelectionStore = {
 type OtherTextViewInfo = {
   type: string;
   docId: string;
-  text: string;
+  dataList: StoreUseData<MemoStore>[];
   rect: Rectangle;
   isFix: boolean;
 };

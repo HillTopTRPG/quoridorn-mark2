@@ -145,7 +145,8 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       .filter(m => permissionCheck(m, "view"))
       .map(m => m.data!.tag)
       .filter((tag, idx, list) => list.indexOf(tag) === idx)
-      .map(tag => ({
+      .map((tag, idx) => ({
+        key: idx.toString(),
         target: tag,
         text: tag || LanguageManager.instance.getText("label.non-tag")
       }));

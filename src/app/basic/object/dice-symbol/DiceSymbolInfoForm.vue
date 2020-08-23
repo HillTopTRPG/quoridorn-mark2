@@ -227,7 +227,9 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
     this.updateDiceImage();
   }
 
-  private tabList: TabInfo[] = [{ target: "additional-info", text: "" }];
+  private tabList: TabInfo[] = [
+    { key: "1", target: "additional-info", text: "" }
+  ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 
   @TaskProcessor("language-change-finished")

@@ -30,6 +30,7 @@
     <window-area />
     <!-- その他欄 (z-index: 6) -->
     <other-text-frame
+      :windowKey="key"
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"

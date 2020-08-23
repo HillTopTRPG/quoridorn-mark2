@@ -1,4 +1,6 @@
 import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
+import { MemoStore } from "@/@types/gameObject";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 type NechronicaClass =
   | ""
@@ -156,7 +158,9 @@ type Nechornica = {
   memoRows: number;
 };
 
-export async function isNechronicaUrl(url: string) {
+export async function isNechronicaUrl(url: string): Promise<boolean> {
+  if (!url.match(/https?:\/\/charasheet\.vampire-blood\.net\/(.+)/))
+    return false;
   const json = await getJsonForTrpgSystemData<any>(
     url,
     /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/,
@@ -317,7 +321,7 @@ function createNechronicaData(url: string, json: any): Nechornica {
 
 export async function createNechronicaChatPalette(
   url: string
-): Promise<string | null> {
+): Promise<MemoStore[] | null> {
   const json = await getJsonForTrpgSystemData<any>(
     url,
     /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/,
@@ -330,22 +334,37 @@ export async function createNechronicaChatPalette(
 
   console.log(JSON.stringify(nechronicaData, null, "  "));
 
+  const resultList: MemoStore[] = [];
   const strList: string[] = [];
 
+  // 基本情報
   strList.push("## 基本情報");
-  strList.push(`タグ: ${nechronicaData.tag}`);
   strList.push(`PC: ${nechronicaData.characterName}`);
-  strList.push(`種族: ${nechronicaData.shuzoku}`);
-  strList.push(`享年: ${nechronicaData.age}`);
-  strList.push(`初期配置: ${nechronicaData.initLocate}`);
-  strList.push(`身長: ${nechronicaData.height}`);
-  strList.push(`体重: ${nechronicaData.weight}`);
-  strList.push(`暗示: ${nechronicaData.carma}`);
-  strList.push(`髪の色: ${nechronicaData.hairColor}`);
-  strList.push(`瞳の色: ${nechronicaData.eyeColor}`);
-  strList.push(`肌の色: ${nechronicaData.skinColor}`);
+  strList.push(`タグ: ${nechronicaData.tag}`);
 
+  strList.push("|||||||");
+  strList.push("|--:|:--|--:|:--|--:|:--|");
+  strList.push(
+    `|種族|${nechronicaData.shuzoku}|享年|${nechronicaData.age}|初期配置|${nechronicaData.initLocate}|`
+  );
+  strList.push(
+    `|身長|${nechronicaData.height}|体重|${nechronicaData.weight}|暗示|${nechronicaData.carma}|`
+  );
+  strList.push(
+    `|髪の色|${nechronicaData.hairColor}|瞳の色|${nechronicaData.eyeColor}|肌の色|${nechronicaData.skinColor}|`
+  );
   strList.push("");
+
+  // 記憶のカケラ
+  strList.push("## 記憶のカケラ");
+  strList.push("|名前|詳細|");
+  strList.push("|:--|:--|");
+  nechronicaData.kakeraList.forEach(k => {
+    strList.push(`|${k.name}|${k.memo}|`);
+  });
+  strList.push("");
+
+  // 基本設計
   strList.push("## 基本設計");
   strList.push("||武装|変異|改造|");
   strList.push("|:--|:--:|:--:|:--:|");
@@ -368,7 +387,10 @@ export async function createNechronicaChatPalette(
   strList.push(`|寵愛による修正|${nechronicaData.loveBonus.join("|")}|`);
   strList.push(`|総計|${nechronicaData.status.join("|")}|`);
 
-  strList.push("");
+  resultList.push({ tab: "パーソナルデータ", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  // 行動値
   strList.push("## 行動値");
   strList.push(
     `|パーツ名|合計|基本|のうみそ|めだま|${nechronicaData.action.partsList
@@ -395,45 +417,18 @@ export async function createNechronicaChatPalette(
       .map(p => `[${p.isAlive ? "x" : " "}]+${p.value}`)
       .join("|")}|[x]+{行動値}[0|1|2|3](0)|`
   );
-
   strList.push("");
-  strList.push("## マニューバ");
-  strList.push(
-    "|損傷|使用|カテゴリ|部位|○マニューバ|タイミング|ｺｽﾄ|射程|効果|取得先|"
-  );
-  strList.push("|:--:|:--:|:--:|:--:|:--|:--:|--:|:--:|:--|:--|");
-  nechronicaData.powerList.forEach(p => {
-    const powerTextList: string[] = [];
-    powerTextList.push(`|[${p.isLost ? "x" : " "}]`);
-    powerTextList.push(`|[${p.isUsed ? "x" : " "}]`);
-    powerTextList.push(`|${p.type}`);
-    powerTextList.push(`|${p.hantei}`);
-    powerTextList.push(`|${p.name}`);
-    powerTextList.push(`|${p.timing}`);
-    powerTextList.push(`|${p.cost}`);
-    powerTextList.push(`|${p.range}`);
-    powerTextList.push(`|${p.memo}`);
-    powerTextList.push(`|${p.shozoku}|`);
-    strList.push(powerTextList.join(""));
-  });
 
-  strList.push("");
+  // カルマ
   strList.push("## カルマ");
   strList.push("|達成|条件|詳細|");
   strList.push("|:--:|:--|:--|");
   nechronicaData.carmaList.forEach(c => {
     strList.push(`|[${c.isCompleted ? "x" : " "}]|${c.name}|${c.memo}|`);
   });
-
   strList.push("");
-  strList.push("## 記憶のカケラ");
-  strList.push("|名前|詳細|");
-  strList.push("|:--|:--|");
-  nechronicaData.kakeraList.forEach(k => {
-    strList.push(`|${k.name}|${k.memo}|`);
-  });
 
-  strList.push("");
+  // 未練
   strList.push("## 未練");
   strList.push("|対象|種類|狂気度|発狂|発狂効果|備考など|");
   strList.push("|:--|:--|:--|:--|:--|:--|");
@@ -474,5 +469,32 @@ export async function createNechronicaChatPalette(
     );
   });
 
-  return strList.join("\r\n");
+  resultList.push({ tab: "管理", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  // マニューバ
+  strList.push("## マニューバ");
+  strList.push(
+    "|損傷|使用|カテゴリ|部位|○マニューバ|タイミング|ｺｽﾄ|射程|効果|取得先|"
+  );
+  strList.push("|:--:|:--:|:--:|:--:|:--|:--:|--:|:--:|:--|:--|");
+  nechronicaData.powerList.forEach(p => {
+    const powerTextList: string[] = [];
+    powerTextList.push(`|[${p.isLost ? "x" : " "}]`);
+    powerTextList.push(`|[${p.isUsed ? "x" : " "}]`);
+    powerTextList.push(`|${p.type}`);
+    powerTextList.push(`|${p.hantei}`);
+    powerTextList.push(`|${p.name}`);
+    powerTextList.push(`|${p.timing}`);
+    powerTextList.push(`|${p.cost}`);
+    powerTextList.push(`|${p.range}`);
+    powerTextList.push(`|${p.memo}`);
+    powerTextList.push(`|${p.shozoku}|`);
+    strList.push(powerTextList.join(""));
+  });
+
+  resultList.push({ tab: "マニューバ", text: strList.join("\r\n") });
+  listToEmpty(strList);
+
+  return resultList;
 }
