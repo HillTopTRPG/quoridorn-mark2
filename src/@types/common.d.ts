@@ -21,10 +21,11 @@ declare var swal: (
         text?: string;
         icon?: "warning" | "error" | "success" | "info";
         button?: string;
+        buttons?: string[];
         dangerMode?: boolean;
       }
   )[]
-) => void;
+) => Promise<boolean>;
 declare var YT: any;
 
 declare module "address" {

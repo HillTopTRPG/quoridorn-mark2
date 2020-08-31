@@ -224,7 +224,7 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      swal({
+      await swal({
         title: "通信エラー",
         text: "有効なアプリケーションサーバに接続できませんでした。",
         icon: "error"

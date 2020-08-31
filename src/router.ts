@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Router from "vue-router";
 import App from "./views/App.vue";
+import WebApiTool from "@/views/WebApiTool.vue";
 
 Vue.use(Router);
 
@@ -11,6 +12,11 @@ export default new Router({
       path: `/${process.env.VUE_APP_BASE_URL}/`,
       name: "app",
       component: App
+    },
+    {
+      path: `/${process.env.VUE_APP_BASE_URL}/web-api-tool.html`,
+      name: "web-api-tool",
+      component: WebApiTool
     }
     // ,{
     //   path: "/about",

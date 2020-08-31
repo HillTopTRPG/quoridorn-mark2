@@ -82,7 +82,7 @@ export default class ReadAloudManager {
         text:
           "自動音声を許可するには\nchrome://settings/content/sound\nでこのページのURLを許可設定してください。",
         icon: "warning"
-      });
+      }).then();
     };
 
     // 発言を再生 (発言キューに発言を追加)

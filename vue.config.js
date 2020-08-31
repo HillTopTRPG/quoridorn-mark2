@@ -12,6 +12,11 @@ module.exports = {
       template: "public/index.html", // テンプレートのHTML
       filename: "index.html" // build時に出力されるファイル名
     },
+    admin: {
+      entry: "src/main.ts", // エントリーポイントとなるjs
+      template: "public/index.html", // テンプレートのHTML
+      filename: "web-api-tool.html" // build時に出力されるファイル名
+    },
     chatLog: {
       entry: "src/chatLog.ts",
       template: "public/chatLog.html",
@@ -24,6 +29,10 @@ module.exports = {
         {
           from: new RegExp(`${process.env.VUE_APP_BASE_URL}/chatLog.html`),
           to: "chatLog.html"
+        },
+        {
+          from: new RegExp(`${process.env.VUE_APP_BASE_URL}/web-api-tool.html`),
+          to: "web-api-tool.html"
         },
         {
           from: new RegExp(`${process.env.VUE_APP_BASE_URL}`),
