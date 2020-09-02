@@ -1,11 +1,27 @@
 <template>
   <div id="web-api-tool">
+    <div class="line">
+      <label
+        >Server url：<input
+          type="text"
+          class="server-url"
+          v-model="apiUrlBase"
+          placeholder="{BaseUrl}/{server.yaml.webApiPathBase}/"
+      /></label>
+      <ctrl-button @click="onClickTest()">Test</ctrl-button>
+      {{ urlTestResult }}
+    </div>
+
     <div class="block">
       <div class="line">
         <label
-          >Server password<input type="text" v-model="serverPassword"
+          >Server password：<input
+            type="text"
+            class="server-password"
+            v-model="serverPassword"
         /></label>
         <ctrl-button @click="onClickGetToken()">Get Token</ctrl-button>
+        ※ server.yaml.webApiPassword
       </div>
       <span>Server token：{{ serverToken }}</span>
       <span>Server token-expires：{{ serverTokenExpires | moment() }}</span>
@@ -217,7 +233,6 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import LifeCycle from "../app/core/decorator/LifeCycle";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import moment from "moment/moment";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -274,7 +289,8 @@ type UserInfo = {
   }
 })
 export default class AdminTool extends Vue {
-  private apiUrlBase = "https://quori-dev.onlinesession.app/web-if/";
+  private apiUrlBase = "";
+  private urlTestResult: string = "";
 
   private serverPassword: string = "";
   private serverToken: string = "";
@@ -305,11 +321,6 @@ export default class AdminTool extends Vue {
       expires: Date | null;
     };
   } = {};
-
-  @LifeCycle
-  public async mounted() {
-    console.log(await this.getInfoApi());
-  }
 
   @VueEvent
   private updateRoomPassword(roomNo: number, passwordInputEvent: InputEvent) {
@@ -466,6 +477,12 @@ export default class AdminTool extends Vue {
         ? `Bearer ${roomToken}/${userPassword}`
         : `Bearer ${this.serverToken}`;
     return await this.getJson(url, header);
+  }
+
+  @VueEvent
+  private async onClickTest(): Promise<void> {
+    const result = await this.getInfoApi().catch(() => null);
+    this.urlTestResult = result && result.result ? "OK" : "NG";
   }
 
   @VueEvent
@@ -651,16 +668,37 @@ export default class AdminTool extends Vue {
   }
 
   private async getJson(url: string, authorization?: string): Promise<any> {
+    if (!this.apiUrlBase) {
+      await swal({
+        title: "Please specify a valid server URL.",
+        text: `URL: ${url}`,
+        icon: "error"
+      });
+      return;
+    }
     const headers: any = {};
     if (authorization !== undefined) {
       headers.Authorization = authorization;
     }
-    const result = await window.fetch(url, {
-      method: "GET",
-      headers
-    });
+
+    const result = await window
+      .fetch(url, {
+        method: "GET",
+        headers
+      })
+      .catch(() => null);
+
+    if (!result) {
+      await swal({
+        title: "Please specify a valid server URL.",
+        text: `URL: ${url}`,
+        icon: "error"
+      });
+      return;
+    }
 
     const status = result.status;
+
     if (status !== 200) {
       const errMsg = await result.text();
       console.log(
@@ -680,7 +718,16 @@ export default class AdminTool extends Vue {
       }
       throw new HttpError(status, errMsg);
     }
-    return await result.json();
+
+    try {
+      return await result.json();
+    } catch (err) {
+      await swal({
+        title: "Please specify a valid server URL.",
+        text: `URL: ${url}`,
+        icon: "error"
+      });
+    }
   }
 }
 </script>
@@ -706,6 +753,14 @@ body {
 
 #web-api-tool {
   @include flex-box(column, flex-start, flex-start);
+
+  .server-url {
+    width: 20em;
+  }
+
+  .server-password {
+    width: 10em;
+  }
 
   table {
     table-layout: fixed;
