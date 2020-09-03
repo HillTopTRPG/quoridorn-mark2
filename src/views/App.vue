@@ -256,7 +256,7 @@ export default class App extends Vue {
     const serverInfo = await SocketFacade.instance.socketCommunication<
       string,
       GetRoomListResponse
-    >("get-room-list", process.env.npm_package_version);
+    >("get-room-list", process.env.VUE_APP_VERSION);
     SocketFacade.instance.socketOn<RoomViewResponse[]>(
       "result-room-view",
       (err, changeList) => {

@@ -8,8 +8,8 @@ node_modules
 .env.*.local
 
 # config files
-/conf/*.yaml
-/conf/*.txt
+/public/static/conf/*.yaml
+/public/static/conf/*.txt
 
 # Log files
 npm-debug.log*

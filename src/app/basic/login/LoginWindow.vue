@@ -227,7 +227,7 @@ export default class LoginWindow extends Mixins<
       "Quoridorn ",
       ""
     );
-    const client = process.env.npm_package_version;
+    const client = process.env.VUE_APP_VERSION;
     return `${server} / ${client}`;
   }
 
@@ -374,7 +374,7 @@ export default class LoginWindow extends Mixins<
       const serverInfo = await SocketFacade.instance.socketCommunication<
         string,
         GetRoomListResponse
-      >("get-room-list", process.env.npm_package_version);
+      >("get-room-list", process.env.VUE_APP_VERSION);
       SocketFacade.instance.socketOn<RoomViewResponse[]>(
         "result-room-view",
         (err, changeList) => {

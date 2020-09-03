@@ -56,7 +56,6 @@ import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
-import MemoryStore from "nekostore/lib/store/MemoryStore";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -202,7 +201,7 @@ export default class SocketFacade {
     }
     if (this.__interoperability) {
       const iList = this.__interoperability;
-      const clientVersion = process.env.npm_package_version as string;
+      const clientVersion = process.env.VUE_APP_VERSION as string;
       if (compareVersion(iList[0].client, clientVersion) <= 0) {
         // クライアントが最新系
         this.targetServer.from = iList[0].server;

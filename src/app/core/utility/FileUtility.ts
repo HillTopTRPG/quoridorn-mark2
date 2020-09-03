@@ -155,7 +155,7 @@ export function saveText(name: string, text: string): void {
  */
 export function saveJson<T>(name: string, type: string, data: T): void {
   const saveData: ExportDataFormat<T> = {
-    version: process.env.npm_package_version!,
+    version: process.env.VUE_APP_VERSION!,
     type,
     data
   };
