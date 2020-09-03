@@ -55,7 +55,7 @@ export default class VersionInfoComponent extends Vue {
   @Prop({ type: Object, required: true })
   private serverTestResult!: ServerTestResult;
 
-  private clientVersion: string = process.env.VUE_APP_VERSION!;
+  private clientVersion: string = process.env.npm_package_version!;
   private serverVersion: string | null = null;
   private usable: boolean = false;
   private targetServer: TargetVersion | null = null;

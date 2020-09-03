@@ -1,34 +1,5 @@
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
-  title: "PV停止"
-  # タグ
-  tag: "PV"
-  # URL(空文字にすると停止命令扱い)
-  url: ""
-  # 音量(0~100)
-  volume: 80
-  # 再生開始位置(秒単位)
-  start: 0
-  # 再生終了位置(秒単位) マイナス指定で末尾からの時間
-  end: 0
-  # フェードインにかける時間(0.1秒単位）
-  fadeIn: 0
-  # フェードアウトにかける時間(0.1秒単位）
-  fadeOut: 0
-  # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
-  chatLinkageType: none
-  # チャット連携対象指定(チャット連携モードが0の場合は利用しない)
-  chatLinkageTarget: ""
-  # リピート再生(true: リピートする, false: リピートしない)
-  isRepeat: false
-  # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
-  isForceContinue: false
-  # 強制新規再生（効果音向け）
-  isForceNew: false
-#=========#=========#=========#=========#=========#=========#
-- # タイトル
   title: "BGM停止"
   # タグ
   tag: "BGM"
@@ -100,35 +71,6 @@
   end: 0
   # フェードインにかける時間(0.1秒単位）
   fadeIn: 0
-  # フェードアウトにかける時間(0.1秒単位）
-  fadeOut: 0
-  # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
-  chatLinkageType: none
-  # チャット連携対象指定(チャット連携モードが0の場合は利用しない)
-  chatLinkageTarget: ""
-  # リピート再生(true: リピートする, false: リピートしない)
-  isRepeat: true
-  # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
-  isForceContinue: false
-  # 強制新規再生（効果音向け）
-  isForceNew: false
-#=========#=========#=========#=========#=========#=========#
-- # タイトル
-  title: "小さな行進曲"
-  # タグ
-  tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/n26.mp3"
-  # 音量(0~100)
-  volume: 80
-  # 再生開始位置(秒単位)
-  start: 0
-  # 再生終了位置(秒単位) マイナス指定で末尾からの時間
-  end: 0
-  # フェードインにかける時間(0.1秒単位）
-  fadeIn: 50
   # フェードアウトにかける時間(0.1秒単位）
   fadeOut: 0
   # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
@@ -261,35 +203,6 @@
   isForceNew: false
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
-  title: "Megalovania サンズ戦【四つ打ち 重低音 アレンジ】"
-  # タグ
-  tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=CrkRWzsmu8E"
-  # 音量(0~100)
-  volume: 80
-  # 再生開始位置(秒単位)
-  start: 1.2
-  # 再生終了位置(秒単位) マイナス指定で末尾からの時間
-  end: 0
-  # フェードインにかける時間(0.1秒単位）
-  fadeIn: 20
-  # フェードアウトにかける時間(0.1秒単位）
-  fadeOut: 20
-  # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
-  chatLinkageType: none
-  # チャット連携対象指定(チャット連携モードが0の場合は利用しない)
-  chatLinkageTarget: ""
-  # リピート再生(true: リピートする, false: リピートしない)
-  isRepeat: true
-  # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
-  isForceContinue: false
-  # 強制新規再生（効果音向け）
-  isForceNew: false
-#=========#=========#=========#=========#=========#=========#
-- # タイトル
   title: "[サビ]Bad Apple!!"
   # タグ
   tag: "BGM"
@@ -377,35 +290,6 @@
   isForceNew: true
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
-  title: "出題1"
-  # タグ
-  tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/question1.mp3"
-  # 音量(0~100)
-  volume: 80
-  # 再生開始位置(秒単位)
-  start: 0
-  # 再生終了位置(秒単位) マイナス指定で末尾からの時間
-  end: 0
-  # フェードインにかける時間(0.1秒単位）
-  fadeIn: 0
-  # フェードアウトにかける時間(0.1秒単位）
-  fadeOut: 0
-  # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
-  chatLinkageType: none
-  # チャット連携対象指定(チャット連携モードが0の場合は利用しない)
-  chatLinkageTarget: ""
-  # リピート再生(true: リピートする, false: リピートしない)
-  isRepeat: false
-  # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
-  isForceContinue: false
-  # 強制新規再生（効果音向け）
-  isForceNew: true
-#=========#=========#=========#=========#=========#=========#
-- # タイトル
   title: "正解1"
   # タグ
   tag: "SE"
@@ -462,32 +346,3 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
-#=========#=========#=========#=========#=========#=========#
-- # タイトル
-  title: "廃墟と詩のＴＲＰＧ「詩片のアルセット」予告PV"
-  # タグ
-  tag: "PV"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=ZVexg7S2Vsk"
-  # 音量(0~100)
-  volume: 80
-  # 再生開始位置(秒単位)
-  start: 0
-  # 再生終了位置(秒単位) マイナス指定で末尾からの時間
-  end: 0
-  # フェードインにかける時間(0.1秒単位）
-  fadeIn: 0
-  # フェードアウトにかける時間(0.1秒単位）
-  fadeOut: 0
-  # チャット連携モード(none: 連携なし, last: チャット末尾, regexp: 正規表現)
-  chatLinkageType: last
-  # チャット連携対象指定(チャット連携モードが0の場合は利用しない)
-  chatLinkageTarget: "入室しました。"
-  # リピート再生(true: リピートする, false: リピートしない)
-  isRepeat: false
-  # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
-  isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
-  isForceContinue: false
-  # 強制新規再生（効果音向け）
-  isForceNew: false
