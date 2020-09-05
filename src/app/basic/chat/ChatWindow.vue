@@ -92,13 +92,13 @@ import {
   ChatTabInfo,
   CustomDiceBotInfo,
   GroupChatTabInfo
-} from "../../../@types/room";
-import { ActorStore } from "../../../@types/gameObject";
-import { StoreUseData } from "../../../@types/store";
+} from "@/@types/room";
+import { ActorStore } from "@/@types/gameObject";
+import { StoreUseData } from "@/@types/store";
 import ChatOperationLine from "./ChatOperationLine.vue";
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
-import { TabInfo } from "../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import ChatOptionSelector from "./ChatOptionSelector.vue";
 import ChatInputInfoComponent from "./ChatInputInfoComponent.vue";
 import { conversion, sendChatLog } from "../../core/utility/ChatUtility";
@@ -114,7 +114,7 @@ import {
   findRequireByOwner
 } from "../../core/utility/Utility";
 import LanguageManager from "../../../LanguageManager";
-import { UserType } from "../../../@types/socket";
+import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import ReadAloudManager from "../../../ReadAloudManager";
 import { Getter } from "vuex-class";

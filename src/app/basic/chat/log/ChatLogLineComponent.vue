@@ -146,6 +146,7 @@ export default class ChatLogLineComponent extends Vue {
   min-height: 2em;
   line-height: 1.7em;
   white-space: pre-wrap;
+  flex-shrink: 0;
 
   &.system {
     background-color: var(--uni-color-light-green);
