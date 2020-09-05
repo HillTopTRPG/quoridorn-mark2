@@ -133,7 +133,7 @@
         :textHeight="textHeight"
         :textFontSizeDefault="textFontSize"
         :textPaddingDefault="textPadding"
-        :textBackgroundColor="textBackgroundColor"
+        :textBackgroundColorDefault="textBackgroundColor"
         :cardList="newCardList"
         @hover-card="hoverCard"
       />
@@ -232,11 +232,11 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     fontColor: "#000000",
     nameHeight: 0,
     nameFontSize: 20,
-    nameBackgroundColor: "rgba(0, 0, 0, 0)",
+    nameBackgroundColor: "rgba(255, 255, 255, 0)",
     textHeight: 0,
     textFontSize: 11,
     textPadding: 5,
-    textBackgroundColor: "rgba(0, 0, 0, 0)",
+    textBackgroundColor: "rgba(255, 255, 255, 0)",
     frontImage: "",
     backImage: "",
     name: "",
@@ -268,11 +268,11 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private fontColor: string = "#000000";
   private nameHeight: number = 30;
   private nameFontSize: number = 20;
-  private nameBackgroundColor: string = "rgba(0, 0, 0, 0)";
+  private nameBackgroundColor: string = "rgba(255, 255, 255, 0.3)";
   private textHeight: number = 60;
   private textFontSize: number = 11;
   private textPadding: number = 0;
-  private textBackgroundColor: string = "rgba(0, 0, 0, 0)";
+  private textBackgroundColor: string = "rgba(255, 255, 255, 0.3)";
 
   private newCardList: StoreUseData<CardMeta>[] = [];
 
@@ -452,13 +452,13 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
                 nameHeight: presetDeck.nameHeight || 0,
                 nameFontSize: presetDeck.nameFontSize || 20,
                 nameBackgroundColor:
-                  presetDeck.nameBackgroundColor || "rgba(0, 0, 0, 0)",
+                  presetDeck.nameBackgroundColor || "rgba(255, 255, 255, 0.3)",
                 text: c.text || "",
                 textHeight: presetDeck.textHeight || 0,
                 textFontSize: presetDeck.textFontSize || 11,
                 textPadding: presetDeck.textPadding || 0,
                 textBackgroundColor:
-                  presetDeck.textBackgroundColor || "rgba(0, 0, 0, 0)"
+                  presetDeck.textBackgroundColor || "rgba(255, 255, 255, 0.3)"
               };
               if (!cardMeta.radius) cardMeta.radius = 0;
               return createEmptyStoreUseData(cardId, cardMeta);

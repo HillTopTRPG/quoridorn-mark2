@@ -12,11 +12,23 @@
   >
     <div class="card" :style="cardStyle">
       <div class="face front-face" :style="frontStyle">
-        <div class="name" :style="{ height: cardMeta.nameHeight + 'px' }">
-          {{ cardMeta.name }}
+        <div
+          class="name"
+          :style="{
+            height: cardMeta.data.nameHeight + 'px',
+            backgroundColor: cardMeta.data.nameBackgroundColor
+          }"
+        >
+          {{ cardMeta.data.name }}
         </div>
-        <div class="text" :style="{ height: cardMeta.textHeight + 'px' }">
-          {{ cardMeta.text }}
+        <div
+          class="text"
+          :style="{
+            height: cardMeta.data.textHeight + 'px',
+            backgroundColor: cardMeta.data.textBackgroundColor
+          }"
+        >
+          {{ cardMeta.data.text }}
         </div>
       </div>
       <div class="face back-face" :style="backStyle"></div>
@@ -117,6 +129,8 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   transform-origin: left top;
 }
 .face {
+  @include flex-box(column, stretch, space-between);
+  box-sizing: border-box;
   backface-visibility: hidden;
   transition: all 0.5s ease-in-out;
   position: absolute;
@@ -125,7 +139,6 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   transform-origin: center center;
   background-repeat: no-repeat;
   background-size: contain;
-  box-sizing: border-box;
 }
 .front {
   .front-face {
@@ -148,7 +161,9 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   overflow: hidden;
 }
 .text {
-  @include inline-flex-box(row, flex-start, flex-start);
+  @include inline-flex-box(row, flex-start, flex-start, wrap);
   overflow: hidden;
+  white-space: pre-line;
+  text-align: left;
 }
 </style>

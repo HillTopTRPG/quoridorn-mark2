@@ -324,7 +324,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   // nameBackgroundColor
   @Prop({ type: String, required: true })
   private nameBackgroundColor!: string;
-  private nameBackgroundColorVolatile: string = "rgba(0, 0, 0, 0)";
+  private nameBackgroundColorVolatile: string = "rgba(255, 255, 255, 0.3)";
   @Watch("nameBackgroundColor", { immediate: true })
   private onChangeNameBackgroundColor(value: string) {
     this.nameBackgroundColorVolatile = value;
@@ -376,7 +376,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   // textBackgroundColor
   @Prop({ type: String, required: true })
   private textBackgroundColor!: string;
-  private textBackgroundColorVolatile: string = "rgba(0, 0, 0, 0)";
+  private textBackgroundColorVolatile: string = "rgba(255, 255, 255, 0.3)";
   @Watch("textBackgroundColor", { immediate: true })
   private onChangeTextBackgroundColor(value: string) {
     this.textBackgroundColorVolatile = value;
@@ -407,11 +407,11 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     fontColor: "#000000",
     nameHeight: 30,
     nameFontSize: 20,
-    nameBackgroundColor: "rgba(0, 0, 0, 0)",
+    nameBackgroundColor: "rgba(255, 255, 255, 0.3)",
     textHeight: 100,
     textFontSize: 10,
     textPadding: 5,
-    textBackgroundColor: "rgba(0, 0, 0, 0)",
+    textBackgroundColor: "rgba(255, 255, 255, 0.3)",
     frontImage: "",
     backImage: "",
     name: "",
@@ -433,11 +433,11 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     fontColor: "#000000",
     nameHeight: 0,
     nameFontSize: 20,
-    nameBackgroundColor: "rgba(0, 0, 0, 0)",
+    nameBackgroundColor: "rgba(255, 255, 255, 0)",
     textHeight: 0,
     textFontSize: 11,
     textPadding: 5,
-    textBackgroundColor: "rgba(0, 0, 0, 0)",
+    textBackgroundColor: "rgba(255, 255, 255, 0)",
     frontImage: "",
     backImage: "",
     name: "",
@@ -456,11 +456,11 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     fontColor: "#000000",
     nameHeight: 0,
     nameFontSize: 20,
-    nameBackgroundColor: "rgba(0, 0, 0, 0)",
+    nameBackgroundColor: "rgba(255, 255, 255, 0)",
     textHeight: 0,
     textFontSize: 11,
     textPadding: 5,
-    textBackgroundColor: "rgba(0, 0, 0, 0)",
+    textBackgroundColor: "rgba(255, 255, 255, 0)",
     frontImage: "",
     backImage: "",
     name: "",

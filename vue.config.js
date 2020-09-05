@@ -1,5 +1,5 @@
 const CompressionWebpackPlugin = require("compression-webpack-plugin");
-const productionGzipExtensions = ["yaml", "js", "eot", "ttf"];
+const productionGzipExtensions = ["js", "eot", "ttf"];
 process.env.VUE_APP_VERSION = require("./package.json").version;
 
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")

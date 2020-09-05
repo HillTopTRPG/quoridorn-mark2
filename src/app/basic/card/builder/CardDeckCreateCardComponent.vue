@@ -52,6 +52,11 @@
               v-model="textFontSize"
             />
           </tr>
+          <tr-color-picker-component
+            labelName="card-text-background-color"
+            v-model="textBackgroundColor"
+            :useAlpha="true"
+          />
           <tr v-if="textHeight">
             <tr-number-input-component
               labelName="card-text-padding"
@@ -153,16 +158,16 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
   createRectangle,
   createSize
-} from "../../../core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "../../../core/window/ComponentVue";
 import GameObjectManager from "../../GameObjectManager";
-import { createEmptyStoreUseData } from "../../../core/utility/Utility";
-import { CardMeta } from "../../../../@types/gameObject";
+import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import { CardMeta } from "@/@types/gameObject";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
 import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
@@ -243,18 +248,19 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   @Prop({ type: Number, required: true })
   private textFontSizeDefault!: number;
 
+  @Prop({ type: String, required: true })
+  private textBackgroundColorDefault!: string;
+
   @Prop({ type: Number, required: true })
   private textPaddingDefault!: number;
-
-  @Prop({ type: String, required: true })
-  private textBackgroundColor!: string;
 
   @Prop({ type: Array, required: true })
   private cardList!: StoreUseData<CardMeta>[];
 
   private frontBackgroundColor: string = "#ffffff";
   private nameFontSize: number = 20;
-  private nameBackgroundColor: string = "rgba(0, 0, 0, 0)";
+  private nameBackgroundColor: string = "rgba(255, 255, 255, 0.3)";
+  private textBackgroundColor: string = "rgba(255, 255, 255, 0.3)";
   private textFontSize: number = 11;
   private textPadding: number = 0;
   private name: string = "";
@@ -285,6 +291,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
     this.frontBackgroundColor = this.frontBackgroundColorDefault;
     this.nameFontSize = this.nameFontSizeDefault;
     this.nameBackgroundColor = this.nameBackgroundColorDefault;
+    this.textBackgroundColor = this.textBackgroundColorDefault;
     this.textFontSize = this.textFontSizeDefault;
     this.textPadding = this.textPaddingDefault;
     this.currentImageId = "";
