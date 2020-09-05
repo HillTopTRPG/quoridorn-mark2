@@ -43,7 +43,7 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { ChatPaletteStore } from "@/@types/gameObject";
+import { ChatPaletteStore, ResourceStore } from "@/@types/gameObject";
 import { CustomDiceBotInfo } from "@/@types/room";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import BaseInput from "../../core/component/BaseInput.vue";
@@ -60,6 +60,7 @@ import { sendChatLog } from "../../core/utility/ChatUtility";
 import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
+import { findRequireById } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
 
 @Component({
@@ -79,6 +80,8 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   private chatPaletteList = GameObjectManager.instance.chatPaletteList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
   private actorList = GameObjectManager.instance.actorList;
+  private resourceList = GameObjectManager.instance.resourceList;
+  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
 
   // 画面入力を受ける変数
   private sendText: string = "";
@@ -134,7 +137,6 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     if (!this.currentTargetTabInfo || !matchCurrent) {
       this.currentTargetTabInfo = this.targetTabList[0];
     }
-    console.log(JSON.stringify(this.currentTargetTabInfo, null, "  "));
   }
 
   @VueEvent
@@ -153,7 +155,78 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async selectLine(line: string) {
-    this.sendText = line;
+    const refList: { [key: string]: string } = {};
+    if (this.chatPaletteObj) {
+      this.chatPaletteObj.data!.paletteText.split("\n").forEach(line => {
+        const matchResult = line.match(/^\s*\/\/([^=]+)=(.+)$/);
+        if (matchResult) refList[matchResult[1]] = matchResult[2];
+      });
+    }
+    const refReplace = (l: string): string =>
+      l.replace(/{([^}]+)}/g, (match: string, p1: string) => {
+        const refValue = refList[p1];
+        if (refValue) {
+          return refValue.match(/{[^}]+}/) ? refReplace(refValue) : refValue;
+        }
+
+        const splitted = p1.split(".");
+        const label = splitted.length === 1 ? splitted[0] : splitted[1];
+        const sceneObjectName = splitted.length === 1 ? null : splitted[0];
+        const actorId: string =
+          this.actorId || GameObjectManager.instance.chatPublicInfo.actorId;
+        const actor = findRequireById(this.actorList, actorId);
+        const sceneObject = this.sceneObjectList.find(
+          so =>
+            so.data!.actorId === actorId && so.data!.name === sceneObjectName
+        );
+        const sceneObjectId = sceneObject ? sceneObject.id : this.sceneObjectId;
+
+        // リソース名で検索
+        const resourceMaster = this.resourceMasterList.find(
+          rm => rm.data!.label === label
+        );
+        if (resourceMaster) {
+          const filteredList: StoreUseData<
+            ResourceStore
+          >[] = this.resourceList.filter(
+            r => r.data!.masterId === resourceMaster.id
+          );
+
+          if (sceneObjectId) {
+            // コマまで指定されている場合はコマのリソースを優先して検索する
+            let resource = filteredList.find(f => {
+              if (f.ownerType === "actor") return false;
+              return f.owner === sceneObjectId;
+            });
+            if (resource) return resource.data!.value;
+
+            // コマで見つからない場合はアクターで検索
+            resource = filteredList.find(f => {
+              if (f.ownerType !== "actor") return false;
+              return f.owner === actorId;
+            });
+            if (resource) return resource.data!.value;
+          } else {
+            // コマが指定されていない場合はアクターのリソースを優先して検索する
+            let resource = filteredList.find(f => {
+              if (f.ownerType !== "actor") return false;
+              return f.owner === actorId;
+            });
+            if (resource) return resource.data!.value;
+
+            // アクターのリソースが見つからない場合はコマのリソースを検索する
+            resource = filteredList.find(f => {
+              if (f.ownerType === "actor") return false;
+              return actor.data!.pieceIdList.some(
+                pieceId => pieceId === f.owner
+              );
+            });
+            if (resource) return resource.data!.value;
+          }
+        }
+        return match;
+      });
+    this.sendText = refReplace(line);
   }
 
   @VueEvent
@@ -180,7 +253,8 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   private async sendLine() {
     await sendChatLog(
       {
-        actorId: this.actorId,
+        actorId:
+          this.actorId || GameObjectManager.instance.chatPublicInfo.actorId,
         text: this.sendText.replace(/\\n/g, "\n"),
         tabId: this.outputTabId,
         statusId: this.statusId, // Actorに設定されているものを使う
@@ -214,12 +288,15 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
 .simple-tab-component {
   flex: 1;
+  position: relative;
+  height: calc(100% - 4em - 1rem);
 }
 
 .chat-palette-box {
   @include inline-flex-box(column, stretch, flex-start);
   border: 1px solid gray;
   width: 100%;
-  height: 100%;
+  max-height: calc(100% - 2em);
+  flex: 1;
 }
 </style>

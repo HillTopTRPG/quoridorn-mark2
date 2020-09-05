@@ -9,8 +9,8 @@
       v-if="!multiple"
       class="input"
       :class="{ pending: isPending }"
-      :value="localValue === null ? 'null' : selectionValue"
-      @input="localValue = getSelectionValue(1)"
+      :value="selectionValue"
+      @input="localValue = getSelectionValue()"
       :id="id || undefined"
       ref="component"
       :disabled="disabled || readonly"
@@ -42,7 +42,7 @@
       v-else
       class="input"
       :class="{ pending: isPending }"
-      @input="localValue = getSelectionValue(1)"
+      @input="localValue = getSelectionValue()"
       :id="id || undefined"
       ref="component"
       :disabled="disabled || readonly"
@@ -79,7 +79,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 import { Rectangle } from "address";
 import { createRectangle } from "../utility/CoordinateUtility";
-import { HtmlOptionInfo } from "../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import SelectMixin from "../../basic/common/components/select/base/SelectMixin";
 import VueEvent from "../decorator/VueEvent";
 
@@ -119,7 +119,9 @@ export default class CtrlSelect extends SelectMixin {
       elm.options
     ) as HTMLOptionElement[];
     optionElmList.forEach(o => {
-      o.selected = (this.localValue as string[]).some(v => v === o.value);
+      o.selected = (this.localValue as (string | null)[]).some(
+        v => v === o.value
+      );
     });
   }
 

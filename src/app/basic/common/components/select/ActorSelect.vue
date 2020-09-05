@@ -16,9 +16,9 @@ import { Prop } from "vue-property-decorator";
 import ComponentVue from "../../../../core/window/ComponentVue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
-import { permissionCheck } from "../../../../core/api/app-server/SocketFacade";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
@@ -66,7 +66,7 @@ export default class ActorSelect extends Mixins<MultiMixin>(
     if (this.nullable) {
       this.optionInfoList.unshift({
         key: null,
-        value: "null",
+        value: null,
         text: this.$t("label.non-select")!.toString(),
         disabled: false
       });

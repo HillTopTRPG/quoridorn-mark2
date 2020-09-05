@@ -7,7 +7,6 @@
       <pips-select
         v-model="localValue"
         :diceTypeId="diceTypeId"
-        :nullable="nullable"
         :multiple="false"
         :readonly="readonly"
       />
@@ -44,9 +43,6 @@ export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private nullable!: boolean;
 
   private input(value: string | null) {
     this.$emit("input", value);

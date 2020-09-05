@@ -57,7 +57,7 @@ export default class SceneObjectSelect extends Mixins<MultiMixin>(
     if (this.nullable) {
       this.optionInfoList.unshift({
         key: null,
-        value: "null",
+        value: null,
         text: this.$t("label.non-select")!.toString(),
         disabled: false
       });
