@@ -1076,7 +1076,7 @@ export default class LoginWindow extends Mixins<
         if (nameSplit.length < 4) return;
         if (nameSplit.shift() !== "dice") return;
         const faceNum = nameSplit.shift()!;
-        const pips = nameSplit.pop()!;
+        const pips = nameSplit.pop()!.replace(/\..+/, "");
         const diceType = nameSplit.join("-");
         diceMaterial[faceNum].find(dm => dm.type === diceType)!.pips[pips] =
           umr.docId;
