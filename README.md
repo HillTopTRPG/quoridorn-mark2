@@ -16,31 +16,35 @@ Quoridorn Ver.2.0.0以降のリポジトリです。<br>
 
 ## 使い方
 1. Quoridornクライアントのソースを用意
-   1. `https://github.com/HillTopTRPG/quoridorn-mark2.git` GitHubからソースをダウンロード
+   1. `git clone https://github.com/HillTopTRPG/quoridorn-mark2.git` GitHubからソースをダウンロード
+   1. `quoridorn-mark2/.env.example`ファイルを同じ場所に`.env`というファイル名で複製 (Ver.2.0.0a80～)
+   1. `quoridorn-mark2/public/static/conf`フォルダの中のファイル名の末尾が`.example`となっている8つのファイルも上記と同様に、元のファイルと同じ場所に末尾の`.example`を除いたファイル名で複製 (Ver.2.0.0a80～)
    1. `cd quoridorn-mark2` 生成された「quoridorn-mark2」ディレクトリに移動
    1. `npm install` ライブラリをインストール
 
 1. クライアントをビルドする
-   1. 「quoridorn-mark2/.env」を編集する（テキストエディタで編集可能）<br>
+   1. `quoridorn-mark2/.env`を編集する（テキストエディタで編集可能）<br>
       ドメイン直下の設置フォルダ名を指定する<br>
       例1) http://hogehoge.com/quoridorn2/ に設置する場合<br>
-      VUE_APP_BASE_URL=quoridorn2<br>
+      `VUE_APP_BASE_URL=quoridorn2`<br>
       とする<br>
       例2) http://hogehoge.com に設置する場合<br>
-      VUE_APP_BASE_URL=<br>
+      `VUE_APP_BASE_URL=`<br>
       とする
    1. `npm run build` 成功すると「dist」フォルダが生成され、その中にWebサーバへの設置物が出来上がる
 
 1. Quoridornクライアントの設定を編集
-   1. 「quoridorn-mark2/static/conf/connect.yaml」を編集する（テキストエディタで編集可能）<br>
+   1. `quoridorn-mark2/dist/static/conf/connect.yaml`を編集する（テキストエディタで編集可能）<br>
       書き方や注意点はyamlファイル内にコメントを書いてあるので、それを見ながら頑張って設定値を書いてください
+   1. `quoridorn-mark2/dist/static/conf/termsOfUse.txt`を編集する（テキストエディタで編集可能）<br>
+      クライアント側の利用規約の文章をここに書いてください
 
 1. クライアント設置物をWebサーバに配置
    1. ビルドの工程で例1のパターンのとき<br>
-      Webサーバ公開ディレクトリにVUE_APP_BASE_URLの値の名前のフォルダを作成する<br>
-      このフォルダの中に「dist」フォルダの中身を全て配置する
+      Webサーバ公開ディレクトリに`VUE_APP_BASE_URL`の値の名前のフォルダを作成する<br>
+      このフォルダの中に`quoridorn-mark2/dist`フォルダの中身を全て配置する
    1. ビルドの工程で例2のパターンのとき<br>
-      Webサーバ公開ディレクトリの直下に「dist」フォルダの中身を全て配置する
+      Webサーバ公開ディレクトリの直下に`quoridorn-mark2/dist`フォルダの中身を全て配置する
 
 1. ブラウザからアクセスしてみる
    1. 良さげに表示されてたらOK
