@@ -654,3 +654,8 @@ simple-text-input-window:
 
 memo-tab-setting-window:
   window-title: メモタブ設定
+
+chat-palette-tab-setting-window:
+  window-title: チャットパレットタブ設定
+  message-list:
+    delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"

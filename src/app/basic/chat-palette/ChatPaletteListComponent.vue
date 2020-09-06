@@ -81,12 +81,12 @@ export default class ChatPaletteListComponent extends Vue {
   &.even {
     background-size: calc(var(--table-row-height) * 2)
       calc(var(--table-row-height) * 2);
-    background-image: linear-gradient(0deg, white 50%, rgb(247, 247, 247) 51%);
+    background-image: linear-gradient(0deg, rgb(247, 247, 247) 50%, white 51%);
   }
   &.odd {
     background-size: calc(var(--table-row-height) * 2)
       calc(var(--table-row-height) * 2);
-    background-image: linear-gradient(0deg, rgb(247, 247, 247) 50%, white 51%);
+    background-image: linear-gradient(0deg, white 50%, rgb(247, 247, 247) 51%);
   }
 }
 </style>

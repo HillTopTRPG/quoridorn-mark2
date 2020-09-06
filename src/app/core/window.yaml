@@ -1712,3 +1712,35 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"chat-palette-tab-setting-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthEm: 22
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 14
+    heightRem: 0.5
+  minSize:
+    widthEm: 18
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 10
+    heightRem: 0.5
+  maxSize:
+    widthEm: 30
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 26
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

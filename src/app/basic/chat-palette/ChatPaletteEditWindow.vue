@@ -86,8 +86,6 @@ export default class ChatPaletteEditWindow extends Mixins<
       }
     }
 
-    console.log(JSON.stringify(data.data, null, " "));
-
     this.name = data.data!.name;
     this.chatFontColorType = data.data!.chatFontColorType;
     this.chatFontColor = data.data!.chatFontColor;

@@ -54,6 +54,7 @@ import DiceSymbolAddWindow from "@/app/basic/object/dice-symbol/DiceSymbolAddWin
 import SecretDiceRollWindow from "@/app/basic/chat/secret-dice/SecretDiceRollWindow.vue";
 import SimpleTextInputWindow from "@/app/core/window/SimpleTextInputWindow.vue";
 import MemoTabSettingWindow from "@/app/basic/other-text/MemoTabSettingWindow.vue";
+import ChatPaletteTabSettingWindow from "@/app/basic/chat-palette/ChatPaletteTabSettingWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -120,6 +121,7 @@ async function main(): Promise<void> {
   Vue.component("chmod-input-window", ChmodInputWindow);
   Vue.component("simple-text-input-window", SimpleTextInputWindow);
   Vue.component("memo-tab-setting-window", MemoTabSettingWindow);
+  Vue.component("chat-palette-tab-setting-window", ChatPaletteTabSettingWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

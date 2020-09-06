@@ -20,7 +20,8 @@
       :windowKey="windowKey"
       :tabList="targetTabList"
       v-model="currentTargetTabInfo"
-      :hasSetting="false"
+      :hasSetting="true"
+      @settingOpen="onSettingOpen()"
     >
       {{ (_chatPalette = chatPaletteObj) && null }}
       <div class="chat-palette-box">
@@ -45,7 +46,9 @@ import { Component, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { ChatPaletteStore, ResourceStore } from "@/@types/gameObject";
 import { CustomDiceBotInfo } from "@/@types/room";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "../../core/api/app-server/SocketFacade";
 import BaseInput from "../../core/component/BaseInput.vue";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -61,6 +64,7 @@ import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import { findRequireById } from "@/app/core/utility/Utility";
+import App from "@/views/App.vue";
 const uuid = require("uuid");
 
 @Component({
@@ -124,11 +128,13 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
   @Watch("chatPaletteList", { immediate: true })
   private onChangeChatPaletteList() {
-    this.targetTabList = this.chatPaletteList.map(cp => ({
-      key: uuid.v4(),
-      target: cp.id!,
-      text: cp.data!.name
-    }));
+    this.targetTabList = this.chatPaletteList
+      .filter(cp => permissionCheck(cp, "view"))
+      .map(cp => ({
+        key: uuid.v4(),
+        target: cp.id!,
+        text: cp.data!.name
+      }));
     const matchCurrent = this.currentTargetTabInfo
       ? this.targetTabList.find(
           tt => tt.target === this.currentTargetTabInfo!.target
@@ -266,6 +272,11 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     );
     this.sendText = "";
   }
+
+  @VueEvent
+  private async onSettingOpen() {
+    await App.openSimpleWindow("chat-palette-tab-setting-window");
+  }
 }
 </script>
 
@@ -280,6 +291,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
 .send-line-block {
   @include flex-box(row, flex-start, center);
+  margin-bottom: 0.5rem;
 
   > *:first-child {
     flex: 1;
