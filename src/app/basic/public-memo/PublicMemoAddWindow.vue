@@ -88,8 +88,8 @@ export default class PublicMemoAddWindow extends Mixins<
   @Watch("imageDocId", { immediate: true })
   private onChangeImageDocId() {
     this.windowInfo.message = this.imageDocId
-      ? this.$t(`${this.windowInfo.type}.message-list.select-icon`).toString()
-      : "";
+      ? ""
+      : this.$t(`${this.windowInfo.type}.message-list.select-icon`).toString();
   }
 
   @VueEvent
