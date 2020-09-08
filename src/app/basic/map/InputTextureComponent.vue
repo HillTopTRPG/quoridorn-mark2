@@ -30,13 +30,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Watch, Vue } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { BackgroundSize, Direction, Texture } from "../../../@types/room";
+import { BackgroundSize, Direction, Texture } from "@/@types/room";
 import { parseColor } from "../../core/utility/ColorUtility";
 import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
@@ -44,6 +44,8 @@ import TrStringInputComponent from "../common/components/TrStringInputComponent.
 import BackgroundTypeRadio from "../common/components/radio/BackgroundTypeRadio.vue";
 import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
@@ -59,7 +61,9 @@ import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
     CtrlButton
   }
 })
-export default class InputTextureComponent extends Vue {
+export default class InputTextureComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 

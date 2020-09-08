@@ -135,7 +135,7 @@
 
 <script lang="ts">
 import { Component } from "vue-mixin-decorator";
-import { Emit, Prop, Vue, Watch } from "vue-property-decorator";
+import { Emit, Prop, Watch, Vue } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { Point } from "address";
 import { RowSelectInfo } from "task-info";
@@ -148,7 +148,7 @@ import {
   WindowTableColumn,
   WindowTableDeclareInfo,
   WindowTableInfo
-} from "../../../../@types/window";
+} from "@/@types/window";
 import TaskManager, { MouseMoveParam } from "../../task/TaskManager";
 import { getCssPxNum } from "../../css/Css";
 import { convertNumberZero, sum } from "../../utility/PrimaryDataUtility";
@@ -158,7 +158,7 @@ import {
   getEventPoint
 } from "../../utility/CoordinateUtility";
 import VueEvent from "../../decorator/VueEvent";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import LanguageManager from "../../../../LanguageManager";
 import Divider from "./Divider.vue";
 

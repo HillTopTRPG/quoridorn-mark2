@@ -21,10 +21,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import { Component, Emit, Prop } from "vue-property-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class ActorStatusCombo extends Vue {
+export default class ActorStatusCombo extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private value!: string;
 
@@ -34,8 +38,9 @@ export default class ActorStatusCombo extends Vue {
   @Prop({ type: Array, required: true })
   private selectedStatusList!: any[];
 
-  @Emit("input")
-  private change(value: string) {}
+  private change(value: string) {
+    this.$emit("input", value);
+  }
 
   get localValue(): string {
     return this.value;

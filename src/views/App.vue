@@ -26,22 +26,24 @@
       <!-- 右クリックメニュー (z-index: 4) -->
       <Context />
     </template>
-    <!-- 小画面エリア (z-index: 3) -->
+    <!-- 共有メモエリア (z-index: 3) -->
+    <public-memo-area />
+    <!-- 小画面エリア (z-index: 4) -->
     <window-area />
-    <!-- その他欄 (z-index: 6) -->
+    <!-- その他欄 (z-index: 7) -->
     <other-text-frame
       :windowKey="key"
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
-    <!-- 放物線シミュレータ (z-index: 7) -->
-    <throw-parabola-simulator v-if="throwParabola" />
     <!-- 放物線シミュレータ (z-index: 8) -->
+    <throw-parabola-simulator v-if="throwParabola" />
+    <!-- 放物線シミュレータ (z-index: 9) -->
     <throw-parabola-container />
-    <!-- カードデッキビルダー (z-index: 9) -->
+    <!-- カードデッキビルダー (z-index: 10) -->
     <card-deck-builder v-if="cardView" :cardDeckId="cardDeckId" />
-    <!-- お部屋作成中 (z-index: 10) -->
+    <!-- お部屋作成中 (z-index: 11) -->
     <div id="progress-message-area" v-if="progressMessage">
       <div class="message">{{ progressMessage }}</div>
       <img
@@ -112,9 +114,11 @@ import OtherTextFrame from "../app/basic/other-text/OtherTextFrame.vue";
 import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimulator.vue";
 import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
 import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
+import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 
 @Component({
   components: {
+    PublicMemoArea,
     CardDeckBuilder,
     ThrowParabolaContainer,
     ThrowParabolaSimulator,
@@ -828,27 +832,32 @@ label {
   z-index: 4;
 }
 
+#public-memo-area {
+  z-index: 3;
+  display: contents;
+}
+
 #window-area {
   position: fixed;
   left: 0;
   top: 0;
-  z-index: 3;
+  z-index: 4;
 }
 
 #other-text-frame {
-  z-index: 6;
-}
-
-#throw-parabola-simulator {
   z-index: 7;
 }
 
-#throw-parabola-container {
+#throw-parabola-simulator {
   z-index: 8;
 }
 
-#card-deck-builder {
+#throw-parabola-container {
   z-index: 9;
+}
+
+#card-deck-builder {
+  z-index: 10;
 }
 
 #progress-message-area {
@@ -858,7 +867,7 @@ label {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 10;
+  z-index: 11;
 
   img {
     width: 200px;

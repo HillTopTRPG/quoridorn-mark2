@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { Matrix, Size } from "address";
 import { ModeInfo } from "mode";
 import LifeCycle from "../../core/decorator/LifeCycle";
@@ -31,14 +31,18 @@ import TaskManager from "../../core/task/TaskManager";
 import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
 import SceneLayerComponent from "./SceneLayerComponent.vue";
 import GameObjectManager from "../GameObjectManager";
-import { RoomData, Scene } from "../../../@types/room";
+import { RoomData, Scene } from "@/@types/room";
 import { findRequireById } from "../../core/utility/Utility";
 import VueEvent from "../../core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { SceneLayerComponent }
 })
-export default class MapBoard extends Vue {
+export default class MapBoard extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   private isMapDraggingRight: boolean = false;
 
   @Prop({ type: String, required: true })

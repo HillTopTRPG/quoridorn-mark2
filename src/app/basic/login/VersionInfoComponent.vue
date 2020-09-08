@@ -44,14 +44,17 @@
 </template>
 
 <script lang="ts">
-import { Prop, Vue } from "vue-property-decorator";
-import { Component } from "vue-mixin-decorator";
+import { Prop } from "vue-property-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
 import { TargetVersion } from "../../core/api/Github";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { ServerTestResult } from "../../../@types/socket";
+import { ServerTestResult } from "@/@types/socket";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({ components: {} })
-export default class VersionInfoComponent extends Vue {
+export default class VersionInfoComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private serverTestResult!: ServerTestResult;
 

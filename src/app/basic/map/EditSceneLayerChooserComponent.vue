@@ -40,20 +40,24 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import draggable from "vuedraggable";
 import { ModeInfo } from "mode";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import EditSceneLayerComponent from "./EditSceneLayerComponent.vue";
 import TaskManager from "../../core/task/TaskManager";
-import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
-export default class EditSceneLayerChooserComponent extends Vue {
+export default class EditSceneLayerChooserComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private sceneId!: string;
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-import Vue from "vue";
+import { Vue } from "vue-property-decorator";
 import { Mixin } from "vue-mixin-decorator";
 import { Matrix, Point, Rectangle } from "address";
 import CssManager from "../../../core/css/CssManager";
@@ -9,7 +9,7 @@ import {
   calcCenter,
   calcDistance,
   createPoint
-} from "../../../core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
 
 type Coordinates = {

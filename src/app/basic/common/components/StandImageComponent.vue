@@ -15,11 +15,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Emit, Prop, Watch } from "vue-property-decorator";
 import { Getter } from "vuex-class";
 import { listToEmpty } from "../../../core/utility/PrimaryDataUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { findByKey } from "../../../core/utility/Utility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 interface Rectangle {
   x: number;
@@ -29,7 +31,9 @@ interface Rectangle {
 }
 
 @Component
-export default class StandImageComponent extends Vue {
+export default class StandImageComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private standImage!: any;
 

@@ -55,6 +55,8 @@ import SecretDiceRollWindow from "@/app/basic/chat/secret-dice/SecretDiceRollWin
 import SimpleTextInputWindow from "@/app/core/window/SimpleTextInputWindow.vue";
 import MemoTabSettingWindow from "@/app/basic/other-text/MemoTabSettingWindow.vue";
 import ChatPaletteTabSettingWindow from "@/app/basic/chat-palette/ChatPaletteTabSettingWindow.vue";
+import PublicMemoAddWindow from "@/app/basic/public-memo/PublicMemoAddWindow.vue";
+import PublicMemoEditWindow from "@/app/basic/public-memo/PublicMemoEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -122,6 +124,8 @@ async function main(): Promise<void> {
   Vue.component("simple-text-input-window", SimpleTextInputWindow);
   Vue.component("memo-tab-setting-window", MemoTabSettingWindow);
   Vue.component("chat-palette-tab-setting-window", ChatPaletteTabSettingWindow);
+  Vue.component("public-memo-add-window", PublicMemoAddWindow);
+  Vue.component("public-memo-edit-window", PublicMemoEditWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

@@ -161,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
 import { StoreUseData } from "@/@types/store";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -171,11 +171,15 @@ import OtherTextSpanComponent from "@/app/basic/other-text/OtherTextSpanComponen
 import { TabInfo } from "@/@types/window";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { SimpleTabComponent, OtherTextSpanComponent }
 })
-export default class OtherTextComponent extends Vue {
+export default class OtherTextComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
@@ -208,7 +212,7 @@ export default class OtherTextComponent extends Vue {
       .map(lv => ({
         key: lv.id!,
         target: lv.id!,
-        text: lv.data!.tab || this.$t("label.non-tab").toString()
+        text: lv.data!.tab || this.$t("label.non-name").toString()
       }));
     this.currentTabInfo = this.tabList[0] || null;
   }
@@ -222,6 +226,7 @@ export default class OtherTextComponent extends Vue {
     const currentValue = this.value.find(
       lv => lv.id === this.currentTabInfo!.target
     )!;
+    if (!currentValue) return [];
     const text = currentValue.data!.text;
     return markdown(text);
   }

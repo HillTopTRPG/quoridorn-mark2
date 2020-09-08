@@ -48,6 +48,7 @@ type:
   GM: GM
   PL: PL
   VISITOR: 見学者
+  public-memo: 共有メモ
 
 option:
   chat-color-type:
@@ -330,6 +331,8 @@ label:
   tab: タブ
   non-tab: タブ無し
   input-tab: タブの文字を入力
+  contents: コンテンツ
+  non-name: 無名
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -659,3 +662,11 @@ chat-palette-tab-setting-window:
   window-title: チャットパレットタブ設定
   message-list:
     delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
+
+public-memo-add-window:
+  window-title: 共有メモ追加
+  message-list:
+    select-icon: アイコンを選択してください。
+
+public-memo-edit-window:
+  window-title: 共有メモ編集

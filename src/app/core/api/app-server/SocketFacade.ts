@@ -24,8 +24,7 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  TagNoteStore,
-  MemoStore
+  MemoStore, PublicMemoStore
 } from "@/@types/gameObject";
 import {
   ActorGroup,
@@ -505,10 +504,6 @@ export default class SocketFacade {
     );
   }
 
-  public tagNoteCC(): NekostoreCollectionController<TagNoteStore> {
-    return this.roomCollectionController<TagNoteStore>("tag-note-list");
-  }
-
   public roomDataCC(): NekostoreCollectionController<RoomData> {
     return this.roomCollectionController<RoomData>("room-data");
   }
@@ -609,6 +604,12 @@ export default class SocketFacade {
     );
   }
 
+  public publicMemoListCC(): NekostoreCollectionController<PublicMemoStore> {
+    return this.roomCollectionController<PublicMemoStore>(
+      "public-memo-list"
+    );
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     switch (type) {
       case "chat":
@@ -649,8 +650,6 @@ export default class SocketFacade {
         return this.sceneLayerCC();
       case "map-and-layer":
         return this.sceneAndLayerCC();
-      case "tag-note":
-        return this.tagNoteCC();
       case "actor-group":
         return this.actorGroupCC();
       case "card-meta":
@@ -671,6 +670,8 @@ export default class SocketFacade {
         return this.keepBcdiceDiceRollResultListCC();
       case "memo":
         return this.memoCC();
+      case "public-memo":
+        return this.publicMemoListCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

@@ -19,10 +19,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Emit, Prop, Watch } from "vue-property-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class ColorCheckBox extends Vue {
+export default class ColorCheckBox extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Boolean, default: false })
   private checked!: boolean;
 

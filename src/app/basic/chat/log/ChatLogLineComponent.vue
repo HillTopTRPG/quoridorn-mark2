@@ -27,9 +27,8 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { Prop, Watch } from "vue-property-decorator";
-import { Component } from "vue-mixin-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
 import { StoreUseData } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
@@ -41,11 +40,14 @@ import { UserType } from "@/@types/socket";
 import VueEvent from "../../../core/decorator/VueEvent";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import { findById, findRequireById } from "@/app/core/utility/Utility";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
   components: { TabsComponent }
 })
-export default class ChatLogLineComponent extends Vue {
+export default class ChatLogLineComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private chat!: StoreUseData<ChatInfo>;
 

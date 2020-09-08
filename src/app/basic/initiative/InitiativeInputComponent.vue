@@ -10,14 +10,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { StoreUseData } from "../../../@types/store";
-import { WindowTableColumn } from "../../../@types/window";
+import { Component, Prop } from "vue-property-decorator";
+import { StoreUseData } from "@/@types/store";
+import { WindowTableColumn } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 import { convertBooleanFalse } from "../../core/utility/PrimaryDataUtility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class InitiativeInputComponent extends Vue {
+export default class InitiativeInputComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private colDec!: WindowTableColumn;
   @Prop({ type: Object, required: true })

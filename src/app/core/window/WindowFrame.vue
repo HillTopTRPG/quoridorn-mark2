@@ -161,7 +161,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch, Vue } from "vue-property-decorator";
 import { Point, Size } from "address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
@@ -174,11 +174,7 @@ import {
 } from "../utility/CoordinateUtility";
 import TitleIcon from "./TitleIcon.vue";
 import WindowManager from "./WindowManager";
-import {
-  WindowInfo,
-  WindowMoveInfo,
-  WindowResizeInfo
-} from "../../../@types/window";
+import { WindowInfo, WindowMoveInfo, WindowResizeInfo } from "@/@types/window";
 import LifeCycle from "../decorator/LifeCycle";
 import { convertNumberZero } from "../utility/PrimaryDataUtility";
 import { getCssPxNum } from "../css/Css";

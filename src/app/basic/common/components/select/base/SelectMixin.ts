@@ -1,4 +1,4 @@
-import { Vue, Prop } from "vue-property-decorator";
+import { Prop, Vue } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
 
 @Component

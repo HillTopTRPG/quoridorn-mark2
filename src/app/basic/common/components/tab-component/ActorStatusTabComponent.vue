@@ -30,16 +30,20 @@
 
 <script lang="ts">
 import ActorStatusCombo from "../ActorStatusCombo.vue";
-import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
-import { Action, Getter } from "vuex-class";
-import { listToEmpty } from "../../../../core/utility/PrimaryDataUtility";
+import { Component, Emit, Prop, Watch } from "vue-property-decorator";
+import { Action } from "vuex-class";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
     ActorStatusCombo
   }
 })
-export default class ActorStatusTabComponent extends Vue {
+export default class ActorStatusTabComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private actor!: any;
 

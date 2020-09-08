@@ -176,3 +176,23 @@ dice-symbol:
   - ref: object-view-border
   - ref: object-hide-highlight
   - ref: object-view-highlight
+
+public-memo:
+  - text: context.modify
+    taskName: window-open
+    isViewCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
+      rhs:
+        true
+    taskArg:
+      type: public-memo-edit-window
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod

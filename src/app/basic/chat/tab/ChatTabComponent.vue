@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { StoreUseData } from "@/@types/store";
 import SocketFacade, {
@@ -54,11 +54,15 @@ import LanguageManager from "../../../../LanguageManager";
 import { ChatTabInfo } from "@/@types/room";
 import { DataReference } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { SButton }
 })
-export default class ChatTabComponent extends Vue {
+export default class ChatTabComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private tab!: StoreUseData<ChatTabInfo>;
 

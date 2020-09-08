@@ -91,10 +91,11 @@ type ChatPaletteStore = {
   isSecret: boolean;
 };
 
-type TagNoteStore = {
-  fontColor: string;
-  backgroundColor: string;
-  text: string;
+type PublicMemoStore = {
+  name: string;
+  iconId: string;
+  imageTag: string;
+  direction: Direction;
 };
 
 type MemoStore = {
@@ -169,6 +170,7 @@ type PropertySelectionStore = {
 
 type OtherTextViewInfo = {
   type: string;
+  title?: string;
   docId: string;
   dataList: StoreUseData<MemoStore>[];
   rect: Rectangle;

@@ -12,25 +12,29 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
-import { Action } from "vuex-class";
+import { Component, Prop } from "vue-property-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class Divider extends Vue {
+export default class Divider extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Number, required: true })
   private index!: number;
 
   @Prop({ type: Boolean, required: false, default: false })
   private disabled!: boolean;
 
-  @Emit("hover")
-  hoverDev(index: number): void {}
+  hoverDev(index?: number): void {
+    this.$emit("hover", index);
+  }
 
-  @Emit("doubleClick")
-  doubleClick(index: number): void {}
+  doubleClick(index: number): void {
+    this.$emit("doubleClick", index);
+  }
 
-  @Emit("moveStart")
-  moveStart(event: MouseEvent | TouchEvent, index: number) {}
+  moveStart(event: MouseEvent | TouchEvent, index: number) {
+    this.$emit("moveStart", event, index);
+  }
 }
 </script>
 

@@ -1744,3 +1744,82 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"public-memo-add-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 18
+  minSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 6em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 18
+  maxSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 6em(行数) + 4em(選択画像サイズ) * 6個
+    heightPx: 4
+    heightEm: 50
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"public-memo-edit-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 36
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  minSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 28
+    # 8em(行数) + 4em(選択画像サイズ) * 3個
+    heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  maxSize:
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    widthPx: 2
+    widthScrollBar: 1
+    widthEm: 52
+    # 8em(行数) + 4em(選択画像サイズ) * 6個
+    heightPx: 4
+    heightEm: 52
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

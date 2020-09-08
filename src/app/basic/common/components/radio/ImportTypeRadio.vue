@@ -8,12 +8,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Emit } from "vue-property-decorator";
+import { Component, Prop, Emit } from "vue-property-decorator";
 import CtrlRadio from "../../../../core/component/CtrlRadio.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 @Component({
   components: { CtrlRadio }
 })
-export default class ImportTypeRadio extends Vue {
+export default class ImportTypeRadio extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, default: "1" })
   public value!: string;
 

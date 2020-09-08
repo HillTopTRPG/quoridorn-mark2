@@ -47,7 +47,7 @@ import {
   PaneMoveInfo,
   WindowInfo,
   WindowMoveInfo
-} from "../../../@types/window";
+} from "@/@types/window";
 import { getCssPxNum } from "../css/Css";
 
 @Component({

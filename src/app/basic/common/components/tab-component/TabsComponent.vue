@@ -45,12 +45,15 @@
 </template>
 
 <script lang="ts">
-import { Emit, Prop, Vue } from "vue-property-decorator";
+import { Emit, Prop } from "vue-property-decorator";
 import { Getter } from "vuex-class";
-import { Component } from "vue-mixin-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({ components: {} })
-export default class TabsComponent extends Vue {
+export default class TabsComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Getter("isModal") private isModal: any;
 
   @Prop({ type: Array, required: true })

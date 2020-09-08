@@ -38,19 +38,21 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { listToEmpty } from "../../core/utility/PrimaryDataUtility";
 import {
   PermissionNodeType,
   PermissionRule,
   PermissionRuleType
-} from "../../../@types/store";
+} from "@/@types/store";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import ActorGroupSelect from "../common/components/select/ActorGroupSelect.vue";
 import SCheck from "../common/components/SCheck.vue";
 import ActorSelect from "../common/components/select/ActorSelect.vue";
 import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
@@ -61,7 +63,9 @@ import PermissionTypeSelect from "../common/components/select/PermissionTypeSele
     PermissionTypeSelect
   }
 })
-export default class ChmodRuleEditComponent extends Vue {
+export default class ChmodRuleEditComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private permissionRule!: PermissionRule;
 

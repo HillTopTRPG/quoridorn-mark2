@@ -13,6 +13,7 @@
 import { Component } from "vue-mixin-decorator";
 import PieceMixin from "../common/mixin/PieceMixin.vue";
 
+// TODO 射界の実装
 @Component
 export default class SightField extends PieceMixin<"chit"> {
   // @Getter("getAllObstacle") protected getAllObstacle: any;

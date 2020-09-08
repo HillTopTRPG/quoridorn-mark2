@@ -139,7 +139,6 @@ fieldset {
 </style>
 
 <script lang="ts">
-import Vue from "vue";
 import Component from "vue-class-component";
 import { Action, Getter, Mutation } from "vuex-class";
 import { Watch } from "vue-property-decorator";
@@ -147,11 +146,12 @@ import moment from "moment";
 import LifeCycle from "./app/core/decorator/LifeCycle";
 import ImportTypeRadio from "./app/basic/common/components/radio/ImportTypeRadio.vue";
 import CtrlButton from "./app/core/component/CtrlButton.vue";
-import TabsComponent from "./app/basic/common/components/tab-component/TabsComponent.vue";
 import { saveHTML, saveJson, saveText } from "./app/core/utility/FileUtility";
 import ChatLogViewer from "./app/basic/chat/log/ChatLogViewer.vue";
 import VueEvent from "./app/core/decorator/VueEvent";
 import { findRequireByKey, someByStr } from "./app/core/utility/Utility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
@@ -160,7 +160,9 @@ import { findRequireByKey, someByStr } from "./app/core/utility/Utility";
     ChatLogViewer
   }
 })
-export default class ChatLog extends Vue {
+export default class ChatLog extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Action("onMount") private onMount: any;
   @Mutation("setChatTabVertical") private setChatTabVertical: any;
   @Getter("chatLogs") private chatLogs: any;

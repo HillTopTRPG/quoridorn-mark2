@@ -18,12 +18,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Emit } from "vue-property-decorator";
-import { HtmlOptionInfo } from "../../../@types/window";
+import { Component, Prop } from "vue-property-decorator";
+import { HtmlOptionInfo } from "@/@types/window";
 import VueEvent from "../decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class CtrlRadio extends Vue {
+export default class CtrlRadio extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Array, required: true })
   protected optionInfoList!: HtmlOptionInfo[];
 

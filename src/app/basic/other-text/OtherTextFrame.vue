@@ -6,6 +6,9 @@
     @wheel.stop
     ref="elm"
   >
+    <div class="title" v-if="otherTextViewInfo.title">
+      {{ otherTextViewInfo.title }}
+    </div>
     <other-text-component
       v-if="useMemoList.length"
       :value="useMemoList"
@@ -67,9 +70,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @TaskProcessor("action-wheel-finished")
-  private async actionWheelFinished(
-    task: Task<boolean, never>
-  ): Promise<TaskResult<never> | void> {
+  private async actionWheelFinished(): Promise<TaskResult<never> | void> {
     if (this.otherTextViewInfo.isFix) return;
     setTimeout(() => {
       this.wheel = CssManager.instance.propMap.wheel;
@@ -210,7 +211,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseLeftUpFinished(
-    task: Task<Point, never>,
+    __task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.otherTextViewInfo.docId) return;
@@ -223,8 +224,9 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 @import "../../../assets/common";
 
 #other-text-frame {
-  @include inline-flex-box(row, flex-start, flex-start);
+  @include inline-flex-box(column, stretch, flex-start);
   position: fixed;
+  background-color: white;
   overflow: auto;
   left: 0;
   top: 0;
@@ -233,5 +235,12 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
   /* JavaScriptで設定されるプロパティ
   transform
   */
+}
+
+.title {
+  @include flex-box(row, center, center);
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: 120%;
 }
 </style>

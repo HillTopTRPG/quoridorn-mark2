@@ -13,11 +13,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import VueEvent from "../decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({ inheritAttrs: false })
-export default class BaseInput extends Vue {
+export default class BaseInput extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @VueEvent
   private get listeners() {
     return {

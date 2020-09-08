@@ -41,16 +41,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { StoreUseData } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { ChatPaletteStore } from "@/@types/gameObject";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { SButton } })
-export default class ChatPaletteTabComponent extends Vue {
+export default class ChatPaletteTabComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private tab!: StoreUseData<ChatPaletteStore>;
 

@@ -36,15 +36,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
-import { StoreUseData } from "../../../@types/store";
-import { SceneAndLayer, SceneLayer } from "../../../@types/room";
+import { Component, Prop } from "vue-property-decorator";
+import { StoreUseData } from "@/@types/store";
+import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { SCheck } })
-export default class EditSceneLayerComponent extends Vue {
+export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private layerInfo!: SceneLayer;
 

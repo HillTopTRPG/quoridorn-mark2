@@ -32,23 +32,26 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-mixin-decorator";
-import { Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Mixins } from "vue-mixin-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import SimpleTabComponent from "../SimpleTabComponent.vue";
 import SimpleTableComponent from "./SimpleTableComponent.vue";
 import { permissionCheck } from "../../api/app-server/SocketFacade";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import {
   TabInfo,
   WindowInfo,
   WindowTableDeclareInfo
-} from "../../../../@types/window";
+} from "@/@types/window";
 import VueEvent from "../../decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({
   components: { SimpleTabComponent, SimpleTableComponent }
 })
-export default class TableComponent extends Vue {
+export default class TableComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Number, required: true })
   private tableIndex!: number;
   @Prop({ type: String, required: true })

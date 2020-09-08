@@ -242,16 +242,15 @@
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 
-import { Action } from "vuex-class";
-import { Component, Vue } from "vue-property-decorator";
-import { StoreUseData } from "../../../@types/store";
-import TaskManager from "../../core/task/TaskManager";
-import { UserData } from "../../../@types/room";
+import { Component } from "vue-property-decorator";
+import { StoreUseData } from "@/@types/store";
+import { UserData } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
-import { WindowOpenInfo } from "../../../@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 import App from "../../../views/App.vue";
 import { someByStr } from "../../core/utility/Utility";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
@@ -262,7 +261,7 @@ import { someByStr } from "../../core/utility/Utility";
       userList.filter(user => user!.data!.login > 0).length
   }
 })
-export default class Menu extends Vue {
+export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private roomData = GameObjectManager.instance.roomData;
 
   private isConnectHover: boolean = false;
@@ -324,7 +323,9 @@ export default class Menu extends Vue {
 
   /** 共有メモボタン押下 */
   @VueEvent
-  private clickPublicMemo() {}
+  private async clickPublicMemo() {
+    await App.openSimpleWindow("public-memo-add-window");
+  }
 
   /** ログアウトボタン押下 */
   @VueEvent

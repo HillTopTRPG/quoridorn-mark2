@@ -38,19 +38,24 @@
 
 <script lang="ts">
 import vueSlider from "vue-slider-component";
-import { Component, Emit, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: {
     vueSlider
   }
 })
-export default class RangeMultiplePersent extends Vue {
+export default class RangeMultiplePersent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Array, default: [20, 80] })
   private value!: number[];
 
-  @Emit("input")
-  public input(value: number[]) {}
+  public input(value: number[]) {
+    this.$emit("input", value);
+  }
 
   private get localValue(): number[] {
     return this.value;

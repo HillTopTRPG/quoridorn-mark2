@@ -39,8 +39,7 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  TagNoteStore,
-  MemoStore
+  MemoStore, PublicMemoStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findById } from "../core/utility/Utility";
@@ -111,7 +110,7 @@ export default class GameObjectManager {
       sf.cardDeckBigCC().getList(true, this.cardDeckBigList),
       sf.cardMetaCC().getList(true, this.cardMetaList),
       sf.socketUserCC().getList(true, this.socketUserList),
-      sf.tagNoteCC().getList(true, this.tagNoteList)
+      sf.publicMemoListCC().getList(true, this.publicMemoList)
     ]);
     // Block 2
     await Promise.all([
@@ -366,7 +365,6 @@ export default class GameObjectManager {
   public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore
   >[] = [];
-  public readonly tagNoteList: StoreUseData<TagNoteStore>[] = [];
   public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
   public readonly cardMetaList: StoreUseData<CardMeta>[] = [];
   public readonly cardObjectList: StoreUseData<CardObject>[] = [];
@@ -379,6 +377,7 @@ export default class GameObjectManager {
     KeepBcdiceDiceRollResult
   >[] = [];
   public readonly memoList: StoreUseData<MemoStore>[] = [];
+  public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -538,8 +537,6 @@ export default class GameObjectManager {
         return this.initiativeColumnList;
       case "property-selection":
         return this.propertySelectionList;
-      case "tag-note":
-        return this.tagNoteList;
       case "actor-group":
         return this.actorGroupList;
       case "card-meta":
@@ -562,6 +559,8 @@ export default class GameObjectManager {
         return this.keepBcdiceDiceRollResultList;
       case "memo":
         return this.memoList;
+      case "public-memo":
+        return this.publicMemoList;
     }
     return null;
   }

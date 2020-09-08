@@ -15,14 +15,13 @@ import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import LanguageManager from "../../../../../LanguageManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+// TODO 墓場やキャラクター待合室の概念の実装
+@Component({ components: { CtrlSelect } })
 export default class StartTimePlaceSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue

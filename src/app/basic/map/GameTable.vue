@@ -43,8 +43,8 @@ import {
   createPoint,
   getEventPoint
 } from "../../core/utility/CoordinateUtility";
-import { Scene, Texture } from "../../../@types/room";
-import { AddObjectInfo } from "../../../@types/data";
+import { Scene, Texture } from "@/@types/room";
+import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import CssManager from "../../core/css/CssManager";
 import SceneLayerComponent from "./SceneLayerComponent.vue";

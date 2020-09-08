@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component } from "vue-property-decorator";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import WindowFrame from "./WindowFrame.vue";
@@ -23,12 +23,16 @@ import {
   getWindowSize
 } from "../utility/CoordinateUtility";
 import { getCssPxNum } from "../css/Css";
-import { WindowInfo } from "../../../@types/window";
+import { WindowInfo } from "@/@types/window";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { WindowFrame }
 })
-export default class WindowArea extends Vue {
+export default class WindowArea extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   private windowInfoList: WindowInfo<unknown>[] =
     WindowManager.instance.windowInfoList;
 

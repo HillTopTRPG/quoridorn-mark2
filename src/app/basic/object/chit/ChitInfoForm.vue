@@ -222,7 +222,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, default: null })
   private imageDocId!: string | null;
-
   private imageDocIdVolatile: string | null = null;
   @Watch("imageDocId", { immediate: true })
   private onChangeImageDocId(value: string | null) {

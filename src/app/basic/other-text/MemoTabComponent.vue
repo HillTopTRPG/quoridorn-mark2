@@ -15,7 +15,7 @@
     @onMouseUp="changeOrderId = ''"
   >
     <span class="icon-menu drag-mark"></span>
-    <span>{{ tab.data.tab || $t("label.non-tab") }}</span>
+    <span>{{ tab.data.tab || $t("label.non-name") }}</span>
 
     <div class="icon-box">
       <s-button
@@ -41,16 +41,20 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { StoreUseData } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { MemoStore } from "@/@types/gameObject";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({ components: { SButton } })
-export default class MemoTabComponent extends Vue {
+export default class MemoTabComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: Object, required: true })
   private tab!: StoreUseData<MemoStore>;
 

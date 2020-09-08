@@ -17,15 +17,18 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { Component, Prop, Watch } from "vue-property-decorator";
 import Password from "vue-password-strength-meter";
 import LifeCycle from "../decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import { Mixins } from "vue-mixin-decorator";
 
 @Component({
   components: { Password }
 })
-export default class InputPasswordComponent extends Vue {
+export default class InputPasswordComponent extends Mixins<ComponentVue>(
+  ComponentVue
+) {
   @Prop({ type: String, required: true })
   public value!: string;
 
