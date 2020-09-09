@@ -186,7 +186,10 @@ export default class PublicMemoInfoForm extends Mixins<ComponentVue>(
 }
 
 .simple-tab-component {
+  @include flex-box(column, stretch, flex-start);
+  position: relative;
   flex: 1;
+  height: calc(100% - 2em - 0.5rem);
 
   > *:not(:first-child) {
     width: 100%;
