@@ -107,14 +107,14 @@ export default class CreateNewRoomWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.isNeedRoomCreatePassword = this.windowInfo.args;
+    this.isNeedRoomCreatePassword = this.windowInfo.args!;
     this.inputEnter(".base-area select", this.commit);
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
     if (this.isNeedRoomCreatePassword) {
       this.windowInfo.heightEm += 2;
       this.windowInfo.declare.size.heightEm += 2;
-      this.windowInfo.declare.minSize.heightEm += 2;
-      this.windowInfo.declare.maxSize.heightEm += 2;
+      this.windowInfo.declare.minSize!.heightEm += 2;
+      this.windowInfo.declare.maxSize!.heightEm += 2;
     }
   }
 
