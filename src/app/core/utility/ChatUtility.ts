@@ -225,7 +225,7 @@ export async function sendChatLog(
   const outputNormalChat = async (
     command: string
   ): Promise<BcdiceDiceRollResult | null> => {
-    if (!/[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
+    if (!/^[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
       await addChatLog(chatInfo);
       return null;
     }
