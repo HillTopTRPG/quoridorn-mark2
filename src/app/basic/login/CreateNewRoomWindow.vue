@@ -13,12 +13,13 @@
         />
       </label>
       <label>
-        <span class="label-input" v-t="'label.password'"></span>
+        <span class="label-input" v-t="'label.room-password'"></span>
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"
           :setting="true"
           :isPending="!name"
+          :placeholder="$t('label.password-placeholder')"
         />
       </label>
       <label>
@@ -29,6 +30,15 @@
           :isPending="!name"
           :windowInfo="windowInfo"
           @onMouseEnterUrl="onMouseEnterUrl"
+        />
+      </label>
+      <label v-if="isNeedRoomCreatePassword">
+        <span class="label-input" v-t="'label.room-create-password'"></span>
+        <input-password-component
+          :comp-key="`${key}-room-create-password`"
+          v-model="roomCreatePassword"
+          :setting="false"
+          :placeholder="$t('message.room-create-password')"
         />
       </label>
     </div>
@@ -66,10 +76,12 @@ import VueEvent from "../../core/decorator/VueEvent";
   }
 })
 export default class CreateNewRoomWindow extends Mixins<
-  WindowVue<never, CreateRoomInput>
+  WindowVue<boolean, CreateRoomInput>
 >(WindowVue) {
   private name: string = "";
   private password: string = "";
+  private roomCreatePassword: string = "";
+  private isNeedRoomCreatePassword: boolean = false;
   /** 選択されているシステム */
   private system: string = "DiceBot";
   private url: string = SocketFacade.instance.connectInfo.bcdiceServer;
@@ -95,8 +107,15 @@ export default class CreateNewRoomWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
+    this.isNeedRoomCreatePassword = this.windowInfo.args;
     this.inputEnter(".base-area select", this.commit);
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
+    if (this.isNeedRoomCreatePassword) {
+      this.windowInfo.heightEm += 2;
+      this.windowInfo.declare.size.heightEm += 2;
+      this.windowInfo.declare.minSize.heightEm += 2;
+      this.windowInfo.declare.maxSize.heightEm += 2;
+    }
   }
 
   @Watch("url")
@@ -111,7 +130,10 @@ export default class CreateNewRoomWindow extends Mixins<
       bcdiceServer: this.url,
       system: this.system,
       roomPassword: this.password,
-      extend: this.extendInfo
+      extend: this.extendInfo,
+      roomCreatePassword: this.isNeedRoomCreatePassword
+        ? this.roomCreatePassword
+        : undefined
     });
   }
 

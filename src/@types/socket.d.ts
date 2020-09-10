@@ -79,6 +79,7 @@ export type ReleaseTouchRequest = TouchRequest;
 
 export type CreateRoomInput = BaseRoomInfo & {
   roomPassword: string;
+  roomCreatePassword?: string;
 };
 export type DeleteRoomInput = {
   roomPassword: string;
@@ -101,6 +102,7 @@ export type Message = {
 export type GetRoomListResponse = {
   roomList: StoreUseData<ClientRoomInfo>[] | null;
   message: Message;
+  isNeedRoomCreatePassword: boolean;
 };
 
 export type LoginWindowInput = GetRoomListResponse & {
@@ -151,14 +153,15 @@ export type SendDataRequest<T> = {
   data: T | null;
 };
 
-export type UploadMediaInfo = MediaInfo & (
-  | { dataLocation: "direct"; }
-  | {
-    dataLocation: "server";
-    blob: Blob;
-    arrayBuffer: ArrayBuffer;
-  }
-);
+export type UploadMediaInfo = MediaInfo &
+  (
+    | { dataLocation: "direct" }
+    | {
+        dataLocation: "server";
+        blob: Blob;
+        arrayBuffer: ArrayBuffer;
+      }
+  );
 
 export type DiceType = {
   faceNum: string;

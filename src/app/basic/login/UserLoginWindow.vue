@@ -29,6 +29,7 @@
           v-model="password"
           :isPending="!name"
           :setting="isSetting"
+          :placeholder="$t('label.password-placeholder')"
         />
       </label>
       <label>

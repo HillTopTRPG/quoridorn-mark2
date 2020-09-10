@@ -8,7 +8,7 @@
       :toggle="!disabled"
       :required="false"
       title=""
-      :placeholder="$t('label.password-placeholder')"
+      :placeholder="placeholder"
       :showStrengthMeter="setting"
       :badge="setting"
       :disabled="disabled"
@@ -37,6 +37,9 @@ export default class InputPasswordComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   public setting!: boolean;
+
+  @Prop({ type: String, default: "" })
+  public placeholder!: string;
 
   @Prop({ type: Boolean, required: false, default: false })
   public disabled!: boolean;

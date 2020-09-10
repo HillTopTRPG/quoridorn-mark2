@@ -333,6 +333,8 @@ label:
   input-tab: タブの文字を入力
   contents: コンテンツ
   non-name: 無名
+  room-password: 入室パスワード
+  room-create-password: 部屋作成パスワード
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -352,6 +354,7 @@ message:
   view-dice-symbol-dice-roll: ダイスシンボルを公開（{0}：{1}）ダイスロール結果：{2}
   dice-roll-secret-dice: シークレットダイスをロール
   open-secret-dice: シークレットダイスを公開
+  room-create-password: 部屋を作成するにはパスワードが必要です
 
 play-youtube-window:
   window-title: Youtube再生画面

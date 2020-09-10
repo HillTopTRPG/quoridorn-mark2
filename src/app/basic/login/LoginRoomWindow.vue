@@ -8,6 +8,7 @@
           :comp-key="`${key}-password`"
           v-model="password"
           :setting="false"
+          :placeholder="$t('label.password-placeholder')"
           @keydown.enter.stop="commit()"
           @keyup.enter.stop
         />
@@ -28,7 +29,7 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { LoginRoomInput } from "../../../@types/socket";
+import { LoginRoomInput } from "@/@types/socket";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";

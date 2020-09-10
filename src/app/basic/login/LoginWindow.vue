@@ -214,6 +214,7 @@ export default class LoginWindow extends Mixins<
   private language: string = LanguageManager.defaultLanguage;
   private urlPassword: string | null = null;
   private urlPlayerName: string | null = null;
+  private isNeedRoomCreatePassword: boolean = false;
 
   @Watch("language")
   private onChangeLanguage() {
@@ -236,6 +237,7 @@ export default class LoginWindow extends Mixins<
     await this.init();
     this.roomList = this.windowInfo.args!.roomList;
     this.message = this.windowInfo.args!.message;
+    this.isNeedRoomCreatePassword = this.windowInfo.args!.isNeedRoomCreatePassword;
     this.serverTestResult = this.windowInfo.args!.serverTestResult;
     this.elm.style.setProperty(
       "--msg-creating",
@@ -621,13 +623,14 @@ export default class LoginWindow extends Mixins<
     let createRoomInput: CreateRoomInput;
     try {
       const roomInfoList = await TaskManager.instance.ignition<
-        WindowOpenInfo<never>,
+        WindowOpenInfo<boolean>,
         CreateRoomInput
       >({
         type: "window-open",
         owner: "Quoridorn",
         value: {
-          type: "create-new-room-window"
+          type: "create-new-room-window",
+          args: this.isNeedRoomCreatePassword
         }
       });
       createRoomInput = roomInfoList[0];
@@ -707,6 +710,11 @@ export default class LoginWindow extends Mixins<
       });
     } catch (err) {
       console.warn(err);
+      await swal({
+        title: err.name,
+        text: err.detail,
+        icon: "error"
+      });
 
       await LoginWindow.viewProcessView("");
 
@@ -721,7 +729,8 @@ export default class LoginWindow extends Mixins<
           args: {
             roomList: this.roomList,
             message: this.message!,
-            serverTestResult: this.serverTestResult!
+            serverTestResult: this.serverTestResult!,
+            isNeedRoomCreatePassword: this.isNeedRoomCreatePassword
           }
         }
       });
@@ -759,7 +768,8 @@ export default class LoginWindow extends Mixins<
           args: {
             roomList: this.roomList,
             message: this.message!,
-            serverTestResult: this.serverTestResult!
+            serverTestResult: this.serverTestResult!,
+            isNeedRoomCreatePassword: this.isNeedRoomCreatePassword
           }
         }
       });
@@ -1040,12 +1050,12 @@ export default class LoginWindow extends Mixins<
 
     // ダイスデータを用意する
     const diceMaterial = await loadYaml<DiceMaterial>("static/conf/dice.yaml");
-    Object.keys(diceMaterial).forEach(faceNum => {
+    (Object.keys(diceMaterial) as (keyof DiceMaterial)[]).forEach(faceNum => {
       const diceSetList = diceMaterial[faceNum];
       diceSetList.forEach(diceSet => {
         const diceSetType = diceSet.type;
         const diceSetPips = diceSet.pips;
-        Object.keys(diceSetPips).forEach(pips => {
+        (Object.keys(diceSetPips) as string[]).forEach(pips => {
           const url = diceSetPips[pips];
           mediaDataList.push({
             name: `dice-${faceNum}-${diceSetType}-${pips}.${getExt(url)}`,
