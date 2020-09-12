@@ -63,7 +63,7 @@ import { Direction } from "../../../@types/room";
   }
 })
 export default class ResourceMasterAddWindow extends Mixins<
-  WindowVue<string, never>
+  WindowVue<string, boolean>
 >(WindowVue) {
   private isMounted: boolean = false;
   private cc = SocketFacade.instance.resourceMasterCC();
@@ -119,7 +119,7 @@ export default class ResourceMasterAddWindow extends Mixins<
   private async commit() {
     // TODO 同名プロパティチェック
     await this.cc!.addDirect([this.resourceMasterData]);
-    await this.close();
+    await this.finally(true);
   }
 
   private get resourceMasterData(): ResourceMasterStore {
@@ -154,7 +154,7 @@ export default class ResourceMasterAddWindow extends Mixins<
 
   @VueEvent
   private async rollback() {
-    await this.close();
+    await this.finally();
   }
 
   public static getDefaultValueFromType(

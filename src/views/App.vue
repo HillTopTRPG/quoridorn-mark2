@@ -601,12 +601,16 @@ export default class App extends Vue {
     this.otherTextViewInfo = null;
   }
 
-  public static async openSimpleWindow(type: string): Promise<void> {
-    await TaskManager.instance.ignition<WindowOpenInfo<void>, null>({
+  public static async openSimpleWindow(type: string): Promise<boolean> {
+    const result = await TaskManager.instance.ignition<
+      WindowOpenInfo<void>,
+      boolean
+    >({
       type: "window-open",
       owner: "Quoridorn",
       value: { type }
     });
+    return result ? !!result[0] : false;
   }
 
   @TaskProcessor("room-initialize-finished")

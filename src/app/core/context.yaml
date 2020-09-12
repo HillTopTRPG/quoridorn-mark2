@@ -1,20 +1,8 @@
 map:
-  - text: context.view-scene-list
-    taskName: window-open
-    taskArg:
-      type: scene-list-window
-  - text: context.bgm-setting
-    taskName: window-open
-    taskArg:
-      type: cut-in-list-window
   - text: context.add-map-mask
     taskName: window-open
     taskArg:
       type: map-mask-add-window
-  - text: context.add-dice-symbol
-    taskName: window-open
-    taskArg:
-      type: dice-symbol-add-window
   - text: context.add-chit
     taskName: window-open
     taskArg:
@@ -23,6 +11,10 @@ map:
     taskName: window-open
     taskArg:
       type: character-add-window
+  - text: context.add-dice-symbol
+    taskName: window-open
+    taskArg:
+      type: dice-symbol-add-window
 
 card-object:
   - text: context.turn-on

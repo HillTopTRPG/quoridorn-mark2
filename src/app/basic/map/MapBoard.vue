@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Matrix, Size } from "address";
+import { Size } from "address";
 import { ModeInfo } from "mode";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { createSize } from "../../core/utility/CoordinateUtility";
@@ -37,12 +37,8 @@ import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
-@Component({
-  components: { SceneLayerComponent }
-})
-export default class MapBoard extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+@Component({ components: { SceneLayerComponent } })
+export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
   private isMapDraggingRight: boolean = false;
 
   @Prop({ type: String, required: true })
@@ -137,20 +133,20 @@ export default class MapBoard extends Mixins<ComponentVue>(
       }
 
       // マウス下のマスを強調表示
-      ctx.strokeStyle = this.scene.gridColor;
-      ctx.strokeStyle = "red";
-      ctx.globalAlpha = 1;
-      const m: Matrix = {
-        row: 4,
-        column: 6
-      };
-      ctx.rect(
-        (m.column - 1) * gridSize,
-        (m.row - 1) * gridSize,
-        gridSize,
-        gridSize
-      );
-      ctx.stroke();
+      // ctx.strokeStyle = this.scene.gridColor;
+      // ctx.strokeStyle = "red";
+      // ctx.globalAlpha = 1;
+      // const m: Matrix = {
+      //   row: 4,
+      //   column: 6
+      // };
+      // ctx.rect(
+      //   (m.column - 1) * gridSize,
+      //   (m.row - 1) * gridSize,
+      //   gridSize,
+      //   gridSize
+      // );
+      // ctx.stroke();
     }
 
     // マス座標の描画

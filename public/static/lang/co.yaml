@@ -59,7 +59,7 @@ context:
   bgm-setting: BGM 설정
   add-map-mask: 맵 마스크 추가
   add-chit: 전표 추가
-  add-character: キャラクター追加
+  add-character: キャラクター作成
   modify: 변경
   copy: 복제
   delete: 삭제
@@ -87,7 +87,7 @@ context:
   placement-reset: 配置リセット
   ref-url: データ参照先URLを開く
   edit-actor: コマのアクターを編集
-  add-dice-symbol: ダイスシンボル追加
+  add-dice-symbol: ダイスシンボル作成
   dice-pips-change: 出目変更
   dice-hide: 出目を隠す
   dice-view: 出目を表示
@@ -360,7 +360,7 @@ play-youtube-window:
   window-title: Youtube 재생
 
 cut-in-list-window:
-  window-title: 컷인 설정 화면
+  window-title: カットイン一覧
   table-columns:
     -
       - 연동
@@ -438,7 +438,7 @@ room-info-window:
 map-mask-add-window:
   window-title: 맵 마스크 추가
   message-list:
-    drag-piece: マップにドラッグすると追加できます。
+    drag-piece: マップにドラッグすると作成できます。
 
 map-mask-edit-window:
   window-title: 맵 마스크 편집
@@ -447,7 +447,7 @@ chit-add-window:
   window-title: 전표 추가
   message-list:
     choose-image: 画像を選択してください。
-    drag-piece: マップにドラッグすると追加できます。
+    drag-piece: マップにドラッグすると作成できます。
 
 chit-edit-window:
   window-title: チット編集
@@ -474,7 +474,7 @@ chmod-input-window:
   window-title: 権限変更
 
 bgm-add-window:
-  window-title: BGM追加
+  window-title: BGM作成
 
 bgm-edit-window:
   window-title: BGM編集
@@ -485,7 +485,7 @@ chat-window:
   shortcut-title:
     cut-in: カットイン
     scene-list: シーン一覧
-    add-actor: アクター追加
+    add-actor: アクター作成
     player-box: プレイヤーボックス
     card-deck-list: 山札一覧
     media-list: メディア一覧
@@ -521,7 +521,7 @@ chat-setting-window:
     delete: 削除
 
 chat-tab-add-window:
-  window-title: チャットタブ追加
+  window-title: チャットタブ作成
   message-list:
     default: "元：$1"
     duplicate: "他のタブと重複します。"
@@ -533,7 +533,7 @@ chat-tab-edit-window:
     duplicate: "他のタブと重複します。"
 
 actor-add-window:
-  window-title: アクター追加
+  window-title: アクター作成
 
 actor-edit-window:
   window-title: アクター編集
@@ -606,10 +606,10 @@ play-bgm-file-window:
   window-title: 音楽ファイル再生
 
 character-add-window:
-  window-title: キャラクター追加
+  window-title: キャラクター作成
   message-list:
     choose-image: 画像を選択してください。
-    drag-piece: マップにドラッグすると追加できます。
+    drag-piece: マップにドラッグすると作成できます。
 
 character-edit-window:
   window-title: キャラクター編集
@@ -618,7 +618,7 @@ initiative-window:
   window-title: イニシアティブ(INI)表
 
 resource-master-add-window:
-  window-title: リソース追加
+  window-title: リソース作成
 
 resource-master-edit-window:
   window-title: リソース編集
@@ -639,15 +639,15 @@ chat-palette-window:
   window-title: チャットパレット
 
 chat-palette-add-window:
-  window-title: チャットパレット追加
+  window-title: チャットパレット作成
 
 chat-palette-edit-window:
   window-title: チャットパレット編集
 
 dice-symbol-add-window:
-  window-title: ダイスシンボル追加
+  window-title: ダイスシンボル作成
   message-list:
-    drag-piece: マップにドラッグすると追加できます。
+    drag-piece: マップにドラッグすると作成できます。
 
 dice-symbol-edit-window:
   window-title: ダイスシンボル編集
@@ -667,7 +667,7 @@ chat-palette-tab-setting-window:
     delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
 
 public-memo-add-window:
-  window-title: 共有メモ追加
+  window-title: 共有メモ作成
   message-list:
     select-icon: アイコンを選択してください。
 

@@ -4,7 +4,7 @@ import {
   WindowOpenInfo,
   WindowSize,
   WindowTableInfo
-} from "../../../@types/window";
+} from "@/@types/window";
 import {
   calcWindowPosition,
   createPoint,
@@ -17,6 +17,7 @@ import TaskManager from "../task/TaskManager";
 import { ApplicationError } from "../error/ApplicationError";
 import { clone } from "../utility/PrimaryDataUtility";
 import { findRequireByKey } from "../utility/Utility";
+import Vue from "vue";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -40,7 +41,7 @@ export default class WindowManager {
   private constructor() {}
 
   private readonly windowDeclareInfoContainer = Object.seal(windowDeclareInfo);
-  private readonly __windowInfoList: WindowInfo<unknown>[] = [];
+  private readonly __windowInfoList: WindowInfo<any>[] = [];
   private keyCount: number = 0;
   private __activeWindowKey: string | null = null;
 
@@ -51,6 +52,25 @@ export default class WindowManager {
   public get activeWindow() {
     if (!this.__activeWindowKey) return null;
     return this.getWindowInfo(this.__activeWindowKey);
+  }
+
+  public getOpenedWindowInfo(type: string): WindowInfo<any> | null {
+    return this.__windowInfoList.find(wi => wi.type === type) || null;
+  }
+
+  public async activeWindowForce(type: string): Promise<void> {
+    const windowInfo = this.getOpenedWindowInfo(type);
+    if (windowInfo) {
+      TaskManager.instance
+        .ignition<string, never>({
+          type: "window-active",
+          owner: "Quoridorn",
+          value: windowInfo.key
+        })
+        .then();
+    } else {
+      this.open<WindowOpenInfo<void>>({ type });
+    }
   }
 
   public set activeWindowKey(windowKey: string) {
@@ -124,6 +144,17 @@ export default class WindowManager {
     });
     this.arrangePoint(key);
     return key;
+  }
+
+  public arrangePointAll() {
+    this.__windowInfoList.forEach((wi, idx) => {
+      wi.isMinimized = false;
+      this.arrangePoint(wi.key, true);
+      wi.order = idx;
+    });
+    this.activeWindowKey = this.__windowInfoList[
+      this.__windowInfoList.length - 1
+    ].key;
   }
 
   public arrangePoint(targetKey: string, flg: boolean = false) {

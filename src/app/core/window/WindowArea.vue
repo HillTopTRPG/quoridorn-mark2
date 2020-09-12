@@ -30,9 +30,7 @@ import { Mixins } from "vue-mixin-decorator";
 @Component({
   components: { WindowFrame }
 })
-export default class WindowArea extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class WindowArea extends Mixins<ComponentVue>(ComponentVue) {
   private windowInfoList: WindowInfo<unknown>[] =
     WindowManager.instance.windowInfoList;
 
@@ -52,6 +50,18 @@ export default class WindowArea extends Mixins<ComponentVue>(
   ): Promise<TaskResult<never> | void> {
     this.arrangeOrder();
     this.arrangeMinimizeIndex();
+
+    let maxOrder: number = -1;
+    const normalList: WindowInfo<any>[] = this.windowInfoList.filter(
+      info => !info.isMinimized
+    );
+    normalList.forEach(info => {
+      if (info.order > maxOrder) maxOrder = info.order;
+    });
+    const newActiveWindowInfo = normalList.find(n => n.order === maxOrder);
+    if (newActiveWindowInfo) {
+      WindowManager.instance.activeWindowKey = newActiveWindowInfo.key;
+    }
     task.resolve();
   }
 

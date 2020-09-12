@@ -41,7 +41,7 @@ const uuid = require("uuid");
 
 @Component({ components: { CtrlButton, PublicMemoInfoForm } })
 export default class PublicMemoAddWindow extends Mixins<
-  WindowVue<string, never>
+  WindowVue<string, boolean>
 >(WindowVue) {
   private name: string = LanguageManager.instance.getText("type.public-memo");
   private otherTextList: StoreUseData<MemoStore>[] = [
@@ -82,7 +82,7 @@ export default class PublicMemoAddWindow extends Mixins<
         owner: publicMemoId
       }))
     );
-    await this.close();
+    await this.finally(true);
   }
 
   @Watch("imageDocId", { immediate: true })
@@ -94,7 +94,7 @@ export default class PublicMemoAddWindow extends Mixins<
 
   @VueEvent
   private async rollback() {
-    await this.close();
+    await this.finally();
   }
 }
 </script>

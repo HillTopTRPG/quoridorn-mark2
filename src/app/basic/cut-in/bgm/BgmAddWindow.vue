@@ -50,7 +50,7 @@ import VueEvent from "../../../core/decorator/VueEvent";
     CtrlButton
   }
 })
-export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, never>>(
+export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, boolean>>(
   WindowVue
 ) {
   private cc: NekostoreCollectionController<
@@ -92,12 +92,6 @@ export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, never>>(
     });
   }
 
-  @VueEvent
-  private async commit() {
-    await this.cc!.addDirect([this.cutInData]);
-    await this.close();
-  }
-
   private get cutInData(): CutInDeclareInfo {
     return {
       url: this.url,
@@ -118,8 +112,14 @@ export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, never>>(
   }
 
   @VueEvent
+  private async commit() {
+    await this.cc!.addDirect([this.cutInData]);
+    await this.finally(true);
+  }
+
+  @VueEvent
   private async rollback() {
-    await this.close();
+    await this.finally();
   }
 }
 </script>

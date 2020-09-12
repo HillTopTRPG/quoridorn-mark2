@@ -42,9 +42,9 @@ import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
 
 @Component({ components: { CharacterInfoForm } })
-export default class CharacterAddWindow extends Mixins<
-  WindowVue<string, never>
->(WindowVue) {
+export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
+  WindowVue
+) {
   private name: string = LanguageManager.instance.getText("type.character");
   private tag: string = "";
   private otherTextList: StoreUseData<MemoStore>[] = [

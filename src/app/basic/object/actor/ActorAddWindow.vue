@@ -36,7 +36,7 @@ import SocketFacade from "../../../core/api/app-server/SocketFacade";
 @Component({
   components: { ActorInfoForm, CtrlButton }
 })
-export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
+export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
   WindowVue
 ) {
   private actorList = GameObjectManager.instance.actorList;
@@ -75,29 +75,28 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
 
   @VueEvent
   private async commit() {
-    if (this.isCommitAble) {
-      await SocketFacade.instance.actorCC().addDirect(
-        [
-          {
-            name: this.name,
-            tag: this.tag,
-            type: "character",
-            chatFontColorType: this.chatFontColorType,
-            chatFontColor: this.chatFontColor,
-            standImagePosition: this.standImagePosition,
-            pieceIdList: [],
-            statusId: "" // 自動的に付与される
-          }
-        ],
-        [
-          {
-            permission: GameObjectManager.PERMISSION_OWNER_CHANGE
-          }
-        ]
-      );
-    }
+    if (!this.isCommitAble) return;
+    await SocketFacade.instance.actorCC().addDirect(
+      [
+        {
+          name: this.name,
+          tag: this.tag,
+          type: "character",
+          chatFontColorType: this.chatFontColorType,
+          chatFontColor: this.chatFontColor,
+          standImagePosition: this.standImagePosition,
+          pieceIdList: [],
+          statusId: "" // 自動的に付与される
+        }
+      ],
+      [
+        {
+          permission: GameObjectManager.PERMISSION_OWNER_CHANGE
+        }
+      ]
+    );
     this.isProcessed = true;
-    await this.close();
+    await this.finally(true);
   }
 
   @TaskProcessor("window-close-closing")
@@ -115,7 +114,7 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, void>>(
   private async rollback() {
     if (!this.isProcessed) {
       this.isProcessed = true;
-      await this.close();
+      await this.finally();
     }
   }
 }

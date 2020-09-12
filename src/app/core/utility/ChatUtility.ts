@@ -263,8 +263,7 @@ export async function sendChatLog(
           bcdiceDiceRollResult: resultJson
         }
       ]);
-      const windowInfoList = WindowManager.instance.windowInfoList;
-      if (!windowInfoList.some(w => w.type === "secret-dice-roll")) {
+      if (!WindowManager.instance.getOpenedWindowInfo("secret-dice-roll")) {
         // 開いてなかったら開く
         // @ts-ignore
         await App.openSimpleWindow("secret-dice-roll-window");
