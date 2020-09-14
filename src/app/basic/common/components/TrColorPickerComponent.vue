@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-color-picker-component">
     <th class="label-input">
-      <label :for="key" v-t="`label.${labelName}`"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <color-picker-component

@@ -86,7 +86,7 @@ export default class ChmodInputWindow extends Mixins<
 
   private createTabInfoList() {
     this.tabList.forEach(t => {
-      t.text = this.$t(`label.permission-${t.target}`)!.toString();
+      t.text = this.$t(`selection.permission.${t.target}`)!.toString();
     });
   }
 

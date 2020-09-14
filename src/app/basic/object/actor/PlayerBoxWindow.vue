@@ -75,7 +75,7 @@
                 <!-- チャット文字色 -->
                 <tr>
                   <tr-chat-color-input-component
-                    labelName="chat-font-color"
+                    labelName="label.chat-font-color"
                     :readonly="true"
                     :type.sync="actor.data.chatFontColorType"
                     :color.sync="actor.data.chatFontColor"
@@ -84,7 +84,7 @@
                 <!-- 立ち絵位置 -->
                 <tr>
                   <tr-range-component
-                    labelName="stand-image-position"
+                    labelName="label.stand-image-position"
                     :min="1"
                     :max="12"
                     :readonly="true"
@@ -94,7 +94,7 @@
                 <!-- ステータス -->
                 <tr>
                   <tr-actor-status-select-component
-                    labelName="status"
+                    labelName="label.status"
                     :readonly="true"
                     :actorId="actor.id"
                     v-model="actor.data.statusId"
@@ -251,7 +251,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private getOwnerType(userId: string): string {
     const user = findRequireById(this.userList, userId);
-    return this.$t(`label.${user.data!.type}`)!.toString();
+    return this.$t(`selection.user-type.${user.data!.type}`)!.toString();
   }
 
   @VueEvent
@@ -382,9 +382,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `chat-setting-window.message-list.${messageType}`
-        )
+      ? this.$t(`chat-setting-window.message-list.${messageType}`)!.toString()
       : "";
   }
 }

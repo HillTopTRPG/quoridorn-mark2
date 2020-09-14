@@ -50,14 +50,10 @@ export default class StartTimePlaceSelect extends Mixins<MultiMixin>(
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
       o.key = o.value;
-      o.text = LanguageManager.instance.getText(`label.${o.value}`);
+      o.text = this.$t(`label.${o.value}`)!.toString();
     });
-    this.optionInfoList[0].text = LanguageManager.instance.getText(
-      "label.place"
-    );
-    this.optionInfoList[1].text = LanguageManager.instance.getText(
-      "label.no-target"
-    );
+    this.optionInfoList[0].text = this.$t("label.place")!.toString();
+    this.optionInfoList[1].text = this.$t("label.no-target")!.toString();
   }
 }
 </script>

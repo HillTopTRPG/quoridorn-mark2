@@ -1,6 +1,6 @@
 <template>
   <div id="drop-area" :class="{ dropping: isDropping }">
-    <div class="message" v-t="'label.drop-area'"></div>
+    <div class="message" v-t="'message.drop-area'"></div>
   </div>
 </template>
 

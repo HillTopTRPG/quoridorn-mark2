@@ -103,13 +103,11 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   private onChangeIsDuplicate() {
     if (this.docId === null) return;
     const tab = this.chatTabList.filter(ct => ct.id === this.docId)[0];
-    console.log(tab, this.chatTabList.concat());
     this.windowInfo.message = this.isDuplicate
-      ? ChatTabEditWindow.getDialogMessage("duplicate")
-      : ChatTabEditWindow.getDialogMessage("default").replace(
-          "$1",
-          tab.data!.name
-        );
+      ? this.$t("message.tab-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", tab.data!.name);
   }
 
   private static getDialogMessage(target: string) {

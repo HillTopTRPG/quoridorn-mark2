@@ -54,12 +54,9 @@ export default class BorderStyleSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      o.key = o.value;
+      o.key = o.value || this.$t("label.border-style")!.toString();
       o.text = o.value!;
     });
-    this.optionInfoList[0].text = LanguageManager.instance.getText(
-      "label.border-style"
-    );
   }
 }
 </script>

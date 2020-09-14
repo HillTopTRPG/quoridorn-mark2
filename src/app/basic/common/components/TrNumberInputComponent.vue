@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-number-input-component">
     <th class="label-input">
-      <label :for="key" v-t="`label.${labelName}`"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <input
@@ -19,7 +19,7 @@
         @keydown.229.stop
         @keyup.229.stop
       />
-      <span v-if="unitLabel" v-t="`label.${unitLabel}`"></span>
+      <span v-if="unitLabel" v-t="unitLabel"></span>
     </td>
   </tr>
 </template>

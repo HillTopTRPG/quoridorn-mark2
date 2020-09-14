@@ -56,7 +56,7 @@ export default class ThrowCharSelect extends Mixins<MultiMixin>(
     this.optionInfoList.splice(0, 0, {
       value: "",
       key: "",
-      text: LanguageManager.instance.getText("label.char"),
+      text: this.$t("label.char")!.toString(),
       disabled: true
     });
   }

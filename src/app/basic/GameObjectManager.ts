@@ -39,7 +39,8 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  MemoStore, PublicMemoStore
+  MemoStore,
+  PublicMemoStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findById } from "../core/utility/Utility";
@@ -231,7 +232,9 @@ export default class GameObjectManager {
   public getUserName(userId: string | null) {
     const user = findById(this.userList, userId);
     if (!user) return LanguageManager.instance.getText("label.system");
-    const type = LanguageManager.instance.getText(`label.${user.data!.type}`);
+    const type = LanguageManager.instance.getText(
+      `selection.user-type.${user.data!.type}`
+    );
     return `${user.data!.name}(${type})`;
   }
 

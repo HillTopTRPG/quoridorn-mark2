@@ -10,14 +10,14 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="name"
+              labelName="label.name"
               width="100%"
               v-model="nameVolatile"
             />
           </tr>
           <tr>
             <tr-checkbox-component
-              labelName="auto-add-actor"
+              labelName="resource-master-info-form.label.auto-add-actor"
               width="100%"
               c-label=""
               n-label=""
@@ -26,7 +26,7 @@
           </tr>
           <tr>
             <tr-checkbox-component
-              labelName="auto-add-map-object"
+              labelName="resource-master-info-form.label.auto-add-map-object"
               width="100%"
               c-label=""
               n-label=""
@@ -35,7 +35,7 @@
           </tr>
           <tr>
             <tr-resource-type-select-component
-              labelName="resource-type"
+              labelName="selection.resource-type.label"
               width="100%"
               :readonly="!!systemColumnType"
               v-model="resourceTypeVolatile"
@@ -47,7 +47,7 @@
                 resourceType === 'ref-normal' || resourceType === 'ref-owner'
               "
               :readonly="!!systemColumnType"
-              labelName="ref-property"
+              labelName="selection.ref-property.label"
               width="100%"
               v-model="refPropertyVolatile"
             />
@@ -55,7 +55,7 @@
           <tr>
             <tr-number-input-component
               v-if="resourceType === 'number'"
-              labelName="value-min"
+              labelName="resource-master-info-form.label.value-min"
               width="100%"
               v-model="minVolatile"
             />
@@ -63,7 +63,7 @@
           <tr>
             <tr-number-input-component
               v-if="resourceType === 'number'"
-              labelName="value-max"
+              labelName="resource-master-info-form.label.value-max"
               width="100%"
               v-model="maxVolatile"
             />
@@ -71,7 +71,7 @@
           <tr>
             <tr-number-input-component
               v-if="resourceType === 'number'"
-              labelName="value-interval"
+              labelName="resource-master-info-form.label.value-interval"
               width="100%"
               v-model="intervalVolatile"
             />
@@ -79,7 +79,7 @@
           <tr>
             <tr-string-input-component
               v-if="resourceType === 'select' || resourceType === 'combo'"
-              labelName="value-selection"
+              labelName="resource-master-info-form.label.value-selection"
               width="100%"
               v-model="selectionStrVolatile"
             />
@@ -87,7 +87,7 @@
           <tr>
             <tr-selection-value-select-component
               v-if="resourceType === 'select'"
-              labelName="value-selection-value"
+              labelName="resource-master-info-form.label.value-selection-value"
               :selection="selectionStrVolatile"
               width="100%"
               v-model="defaultValueStrVolatile"
@@ -96,7 +96,7 @@
           <tr>
             <tr-string-input-component
               v-if="resourceType === 'text'"
-              labelName="char"
+              labelName="label.char"
               width="100%"
               v-model="defaultValueStrVolatile"
             />
@@ -104,7 +104,7 @@
           <tr>
             <tr-string-input-component
               v-if="resourceType === 'input-text' || resourceType === 'combo'"
-              labelName="value-default"
+              labelName="resource-master-info-form.label.value-default"
               width="100%"
               v-model="defaultValueStrVolatile"
             />
@@ -112,7 +112,7 @@
           <tr>
             <tr-number-input-component
               v-if="resourceType === 'number'"
-              labelName="value-default"
+              labelName="resource-master-info-form.label.value-default"
               width="100%"
               v-model="defaultValueNumberVolatile"
             />
@@ -120,7 +120,7 @@
           <tr>
             <tr-checkbox-component
               v-if="resourceType === 'check'"
-              labelName="value-default"
+              labelName="resource-master-info-form.label.value-default"
               width="100%"
               c-label=""
               n-label=""
@@ -130,7 +130,7 @@
           <tr>
             <tr-color-picker-component
               v-if="resourceType === 'color'"
-              labelName="value-default"
+              labelName="resource-master-info-form.label.value-default"
               width="100%"
               :useAlpha="false"
               v-model="defaultValueColorVolatile"
@@ -159,17 +159,17 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
-import { ResourceType } from "../../../@types/gameObject";
+import { ResourceType } from "@/@types/gameObject";
 import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
 import TrRefPropertySelectComponent from "../common/components/TrRefPropertySelectComponent.vue";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
 import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import TrResourceTypeSelectComponent from "../common/components/TrResourceTypeSelectComponent.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import { TabInfo } from "../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import { Direction } from "../../../@types/room";
+import { Direction } from "@/@types/room";
 import TrSelectionValueSelectComponent from "../common/components/TrSelectionValueSelectComponent.vue";
 
 @Component({

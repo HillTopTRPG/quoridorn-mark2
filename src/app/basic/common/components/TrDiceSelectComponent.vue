@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-dice-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <dice-type-select v-model="localValue" :readonly="readonly" />

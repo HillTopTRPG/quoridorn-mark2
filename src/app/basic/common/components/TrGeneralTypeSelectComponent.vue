@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-general-type-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <general-type-select v-model="localValue" :readonly="readonly" />

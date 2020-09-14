@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-scene-object-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <scene-object-select

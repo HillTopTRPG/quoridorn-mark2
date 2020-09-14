@@ -52,7 +52,7 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
       .map(tag => ({
         key: tag,
         value: tag,
-        text: tag || LanguageManager.instance.getText("label.non-tag"),
+        text: tag || this.$t("label.non-tag")!.toString(),
         disabled: false
       }));
     if (this.defaultLabel) {
@@ -61,7 +61,7 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
         value: null,
         text:
           this.defaultLabel === "label.image-tag"
-            ? this.$t(this.defaultLabel)!
+            ? this.$t(this.defaultLabel)!.toString()
             : this.defaultLabel,
         disabled: true
       });

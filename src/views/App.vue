@@ -173,9 +173,7 @@ export default class App extends Vue {
       value: {
         type: "view-progress",
         value: {
-          message: LanguageManager.instance.getText(
-            "message.setting-up-quoridorn"
-          ),
+          message: this.$t("message.setting-up-quoridorn")!.toString(),
           all: 0,
           current: 0
         }
@@ -238,9 +236,7 @@ export default class App extends Vue {
       "notify-progress",
       async (err, { all, current }) => {
         const flag: boolean = all > 0 && all !== current;
-        const message = flag
-          ? LanguageManager.instance.getText("message.processing")
-          : "";
+        const message = flag ? this.$t("message.processing")!.toString() : "";
         await TaskManager.instance.ignition<ModeInfo, never>({
           type: "mode-change",
           owner: "Quoridorn",

@@ -3,7 +3,10 @@
     <div class="base-area">
       <div class="basic">
         <label>
-          <span class="label-input" v-t="'label.room-no'"></span>
+          <span
+            class="label-input"
+            v-t="'room-info-window.label.room-no'"
+          ></span>
           <span class="selectable" v-if="clientRoomInfo">{{
             clientRoomInfo.roomNo
           }}</span>
@@ -16,16 +19,25 @@
         </label>
       </div>
       <label>
-        <span class="label-input" v-t="'label.bcdice-api-url'"></span>
+        <span
+          class="label-input"
+          v-t="'room-info-window.label.bcdice-api-url'"
+        ></span>
         <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
       </label>
       <label>
-        <span class="label-input" v-t="'label.game-system-view'"></span>
+        <span
+          class="label-input"
+          v-t="'room-info-window.label.game-system-view'"
+        ></span>
         <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
       </label>
       <div class="invite">
         <label>
-          <span class="label-input" v-t="'label.invite-url'"></span>
+          <span
+            class="label-input"
+            v-t="'room-info-window.label.invite-url'"
+          ></span>
           <base-input
             type="text"
             v-if="clientRoomInfo"
@@ -43,8 +55,8 @@
           <tr>
             <th v-t="'label.user-name'"></th>
             <th v-t="'label.permission'"></th>
-            <th v-t="'label.room-member-num'"></th>
-            <th colspan="2" v-t="'label.comeback-url'"></th>
+            <th v-t="'room-info-window.label.room-member-num'"></th>
+            <th colspan="2" v-t="'room-info-window.label.comeback-url'"></th>
           </tr>
         </thead>
         <tbody>
@@ -52,17 +64,17 @@
             <td class="left">{{ user.data.name }}</td>
             <td
               class="center"
-              v-t="'label.gameMaster'"
+              v-t="'selection.user-type.GM'"
               v-if="user.data.type === 'GM'"
             ></td>
             <td
               class="center"
-              v-t="'label.player'"
+              v-t="'selection.user-type.PL'"
               v-if="user.data.type === 'PL'"
             ></td>
             <td
               class="center"
-              v-t="'label.visitor'"
+              v-t="'selection.user-type.VISITOR'"
               v-if="user.data.type === 'VISITOR'"
             ></td>
             <td class="center">{{ user.data.login }}</td>

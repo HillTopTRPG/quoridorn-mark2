@@ -1,8 +1,13 @@
 <template>
   <div ref="container">
     <div class="message">
-      <span class="label-input" v-t="'label.version-compatible'"></span>
-      <span v-t="`label.${usable ? '' : 'in'}adequate`"></span>
+      <span
+        class="label-input"
+        v-t="'version-info-window.label.version-compatible'"
+      ></span>
+      <span
+        v-t="`version-info-window.label.${usable ? '' : 'in'}adequate`"
+      ></span>
     </div>
     <fieldset>
       <legend v-t="'label.client'"></legend>
@@ -12,7 +17,10 @@
           {{ clientVersion }}
         </div>
         <div class="target" v-if="targetServer">
-          <span class="label-input" v-t="'label.adequate-server'"></span>
+          <span
+            class="label-input"
+            v-t="'version-info-window.label.adequate-server'"
+          ></span>
           <template v-if="targetServer.from">
             <span>{{ targetServer.from }} &lt;=</span>
             VERSION
@@ -30,7 +38,10 @@
           {{ serverVersion }}
         </div>
         <div class="target" v-if="targetClient">
-          <span class="label-input" v-t="'label.adequate-client'"></span>
+          <span
+            class="label-input"
+            v-t="'version-info-window.label.adequate-client'"
+          ></span>
           <template v-if="targetClient.from">
             <span>{{ targetClient.from }} &lt;=</span>
             VERSION

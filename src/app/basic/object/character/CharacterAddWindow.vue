@@ -67,17 +67,15 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = LanguageManager.instance.getText("type.character");
+    this.imageTag = this.$t("type.character")!.toString();
     this.isMounted = true;
   }
 
   @Watch("imageDocId", { immediate: true })
   private onChangeImageDocId() {
-    this.windowInfo.message = LanguageManager.instance.getText(
-      `${this.windowInfo.type}.message-list.${
-        this.imageDocId ? "drag-piece" : "choose-image"
-      }`
-    );
+    this.windowInfo.message = this.$t(
+      this.imageDocId ? "message.drag-piece" : "message.choose-image"
+    )!.toString();
   }
 
   @VueEvent

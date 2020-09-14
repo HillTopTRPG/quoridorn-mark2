@@ -50,8 +50,8 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value ? `-${o.value}` : "";
-      o.text = this.$t(`label.direction${suffix}`)!.toString();
+      const suffix = o.value || "label";
+      o.text = this.$t(`selection.direction.${suffix}`)!.toString();
       o.key = o.value;
     });
   }

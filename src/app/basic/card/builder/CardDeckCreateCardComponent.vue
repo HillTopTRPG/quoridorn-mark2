@@ -17,49 +17,49 @@
       <div class="setting-container">
         <table>
           <tr>
-            <tr-string-input-component labelName="name" v-model="name" />
+            <tr-string-input-component labelName="label.name" v-model="name" />
           </tr>
           <tr>
             <tr-color-picker-component
-              labelName="background-color"
+              labelName="label.background-color"
               v-model="frontBackgroundColor"
               :useAlpha="false"
             />
           </tr>
           <tr v-if="nameHeight && textHeight">
             <tr-color-picker-component
-              labelName="font-color"
+              labelName="label.font-color"
               v-model="fontColor"
               :useAlpha="false"
             />
           </tr>
           <tr v-if="nameHeight">
             <tr-number-input-component
-              labelName="card-name-font-size"
+              labelName="card-deck-create-card-component.label.card-name-font-size"
               v-model="nameFontSize"
             />
           </tr>
           <tr v-if="nameHeight">
             <tr-color-picker-component
-              labelName="card-name-background-color"
+              labelName="card-deck-create-card-component.label.card-name-background-color"
               v-model="nameBackgroundColor"
               :useAlpha="true"
             />
           </tr>
           <tr v-if="textHeight">
             <tr-number-input-component
-              labelName="card-text-font-size"
+              labelName="card-deck-create-card-component.label.card-text-font-size"
               v-model="textFontSize"
             />
           </tr>
           <tr-color-picker-component
-            labelName="card-text-background-color"
+            labelName="card-deck-create-card-component.label.card-text-background-color"
             v-model="textBackgroundColor"
             :useAlpha="true"
           />
           <tr v-if="textHeight">
             <tr-number-input-component
-              labelName="card-text-padding"
+              labelName="card-deck-create-card-component.label.card-text-padding"
               v-model="textPadding"
             />
           </tr>

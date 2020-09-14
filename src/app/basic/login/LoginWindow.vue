@@ -10,14 +10,14 @@
       <div class="message-documents">
         <div class="h-box">
           <div class="term-of-use flat-button" @click="viewTermOfUse()">
-            <span v-t="'label.terms-of-use'"></span>
+            <span v-t="'login-window.label.terms-of-use'"></span>
           </div>
           <div
             class="version-info flat-button"
             v-if="roomList"
             @click="viewVersionInfo()"
           >
-            <span class="normal" v-t="'label.version-info'"></span>
+            <span class="normal" v-t="'login-window.label.version-info'"></span>
             <span class="hovering">{{ versionText }}</span>
           </div>
         </div>
@@ -52,7 +52,7 @@
           <template v-if="index === 0">{{ data | roomNo }}</template>
           <template v-else-if="index === 1">
             <span v-if="data.data">{{ data.data.name }}</span>
-            <span v-else v-t="'label.empty-room'"></span>
+            <span v-else v-t="'login-window.label.empty-room'"></span>
           </template>
           <template v-else-if="index === 2">{{ data | system }}</template>
           <template v-else-if="index === 3">{{ data | memberNum }}</template>
@@ -67,7 +67,7 @@
               "
               >--</span
             >
-            <span v-else v-t="'label.possible'"></span>
+            <span v-else v-t="'login-window.label.possible'"></span>
           </template>
           <template v-else-if="index === 6">{{ data | updateDate }}</template>
           <template v-else-if="index === 7">
@@ -241,7 +241,7 @@ export default class LoginWindow extends Mixins<
     this.serverTestResult = this.windowInfo.args!.serverTestResult;
     this.elm.style.setProperty(
       "--msg-creating",
-      `"${LanguageManager.instance.getText("label.creating")}"`
+      `"${this.$t("login-window.label.creating")!.toString()}"`
     );
 
     await this.procUrlParam();
@@ -285,7 +285,7 @@ export default class LoginWindow extends Mixins<
   ): Promise<TaskResult<never> | void> {
     this.elm.style.setProperty(
       "--msg-creating",
-      `"${LanguageManager.instance.getText("label.creating")}"`
+      `"${this.$t("login-window.label.creating")!.toString()}"`
     );
     task.resolve();
   }
@@ -1171,11 +1171,9 @@ export default class LoginWindow extends Mixins<
       roomExtendInfo: createRoomInput.extend,
       roomName: createRoomInput.name,
       language: {
-        mainChatTabName: LanguageManager.instance.getText("label.main"),
-        allGroupChatTabName: LanguageManager.instance.getText(
-          "label.target-all"
-        ),
-        nameLabel: LanguageManager.instance.getText("label.name")
+        mainChatTabName: this.$t("label.main")!.toString(),
+        allGroupChatTabName: this.$t("label.target-all")!.toString(),
+        nameLabel: this.$t("label.name")!.toString()
       }
     });
   }

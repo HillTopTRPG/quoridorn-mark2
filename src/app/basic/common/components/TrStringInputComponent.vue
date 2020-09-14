@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-string-input-component">
     <th class="label-input">
-      <label :for="key" v-t="`label.${labelName}`"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <input

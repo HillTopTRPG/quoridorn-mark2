@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-selection-value-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <selection-value-select
@@ -18,7 +18,7 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
 import SCheck from "./SCheck.vue";
-import { ResourceType } from "../../../../@types/gameObject";
+import { ResourceType } from "@/@types/gameObject";
 import SelectionValueSelect from "./select/SelectionValueSelect.vue";
 
 @Component({ components: { SelectionValueSelect, SCheck } })

@@ -3,14 +3,14 @@
     <table>
       <tr>
         <tr-string-input-component
-          labelName="name"
+          labelName="label.name"
           width="100%"
           v-model="nameVolatile"
         />
       </tr>
       <tr>
         <tr-chat-color-input-component
-          labelName="chat-font-color"
+          labelName="label.chat-font-color"
           :type.sync="chatFontColorTypeVolatile"
           :color.sync="chatFontColorVolatile"
         />
@@ -18,7 +18,7 @@
       <!-- アクターID -->
       <tr>
         <tr-actor-select-component
-          labelName="actor"
+          labelName="label.actor"
           v-model="actorIdVolatile"
           :nullable="true"
         />
@@ -26,7 +26,7 @@
       <!-- コマID -->
       <tr>
         <tr-scene-object-select-component
-          labelName="scene-object"
+          labelName="label.scene-object"
           :actorId="actorId"
           v-model="sceneObjectIdVolatile"
           :nullable="true"
@@ -37,7 +37,7 @@
       <!-- ステータス -->
       <tr>
         <tr-actor-status-select-component
-          labelName="status"
+          labelName="label.status"
           :actorId="actorId"
           v-model="statusIdVolatile"
           :nullable="true"
@@ -46,7 +46,7 @@
       <!-- 秘匿フラグ -->
       <tr>
         <tr-checkbox-component
-          labelName="secret"
+          labelName="label.secret"
           :cLabel="$t('label.secret')"
           :nLabel="$t('label.non-secret')"
           v-model="isSecretVolatile"

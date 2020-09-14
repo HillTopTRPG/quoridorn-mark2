@@ -15,7 +15,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import LanguageManager from "../../../../../LanguageManager";
 import { Task, TaskResult } from "task";
 
@@ -59,7 +59,7 @@ export default class SelectionValueSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       value: disabledValue,
       key: disabledValue,
-      text: LanguageManager.instance.getText("label.selection-value"),
+      text: this.$t("selection.selection-value.label")!.toString(),
       disabled: true
     });
     // setTimeout(() => {

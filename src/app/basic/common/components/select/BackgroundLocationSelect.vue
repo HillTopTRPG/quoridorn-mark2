@@ -51,8 +51,8 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value ? `-${o.value}` : "";
-      o.text = this.$t(`label.background-location${suffix}`)!.toString();
+      const suffix = o.value || "label";
+      o.text = this.$t(`selection.background-location.${suffix}`)!.toString();
       o.key = o.value;
     });
   }

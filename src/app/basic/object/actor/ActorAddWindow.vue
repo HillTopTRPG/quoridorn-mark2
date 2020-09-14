@@ -64,8 +64,8 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
     this.windowInfo.message = this.isDuplicate
-      ? ActorAddWindow.getDialogMessage("duplicate")
-      : ActorAddWindow.getDialogMessage("default");
+      ? this.$t("message.tab-duplicate")!.toString()
+      : "";
   }
 
   private static getDialogMessage(target: string) {

@@ -33,7 +33,7 @@
         />
       </label>
       <label>
-        <span class="label-input" v-t="'label.user-type'"></span>
+        <span class="label-input" v-t="'selection.user-type.label'"></span>
         <user-type-select
           v-model="type"
           :isPending="!name"

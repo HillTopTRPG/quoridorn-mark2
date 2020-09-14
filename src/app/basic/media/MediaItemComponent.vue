@@ -96,13 +96,13 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
       default:
         target += "unknown";
     }
-    return LanguageManager.instance.getText(target);
+    return this.$t(target)!.toString();
   }
 
   @VueEvent
   private get tagStr(): string {
     const tag = this.media.data!.tag;
-    return tag || LanguageManager.instance.getText("label.non-tag");
+    return tag || this.$t("label.non-tag")!.toString();
   }
 
   @VueEvent

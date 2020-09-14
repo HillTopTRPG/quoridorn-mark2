@@ -12,7 +12,7 @@
       <table>
         <tr>
           <tr-string-input-component
-            labelName="text"
+            labelName="label.text"
             width="100%"
             v-model="text"
           />
@@ -20,7 +20,7 @@
         <tr v-if="isMounted">
           <tr-color-picker-component
             class="value-color"
-            labelName="background-color"
+            labelName="label.background-color"
             v-model="color"
           />
         </tr>

@@ -135,7 +135,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
           );
           elm.style.setProperty(
             "--msg-locked",
-            `'${LanguageManager.instance.getText("label.editing")}(${name})'`
+            `'${this.$t("label.editing")!.toString()}(${name})'`
           );
         }
       });
@@ -194,9 +194,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async deleteMap() {
     if (!this.selectedSceneId) return;
-    const result = window.confirm(
-      LanguageManager.instance.getText("label.really-delete")
-    );
+    const result = window.confirm(this.$t("message.really-delete")!.toString());
     if (!result) return;
     await this.cc.deletePackage([this.selectedSceneId]);
   }

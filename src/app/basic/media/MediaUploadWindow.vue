@@ -133,17 +133,13 @@ export default class MediaUploadWindow extends Mixins<
 
   private settingHoverMessage(isHover: boolean, target: string) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `media-upload-window.message-list.${target}`
-        )
+      ? this.$t(`media-upload-window.message-list.${target}`)!.toString()
       : "";
   }
 
   @VueEvent
   private editTags() {
-    const msg = LanguageManager.instance.getText(
-      "media-upload-window.dialog.input-tag"
-    );
+    const msg = this.$t("media-upload-window.dialog.input-tag")!.toString();
     const tag = window.prompt(msg, "");
     console.log(tag);
     if (tag === null || tag === undefined) return;
@@ -154,9 +150,9 @@ export default class MediaUploadWindow extends Mixins<
 
   @VueEvent
   private deleteAll() {
-    const msg = LanguageManager.instance.getText(
+    const msg = this.$t(
       "media-upload-window.dialog.delete-together"
-    );
+    )!.toString();
     const result = window.confirm(msg);
     if (!result) return;
 

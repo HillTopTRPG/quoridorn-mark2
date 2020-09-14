@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-actor-status-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <actor-status-select

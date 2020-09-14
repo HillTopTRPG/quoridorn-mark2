@@ -59,7 +59,9 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
         if (a.data!.type === "user") {
           const user = findRequireById(this.userList, a.owner);
           additionalText +=
-            "(" + this.$t(`label.${user.data!.type}`)!.toString() + ")";
+            "(" +
+            this.$t(`selection.user-type.${user.data!.type}`)!.toString() +
+            ")";
         }
         return {
           key: a.id!,

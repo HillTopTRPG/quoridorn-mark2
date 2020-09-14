@@ -90,7 +90,7 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
     this.optionInfoList.unshift({
       key: "",
       value: "",
-      text: LanguageManager.instance.getText("label.layer"),
+      text: this.$t("label.layer")!.toString(),
       disabled: true
     });
   }

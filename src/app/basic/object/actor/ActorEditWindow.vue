@@ -116,9 +116,12 @@ export default class ActorEditWindow extends Mixins<
 
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
+    const actor = this.actorList.find(a => a.id === this.docId);
     this.windowInfo.message = this.isDuplicate
-      ? ActorEditWindow.getDialogMessage("duplicate")
-      : ActorEditWindow.getDialogMessage("default");
+      ? this.$t("message.tab-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", actor ? actor.data!.name : "");
   }
 
   private static getDialogMessage(target: string) {

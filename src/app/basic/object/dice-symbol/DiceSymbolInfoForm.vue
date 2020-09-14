@@ -16,20 +16,20 @@
     <table class="info-table">
       <tr>
         <tr-dice-select-component
-          labelName="dice-type"
+          labelName="label.dice-type"
           v-model="diceTypeIdVolatile"
         />
       </tr>
       <tr>
         <tr-pips-select-component
-          labelName="pips"
+          labelName="label.pips"
           :diceTypeId="diceTypeIdVolatile"
           v-model="pipsVolatile"
         />
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="size"
+          labelName="label.size"
           inputWidth="3em"
           v-model="sizeVolatile"
           :min="1"
@@ -50,27 +50,27 @@
         <table>
           <tr>
             <tr-color-picker-component
-              labelName="background-color"
+              labelName="label.background-color"
               v-model="colorVolatile"
             />
           </tr>
           <tr>
             <tr-string-input-component
-              labelName="tag"
+              labelName="label.tag"
               width="100%"
               v-model="tagVolatile"
             />
           </tr>
           <tr>
             <tr-string-input-component
-              labelName="name"
+              labelName="label.name"
               width="100%"
               v-model="nameVolatile"
             />
           </tr>
           <tr>
             <tr-scene-layer-select-component
-              labelName="layer"
+              labelName="label.layer"
               width="100%"
               v-model="layerIdVolatile"
             />

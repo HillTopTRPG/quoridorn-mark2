@@ -16,14 +16,14 @@
     <table class="info-table">
       <tr>
         <tr-string-input-component
-          labelName="name"
+          labelName="label.name"
           width="100%"
           v-model="nameVolatile"
         />
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="size"
+          labelName="label.size"
           inputWidth="3em"
           v-model="sizeVolatile"
           :min="1"
@@ -34,7 +34,7 @@
           <label
             :for="`${key}-background-size`"
             class="label-background-size label-input"
-            v-t="'label.background-location'"
+            v-t="'selection.background-location.label'"
           ></label>
         </th>
         <td class="value-cell">
@@ -69,7 +69,7 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="tag"
+              labelName="label.tag"
               width="100%"
               v-model="tagVolatile"
             />
@@ -91,7 +91,7 @@
           </tr>
           <tr>
             <tr-string-input-component
-              labelName="ref-url"
+              labelName="label.ref-url"
               width="100%"
               v-model="urlVolatile"
             />

@@ -9,11 +9,16 @@
           :value="name"
           @input="name = $event.target.value"
           :class="{ pending: !name }"
-          :placeholder="$t('label.room-name-placeholder')"
+          :placeholder="
+            $t('create-new-room-window.label.room-name-placeholder')
+          "
         />
       </label>
       <label>
-        <span class="label-input" v-t="'label.room-password'"></span>
+        <span
+          class="label-input"
+          v-t="'create-new-room-window.label.room-password'"
+        ></span>
         <input-password-component
           :comp-key="`${key}-password`"
           v-model="password"
@@ -23,7 +28,10 @@
         />
       </label>
       <label>
-        <span class="label-input" v-t="'label.game-system-input'"></span>
+        <span
+          class="label-input"
+          v-t="'create-new-room-window.label.game-system-input'"
+        ></span>
         <bcdice-system-input
           v-model="system"
           :url.sync="url"
@@ -33,7 +41,10 @@
         />
       </label>
       <label v-if="isNeedRoomCreatePassword">
-        <span class="label-input" v-t="'label.room-create-password'"></span>
+        <span
+          class="label-input"
+          v-t="'create-new-room-window.label.room-create-password'"
+        ></span>
         <input-password-component
           :comp-key="`${key}-room-create-password`"
           v-model="roomCreatePassword"
@@ -126,7 +137,7 @@ export default class CreateNewRoomWindow extends Mixins<
   @VueEvent
   private async commit() {
     await this.finally({
-      name: this.name || LanguageManager.instance.getText(""),
+      name: this.name || "",
       bcdiceServer: this.url,
       system: this.system,
       roomPassword: this.password,
@@ -144,7 +155,7 @@ export default class CreateNewRoomWindow extends Mixins<
 
   private onMouseEnterUrl(isHover: boolean) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText("label.input-bcdice-url")
+      ? this.$t("label.input-bcdice-url")!.toString()
       : "";
   }
 }

@@ -63,7 +63,7 @@
         <table>
           <tr>
             <tr-checkbox-component
-              labelName="read-aloud"
+              labelName="label.read-aloud"
               cLabel=""
               nLabel=""
               v-model="useReadAloudLocal"
@@ -239,10 +239,9 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   @VueEvent
   private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
     if (!this.isDeletable(tabInfo)) return;
-    const msg = ChatSettingWindow.getDialogMessage("delete-tab").replace(
-      "$1",
-      tabInfo.data!.name
-    );
+    const msg = this.$t("message.delete-tab")!
+      .toString()
+      .replace("$1", tabInfo.data!.name);
     const result = window.confirm(msg);
     if (!result) return;
 
@@ -272,9 +271,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   @VueEvent
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
-          `chat-setting-window.message-list.${messageType}`
-        )
+      ? this.$t(`chat-setting-window.message-list.${messageType}`)!.toString()
       : "";
   }
 

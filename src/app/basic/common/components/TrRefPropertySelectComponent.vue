@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-ref-property-select-component">
     <th class="label-input">
-      <label v-t="`label.${labelName}`"></label>
+      <label v-t="labelName"></label>
     </th>
     <td>
       <ref-property-select v-model="localValue" :readonly="readonly" />

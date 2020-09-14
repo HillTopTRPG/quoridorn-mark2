@@ -17,11 +17,9 @@ import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -47,6 +45,7 @@ export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
   }
 
   private optionInfoList: HtmlOptionInfo[] = [
+    { value: "", key: "", text: "", disabled: true },
     { value: "owner", key: "", text: "", disabled: false },
     { value: "original", key: "", text: "", disabled: false }
   ];
@@ -66,7 +65,9 @@ export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      o.text = this.$t(`option.chat-color-type.${o.value}`)!.toString();
+      o.text = this.$t(
+        `selection.chat-color-type.${o.value || "label"}`
+      )!.toString();
       o.key = o.value;
     });
   }

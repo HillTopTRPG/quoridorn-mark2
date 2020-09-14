@@ -165,9 +165,7 @@ export default class Context extends Vue {
         ? " " + obj.data.name.toString()
         : "";
 
-    this.title = `(${LanguageManager.instance.getText(
-      `type.${this.type}`
-    )})${name}`;
+    this.title = `(${this.$t(`type.${this.type}`)!.toString()})${name}`;
 
     console.log(`【CONTEXT OPEN】 type: ${this.type} target: ${this.target}`);
 

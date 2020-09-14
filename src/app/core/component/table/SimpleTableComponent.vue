@@ -216,9 +216,7 @@ export default class SimpleTableComponent extends Vue {
   }
 
   private getHeadStr(target: string, defaultStr: string): string {
-    return this.isUseHeaderI18n
-      ? LanguageManager.instance.getText(target)
-      : defaultStr;
+    return this.isUseHeaderI18n ? this.$t(target)!.toString() : defaultStr;
   }
 
   private isMounted: boolean = false;

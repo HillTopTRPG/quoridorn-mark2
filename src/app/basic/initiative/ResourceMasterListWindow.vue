@@ -24,7 +24,7 @@
           :key="resource.id"
         >
           <td>{{ resource.data.label }}</td>
-          <td v-t="`label.resource-type-${resource.data.type}`"></td>
+          <td v-t="`selection.resource-type.${resource.data.type}`"></td>
           <td class="center">{{ resource.data.isAutoAddActor ? "✔︎" : "" }}</td>
           <td class="center">
             {{ resource.data.isAutoAddMapObject ? "✔︎" : "" }}
@@ -119,7 +119,7 @@ export default class ResourceMasterListWindow extends Mixins<
       "resource-master"
     );
     if (!dataContainer) {
-      alert(LanguageManager.instance.getText("label.importFailure"));
+      alert(this.$t("label.importFailure"));
       return;
     }
     const importResourceMasterList = dataContainer.data;
@@ -153,9 +153,7 @@ export default class ResourceMasterListWindow extends Mixins<
     try {
       await this.cc.deletePackage([id]);
     } catch (err) {
-      alert(
-        this.$t(`${this.windowInfo.type}.dialog.delete-failure`)!.toString()
-      );
+      alert(this.$t("message.delete-failure")!.toString());
       return;
     }
   }

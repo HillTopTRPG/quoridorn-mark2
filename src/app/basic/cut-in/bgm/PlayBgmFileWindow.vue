@@ -245,9 +245,9 @@ export default class PlayBgmFileWindow
   public onReady(): void {
     if (this.status !== "window") return;
     if (this.isIpadTesting) console.log("onReady");
-    const windowTitle = LanguageManager.instance.getText(
+    const windowTitle = this.$t(
       `${this.windowInfo.type}.window-title`
-    );
+    )!.toString();
     setTimeout(() => {
       this.windowInfo.title = `${this.bgmInfo!.tag}`;
       this.windowInfo.message = this.bgmInfo!.title;

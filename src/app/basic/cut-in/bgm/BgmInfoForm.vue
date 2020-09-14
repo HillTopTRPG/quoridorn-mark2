@@ -5,9 +5,9 @@
         <!-- URL -->
         <tr-string-input-component
           class="url"
-          labelName="url"
+          labelName="label.url"
           v-model="urlVolatile"
-          :placeholder="$t('label.url-placeholder')"
+          :placeholder="$t('bgm-info-form.label.url-placeholder')"
           inputWidth="100%"
         />
       </tr>
@@ -15,7 +15,7 @@
         <!-- タイトル -->
         <tr-string-input-component
           class="title"
-          labelName="title"
+          labelName="label.title"
           v-model="titleVolatile"
           inputWidth="100%"
         />
@@ -24,7 +24,7 @@
         <!-- タグ -->
         <tr-string-input-component
           class="tag"
-          labelName="tag"
+          labelName="label.tag"
           v-model="tagVolatile"
           :list="`${key}-tag-values`"
         />
@@ -34,7 +34,7 @@
         <!-- 音量 -->
         <tr-range-input-component
           class="volume"
-          labelName="volume"
+          labelName="bgm-info-form.label.volume"
           v-model="volumeVolatile"
           :step="1"
           :min="0"
@@ -45,24 +45,24 @@
         <!-- 再生開始 -->
         <tr-number-input-component
           class="start"
-          labelName="play-start"
+          labelName="bgm-info-form.label.play-start"
           v-model="startVolatile"
           :step="0.1"
           :min="-10000"
           :max="10000"
-          unitLabel="second"
+          unitLabel="bgm-info-form.label.second"
         />
       </tr>
       <tr>
         <!-- 再生終了 -->
         <tr-number-input-component
           class="end"
-          labelName="play-end"
+          labelName="bgm-info-form.label.play-end"
           v-model="endVolatile"
           :step="0.1"
           :min="-10000"
           :max="10000"
-          unitLabel="second"
+          unitLabel="bgm-info-form.label.second"
         />
       </tr>
       <tr class="space"></tr>
@@ -70,24 +70,24 @@
         <!-- フェードイン -->
         <tr-number-input-component
           class="fade-in"
-          labelName="fade-in"
+          labelName="bgm-info-form.label.fade-in"
           v-model="fadeInVolatile"
           :step="0.1"
           :min="0"
           :max="200"
-          unitLabel="second"
+          unitLabel="bgm-info-form.label.second"
         />
       </tr>
       <tr>
         <!-- フェードアウト -->
         <tr-number-input-component
           class="fade-out"
-          labelName="fade-out"
+          labelName="bgm-info-form.label.fade-out"
           v-model="fadeOutVolatile"
           :step="0.1"
           :min="0"
           :max="200"
-          unitLabel="second"
+          unitLabel="bgm-info-form.label.second"
         />
       </tr>
       <tr class="space"></tr>
@@ -111,7 +111,7 @@
         <!-- チャット連動対象 -->
         <tr-string-input-component
           class="chat-linkage-target"
-          labelName="chat-linkage-target"
+          labelName="label.chat-linkage-target"
           v-model="chatLinkageTargetVolatile"
           :disabled="chatLinkageTypeVolatile === 'none'"
           :placeholder="chatLinkagePlaceholder"
@@ -134,7 +134,7 @@
         @contextmenu.prevent
       >
         <i class="icon-loop"></i>
-        <span v-t="'label.repeat'"></span>
+        <span v-t="'bgm-info-form.label.repeat'"></span>
       </div>
 
       <!-- スタンバイ -->
@@ -143,7 +143,7 @@
         :class="{ checked: isStandByVolatile }"
         @click="isStandByVolatile = !isStandBy"
         @contextmenu.prevent
-        v-t="'label.stand-by'"
+        v-t="'bgm-info-form.label.stand-by'"
       ></div>
     </div>
 
@@ -153,7 +153,7 @@
       :class="{ checked: isForceContinueVolatile }"
       @click="isForceContinueVolatile = !isForceContinue"
       @contextmenu.prevent
-      v-t="'label.force-continue'"
+      v-t="'bgm-info-form.label.force-continue'"
     ></div>
 
     <!-- 強制新規作成 -->
@@ -162,7 +162,7 @@
       :class="{ checked: isForceNewVolatile }"
       @click="isForceNewVolatile = !isForceNew"
       @contextmenu.prevent
-      v-t="'label.force-new'"
+      v-t="'bgm-info-form.label.force-new'"
     ></div>
   </div>
 </template>
@@ -201,9 +201,9 @@ export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @VueEvent
   private get chatLinkagePlaceholder() {
     if (this.chatLinkageTypeVolatile === "last")
-      return LanguageManager.instance.getText("label.last-str");
+      return this.$t("label.last-str")!.toString();
     if (this.chatLinkageTypeVolatile === "regexp")
-      return LanguageManager.instance.getText("label.javascript-regexp");
+      return this.$t("label.javascript-regexp")!.toString();
     return "";
   }
 

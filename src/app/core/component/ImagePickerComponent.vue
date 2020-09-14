@@ -52,7 +52,7 @@
         <th>
           <label
             :for="`${windowKey}-image-pick-direction`"
-            v-t="'label.direction'"
+            v-t="'selection.direction.label'"
             class="label-input"
           ></label>
         </th>

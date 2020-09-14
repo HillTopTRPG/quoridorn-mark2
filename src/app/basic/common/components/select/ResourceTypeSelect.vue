@@ -57,8 +57,8 @@ export default class ResourceTypeSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value ? `-${o.value}` : "";
-      o.text = this.$t(`label.resource-type${suffix}`)!.toString();
+      const suffix = o.value || "label";
+      o.text = this.$t(`selection.resource-type.${suffix}`)!.toString();
       o.key = o.value;
     });
   }

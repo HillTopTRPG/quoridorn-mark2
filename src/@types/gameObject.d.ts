@@ -126,7 +126,6 @@ type RefProperty =
   | "actor-tag"
   | "owner-name"
   | "owner-type"
-  | "object-other-text"
   | "object-layer"
   | "actor-status-name"
   | "actor-chat-text-color"

@@ -190,7 +190,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
       if (trElm) {
         trElm.style.setProperty(
           "--msg-locked",
-          `"${LanguageManager.instance.getText("label.editing")}(${name})"`
+          `"${this.$t("label.editing")!.toString()}(${name})"`
         );
       }
     }

@@ -79,9 +79,7 @@ export default class DiceSymbolAddWindow extends Mixins<
   public async mounted() {
     await this.init();
     this.isMounted = true;
-    this.windowInfo.message = LanguageManager.instance.getText(
-      `${this.windowInfo.type}.message-list.drag-piece`
-    );
+    this.windowInfo.message = this.$t("message.drag-piece")!.toString();
   }
 
   @VueEvent

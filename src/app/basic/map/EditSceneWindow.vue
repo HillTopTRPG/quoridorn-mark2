@@ -11,7 +11,7 @@
           <table class="info-table">
             <tr>
               <tr-string-input-component
-                labelName="name"
+                labelName="label.name"
                 v-model="sceneData.name"
                 inputWidth="10em"
               />
@@ -23,7 +23,7 @@
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  labelName="columns"
+                  labelName="label.columns"
                   v-model="sceneData.columns"
                   inputWidth="3.5em"
                   :min="1"
@@ -31,7 +31,7 @@
               </tr>
               <tr>
                 <tr-number-input-component
-                  labelName="rows"
+                  labelName="label.rows"
                   v-model="sceneData.rows"
                   inputWidth="3.5em"
                   :min="1"
@@ -39,7 +39,7 @@
               </tr>
               <tr>
                 <tr-number-input-component
-                  labelName="grid-size"
+                  labelName="edit-scene-window.label.grid-size"
                   v-model="sceneData.gridSize"
                   inputWidth="3.5em"
                   :min="1"
@@ -53,13 +53,13 @@
             <table class="info-table">
               <tr>
                 <tr-color-picker-component
-                  labelName="font-color"
+                  labelName="label.font-color"
                   v-model="sceneData.fontColor"
                 />
               </tr>
               <tr>
                 <tr-color-picker-component
-                  labelName="grid-line-color"
+                  labelName="edit-scene-window.label.grid-line-color"
                   v-model="sceneData.gridColor"
                 />
               </tr>
@@ -89,7 +89,7 @@
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  labelName="columns"
+                  labelName="label.columns"
                   v-model="sceneData.margin.columns"
                   inputWidth="3.5em"
                   :min="0"
@@ -97,7 +97,7 @@
               </tr>
               <tr>
                 <tr-number-input-component
-                  labelName="rows"
+                  labelName="label.rows"
                   v-model="sceneData.margin.rows"
                   inputWidth="3.5em"
                   :min="0"
@@ -107,11 +107,11 @@
           </fieldset>
 
           <fieldset>
-            <legend v-t="'label.grid-line'"></legend>
+            <legend v-t="'edit-scene-window.label.grid-line'"></legend>
             <table class="info-table">
               <tr>
                 <tr-checkbox-component
-                  labelName="grid-line"
+                  labelName="edit-scene-window.label.grid-line"
                   :cLabel="$t('label.exist')"
                   :nLabel="$t('label.not-exist')"
                   v-model="sceneData.margin.isUseGrid"
@@ -119,13 +119,13 @@
               </tr>
               <tr>
                 <tr-color-picker-component
-                  labelName="main"
+                  labelName="label.main"
                   v-model="sceneData.margin.gridColorBold"
                 />
               </tr>
               <tr>
                 <tr-color-picker-component
-                  labelName="sub"
+                  labelName="edit-scene-window.label.sub"
                   v-model="sceneData.margin.gridColorThin"
                   :disabled="!sceneData.margin.isUseGrid"
                 />
@@ -134,17 +134,17 @@
           </fieldset>
 
           <fieldset>
-            <legend v-t="'label.mask'"></legend>
+            <legend v-t="'edit-scene-window.label.mask'"></legend>
             <table class="info-table">
               <tr>
                 <tr-color-picker-component
-                  labelName="color"
+                  labelName="label.color"
                   v-model="sceneData.margin.maskColor"
                 />
               </tr>
               <tr>
                 <tr-number-input-component
-                  labelName="blur"
+                  labelName="edit-scene-window.label.blur"
                   v-model="sceneData.margin.maskBlur"
                   inputWidth="3.5em"
                   :min="0"
@@ -154,11 +154,11 @@
           </fieldset>
 
           <fieldset>
-            <legend v-t="'label.frame-border'"></legend>
+            <legend v-t="'edit-scene-window.label.frame-border'"></legend>
             <table class="info-table">
               <tr>
                 <tr-number-input-component
-                  labelName="width"
+                  labelName="label.width"
                   v-model="sceneData.margin.border.width"
                   inputWidth="3.5em"
                   :min="0"
@@ -167,7 +167,7 @@
               <tr>
                 <tr-color-picker-component
                   class="value-border-color"
-                  labelName="color"
+                  labelName="label.color"
                   v-model="sceneData.margin.border.color"
                 />
               </tr>
@@ -559,9 +559,9 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 
   private setHoverWindowMessage(isHover: boolean, messageType: string) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
+      ? this.$t(
           `${this.windowInfo.type}.message-select.${messageType}`
-        )
+        )!.toString()
       : "";
   }
 

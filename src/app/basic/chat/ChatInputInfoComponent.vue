@@ -70,13 +70,11 @@ export default class ChatInputInfoComponent extends Mixins<ComponentVue>(
   @VueEvent
   private onHover(type: string, flg: boolean) {
     const base = "chat-window.input-info.message-";
-    this.windowInfo.message = flg
-      ? LanguageManager.instance.getText(base + type)
-      : "";
+    this.windowInfo.message = flg ? this.$t(base + type)!.toString() : "";
   }
 
   private get secretTarget(): string {
-    return "chat-window.input-info." + (this.isSecret ? "" : "non-") + "secret";
+    return "label." + (this.isSecret ? "" : "non-") + "secret";
   }
 }
 </script>

@@ -618,9 +618,9 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       }
     } else {
       // ダイスを隠していないなら
-      const command = `1D${pipsLength} ${this.$t("type.dice-symbol")} ${this.$t(
-        "label.dice-roll"
-      )}`;
+      const command = `1D${pipsLength} ${this.$t(
+        "type.dice-symbol"
+      )!.toString()} ${this.$t("context.dice-roll")!.toString()}`;
       const diceRollResult = await sendChatLog(
         {
           chatType: "system-message",

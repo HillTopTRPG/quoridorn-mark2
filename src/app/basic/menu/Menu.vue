@@ -4,14 +4,14 @@
     <div class="span-group">
       <menu-down-item
         type="管理"
-        textTarget="label.management"
+        textTarget="menu.management"
         :isHover="isShow('管理')"
         @mousedown="menuClick"
         @mouseenter="menuHover"
       />
       <menu-down-item
         type="画面"
-        textTarget="label.window"
+        textTarget="menu.window"
         :isHover="isShow('画面')"
         @mousedown="menuClick"
         @mouseenter="menuHover"
@@ -25,21 +25,21 @@
       />
       <menu-down-item
         type="演出"
-        textTarget="label.directing"
+        textTarget="menu.directing"
         :isHover="isShow('演出')"
         @mousedown="menuClick"
         @mouseenter="menuHover"
       />
       <menu-down-item
         type="作成"
-        textTarget="label.create"
+        textTarget="menu.create"
         :isHover="isShow('作成')"
         @mousedown="menuClick"
         @mouseenter="menuHover"
       />
       <menu-down-item
         type="ヘルプ"
-        textTarget="label.help"
+        textTarget="menu.help"
         :isHover="isShow('ヘルプ')"
         @mousedown="menuClick"
         @mouseenter="menuHover"
@@ -72,18 +72,18 @@
       <div
         class="item disabled"
         @click="onClickExport"
-        v-t="'label.export-room-data'"
+        v-t="'menu.export-room-data'"
       ></div>
       <div
         class="item disabled"
         @click="onClickImport"
-        v-t="'label.import-room-data'"
+        v-t="'menu.import-room-data'"
       ></div>
       <hr class="disabled" />
       <div
         class="item disabled"
         @click="onClickExportChatLog"
-        v-t="'label.export-chat-log'"
+        v-t="'menu.export-chat-log'"
       ></div>
     </div>
     <!--------------------------------------------------
@@ -98,7 +98,7 @@
       <div
         class="item"
         @click="clickResetWindowLocate"
-        v-t="'label.window-position-reset'"
+        v-t="'menu.window-position-reset'"
       ></div>
     </div>
     <!--------------------------------------------------
@@ -173,11 +173,15 @@
      ! ヘルプ
      !-------------------------------------------------->
     <div class="hover-menu" v-show="isShow('ヘルプ')" :style="hoverMenuStyle">
-      <div class="item" @click="clickVersion">バージョン</div>
+      <div class="item" @click="clickVersion" v-t="'label.version'"></div>
       <hr />
-      <div class="item" @click="clickOfficialSite">オフィシャルサイトへ</div>
+      <div
+        class="item"
+        @click="clickOfficialSite"
+        v-t="'menu.goto-official-site'"
+      ></div>
       <hr />
-      <div class="item" @click="clickBufForm">不具合の報告</div>
+      <div class="item" @click="clickBufForm" v-t="'menu.bug-reports'"></div>
     </div>
   </div>
 </template>

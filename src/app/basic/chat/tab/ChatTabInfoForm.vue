@@ -10,7 +10,7 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="name"
+              labelName="label.name"
               width="100%"
               :placeholder="$t('label.require-text')"
               v-model="tabNameVolatile"
@@ -25,7 +25,7 @@
         <table>
           <tr>
             <tr-checkbox-component
-              labelName="read-aloud"
+              labelName="label.read-aloud"
               cLabel=""
               nLabel=""
               v-model="useReadAloudVolatile"
@@ -33,7 +33,7 @@
           </tr>
           <tr>
             <tr-number-input-component
-              labelName="read-aloud-volume"
+              labelName="label.read-aloud-volume"
               inputWidth="5em"
               v-model="readAloudVolumeVolatile"
               :min="0"

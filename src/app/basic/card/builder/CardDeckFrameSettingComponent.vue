@@ -30,94 +30,94 @@
       <table>
         <tr>
           <tr-number-input-component
-            labelName="card-width"
+            labelName="card-deck-frame-setting-component.label.card-width"
             v-model="widthVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-height"
+            labelName="card-deck-frame-setting-component.label.card-height"
             v-model="heightVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-corner-radius"
+            labelName="card-deck-frame-setting-component.label.card-corner-radius"
             v-model="radiusVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-padding-horizontal"
+            labelName="card-deck-frame-setting-component.label.card-padding-horizontal"
             v-model="padHorizontalVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-padding-top"
+            labelName="card-deck-frame-setting-component.label.card-padding-top"
             v-model="padTopVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-padding-bottom"
+            labelName="card-deck-frame-setting-component.label.card-padding-bottom"
             v-model="padBottomVolatile"
           />
         </tr>
         <tr>
           <tr-color-picker-component
-            labelName="background-color"
+            labelName="label.background-color"
             v-model="frontBackgroundColorVolatile"
             :useAlpha="false"
           />
         </tr>
         <tr>
           <tr-color-picker-component
-            labelName="font-color"
+            labelName="label.font-color"
             v-model="fontColorVolatile"
             :useAlpha="false"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-name-height"
+            labelName="card-deck-frame-setting-component.label.card-name-height"
             v-model="nameHeightVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-name-font-size"
+            labelName="card-deck-frame-setting-component.label.card-name-font-size"
             v-model="nameFontSizeVolatile"
           />
         </tr>
         <tr>
           <tr-color-picker-component
-            labelName="card-name-background-color"
+            labelName="card-deck-frame-setting-component.label.card-name-background-color"
             v-model="nameBackgroundColorVolatile"
             :useAlpha="true"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-text-height"
+            labelName="card-deck-frame-setting-component.label.card-text-height"
             v-model="textHeightVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-text-font-size"
+            labelName="card-deck-frame-setting-component.label.card-text-font-size"
             v-model="textFontSizeVolatile"
           />
         </tr>
         <tr>
           <tr-number-input-component
-            labelName="card-text-padding"
+            labelName="card-deck-frame-setting-component.label.card-text-padding"
             v-model="textPaddingVolatile"
           />
         </tr>
         <tr>
           <tr-color-picker-component
-            labelName="card-text-background-color"
+            labelName="card-deck-frame-setting-component.label.card-text-background-color"
             v-model="textBackgroundColorVolatile"
             :useAlpha="true"
           />
@@ -511,7 +511,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   private async doImport() {
     const dataContainer: any = await importJson<any>("card_deck_frame");
     if (!dataContainer) {
-      alert(LanguageManager.instance.getText("label.importFailure"));
+      alert(this.$t("label.importFailure"));
       return;
     }
     const data: any = dataContainer.data;

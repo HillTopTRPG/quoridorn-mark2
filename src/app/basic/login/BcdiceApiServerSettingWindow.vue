@@ -93,9 +93,9 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
       this.bcdiceVersion = info.bcdice;
       this.testStatus = "success";
     } catch (err) {
-      this.testMessage = LanguageManager.instance.getText(
+      this.testMessage = this.$t(
         `${this.windowInfo.key}.error-messages.connect-error`
-      );
+      )!.toString();
       this.testStatus = "error";
     }
   }

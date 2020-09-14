@@ -123,10 +123,9 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   @VueEvent
   private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
     if (!this.isDeletable(tabInfo)) return;
-    const msg = ChatTabComponent.getDialogMessage("delete-tab").replace(
-      "$1",
-      tabInfo.data!.name
-    );
+    const msg = this.$t("message.delete-tab")!
+      .toString()
+      .replace("$1", tabInfo.data!.name);
     const result = window.confirm(msg);
     if (!result) return;
 

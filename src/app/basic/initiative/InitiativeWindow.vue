@@ -2,7 +2,7 @@
   <div ref="window-container">
     <div class="button-area space-between margin-bottom">
       <ctrl-button @click="openResourceMasterListWindow">
-        <span v-t="'button.open-resource-master-list-window'"></span>
+        <span v-t="'resource-master-list-window.window-title'"></span>
       </ctrl-button>
     </div>
 
@@ -259,12 +259,10 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       const getTypeStr = (
         isActor: boolean,
         d: StoreUseData<SceneObject | ActorStore | UserData>
-      ) => {
-        const typeText = LanguageManager.instance.getText(
-          `type.${d.data!.type}`
-        );
+      ): string => {
+        const typeText = this.$t(`type.${d.data!.type}`)!.toString();
         if (!isActor) return typeText;
-        const actorText = LanguageManager.instance.getText(`type.actor`);
+        const actorText = this.$t(`type.actor`)!.toString();
         return `${actorText}(${typeText})`;
       };
 
@@ -287,15 +285,10 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           return owner.data!.name;
         case "owner-type":
           return owner.data!.type;
-        case "object-other-text":
-          const memo = GameObjectManager.instance.memoList.filter(
-            m => m.owner === base.id
-          )[0];
-          return memo ? memo.data!.text : nullText;
         case "object-layer": {
           if (!layer) return nullText;
           if (!layer.data!.isSystem) return layer.data!.name!;
-          return LanguageManager.instance.getText(`type.${layer.data!.type}`)!;
+          return this.$t(`type.${layer.data!.type}`)!.toString();
         }
         case "actor-status-name":
           return status.data!.name;
@@ -713,7 +706,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       if (trElm) {
         trElm.style.setProperty(
           "--msg-locked",
-          `"${LanguageManager.instance.getText("label.editing")}(${name})"`
+          `"${this.$t("label.editing")}(${name})"`
         );
       }
     }

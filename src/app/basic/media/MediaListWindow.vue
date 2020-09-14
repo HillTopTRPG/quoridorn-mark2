@@ -6,9 +6,9 @@
         v-model="isViewThumbnail"
         colorStyle="skyblue"
         c-icon="image"
-        :c-label="$t('label.thumbnail')"
+        :c-label="$t('media-list-window.label.thumbnail')"
         n-icon="list2"
-        :n-label="$t('label.list')"
+        :n-label="$t('media-list-window.label.list')"
         @hover="onHoverThumbnailView"
       />
       <input
@@ -148,7 +148,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       .map((tag, idx) => ({
         key: idx.toString(),
         target: tag,
-        text: tag || LanguageManager.instance.getText("label.non-tag")
+        text: tag || this.$t("label.non-tag")!.toString()
       }));
     if (!this.currentTabInfo) {
       this.currentTabInfo = this.tabList[0];
@@ -205,9 +205,9 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
 
   private setHoverWindowMessage(isHover: boolean, messageType: string) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText(
+      ? this.$t(
           `${this.windowInfo.type}.message-list.${messageType}`
-        )
+        )!.toString()
       : "";
   }
 

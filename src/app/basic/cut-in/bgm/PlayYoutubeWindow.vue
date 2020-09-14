@@ -19,7 +19,7 @@
     </div>
     <seek-bar-component
       :bgmInfo="bgmInfo"
-      :duration="bgmInfo.duration"
+      :duration="bgmInfo.duration || 0"
       :seek="seek"
       @seekTo="seekTo"
       v-if="bgmInfo"
@@ -41,8 +41,8 @@ import { Task, TaskResult } from "task";
 import { StandByReturnInfo } from "task-info";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { WindowMoveInfo } from "../../../../@types/window";
-import { getCssPxNum } from "../../../core/css/Css";
+import { WindowMoveInfo } from "@/@types/window";
+import { getCssPxNum } from "@/app/core/css/Css";
 import SeekBarComponent from "./SeekBarComponent.vue";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import WindowManager from "../../../core/window/WindowManager";
@@ -63,7 +63,7 @@ import {
   PlayBgmInfo,
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
-} from "../../../../@types/room";
+} from "@/@types/room";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -226,9 +226,9 @@ export default class PlayYoutubeWindow
   public onReady(): void {
     if (this.status !== "window") return;
     if (this.isIpadTesting) console.log("onReady");
-    const windowTitle = LanguageManager.instance.getText(
+    const windowTitle = this.$t(
       `${this.windowInfo.type}.window-title`
-    );
+    )!.toString();
     setTimeout(() => {
       this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
       this.windowInfo.message = this.bgmInfo!.title;

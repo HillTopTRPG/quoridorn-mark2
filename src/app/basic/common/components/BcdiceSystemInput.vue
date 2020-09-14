@@ -467,7 +467,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    this.noTarget = LanguageManager.instance.getText("label.no-target");
+    this.noTarget = this.$t("label.no-target")!.toString();
     const index = this.systemList.findIndex(s => s.system === "DiceBot");
     this.systemList[index].name = this.noTarget;
     task.resolve();

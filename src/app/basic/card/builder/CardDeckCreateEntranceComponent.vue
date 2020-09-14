@@ -289,9 +289,9 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
   @VueEvent
   private onHoverParanoiaRebooted(isHover: boolean) {
     this.description = isHover
-      ? LanguageManager.instance.getText(
+      ? this.$t(
           "card-deck-builder.description.import-text-paranoia-rebooted"
-        )
+        )!.toString()
       : "";
   }
 
@@ -299,7 +299,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
   private async importParanoiaRebooted() {
     const text = await importText();
     const failure = (reason: string) => {
-      alert(LanguageManager.instance.getText("label.importFailure"));
+      alert(this.$t("label.importFailure"));
       console.warn(`import failure. [${reason}]`);
       this.cardList.splice(0, this.cardList.length);
     };

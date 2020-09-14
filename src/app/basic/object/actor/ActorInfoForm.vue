@@ -4,19 +4,22 @@
       <!-- 名前 -->
       <tr>
         <tr-string-input-component
-          labelName="name"
+          labelName="label.name"
           v-model="nameVolatile"
           :placeholder="$t('label.require-text')"
         />
       </tr>
       <!-- タグ -->
       <tr>
-        <tr-string-input-component labelName="tag" v-model="tagVolatile" />
+        <tr-string-input-component
+          labelName="label.tag"
+          v-model="tagVolatile"
+        />
       </tr>
       <!-- チャット文字色 -->
       <tr>
         <tr-chat-color-input-component
-          labelName="chat-font-color"
+          labelName="label.chat-font-color"
           :type.sync="chatFontColorTypeVolatile"
           :color.sync="chatFontColorVolatile"
         />
@@ -24,7 +27,7 @@
       <!-- 立ち絵位置 -->
       <tr>
         <tr-range-component
-          labelName="stand-image-position"
+          labelName="label.stand-image-position"
           :min="1"
           :max="12"
           v-model="standImagePositionVolatile"

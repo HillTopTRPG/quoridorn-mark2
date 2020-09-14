@@ -4,23 +4,26 @@
     <table class="info-table">
       <tr>
         <tr-string-input-component
-          labelName="name"
+          labelName="label.name"
           width="100%"
           v-model="name"
         />
       </tr>
       <tr>
-        <tr-scene-layer-select-component labelName="layer" v-model="layerId" />
+        <tr-scene-layer-select-component
+          labelName="label.layer"
+          v-model="layerId"
+        />
       </tr>
       <tr>
         <tr-card-deck-layout-select-component
-          labelName="layout"
+          labelName="label.layout"
           v-model="layout"
         />
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="hand-card-area-width"
+          labelName="card-deck-small-edit-window.label.hand-card-area-width"
           inputWidth="5em"
           v-model="width"
           :min="1"
@@ -28,7 +31,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-deck-columns"
+          labelName="card-deck-small-edit-window.label.card-deck-columns"
           inputWidth="3em"
           v-model="columns"
           :min="1"
@@ -36,7 +39,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-deck-rows"
+          labelName="card-deck-small-edit-window.label.card-deck-rows"
           inputWidth="3em"
           v-model="rows"
           :min="1"
@@ -44,7 +47,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-width-ratio"
+          labelName="card-deck-small-edit-window.label.card-width-ratio"
           inputWidth="3em"
           v-model="cardWidthRatio"
           :min="1"
@@ -52,7 +55,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-height-ratio"
+          labelName="card-deck-small-edit-window.label.card-height-ratio"
           inputWidth="3em"
           v-model="cardHeightRatio"
           :min="1"
@@ -60,7 +63,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-layout-columns"
+          labelName="card-deck-small-edit-window.label.card-layout-columns"
           inputWidth="3em"
           v-model="layoutColumns"
           :min="1"
@@ -68,7 +71,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="card-layout-rows"
+          labelName="card-deck-small-edit-window.label.card-layout-rows"
           inputWidth="3em"
           v-model="layoutRows"
           :min="1"
@@ -76,7 +79,7 @@
       </tr>
       <tr>
         <tr-checkbox-component
-          labelName="hover-view"
+          labelName="card-deck-small-edit-window.label.hover-view"
           :readonly="false"
           :cLabel="$t('label.exist')"
           :nLabel="$t('label.not-exist')"

@@ -38,7 +38,6 @@ export default class RefPropertySelect extends Mixins<MultiMixin>(
     { value: "actor-tag", key: "", text: "", disabled: false },
     { value: "owner-name", key: "", text: "", disabled: false },
     { value: "owner-type", key: "", text: "", disabled: false },
-    { value: "object-other-text", key: "", text: "", disabled: false },
     { value: "object-layer", key: "", text: "", disabled: false },
     { value: "actor-status-name", key: "", text: "", disabled: false },
     { value: "actor-chat-text-color", key: "", text: "", disabled: false },
@@ -60,8 +59,8 @@ export default class RefPropertySelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value ? `-${o.value}` : "";
-      o.text = this.$t(`label.ref-property${suffix}`)!.toString();
+      const suffix = o.value || "label";
+      o.text = this.$t(`selection.ref-property.${suffix}`)!.toString();
       o.key = o.value;
     });
   }

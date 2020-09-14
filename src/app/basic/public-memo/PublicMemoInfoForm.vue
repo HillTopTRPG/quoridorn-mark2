@@ -10,7 +10,7 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="name"
+              labelName="label.name"
               width="100%"
               v-model="nameVolatile"
             />

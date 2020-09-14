@@ -676,7 +676,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   @VueEvent
   private async deleteDeck() {
     if (this.useCardObjectList.length) return;
-    const msg = LanguageManager.instance.getText("message.delete-deck");
+    const msg = this.$t("message.delete-deck")!.toString();
     if (!window.confirm(msg)) return;
     try {
       await this.cardDeckSmallCC.deletePackage([this.docId]);

@@ -100,7 +100,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
     const lockName = GameObjectManager.instance.getExclusionOwnerName(
       exclusionOwner
     );
-    const editLabel = LanguageManager.instance.getText("label.editing");
+    const editLabel = this.$t("label.editing")!.toString();
     return `${lockName}(${editLabel})`;
   }
 
@@ -152,9 +152,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async deleteCardDeck() {
     if (!this.selectedCardDeckBigId) return;
-    const result = window.confirm(
-      LanguageManager.instance.getText("label.really-delete")
-    );
+    const result = window.confirm(this.$t("message.really-delete")!.toString());
     if (!result) return;
     try {
       await this.cardDeckBigCC.deletePackage([this.selectedCardDeckBigId]);

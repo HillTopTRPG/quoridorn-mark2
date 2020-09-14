@@ -14,8 +14,16 @@
       />
     </label>
 
-    <s-button icon="user" @hover="hover3" @click="open3()" />
-    <s-button icon="users" @hover="hover4" @click="open4()" />
+    <chat-operation-open
+      icon="user"
+      target="actor-add-window"
+      @hover="onHover"
+    />
+    <chat-operation-open
+      icon="users"
+      target="player-box-window"
+      @hover="onHover"
+    />
 
     <!-- ダイスボット選択 -->
     <bcdice-system-input
@@ -26,10 +34,26 @@
     />
 
     <!-- ショートカットボタン -->
-    <s-button icon="tv" @hover="hover1" @click="open1()" />
-    <s-button icon="display" @hover="hover2" @click="open2()" />
-    <s-button icon="stack" @hover="hover5" @click="open5()" />
-    <s-button icon="library" @hover="hover6" @click="open6()" />
+    <chat-operation-open
+      icon="tv"
+      target="cut-in-list-window"
+      @hover="onHover"
+    />
+    <chat-operation-open
+      icon="display"
+      target="scene-list-window"
+      @hover="onHover"
+    />
+    <chat-operation-open
+      icon="stack"
+      target="card-deck-list-window"
+      @hover="onHover"
+    />
+    <chat-operation-open
+      icon="library"
+      target="media-list-window"
+      @hover="onHover"
+    />
   </div>
 </template>
 
@@ -39,15 +63,15 @@ import { Mixins } from "vue-mixin-decorator";
 import ActorStatusSelect from "../common/components/select/ActorStatusSelect.vue";
 import BcdiceSystemInput from "../common/components/BcdiceSystemInput.vue";
 import ComponentVue from "../../core/window/ComponentVue";
-import LanguageManager from "../../../LanguageManager";
-import { WindowInfo } from "../../../@types/window";
+import { WindowInfo } from "@/@types/window";
 import SButton from "../common/components/SButton.vue";
 import SelfActorSelect from "../common/components/select/SelfActorSelect.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import App from "../../../views/App.vue";
+import ChatOperationOpen from "@/app/basic/chat/ChatOperationOpen.vue";
 
 @Component({
   components: {
+    ChatOperationOpen,
     SelfActorSelect,
     ActorStatusSelect,
     BcdiceSystemInput,
@@ -115,82 +139,13 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
   @VueEvent
   private onMouseEnterUrl(isHover: boolean) {
     this.windowInfo.message = isHover
-      ? LanguageManager.instance.getText("label.input-bcdice-url")
+      ? this.$t("label.input-bcdice-url")!.toString()
       : "";
   }
 
   @VueEvent
-  private hover(titleType: string, flg: boolean) {
-    this.windowInfo.message = flg
-      ? LanguageManager.instance.getText(
-          `chat-window.shortcut-title.${titleType}`
-        )
-      : "";
-  }
-
-  @VueEvent
-  private async open(windowType: string) {
-    await App.openSimpleWindow(windowType);
-  }
-
-  @VueEvent
-  private hover1(flg: boolean) {
-    this.hover("cut-in", flg);
-  }
-
-  @VueEvent
-  private async open1() {
-    await this.open("cut-in-list-window");
-  }
-
-  @VueEvent
-  private hover2(flg: boolean) {
-    this.hover("scene-list", flg);
-  }
-
-  @VueEvent
-  private async open2() {
-    await this.open("scene-list-window");
-  }
-
-  @VueEvent
-  private hover3(flg: boolean) {
-    this.hover("add-actor", flg);
-  }
-
-  @VueEvent
-  private async open3() {
-    await this.open("actor-add-window");
-  }
-
-  @VueEvent
-  private hover4(flg: boolean) {
-    this.hover("player-box", flg);
-  }
-
-  @VueEvent
-  private async open4() {
-    await this.open("player-box-window");
-  }
-
-  @VueEvent
-  private hover5(flg: boolean) {
-    this.hover("card-deck-list", flg);
-  }
-
-  @VueEvent
-  private async open5() {
-    await this.open("card-deck-list-window");
-  }
-
-  @VueEvent
-  private hover6(flg: boolean) {
-    this.hover("media-list", flg);
-  }
-
-  @VueEvent
-  private async open6() {
-    await this.open("media-list-window");
+  private onHover(message: string) {
+    this.windowInfo.message = message;
   }
 }
 </script>

@@ -18,7 +18,7 @@
     <table class="info-table">
       <tr>
         <tr-number-input-component
-          labelName="width"
+          labelName="label.width"
           inputWidth="3em"
           v-model="widthVolatile"
           :min="1"
@@ -26,7 +26,7 @@
       </tr>
       <tr>
         <tr-number-input-component
-          labelName="height"
+          labelName="label.height"
           inputWidth="3em"
           v-model="heightVolatile"
           :min="1"
@@ -44,14 +44,14 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="text"
+              labelName="label.text"
               width="100%"
               v-model="textVolatile"
             />
           </tr>
           <tr>
             <tr-color-picker-component
-              labelName="color"
+              labelName="label.color"
               v-model="colorVolatile"
             />
           </tr>
@@ -65,14 +65,14 @@
         <table>
           <tr>
             <tr-string-input-component
-              labelName="tag"
+              labelName="label.tag"
               width="100%"
               v-model="tagVolatile"
             />
           </tr>
           <tr>
             <tr-string-input-component
-              labelName="name"
+              labelName="label.name"
               width="100%"
               v-model="nameVolatile"
             />

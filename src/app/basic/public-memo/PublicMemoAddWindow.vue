@@ -58,7 +58,7 @@ export default class PublicMemoAddWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = LanguageManager.instance.getText("type.public-memo");
+    this.imageTag = this.$t("type.public-memo")!.toString();
     this.isMounted = true;
   }
 

@@ -162,7 +162,9 @@ export default class BcdiceManager {
   ): Promise<string | null> {
     if (!system) return null;
     if (system === "DiceBot")
-      return LanguageManager.instance.getText("label.default-dicebot");
+      return LanguageManager.instance.getText(
+        "bcdice-manager.label.default-dicebot"
+      );
     const info = await BcdiceManager.getBcdiceSystemInfo(baseUrl, system);
     return info.name;
   }

@@ -147,12 +147,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private outputTabList: StoreUseData<ChatTabInfo>[] = [];
   private isSecretList: StoreUseData<{ name: string }>[] = [
     createEmptyStoreUseData<{ name: string }>("false", {
-      name: LanguageManager.instance.getText(
-        "chat-window.input-info.non-secret"
-      )
+      name: LanguageManager.instance.getText("label.non-secret")
     }),
     createEmptyStoreUseData<{ name: string }>("true", {
-      name: LanguageManager.instance.getText("chat-window.input-info.secret")
+      name: LanguageManager.instance.getText("label.secret")
     })
   ];
   private actorGroupList = GameObjectManager.instance.actorGroupList;
@@ -210,9 +208,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   );
   /** ユーザタイプ */
   private userTypeLanguageMap: { [type in UserType]: string } = {
-    PL: LanguageManager.instance.getText("label.PL"),
-    GM: LanguageManager.instance.getText("label.GM"),
-    VISITOR: LanguageManager.instance.getText("label.VISITOR")
+    PL: LanguageManager.instance.getText("selection.user-type.PL"),
+    GM: LanguageManager.instance.getText("selection.user-type.GM"),
+    VISITOR: LanguageManager.instance.getText("selection.user-type.VISITOR")
   };
 
   /*
@@ -693,15 +691,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private async languageChangeFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    this.selectedItemLabel = LanguageManager.instance.getText(
+    this.selectedItemLabel = this.$t(
       "chat-window.options.selected-item"
-    );
-    this.editedMessage = LanguageManager.instance.getText("label.edited");
-    this.userTypeLanguageMap.PL = LanguageManager.instance.getText("label.PL");
-    this.userTypeLanguageMap.GM = LanguageManager.instance.getText("label.GM");
-    this.userTypeLanguageMap.VISITOR = LanguageManager.instance.getText(
-      "label.VISITOR"
-    );
+    )!.toString();
+    this.editedMessage = this.$t("label.edited")!.toString();
+    this.userTypeLanguageMap.PL = this.$t("selection.user-type.PL")!.toString();
+    this.userTypeLanguageMap.GM = this.$t("selection.user-type.GM")!.toString();
+    this.userTypeLanguageMap.VISITOR = this.$t(
+      "selection.user-type.VISITOR"
+    )!.toString();
     this.updateOutputTabList();
     task.resolve();
   }
@@ -775,7 +773,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     try {
       await this.chatListCC.deletePackage([id]);
     } catch (err) {
-      alert(this.$t("chat-window.dialog.delete-failure")!.toString());
+      alert(this.$t("message.delete-failure")!.toString());
       return;
     }
   }

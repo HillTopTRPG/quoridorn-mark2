@@ -54,12 +54,8 @@ export default class ConfirmWindow extends Mixins<
   ): Promise<TaskResult<never> | void> {
     const type = this.windowInfo.type;
     const target = this.info!.target;
-    this.windowInfo.title = LanguageManager.instance.getText(
-      `${type}.${target}.title`
-    );
-    this.message = LanguageManager.instance.getText(
-      `${type}.${target}.message`
-    );
+    this.windowInfo.title = this.$t(`${type}.${target}.title`)!.toString();
+    this.message = this.$t(`${type}.${target}.message`)!.toString();
     task.resolve();
   }
 
@@ -69,12 +65,8 @@ export default class ConfirmWindow extends Mixins<
     this.info = this.windowInfo.args!;
     const type = this.windowInfo.type;
     const target = this.info!.target;
-    this.windowInfo.title = LanguageManager.instance.getText(
-      `${type}.${target}.title`
-    );
-    this.message = LanguageManager.instance.getText(
-      `${type}.${target}.message`
-    );
+    this.windowInfo.title = this.$t(`${type}.${target}.title`)!.toString();
+    this.message = this.$t(`${type}.${target}.message`)!.toString();
   }
 
   @VueEvent
