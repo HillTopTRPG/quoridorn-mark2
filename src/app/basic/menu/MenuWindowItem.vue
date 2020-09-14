@@ -1,5 +1,5 @@
 <template>
-  <div class="item" v-t="`${type}.window-title`" @click="onClickItem()"></div>
+  <div class="item" v-t="`${type}.window-title`" @click="onClickItem"></div>
 </template>
 
 <script lang="ts">
@@ -15,8 +15,8 @@ export default class MenuWindowItem extends Mixins<ComponentVue>(ComponentVue) {
   private type!: string;
 
   @VueEvent
-  private async onClickItem() {
-    this.$emit("click");
+  private async onClickItem(event: MouseEvent) {
+    this.$emit("click", event);
     await App.openSimpleWindow(this.type);
   }
 }

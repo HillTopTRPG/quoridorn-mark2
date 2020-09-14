@@ -3,6 +3,7 @@
     @mousedown.prevent.stop="onMousedown"
     @touchstart.prevent.stop="onMousedown"
     @mouseenter.prevent.stop="onMouseEnter"
+    @click.prevent.stop
     :data-type="type"
     :class="{ isHover }"
     v-t="textTarget"

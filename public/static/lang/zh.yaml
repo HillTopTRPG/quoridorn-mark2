@@ -335,6 +335,15 @@ label:
   non-name: 無名
   room-password: 入室パスワード
   room-create-password: 部屋作成パスワード
+  window: 画面
+  management: 管理
+  directing: 演出
+  export-room-data: 部屋データエクスポート
+  import-room-data: 部屋データインポート
+  export-chat-log: チャットログ取得
+  window-position-reset: 画面配置リセット
+  create: 作成
+  help: ヘルプ
 
 message:
   copy-to-clipboard: 复制到剪贴板

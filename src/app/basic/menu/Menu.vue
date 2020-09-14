@@ -70,18 +70,18 @@
       <menu-window-item type="media-list-window" @click="menuClick" />
       <hr />
       <div
-        class="item"
+        class="item disabled"
         @click="onClickExport"
         v-t="'label.export-room-data'"
       ></div>
       <div
-        class="item"
+        class="item disabled"
         @click="onClickImport"
         v-t="'label.import-room-data'"
       ></div>
-      <hr />
+      <hr class="disabled" />
       <div
-        class="item"
+        class="item disabled"
         @click="onClickExportChatLog"
         v-t="'label.export-chat-log'"
       ></div>
@@ -229,7 +229,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     return this.isSelecting && someByStr(props, this.currentMenu);
   }
 
-  @EventProcessor("mousedown")
+  @EventProcessor("click")
   private mouseDown(event: MouseEvent | TouchEvent): void {
     event.preventDefault();
     this.isSelecting = false;
@@ -435,8 +435,17 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     padding: 0;
   }
 
-  > .item:hover {
-    background: lightblue;
+  > .disabled {
+    background: darkgray;
+    cursor: no-drop;
+  }
+
+  > :not(.disabled) {
+    cursor: pointer;
+
+    &:hover {
+      background: lightblue;
+    }
   }
 }
 
@@ -447,16 +456,6 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   > * {
     display: inline;
     vertical-align: middle;
-  }
-
-  img.check {
-    display: inline;
-    width: 10px;
-    height: 10px;
-    min-width: 10px;
-    min-height: 10px;
-    margin-right: 5px;
-    border: none;
   }
 }
 </style>
