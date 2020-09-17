@@ -40,7 +40,8 @@ import {
   ResourceStore,
   SceneObject,
   MemoStore,
-  PublicMemoStore
+  PublicMemoStore,
+  LikeStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findById } from "../core/utility/Utility";
@@ -152,7 +153,8 @@ export default class GameObjectManager {
       sf.sceneObjectCC().getList(true, this.sceneObjectList),
       sf.sceneLayerCC().getList(true, this.sceneLayerList),
       sf.initiativeColumnCC().getList(true, this.initiativeColumnList),
-      sf.groupChatTabListCC().getList(true, this.groupChatTabList)
+      sf.groupChatTabListCC().getList(true, this.groupChatTabList),
+      sf.likeListCC().getList(true, this.likeList)
     ]);
 
     const roomDataCC = sf.roomDataCC();
@@ -381,6 +383,7 @@ export default class GameObjectManager {
   >[] = [];
   public readonly memoList: StoreUseData<MemoStore>[] = [];
   public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
+  public readonly likeList: StoreUseData<LikeStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -564,6 +567,8 @@ export default class GameObjectManager {
         return this.memoList;
       case "public-memo":
         return this.publicMemoList;
+      case "like":
+        return this.likeList;
     }
     return null;
   }

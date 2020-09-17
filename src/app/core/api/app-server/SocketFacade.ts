@@ -24,7 +24,9 @@ import {
   ResourceMasterStore,
   ResourceStore,
   SceneObject,
-  MemoStore, PublicMemoStore
+  MemoStore,
+  PublicMemoStore,
+  LikeStore
 } from "@/@types/gameObject";
 import {
   ActorGroup,
@@ -605,9 +607,11 @@ export default class SocketFacade {
   }
 
   public publicMemoListCC(): NekostoreCollectionController<PublicMemoStore> {
-    return this.roomCollectionController<PublicMemoStore>(
-      "public-memo-list"
-    );
+    return this.roomCollectionController<PublicMemoStore>("public-memo-list");
+  }
+
+  public likeListCC(): NekostoreCollectionController<LikeStore> {
+    return this.roomCollectionController<LikeStore>("like-list");
   }
 
   public getCC(type: string): NekostoreCollectionController<any> {
@@ -672,6 +676,8 @@ export default class SocketFacade {
         return this.memoCC();
       case "public-memo":
         return this.publicMemoListCC();
+      case "like":
+        return this.likeListCC();
       default:
         throw new ApplicationError(`Invalid type error. type=${type}`);
     }

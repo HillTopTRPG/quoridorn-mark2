@@ -1,7 +1,12 @@
 <template>
   <tr class="tr-check-box-component">
     <th class="label-input">
-      <label v-t="labelName" @click="localValue = !localValue"></label>
+      <label
+        v-if="labelName"
+        v-t="labelName"
+        @click="localValue = !localValue"
+      ></label>
+      <label v-else @click="localValue = !localValue">&nbsp;</label>
     </th>
     <td>
       <s-check

@@ -153,8 +153,8 @@ declare module "task-info" {
   type ThrowParabolaInfo = {
     key?: string;
     char: string;
-    radius: number;
-    ratio: number;
+    radius?: number;
+    ratio?: number;
   };
 
   type BgmPlayInfo = {
@@ -186,6 +186,14 @@ declare module "task-info" {
     offsetY: number;
     pageX: number;
     pageY: number;
+  };
+
+  type UpdateResourceInfo = {
+    resourceMasterId: string;
+    ownerType: "actor" | "scene-object";
+    ownerId: string;
+    operationType: "set" | "add";
+    value: string;
   };
 }
 

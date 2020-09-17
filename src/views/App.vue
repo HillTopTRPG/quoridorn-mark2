@@ -86,7 +86,8 @@ import {
   BgmPlayInfo,
   DropPieceInfo,
   TabMoveInfo,
-  ThrowParabolaInfo
+  ThrowParabolaInfo,
+  UpdateResourceInfo
 } from "task-info";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import WindowManager from "../app/core/window/WindowManager";
@@ -96,10 +97,12 @@ import GameObjectManager from "../app/basic/GameObjectManager";
 import { CutInDeclareInfo, MediaUploadInfo } from "@/@types/room";
 import SocketFacade from "../app/core/api/app-server/SocketFacade";
 import VueEvent from "../app/core/decorator/VueEvent";
-import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import {
+  convertNumberNull,
+  convertNumberZero
+} from "@/app/core/utility/PrimaryDataUtility";
 import YoutubeManager from "../app/basic/cut-in/bgm/YoutubeManager";
 import TaskManager from "../app/core/task/TaskManager";
-import LanguageManager from "../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import EventProcessor from "../app/core/event/EventProcessor";
 import BcdiceManager from "../app/core/api/bcdice/BcdiceManager";
@@ -115,6 +118,7 @@ import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimul
 import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
 import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
+import { findById } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -694,6 +698,41 @@ export default class App extends Vue {
     task: Task<WindowOpenInfo<unknown>, never>
   ): Promise<TaskResult<never> | void> {
     task.value!.key = WindowManager.instance.open(task.value!, task.key);
+  }
+
+  @TaskProcessor("resource-update-finished")
+  private async resourceUpdateFinished(
+    task: Task<UpdateResourceInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    const resourceMasterId = task.value!.resourceMasterId;
+    const ownerType = task.value!.ownerType;
+    const ownerId = task.value!.ownerId;
+    const operationType = task.value!.operationType;
+    const value = task.value!.value;
+
+    const resourceCC = SocketFacade.instance.resourceCC();
+    const resourceList = GameObjectManager.instance.resourceList;
+    const resourceMasterList = GameObjectManager.instance.resourceMasterList;
+    const resource = resourceList.find(
+      r =>
+        r.ownerType === ownerType &&
+        r.owner === ownerId &&
+        r.data!.masterId === resourceMasterId
+    );
+    if (!resource) return;
+    const resourceValue = resource.data!.value;
+    if (operationType === "set") {
+      resource.data!.value = value;
+    } else if (operationType === "add") {
+      const resourceMaster = findById(resourceMasterList, resourceMasterId);
+      if (!resourceMaster) return;
+      if (resourceMaster.data!.type !== "number") return;
+      const resourceNumValue = convertNumberNull(resourceValue);
+      const addValue = convertNumberNull(value);
+      if (resourceNumValue === null || addValue === null) return;
+      resource.data!.value = (resourceNumValue + addValue).toString();
+    }
+    await resourceCC.updatePackage([resource.id!], [resource.data!]);
   }
 }
 </script>

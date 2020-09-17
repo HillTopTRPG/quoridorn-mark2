@@ -359,7 +359,6 @@ export default class LoginWindow extends Mixins<
           type: "app-server-setting-window"
         }
       });
-      console.log(appServerSettingInputList);
       appServerSettingInput = appServerSettingInputList[0];
       this.isInputtingServerSetting = false;
     } catch (err) {
@@ -1171,9 +1170,11 @@ export default class LoginWindow extends Mixins<
       roomExtendInfo: createRoomInput.extend,
       roomName: createRoomInput.name,
       language: {
-        mainChatTabName: this.$t("label.main")!.toString(),
-        allGroupChatTabName: this.$t("label.target-all")!.toString(),
-        nameLabel: this.$t("label.name")!.toString()
+        mainChatTabName: LanguageManager.instance.getText("label.main"),
+        allGroupChatTabName: LanguageManager.instance.getText(
+          "label.target-all"
+        ),
+        nameLabel: LanguageManager.instance.getText("label.name")
       }
     });
   }

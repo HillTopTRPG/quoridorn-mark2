@@ -303,20 +303,27 @@ type CustomDiceBotInfo = {
   system: string; // yamlファイルには未記載。プログラムで設定する変数。
 };
 
+type Like = {
+  char: string;
+  actorId: string;
+  count: number;
+};
+
 type ChatInfo = {
   chatType: "chat" | "system-message";
-  actorId: string | null;
-  statusId: string | null;
   tabId: string;
-  targetId: string;
-  targetType: "group" | "actor" | null;
   text: string;
   diceRollResult: string | null;
-  customDiceBotResult: string | null;
-  isSecret: boolean; // 秘匿チャット
-  isSecretDice: boolean; // BCDiceのシークレットダイス
   dices: DiceResult[];
+  isSecretDice: boolean; // BCDiceのシークレットダイス
+  customDiceBotResult: string | null;
+  actorId: string | null;
+  statusId: string | null;
   system: string;
+  targetType: "group" | "actor" | null;
+  targetId: string;
+  isSecret: boolean; // 秘匿チャット
+  like: Like[];
 };
 
 type ChatTabInfo = {
@@ -327,7 +334,7 @@ type ChatTabInfo = {
 };
 
 type AddRoomPresetDataRequest = {
-  diceMaterial: DiceMaterial,
+  diceMaterial: DiceMaterial;
   cutInDataList: CutInDeclareInfo[];
   sceneData: Scene;
   roomExtendInfo: RoomInfoExtend;

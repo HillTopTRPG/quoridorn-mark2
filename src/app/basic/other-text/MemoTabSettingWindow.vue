@@ -239,15 +239,6 @@ export default class MemoTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private onHoverView(isHover: boolean) {
-    if (isHover) this.$emit("onMouseHoverView", true);
-    else {
-      if (this.dragMode) this.$emit("onMouseHoverOrder", true);
-      else this.$emit("onMouseHoverView", false);
-    }
-  }
-
-  @VueEvent
   private async commit() {
     await this.finally(this.useMemoList || undefined);
   }

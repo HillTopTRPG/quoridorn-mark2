@@ -291,3 +291,9 @@ type KeepBcdiceDiceRollResult = {
   targetId: string;
   bcdiceDiceRollResult: BcdiceDiceRollResult;
 };
+
+type LikeStore = {
+  char: string;
+  isThrowLinkage: boolean;
+  linkageResourceId: string | null;
+};

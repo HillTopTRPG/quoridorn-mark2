@@ -23,19 +23,19 @@
         <draggable
           :options="{
             animation: 10,
-            handle: dragMode ? '' : '.anonymous'
+            handle: dragModeTab ? '' : '.anonymous'
           }"
           class="draggable-box"
           v-model="filteredChatTabList"
           @start="onSortStart()"
           @end="onSortEnd()"
-          @sort="onSortOrderChange()"
+          @sort="onSortOrderChangeTab()"
         >
           <chat-tab-component
             v-for="tab in filteredChatTabList"
             :key="tab.id"
             :tab="tab"
-            :dragMode="dragMode"
+            :dragMode="dragModeTab"
             :changeOrderId="changeOrderId"
             @hover="onHover"
           />
@@ -48,13 +48,51 @@
         </ctrl-button>
         <s-check
           class="sort-check"
-          v-model="dragMode"
+          v-model="dragModeTab"
           colorStyle="skyblue"
           c-icon="checkmark"
           :c-label="$t('label.sort')"
           n-icon=""
           :n-label="$t('label.sort')"
-          @hover="onHoverView"
+        />
+      </div>
+
+      <!-- いいねタブ -->
+      <div class="like-container" v-if="currentTabInfo.target === 'like-list'">
+        <draggable
+          :options="{
+            animation: 10,
+            handle: dragModeLike ? '' : '.anonymous'
+          }"
+          class="draggable-box"
+          v-model="likeList"
+          @start="onSortStart()"
+          @end="onSortEnd()"
+          @sort="onSortOrderChangeLike()"
+        >
+          <like-component
+            v-for="like in likeList"
+            :key="like.id"
+            :like="like"
+            :dragMode="dragModeLike"
+            :changeOrderId="changeOrderId"
+            @hover="onHover"
+          />
+        </draggable>
+      </div>
+
+      <div class="button-area" v-if="currentTabInfo.target === 'like-list'">
+        <ctrl-button @click="addLike()">
+          <span v-t="'button.add'"></span>
+        </ctrl-button>
+        <s-check
+          class="sort-check"
+          v-model="dragModeLike"
+          colorStyle="skyblue"
+          c-icon="checkmark"
+          :c-label="$t('label.sort')"
+          n-icon=""
+          :n-label="$t('label.sort')"
         />
       </div>
 
@@ -85,26 +123,29 @@ import App from "../../../views/App.vue";
 import WindowVue from "../../core/window/WindowVue";
 import { Getter, Mutation } from "vuex-class";
 import GameObjectManager from "../GameObjectManager";
-import { StoreUseData } from "../../../@types/store";
+import { StoreUseData } from "@/@types/store";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import TaskManager from "../../core/task/TaskManager";
-import { TabInfo, WindowOpenInfo } from "../../../@types/window";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "../../../LanguageManager";
-import { ChatTabInfo } from "../../../@types/room";
-import { DataReference } from "../../../@types/data";
+import { ChatTabInfo } from "@/@types/room";
+import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
 import ChatTabComponent from "./tab/ChatTabComponent.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import SCheck from "../common/components/SCheck.vue";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
 
 @Component({
   components: {
+    LikeComponent,
     SimpleTabComponent,
     ChatTabComponent,
     TrCheckboxComponent,
@@ -123,21 +164,26 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   private useReadAloud!: boolean;
 
   private chatTabList = GameObjectManager.instance.chatTabList;
+  private likeList = GameObjectManager.instance.likeList;
   private filteredChatTabList: StoreUseData<ChatTabInfo>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
+  private likeListCC = SocketFacade.instance.likeListCC();
   private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
 
-  private dragMode = false;
+  private dragModeTab = false;
+  private dragModeTabProcessed: boolean = false;
+  private dragModeLike = false;
+  private dragModeLikeProcessed: boolean = false;
   private changeOrderId: string = "";
   private orderChangingIdList: string[] = [];
-  private dragModeProcessed: boolean = false;
   private useReadAloudLocal: boolean = false;
 
   private isUseAllTab: boolean = false;
 
   private tabList: TabInfo[] = [
     { key: "1", target: "tab-list", text: "" },
-    { key: "2", target: "other", text: "" }
+    { key: "2", target: "like-list", text: "" },
+    { key: "3", target: "other", text: "" }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
@@ -165,6 +211,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     await this.init();
     this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
     this.currentTabInfo = this.tabList.filter(t => t.target === "tab-list")[0];
+  }
+
+  @Watch("currentTabInfo")
+  private onChangeCurrentTabInfo() {
+    this.dragModeTab = false;
+    this.dragModeLike = false;
   }
 
   private createTabInfoList() {
@@ -259,6 +311,11 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
+  private async addLike() {
+    await App.openSimpleWindow("like-add-window");
+  }
+
+  @VueEvent
   private getExclusionOwner(exclusionOwner: string) {
     return GameObjectManager.instance.getExclusionOwnerName(exclusionOwner);
   }
@@ -275,12 +332,10 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       : "";
   }
 
-  @Watch("dragMode")
-  private async onChangeDragMode() {
-    this.$emit("onChangeDragMode", this.dragMode);
-
+  @Watch("dragModeTab")
+  private async onChangeDragModeTab() {
     const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
-    if (this.dragMode) {
+    if (this.dragModeTab) {
       let error: boolean = false;
 
       try {
@@ -291,17 +346,46 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       }
 
       if (error) {
-        this.dragModeProcessed = true;
-        this.dragMode = false;
+        this.dragModeTabProcessed = true;
+        this.dragModeTab = false;
         this.orderChangingIdList = [];
       } else {
         this.orderChangingIdList = idList;
       }
     } else {
       this.orderChangingIdList = [];
-      if (!this.dragModeProcessed) {
+      if (!this.dragModeTabProcessed) {
         await this.chatTabListCC.releaseTouch(idList);
-        this.dragModeProcessed = false;
+        this.dragModeTabProcessed = false;
+      }
+    }
+  }
+
+  @Watch("dragModeLike")
+  private async onChangeDragModeLike() {
+    const idList: string[] = this.likeList.map(ct => ct.id!);
+    if (this.dragModeLike) {
+      let error: boolean = false;
+
+      try {
+        await this.chatTabListCC.touchModify(idList);
+      } catch (err) {
+        error = true;
+        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+      }
+
+      if (error) {
+        this.dragModeLikeProcessed = true;
+        this.dragModeLike = false;
+        this.orderChangingIdList = [];
+      } else {
+        this.orderChangingIdList = idList;
+      }
+    } else {
+      this.orderChangingIdList = [];
+      if (!this.dragModeLikeProcessed) {
+        await this.likeListCC.releaseTouch(idList);
+        this.dragModeLikeProcessed = false;
       }
     }
   }
@@ -311,10 +395,15 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
-    if (this.dragMode && !this.dragModeProcessed) {
+    if (this.dragModeTab && !this.dragModeTabProcessed) {
       const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
       await this.chatTabListCC.releaseTouch(idList);
-      this.dragModeProcessed = false;
+      this.dragModeTabProcessed = false;
+    }
+    if (this.dragModeLike && !this.dragModeLikeProcessed) {
+      const idList: string[] = this.likeList.map(ct => ct.id!);
+      await this.likeListCC.releaseTouch(idList);
+      this.dragModeLikeProcessed = false;
     }
   }
 
@@ -338,9 +427,23 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async onSortOrderChange() {
-    console.log("onEndOrderChange");
-    const idOrderList = this.filteredChatTabList.map(ct => ({
+  private async onSortOrderChangeTab() {
+    await ChatSettingWindow.sortUpdate(
+      this.filteredChatTabList,
+      this.chatTabListCC
+    );
+  }
+
+  @VueEvent
+  private async onSortOrderChangeLike() {
+    await ChatSettingWindow.sortUpdate(this.likeList, this.likeListCC);
+  }
+
+  private static async sortUpdate<T>(
+    list: StoreUseData<T>[],
+    cc: NekostoreCollectionController<T>
+  ) {
+    const idOrderList = list.map(ct => ({
       id: ct.id!,
       order: ct.order,
       target: false
@@ -357,13 +460,13 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     });
 
     const idList: string[] = [];
-    const dataList: ChatTabInfo[] = [];
+    const dataList: T[] = [];
     const optionList: any = [];
-    this.filteredChatTabList.forEach((obj, idx) => {
+    list.forEach((obj, idx) => {
       if (!idOrderList[idx].target) return;
       const id = idOrderList[idx].id;
       const order = idOrderList[idx].order;
-      const data = this.filteredChatTabList.filter(ct => ct.id === id)[0].data!;
+      const data = list.filter(ct => ct.id === id)[0].data!;
       idList.push(id);
       dataList.push(data);
       optionList.push({
@@ -372,16 +475,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       });
     });
 
-    await this.chatTabListCC.update(idList, dataList, optionList);
-  }
-
-  @VueEvent
-  private onHoverView(isHover: boolean) {
-    if (isHover) this.$emit("onMouseHoverView", true);
-    else {
-      if (this.dragMode) this.$emit("onMouseHoverOrder", true);
-      else this.$emit("onMouseHoverView", false);
-    }
+    await cc.update(idList, dataList, optionList);
   }
 }
 </script>
@@ -408,7 +502,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   padding: 0.2rem;
 }
 
-.tab-container {
+.tab-container,
+.like-container {
   @include flex-box(column, stretch, flex-start);
   flex: 1;
   background-color: white;
@@ -420,7 +515,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   display: contents;
 }
 
-.tab-info {
+.tab-info,
+.like-info {
   @include flex-box(row, flex-start, center);
   position: relative;
   height: 2em;
@@ -428,10 +524,6 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   padding: 0 0.3rem;
   border-bottom: 1px dotted var(--uni-color-gray);
   box-sizing: border-box;
-
-  &.tab-all {
-    @include btn-skyblue();
-  }
 }
 
 .icon-menu {

@@ -306,15 +306,6 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
     });
     this.changeOrderId = "";
   }
-
-  @VueEvent
-  private onHoverView(isHover: boolean) {
-    if (isHover) this.$emit("onMouseHoverView", true);
-    else {
-      if (this.dragMode) this.$emit("onMouseHoverOrder", true);
-      else this.$emit("onMouseHoverView", false);
-    }
-  }
 }
 </script>
 

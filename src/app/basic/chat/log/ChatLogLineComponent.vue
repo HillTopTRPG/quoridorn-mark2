@@ -1,12 +1,12 @@
 <template>
-  <div class="chat-log-line-component">
+  <div class="chat-log-line-component" @click="onClick">
     <div
       class="chat-line"
       :class="{ system: chat.data.chatType === 'system-message' }"
     >
       <span class="sender">{{ getSender(chat.data) }}：</span>
       <span class="text" v-html="transText(chat.data.text)"></span>
-      <div class="icon-container">
+      <div class="icon-container" v-if="!isExported">
         <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
         <template v-if="isEditable(chat) && chat.data.chatType === 'chat'">
           <span class="icon icon-pencil" @click="$emit('edit', chat.id)"></span>
@@ -14,6 +14,32 @@
         </template>
         <span class="update-time">{{ getDateStr(chat.updateTime) }}</span>
       </div>
+    </div>
+    <div
+      class="extend-bord"
+      v-if="
+        chat.data.chatType !== 'system-message' &&
+          (isLast || isSelected || likeInfoList.length)
+      "
+    >
+      <div class="add-like">
+        <chat-log-like-add-component
+          v-for="like in likeList"
+          :key="like.id"
+          :like="like"
+          @add="onAddLike"
+        />
+      </div>
+      <chat-log-like-view-component
+        v-for="likeInfo in likeInfoList"
+        :key="likeInfo.like.data.char"
+        :isOpen="selectedChar === likeInfo.like.data.char"
+        :like="likeInfo.like"
+        :actorCountList="likeInfo.list"
+        :actorList="actorList"
+        @select="onSelectChar"
+        @minus="onMinusLike"
+      />
     </div>
     <div
       class="chat-line dice-roll-result"
@@ -34,16 +60,22 @@ import { StoreUseData } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
 import { transText } from "@/app/core/utility/ChatUtility";
-import { ActorStore } from "@/@types/gameObject";
-import TabsComponent from "../../common/components/tab-component/TabsComponent.vue";
+import { ActorStore, LikeStore } from "@/@types/gameObject";
 import { UserType } from "@/@types/socket";
 import VueEvent from "../../../core/decorator/VueEvent";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { findById, findRequireById } from "@/app/core/utility/Utility";
+import {
+  createEmptyStoreUseData,
+  findById,
+  findRequireById
+} from "@/app/core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
-
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import ChatLogLikeAddComponent from "@/app/basic/chat/log/ChatLogLikeAddComponent.vue";
+import ChatLogLikeViewComponent from "@/app/basic/chat/log/ChatLogLikeViewComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 @Component({
-  components: { TabsComponent }
+  components: { ChatLogLikeViewComponent, ChatLogLikeAddComponent }
 })
 export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   ComponentVue
@@ -51,14 +83,26 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   @Prop({ type: Object, required: true })
   private chat!: StoreUseData<ChatInfo>;
 
+  @Prop({ type: Boolean, required: true })
+  private isExported!: boolean;
+
+  @Prop({ type: Boolean, required: true })
+  private isSelected!: boolean;
+
+  @Prop({ type: Boolean, required: true })
+  private isLast!: boolean;
+
   @Prop({ type: String, required: true })
   private editedMessage!: string;
 
   @Prop({ type: Array, required: true })
-  private userList!: StoreUseData<UserData>[];
+  private likeList!: StoreUseData<LikeStore>[];
 
   @Prop({ type: Array, required: true })
   private actorList!: StoreUseData<ActorStore>[];
+
+  @Prop({ type: Array, required: true })
+  private userList!: StoreUseData<UserData>[];
 
   @Prop({ type: Array, required: true })
   private groupChatTabList!: StoreUseData<GroupChatTabInfo>[];
@@ -66,13 +110,75 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
 
+  private likeInfoList: {
+    like: StoreUseData<LikeStore>;
+    list: { actorId: string; count: number }[];
+  }[] = [];
+  private selectedChar: string | null = null;
+
   @LifeCycle
   private mounted() {
     this.setFontColor();
   }
 
+  @VueEvent
+  private onClick() {
+    if (this.isExported) return;
+    this.$emit("select", this.chat.id!, !this.isSelected);
+  }
+
+  @VueEvent
+  private onAddLike(like: StoreUseData<LikeStore>) {
+    const actorId = GameObjectManager.instance.chatPublicInfo.actorId;
+    this.$emit("like", actorId, this.chat.id!, like, 1);
+  }
+
+  @VueEvent
+  private onMinusLike(actorId: string, like: StoreUseData<LikeStore>) {
+    this.$emit("like", actorId, this.chat.id!, like, -1);
+  }
+
+  @VueEvent
+  private onSelectChar(like: StoreUseData<LikeStore>) {
+    this.selectedChar = like ? like.data!.char : null;
+  }
+
+  @Watch("chat", { deep: true, immediate: true })
+  private onChangeChatDeepImmediate() {
+    listToEmpty(this.likeInfoList);
+    if (!this.chat.data!.like) return;
+    this.chat.data!.like.forEach(l => {
+      // userName
+      const actorId = l.actorId;
+      const actor = findRequireById(this.actorList, actorId);
+
+      const char = l.char;
+      const likeChar = this.likeInfoList.find(
+        li => li.like.data!.char === char
+      );
+      if (likeChar) {
+        const likeUser = likeChar.list.find(c => c.actorId === l.actorId);
+        if (likeUser) likeUser.count += l.count;
+        else likeChar.list.push({ actorId, count: l.count });
+      } else {
+        let like = this.likeList.find(like => like.data!.char === char);
+        if (!like) {
+          like = createEmptyStoreUseData(null, {
+            char,
+            isThrowLinkage: false,
+            linkageResourceId: null
+          });
+        }
+        this.likeInfoList.push({
+          like,
+          list: [{ actorId, count: l.count }]
+        });
+      }
+    });
+  }
+
   @Watch("chat", { deep: true })
-  private onChangeChat() {
+  private onChangeChatDeep() {
     this.setFontColor();
   }
 
@@ -181,6 +287,26 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
 
 .dice-roll-result {
   background-color: var(--uni-color-cream);
+}
+
+.extend-bord {
+  @include flex-box(row, flex-start, center);
+  min-height: 2em;
+
+  .add-like {
+    @include flex-box(row, flex-start, center);
+  }
+
+  .user {
+    @include flex-box(row, flex-start, center);
+    margin-left: 0.5em;
+
+    .name {
+    }
+
+    .like {
+    }
+  }
 }
 
 .icon-container {

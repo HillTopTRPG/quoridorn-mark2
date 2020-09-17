@@ -8,18 +8,24 @@
       @settingOpen="onSettingOpen()"
     >
       <div class="chat-line-container selectable" ref="chat-line-container">
-        <template v-for="chat in chatList">
+        <template v-for="(chat, idx) in useChatList">
           <chat-log-line-component
             v-if="chat.data.tabId === currentTabInfo.target"
             :key="chat.id"
+            :isExported="isExported"
+            :isSelected="selectedChatId === chat.id"
+            :isLast="idx === useChatList.length - 1"
             :chat="chat"
             :userList="userList"
+            :likeList="likeList"
             :actorList="actorList"
             :groupChatTabList="groupChatTabList"
             :editedMessage="editedMessage"
             :userTypeLanguageMap="userTypeLanguageMap"
             @edit="id => $emit('edit', id)"
             @delete="id => $emit('delete', id)"
+            @select="onSelect"
+            @like="onLike"
           />
         </template>
       </div>
@@ -38,7 +44,7 @@ import {
   GroupChatTabInfo,
   UserData
 } from "@/@types/room";
-import { ActorStore } from "@/@types/gameObject";
+import { ActorStore, LikeStore } from "@/@types/gameObject";
 import { TabInfo, WindowInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { StoreUseData } from "@/@types/store";
@@ -47,6 +53,7 @@ import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import App from "../../../../views/App.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {
@@ -57,6 +64,9 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<any>;
+
+  @Prop({ type: Boolean, default: false })
+  private isExported!: boolean;
 
   @Prop({ type: String, required: true })
   private editedMessage!: string;
@@ -77,11 +87,18 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private chatList!: StoreUseData<ChatInfo>[];
 
   @Prop({ type: Array, required: true })
+  private likeList!: StoreUseData<LikeStore>[];
+
+  @Prop({ type: Array, required: true })
   private chatTabList!: StoreUseData<ChatTabInfo>[];
+
+  private useChatList: StoreUseData<ChatInfo>[] = [];
 
   // tab controls
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
+
+  private selectedChatId: string | null = null;
 
   private lastLineLength: number = 0;
 
@@ -93,6 +110,18 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @LifeCycle
   private updated() {
     this.autoScrollEnd();
+  }
+
+  @VueEvent
+  private onSelect(chatId: string, isSelect: boolean) {
+    if (this.isExported) return;
+    this.selectedChatId = isSelect ? chatId : null;
+  }
+
+  @VueEvent
+  private onLike() {
+    if (this.isExported) return;
+    this.$emit("like", ...arguments);
   }
 
   private autoScrollEnd() {
@@ -128,6 +157,14 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
     ) {
       this.currentTabInfo = this.tabList[0];
     }
+  }
+
+  @Watch("chatList", { immediate: true, deep: true })
+  private onChangeChatListImmediateDeep() {
+    listToEmpty(this.useChatList);
+    this.useChatList = this.chatList.filter(
+      c => c.data!.tabId === this.currentTabInfo!.target
+    );
   }
 
   @VueEvent

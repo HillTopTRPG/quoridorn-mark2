@@ -8,12 +8,14 @@
       :userTypeLanguageMap="userTypeLanguageMap"
       :chatList="chatList"
       :userList="userList"
+      :likeList="likeList"
       :actorList="actorList"
       :chatTabList="chatTabList"
       :groupChatTabList="groupChatTabList"
       @edit="editChat"
       @delete="deleteChat"
       @changeTab="value => (tabId = value)"
+      @like="onLike"
     />
 
     <!-- 操作盤 -->
@@ -93,7 +95,7 @@ import {
   CustomDiceBotInfo,
   GroupChatTabInfo
 } from "@/@types/room";
-import { ActorStore } from "@/@types/gameObject";
+import { ActorStore, LikeStore } from "@/@types/gameObject";
 import { StoreUseData } from "@/@types/store";
 import ChatOperationLine from "./ChatOperationLine.vue";
 import WindowVue from "../../core/window/WindowVue";
@@ -118,6 +120,8 @@ import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import ReadAloudManager from "../../../ReadAloudManager";
 import { Getter } from "vuex-class";
+import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
+import TaskManager from "@/app/core/task/TaskManager";
 
 @Component({
   components: {
@@ -141,6 +145,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     | null = null;
   private chatList = GameObjectManager.instance.chatList;
   private userList = GameObjectManager.instance.userList;
+  private likeList = GameObjectManager.instance.likeList;
   private actorList = GameObjectManager.instance.actorList;
   private selfActors: StoreUseData<ActorStore>[] = [];
   private chatTabList = GameObjectManager.instance.chatTabList;
@@ -231,7 +236,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     | "select-chat-format" // $
     | "select-is-secret" = "none"; // ?
 
-  private chatOptionTitle: string | null = null;
   private chatOptionMax: number = 7;
   private chatOptionList: StoreUseData<any>[] | null = null;
   private chatOptionValue: string | null = null;
@@ -257,30 +261,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   private get windowElm(): HTMLDivElement {
     return this.$refs["window-container"] as HTMLDivElement;
-  }
-
-  private get useCommandActorList(): {
-    actorId: string;
-    statusId: string;
-    name: string;
-  }[] {
-    const resultList: {
-      actorId: string;
-      statusId: string;
-      name: string;
-    }[] = [];
-    GameObjectManager.instance.selfActors.forEach(actor => {
-      GameObjectManager.instance.actorStatusList
-        .filter(status => status.owner === actor.id)
-        .forEach(status => {
-          resultList.push({
-            actorId: actor.id!,
-            statusId: status.id!,
-            name: `${actor.data!.name}-${status.data!.name}`
-          });
-        });
-    });
-    return resultList;
   }
 
   @VueEvent
@@ -331,10 +311,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       }
       return `${actor.data!.name}${userTypeStr}${statusStr}`;
     }
-  }
-
-  private get isSelectedTab(): boolean {
-    return !this.outputTabId;
   }
 
   @VueEvent
@@ -676,6 +652,54 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.volatileActiveTab = null;
     this.volatileTargetTab = undefined;
     this.volatileIsSecret = null;
+  }
+
+  @VueEvent
+  private async onLike(
+    actorId: string,
+    chatId: string,
+    like: StoreUseData<LikeStore>,
+    add: number
+  ) {
+    const chat = findRequireById(this.chatList, chatId);
+    const char = like.data!.char;
+    const likeIdx = chat.data!.like.findIndex(
+      l => l.actorId === actorId && l.char === char
+    );
+    const chatLike = chat.data!.like[likeIdx];
+    if (chatLike) {
+      chatLike.count += add;
+      if (chatLike.count <= 0) chat.data!.like.splice(likeIdx, 1);
+    } else {
+      if (add > 0) {
+        chat.data!.like.push({
+          actorId,
+          char: like.data!.char,
+          count: add
+        });
+      }
+    }
+    await this.chatListCC.updatePackage([chatId], [chat.data!]);
+    if (add > 0 && like.data!.isThrowLinkage) {
+      await SocketFacade.instance.sendData<ThrowParabolaInfo>({
+        dataType: "throw-parabola",
+        data: { char }
+      });
+    }
+    const resourceMasterId = like.data!.linkageResourceId;
+    if (resourceMasterId) {
+      await TaskManager.instance.ignition<UpdateResourceInfo, never>({
+        type: "resource-update",
+        owner: "Quoridorn",
+        value: {
+          resourceMasterId,
+          ownerType: "actor",
+          ownerId: chat.data!.actorId!,
+          operationType: "add",
+          value: add.toString()
+        }
+      });
+    }
   }
 
   // アクターステータスを切り替える

@@ -31,8 +31,12 @@ export default class ThrowParabolaContainer extends Mixins<ComponentVue>(
     const key = uuid.v4();
     tpObj.key = key;
 
-    const radius = task.value!.radius;
-    const ratio = task.value!.ratio;
+    let radius = task.value!.radius;
+    if (!radius) {
+      radius = Math.random() / 2 + 0.5;
+      if (Math.random() < 0.5) radius = -radius;
+    }
+    const ratio = task.value!.ratio || 0.8;
 
     const obj1: any = {};
     const obj2: any = {

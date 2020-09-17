@@ -4,7 +4,7 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import BcdiceManager from "../api/bcdice/BcdiceManager";
 import { sum } from "./PrimaryDataUtility";
 import SocketFacade from "../api/app-server/SocketFacade";
-import { findById, someByStr } from "./Utility";
+import { findById, findRequireById, someByStr } from "./Utility";
 import { BcdiceDiceRollResult, DiceResult } from "@/@types/bcdice";
 import LanguageManager from "@/LanguageManager";
 import App from "@/views/App.vue";
@@ -143,7 +143,21 @@ export type SendChatInfo = {
 };
 
 async function addChatLog(chatInfo: ChatInfo): Promise<string> {
+  const actorList = GameObjectManager.instance.actorList;
+  const actor = findById(actorList, chatInfo.actorId);
+  const chatTabList = GameObjectManager.instance.chatTabList;
+  const chatTab = findRequireById(chatTabList, chatInfo.tabId);
+  const groupChatTabList = GameObjectManager.instance.groupChatTabList;
+  const target =
+    chatInfo.targetType === "group"
+      ? findRequireById(groupChatTabList, chatInfo.targetId)
+      : findById(actorList, chatInfo.actorId);
   console.log(JSON.stringify(chatInfo, null, "  "));
+  console.log({
+    chatTabName: chatTab!.data!.name,
+    actorName: actor ? actor.data!.name : "Quoridorn",
+    targetName: target ? target.data!.name : "Quoridorn"
+  });
   const idList = await SocketFacade.instance.chatListCC().addDirect(
     [chatInfo],
     [
@@ -197,29 +211,36 @@ export async function sendChatLog(
   );
   const groupChatTabInfo = findById(groupChatTabList, targetId);
 
+  // tabId
+  let tabId: string | null = payload.tabId || null;
+  if (!tabId && groupChatTabInfo) {
+    tabId = groupChatTabInfo.data!.outputChatTabId;
+  }
+  if (!tabId) {
+    tabId = GameObjectManager.instance.chatPublicInfo.tabId;
+  }
+
+  // statusId
+  let statusId: string | null = payload.statusId || null;
+  if (!statusId && actorStatus) {
+    statusId = actorStatus.id!;
+  }
+
   const chatInfo: ChatInfo = {
     chatType: payload.chatType || "chat",
-    actorId,
+    tabId: tabId!,
     text: payload.text,
-    customDiceBotResult: null,
-    isSecret: payload.isSecret,
     diceRollResult: payload.diceRollResult || null,
-    isSecretDice: payload.isSecretDice || false,
     dices: payload.dices || [],
+    isSecretDice: payload.isSecretDice || false,
+    customDiceBotResult: null,
+    actorId,
+    statusId: statusId!,
+    system: payload.system || GameObjectManager.instance.chatPublicInfo.system,
     targetId,
     targetType: groupChatTabInfo ? "group" : "actor",
-    tabId:
-      payload.tabId ||
-      (groupChatTabInfo && groupChatTabInfo.data!.outputChatTabId
-        ? groupChatTabInfo.data!.outputChatTabId
-        : GameObjectManager.instance.chatPublicInfo.tabId),
-    statusId:
-      payload.statusId !== undefined
-        ? payload.statusId
-        : actorStatus
-        ? actorStatus.id!
-        : null,
-    system: payload.system || GameObjectManager.instance.chatPublicInfo.system
+    isSecret: payload.isSecret,
+    like: []
   };
 
   const outputNormalChat = async (

@@ -200,6 +200,10 @@ bcdice-manager:
   label:
     default-dicebot: ダイスボット(指定なし)
 
+like-info-form:
+  label:
+    resource-restriction: 連動リソースは数値タイプかつ自動付与（アクター）のリソースから選択可能
+
 menu:
   window: 画面
   management: 管理
@@ -321,6 +325,10 @@ label:
   input-tab: タブの文字を入力
   contents: コンテンツ
   non-name: 無名
+  like-list: いいね一覧
+  throw: 飛ばす
+  non-throw: 飛ばさない
+  linkage-resource: 連動リソース
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -680,3 +688,9 @@ public-memo-add-window:
 
 public-memo-edit-window:
   window-title: 共有メモ編集
+
+like-add-window:
+  window-title: いいね作成
+
+like-edit-window:
+  window-title: いいね編集

@@ -83,6 +83,7 @@
     - dice-roll
     - dice-pips-change
     - change-dice-view
+    - resource-update
 
 - taskAttribute:
     isIgniteWithParam: false

@@ -124,7 +124,7 @@ function getY(sp: Point, ep: Point, x: number, injectionRad: number): number {
 export function calcInputRad(
   mouse: Point,
   end: Point,
-  degBlur: number = 15
+  degBlur: number = 12.5
 ): number {
   const rad = calcRadius(mouse, end);
   const deg = rad2deg(rad);

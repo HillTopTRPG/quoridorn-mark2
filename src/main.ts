@@ -57,6 +57,8 @@ import MemoTabSettingWindow from "@/app/basic/other-text/MemoTabSettingWindow.vu
 import ChatPaletteTabSettingWindow from "@/app/basic/chat-palette/ChatPaletteTabSettingWindow.vue";
 import PublicMemoAddWindow from "@/app/basic/public-memo/PublicMemoAddWindow.vue";
 import PublicMemoEditWindow from "@/app/basic/public-memo/PublicMemoEditWindow.vue";
+import LikeAddWindow from "@/app/basic/chat/like/LikeAddWindow.vue";
+import LikeEditWindow from "@/app/basic/chat/like/LikeEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -126,6 +128,8 @@ async function main(): Promise<void> {
   Vue.component("chat-palette-tab-setting-window", ChatPaletteTabSettingWindow);
   Vue.component("public-memo-add-window", PublicMemoAddWindow);
   Vue.component("public-memo-edit-window", PublicMemoEditWindow);
+  Vue.component("like-add-window", LikeAddWindow);
+  Vue.component("like-edit-window", LikeEditWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 
