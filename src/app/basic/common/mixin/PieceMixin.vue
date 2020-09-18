@@ -501,7 +501,19 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
     const data: SceneObject = (await this.sceneObjectCC!.getData(this.docId))!
       .data!;
-    await SocketFacade.instance.sceneObjectCC().addDirect([data]);
+    const sceneObjectId: string = (
+      await SocketFacade.instance.sceneObjectCC().addDirect([data])
+    )[0];
+
+    if (this.otherTextList.length) {
+      await SocketFacade.instance.memoCC().addDirect(
+        this.otherTextList.map(ot => ot.data!),
+        this.otherTextList.map(() => ({
+          ownerType: "scene-object",
+          owner: sceneObjectId
+        }))
+      );
+    }
   }
 
   @TaskProcessor("delete-object-finished")
