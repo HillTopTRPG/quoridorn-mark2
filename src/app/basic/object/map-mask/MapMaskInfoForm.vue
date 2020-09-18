@@ -96,11 +96,11 @@
       </div>
 
       <!-- その他欄タブ -->
-      <textarea
-        class="input"
+      <other-text-edit-component
         v-if="currentTabInfo.target === 'other-text'"
-        v-model="otherTextVolatile"
-      ></textarea>
+        v-model="otherTextListVolatile"
+        :windowKey="windowKey"
+      />
     </simple-tab-component>
   </div>
 </template>
@@ -112,17 +112,21 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { TabInfo } from "../../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { parseColor } from "../../../core/utility/ColorUtility";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
 import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
+import { StoreUseData } from "@/@types/store";
+import { MemoStore } from "@/@types/gameObject";
+import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 
 @Component({
   components: {
+    OtherTextEditComponent,
     SceneLayerSelect,
     TrColorPickerComponent,
     TrStringInputComponent,
@@ -146,7 +150,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private name!: string;
-
   private nameVolatile: string = "";
   @Watch("name", { immediate: true })
   private onChangeName(value: string) {
@@ -159,7 +162,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private text!: string;
-
   private textVolatile: string = "";
   @Watch("text", { immediate: true })
   private onChangeText(value: string) {
@@ -172,7 +174,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private color!: string;
-
   private colorVolatile: string = "";
   @Watch("color", { immediate: true })
   private onChangeColor(value: string) {
@@ -185,7 +186,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private tag!: string;
-
   private tagVolatile: string = "";
   @Watch("tag", { immediate: true })
   private onChangeTag(value: string) {
@@ -196,22 +196,20 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
     this.$emit("update:tag", value);
   }
 
-  @Prop({ type: String, required: true })
-  private otherText!: string;
-
-  private otherTextVolatile: string = "";
-  @Watch("otherText", { immediate: true })
-  private onChangeOtherText(value: string) {
-    this.otherTextVolatile = value;
+  @Prop({ type: Array, required: true })
+  private otherTextList!: StoreUseData<MemoStore>[];
+  private otherTextListVolatile: StoreUseData<MemoStore>[] = [];
+  @Watch("otherTextList", { immediate: true })
+  private onChangeOtherTextList(value: StoreUseData<MemoStore>[]) {
+    this.otherTextListVolatile = value;
   }
-  @Watch("otherTextVolatile")
-  private onChangeOtherTextVolatile(value: string) {
-    this.$emit("update:otherText", value);
+  @Watch("otherTextListVolatile")
+  private onChangeOtherTextListVolatile(value: StoreUseData<MemoStore>[]) {
+    this.$emit("update:otherTextList", value);
   }
 
   @Prop({ type: Number, required: true })
   private width!: number;
-
   private widthVolatile: number = 0;
   @Watch("width", { immediate: true })
   private onChangeWidth(value: number) {
@@ -224,7 +222,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: Number, required: true })
   private height!: number;
-
   private heightVolatile: number = 0;
   @Watch("height", { immediate: true })
   private onChangeHeight(value: number) {
@@ -237,7 +234,6 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private layerId!: string;
-
   private layerIdVolatile: string = "";
   @Watch("layerId", { immediate: true })
   private onChangeLayerId(value: string) {
