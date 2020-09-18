@@ -2,7 +2,7 @@ import { Address, Point } from "address";
 import { PartialRoomInfoExtend, RoomInfoExtend, UserType } from "./socket";
 import { DiceResult } from "./bcdice";
 import { IconClass, UrlType } from "@/app/core/utility/FileUtility";
-import { DiceMaterial } from "@/@types/gameObject";
+import { DiceMaterial, LikeStore } from "@/@types/gameObject";
 
 export type PlayBgmInfo =
   | {
@@ -334,11 +334,12 @@ type ChatTabInfo = {
 };
 
 type AddRoomPresetDataRequest = {
-  diceMaterial: DiceMaterial;
-  cutInDataList: CutInDeclareInfo[];
-  sceneData: Scene;
-  roomExtendInfo: RoomInfoExtend;
   roomName: string;
+  roomExtendInfo: RoomInfoExtend;
+  sceneData: Scene;
+  cutInDataList: CutInDeclareInfo[];
+  diceMaterial: DiceMaterial;
+  likeList: LikeStore[];
   language: {
     mainChatTabName: string;
     allGroupChatTabName: string;

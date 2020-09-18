@@ -169,7 +169,7 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
-import { DiceMaterial } from "@/@types/gameObject";
+import { DiceMaterial, LikeStore } from "@/@types/gameObject";
 
 @Component({
   components: {
@@ -1157,6 +1157,24 @@ export default class LoginWindow extends Mixins<
       chatLinkageSearch: ""
     };
 
+    const likeList: LikeStore[] = [
+      {
+        char: "💗",
+        isThrowLinkage: true,
+        linkageResourceId: null
+      },
+      {
+        char: "💐",
+        isThrowLinkage: true,
+        linkageResourceId: null
+      },
+      {
+        char: "✨",
+        isThrowLinkage: false,
+        linkageResourceId: null
+      }
+    ];
+
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
      */
@@ -1164,11 +1182,12 @@ export default class LoginWindow extends Mixins<
       AddRoomPresetDataRequest,
       void
     >("add-room-preset-data", {
-      diceMaterial,
-      cutInDataList,
-      sceneData: scene,
-      roomExtendInfo: createRoomInput.extend,
       roomName: createRoomInput.name,
+      roomExtendInfo: createRoomInput.extend,
+      sceneData: scene,
+      cutInDataList,
+      diceMaterial,
+      likeList,
       language: {
         mainChatTabName: LanguageManager.instance.getText("label.main"),
         allGroupChatTabName: LanguageManager.instance.getText(

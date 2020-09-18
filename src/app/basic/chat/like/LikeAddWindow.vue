@@ -80,15 +80,7 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
           linkageResourceId: this.linkageResourceId
         }
       ],
-      [
-        {
-          permission: {
-            view: { type: "none", list: [] },
-            edit: { type: "none", list: [] },
-            chmod: { type: "none", list: [] }
-          }
-        }
-      ]
+      [{ ownerType: null, owner: null }]
     );
     this.isProcessed = true;
     await this.finally(true);
