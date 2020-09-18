@@ -65,13 +65,13 @@
             handle: dragModeLike ? '' : '.anonymous'
           }"
           class="draggable-box"
-          v-model="likeList"
+          v-model="filteredLikeList"
           @start="onSortStart()"
           @end="onSortEnd()"
           @sort="onSortOrderChangeLike()"
         >
           <like-component
-            v-for="like in likeList"
+            v-for="like in filteredLikeList"
             :key="like.id"
             :like="like"
             :dragMode="dragModeLike"
@@ -142,6 +142,7 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
+import { LikeStore } from "@/@types/gameObject";
 
 @Component({
   components: {
@@ -166,6 +167,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   private chatTabList = GameObjectManager.instance.chatTabList;
   private likeList = GameObjectManager.instance.likeList;
   private filteredChatTabList: StoreUseData<ChatTabInfo>[] = [];
+  private filteredLikeList: StoreUseData<LikeStore>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
   private likeListCC = SocketFacade.instance.likeListCC();
   private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
@@ -236,10 +238,15 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @Watch("chatTabList", { immediate: true, deep: true })
-  private onChangeTabList() {
+  private onChangeTabListImmediateDeep() {
     this.filteredChatTabList = this.chatTabList.filter(ct =>
       permissionCheck(ct, "view")
     );
+  }
+
+  @Watch("likeList", { immediate: true, deep: true })
+  private onChangeLikeListImmediateDeep() {
+    this.filteredLikeList = this.likeList.concat();
   }
 
   @VueEvent
@@ -363,15 +370,15 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @Watch("dragModeLike")
   private async onChangeDragModeLike() {
-    const idList: string[] = this.likeList.map(ct => ct.id!);
+    const idList: string[] = this.filteredLikeList.map(ct => ct.id!);
     if (this.dragModeLike) {
       let error: boolean = false;
 
       try {
-        await this.chatTabListCC.touchModify(idList);
+        await this.likeListCC.touchModify(idList);
       } catch (err) {
         error = true;
-        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+        alert("Failure to get likeList's lock.\nPlease try again.");
       }
 
       if (error) {
@@ -436,7 +443,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async onSortOrderChangeLike() {
-    await ChatSettingWindow.sortUpdate(this.likeList, this.likeListCC);
+    await ChatSettingWindow.sortUpdate(this.filteredLikeList, this.likeListCC);
   }
 
   private static async sortUpdate<T>(
