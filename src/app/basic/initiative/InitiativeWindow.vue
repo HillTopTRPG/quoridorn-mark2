@@ -346,9 +346,16 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       const sortableTargetInfoList: SortableTargetInfo[] = [];
 
       this.resourceList.forEach(r => {
-        const resourceMaster = this.resourceMasterList.filter(
-          rm => rm.id === r.data!.masterId
-        )[0];
+        const resourceMaster = findRequireById(
+          this.resourceMasterList,
+          r.data!.masterId
+        );
+
+        if (
+          !resourceMaster.data!.isAutoAddActor &&
+          !resourceMaster.data!.isAutoAddMapObject
+        )
+          return;
 
         // actorの時の値で初期化
         let sceneObjectId: string | null = null;
@@ -382,12 +389,12 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           userId = actor.owner!;
         }
 
-        const user = this.userList.filter(u => u.id === userId)[0];
+        const user = findRequireById(this.userList, userId);
         const userOrder = user.order;
 
-        let sortableTargetInfo = sortableTargetInfoList.filter(
+        let sortableTargetInfo = sortableTargetInfoList.find(
           sti => sti.sceneObjectId === sceneObjectId && sti.actorId === actorId
-        )[0];
+        );
         if (!sortableTargetInfo) {
           sortableTargetInfo = {
             type: r.ownerType === "actor" ? "actor" : "scene-object",
@@ -479,21 +486,28 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         // 使用列一覧からリソースマスターに変換
         .map(
           ic =>
-            this.resourceMasterList.filter(
+            this.resourceMasterList.find(
               rm => rm.id === ic.data!.resourceMasterId
-            )[0]
+            )!
         )
         // リソースマスターからリソース一覧に変換
         .map(rm => ({
           resourceMaster: rm,
-          resource: this.resourceList.filter(
+          resource: this.resourceList.find(
             r =>
               r.data!.masterId === rm.id &&
               r.owner === df.docId &&
               r.ownerType === df.type
-          )[0]
+          )
         }))
         .forEach(obj => {
+          if (df.type === "actor" && !obj.resourceMaster.data!.isAutoAddActor)
+            return;
+          if (
+            df.type === "scene-object" &&
+            !obj.resourceMaster.data!.isAutoAddMapObject
+          )
+            return;
           const type = obj.resourceMaster.data!.type;
           if (type === "select" || type === "combo") {
             resultData.data[obj.resourceMaster.data!.label] = {
@@ -507,6 +521,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
               : null;
           }
         });
+      if (!Object.keys(resultData.data).length) return;
       resultList.push(resultData);
     });
     return resultList;
