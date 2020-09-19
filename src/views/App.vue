@@ -270,6 +270,8 @@ export default class App extends Vue {
               (info: StoreUseData<ClientRoomInfo>) => info.id === change.id
             );
             serverInfo.roomList!.splice(index, 1, {
+              id: null,
+              collection: "room-volatile",
               ownerType: null,
               owner: null,
               order: index,
@@ -278,8 +280,7 @@ export default class App extends Vue {
               permission: null,
               status: null,
               createTime: new Date(),
-              updateTime: null,
-              id: null
+              updateTime: null
             });
           } else {
             const index = change.data!.order;

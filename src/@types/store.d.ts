@@ -2,6 +2,7 @@
  * DBに格納されるデータのラッパー
  */
 export type StoreObj<T> = {
+  collection: string;
   ownerType: string | null;
   owner: string | null; // 部屋データに含まれるデータのオーナー。部屋データにはオーナーは存在しない
   order: number;

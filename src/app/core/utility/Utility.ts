@@ -192,17 +192,18 @@ export function createEmptyStoreUseData<T>(
   data: T
 ): StoreUseData<T> {
   return {
+    id,
+    collection: "volatile",
     ownerType: null,
     owner: null,
-    id,
     order: -1,
     exclusionOwner: null,
     lastExclusionOwner: null,
-    data,
     permission: null,
     status: "added",
     createTime: new Date(),
-    updateTime: null
+    updateTime: null,
+    data
   };
 }
 

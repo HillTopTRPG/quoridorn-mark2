@@ -471,6 +471,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     this.dataOwnerList.forEach((df, ind) => {
       const resultData: StoreUseData<any> = {
         id: uuid.v4(),
+        collection: "initiative-volatile",
         ownerType: df.type,
         owner: df.docId,
         order: ind,
