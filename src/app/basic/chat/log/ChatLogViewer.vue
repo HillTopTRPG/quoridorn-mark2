@@ -1,16 +1,15 @@
 <template>
   <div class="chat-view-container">
     <simple-tab-component
-      :windowKey="windowInfo.key"
+      :windowKey="windowKey"
       :tabList="tabList"
       v-model="currentTabInfo"
-      :hasSetting="true"
+      :hasSetting="!isExported"
       @settingOpen="onSettingOpen()"
     >
       <div class="chat-line-container selectable" ref="chat-line-container">
         <template v-for="(chat, idx) in useChatList">
           <chat-log-line-component
-            v-if="chat.data.tabId === currentTabInfo.target"
             :key="chat.id"
             :isExported="isExported"
             :isSelected="selectedChatId === chat.id"
@@ -39,6 +38,7 @@ import { Mixins } from "vue-mixin-decorator";
 import ChatLogLineComponent from "./ChatLogLineComponent.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
 import {
+  ActorGroup,
   ChatInfo,
   ChatTabInfo,
   GroupChatTabInfo,
@@ -54,6 +54,8 @@ import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import App from "../../../../views/App.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import { findById, findRequireById } from "@/app/core/utility/Utility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: {
@@ -62,8 +64,8 @@ import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
   }
 })
 export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
-  @Prop({ type: Object, required: true })
-  private windowInfo!: WindowInfo<any>;
+  @Prop({ type: String, required: true })
+  private windowKey!: string;
 
   @Prop({ type: Boolean, default: false })
   private isExported!: boolean;
@@ -71,11 +73,20 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private editedMessage!: string;
 
+  @Prop({
+    type: Array,
+    default: () => [GameObjectManager.instance.mySelfUserId]
+  })
+  private targetUserIdList!: string[];
+
   @Prop({ type: Array, required: true })
   private userList!: StoreUseData<UserData>[];
 
   @Prop({ type: Array, required: true })
   private actorList!: StoreUseData<ActorStore>[];
+
+  @Prop({ type: Array, required: true })
+  private actorGroupList!: StoreUseData<ActorGroup>[];
 
   @Prop({ type: Array, required: true })
   private groupChatTabList!: StoreUseData<GroupChatTabInfo>[];
@@ -86,7 +97,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Array, required: true })
   private chatList!: StoreUseData<ChatInfo>[];
 
-  @Prop({ type: Array, required: true })
+  @Prop({ type: Array, default: () => [] })
   private likeList!: StoreUseData<LikeStore>[];
 
   @Prop({ type: Array, required: true })
@@ -160,11 +171,37 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Watch("chatList", { immediate: true, deep: true })
+  @Watch("currentTabInfo")
   private onChangeChatListImmediateDeep() {
+    console.log("onChangeChatListImmediateDeep");
     listToEmpty(this.useChatList);
-    this.useChatList = this.chatList.filter(
-      c => c.data!.tabId === this.currentTabInfo!.target
-    );
+    const someActor = (id: string | null): boolean => {
+      const actor = findById(this.actorList, id);
+      if (!actor) return true;
+      return this.targetUserIdList.some(id => id === actor.owner);
+    };
+    this.useChatList = this.chatList.filter(c => {
+      if (c.data!.tabId !== this.currentTabInfo!.target) return false;
+      if (!c.data!.isSecret) return true;
+      if (someActor(c.data!.actorId)) return true;
+      const targetId = c.data!.targetId;
+      switch (c.data!.targetType) {
+        case "group":
+          const groupChatTab = findRequireById(this.groupChatTabList, targetId);
+          const actorGroupId = groupChatTab.data!.actorGroupId;
+          const actorGroup: StoreUseData<ActorGroup> = findRequireById(
+            this.actorGroupList,
+            actorGroupId
+          );
+          return actorGroup.data!.list.some(a =>
+            this.targetUserIdList.some(id => id === a.userId)
+          );
+        case "actor":
+          return someActor(targetId);
+        default:
+          return true;
+      }
+    });
   }
 
   @VueEvent

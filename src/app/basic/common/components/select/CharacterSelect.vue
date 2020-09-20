@@ -30,7 +30,7 @@ export default class CharacterSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
-  @Prop({ type: Array, default: [] })
+  @Prop({ type: Array, default: () => [] })
   private placeList!: Place[];
 
   private optionInfoList: HtmlOptionInfo[] = [];

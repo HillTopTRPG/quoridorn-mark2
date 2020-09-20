@@ -81,7 +81,7 @@
       ></div>
       <hr class="disabled" />
       <div
-        class="item disabled"
+        class="item"
         @click="onClickExportChatLog"
         v-t="'menu.export-chat-log'"
       ></div>
@@ -190,11 +190,15 @@
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 import { Component } from "vue-property-decorator";
 import { StoreUseData } from "@/@types/store";
-import { UserData } from "@/@types/room";
+import { ActorGroup, UserData } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
 import App from "../../../views/App.vue";
-import { someByStr } from "../../core/utility/Utility";
+import {
+  findById,
+  findRequireById,
+  someByStr
+} from "../../core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import MenuWindowItem from "@/app/basic/menu/MenuWindowItem.vue";
@@ -203,6 +207,10 @@ import { Point } from "address";
 import WindowManager from "@/app/core/window/WindowManager";
 import MenuDownItem from "@/app/basic/menu/MenuDownItem.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
+import moment from "moment/moment";
+import * as Mustache from "mustache";
+import { saveHTML } from "@/app/core/utility/FileUtility";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: {
@@ -295,8 +303,77 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
 
   /** チャットログ保存 */
   @VueEvent
-  private onClickExportChatLog(event: MouseEvent): void {
+  private async onClickExportChatLog(event: MouseEvent): Promise<void> {
     this.menuClick(event);
+    const dateStr = moment().format("YYYYMMDD_HHmmss");
+    const title = `Quoridorn_chatLog_${dateStr}`;
+
+    const chatTabList = GameObjectManager.instance.chatTabList;
+    let chatList = GameObjectManager.instance.chatList;
+    const userList = GameObjectManager.instance.userList;
+    const actorList = GameObjectManager.instance.actorList;
+    const actorGroupList = GameObjectManager.instance.actorGroupList;
+    const groupChatTabList = GameObjectManager.instance.groupChatTabList;
+    const userTypeLanguageMap = {
+      PL: this.$t("selection.user-type.PL")!.toString(),
+      GM: this.$t("selection.user-type.GM")!.toString(),
+      VISITOR: this.$t("selection.user-type.VISITOR")!.toString()
+    };
+
+    const convert = (data: any) => {
+      return JSON.stringify(data);
+    };
+
+    if (!GameObjectManager.instance.isGm) {
+      const someActor = (id: string | null): boolean => {
+        const actor = findById(actorList, id);
+        if (!actor) return true;
+        return actor.owner === GameObjectManager.instance.mySelfUserId;
+      };
+      chatList = chatList.filter(c => {
+        if (!c.data!.isSecret) return true;
+        if (someActor(c.data!.actorId)) return true;
+        const targetId = c.data!.targetId;
+        switch (c.data!.targetType) {
+          case "group":
+            const groupChatTab = findRequireById(groupChatTabList, targetId);
+            const actorGroupId = groupChatTab.data!.actorGroupId;
+            const actorGroup: StoreUseData<ActorGroup> = findRequireById(
+              actorGroupList,
+              actorGroupId
+            );
+            return actorGroup.data!.list.some(
+              a => a.userId === GameObjectManager.instance.mySelfUserId
+            );
+          case "actor":
+            return someActor(targetId);
+          default:
+            return true;
+        }
+      });
+    }
+
+    const data = {
+      owner: GameObjectManager.instance.mySelfUserId,
+      chatTabList: convert(chatTabList),
+      chatList: convert(chatList),
+      userList: convert(userList),
+      actorList: convert(actorList),
+      actorGroupList: convert(actorGroupList),
+      groupChatTabList: convert(groupChatTabList),
+      userTypeLanguageMap: convert(userTypeLanguageMap),
+      editedMessage: this.$t("label.edited")!.toString(),
+      title,
+      mode: "dev"
+    };
+
+    const basePath = process.env.BASE_URL ? `${process.env.BASE_URL}/` : "";
+    const templateFilePath = `${basePath}static/chatLogTemplate.html`;
+    return Promise.resolve()
+      .then(() => fetch(templateFilePath).then(res => res.text()))
+      .then((templateStr: string) => Mustache.render(templateStr, data))
+      .then((contents: string) => saveHTML(`${title}`, contents))
+      .catch((err: any) => console.error(err));
   }
 
   /* --------------------

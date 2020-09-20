@@ -50,7 +50,7 @@ import { Mixins } from "vue-mixin-decorator";
 export default class RangeMultiplePersent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  @Prop({ type: Array, default: [20, 80] })
+  @Prop({ type: Array, default: () => [20, 80] })
   private value!: number[];
 
   public input(value: number[]) {

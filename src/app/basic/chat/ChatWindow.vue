@@ -3,13 +3,14 @@
     <!-- ログビューアー -->
     <chat-log-viewer
       class="chat-log-viewer"
-      :windowInfo="windowInfo"
+      :windowKey="windowInfo.key"
       :editedMessage="editedMessage"
       :userTypeLanguageMap="userTypeLanguageMap"
       :chatList="chatList"
       :userList="userList"
       :likeList="likeList"
       :actorList="actorList"
+      :actorGroupList="actorGroupList"
       :chatTabList="chatTabList"
       :groupChatTabList="groupChatTabList"
       @edit="editChat"

@@ -1,7 +1,7 @@
 declare module "jszip";
 declare module "vuedraggable";
 declare module "vue-slider-component";
-declare module "mustache";
+declare module "Mustache";
 declare module "mathjs";
 declare module "moment";
 declare module "js-yaml";

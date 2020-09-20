@@ -9,6 +9,7 @@
       >
         <span>{{ getName(actorCount.actorId) }}: {{ actorCount.count }}</span>
         <span
+          v-if="like.collection === 'like-list'"
           class="like-minus"
           @click.stop="onClickMinus(actorCount.actorId)"
           >{{ like.data.char }}</span

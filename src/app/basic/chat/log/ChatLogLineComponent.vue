@@ -22,7 +22,7 @@
           (isLast || isSelected || likeInfoList.length)
       "
     >
-      <div class="add-like">
+      <div class="add-like" v-if="likeList && likeList.length">
         <chat-log-like-add-component
           v-for="like in likeList"
           :key="like.id"

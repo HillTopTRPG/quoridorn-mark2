@@ -1,12 +1,12 @@
 {
   "name": "quoridorn-mark2",
-  "version": "2.0.0a84",
+  "version": "2.0.0a85",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build && npm run build-chat-log",
     "lint": "vue-cli-service lint",
-    "build-chat-log": "scripts/build-chat-log.sh",
+    "build-chat-log": "python3 scripts/build-chat-log.py",
     "build-original": "vue-cli-service build && npm run build-chat-log",
     "create-zip": "scripts/create-zip.sh",
     "set-skyway-key": "scripts/set-skyway-key.sh"
@@ -14,6 +14,7 @@
   "dependencies": {
     "@types/mathjs": "^6.0.3",
     "@types/mongodb": "^3.3.14",
+    "@types/mustache": "^4.0.1",
     "@types/node-fetch": "^2.5.4",
     "@types/socket.io-client": "^1.4.32",
     "@types/uuid": "^3.4.6",
@@ -34,6 +35,7 @@
     "mingo": "^2.4.0",
     "moment": "^2.24.0",
     "mongodb": "^3.4.1",
+    "mustache": "^4.0.1",
     "nekostore": "^0.6.0",
     "node-fetch": "^2.6.0",
     "socket.io": "^2.3.0",

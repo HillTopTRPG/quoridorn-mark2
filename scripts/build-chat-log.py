@@ -47,7 +47,7 @@ def getIncludeText(regInfoArr, line):
         if (result):
             # 対象ファイルのパスを取得
             path = "dist/" + result.group(1)
-            with open(path) as fr:
+            with open(path, encoding="utf-8") as fr:
                 # ファイルの内容を全取得
                 lines = fr.read()
                 # テンプレートに流し込んで返却
@@ -57,26 +57,26 @@ def getIncludeText(regInfoArr, line):
 
 # --------------------------------------------------
 # キレイに行に分解してあげる
-with open(BASE_HTML_ORG) as fr:
+with open(BASE_HTML_ORG, encoding="utf-8") as fr:
     lines = fr.read()
     lines = re.sub('(?!<br)(<[^/!])', r'\n\1', lines)
     lines = re.sub('(<\/body>)', r'\n\1', lines)
     lines = re.sub('(<\/head>)', r'\n\1', lines)
     lines = re.sub('<link.+ rel=\"?preload\"?.*>\n', '', lines)
-    with open(BASE_HTML, mode='w') as fw:
+    with open(BASE_HTML, mode='w', encoding="utf-8") as fw:
         fw.write(lines)
 
 # --------------------------------------------------
 # 成果物を出力する
 initFile(OUTPUT_HTML)
-with open(BASE_HTML) as fr:
+with open(BASE_HTML, encoding="utf-8") as fr:
     line = fr.readline()
     while line:
         # キレイな行の単位
         # print(line, end="")
         convertedStr = getIncludeText([PATTERN_INPUT_SCRIPT, PATTERN_INPUT_CSS], line)
         convertedStr = re.sub(r'^\@charset \"UTF-8\";', '', convertedStr, flags=re.MULTILINE)
-        with open(OUTPUT_HTML, mode='a') as fa:
+        with open(OUTPUT_HTML, mode='a', encoding="utf-8") as fa:
             print(convertedStr, file=fa, end="")
         line = fr.readline()
 

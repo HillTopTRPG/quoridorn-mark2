@@ -31,7 +31,7 @@ import VueEvent from "../../../core/decorator/VueEvent";
 export default class CardSearchCountChooser extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  @Prop({ type: Array, default: "image" })
+  @Prop({ type: Array, required: true })
   public value!: string[];
 
   public input(value: string[]) {
