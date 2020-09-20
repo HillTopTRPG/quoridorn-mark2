@@ -210,7 +210,7 @@ import EventProcessor from "@/app/core/event/EventProcessor";
 import moment from "moment/moment";
 import * as Mustache from "mustache";
 import { saveHTML } from "@/app/core/utility/FileUtility";
-import LanguageManager from "@/LanguageManager";
+import urljoin from "url-join";
 
 @Component({
   components: {
@@ -367,8 +367,11 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
       mode: "dev"
     };
 
-    const basePath = process.env.BASE_URL ? `${process.env.BASE_URL}/` : "";
-    const templateFilePath = `${basePath}static/chatLogTemplate.html`;
+    const protocol = window.location.protocol;
+    const host = window.location.host;
+    const baseUrl = process.env.BASE_URL;
+    const path = "static/chatLogTemplate.html";
+    const templateFilePath = urljoin(protocol, host, baseUrl, path);
     return Promise.resolve()
       .then(() => fetch(templateFilePath).then(res => res.text()))
       .then((templateStr: string) => Mustache.render(templateStr, data))
