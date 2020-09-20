@@ -56,7 +56,7 @@
      !--------------->
     <chat-log-viewer
       class="chat-log-viewer"
-      :style="{ alignSelf: 'stretch' }"
+      :style="{ alignSelf: 'stretch', maxHeight: 'calc(100% - 9em)' }"
       windowKey="windowInfo"
       :isExported="true"
       :targetUserIdList="targetUserIdList"
