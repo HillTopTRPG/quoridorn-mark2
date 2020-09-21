@@ -61,7 +61,6 @@ import TaskManager from "../../core/task/TaskManager";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
-import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
 import { DataReference } from "@/@types/data";
@@ -116,7 +115,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         } else {
           const imageData = await SocketFacade.instance
             .mediaCC()
-            .getData(texture.imageId);
+            .getData(texture.mediaId);
           if (imageData && imageData.data) {
             backgroundImage = `url('${imageData.data.url}')`;
           }
@@ -223,16 +222,16 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       shapeType: "square",
       texture: {
         type: "image",
-        imageTag: firstImage.tag,
-        imageId: firstImageId,
+        mediaTag: firstImage.tag,
+        mediaId: firstImageId,
         direction: "none",
         backgroundSize: "100%"
       },
       background: {
         texture: {
           type: "image",
-          imageTag: firstImage.tag,
-          imageId: firstImageId,
+          mediaTag: firstImage.tag,
+          mediaId: firstImageId,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -242,8 +241,8 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         useTexture: "original",
         texture: {
           type: "image",
-          imageTag: firstImage.tag,
-          imageId: firstImageId,
+          mediaTag: firstImage.tag,
+          mediaId: firstImageId,
           direction: "none",
           backgroundSize: "100%"
         },

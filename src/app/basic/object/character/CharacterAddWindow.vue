@@ -133,8 +133,8 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
           textures: [
             {
               type: "image",
-              imageTag: this.imageTag!,
-              imageId: this.imageDocId!,
+              mediaTag: this.imageTag!,
+              mediaId: this.imageDocId!,
               direction: this.direction,
               backgroundSize: this.backgroundSize!
             }

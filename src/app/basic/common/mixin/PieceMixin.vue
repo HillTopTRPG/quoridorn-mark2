@@ -363,7 +363,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       this.elm.style.setProperty(`--font-color`, backInfo.fontColor);
       this.elm.style.setProperty(`--text`, `"${backInfo.text}"`);
     } else {
-      const media = findRequireById(this.mediaList, backInfo.imageId);
+      const media = findRequireById(this.mediaList, backInfo.mediaId);
       this.elm.style.setProperty(`--image`, `url('${media.data!.url}')`);
       let direction = "";
       if (backInfo.direction === "horizontal") direction = "scale(-1, 1)";

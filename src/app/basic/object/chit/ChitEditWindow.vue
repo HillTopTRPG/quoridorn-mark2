@@ -96,8 +96,8 @@ export default class ChitEditWindow extends Mixins<
 
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      this.imageDocId = backgroundInfo.imageId;
-      this.imageTag = backgroundInfo.imageTag;
+      this.imageDocId = backgroundInfo.mediaId;
+      this.imageTag = backgroundInfo.mediaTag;
       this.backgroundSize = backgroundInfo.backgroundSize;
       this.direction = backgroundInfo.direction;
     }
@@ -130,8 +130,8 @@ export default class ChitEditWindow extends Mixins<
     const data = (await this.cc!.getData(this.docId))!;
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      backgroundInfo.imageId = this.imageDocId!;
-      backgroundInfo.imageTag = this.imageTag!;
+      backgroundInfo.mediaId = this.imageDocId!;
+      backgroundInfo.mediaTag = this.imageTag!;
       backgroundInfo.backgroundSize = this.backgroundSize;
       backgroundInfo.direction = this.direction;
     }

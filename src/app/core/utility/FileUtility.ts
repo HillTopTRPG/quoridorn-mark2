@@ -106,6 +106,12 @@ async function readAsText(file: File | null): Promise<string | null> {
   });
 }
 
+export async function readJsonFiles(fileList: File[]): Promise<any[]> {
+  return (await Promise.all(fileList.map(f => readAsText(f))))
+    .filter(t => t)
+    .map(t => JSON.parse(t!));
+}
+
 /**
  * Jsonファイルをインポートする
  *
@@ -230,11 +236,12 @@ async function raw2UploadMediaInfo(
   raw: string | File
 ): Promise<{ uploadMediaInfo: UploadMediaInfo; raw: string | File }> {
   let rawText: string = typeof raw === "string" ? raw : raw.name;
+  const rawPath = rawText;
   let name = ""; // 後で必ず上書き
   const tag = "";
   const { urlType, iconClass } = getUrlTypes(rawText);
 
-  let { url, dataLocation } =
+  const srcInfo: { url: string; dataLocation: "server" | "direct" } =
     typeof raw === "string"
       ? getSrc(raw)
       : { url: "", dataLocation: "server" as "server" };
@@ -258,15 +265,25 @@ async function raw2UploadMediaInfo(
 
   let result: UploadMediaInfo | null = null;
 
-  if (dataLocation === "direct") {
+  if (srcInfo.dataLocation === "direct") {
     // Base64フォーマット文字列か、外部URL
-    result = { name, tag, url, urlType, iconClass, imageSrc, dataLocation };
+    result = {
+      name,
+      rawPath,
+      mediaFileId: "",
+      tag,
+      url: srcInfo.url,
+      urlType,
+      iconClass,
+      imageSrc,
+      dataLocation: srcInfo.dataLocation
+    };
   } else {
     let blob: Blob | undefined = undefined;
     let arrayBuffer: ArrayBuffer | undefined = undefined;
     if (typeof raw === "string") {
       // クライアントに置かれているファイルへの参照
-      arrayBuffer = await url2ArrayBuffer(url);
+      arrayBuffer = await url2ArrayBuffer(srcInfo.url);
       blob = new Blob([arrayBuffer]);
     } else {
       // ファイルをドロップインされた
@@ -275,17 +292,19 @@ async function raw2UploadMediaInfo(
     }
     result = {
       name,
+      rawPath,
+      mediaFileId: "",
       tag,
-      url,
+      url: srcInfo.url,
       urlType,
       iconClass,
       imageSrc,
-      dataLocation,
+      dataLocation: srcInfo.dataLocation,
       blob,
       arrayBuffer
     };
   }
-  return { uploadMediaInfo: result, raw };
+  return { uploadMediaInfo: result!, raw };
 }
 
 export async function raw2UploadMediaInfoList(
@@ -303,7 +322,7 @@ export async function raw2UploadMediaInfoList(
     )
   );
 
-  // 非同期処理は並列で行った代わりに、順序を保証するためにソートするaa
+  // 非同期処理は並列で行った代わりに、順序を保証するためにソートする
   const getStr = (data: string | File) =>
     typeof data === "string" ? data : data.name;
   const rawStrList = rawList.map(r => getStr(r));
@@ -354,7 +373,7 @@ async function url2ArrayBuffer(url: string): Promise<ArrayBuffer> {
       const xhr = new XMLHttpRequest();
       xhr.open("GET", url, true);
       xhr.responseType = "arraybuffer";
-      xhr.onload = function(e) {
+      xhr.onload = function() {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
             const arrayBuffer: ArrayBuffer = this.response;

@@ -5,8 +5,8 @@
       `knob-${side}`,
       deco ? 'deco' : undefined
     ]"
-    @mousedown.left.stop="leftDown($event, side)"
-    @touchstart.stop="leftDown($event, side)"
+    @mousedown.left.stop="leftDown"
+    @touchstart.stop="leftDown"
     @contextmenu.prevent
   ></div>
 </template>
@@ -18,9 +18,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class ResizeKnob extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class ResizeKnob extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private side!: string;
 
@@ -31,8 +29,8 @@ export default class ResizeKnob extends Mixins<ComponentVue>(
   private deco!: boolean;
 
   @VueEvent
-  private leftDown(event: MouseEvent | TouchEvent, side: string): void {
-    this.$emit("leftDown", event, side);
+  private leftDown(event: MouseEvent | TouchEvent): void {
+    this.$emit("leftDown", event, this.side);
   }
 }
 </script>

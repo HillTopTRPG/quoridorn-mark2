@@ -47,14 +47,14 @@ import {
   RefProperty,
   ResourceMasterStore,
   ResourceType
-} from "../../../@types/gameObject";
+} from "@/@types/gameObject";
 import VueEvent from "../../core/decorator/VueEvent";
 import { parseColor } from "../../core/utility/ColorUtility";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
-import { Direction } from "../../../@types/room";
+import { Direction } from "@/@types/room";
 
 @Component({
   components: {
@@ -134,9 +134,11 @@ export default class ResourceMasterAddWindow extends Mixins<
       systemColumnType: null,
       isAutoAddActor: this.isAutoAddActor,
       isAutoAddMapObject: this.isAutoAddMapObject,
-      iconImageId: this.iconImageId,
-      iconImageTag: this.iconImageTag,
-      iconImageDirection: this.iconImageDirection,
+      icon: {
+        mediaId: this.iconImageId,
+        mediaTag: this.iconImageTag,
+        imageDirection: this.iconImageDirection
+      },
       refProperty: isRef ? this.refProperty : null,
       min: isNumber ? this.min : null,
       max: isNumber ? this.max : null,

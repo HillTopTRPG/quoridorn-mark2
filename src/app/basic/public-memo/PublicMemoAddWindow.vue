@@ -68,8 +68,8 @@ export default class PublicMemoAddWindow extends Mixins<
       await SocketFacade.instance.publicMemoListCC().addDirect([
         {
           name: this.name,
-          iconId: this.imageDocId!,
-          imageTag: this.imageTag!,
+          mediaId: this.imageDocId!,
+          mediaTag: this.imageTag!,
           direction: this.direction
         }
       ])

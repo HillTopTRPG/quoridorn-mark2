@@ -353,7 +353,6 @@ export default class GameObjectManager {
   public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
   public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
   public readonly mediaList: StoreUseData<MediaInfo>[] = [];
-  public readonly imageTagList: StoreUseData<string>[] = [];
   public readonly userList: StoreUseData<UserData>[] = [];
   public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
   public readonly actorList: StoreUseData<ActorStore>[] = [];

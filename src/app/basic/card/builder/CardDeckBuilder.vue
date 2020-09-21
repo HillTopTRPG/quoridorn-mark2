@@ -321,44 +321,41 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         };
       });
 
-    const cardDeckSmallId: string = (
-      await this.cardDeckSmallCC.touch(undefined, [{ owner: null }])
+    const cardSceneLayer = this.sceneLayerList.filter(
+      sl => sl.data!.type === "card"
     )[0];
 
-    const cardObjectIdList = await this.cardObjectCC.addDirect(
+    const cardDeckSmallId = (
+      await this.cardDeckSmallCC.addDirect(
+        [
+          {
+            address: createAddress(0, 0, 0, 0),
+            layout: "pile-up",
+            cardHeightRatio: 1,
+            cardWidthRatio: 1,
+            columns: 2,
+            rows: 3,
+            layoutColumns: 1,
+            layoutRows: 1,
+            name: "",
+            isUseHoverView: true,
+            tileReorderingMode: "insert",
+            width: 200,
+            layerId: cardSceneLayer.id!,
+            total: cardObjectList.length
+          }
+        ],
+        [{ ownerType: null, owner: null }]
+      )
+    )[0];
+
+    await this.cardObjectCC.addDirect(
       cardObjectList,
       cardObjectList.map((_k, v) => ({
         order: v,
         owner: cardDeckSmallId,
         ownerType: "card-deck-small"
       }))
-    );
-
-    const cardSceneLayer = this.sceneLayerList.filter(
-      sl => sl.data!.type === "card"
-    )[0];
-
-    await this.cardDeckSmallCC.add(
-      [cardDeckSmallId],
-      [
-        {
-          address: createAddress(0, 0, 0, 0),
-          layout: "pile-up",
-          cardHeightRatio: 1,
-          cardWidthRatio: 1,
-          columns: 2,
-          rows: 3,
-          layoutColumns: 1,
-          layoutRows: 1,
-          name: "",
-          isUseHoverView: true,
-          tileReorderingMode: "insert",
-          width: 200,
-          layerId: cardSceneLayer.id!,
-          total: cardObjectIdList.length
-        }
-      ],
-      [{}]
     );
     await this.close();
   }

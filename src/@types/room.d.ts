@@ -85,8 +85,8 @@ type TextureColor = {
  */
 type TextureImage = {
   type: "image";
-  imageTag: string;
-  imageId: string;
+  mediaTag: string;
+  mediaId: string;
   direction: Direction;
   backgroundSize: BackgroundSize;
 };
@@ -228,6 +228,8 @@ type StandImageInfo = Point & {
 
 type MediaInfo = {
   name: string;
+  rawPath: string;
+  mediaFileId: string;
   tag: string;
   url: string;
   urlType: UrlType;

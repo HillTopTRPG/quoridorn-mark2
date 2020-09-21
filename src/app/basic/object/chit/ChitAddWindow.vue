@@ -133,8 +133,8 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
           textures: [
             {
               type: "image",
-              imageTag: this.imageTag!,
-              imageId: this.imageDocId!,
+              mediaTag: this.imageTag!,
+              mediaId: this.imageDocId!,
               direction: this.direction,
               backgroundSize: this.backgroundSize!
             }

@@ -25,9 +25,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class CtrlRadio extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class CtrlRadio extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Array, required: true })
   protected optionInfoList!: HtmlOptionInfo[];
 

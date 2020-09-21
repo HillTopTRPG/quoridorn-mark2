@@ -8,11 +8,9 @@ import Query from "nekostore/lib/Query";
 import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   AddDirectRequest,
-  CreateDataRequest,
   DeleteDataRequest,
   ReleaseTouchRequest,
   TouchModifyRequest,
-  TouchRequest,
   UpdateDataRequest
 } from "@/@types/data";
 import SocketFacade, {
@@ -123,22 +121,6 @@ export default class NekostoreCollectionController<T> {
       .map(item => getStoreObj(item)!);
   }
 
-  public async touch(
-    idList?: string[],
-    optionList?: Partial<StoreUseData<any>>[]
-  ): Promise<string[]> {
-    const docIdList = await SocketFacade.instance.socketCommunication<
-      TouchRequest,
-      string[]
-    >("touch-data", {
-      collection: this.collectionName,
-      idList,
-      optionList
-    });
-    this.touchList.push(...docIdList);
-    return docIdList;
-  }
-
   public async touchModify(idList: string[]): Promise<string[]> {
     const docIdList = await SocketFacade.instance.socketCommunication<
       TouchModifyRequest,
@@ -163,26 +145,6 @@ export default class NekostoreCollectionController<T> {
         idList
       }
     );
-  }
-
-  public async add(
-    idList: string[],
-    dataList: T[],
-    optionList?: Partial<StoreObj<any>>[]
-  ): Promise<string[]> {
-    idList.forEach(id => {
-      const index = this.touchList.findIndex(listId => listId === id);
-      this.touchList.splice(index, 1);
-    });
-    return await SocketFacade.instance.socketCommunication<
-      CreateDataRequest,
-      string[]
-    >("create-data", {
-      collection: this.collectionName,
-      idList,
-      dataList,
-      optionList
-    });
   }
 
   public async addDirect(

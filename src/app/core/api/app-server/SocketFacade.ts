@@ -514,10 +514,6 @@ export default class SocketFacade {
     return this.roomCollectionController<MediaInfo>("media-list");
   }
 
-  public imageTagCC(): NekostoreCollectionController<string> {
-    return this.roomCollectionController<string>("image-tag-list");
-  }
-
   public cutInDataCC(): NekostoreCollectionController<CutInDeclareInfo> {
     return this.roomCollectionController<CutInDeclareInfo>("cut-in-list");
   }
@@ -628,8 +624,6 @@ export default class SocketFacade {
         return this.roomDataCC();
       case "media":
         return this.mediaCC();
-      case "image-tag":
-        return this.imageTagCC();
       case "cut-in":
         return this.cutInDataCC();
       case "user":

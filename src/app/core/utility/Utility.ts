@@ -176,7 +176,7 @@ export function getTextureStyle(texture: Texture) {
     style.backgroundColor = texture.backgroundColor;
   } else {
     const mediaList = GameObjectManager.instance.mediaList;
-    const imageData = findById(mediaList, texture.imageId);
+    const imageData = findById(mediaList, texture.mediaId);
     if (imageData && imageData.data) {
       style.backgroundImage = `url('${imageData.data.url}')`;
     }

@@ -1117,16 +1117,16 @@ export default class LoginWindow extends Mixins<
       shapeType: "square",
       texture: {
         type: "image",
-        imageTag: imageInfo.tag,
-        imageId: imageInfo.docId,
+        mediaTag: imageInfo.tag,
+        mediaId: imageInfo.docId,
         direction: "none",
         backgroundSize: "100%"
       },
       background: {
         texture: {
           type: "image",
-          imageTag: imageInfo.tag,
-          imageId: imageInfo.docId,
+          mediaTag: imageInfo.tag,
+          mediaId: imageInfo.docId,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1136,8 +1136,8 @@ export default class LoginWindow extends Mixins<
         useTexture: "original",
         texture: {
           type: "image",
-          imageTag: imageInfo.tag,
-          imageId: imageInfo.docId,
+          mediaTag: imageInfo.tag,
+          mediaId: imageInfo.docId,
           direction: "none",
           backgroundSize: "100%"
         },

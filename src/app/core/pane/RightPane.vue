@@ -43,11 +43,7 @@ import {
 import WindowManager from "../window/WindowManager";
 import PaneFrame from "./PaneFrame.vue";
 import LifeCycle from "../decorator/LifeCycle";
-import {
-  PaneMoveInfo,
-  WindowInfo,
-  WindowMoveInfo
-} from "@/@types/window";
+import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { getCssPxNum } from "../css/Css";
 
 @Component({

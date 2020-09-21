@@ -20,9 +20,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
 @Component
-export default class TitleIcon extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class TitleIcon extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private className!: string;
 

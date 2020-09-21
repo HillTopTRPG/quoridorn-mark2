@@ -58,7 +58,10 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("publicMemo")
   private onChangePublicMemo() {
     const elm: HTMLDivElement = this.$el as HTMLDivElement;
-    const media = findRequireById(this.mediaList, this.publicMemo.data!.iconId);
+    const media = findRequireById(
+      this.mediaList,
+      this.publicMemo.data!.mediaId
+    );
     elm.style.setProperty(`--image`, `url('${media.data!.url}')`);
 
     const leftEm = (Math.floor(this.index / 5) * 5 + 1).toString() + "em";

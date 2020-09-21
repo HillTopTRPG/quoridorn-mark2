@@ -177,7 +177,7 @@ export type DiceAndPips = {
 
 export type UploadMediaResponse = {
   docId: string;
-  oldUrl: string;
+  rawPath: string;
   url: string;
   name: string;
   tag: string;

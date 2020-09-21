@@ -88,8 +88,8 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   private async mounted() {
     this.type = this.localValue.type;
     if (this.localValue.type === "image") {
-      this.imageTag = this.localValue.imageTag;
-      this.imageId = this.localValue.imageId;
+      this.imageTag = this.localValue.mediaTag;
+      this.imageId = this.localValue.mediaId;
       this.direction = this.localValue.direction;
       this.backgroundSize = this.localValue.backgroundSize;
     } else {
@@ -118,8 +118,8 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
       if (!this.imageTag) this.imageTag = this.defaultTag;
       this.localValue = {
         type: "image",
-        imageTag: this.imageTag,
-        imageId: this.imageId,
+        mediaTag: this.imageTag,
+        mediaId: this.imageId,
         direction: this.direction,
         backgroundSize: this.backgroundSize
       };
@@ -139,14 +139,14 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   @Watch("imageId")
   private onChangeImageId() {
     if (this.localValue.type === "image") {
-      this.localValue.imageId = this.imageId;
+      this.localValue.mediaId = this.imageId;
     }
   }
 
   @Watch("imageTag")
   private onChangeImageTag() {
     if (this.localValue.type === "image") {
-      this.localValue.imageTag = this.imageTag;
+      this.localValue.mediaTag = this.imageTag;
     }
   }
 

@@ -27,8 +27,8 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { MemoStore, PublicMemoStore, SceneObject } from "@/@types/gameObject";
-import { BackgroundSize, Direction } from "@/@types/room";
+import { MemoStore, PublicMemoStore } from "@/@types/gameObject";
+import { Direction } from "@/@types/room";
 import { DataReference } from "@/@types/data";
 import { StoreUseData } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
@@ -88,8 +88,8 @@ export default class PublicMemoEditWindow extends Mixins<
     }
 
     this.name = data.data!.name;
-    this.imageDocId = data.data!.iconId;
-    this.imageTag = data.data!.imageTag;
+    this.imageDocId = data.data!.mediaId;
+    this.imageTag = data.data!.mediaTag;
     this.direction = data.data!.direction;
 
     this.otherTextList = clone(
@@ -113,8 +113,8 @@ export default class PublicMemoEditWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.getData(this.docId))!;
-    data.data!.iconId = this.imageDocId!;
-    data.data!.imageTag = this.imageTag!;
+    data.data!.mediaId = this.imageDocId!;
+    data.data!.mediaTag = this.imageTag!;
     data.data!.direction = this.direction;
     data.data!.name = this.name;
     await this.cc!.update([this.docId], [data.data!]);

@@ -48,14 +48,14 @@ import {
   RefProperty,
   ResourceMasterStore,
   ResourceType
-} from "../../../@types/gameObject";
+} from "@/@types/gameObject";
 import VueEvent from "../../core/decorator/VueEvent";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
-import { DataReference } from "../../../@types/data";
-import { Direction } from "../../../@types/room";
+import { DataReference } from "@/@types/data";
+import { Direction } from "@/@types/room";
 
 @Component({
   components: {
@@ -116,9 +116,9 @@ export default class ResourceMasterEditWindow extends Mixins<
     this.isAutoAddActor = data.data!.isAutoAddActor;
     this.isAutoAddMapObject = data.data!.isAutoAddMapObject;
     this.systemColumnType = data.data!.systemColumnType;
-    this.iconImageId = data.data!.iconImageId;
-    this.iconImageTag = data.data!.iconImageTag;
-    this.iconImageDirection = data.data!.iconImageDirection;
+    this.iconImageId = data.data!.icon.mediaId;
+    this.iconImageTag = data.data!.icon.mediaTag;
+    this.iconImageDirection = data.data!.icon.imageDirection;
     this.refProperty = data.data!.refProperty;
     this.min = data.data!.min;
     this.max = data.data!.max;
@@ -190,9 +190,11 @@ export default class ResourceMasterEditWindow extends Mixins<
       systemColumnType: this.systemColumnType,
       isAutoAddActor: this.isAutoAddActor,
       isAutoAddMapObject: this.isAutoAddMapObject,
-      iconImageId: this.iconImageId,
-      iconImageTag: this.iconImageTag,
-      iconImageDirection: this.iconImageDirection,
+      icon: {
+        mediaId: this.iconImageId,
+        mediaTag: this.iconImageTag,
+        imageDirection: this.iconImageDirection
+      },
       refProperty: isRef ? this.refProperty : null,
       min: isNumber ? this.min : null,
       max: isNumber ? this.max : null,

@@ -348,16 +348,22 @@ export default class App extends Vue {
 
     // ファイルをドロップインしている場合
     const resultList = await getDropFileList(event.dataTransfer!);
-    await TaskManager.instance.ignition<WindowOpenInfo<MediaUploadInfo>, never>(
-      {
+    // TODO idを独自化
+    // await importInjection(resultList);
+
+    if (resultList.length) {
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<MediaUploadInfo>,
+        never
+      >({
         type: "window-open",
         owner: "Quoridorn",
         value: {
           type: "media-upload-window",
           args: { resultList }
         }
-      }
-    );
+      });
+    }
 
     this.isDropping = false;
   }

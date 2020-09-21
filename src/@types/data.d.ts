@@ -1,20 +1,13 @@
 import { Matrix, Point } from "address";
 import { StoreObj } from "./store";
 
-export type TouchRequest = {
+export type TouchModifyRequest = {
   collection: string;
-  idList?: string[];
-  optionList?: Partial<StoreObj<unknown>>[];
-};
-export type TouchModifyRequest = TouchRequest & {
   idList: string[];
+  optionList?: Partial<StoreObj<unknown>>[];
 };
 export type ReleaseTouchRequest = TouchModifyRequest & {
   optionList?: (Partial<StoreObj<unknown>> & { continuous?: boolean })[];
-};
-
-export type CreateDataRequest = TouchModifyRequest & {
-  dataList: any[];
 };
 export type AddDirectRequest = {
   collection: string;

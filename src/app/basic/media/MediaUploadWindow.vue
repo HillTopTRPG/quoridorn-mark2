@@ -220,6 +220,11 @@ export default class MediaUploadWindow extends Mixins<
     });
     await this.close();
   }
+
+  @VueEvent
+  private async rollback() {
+    await this.close();
+  }
 }
 </script>
 
