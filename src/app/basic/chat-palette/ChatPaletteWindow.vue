@@ -65,6 +65,7 @@ import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import { findRequireById } from "@/app/core/utility/Utility";
 import App from "@/views/App.vue";
+
 const uuid = require("uuid");
 
 @Component({
@@ -83,6 +84,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
   private chatPaletteList = GameObjectManager.instance.chatPaletteList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
+  private userList = GameObjectManager.instance.userList;
   private actorList = GameObjectManager.instance.actorList;
   private resourceList = GameObjectManager.instance.resourceList;
   private resourceMasterList = GameObjectManager.instance.resourceMasterList;
@@ -118,6 +120,15 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     this.statusId = chatPaletteData.statusId;
     this.system = chatPaletteData.system;
     this.isSecret = chatPaletteData.isSecret;
+
+    const userId = this.chatPaletteObj.owner;
+    if (userId === GameObjectManager.instance.mySelfUserId) {
+      this.windowInfo.message = "";
+    } else {
+      const user = findRequireById(this.userList, userId);
+      const ownerLabel = this.$t("label.owner");
+      this.windowInfo.message = `${ownerLabel}：${user.data!.name}`;
+    }
   }
 
   /*
