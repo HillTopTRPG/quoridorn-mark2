@@ -4,7 +4,7 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { ApplicationError } from "../error/ApplicationError";
 import * as jsonp from "jsonp";
-import { StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 
 export function getSrc(
   path: string
@@ -187,10 +187,14 @@ export function getTextureStyle(texture: Texture) {
   return style;
 }
 
-export function createEmptyStoreUseData<T>(key: string, data: T): StoreObj<T> {
+export function createEmptyStoreUseData<T>(
+  key: string,
+  data: T
+): StoreUseData<T> {
   return {
-    key,
+    id: "",
     collection: "volatile",
+    key,
     ownerType: null,
     owner: null,
     order: -1,

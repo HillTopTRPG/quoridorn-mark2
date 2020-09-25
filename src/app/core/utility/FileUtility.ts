@@ -152,6 +152,17 @@ export function saveText(name: string, text: string): void {
   saveFile(`${name}.txt`, blob);
 }
 
+export function createJsonBlob(type: string, data: any): Blob {
+  const saveData: ExportDataFormat<any> = {
+    version: process.env.VUE_APP_VERSION!,
+    type,
+    data
+  };
+  return new Blob([JSON.stringify(saveData, null, "  ")], {
+    type: "application/json"
+  });
+}
+
 /**
  * Jsonファイルをセーブする
  *
@@ -160,15 +171,7 @@ export function saveText(name: string, text: string): void {
  * @param data
  */
 export function saveJson<T>(name: string, type: string, data: T): void {
-  const saveData: ExportDataFormat<T> = {
-    version: process.env.VUE_APP_VERSION!,
-    type,
-    data
-  };
-  const blob = new Blob([JSON.stringify(saveData, null, "  ")], {
-    type: "application/json"
-  });
-  saveFile(`${name}.json`, blob);
+  saveFile(`${name}.json`, createJsonBlob(type, data));
 }
 
 /**
@@ -233,13 +236,14 @@ function getUrlTypes(url: string): { urlType: UrlType; iconClass: IconClass } {
 }
 
 async function raw2UploadMediaInfo(
-  raw: string | File
+  raw: string | File,
+  meta?: { urlType: UrlType; iconClass: IconClass }
 ): Promise<{ uploadMediaInfo: UploadMediaInfo; raw: string | File }> {
   let rawText: string = typeof raw === "string" ? raw : raw.name;
   const rawPath = rawText;
   let name = ""; // 後で必ず上書き
   const tag = "";
-  const { urlType, iconClass } = getUrlTypes(rawText);
+  if (!meta) meta = getUrlTypes(rawText);
 
   const srcInfo: { url: string; dataLocation: "server" | "direct" } =
     typeof raw === "string"
@@ -248,14 +252,14 @@ async function raw2UploadMediaInfo(
 
   let imageSrc: string = "";
 
-  if (urlType === "youtube") {
+  if (meta.urlType === "youtube") {
     imageSrc = getYoutubeThunbnail(rawText);
     name = LanguageManager.instance.getText("label.no-target");
   } else {
     name = getFileName(rawText);
   }
 
-  if (urlType === "image") {
+  if (meta.urlType === "image") {
     if (typeof raw === "string") {
       imageSrc = raw;
     } else {
@@ -273,8 +277,8 @@ async function raw2UploadMediaInfo(
       mediaFileId: "",
       tag,
       url: srcInfo.url,
-      urlType,
-      iconClass,
+      urlType: meta.urlType,
+      iconClass: meta.iconClass,
       imageSrc,
       dataLocation: srcInfo.dataLocation
     };
@@ -296,8 +300,8 @@ async function raw2UploadMediaInfo(
       mediaFileId: "",
       tag,
       url: srcInfo.url,
-      urlType,
-      iconClass,
+      urlType: meta.urlType,
+      iconClass: meta.iconClass,
       imageSrc,
       dataLocation: srcInfo.dataLocation,
       blob,
@@ -308,16 +312,19 @@ async function raw2UploadMediaInfo(
 }
 
 export async function raw2UploadMediaInfoList(
-  rawList: (string | File)[]
+  rawList: (string | File)[],
+  metaList?: { urlType: UrlType; iconClass: IconClass }[]
 ): Promise<UploadMediaInfo[]> {
   const resultList: {
     uploadMediaInfo: UploadMediaInfo;
     raw: string | File;
   }[] = [];
   await Promise.all(
-    rawList.map(raw =>
+    rawList.map((raw, idx) =>
       (async () => {
-        resultList.push(await raw2UploadMediaInfo(raw));
+        resultList.push(
+          await raw2UploadMediaInfo(raw, metaList ? metaList[idx] : undefined)
+        );
       })()
     )
   );

@@ -1,7 +1,7 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
-import { Permission, StoreObj } from "@/@types/store";
+import { Permission, StoreObj, StoreUseData } from "@/@types/store";
 import {
   ClientRoomInfo,
   DiceAndPips,
@@ -351,41 +351,43 @@ export default class GameObjectManager {
     windowKey: string;
   }[] = [];
 
-  public readonly chatList: StoreObj<ChatInfo>[] = [];
-  public readonly chatTabList: StoreObj<ChatTabInfo>[] = [];
-  public readonly groupChatTabList: StoreObj<GroupChatTabInfo>[] = [];
-  public readonly sceneList: StoreObj<Scene>[] = [];
-  public readonly cutInList: StoreObj<CutInDeclareInfo>[] = [];
-  public readonly bgmStandByList: StoreObj<BgmStandByInfo>[] = [];
-  public readonly mediaList: StoreObj<MediaInfo>[] = [];
-  public readonly userList: StoreObj<UserData>[] = [];
-  public readonly socketUserList: StoreObj<SocketUserData>[] = [];
-  public readonly actorList: StoreObj<ActorStore>[] = [];
-  public readonly sceneLayerList: StoreObj<SceneLayer>[] = [];
-  public readonly sceneAndLayerList: StoreObj<SceneAndLayer>[] = [];
-  public readonly sceneAndObjectList: StoreObj<SceneAndObject>[] = [];
-  public readonly sceneObjectList: StoreObj<SceneObject>[] = [];
-  public readonly actorStatusList: StoreObj<ActorStatusStore>[] = [];
-  public readonly resourceMasterList: StoreObj<ResourceMasterStore>[] = [];
-  public readonly resourceList: StoreObj<ResourceStore>[] = [];
-  public readonly initiativeColumnList: StoreObj<InitiativeColumnStore>[] = [];
-  public readonly propertySelectionList: StoreObj<
+  public readonly chatList: StoreUseData<ChatInfo>[] = [];
+  public readonly chatTabList: StoreUseData<ChatTabInfo>[] = [];
+  public readonly groupChatTabList: StoreUseData<GroupChatTabInfo>[] = [];
+  public readonly sceneList: StoreUseData<Scene>[] = [];
+  public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
+  public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
+  public readonly mediaList: StoreUseData<MediaInfo>[] = [];
+  public readonly userList: StoreUseData<UserData>[] = [];
+  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
+  public readonly actorList: StoreUseData<ActorStore>[] = [];
+  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
+  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
+  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
+  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
+  public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
+  public readonly resourceMasterList: StoreUseData<ResourceMasterStore>[] = [];
+  public readonly resourceList: StoreUseData<ResourceStore>[] = [];
+  public readonly initiativeColumnList: StoreUseData<
+    InitiativeColumnStore
+  >[] = [];
+  public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore
   >[] = [];
-  public readonly actorGroupList: StoreObj<ActorGroup>[] = [];
-  public readonly cardMetaList: StoreObj<CardMeta>[] = [];
-  public readonly cardObjectList: StoreObj<CardObject>[] = [];
-  public readonly cardDeckBigList: StoreObj<CardDeckBig>[] = [];
-  public readonly cardDeckSmallList: StoreObj<CardDeckSmall>[] = [];
-  public readonly chatPaletteList: StoreObj<ChatPaletteStore>[] = [];
-  public readonly diceTypeList: StoreObj<DiceType>[] = [];
-  public readonly diceAndPipsList: StoreObj<DiceAndPips>[] = [];
-  public readonly keepBcdiceDiceRollResultList: StoreObj<
+  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
+  public readonly cardMetaList: StoreUseData<CardMeta>[] = [];
+  public readonly cardObjectList: StoreUseData<CardObject>[] = [];
+  public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
+  public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
+  public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
+  public readonly diceTypeList: StoreUseData<DiceType>[] = [];
+  public readonly diceAndPipsList: StoreUseData<DiceAndPips>[] = [];
+  public readonly keepBcdiceDiceRollResultList: StoreUseData<
     KeepBcdiceDiceRollResult
   >[] = [];
-  public readonly memoList: StoreObj<MemoStore>[] = [];
-  public readonly publicMemoList: StoreObj<PublicMemoStore>[] = [];
-  public readonly likeList: StoreObj<LikeStore>[] = [];
+  public readonly memoList: StoreUseData<MemoStore>[] = [];
+  public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
+  public readonly likeList: StoreUseData<LikeStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -423,7 +425,7 @@ export default class GameObjectManager {
     }
   }
 
-  public get mySelfUser(): StoreObj<UserData> | null {
+  public get mySelfUser(): StoreUseData<UserData> | null {
     return findByKey(this.userList, this.mySelfUserKey) || null;
   }
 

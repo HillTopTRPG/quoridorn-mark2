@@ -20,7 +20,7 @@ import {
   SceneObject,
   SceneObjectType
 } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   copyAddress,
   createAddress,
@@ -40,6 +40,7 @@ import { DataReference } from "@/@types/data";
 import { sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 const uuid = require("uuid");
+import { exportData } from "@/app/core/utility/ExportUtility";
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -111,7 +112,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   }
 
   // HTMLで参照する項目
-  protected otherTextList: StoreObj<MemoStore>[] = [];
+  protected otherTextList: StoreUseData<MemoStore>[] = [];
 
   private volatileInfo: ObjectMoveInfo = {
     fromPoint: createPoint(0, 0),
@@ -436,7 +437,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const args = task.value.args;
     return (
       args.type !== this.type ||
-      args.docKey !== this.docKey ||
+      args.key !== this.docKey ||
       args.pieceKey !== this.pieceKey
     );
   }
@@ -527,6 +528,34 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         }))
       );
     }
+  }
+
+  @TaskProcessor("export-object-finished")
+  private async exportObjectFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.isNotThisTask(task)) return;
+
+    const sceneObject = (await this.sceneObjectCC!.findSingle(
+      "key",
+      this.docKey
+    ))!.data!;
+
+    const memoList = (await SocketFacade.instance.memoCC().findList([
+      {
+        property: "owner",
+        operand: "==",
+        value: this.docKey
+      }
+    ]))!.map(doc => doc.data!);
+
+    const exportList: StoreObj<any>[] = [];
+    exportList.push(sceneObject);
+    if (memoList.length) {
+      exportList.push(...memoList);
+    }
+    console.log(exportList);
+    await exportData(exportList);
   }
 
   @TaskProcessor("delete-object-finished")

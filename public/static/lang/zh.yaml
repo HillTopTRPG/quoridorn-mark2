@@ -329,6 +329,7 @@ label:
   throw: 飛ばす
   non-throw: 飛ばさない
   linkage-resource: 連動リソース
+  export: エクスポート
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

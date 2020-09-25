@@ -1074,14 +1074,10 @@ export default class LoginWindow extends Mixins<
       if (mediaData.tag !== undefined) umi.tag = mediaData.tag;
     });
 
-    console.log("$$$$$$");
-    console.log(uploadMediaInfoList);
-
     const uploadMediaResponse = await mediaUpload({
       uploadMediaInfoList,
       option: { ownerType: null, owner: null }
     });
-    console.log(uploadMediaResponse);
 
     uploadMediaResponse.forEach(umr => {
       if (umr.tag === "dice" && umr.urlType === "image") {

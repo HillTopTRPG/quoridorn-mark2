@@ -84,6 +84,7 @@
     - dice-pips-change
     - change-dice-view
     - resource-update
+    - export-object
 
 - taskAttribute:
     isIgniteWithParam: false

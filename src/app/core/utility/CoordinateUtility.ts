@@ -234,8 +234,6 @@ export function calcWindowPosition(
         windowTitleHeight;
   }
 
-  console.log(point.x, point.y);
-
   return point;
 }
 

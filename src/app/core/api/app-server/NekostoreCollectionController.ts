@@ -4,7 +4,7 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import Query from "nekostore/lib/Query";
-import { StoreObj } from "@/@types/store";
+import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   AddDirectRequest,
   DeleteDataRequest,
@@ -52,15 +52,18 @@ export default class NekostoreCollectionController<T> {
    */
   public async getList(
     isSync: boolean,
-    argList?: StoreObj<T>[],
+    argList?: StoreUseData<T>[],
     column?: string
-  ): Promise<StoreObj<T>[]> {
+  ): Promise<StoreUseData<T>[]> {
     const c = this.getCollection();
     const sortColumn = column || "order";
     if (!argList) argList = [];
     const list = (await c.orderBy(sortColumn).get()).docs
       .filter(doc => doc.exists() && doc.data.data)
-      .map(doc => doc.data!);
+      .map(doc => ({
+        id: doc.ref.id,
+        ...doc.data!
+      }));
     argList.push(...list);
     await this.setCollectionSnapshot(
       "NekostoreCollectionController",
@@ -68,7 +71,7 @@ export default class NekostoreCollectionController<T> {
         snapshot.docs.forEach(() => {
           let wantSort = false;
           snapshot.docs.forEach(doc => {
-            const index = argList!.findIndex(p => p.key === doc.data!.key);
+            const index = argList!.findIndex(p => p.id === doc.ref.id);
             if (doc.type === "removed") {
               argList!.splice(index, 1);
             } else {
@@ -79,7 +82,10 @@ export default class NekostoreCollectionController<T> {
                 status === "modified" ||
                 status === "modify-touched"
               ) {
-                argList!.splice(index, index < 0 ? 0 : 1, doc.data!);
+                argList!.splice(index, index < 0 ? 0 : 1, {
+                  id: doc.ref.id,
+                  ...doc.data!
+                });
                 wantSort = true;
               }
             }

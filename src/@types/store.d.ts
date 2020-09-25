@@ -22,6 +22,10 @@ export type StoreObj<T> = {
   updateTime: Date | null;
 };
 
+export type StoreUseData<T> = StoreObj<T> & {
+  id: string;
+};
+
 export type ExportDataFormat<T> = {
   type: string;
   version: string;

@@ -73,6 +73,8 @@ map-mask:
   - ref: object-view-border
   - ref: object-hide-highlight
   - ref: object-view-highlight
+  - ~
+  - ref: export-object
 
 chit:
   - text: context.modify
@@ -100,6 +102,8 @@ chit:
   - ref: object-view-border
   - ref: object-hide-highlight
   - ref: object-view-highlight
+  - ~
+  - ref: export-object
 
 character:
   - text: context.modify

@@ -37,7 +37,7 @@ async function getMediaLineage(
   let importRawData: StoreObj<any>[] = await jsonFileList2JsonList(
     jsonFileList
   );
-  console.log(JSON.stringify(importRawData, null, "  "));
+  // console.log(JSON.stringify(importRawData, null, "  "));
 
   const mediaInfoList: StoreObj<MediaInfo>[] = [];
   const otherInfoList: StoreObj<any>[] = [];
@@ -92,7 +92,7 @@ export async function importInjection(dropList: (string | File)[]) {
   );
   uploadMediaInfoList.forEach(ui => {
     const mediaInfo = mediaInfoList.find(
-      mi => mi.data!.imageSrc === ui.imageSrc
+      mi => mi.data!.mediaFileId === ui.rawPath
     )!;
     ui.name = mediaInfo.data!.name;
     ui.rawPath = mediaInfo.data!.rawPath;
@@ -111,15 +111,21 @@ export async function importInjection(dropList: (string | File)[]) {
     from: RegExp;
     to: (match: string, p1: string) => string;
   }[] = [];
-  mediaUploadResult.forEach(mu => {
-    const mediaInfo = mediaInfoList.find(
-      mi => mi.data!.rawPath === mu.rawPath
-    )!;
-    conversionList.push({
-      from: new RegExp(`mediaKey="${mediaInfo.key}"`),
-      to: () => `mediaKey="${mu.key}"`
-    });
-  });
+
+  // メディアKeyの置換
+  conversionList.push(
+    ...mediaUploadResult.map(mu => ({
+      from: new RegExp(
+        `"mediaKey": ?"${
+          mediaInfoList.find(mi => mi.data!.rawPath === mu.rawPath)!.key
+        }"`
+      ),
+      to: () => `"mediaKey":"${mu.key}"`
+    }))
+  );
+
+  // TODO User Key の置換
+  // TODO Actor Key の置換
 
   // データを変換していく
   const directImportDataList = otherInfoList.map(info => {

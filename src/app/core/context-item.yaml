@@ -417,3 +417,15 @@ dice-view:
           true
   taskArg:
     value: false
+
+export-object:
+  text: label.export
+  taskName: export-object
+  isDisabledCompare:
+    lhs:
+      refType: permission-check
+      type: edit
+    rhs:
+      true
+  taskArg: ~
+

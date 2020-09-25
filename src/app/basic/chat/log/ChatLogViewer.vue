@@ -173,7 +173,6 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("chatList", { immediate: true, deep: true })
   @Watch("currentTabInfo")
   private onChangeChatListImmediateDeep() {
-    console.log("onChangeChatListImmediateDeep");
     listToEmpty(this.useChatList);
     const someActor = (key: string | null): boolean => {
       const actor = findByKey(this.actorList, key);
