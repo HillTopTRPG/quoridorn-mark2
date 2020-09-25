@@ -68,9 +68,9 @@
 
     <div
       class="card-wrap"
-      :class="{ selected: getSelectedCount(card.id) > 0 }"
+      :class="{ selected: getSelectedCount(card.key) > 0 }"
       v-for="card in useCardList"
-      :key="card.id"
+      :key="card.key"
       @mouseenter="onHoverCard(card, true, $event.target)"
       @mouseleave="onHoverCard(card, false, $event.target)"
     >
@@ -89,7 +89,7 @@
       />
       <div class="operation-box">
         <s-button class="minus-btn" icon="minus" @click="onMinusCard(card)" />
-        <div class="count">{{ getSelectedCount(card.id) }}</div>
+        <div class="count">{{ getSelectedCount(card.key) }}</div>
         <s-button class="plus-btn" icon="plus" @click="onPlusCard(card)" />
       </div>
     </div>
@@ -99,21 +99,21 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import { StoreUseData } from "../../../../@types/store";
 import {
   createRectangle,
   createSize
-} from "../../../core/utility/CoordinateUtility";
+} from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "../../../core/window/ComponentVue";
 import CardSearchCountChooser from "../../common/components/CardSearchCountChooser.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import SButton from "../../common/components/SButton.vue";
-import { CardMeta } from "../../../../@types/gameObject";
+import { CardMeta } from "@/@types/gameObject";
 import CardComponent from "../CardComponent.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { StoreObj } from "@/@types/store";
 
 export type CardCountInfo = {
-  id: string;
+  key: string;
   count: number;
 };
 
@@ -132,7 +132,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   private title!: string;
 
   @Prop({ type: Array, required: true })
-  private cardList!: StoreUseData<CardMeta>[];
+  private cardList!: StoreObj<CardMeta>[];
 
   // selectedCardIdList
   @Prop({ type: Array, required: true })
@@ -164,7 +164,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
         const name = c.data!.name;
         if (!name.match(regExp)) return false;
       }
-      const count = this.getSelectedCount(c.id!);
+      const count = this.getSelectedCount(c.key);
       return (
         (count > 4 && this.searchCountList.indexOf("more") > -1) ||
         this.searchCountList.indexOf(count.toString(10)) > -1
@@ -180,12 +180,12 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   @VueEvent
   private setCardCount() {
     this.useCardList.forEach(c => {
-      const scIndex = this.selectedCardList.findIndex(sc => sc.id === c.id);
+      const scIndex = this.selectedCardList.findIndex(sc => sc.key === c.key);
       if (scIndex === -1) {
         // 見つからなかった
         if (this.targetCount > 0) {
           this.selectedCardList.push({
-            id: c.id!,
+            key: c.key,
             count: this.targetCount
           });
         } else {
@@ -205,40 +205,44 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private getSelectedCount(cardId: string): number {
-    const info = this.selectedCardList.filter(c => c.id === cardId)[0];
+    const info = this.selectedCardList.filter(c => c.key === cardId)[0];
     return info ? info.count : 0;
   }
 
   @VueEvent
-  private onPlusCard(cardMeta: StoreUseData<CardMeta>) {
-    const findIdx = this.selectedCardList.findIndex(c => c.id === cardMeta.id);
-    if (findIdx === -1) {
+  private onPlusCard(cardMeta: StoreObj<CardMeta>) {
+    const findIndex = this.selectedCardList.findIndex(
+      c => c.key === cardMeta.key
+    );
+    if (findIndex === -1) {
       this.selectedCardList.push({
-        id: cardMeta.id!,
+        key: cardMeta.key,
         count: 1
       });
     } else {
-      this.selectedCardList[findIdx].count++;
+      this.selectedCardList[findIndex].count++;
     }
   }
 
   @VueEvent
-  private onMinusCard(cardMeta: StoreUseData<CardMeta>) {
-    const findIdx = this.selectedCardList.findIndex(c => c.id === cardMeta.id);
-    if (findIdx === -1) return;
+  private onMinusCard(cardMeta: StoreObj<CardMeta>) {
+    const findIndex = this.selectedCardList.findIndex(
+      c => c.key === cardMeta.key
+    );
+    if (findIndex === -1) return;
 
-    const info = this.selectedCardList[findIdx];
+    const info = this.selectedCardList[findIndex];
     if (info.count > 1) info.count--;
-    else this.selectedCardList.splice(findIdx, 1);
+    else this.selectedCardList.splice(findIndex, 1);
   }
 
   @VueEvent
   private onHoverCard(
-    card: StoreUseData<CardMeta>,
+    card: StoreObj<CardMeta>,
     isHover: boolean,
     elm: HTMLElement
   ) {
-    this.hoverCardId = isHover ? card.id! : null;
+    this.hoverCardId = isHover ? card.key : null;
     const rect: any = elm.getBoundingClientRect();
     const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
     this.$emit("hover-card", card, isHover, r);

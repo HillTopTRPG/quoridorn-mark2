@@ -12,7 +12,7 @@
       <tr>
         <tr-scene-layer-select-component
           labelName="label.layer"
-          v-model="layerId"
+          v-model="layerKey"
         />
       </tr>
       <tr>
@@ -109,14 +109,14 @@ import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
-import { CardDeckLayout } from "../../../@types/gameObject";
+import { CardDeckLayout } from "@/@types/gameObject";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
 import TrSceneLayerSelectComponent from "../common/components/TrSceneLayerSelectComponent.vue";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import TrCardDeckLayoutSelectComponent from "../common/components/TrCardDeckLayoutSelectComponent.vue";
 
 @Component({
@@ -132,7 +132,7 @@ import TrCardDeckLayoutSelectComponent from "../common/components/TrCardDeckLayo
 export default class CardDeckSmallEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
@@ -147,14 +147,15 @@ export default class CardDeckSmallEditWindow extends Mixins<
   private cardHeightRatio: number = 1; // 置き場の大きさに収まるカードの枚数（高さ）
   private layoutRows: number = 1; // 置き場に対して何行使ってカードを配置するか
   private layoutColumns: number = 1; // 置き場に対して何列使ってカードを配置するか
-  private layerId: string = ""; // 配置するシーンレイヤー
+  private layerKey: string = ""; // 配置するシーンレイヤー
   private isUseHoverView: boolean = true;
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cardDeckSmallCC!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cardDeckSmallCC!.findSingle("key", this.docKey))!
+      .data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -182,12 +183,12 @@ export default class CardDeckSmallEditWindow extends Mixins<
     this.cardHeightRatio = data.data!.cardHeightRatio;
     this.layoutRows = data.data!.layoutRows;
     this.layoutColumns = data.data!.layoutColumns;
-    this.layerId = data.data!.layerId;
+    this.layerKey = data.data!.layerKey;
     this.isUseHoverView = data.data!.isUseHoverView;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cardDeckSmallCC.touchModify([this.docId]);
+        await this.cardDeckSmallCC.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -199,7 +200,8 @@ export default class CardDeckSmallEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cardDeckSmallCC!.getData(this.docId))!.data!;
+    const data = (await this.cardDeckSmallCC!.findSingle("key", this.docKey))!
+      .data!.data!;
     data.name = this.name;
     data.layout = this.layout;
     data.width = this.width;
@@ -210,9 +212,14 @@ export default class CardDeckSmallEditWindow extends Mixins<
     data.cardHeightRatio = this.cardHeightRatio;
     data.layoutRows = this.layoutRows;
     data.layoutColumns = this.layoutColumns;
-    data.layerId = this.layerId;
+    data.layerKey = this.layerKey;
     data.isUseHoverView = this.isUseHoverView;
-    await this.cardDeckSmallCC!.update([this.docId], [data]);
+    await this.cardDeckSmallCC!.update([
+      {
+        key: this.docKey,
+        data: data
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -231,7 +238,7 @@ export default class CardDeckSmallEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cardDeckSmallCC!.releaseTouch([this.docId]);
+      await this.cardDeckSmallCC!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

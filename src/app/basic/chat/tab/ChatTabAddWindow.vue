@@ -80,27 +80,23 @@ export default class ChatTabAddWindow extends Mixins<
     )[0];
     const gameMastersPermission: PermissionNode = {
       type: "group",
-      id: gameMastersActorGroup.id!
+      key: gameMastersActorGroup.key
     };
-    await this.cc!.addDirect(
-      [
-        {
+    await this.cc!.addDirect([
+      {
+        permission: {
+          view: { type: "none", list: [] },
+          edit: { type: "allow", list: [gameMastersPermission] },
+          chmod: { type: "allow", list: [gameMastersPermission] }
+        },
+        data: {
           name: this.tabName,
           isSystem: false,
           useReadAloud: this.useReadAloud,
           readAloudVolume: this.readAloudVolume
         }
-      ],
-      [
-        {
-          permission: {
-            view: { type: "none", list: [] },
-            edit: { type: "allow", list: [gameMastersPermission] },
-            chmod: { type: "allow", list: [gameMastersPermission] }
-          }
-        }
-      ]
-    );
+      }
+    ]);
     this.isProcessed = true;
     await this.finally(true);
   }

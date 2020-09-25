@@ -36,8 +36,8 @@ export async function getDropFileList(
     );
     if (resultList.length)
       list = resultList.filter(
-        (r, idx, list) =>
-          list.findIndex(i => JSON.stringify(i) === JSON.stringify(r)) === idx
+        (r, index, list) =>
+          list.findIndex(i => JSON.stringify(i) === JSON.stringify(r)) === index
       );
   }
 

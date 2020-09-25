@@ -7,13 +7,13 @@
       :v-if="currentTabInfo"
     >
       <div class="html" :class="{ useScroll }">
-        <template v-for="(block, blockIdx) in json">
+        <template v-for="(block, blockIndex) in json">
           <!-- RAW-BLOCK -->
           <template v-if="block.type === 'RAW-BLOCK'">
-            <template v-for="(line, lineIdx) in block.value">
+            <template v-for="(line, lineIndex) in block.value">
               <template v-if="line.type === 'line'">
                 <other-text-span-component
-                  :key="`${blockIdx}-${lineIdx}`"
+                  :key="`${blockIndex}-${lineIndex}`"
                   tag="div"
                   :spans="line.value"
                   :disabled="!isEditable"
@@ -22,23 +22,23 @@
                 />
               </template>
               <pre
-                :key="`${blockIdx}-${lineIdx}`"
+                :key="`${blockIndex}-${lineIndex}`"
                 class="block"
                 v-else-if="line.type === '```'"
                 >{{ line.value }}</pre
               >
               <hr
-                :key="`${blockIdx}-${lineIdx}`"
+                :key="`${blockIndex}-${lineIndex}`"
                 v-else-if="line.type === 'hr'"
               />
               <div
-                :key="`${blockIdx}-${lineIdx}`"
+                :key="`${blockIndex}-${lineIndex}`"
                 v-else-if="line.type === 'nl'"
               >
                 <br />
               </div>
               <blockquote
-                :key="`${blockIdx}-${lineIdx}`"
+                :key="`${blockIndex}-${lineIndex}`"
                 v-else-if="line.type === '>'"
               >
                 <other-text-span-component
@@ -50,7 +50,7 @@
                 />
               </blockquote>
               <component
-                :key="`${blockIdx}-${lineIdx}`"
+                :key="`${blockIndex}-${lineIndex}`"
                 v-bind:is="line.type"
                 v-else
               >
@@ -65,7 +65,7 @@
                 <template v-else>{{ line.value }}</template>
               </component>
               <div
-                :key="`${blockIdx}-${lineIdx}-space`"
+                :key="`${blockIndex}-${lineIndex}-space`"
                 v-if="line.nlCount > 1"
                 v-html="new Array(line.nlCount).fill().join('<br />')"
               ></div>
@@ -74,10 +74,10 @@
 
           <!-- UL-BLOCK -->
           <template v-if="block.type === 'UL-BLOCK'">
-            <ul :key="blockIdx">
-              <template v-for="(line, lineIdx) in block.value">
+            <ul :key="blockIndex">
+              <template v-for="(line, lineIndex) in block.value">
                 <other-text-span-component
-                  :key="lineIdx"
+                  :key="lineIndex"
                   tag="li"
                   :spans="line.value"
                   :disabled="!isEditable"
@@ -87,7 +87,7 @@
               </template>
             </ul>
             <div
-              :key="`${blockIdx}-space`"
+              :key="`${blockIndex}-space`"
               v-if="block.nlCount > 1"
               v-html="new Array(block.nlCount).fill().join('<br>')"
             ></div>
@@ -95,10 +95,10 @@
 
           <!-- OL-BLOCK -->
           <template v-if="block.type === 'OL-BLOCK'">
-            <ol :key="blockIdx">
-              <template v-for="(line, lineIdx) in block.value">
+            <ol :key="blockIndex">
+              <template v-for="(line, lineIndex) in block.value">
                 <other-text-span-component
-                  :key="lineIdx"
+                  :key="lineIndex"
                   tag="li"
                   :spans="line.value"
                   :disabled="!isEditable"
@@ -108,7 +108,7 @@
               </template>
             </ol>
             <div
-              :key="`${blockIdx}-space`"
+              :key="`${blockIndex}-space`"
               v-if="block.nlCount > 1"
               v-html="new Array(block.nlCount).fill().join('<br>')"
             ></div>
@@ -116,12 +116,12 @@
 
           <!-- TABLE-BLOCK -->
           <template v-if="block.type === 'TABLE-BLOCK'">
-            <table :key="blockIdx">
+            <table :key="blockIndex">
               <thead>
                 <tr>
                   <other-text-span-component
-                    v-for="(cell, cellIdx) in block.value[0].value"
-                    :key="cellIdx"
+                    v-for="(cell, cellIndex) in block.value[0].value"
+                    :key="cellIndex"
                     tag="th"
                     :spans="cell.value"
                     :disabled="!isEditable"
@@ -132,11 +132,11 @@
                 </tr>
               </thead>
               <tbody>
-                <template v-for="(tr, trIdx) in block.value">
-                  <tr v-if="trIdx > 0" :key="trIdx">
+                <template v-for="(tr, trIndex) in block.value">
+                  <tr v-if="trIndex > 0" :key="trIndex">
                     <other-text-span-component
-                      v-for="(cell, cellIdx) in tr.value"
-                      :key="cellIdx"
+                      v-for="(cell, cellIndex) in tr.value"
+                      :key="cellIndex"
                       tag="td"
                       :spans="cell.value"
                       :disabled="!isEditable"
@@ -149,7 +149,7 @@
               </tbody>
             </table>
             <div
-              :key="`${blockIdx}-space`"
+              :key="`${blockIndex}-space`"
               v-if="block.nlCount > 1"
               v-html="new Array(block.nlCount).fill().join('<br>')"
             ></div>
@@ -163,7 +163,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { MemoStore } from "@/@types/gameObject";
 import { markdown } from "@/app/core/markdown/markdown";
@@ -184,7 +184,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   private windowKey!: string;
 
   @Prop({ type: Array, required: true })
-  private value!: StoreUseData<MemoStore>[];
+  private value!: StoreObj<MemoStore>[];
 
   @Prop({ type: Boolean, default: false })
   private useScroll!: boolean;
@@ -210,21 +210,21 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     this.tabList = this.value
       .filter(lv => permissionCheck(lv, "view", 1))
       .map(lv => ({
-        key: lv.id!,
-        target: lv.id!,
+        key: lv.key,
+        target: lv.key,
         text: lv.data!.tab || this.$t("label.non-name").toString()
       }));
     this.currentTabInfo = this.tabList[0] || null;
   }
 
-  public input(value: StoreUseData<MemoStore>[]) {
+  public input(value: StoreObj<MemoStore>[]) {
     this.$emit("input", value);
   }
 
   @VueEvent
-  private get json() {
+  private get json(): any[] {
     const currentValue = this.value.find(
-      lv => lv.id === this.currentTabInfo!.target
+      lv => lv.key === this.currentTabInfo!.target
     )!;
     if (!currentValue) return [];
     const text = currentValue.data!.text;
@@ -234,7 +234,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   @VueEvent
   private onChangeCheck(index: number, value: boolean) {
     const currentValue = this.value.find(
-      lv => lv.id === this.currentTabInfo!.target
+      lv => lv.key === this.currentTabInfo!.target
     )!;
     if (!permissionCheck(currentValue, "edit", 1)) return;
     currentValue.data!.text = currentValue.data!.text.replace(
@@ -249,7 +249,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   @VueEvent
   private get isEditable(): boolean {
     const otherText = this.value.find(
-      v => v.id === this.currentTabInfo!.target
+      v => v.key === this.currentTabInfo!.target
     )!;
     return permissionCheck(otherText, "edit", 1);
   }
@@ -257,7 +257,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   @VueEvent
   private onChangeSelect(index: number, value: string) {
     const currentValue = this.value.find(
-      lv => lv.id === this.currentTabInfo!.target
+      lv => lv.key === this.currentTabInfo!.target
     )!;
     if (!permissionCheck(currentValue, "edit", 1)) return;
     currentValue.data!.text = currentValue.data!.text.replace(

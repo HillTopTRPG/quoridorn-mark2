@@ -68,7 +68,7 @@ export default class ChmodWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private isMounted: boolean = false;
-  private docId: string = "";
+  private docKey: string = "";
   private isProcessed: boolean = false;
   private permission: Permission | null = null;
   private cc: NekostoreCollectionController<unknown> | null = null;
@@ -105,9 +105,9 @@ export default class ChmodWindow extends Mixins<
 
     this.isMounted = true;
     const type = this.windowInfo.args!.type;
-    this.docId = this.windowInfo.args!.docId;
+    this.docKey = this.windowInfo.args!.key;
     this.cc = SocketFacade.instance.getCC(type);
-    const data = (await this.cc!.getData(this.docId))!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
     this.permission = data.permission;
 
     if (this.windowInfo.status === "window") {
@@ -127,7 +127,7 @@ export default class ChmodWindow extends Mixins<
     }
 
     try {
-      await this.cc.touchModify([this.docId]);
+      await this.cc.touchModify([this.docKey]);
     } catch (err) {
       console.warn(err);
       this.isProcessed = true;
@@ -137,16 +137,12 @@ export default class ChmodWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    await this.cc!.update(
-      [this.docId],
-      [data.data!],
-      [
-        {
-          permission: this.permission || undefined
-        }
-      ]
-    );
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        permission: this.permission || undefined
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -165,7 +161,7 @@ export default class ChmodWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

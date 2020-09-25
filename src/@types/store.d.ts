@@ -3,6 +3,7 @@
  */
 export type StoreObj<T> = {
   collection: string;
+  key: string;
   ownerType: string | null;
   owner: string | null; // 部屋データに含まれるデータのオーナー。部屋データにはオーナーは存在しない
   order: number;
@@ -21,23 +22,11 @@ export type StoreObj<T> = {
   updateTime: Date | null;
 };
 
-/**
- * DBのメタデータ
- */
-type StoreMetaData = {
-  id: string | null;
-};
-
 export type ExportDataFormat<T> = {
   type: string;
   version: string;
   data: T;
 };
-
-/**
- * メタデータ付き、DBデータ
- */
-export type StoreUseData<T> = StoreObj<T> & StoreMetaData;
 
 /**
  * 権限対象の種別
@@ -49,7 +38,7 @@ export type PermissionNodeType = "group" | "actor" | "owner";
  */
 export type PermissionNode = {
   type: PermissionNodeType;
-  id?: string;
+  key?: string;
 };
 
 /**

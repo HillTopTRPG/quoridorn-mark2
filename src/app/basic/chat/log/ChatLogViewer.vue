@@ -8,12 +8,12 @@
       @settingOpen="onSettingOpen()"
     >
       <div class="chat-line-container selectable" ref="chat-line-container">
-        <template v-for="(chat, idx) in useChatList">
+        <template v-for="(chat, index) in useChatList">
           <chat-log-line-component
-            :key="chat.id"
+            :key="chat.key"
             :isExported="isExported"
-            :isSelected="selectedChatId === chat.id"
-            :isLast="idx === useChatList.length - 1"
+            :isSelected="selectedChatKey === chat.key"
+            :isLast="index === useChatList.length - 1"
             :chat="chat"
             :userList="userList"
             :likeList="likeList"
@@ -21,8 +21,8 @@
             :groupChatTabList="groupChatTabList"
             :editedMessage="editedMessage"
             :userTypeLanguageMap="userTypeLanguageMap"
-            @edit="id => $emit('edit', id)"
-            @delete="id => $emit('delete', id)"
+            @edit="key => $emit('edit', key)"
+            @delete="key => $emit('delete', key)"
             @select="onSelect"
             @like="onLike"
           />
@@ -45,16 +45,16 @@ import {
   UserData
 } from "@/@types/room";
 import { ActorStore, LikeStore } from "@/@types/gameObject";
-import { TabInfo, WindowInfo } from "@/@types/window";
+import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import App from "../../../../views/App.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
-import { findById, findRequireById } from "@/app/core/utility/Utility";
+import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
@@ -75,41 +75,41 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({
     type: Array,
-    default: () => [GameObjectManager.instance.mySelfUserId]
+    default: () => [GameObjectManager.instance.mySelfUserKey]
   })
-  private targetUserIdList!: string[];
+  private targetUserKeyList!: string[];
 
   @Prop({ type: Array, required: true })
-  private userList!: StoreUseData<UserData>[];
+  private userList!: StoreObj<UserData>[];
 
   @Prop({ type: Array, required: true })
-  private actorList!: StoreUseData<ActorStore>[];
+  private actorList!: StoreObj<ActorStore>[];
 
   @Prop({ type: Array, required: true })
-  private actorGroupList!: StoreUseData<ActorGroup>[];
+  private actorGroupList!: StoreObj<ActorGroup>[];
 
   @Prop({ type: Array, required: true })
-  private groupChatTabList!: StoreUseData<GroupChatTabInfo>[];
+  private groupChatTabList!: StoreObj<GroupChatTabInfo>[];
 
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
 
   @Prop({ type: Array, required: true })
-  private chatList!: StoreUseData<ChatInfo>[];
+  private chatList!: StoreObj<ChatInfo>[];
 
   @Prop({ type: Array, default: () => [] })
-  private likeList!: StoreUseData<LikeStore>[];
+  private likeList!: StoreObj<LikeStore>[];
 
   @Prop({ type: Array, required: true })
-  private chatTabList!: StoreUseData<ChatTabInfo>[];
+  private chatTabList!: StoreObj<ChatTabInfo>[];
 
-  private useChatList: StoreUseData<ChatInfo>[] = [];
+  private useChatList: StoreObj<ChatInfo>[] = [];
 
   // tab controls
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
 
-  private selectedChatId: string | null = null;
+  private selectedChatKey: string | null = null;
 
   private lastLineLength: number = 0;
 
@@ -124,9 +124,9 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @VueEvent
-  private onSelect(chatId: string, isSelect: boolean) {
+  private onSelect(chatKey: string, isSelect: boolean) {
     if (this.isExported) return;
-    this.selectedChatId = isSelect ? chatId : null;
+    this.selectedChatKey = isSelect ? chatKey : null;
   }
 
   @VueEvent
@@ -158,9 +158,9 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
     this.tabList = this.chatTabList
       .filter(ct => permissionCheck(ct, "view"))
       .map(ct => ({
-        key: ct.id!,
+        key: ct.key,
         text: ct.data!.name,
-        target: ct.id!
+        target: ct.key
       }));
     if (
       !this.currentTabInfo ||
@@ -175,29 +175,32 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private onChangeChatListImmediateDeep() {
     console.log("onChangeChatListImmediateDeep");
     listToEmpty(this.useChatList);
-    const someActor = (id: string | null): boolean => {
-      const actor = findById(this.actorList, id);
+    const someActor = (key: string | null): boolean => {
+      const actor = findByKey(this.actorList, key);
       if (!actor) return true;
-      return this.targetUserIdList.some(id => id === actor.owner);
+      return this.targetUserKeyList.some(key => key === actor.owner);
     };
     this.useChatList = this.chatList.filter(c => {
-      if (c.data!.tabId !== this.currentTabInfo!.target) return false;
+      if (c.data!.tabKey !== this.currentTabInfo!.target) return false;
       if (!c.data!.isSecret) return true;
-      if (someActor(c.data!.actorId)) return true;
-      const targetId = c.data!.targetId;
+      if (someActor(c.data!.actorKey)) return true;
+      const targetKey = c.data!.targetKey;
       switch (c.data!.targetType) {
         case "group":
-          const groupChatTab = findRequireById(this.groupChatTabList, targetId);
-          const actorGroupId = groupChatTab.data!.actorGroupId;
-          const actorGroup: StoreUseData<ActorGroup> = findRequireById(
+          const groupChatTab = findRequireByKey(
+            this.groupChatTabList,
+            targetKey
+          );
+          const actorGroupKey = groupChatTab.data!.actorGroupKey;
+          const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
             this.actorGroupList,
-            actorGroupId
+            actorGroupKey
           );
           return actorGroup.data!.list.some(a =>
-            this.targetUserIdList.some(id => id === a.userId)
+            this.targetUserKeyList.some(key => key === a.userKey)
           );
         case "actor":
-          return someActor(targetId);
+          return someActor(targetKey);
         default:
           return true;
       }

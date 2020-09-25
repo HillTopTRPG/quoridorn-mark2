@@ -9,6 +9,7 @@
 import { Component, Emit, Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class MenuBooleanItem extends Mixins<ComponentVue>(
@@ -20,10 +21,12 @@ export default class MenuBooleanItem extends Mixins<ComponentVue>(
   @Emit("click")
   private itemOnClick() {}
 
+  @VueEvent
   private mouseEnter(event: any) {
     this.$emit("mouseenter", event);
   }
 
+  @VueEvent
   private get propValue() {
     return false;
   }

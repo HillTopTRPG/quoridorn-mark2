@@ -76,25 +76,21 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
   @VueEvent
   private async commit() {
     if (!this.isCommitAble) return;
-    await SocketFacade.instance.actorCC().addDirect(
-      [
-        {
+    await SocketFacade.instance.actorCC().addDirect([
+      {
+        permission: GameObjectManager.PERMISSION_OWNER_CHANGE,
+        data: {
           name: this.name,
           tag: this.tag,
           type: "character",
           chatFontColorType: this.chatFontColorType,
           chatFontColor: this.chatFontColor,
           standImagePosition: this.standImagePosition,
-          pieceIdList: [],
-          statusId: "" // 自動的に付与される
+          pieceKeyList: [],
+          statusKey: "" // 自動的に付与される
         }
-      ],
-      [
-        {
-          permission: GameObjectManager.PERMISSION_OWNER_CHANGE
-        }
-      ]
-    );
+      }
+    ]);
     this.isProcessed = true;
     await this.finally(true);
   }

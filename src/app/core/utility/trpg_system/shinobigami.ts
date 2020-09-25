@@ -249,20 +249,20 @@ export async function createShinobigamiChatPalette(
     }]|妖術　　　　||`
   );
   strList.push("|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--:|");
-  shinobigamiData.tokugi.table.forEach((tList: string[], rIdx: number) => {
+  shinobigamiData.tokugi.table.forEach((tList: string[], rIndex: number) => {
     strList.push(
       tList
         .map(
-          (t: string, cIdx: number) =>
+          (t: string, cIndex: number) =>
             `||[${
               shinobigamiData.tokugi.tokugiList.some(
-                lt => lt.row === rIdx && lt.column === cIdx
+                lt => lt.row === rIndex && lt.column === cIndex
               )
                 ? "x"
                 : " "
             }]${t}`
         )
-        .join("") + `|${rIdx + 2}|`
+        .join("") + `|${rIndex + 2}|`
     );
   });
 

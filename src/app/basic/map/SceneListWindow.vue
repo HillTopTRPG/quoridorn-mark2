@@ -1,10 +1,10 @@
 <template>
   <div class="container" ref="window-container">
     <div class="button-area space-between margin-bottom">
-      <ctrl-button @click="send()" :disabled="!selectedSceneId">
+      <ctrl-button @click="send()" :disabled="!selectedSceneKey">
         <span v-t="'button.send'"></span>
       </ctrl-button>
-      <ctrl-button @click="preview" :disabled="!selectedSceneId">
+      <ctrl-button @click="preview" :disabled="!selectedSceneKey">
         <span v-t="'button.preview'"></span>
       </ctrl-button>
     </div>
@@ -12,11 +12,11 @@
       <div
         class="area-map"
         :class="{
-          selected: selectedSceneId === scene.id,
+          selected: selectedSceneKey === scene.key,
           'lock-info': scene.exclusionOwner
         }"
-        v-for="(scene, idx) in useSceneList"
-        :key="idx"
+        v-for="(scene, index) in useSceneList"
+        :key="index"
         @click="selectAreaMap(scene)"
         @dblclick="send()"
         ref="scene"
@@ -28,15 +28,15 @@
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click="editMap()" :disabled="!selectedSceneId">
+      <ctrl-button @click="editMap()" :disabled="!selectedSceneKey">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
-      <ctrl-button @click="chmodMap()" :disabled="!selectedSceneId">
+      <ctrl-button @click="chmodMap()" :disabled="!selectedSceneKey">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
       <ctrl-button
         @click="deleteMap()"
-        :disabled="!selectedSceneId || useSceneList.length <= 1"
+        :disabled="!selectedSceneKey || useSceneList.length <= 1"
       >
         <span v-t="'button.delete'"></span>
       </ctrl-button>
@@ -56,7 +56,7 @@ import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue"
 import BaseInput from "../../core/component/BaseInput.vue";
 import { Scene } from "@/@types/room";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
@@ -83,7 +83,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   private cc = SocketFacade.instance.sceneListCC();
   private mediaList = GameObjectManager.instance.mediaList;
   private sceneList = GameObjectManager.instance.sceneList;
-  private selectedSceneId: string | null = null;
+  private selectedSceneKey: string | null = null;
 
   @LifeCycle
   private async mounted() {
@@ -113,9 +113,9 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         if (texture.type === "color") {
           backgroundColor = texture.backgroundColor;
         } else {
-          const imageData = await SocketFacade.instance
+          const imageData = (await SocketFacade.instance
             .mediaCC()
-            .getData(texture.mediaId);
+            .findSingle("key", texture.mediaKey))!.data!;
           if (imageData && imageData.data) {
             backgroundImage = `url('${imageData.data.url}')`;
           }
@@ -142,41 +142,41 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private selectAreaMap(scene: StoreUseData<Scene>) {
-    this.selectedSceneId = scene.id;
+  private selectAreaMap(scene: StoreObj<Scene>) {
+    this.selectedSceneKey = scene.key;
   }
 
   @VueEvent
   private async send() {
-    if (!this.selectedSceneId) return;
+    if (!this.selectedSceneKey) return;
     await GameObjectManager.instance.updateRoomData({
-      sceneId: this.selectedSceneId
+      sceneKey: this.selectedSceneKey
     });
   }
 
   @VueEvent
   private preview() {
-    if (!this.selectedSceneId) return;
-    GameObjectManager.instance.roomData.sceneId = this.selectedSceneId;
+    if (!this.selectedSceneKey) return;
+    GameObjectManager.instance.roomData.sceneKey = this.selectedSceneKey;
   }
 
   @VueEvent
   private async editMap() {
-    if (!this.selectedSceneId) return;
+    if (!this.selectedSceneKey) return;
     await this.close();
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "edit-scene-window",
-        args: this.selectedSceneId
+        args: this.selectedSceneKey
       }
     });
   }
 
   @VueEvent
   private async chmodMap() {
-    if (!this.selectedSceneId) return;
+    if (!this.selectedSceneKey) return;
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -184,7 +184,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         type: "chmod-window",
         args: {
           type: "scene",
-          docId: this.selectedSceneId
+          key: this.selectedSceneKey
         }
       }
     });
@@ -192,16 +192,16 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
 
   @VueEvent
   private async deleteMap() {
-    if (!this.selectedSceneId) return;
+    if (!this.selectedSceneKey) return;
     const result = window.confirm(this.$t("message.really-delete")!.toString());
     if (!result) return;
-    await this.cc.deletePackage([this.selectedSceneId]);
+    await this.cc.deletePackage([this.selectedSceneKey]);
   }
 
   @VueEvent
   private async createMap() {
     const firstImage = this.mediaList[0].data!;
-    const firstImageId = this.mediaList[0].id!;
+    const firstImageKey = this.mediaList[0].key;
 
     const scene: Scene = {
       name: "New map",
@@ -223,7 +223,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       texture: {
         type: "image",
         mediaTag: firstImage.tag,
-        mediaId: firstImageId,
+        mediaKey: firstImageKey,
         direction: "none",
         backgroundSize: "100%"
       },
@@ -231,7 +231,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         texture: {
           type: "image",
           mediaTag: firstImage.tag,
-          mediaId: firstImageId,
+          mediaKey: firstImageKey,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -242,7 +242,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
         texture: {
           type: "image",
           mediaTag: firstImage.tag,
-          mediaId: firstImageId,
+          mediaKey: firstImageKey,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -262,7 +262,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       chatLinkage: 0,
       chatLinkageSearch: ""
     };
-    await SocketFacade.instance.sceneListCC().addDirect([scene]);
+    await SocketFacade.instance.sceneListCC().addDirect([{ data: scene }]);
   }
 }
 </script>

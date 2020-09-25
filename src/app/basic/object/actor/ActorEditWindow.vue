@@ -26,7 +26,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { ActorStore } from "../../../../@types/gameObject";
+import { ActorStore } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -37,8 +37,8 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import LanguageManager from "../../../../LanguageManager";
 import ActorInfoForm from "./ActorInfoForm.vue";
-import { DataReference } from "../../../../@types/data";
-import { findRequireById } from "../../../core/utility/Utility";
+import { DataReference } from "@/@types/data";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({
   components: { ActorInfoForm, CtrlButton }
@@ -46,7 +46,7 @@ import { findRequireById } from "../../../core/utility/Utility";
 export default class ActorEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cc: NekostoreCollectionController<
     ActorStore
   > = SocketFacade.instance.actorCC();
@@ -64,8 +64,8 @@ export default class ActorEditWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -91,7 +91,7 @@ export default class ActorEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -104,7 +104,7 @@ export default class ActorEditWindow extends Mixins<
   private get isDuplicate(): boolean {
     return (
       this.actorList.filter(
-        ct => ct.data!.name === this.name && ct.id !== this.docId
+        ct => ct.data!.name === this.name && ct.key !== this.docKey
       ).length > 0
     );
   }
@@ -116,7 +116,7 @@ export default class ActorEditWindow extends Mixins<
 
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
-    const actor = this.actorList.find(a => a.id === this.docId);
+    const actor = findRequireByKey(this.actorList, this.docKey);
     this.windowInfo.message = this.isDuplicate
       ? this.$t("message.tab-duplicate")!.toString()
       : this.$t("message.original")!
@@ -131,13 +131,18 @@ export default class ActorEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = findRequireById(this.actorList, this.docId).data!;
+    const data = findRequireByKey(this.actorList, this.docKey).data!;
     data.name = this.name;
     data.tag = this.tag;
     data.chatFontColorType = this.chatFontColorType;
     data.chatFontColor = this.chatFontColor;
     data.standImagePosition = this.standImagePosition;
-    await this.cc!.update([this.docId], [data]);
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -156,7 +161,7 @@ export default class ActorEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

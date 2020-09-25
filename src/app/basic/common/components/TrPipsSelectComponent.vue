@@ -1,14 +1,15 @@
 <template>
   <tr class="tr-pips-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <pips-select
         v-model="localValue"
-        :diceTypeId="diceTypeId"
+        :diceTypeKey="diceTypeKey"
         :multiple="false"
         :readonly="readonly"
+        :elmId="key"
       />
     </td>
   </tr>
@@ -17,18 +18,10 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "./select/ActorStatusSelect.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
-import ActorSelect from "./select/ActorSelect.vue";
 import PipsSelect from "@/app/basic/common/components/select/PipsSelect.vue";
 
-@Component({
-  components: {
-    PipsSelect,
-    ActorSelect,
-    ActorStatusSelect
-  }
-})
+@Component({ components: { PipsSelect } })
 export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -36,7 +29,7 @@ export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
   private labelName!: string;
 
   @Prop({ type: String, required: true })
-  private diceTypeId!: string;
+  private diceTypeKey!: string;
 
   @Prop({ type: String, default: null })
   private value!: string | null;

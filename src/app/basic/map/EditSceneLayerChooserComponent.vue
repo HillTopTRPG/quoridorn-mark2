@@ -21,19 +21,19 @@
     >
       <edit-scene-layer-component
         v-for="layerInfo in layerInfoList"
-        :key="layerInfo.id"
+        :key="layerInfo.key"
         :layerInfo="layerInfo"
         :dragMode="dragMode"
-        :isOrderChanging="changeOrderId === layerInfo.id"
+        :isOrderChanging="changeOrderKey === layerInfo.key"
         v-model="localValue"
         @onMouseHoverView="value => $emit('hoverView', value)"
         @onMouseHoverOrder="value => $emit('hoverOrder', value)"
         @onChangeLayerUse="changeLayerUse"
         @onMouseDown="
-          localValue = layerInfo.id;
-          changeOrderId = layerInfo.id;
+          localValue = layerInfo.key;
+          changeOrderKey = layerInfo.key;
         "
-        @onMouseUp="changeOrderId = ''"
+        @onMouseUp="changeOrderKey = ''"
       />
     </draggable>
   </div>
@@ -43,7 +43,7 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import draggable from "vuedraggable";
 import { ModeInfo } from "mode";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import EditSceneLayerComponent from "./EditSceneLayerComponent.vue";
 import TaskManager from "../../core/task/TaskManager";
@@ -59,14 +59,14 @@ export default class EditSceneLayerChooserComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {
   @Prop({ type: String, required: true })
-  private sceneId!: string;
+  private sceneKey!: string;
 
   @Prop({ type: String, default: "" })
-  private value!: string; // selectedLayerId
+  private value!: string; // selectedLayerKey
   private dragMode: boolean = false;
   private dragModeProcessed: boolean = false;
-  private orderChangingIdList: string[] = [];
-  private changeOrderId: string = "";
+  private orderChangingKeyList: string[] = [];
+  private changeOrderKey: string = "";
 
   public input(value: string) {
     this.$emit("input", value);
@@ -81,65 +81,75 @@ export default class EditSceneLayerChooserComponent extends Mixins<
   }
 
   @VueEvent
-  private get sceneAndLayerInfo(): (id: string) => StoreUseData<SceneAndLayer> {
-    return (id: string) =>
-      this.sceneAndLayerList.filter(sal => sal.data!.layerId === id)[0];
+  private get sceneAndLayerInfo(): (key: string) => StoreObj<SceneAndLayer> {
+    return (key: string) =>
+      this.sceneAndLayerList.filter(sal => sal.data!.layerKey === key)[0];
   }
 
-  private sceneAndLayerInfoList: StoreUseData<SceneAndLayer>[] | null = null;
-  private layerInfoList: StoreUseData<SceneLayer>[] | null = null;
+  private sceneAndLayerInfoList: StoreObj<SceneAndLayer>[] | null = null;
+  private layerInfoList: StoreObj<SceneLayer>[] | null = null;
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
   private layerList = GameObjectManager.instance.sceneLayerList;
 
   @VueEvent
-  private async changeLayerUse(mapAndKayerId: string, checked: boolean) {
-    const option: any = {};
-    if (this.dragMode) {
-      option.continuous = true;
-    } else {
-      await this.sceneAndLayerCC.touchModify([mapAndKayerId]);
+  private async changeLayerUse(mapAndKayerKey: string, checked: boolean) {
+    if (!this.dragMode) {
+      await this.sceneAndLayerCC.touchModify([mapAndKayerKey]);
     }
-    let data = this.sceneAndLayerInfoList!.filter(
-      ml => ml.id === mapAndKayerId
+    const data = this.sceneAndLayerInfoList!.filter(
+      ml => ml.key === mapAndKayerKey
     )[0].data!;
     data.isUse = checked;
-    await this.sceneAndLayerCC.update([mapAndKayerId], [data], [option]);
+    const option: Partial<StoreObj<SceneAndLayer>> & {
+      key: string;
+      continuous?: boolean;
+    } = {
+      key: mapAndKayerKey
+    };
+    if (this.dragMode) option.continuous = true;
+    await this.sceneAndLayerCC.update([
+      {
+        ...option,
+        data
+      }
+    ]);
   }
 
   @LifeCycle
   private async mounted() {
     this.sceneAndLayerInfoList = this.sceneAndLayerList
-      .filter(map => map.data!.sceneId === this.sceneId)
+      .filter(map => map.data!.sceneKey === this.sceneKey)
       .sort((m1, m2) => {
         if (m1.order < m2.order) return -1;
         if (m1.order > m2.order) return 1;
         return 0;
       });
     this.layerInfoList = this.sceneAndLayerInfoList
-      .map(ml => this.layerList.filter(l => l.id === ml.data!.layerId)[0])
+      .map(ml => this.layerList.filter(l => l.key === ml.data!.layerKey)[0])
       .filter(l => l);
   }
 
   @LifeCycle
   private async beforeDestroy(): Promise<void> {
-    await this.sceneAndLayerCC.releaseTouch(this.orderChangingIdList);
+    await this.sceneAndLayerCC.releaseTouch(this.orderChangingKeyList);
   }
 
   @Watch("sceneAndLayerList", { deep: true })
   private async onChangeSceneAndLayerInfoList() {
     if (this.dragMode) {
-      const idList = this.sceneAndLayerList
+      const keyList = this.sceneAndLayerList
         .filter(
           sao =>
-            this.orderChangingIdList.filter(oId => oId === sao.id).length === -1
+            this.orderChangingKeyList.filter(oKey => oKey === sao.key)
+              .length === -1
         )
-        .map(sao => sao.id!);
+        .map(sao => sao.key);
 
       try {
-        await this.sceneAndLayerCC.touchModify(idList);
-        this.orderChangingIdList.push(...idList);
+        await this.sceneAndLayerCC.touchModify(keyList);
+        this.orderChangingKeyList.push(...keyList);
       } catch (err) {
         alert("このタイミングでは例外にならないはず");
       }
@@ -155,22 +165,22 @@ export default class EditSceneLayerChooserComponent extends Mixins<
   private async onChangeDragMode() {
     this.$emit("onChangeDragMode", this.dragMode);
 
-    const idList: string[] = this.sceneAndLayerList.map(sao => sao.id!);
+    const keyList: string[] = this.sceneAndLayerList.map(sao => sao.key);
     if (this.dragMode) {
       try {
-        await this.sceneAndLayerCC.touchModify(idList);
-        this.orderChangingIdList = idList;
+        await this.sceneAndLayerCC.touchModify(keyList);
+        this.orderChangingKeyList = keyList;
       } catch (err) {
         alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
         this.dragModeProcessed = true;
         this.dragMode = false;
-        this.orderChangingIdList = [];
+        this.orderChangingKeyList = [];
       }
     } else {
-      this.orderChangingIdList = [];
+      this.orderChangingKeyList = [];
       if (!this.dragModeProcessed) {
         try {
-          await this.sceneAndLayerCC.releaseTouch(idList);
+          await this.sceneAndLayerCC.releaseTouch(keyList);
           this.dragModeProcessed = false;
         } catch (err) {
           // Nothing.
@@ -195,50 +205,50 @@ export default class EditSceneLayerChooserComponent extends Mixins<
       owner: "Quoridorn",
       value: { type: "special-drag", value: "off" as "off" }
     });
-    this.changeOrderId = "";
+    this.changeOrderKey = "";
   }
 
   @VueEvent
   private async onSortOrderChange() {
     console.log("onEndOrderChange");
-    const idList: string[] = this.layerInfoList!.map(sao => sao.id!);
-    const idOrderList = idList.map(id => {
+    const keyList: string[] = this.layerInfoList!.map(sao => sao.key);
+    const keyOrderList = keyList.map(key => {
       const sao = this.sceneAndLayerList.filter(
-        sao => sao.data!.layerId === id
+        sao => sao.data!.layerKey === key
       )[0];
       return {
-        id: sao.id!,
+        key: sao.key,
         order: sao.order,
         target: false
       };
     });
-    const orderList = idOrderList.concat().map(ido => ido.order);
+    const orderList = keyOrderList.concat().map(keyo => keyo.order);
     orderList.sort((o1, o2) => {
       if (o1 < o2) return -1;
       if (o1 > o2) return 1;
       return 0;
     });
-    idOrderList.forEach((ido, idx: number) => {
-      if (ido.order !== orderList[idx]) ido.target = true;
-      ido.order = orderList[idx];
+    keyOrderList.forEach((keyo, index: number) => {
+      if (keyo.order !== orderList[index]) keyo.target = true;
+      keyo.order = orderList[index];
     });
 
-    const orderedIdList: string[] = [];
-    const dataList: SceneAndLayer[] = [];
-    const optionList: any[] = [];
+    const list: (Partial<StoreObj<SceneAndLayer>> & {
+      key: string;
+      continuous?: boolean;
+    })[] = [];
 
-    idList.forEach((layerId, idx) => {
-      if (!idOrderList[idx].target) return;
-      const id = idOrderList[idx].id;
-      const data = this.sceneAndLayerList.filter(sao => sao.id === id)[0].data!;
-      orderedIdList.push(id);
-      dataList.push(data);
-      optionList.push({
-        order: idOrderList[idx].order,
+    keyList.forEach((layerKey, index) => {
+      if (!keyOrderList[index].target) return;
+      const key = keyOrderList[index].key;
+      list.push({
+        key,
+        order: keyOrderList[index].order,
+        data: this.sceneAndLayerList.filter(sao => sao.key === key)[0].data!,
         continuous: true
       });
     });
-    await this.sceneAndLayerCC.update(orderedIdList, dataList, optionList);
+    await this.sceneAndLayerCC.update(list);
   }
 }
 </script>

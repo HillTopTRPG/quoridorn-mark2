@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :multiple="multiple"
@@ -31,7 +32,7 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   ComponentVue
 ) {
   @Prop({ type: String, default: "" })
-  private userId!: string;
+  private userKey!: string;
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
@@ -54,12 +55,12 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   private createOptionInfoList() {
     this.optionInfoList = GameObjectManager.instance.actorList
       .filter(a => {
-        if (this.userId && a.owner !== this.userId) return false;
+        if (this.userKey && a.owner !== this.userKey) return false;
         return permissionCheck(a, "view");
       })
       .map(c => ({
-        key: c.id!,
-        value: c.id!,
+        key: c.key,
+        value: c.key,
         text: c.data!.name,
         disabled: false
       }));

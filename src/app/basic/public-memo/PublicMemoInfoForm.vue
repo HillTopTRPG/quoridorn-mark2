@@ -21,7 +21,7 @@
       <!-- アイコンタブ -->
       <image-picker-component
         v-if="currentTabInfo.target === 'icon'"
-        v-model="imageDocIdVolatile"
+        v-model="imageDocKeyVolatile"
         :windowKey="key"
         :imageTag.sync="imageTagVolatile"
         :direction.sync="directionVolatile"
@@ -48,7 +48,7 @@ import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { MemoStore } from "@/@types/gameObject";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
@@ -92,28 +92,28 @@ export default class PublicMemoInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreUseData<MemoStore>[];
-  private otherTextListVolatile: StoreUseData<MemoStore>[] = [];
+  private otherTextList!: StoreObj<MemoStore>[];
+  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 
-  // imageDocId
+  // imageDocKey
   @Prop({ type: String, default: null })
-  private imageDocId!: string | null;
-  private imageDocIdVolatile: string | null = null;
-  @Watch("imageDocId", { immediate: true })
-  private onChangeImageDocId(value: string | null) {
-    this.imageDocIdVolatile = value;
+  private imageDocKey!: string | null;
+  private imageDocKeyVolatile: string | null = null;
+  @Watch("imageDocKey", { immediate: true })
+  private onChangeImageDocKey(value: string | null) {
+    this.imageDocKeyVolatile = value;
   }
-  @Watch("imageDocIdVolatile")
-  private onChangeImageDocIdVolatile(value: string | null) {
-    this.$emit("update:imageDocId", value);
+  @Watch("imageDocKeyVolatile")
+  private onChangeImageDocKeyVolatile(value: string | null) {
+    this.$emit("update:imageDocKey", value);
   }
 
   // imageTag

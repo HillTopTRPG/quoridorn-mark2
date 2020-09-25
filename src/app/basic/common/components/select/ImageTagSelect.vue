@@ -1,8 +1,8 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :id="id"
     ref="component"
   />
 </template>
@@ -48,7 +48,7 @@ export default class ImageTagSelect extends Mixins<MultiMixin>(
   private createOptionInfoList() {
     this.optionInfoList = GameObjectManager.instance.mediaList
       .map(image => image.data!.tag)
-      .filter((tag, idx, list) => list.indexOf(tag) === idx)
+      .filter((tag, index, list) => list.indexOf(tag) === index)
       .map(tag => ({
         key: tag,
         value: tag,

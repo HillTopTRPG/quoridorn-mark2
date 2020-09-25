@@ -182,7 +182,7 @@
                 </th>
                 <td>
                   <border-style-select
-                    :id="`${key}-border-style`"
+                    :elmId="`${key}-border-style`"
                     v-model="sceneData.margin.border.style"
                   />
                 </td>
@@ -221,16 +221,16 @@
       <!-- レイヤー -->
       <div class="layer" v-if="currentTabInfo.target === 'layer'">
         <edit-scene-layer-chooser-component
-          :sceneId="sceneId"
-          v-model="selectedLayerId"
+          :sceneKey="sceneKey"
+          v-model="selectedLayerKey"
           @hoverView="onHoverLayerView"
           @hoverOrder="onHoverOrderLayer"
           @hoverOrderMode="onHoverLayerOrderMode"
         />
         <edit-scene-object-chooser-component
-          :sceneId="sceneId"
-          :selectedLayerId="selectedLayerId"
-          v-model="selectedSceneObjectId"
+          :sceneKey="sceneKey"
+          :selectedLayerKey="selectedLayerKey"
+          v-model="selectedSceneObjectKey"
           @hoverAddress="onHoverAddress"
           @hoverOrder="onHoverOrderObject"
           @hoverOrderMode="onHoverObjectOrderMode"
@@ -246,19 +246,19 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { SceneObject } from "../../../@types/gameObject";
-import { Scene, SceneAndLayer, SceneLayer } from "../../../@types/room";
+import { SceneObject } from "@/@types/gameObject";
+import { Scene, SceneAndLayer, SceneLayer } from "@/@types/room";
 import AddressInput from "../common/components/AddressInput.vue";
 import EditSceneObjectChooserComponent from "./EditSceneObjectChooserComponent.vue";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import BorderStyleSelect from "../common/components/select/BorderStyleSelect.vue";
-import { StoreUseData } from "../../../@types/store";
+import { StoreObj } from "@/@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
 import GameObjectManager from "../GameObjectManager";
 import EditSceneLayerChooserComponent from "./EditSceneLayerChooserComponent.vue";
-import { TabInfo } from "../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
 import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
 import SocketFacade, {
@@ -300,8 +300,8 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
-  private sceneId: string | null = null;
-  private oldSceneId: string | null = null;
+  private sceneKey: string | null = null;
+  private oldSceneKey: string | null = null;
   private defaultTag: string = LanguageManager.instance.getText("type.map");
 
   private sceneList = GameObjectManager.instance.sceneList;
@@ -311,61 +311,64 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 
   private cc = SocketFacade.instance.sceneListCC();
 
-  private sceneInfo: StoreUseData<Scene> | null = null;
+  private sceneInfo: StoreObj<Scene> | null = null;
   private sceneData: Scene | null = null;
-  private sceneAndLayerInfoList: StoreUseData<SceneAndLayer>[] | null = null;
-  private sceneObjectInfoList: StoreUseData<SceneObject>[] | null = null;
-  private layerInfoList: StoreUseData<SceneLayer>[] | null = null;
+  private sceneAndLayerInfoList: StoreObj<SceneAndLayer>[] | null = null;
+  private sceneObjectInfoList: StoreObj<SceneObject>[] | null = null;
+  private layerInfoList: StoreObj<SceneLayer>[] | null = null;
 
-  private selectedLayerId: string = "";
-  private selectedSceneObjectId: string = "";
+  private selectedLayerKey: string = "";
+  private selectedSceneObjectKey: string = "";
 
   @Watch("sceneObjectList", { deep: true })
-  @Watch("selectedLayerId")
+  @Watch("selectedLayerKey")
   private async onChangeSceneObjectInfoList() {
     setTimeout(async () => {
-      type SceneObjectList = StoreUseData<SceneObject>[];
+      type SceneObjectList = StoreObj<SceneObject>[];
       const oldList: SceneObjectList = [];
 
       if (this.sceneObjectInfoList) {
         oldList.push(...this.sceneObjectInfoList.concat());
       }
       this.sceneObjectInfoList = this.sceneObjectList.filter(
-        mo => mo.data!.layerId === this.selectedLayerId
+        mo => mo.data!.layerKey === this.selectedLayerKey
       );
 
       const clearFocusList: SceneObjectList = oldList.filter(
-        o => this.sceneObjectInfoList!.findIndex(so => so.id === o.id) < 0
+        o => this.sceneObjectInfoList!.findIndex(so => so.key === o.key) < 0
       );
       const setFocusList: SceneObjectList = this.sceneObjectInfoList!.filter(
-        so => oldList.findIndex(o => o.id === so.id) < 0
+        so => oldList.findIndex(o => o.key === so.key) < 0
       );
 
-      const focusFunc = async (id: string, isFocus: boolean): Promise<void> => {
-        await EditSceneWindow.changeFocus(id, isFocus);
+      const focusFunc = async (
+        key: string,
+        isFocus: boolean
+      ): Promise<void> => {
+        await EditSceneWindow.changeFocus(key, isFocus);
       };
 
       // 直列の非同期で全部実行する
       await clearFocusList
-        .map(obj => () => focusFunc(obj.id!, false))
+        .map(obj => () => focusFunc(obj.key, false))
         .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
       // 直列の非同期で全部実行する
       await setFocusList
-        .map(obj => () => focusFunc(obj.id!, true))
+        .map(obj => () => focusFunc(obj.key, true))
         .reduce((prev, curr) => prev.then(curr), Promise.resolve());
     });
   }
 
-  @Watch("selectedLayerId")
-  private async onChangeSelectedLayerId() {
-    this.selectedSceneObjectId = "";
+  @Watch("selectedLayerKey")
+  private async onChangeSelectedLayerKey() {
+    this.selectedSceneObjectKey = "";
   }
 
-  @Watch("selectedSceneObjectId")
-  private async onChangeSelectedSceneObjectId(newVal: string, oldVal: string) {
-    const focusFunc = async (id: string, isFocus: boolean): Promise<void> => {
-      await EditSceneWindow.changeFocus(id, isFocus);
+  @Watch("selectedSceneObjectKey")
+  private async onChangeSelectedSceneObjectKey(newVal: string, oldVal: string) {
+    const focusFunc = async (key: string, isFocus: boolean): Promise<void> => {
+      await EditSceneWindow.changeFocus(key, isFocus);
     };
 
     await focusFunc(oldVal, false);
@@ -375,18 +378,18 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
       return;
     }
 
-    type SceneObjectList = StoreUseData<SceneObject>[];
+    type SceneObjectList = StoreObj<SceneObject>[];
 
     const clearFocusList: SceneObjectList = this.sceneObjectInfoList.filter(
-      so => so.id !== newVal
+      so => so.key !== newVal
     );
 
     // 直列の非同期で全部実行する
     await clearFocusList
-      .map(obj => () => focusFunc(obj.id!, false))
+      .map(obj => () => focusFunc(obj.key, false))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
-    if (this.sceneObjectInfoList.findIndex(so => so.id === newVal) < 0) {
+    if (this.sceneObjectInfoList.findIndex(so => so.key === newVal) < 0) {
       await focusFunc(newVal, true);
     }
 
@@ -408,47 +411,50 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     if (this.currentTabInfo && this.currentTabInfo.target !== "layer") {
       await this.focusAll(false);
     } else {
-      this.selectedLayerId = "";
+      this.selectedLayerKey = "";
     }
   }
 
   private async focusAll(isFocus: boolean) {
     const targetList: string[] = this.sceneObjectInfoList
-      ? this.sceneObjectInfoList.map(so => so.id!)
+      ? this.sceneObjectInfoList.map(so => so.key)
       : [];
-    if (this.selectedSceneObjectId) targetList.push(this.selectedSceneObjectId);
+    if (this.selectedSceneObjectKey)
+      targetList.push(this.selectedSceneObjectKey);
 
     // 直列の非同期で全部実行する
     await targetList
-      .map(id => () => EditSceneWindow.changeFocus(id, isFocus))
+      .map(key => () => EditSceneWindow.changeFocus(key, isFocus))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
-  private static async changeFocus(id: string, isFocus: boolean) {
-    if (!id) return;
+  private static async changeFocus(key: string, isFocus: boolean) {
+    if (!key) return;
     await TaskManager.instance.ignition<
-      { id: string; isFocus: boolean },
+      { key: string; isFocus: boolean },
       never
     >({
       type: "change-focus-scene-object",
       owner: "Quoridorn",
       value: {
-        id,
+        key,
         isFocus
       }
     });
   }
 
   @Watch("sceneData", { deep: true })
-  private async onChangeSceneData(newValue: Scene, oldValue: Scene | null) {
+  private async onChangeSceneData(_newValue: Scene, oldValue: Scene | null) {
     if (oldValue === null) return;
 
     try {
-      await this.cc.update(
-        [this.sceneId!],
-        [this.sceneData!],
-        [{ continuous: true }]
-      );
+      await this.cc.update([
+        {
+          key: this.sceneKey!,
+          data: this.sceneData!,
+          continuous: true
+        }
+      ]);
     } catch (err) {
       console.log("==========");
       console.log(err);
@@ -486,26 +492,26 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   private async mounted() {
     await this.init();
     this.isMounted = true;
-    this.sceneId = this.windowInfo.args!;
-    this.sceneInfo = this.sceneList.filter(map => map.id === this.sceneId)[0];
+    this.sceneKey = this.windowInfo.args!;
+    this.sceneInfo = this.sceneList.filter(map => map.key === this.sceneKey)[0];
     this.sceneData = this.sceneInfo.data!;
 
-    this.oldSceneId = GameObjectManager.instance.roomData.sceneId;
-    GameObjectManager.instance.roomData.sceneId = this.sceneId;
+    this.oldSceneKey = GameObjectManager.instance.roomData.sceneKey;
+    GameObjectManager.instance.roomData.sceneKey = this.sceneKey;
 
     setTimeout(() => {
       GameObjectManager.instance.isSceneEditing = true;
     });
 
     this.sceneAndLayerInfoList = this.sceneAndLayerList
-      .filter(map => map.data!.sceneId === this.sceneId)
+      .filter(map => map.data!.sceneKey === this.sceneKey)
       .sort((m1, m2) => {
         if (m1.order < m2.order) return -1;
         if (m1.order > m2.order) return 1;
         return 0;
       });
     this.layerInfoList = this.sceneAndLayerInfoList
-      .map(ml => this.layerList.filter(l => l.id === ml.data!.layerId)[0])
+      .map(ml => this.layerList.filter(l => l.key === ml.data!.layerKey)[0])
       .filter(l => l);
 
     if (this.windowInfo.status === "window") {
@@ -524,11 +530,11 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
       }
     }
 
-    // this.foreColor = sceneData.gridBorderColor;
+    // this.foreColor = sceneData.grkeyBorderColor;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.sceneId]);
+        await this.cc.touchModify([this.sceneKey]);
       } catch (err) {
         this.isProcessed = true;
         console.warn(err);
@@ -545,12 +551,13 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
     await this.focusAll(false);
     GameObjectManager.instance.isSceneEditing = false;
 
-    GameObjectManager.instance.roomData.sceneId =
-      GameObjectManager.instance.sceneEditingUpdateSceneId || this.oldSceneId!;
-    GameObjectManager.instance.sceneEditingUpdateSceneId = null;
+    GameObjectManager.instance.roomData.sceneKey =
+      GameObjectManager.instance.sceneEditingUpdateSceneKey ||
+      this.oldSceneKey!;
+    GameObjectManager.instance.sceneEditingUpdateSceneKey = null;
     if (!this.isProcessed) {
       try {
-        await this.cc!.releaseTouch([this.sceneId!]);
+        await this.cc!.releaseTouch([this.sceneKey!]);
       } catch (err) {
         // nothing
       }

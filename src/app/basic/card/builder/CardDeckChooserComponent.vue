@@ -3,10 +3,10 @@
     <div class="title" v-t="title"></div>
     <card-deck-set-component
       v-for="deck in deckList"
-      :key="deck.cardDeckBig.id"
+      :key="deck.cardDeckBig.key"
       :deck="deck"
-      :isSelected="isSelectedDeck(deck.cardDeckBig.id)"
-      @select="onClickPresetDeck(deck.cardDeckBig.id)"
+      :isSelected="isSelectedDeck(deck.cardDeckBig.key)"
+      @select="onClickPresetDeck(deck.cardDeckBig.key)"
     />
   </div>
 </template>
@@ -30,22 +30,24 @@ export default class CardDeckChooserComponent extends Mixins<ComponentVue>(
   @Prop({ type: Array, required: true })
   private deckList!: DeckInfo[];
 
-  // selectedDeckIdList
+  // selectedDeckKeyList
   @Prop({ type: Array, required: true })
-  private selectedDeckIdList!: string[];
+  private selectedDeckKeyList!: string[];
 
   @VueEvent
-  private isSelectedDeck(cardDeckId: string): boolean {
-    return this.selectedDeckIdList.findIndex(i => i === cardDeckId) > -1;
+  private isSelectedDeck(cardDeckKey: string): boolean {
+    return this.selectedDeckKeyList.findIndex(i => i === cardDeckKey) > -1;
   }
 
   @VueEvent
-  private onClickPresetDeck(cardDeckId: string) {
-    const findIdx = this.selectedDeckIdList.findIndex(i => i === cardDeckId);
-    if (findIdx === -1) {
-      this.selectedDeckIdList.push(cardDeckId);
+  private onClickPresetDeck(cardDeckKey: string) {
+    const findIndex = this.selectedDeckKeyList.findIndex(
+      i => i === cardDeckKey
+    );
+    if (findIndex === -1) {
+      this.selectedDeckKeyList.push(cardDeckKey);
     } else {
-      this.selectedDeckIdList.splice(findIdx, 1);
+      this.selectedDeckKeyList.splice(findIndex, 1);
     }
   }
 }

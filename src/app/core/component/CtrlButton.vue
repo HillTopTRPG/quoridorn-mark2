@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop } from "vue-property-decorator";
+import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../window/ComponentVue";
 import VueEvent from "../decorator/VueEvent";
@@ -35,11 +35,15 @@ export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, default: true })
   private focusable!: boolean;
 
-  @Emit("click")
-  private buttonOnClickLeft(event: any) {}
+  @VueEvent
+  private buttonOnClickLeft(event: any) {
+    this.$emit("click", event);
+  }
 
-  @Emit("click-right")
-  private buttonOnClickRight(event: any) {}
+  @VueEvent
+  private buttonOnClickRight(event: any) {
+    this.$emit("click-right", event);
+  }
 
   @VueEvent
   public focus(): void {

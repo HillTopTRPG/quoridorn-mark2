@@ -1,7 +1,7 @@
 <template>
   <component class="range-component" v-bind:is="tag">
     <input
-      :id="rawKey"
+      :id="elmId"
       type="number"
       class="raw-input"
       :min="min"
@@ -43,14 +43,12 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
 
 @Component
-export default class TrRangeComponent extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class RangeComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, default: "div" })
   private tag!: string;
 
-  @Prop({ type: String, default: "" })
-  private rawKey!: string;
+  @Prop({ type: String, default: null })
+  public elmId!: string | null;
 
   @Prop({ type: Number, default: 3 })
   private rawWidth!: number;

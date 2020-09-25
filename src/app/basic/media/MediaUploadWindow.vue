@@ -38,8 +38,8 @@
     >
       <div class="tab-container">
         <media-upload-item-component
-          v-for="(resultInfo, idx) in useLocalResultList"
-          :key="idx"
+          v-for="(resultInfo, index) in useLocalResultList"
+          :key="index"
           :resultInfo="resultInfo"
           @preview="preview(resultInfo)"
           @delete="deleteFile(resultInfo)"
@@ -77,7 +77,6 @@ import {
   raw2UploadMediaInfoList,
   mediaUpload
 } from "../../core/utility/FileUtility";
-import LanguageManager from "../../../LanguageManager";
 import { TabInfo } from "@/@types/window";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -156,17 +155,17 @@ export default class MediaUploadWindow extends Mixins<
     const result = window.confirm(msg);
     if (!result) return;
 
-    const idxList: number[] = [];
+    const indexList: number[] = [];
     this.useLocalResultList.forEach(ur => {
-      idxList.unshift(
+      indexList.unshift(
         this.localResultList.findIndex(
           r => JSON.stringify(ur) === JSON.stringify(r)
         )
       );
     });
 
-    idxList.forEach(idx => {
-      this.localResultList.splice(idx, 1);
+    indexList.forEach(index => {
+      this.localResultList.splice(index, 1);
     });
   }
 
@@ -206,10 +205,10 @@ export default class MediaUploadWindow extends Mixins<
 
   @VueEvent
   private deleteFile(fileInfo: UploadMediaInfo) {
-    const idx = this.localResultList.findIndex(
+    const index = this.localResultList.findIndex(
       ulr => ulr.name === fileInfo.name
     );
-    this.localResultList.splice(idx, 1);
+    this.localResultList.splice(index, 1);
   }
 
   @VueEvent

@@ -1,20 +1,20 @@
 <template>
   <component v-bind:is="tag" v-bind="$attrs" v-on="listeners" class="line">
-    <template v-for="(span, idx) in spans">
+    <template v-for="(span, index) in spans">
       <span
-        :key="idx"
+        :key="index"
         v-if="span.type === '.'"
         v-html="span.value.replace(/\\n/g, '<br />')"
       ></span>
-      <i :key="idx" v-if="span.type === 'i'">{{ span.value }}</i>
-      <b :key="idx" v-if="span.type === 'b'">{{ span.value }}</b>
-      <b :key="idx" v-if="span.type === 'bi'">
+      <i :key="index" v-if="span.type === 'i'">{{ span.value }}</i>
+      <b :key="index" v-if="span.type === 'b'">{{ span.value }}</b>
+      <b :key="index" v-if="span.type === 'bi'">
         <i>{{ span.value }}</i>
       </b>
-      <pre :key="idx" class="inline" v-if="span.type === '`'">{{
+      <pre :key="index" class="inline" v-if="span.type === '`'">{{
         span.value
       }}</pre>
-      <label :key="idx" v-if="span.type === 'check'">
+      <label :key="index" v-if="span.type === 'check'">
         <input
           type="checkbox"
           class="input"
@@ -23,15 +23,15 @@
           @change="onChangeChecked(span.index, $event.target.checked)"
         />
       </label>
-      <label :key="idx" v-if="span.type === 'select'">
+      <label :key="index" v-if="span.type === 'select'">
         <select
           @change="onChangeSelect(span.index, $event.target.value)"
           :disabled="disabled"
         >
           <option value="" disabled v-if="span.title">{{ span.title }}</option>
           <option
-            v-for="(optionValue, idx) in span.list"
-            :key="idx"
+            v-for="(optionValue, index) in span.list"
+            :key="index"
             :value="optionValue"
             :selected="span.value === optionValue"
           >

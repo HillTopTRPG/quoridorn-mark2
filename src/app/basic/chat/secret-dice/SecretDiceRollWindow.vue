@@ -3,7 +3,7 @@
     <div class="secret-dice-container">
       <secret-dice-roll-component
         v-for="secretDiceInfo in secretDiceInfoList"
-        :key="secretDiceInfo.id"
+        :key="secretDiceInfo.key"
         :secretDiceRoll="secretDiceInfo"
         @open="openSecretDice"
         @delete="deleteSecretDice"
@@ -21,7 +21,7 @@ import SecretDiceRollComponent from "@/app/basic/chat/secret-dice/SecretDiceRoll
 import VueEvent from "@/app/core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { findRequireById } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 import { sendChatLog } from "@/app/core/utility/ChatUtility";
 
 @Component({ components: { SecretDiceRollComponent } })
@@ -41,15 +41,15 @@ export default class SecretDiceRollWindow extends Mixins<
     return this.keepBcdiceDiceRollResultList.filter(
       kbdrr =>
         kbdrr.data!.type === "secret-dice-roll" &&
-        kbdrr.owner === GameObjectManager.instance.mySelfUserId
+        kbdrr.owner === GameObjectManager.instance.mySelfUserKey
     );
   }
 
   @VueEvent
-  private async openSecretDice(id: string) {
-    const keepBcdiceDiceRollResult = findRequireById(
+  private async openSecretDice(key: string) {
+    const keepBcdiceDiceRollResult = findRequireByKey(
       this.keepBcdiceDiceRollResultList,
-      id
+      key
     );
     const bcdiceDiceRollResult = keepBcdiceDiceRollResult.data!
       .bcdiceDiceRollResult;
@@ -60,9 +60,9 @@ export default class SecretDiceRollWindow extends Mixins<
       {
         chatType: "system-message",
         text,
-        tabId: null,
-        targetId: null,
-        statusId: null,
+        tabKey: null,
+        targetKey: null,
+        statusKey: null,
         system: null,
         isSecret: false,
         diceRollResult: bcdiceDiceRollResult.result,
@@ -71,15 +71,15 @@ export default class SecretDiceRollWindow extends Mixins<
       },
       []
     );
-    await this.deleteSecretDice(id);
+    await this.deleteSecretDice(key);
   }
 
   @VueEvent
-  private async deleteSecretDice(id: string) {
+  private async deleteSecretDice(key: string) {
     if (this.keepBcdiceDiceRollResultList.length === 1) {
       await this.close();
     }
-    await this.keepBcdiceDiceRollResultListCC.deletePackage([id]);
+    await this.keepBcdiceDiceRollResultListCC.deletePackage([key]);
   }
 }
 </script>

@@ -38,7 +38,6 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../core/window/ComponentVue";
-import LanguageManager from "../../../LanguageManager";
 import { WindowInfo } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 
@@ -73,6 +72,7 @@ export default class ChatInputInfoComponent extends Mixins<ComponentVue>(
     this.windowInfo.message = flg ? this.$t(base + type)!.toString() : "";
   }
 
+  @VueEvent
   private get secretTarget(): string {
     return "label." + (this.isSecret ? "" : "non-") + "secret";
   }

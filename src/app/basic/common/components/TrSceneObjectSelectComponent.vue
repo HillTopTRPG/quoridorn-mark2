@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-scene-object-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <scene-object-select
@@ -10,6 +10,7 @@
         :nullable="nullable"
         :multiple="false"
         :readonly="readonly"
+        :elmId="key"
       />
     </td>
   </tr>

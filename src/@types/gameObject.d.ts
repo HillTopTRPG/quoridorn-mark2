@@ -1,7 +1,7 @@
 import { Address, Point, Rectangle } from "address";
 import { Direction, Texture } from "./room";
 import { BcdiceDiceRollResult } from "@/@types/bcdice";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 
 type SceneObjectType =
   | "character"
@@ -26,19 +26,19 @@ type SceneObject = Address & {
   type: SceneObjectType;
   tag: string;
   name: string;
-  actorId: string | null; // id
+  actorKey: string | null; // id
   rows: number;
   columns: number;
   isHideBorder: boolean;
   isHideHighlight: boolean;
   isLock: boolean;
   place: Place;
-  layerId: string;
+  layerKey: string;
   textures: Texture[];
   textureIndex: number;
   angle: number;
   url: string; // character
-  subTypeId: string; // サイコロの種類など
+  subTypeKey: string; // サイコロの種類など
   subTypeValue: string; // 出目など
   isHideSubType: boolean; // 出目を隠すかどうか
 };
@@ -50,16 +50,16 @@ type ActorStore = {
   chatFontColorType: "owner" | "original"; // チャット文字色はオーナー（ユーザ）の色か独自の色か
   chatFontColor: string; // 独自のチャット文字色
   standImagePosition: number; // 1〜12
-  pieceIdList: string[]; // コマのID一覧
-  statusId: string; // ステータスへの参照
+  pieceKeyList: string[]; // コマのID一覧
+  statusKey: string; // ステータスへの参照
 };
 
 type ActorStatusStore = {
-  // actorId: string; actorIdはownerで管理
+  // actorKey: string; actorKeyはownerで管理
   name: string; // ステータス名
   isSystem: boolean;
-  standImageInfoId: string | null; // id
-  chatPaletteInfoId: string | null; // id
+  standImageInfoKey: string | null; // id
+  chatPaletteInfoKey: string | null; // id
 };
 
 // import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
@@ -70,7 +70,7 @@ type StandImageDiffInfo = Point & {
 };
 
 type StandImageInfo = {
-  statusId: string;
+  statusKey: string;
   texture: Texture;
   autoResize: boolean;
   animationLength: number;
@@ -82,18 +82,18 @@ type ChatPaletteStore = {
   paletteText: string;
   chatFontColorType: "owner" | "original"; // チャット文字色はオーナーの色か独自の色か
   chatFontColor: string; // 独自のチャット文字色
-  actorId: string | null;
-  sceneObjectId: string | null;
-  targetId: string | null;
-  outputTabId: string | null;
-  statusId: string | null;
+  actorKey: string | null;
+  sceneObjectKey: string | null;
+  targetKey: string | null;
+  outputTabKey: string | null;
+  statusKey: string | null;
   system: string | null;
   isSecret: boolean;
 };
 
 type PublicMemoStore = {
   name: string;
-  mediaId: string;
+  mediaKey: string;
   mediaTag: string;
   direction: Direction;
 };
@@ -138,7 +138,7 @@ type ResourceMasterStore = {
   isAutoAddActor: boolean; // アクターに自動付与するかどうか
   isAutoAddMapObject: boolean; // コマに自動付与するかどうか
   icon: {
-    mediaId: string | null; // アイコンを設定するならその画像のID
+    mediaKey: string | null; // アイコンを設定するならその画像のID
     mediaTag: string | null; // アイコンを設定するならその画像のタグ
     imageDirection: Direction | null; // アイコンを設定するならその画像の表示方法
   };
@@ -152,13 +152,13 @@ type ResourceMasterStore = {
 
 // イニシアティブ表の列の定義
 type InitiativeColumnStore = {
-  resourceMasterId: string;
+  resourceMasterKey: string;
 };
 
 // リソースインスタンス
 type ResourceStore = {
   // 誰のリソースかはownerで表現
-  masterId: string;
+  masterKey: string;
   type: ResourceType;
   value: string;
 };
@@ -172,8 +172,8 @@ type PropertySelectionStore = {
 type OtherTextViewInfo = {
   type: string;
   title?: string;
-  docId: string;
-  dataList: StoreUseData<MemoStore>[];
+  key: string;
+  dataList: StoreObj<MemoStore>[];
   rect: Rectangle;
   isFix: boolean;
 };
@@ -181,8 +181,8 @@ type OtherTextViewInfo = {
 // カード１枚のデータ
 // カード一覧で見せたくない場合はこいつのView権限
 type CardMeta = {
-  // cardDeckBigId は owner で管理
-  // cardDeckSmallId は ここでは不要
+  // cardDeckBigKey は owner で管理
+  // cardDeckSmallKey は ここでは不要
   width: number; // カードの横幅
   height: number; // カードの高さ
   padHorizontal: number; // ふちの幅（横方向）
@@ -208,9 +208,9 @@ type CardMeta = {
 // オブジェクトとして触れるカードのデータ
 // こいつのView権限はオモテ面を公開するかどうか。
 type CardObject = {
-  // cardDeckSmallId は owner で管理
-  cardMetaId: string; // カード情報への参照
-  cardDeckBigId: string; // 所属するデッキへの参照
+  // cardDeckSmallKey は owner で管理
+  cardMetaKey: string; // カード情報への参照
+  cardDeckBigKey: string; // 所属するデッキへの参照
   isTurnOff: boolean; // 伏せているかどうか
   point: Point; // 置き場のレイアウトが frankness の場合の座標
   angle: number; // 置き場のレイアウトが frankness の場合の角度
@@ -235,7 +235,7 @@ type CardDeckSmall = {
   cardHeightRatio: number; // 置き場の大きさに収まるカードの枚数（高さ）
   layoutRows: number; // 置き場に対して何行使ってカードを配置するか
   layoutColumns: number; // 置き場に対して何列使ってカードを配置するか
-  layerId: string; // 配置するシーンレイヤー
+  layerKey: string; // 配置するシーンレイヤー
   total: number;
 };
 
@@ -290,12 +290,12 @@ type DiceMaterial = { [P: string]: DiceInfo[] };
 type KeepBcdiceDiceRollResult = {
   type: "secret-dice-roll" | "hide-dice-symbol-roll";
   text: string;
-  targetId: string;
+  targetKey: string;
   bcdiceDiceRollResult: BcdiceDiceRollResult;
 };
 
 type LikeStore = {
   char: string;
   isThrowLinkage: boolean;
-  linkageResourceId: string | null;
+  linkageResourceKey: string | null;
 };

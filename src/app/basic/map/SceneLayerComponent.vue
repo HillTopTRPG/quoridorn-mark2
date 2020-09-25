@@ -3,35 +3,35 @@
     <template v-for="cardDeckSmall in useCardDeckSmallList">
       <card-deck-small-component
         :deck="cardDeckSmall"
-        :key="cardDeckSmall.id"
+        :key="cardDeckSmall.key"
       />
     </template>
     <template v-for="sceneObject in useSceneObjectList">
       <map-mask-piece-component
         v-if="sceneObject.data.type === 'map-mask'"
-        :key="sceneObject.id"
-        :docId="sceneObject.id"
+        :key="sceneObject.key"
+        :docKey="sceneObject.key"
         type="map-mask"
       />
 
       <chit-piece-component
         v-if="sceneObject.data.type === 'chit'"
-        :key="sceneObject.id"
-        :docId="sceneObject.id"
+        :key="sceneObject.key"
+        :docKey="sceneObject.key"
         type="chit"
       />
 
       <character-piece-component
         v-if="sceneObject.data.type === 'character'"
-        :key="sceneObject.id"
-        :docId="sceneObject.id"
+        :key="sceneObject.key"
+        :docKey="sceneObject.key"
         type="character"
       />
 
       <dice-symbol-piece-component
         v-if="sceneObject.data.type === 'dice-symbol'"
-        :key="sceneObject.id"
-        :docId="sceneObject.id"
+        :key="sceneObject.key"
+        :docKey="sceneObject.key"
         type="dice-symbol"
       />
     </template>
@@ -42,20 +42,18 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
 import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import CardDeckSmallComponent from "../card/CardDeckSmallComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import SocketFacade, {
-  getStoreObj
-} from "../../core/api/app-server/SocketFacade";
+import SocketFacade from "../../core/api/app-server/SocketFacade";
 import MapMaskPieceComponent from "../object/map-mask/MapMaskPieceComponent.vue";
 import ChitPieceComponent from "../object/chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../object/character/CharacterPieceComponent.vue";
-import { findRequireById } from "../../core/utility/Utility";
+import { findRequireByKey } from "../../core/utility/Utility";
 import DiceSymbolPieceComponent from "@/app/basic/object/dice-symbol/DiceSymbolPieceComponent.vue";
 
 @Component({
@@ -71,10 +69,10 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
-  private sceneId!: string;
+  private sceneKey!: string;
 
   @Prop({ type: Object, required: true })
-  private layer!: StoreUseData<SceneLayer>;
+  private layer!: StoreObj<SceneLayer>;
 
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
@@ -83,7 +81,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   private isMounted: boolean = false;
-  private sceneAndLayerInfo: StoreUseData<SceneAndLayer> | null = null;
+  private sceneAndLayerInfo: StoreObj<SceneAndLayer> | null = null;
 
   @VueEvent
   private get className(): string {
@@ -94,22 +92,19 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
 
   @LifeCycle
   private async mounted() {
-    const sceneAndLayerInfo = (await this.sceneAndLayerCC!.find([
-      {
-        property: "data.layerId",
-        operand: "==",
-        value: this.layer.id!
-      }
-    ]))![0];
+    const sceneAndLayerInfo = (await this.sceneAndLayerCC!.findSingle(
+      "data.layerKey",
+      this.layer.key
+    ))!.data!;
     this.sceneAndLayerInfo = sceneAndLayerInfo;
     await this.sceneAndLayerCC!.setSnapshot(
       this.key,
-      sceneAndLayerInfo.id!,
+      sceneAndLayerInfo.key,
       (snapshot: DocumentSnapshot<StoreObj<SceneAndLayer>>) => {
         if (!snapshot.data) return;
         const status = snapshot.data.status;
         if (status === "modified" || status === "modify-touched") {
-          this.sceneAndLayerInfo = getStoreObj<SceneAndLayer>(snapshot);
+          this.sceneAndLayerInfo = snapshot.data!;
         }
       }
     );
@@ -125,17 +120,17 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   @VueEvent
   private get useSceneObjectList() {
     return this.sceneAndObjectList
-      .filter(sao => sao.data!.sceneId === this.sceneId)
-      .map(sao => findRequireById(this.sceneObjectList, sao.data!.objectId))
+      .filter(sao => sao.data!.sceneKey === this.sceneKey)
+      .map(sao => findRequireByKey(this.sceneObjectList, sao.data!.objectKey))
       .filter(
-        so => so.data!.place === "field" && so.data!.layerId === this.layer.id
+        so => so.data!.place === "field" && so.data!.layerKey === this.layer.key
       );
   }
 
   @VueEvent
   private get useCardDeckSmallList() {
     return this.cardDeckSmallList.filter(
-      cds => cds.data!.layerId === this.layer.id
+      cds => cds.data!.layerKey === this.layer.key
     );
   }
 

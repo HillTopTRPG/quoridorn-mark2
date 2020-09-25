@@ -42,11 +42,7 @@ import { Component, Prop } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
-@Component({
-  components: {
-    vueSlider
-  }
-})
+@Component({ components: { vueSlider } })
 export default class RangeMultiplePersent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

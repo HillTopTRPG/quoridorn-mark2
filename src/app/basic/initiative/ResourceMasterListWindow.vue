@@ -21,7 +21,7 @@
         <tr
           class="resource-master"
           v-for="resource in resourceMasterList"
-          :key="resource.id"
+          :key="resource.key"
         >
           <td>{{ resource.data.label }}</td>
           <td v-t="`selection.resource-type.${resource.data.type}`"></td>
@@ -30,11 +30,11 @@
             {{ resource.data.isAutoAddMapObject ? "✔︎" : "" }}
           </td>
           <td>
-            <ctrl-button @click="editResource(resource.id)">
+            <ctrl-button @click="editResource(resource.key)">
               <span v-t="'button.modify'"></span>
             </ctrl-button>
             <ctrl-button
-              @click="deleteResource(resource.id)"
+              @click="deleteResource(resource.key)"
               :disabled="!!resource.data.systemColumnType"
             >
               <span v-t="'button.delete'"></span>
@@ -71,7 +71,7 @@ import { WindowOpenInfo } from "../../../@types/window";
 import { DataReference } from "../../../@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import { importJson, saveJson } from "../../core/utility/FileUtility";
-import { StoreUseData } from "../../../@types/store";
+import { StoreObj } from "../../../@types/store";
 import { ResourceMasterStore } from "../../../@types/gameObject";
 import LanguageManager from "../../../LanguageManager";
 import * as moment from "moment";
@@ -105,7 +105,7 @@ export default class ResourceMasterListWindow extends Mixins<
   private async downloadData() {
     console.log(JSON.stringify(this.resourceMasterList, null, "  "));
     const dateTimeStr = moment().format("YYYYMMDDHHmmss");
-    saveJson<StoreUseData<ResourceMasterStore>[]>(
+    saveJson<StoreObj<ResourceMasterStore>[]>(
       `Quoridorn_ResourceMaster_${dateTimeStr}`,
       "resource-master",
       this.resourceMasterList
@@ -115,7 +115,7 @@ export default class ResourceMasterListWindow extends Mixins<
   @VueEvent
   private async uploadData() {
     console.log(JSON.stringify(this.resourceMasterList, null, "  "));
-    const dataContainer = await importJson<StoreUseData<ResourceMasterStore>[]>(
+    const dataContainer = await importJson<StoreObj<ResourceMasterStore>[]>(
       "resource-master"
     );
     if (!dataContainer) {
@@ -130,7 +130,7 @@ export default class ResourceMasterListWindow extends Mixins<
   }
 
   @VueEvent
-  private async editResource(id: string) {
+  private async editResource(key: string) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -138,20 +138,20 @@ export default class ResourceMasterListWindow extends Mixins<
         type: "resource-master-edit-window",
         args: {
           type: "resource-master",
-          docId: id
+          key: key
         }
       }
     });
   }
 
   @VueEvent
-  private async deleteResource(id: string) {
+  private async deleteResource(key: string) {
     const flg = window.confirm(
       this.$t(`${this.windowInfo.type}.dialog.delete-resource`)!.toString()
     );
     if (!flg) return;
     try {
-      await this.cc.deletePackage([id]);
+      await this.cc.deletePackage([key]);
     } catch (err) {
       alert(this.$t("message.delete-failure")!.toString());
       return;

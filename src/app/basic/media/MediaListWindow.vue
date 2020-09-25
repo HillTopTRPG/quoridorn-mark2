@@ -32,7 +32,7 @@
       <div class="tab-container">
         <media-item-component
           v-for="media in useMediaList"
-          :key="media.id"
+          :key="media.key"
           :media="media"
           :isViewThumbnail="isViewThumbnail"
           @preview="preview(media)"
@@ -58,16 +58,16 @@ import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../@types/store";
-import { MediaInfo } from "../../../@types/room";
+import { StoreObj } from "@/@types/store";
+import { MediaInfo } from "@/@types/room";
 import TaskManager from "../../core/task/TaskManager";
 import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
-import { TabInfo, WindowOpenInfo } from "../../../@types/window";
-import { DataReference } from "../../../@types/data";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
+import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import { DeleteFileRequest } from "../../../@types/socket";
+import { DeleteFileRequest } from "@/@types/socket";
 
 @Component({
   components: {
@@ -81,7 +81,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   WindowVue
 ) {
   private mediaList = GameObjectManager.instance.mediaList;
-  private useMediaList: StoreUseData<MediaInfo>[] = [];
+  private useMediaList: StoreObj<MediaInfo>[] = [];
   private mediaCC = SocketFacade.instance.mediaCC();
 
   private tabList: TabInfo[] = [];
@@ -144,9 +144,9 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
     this.tabList = this.mediaList
       .filter(m => permissionCheck(m, "view"))
       .map(m => m.data!.tag)
-      .filter((tag, idx, list) => list.indexOf(tag) === idx)
-      .map((tag, idx) => ({
-        key: idx.toString(),
+      .filter((tag, index, list) => list.indexOf(tag) === index)
+      .map((tag, index) => ({
+        key: index.toString(),
         target: tag,
         text: tag || this.$t("label.non-tag")!.toString()
       }));
@@ -155,10 +155,10 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       return;
     }
 
-    const idx = this.tabList.findIndex(
+    const index = this.tabList.findIndex(
       t => JSON.stringify(t) === JSON.stringify(this.currentTabInfo)
     );
-    if (idx === -1) this.currentTabInfo = this.tabList[0];
+    if (index === -1) this.currentTabInfo = this.tabList[0];
   }
 
   private static getDialogMessage(target: string) {
@@ -167,7 +167,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async chmodMedia(media: StoreUseData<MediaInfo>) {
+  private async chmodMedia(media: StoreObj<MediaInfo>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -175,14 +175,14 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
         type: "chmod-window",
         args: {
           type: "media",
-          docId: media.id!
+          key: media.key
         }
       }
     });
   }
 
   @VueEvent
-  private async deleteMedia(media: StoreUseData<MediaInfo>) {
+  private async deleteMedia(media: StoreObj<MediaInfo>) {
     const msg = MediaListWindow.getDialogMessage("delete-media").replace(
       "$1",
       media.data!.name
@@ -191,7 +191,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.mediaCC.deletePackage([media.id!]);
+      await this.mediaCC.deletePackage([media.key]);
     } catch (err) {
       // TODO error message.
       return;
@@ -212,7 +212,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async addCutIn(media: StoreUseData<MediaInfo>) {
+  private async addCutIn(media: StoreObj<MediaInfo>) {
     await TaskManager.instance.ignition<WindowOpenInfo<MediaInfo>, never>({
       type: "window-open",
       owner: "Quoridorn",

@@ -189,14 +189,14 @@
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 import { Component } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { ActorGroup, UserData } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
 import App from "../../../views/App.vue";
 import {
-  findById,
-  findRequireById,
+  findByKey,
+  findRequireByKey,
   someByStr
 } from "../../core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
@@ -219,7 +219,7 @@ import urljoin from "url-join";
     MenuBooleanItem
   },
   filters: {
-    loginNum: (userList: StoreUseData<UserData>[]) =>
+    loginNum: (userList: StoreObj<UserData>[]) =>
       userList.filter(user => user!.data!.login > 0).length
   }
 })
@@ -229,8 +229,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private isSelecting: boolean = false;
   private currentMenu: string = "";
   private currentMenuPoint: Point = createPoint(0, 0);
-  private userList: StoreUseData<UserData>[] =
-    GameObjectManager.instance.userList;
+  private userList: StoreObj<UserData>[] = GameObjectManager.instance.userList;
 
   public key: string = "menu";
 
@@ -325,28 +324,28 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     };
 
     if (!GameObjectManager.instance.isGm) {
-      const someActor = (id: string | null): boolean => {
-        const actor = findById(actorList, id);
+      const someActor = (key: string | null): boolean => {
+        const actor = findByKey(actorList, key);
         if (!actor) return true;
-        return actor.owner === GameObjectManager.instance.mySelfUserId;
+        return actor.owner === GameObjectManager.instance.mySelfUserKey;
       };
       chatList = chatList.filter(c => {
         if (!c.data!.isSecret) return true;
-        if (someActor(c.data!.actorId)) return true;
-        const targetId = c.data!.targetId;
+        if (someActor(c.data!.actorKey)) return true;
+        const targetKey = c.data!.targetKey;
         switch (c.data!.targetType) {
           case "group":
-            const groupChatTab = findRequireById(groupChatTabList, targetId);
-            const actorGroupId = groupChatTab.data!.actorGroupId;
-            const actorGroup: StoreUseData<ActorGroup> = findRequireById(
+            const groupChatTab = findRequireByKey(groupChatTabList, targetKey);
+            const actorGroupKey = groupChatTab.data!.actorGroupKey;
+            const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
               actorGroupList,
-              actorGroupId
+              actorGroupKey
             );
             return actorGroup.data!.list.some(
-              a => a.userId === GameObjectManager.instance.mySelfUserId
+              a => a.userKey === GameObjectManager.instance.mySelfUserKey
             );
           case "actor":
-            return someActor(targetId);
+            return someActor(targetKey);
           default:
             return true;
         }
@@ -354,7 +353,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     }
 
     const data = {
-      owner: GameObjectManager.instance.mySelfUserId,
+      owner: GameObjectManager.instance.mySelfUserKey,
       chatTabList: convert(chatTabList),
       chatList: convert(chatList),
       userList: convert(userList),

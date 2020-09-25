@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :multiple="multiple"
@@ -17,9 +18,9 @@ import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
-import { Place } from "../../../../../@types/gameObject";
+import { Place } from "@/@types/gameObject";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -58,8 +59,8 @@ export default class CharacterSelect extends Mixins<MultiMixin>(
         );
       })
       .map(c => ({
-        key: c.id!,
-        value: c.id!,
+        key: c.key,
+        value: c.key,
         text: c.data!.name,
         disabled: false
       }));

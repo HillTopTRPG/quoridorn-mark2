@@ -4,11 +4,7 @@
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <scene-layer-select
-        :key="key"
-        v-model="localValue"
-        :id="`${key}-layer`"
-      />
+      <scene-layer-select :key="key" v-model="localValue" :elmId="key" />
     </td>
   </tr>
 </template>

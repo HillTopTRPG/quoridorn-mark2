@@ -33,7 +33,7 @@ import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
 import { Point, Rectangle, Size } from "address";
 import { MouseMoveParam } from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { Task, TaskResult } from "task";
@@ -48,8 +48,8 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   private static DEFAULT_FONT_SIZE = 14;
 
-  private useMemoList: StoreUseData<MemoStore>[] = [];
-  private docId: string | null = null;
+  private useMemoList: StoreObj<MemoStore>[] = [];
+  private docKey: string | null = null;
   private isMounted: boolean = false;
 
   private isHover: boolean = false;
@@ -167,20 +167,20 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   @Watch("useMemoList", { deep: true })
   private async onChangeUseMemoList() {
-    if (this.docId) {
-      if (this.docId !== this.otherTextViewInfo.docId) {
+    if (this.docKey) {
+      if (this.docKey !== this.otherTextViewInfo.key) {
         this.isChanged = true;
       } else {
         const type = this.otherTextViewInfo.type;
-        const docId = this.otherTextViewInfo.docId;
+        const docKey = this.otherTextViewInfo.key;
         await GameObjectManager.instance.updateMemoList(
           this.useMemoList,
           type,
-          docId
+          docKey
         );
       }
     }
-    this.docId = this.otherTextViewInfo.docId;
+    this.docKey = this.otherTextViewInfo.key;
   }
 
   private get elm(): HTMLElement {
@@ -211,10 +211,10 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseLeftUpFinished(
-    __task: Task<Point, never>,
+    _task: Task<Point, never>,
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
-    if (!param || param.key !== this.otherTextViewInfo.docId) return;
+    if (!param || param.key !== this.otherTextViewInfo.key) return;
     this.$emit("hide");
   }
 }

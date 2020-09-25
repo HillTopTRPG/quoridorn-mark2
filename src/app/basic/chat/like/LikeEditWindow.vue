@@ -6,7 +6,7 @@
       initTabTarget="basic"
       :char.sync="char"
       :isThrowLinkage.sync="isThrowLinkage"
-      :linkageResourceId.sync="linkageResourceId"
+      :linkageResourceKey.sync="linkageResourceKey"
     />
 
     <div class="button-area">
@@ -42,22 +42,22 @@ import LikeInfoForm from "@/app/basic/chat/like/LikeInfoForm.vue";
 export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
-  private docId: string | null = null;
+  private docKey: string | null = null;
   private likeList = GameObjectManager.instance.likeList;
   private isProcessed: boolean = false;
   private cc = SocketFacade.instance.likeListCC();
 
   private char: string = "";
   private isThrowLinkage: boolean = false;
-  private linkageResourceId: string | null = null;
+  private linkageResourceKey: string | null = null;
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.inputEnter("input:not([type='button'])", this.commit);
 
-    this.docId = this.windowInfo.args!;
-    const data = this.likeList.filter(ct => ct.id === this.docId)[0];
+    this.docKey = this.windowInfo.args!;
+    const data = this.likeList.filter(ct => ct.key === this.docKey)[0];
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -77,11 +77,11 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
 
     this.char = data.data!.char;
     this.isThrowLinkage = data.data!.isThrowLinkage;
-    this.linkageResourceId = data.data!.linkageResourceId;
+    this.linkageResourceKey = data.data!.linkageResourceKey;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -93,14 +93,14 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
   private get isDuplicate(): boolean {
     if (this.char === null) return false;
     return !!this.likeList.find(
-      ct => ct.data!.char === this.char && ct.id !== this.docId
+      ct => ct.data!.char === this.char && ct.key !== this.docKey
     );
   }
 
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
-    if (this.docId === null) return;
-    const tab = this.likeList.filter(ct => ct.id === this.docId)[0];
+    if (this.docKey === null) return;
+    const tab = this.likeList.filter(ct => ct.key === this.docKey)[0];
     this.windowInfo.message = this.isDuplicate
       ? this.$t("message.tab-duplicate")!.toString()
       : this.$t("message.original")!
@@ -116,11 +116,16 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async commit() {
     if (!this.isDuplicate) {
-      const data = this.likeList.filter(ct => ct.id === this.docId)[0];
+      const data = this.likeList.filter(ct => ct.key === this.docKey)[0];
       data.data!.char = this.char;
       data.data!.isThrowLinkage = this.isThrowLinkage;
-      data.data!.linkageResourceId = this.linkageResourceId;
-      await this.cc!.update([this.docId!], [data.data!]);
+      data.data!.linkageResourceKey = this.linkageResourceKey;
+      await this.cc!.update([
+        {
+          key: this.docKey!,
+          data: data.data!
+        }
+      ]);
     }
     this.isProcessed = true;
     await this.close();
@@ -140,7 +145,7 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId!]);
+      await this.cc!.releaseTouch([this.docKey!]);
     } catch (err) {
       // nothing
     }

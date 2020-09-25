@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     :optionInfoList="optionInfoList"
     :disabled="disabled"
     :readonly="readonly"
@@ -17,11 +18,9 @@ import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class CardDeckLayoutSelect extends Mixins<ComponentVue>(
   ComponentVue
 ) {

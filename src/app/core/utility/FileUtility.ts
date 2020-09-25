@@ -329,10 +329,10 @@ export async function raw2UploadMediaInfoList(
   resultList.sort((umi1, umi2) => {
     const umi1Str = getStr(umi1.raw);
     const umi2Str = getStr(umi2.raw);
-    const idx1 = rawStrList.findIndex(rs => umi1Str === rs);
-    const idx2 = rawStrList.findIndex(rs => umi2Str === rs);
-    if (idx1 < idx2) return -1;
-    if (idx1 > idx2) return 1;
+    const index1 = rawStrList.findIndex(rs => umi1Str === rs);
+    const index2 = rawStrList.findIndex(rs => umi2Str === rs);
+    if (index1 < index2) return -1;
+    if (index1 > index2) return 1;
     return 0;
   });
   return resultList.map(r => r.uploadMediaInfo);

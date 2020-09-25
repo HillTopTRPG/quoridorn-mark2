@@ -27,7 +27,7 @@
           <tr>
             <tr-actor-number-resource-select-component
               labelName="label.resource"
-              v-model="linkageResourceIdVolatile"
+              v-model="linkageResourceKeyVolatile"
             />
           </tr>
           <tr>
@@ -102,17 +102,17 @@ export default class LikeInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:isThrowLinkage", value);
   }
 
-  // linkageResourceId
+  // linkageResourceKey
   @Prop({ type: String, default: null })
-  private linkageResourceId!: string | null;
-  private linkageResourceIdVolatile: string | null = null;
-  @Watch("linkageResourceId", { immediate: true })
-  private onChangeLinkageResourceId(value: string | null) {
-    this.linkageResourceIdVolatile = value;
+  private linkageResourceKey!: string | null;
+  private linkageResourceKeyVolatile: string | null = null;
+  @Watch("linkageResourceKey", { immediate: true })
+  private onChangeLinkageResourceKey(value: string | null) {
+    this.linkageResourceKeyVolatile = value;
   }
-  @Watch("linkageResourceIdVolatile")
-  private onChangeLinkageResourceIdVolatile(value: string | null) {
-    this.$emit("update:linkageResourceId", value);
+  @Watch("linkageResourceKeyVolatile")
+  private onChangeLinkageResourceKeyVolatile(value: string | null) {
+    this.$emit("update:linkageResourceKey", value);
   }
 
   private tabList: TabInfo[] = [{ key: "1", target: "basic", text: "" }];

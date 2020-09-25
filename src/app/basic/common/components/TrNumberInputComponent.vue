@@ -29,6 +29,7 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
 import BaseInput from "../../../core/component/BaseInput.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({ components: { BaseInput } })
 export default class TrNumberInputComponent extends Mixins<ComponentVue>(
@@ -58,6 +59,7 @@ export default class TrNumberInputComponent extends Mixins<ComponentVue>(
   @Prop({ type: String, default: "" })
   private unitLabel!: string;
 
+  @LifeCycle
   private mounted() {
     if (this.inputWidth) {
       const inputElm = this.$refs.inputElm as HTMLInputElement;

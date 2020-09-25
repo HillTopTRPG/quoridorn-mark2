@@ -52,8 +52,8 @@ export default class WindowVue<T, U> extends Vue {
       const inputElmList = Array.prototype.slice.call(
         windowContainerElm.getElementsByClassName("input")
       );
-      const idx = inputElmList.findIndex(elm => !elm.disabled);
-      if (idx >= 0) inputElmList[idx].focus();
+      const index = inputElmList.findIndex(elm => !elm.disabled);
+      if (index >= 0) inputElmList[index].focus();
     });
   }
 

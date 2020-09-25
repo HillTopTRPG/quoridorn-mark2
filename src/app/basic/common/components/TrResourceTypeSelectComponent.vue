@@ -1,10 +1,14 @@
 <template>
   <tr class="tr-resource-type-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <resource-type-select v-model="localValue" :readonly="readonly" />
+      <resource-type-select
+        v-model="localValue"
+        :readonly="readonly"
+        :elmId="key"
+      />
     </td>
   </tr>
 </template>
@@ -13,7 +17,7 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { ResourceType } from "../../../../@types/gameObject";
+import { ResourceType } from "@/@types/gameObject";
 import ResourceTypeSelect from "./select/ResourceTypeSelect.vue";
 
 @Component({ components: { ResourceTypeSelect } })

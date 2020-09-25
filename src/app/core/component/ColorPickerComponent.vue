@@ -1,7 +1,7 @@
 <template>
   <label class="color-picker-container" @contextmenu.prevent ref="elm">
     <input
-      :id="id"
+      :id="elmId"
       class="input color-input"
       type="text"
       :value="colorCode"
@@ -48,14 +48,11 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../decorator/LifeCycle";
 import ComponentVue from "../window/ComponentVue";
-import CtrlButton from "./CtrlButton.vue";
 import BaseInput from "./BaseInput.vue";
 import { parseColor } from "../utility/ColorUtility";
 import VueEvent from "../decorator/VueEvent";
 
-@Component({
-  components: { BaseInput, CtrlButton }
-})
+@Component({ components: { BaseInput } })
 export default class ColorPickerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
@@ -63,7 +60,7 @@ export default class ColorPickerComponent extends Mixins<ComponentVue>(
   private value!: string;
 
   @Prop({ type: String, default: null })
-  private id!: string | null;
+  public elmId!: string | null;
 
   @Prop({ type: Boolean, required: true })
   private useAlpha!: boolean;

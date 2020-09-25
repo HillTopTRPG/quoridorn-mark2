@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :multiple="multiple"
@@ -46,8 +47,8 @@ export default class PipsSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     const optionInfoList: HtmlOptionInfo[] = this.diceTypeList.map(dt => ({
-      key: dt.id!,
-      value: dt.id!,
+      key: dt.key,
+      value: dt.key,
       text: `D${dt.data!.faceNum}-${dt.data!.label}`,
       disabled: false
     }));

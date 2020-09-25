@@ -3,7 +3,7 @@
     <div class="user-area">
       <label>
         <span class="label-input" v-t="'label.owner'"></span>
-        <user-select :isUseAll="true" v-model="userId" />
+        <user-select :isUseAll="true" v-model="userKey" />
       </label>
     </div>
     <label class="view-type-select">
@@ -35,7 +35,7 @@
             <div
               class="actor-info"
               v-for="actor in tabbedOwnerActorList"
-              :key="actor.id"
+              :key="actor.key"
               :class="[actor.data.type]"
             >
               <div class="first-line">
@@ -96,8 +96,8 @@
                   <tr-actor-status-select-component
                     labelName="label.status"
                     :readonly="true"
-                    :actorId="actor.id"
-                    v-model="actor.data.statusId"
+                    :actorKey="actor.key"
+                    v-model="actor.data.statusKey"
                   />
                 </tr>
               </table>
@@ -106,22 +106,22 @@
                 <template v-for="sceneObject in getSceneObjectList(actor)">
                   <map-mask-piece-component
                     v-if="sceneObject.data.type === 'map-mask'"
-                    :key="sceneObject.id"
-                    :docId="sceneObject.id"
+                    :key="sceneObject.key"
+                    :docKey="sceneObject.key"
                     type="map-mask"
                   />
 
                   <chit-piece-component
                     v-if="sceneObject.data.type === 'chit'"
-                    :key="sceneObject.id"
-                    :docId="sceneObject.id"
+                    :key="sceneObject.key"
+                    :docKey="sceneObject.key"
                     type="chit"
                   />
 
                   <character-piece-component
                     v-if="sceneObject.data.type === 'character'"
-                    :key="sceneObject.id"
-                    :docId="sceneObject.id"
+                    :key="sceneObject.key"
+                    :docKey="sceneObject.key"
                     type="character"
                   />
                 </template>
@@ -143,18 +143,18 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { ActorStore } from "../../../../@types/gameObject";
+import { ActorStore } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
-import { TabInfo, WindowOpenInfo } from "../../../../@types/window";
+import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "../../../../LanguageManager";
-import { DataReference } from "../../../../@types/data";
+import { DataReference } from "@/@types/data";
 import UserSelect from "../../common/components/select/UserSelect.vue";
 import PlayerBoxViewTypeRadio from "../../common/components/radio/PlayerBoxViewTypeRadio.vue";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
@@ -165,7 +165,7 @@ import TrActorStatusSelectComponent from "../../common/components/TrActorStatusS
 import MapMaskPieceComponent from "../map-mask/MapMaskPieceComponent.vue";
 import ChitPieceComponent from "../chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../character/CharacterPieceComponent.vue";
-import { findRequireById } from "../../../core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 import App from "../../../../views/App.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 
@@ -190,7 +190,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   private userList = GameObjectManager.instance.userList;
   private actorCC = SocketFacade.instance.actorCC();
   private actorList = GameObjectManager.instance.actorList;
-  private userId: string = GameObjectManager.instance.mySelfUserId;
+  private userKey: string = GameObjectManager.instance.mySelfUserKey;
   private viewType: "actor" | "piece" = "actor";
   private searchText: string = "";
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
@@ -202,7 +202,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private get ownerActorList(): StoreUseData<ActorStore>[] {
+  private get ownerActorList(): StoreObj<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -211,12 +211,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
         const regExp = new RegExp(this.searchText);
         if (!name.match(regExp)) return false;
       }
-      return !(this.userId && a.owner !== this.userId);
+      return !(this.userKey && a.owner !== this.userKey);
     });
   }
 
   @VueEvent
-  private get tabbedOwnerActorList(): StoreUseData<ActorStore>[] {
+  private get tabbedOwnerActorList(): StoreObj<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -231,32 +231,32 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       ) {
         return false;
       }
-      return !(this.userId && a.owner !== this.userId);
+      return !(this.userKey && a.owner !== this.userKey);
     });
   }
 
   @VueEvent
-  private getSceneObjectList(actor: StoreUseData<ActorStore>) {
-    const sceneId = GameObjectManager.instance.roomData.sceneId;
+  private getSceneObjectList(actor: StoreObj<ActorStore>) {
+    const sceneKey = GameObjectManager.instance.roomData.sceneKey;
     return this.sceneAndObjectList
       .filter(
         sao =>
-          sao.data!.sceneId === sceneId &&
-          actor.data!.pieceIdList.filter(p => p === sao.data!.objectId).length
+          sao.data!.sceneKey === sceneKey &&
+          actor.data!.pieceKeyList.filter(p => p === sao.data!.objectKey).length
       )
-      .map(sao => findRequireById(this.sceneObjectList, sao.data!.objectId))
+      .map(sao => findRequireByKey(this.sceneObjectList, sao.data!.objectKey))
       .filter(so => so.data!.place === "field");
   }
 
   @VueEvent
-  private getOwnerType(userId: string): string {
-    const user = findRequireById(this.userList, userId);
+  private getOwnerType(userKey: string): string {
+    const user = findRequireByKey(this.userList, userKey);
     return this.$t(`selection.user-type.${user.data!.type}`)!.toString();
   }
 
   @VueEvent
-  private getOwnerName(userId: string): string {
-    return GameObjectManager.instance.getUserName(userId);
+  private getOwnerName(userKey: string): string {
+    return GameObjectManager.instance.getUserName(userKey);
   }
 
   private actorTabList: TabInfo[] = [
@@ -283,21 +283,22 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
     this.actorTabList = this.ownerActorList
       .map(a => a.data!.tag)
       .filter(
-        (tag: string, idx: number, list: string[]) => list.indexOf(tag) === idx
+        (tag: string, index: number, list: string[]) =>
+          list.indexOf(tag) === index
       )
-      .map((tag, idx) => ({
-        key: idx.toString(),
+      .map((tag, index) => ({
+        key: index.toString(),
         target: tag,
         text: tag || this.$t("label.non-tag")!.toString()
       }));
-    const idx = this.currentActorTabInfo
+    const index = this.currentActorTabInfo
       ? this.actorTabList.findIndex(
           at =>
             at.text === this.currentActorTabInfo!.text &&
             at.target === this.currentActorTabInfo!.target
         )
       : -1;
-    if (idx === -1) {
+    if (index === -1) {
       this.currentActorTabInfo = this.actorTabList[0];
     }
   }
@@ -308,12 +309,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreUseData<ActorStore>) {
+  private isEditable(tabInfo: StoreObj<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editActor(actor: StoreUseData<ActorStore>) {
+  private async editActor(actor: StoreObj<ActorStore>) {
     if (!this.isEditable(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -323,19 +324,19 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
         type: "actor-edit-window",
         args: {
           type: "actor",
-          docId: actor.id!
+          key: actor.key
         }
       }
     });
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreUseData<ActorStore>) {
+  private isChmodAble(tabInfo: StoreObj<ActorStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodActor(actor: StoreUseData<ActorStore>) {
+  private async chmodActor(actor: StoreObj<ActorStore>) {
     if (!this.isChmodAble(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -345,19 +346,19 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
         type: "chmod-window",
         args: {
           type: "actor",
-          docId: actor.id!
+          key: actor.key
         }
       }
     });
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreUseData<ActorStore>) {
+  private isDeletable(tabInfo: StoreObj<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteActor(actor: StoreUseData<ActorStore>) {
+  private async deleteActor(actor: StoreObj<ActorStore>) {
     if (!this.isDeletable(actor)) return;
     const msg = PlayerBoxWindow.getDialogMessage("delete-actor").replace(
       "$1",
@@ -367,7 +368,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
     if (!result) return;
 
     try {
-      await this.actorCC.deletePackage([actor.id!]);
+      await this.actorCC.deletePackage([actor.key]);
     } catch (err) {
       // TODO error message.
       return;

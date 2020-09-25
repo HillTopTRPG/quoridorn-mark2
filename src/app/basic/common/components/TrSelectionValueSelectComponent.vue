@@ -1,13 +1,14 @@
 <template>
   <tr class="tr-selection-value-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <selection-value-select
         v-model="localValue"
         :readonly="readonly"
         :selection="selection"
+        :elmId="key"
       />
     </td>
   </tr>
@@ -17,11 +18,10 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import SCheck from "./SCheck.vue";
 import { ResourceType } from "@/@types/gameObject";
 import SelectionValueSelect from "./select/SelectionValueSelect.vue";
 
-@Component({ components: { SelectionValueSelect, SCheck } })
+@Component({ components: { SelectionValueSelect } })
 export default class TrSelectionValueSelectComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {

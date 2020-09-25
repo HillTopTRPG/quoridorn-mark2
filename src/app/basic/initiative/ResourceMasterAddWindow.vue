@@ -9,7 +9,7 @@
       :resourceType.sync="resourceType"
       :isAutoAddActor.sync="isAutoAddActor"
       :isAutoAddMapObject.sync="isAutoAddMapObject"
-      :iconImageId.sync="iconImageId"
+      :iconImageKey.sync="iconImageKey"
       :iconImageTag.sync="iconImageTag"
       :iconImageDirection.sync="iconImageDirection"
       :refProperty.sync="refProperty"
@@ -72,7 +72,7 @@ export default class ResourceMasterAddWindow extends Mixins<
   private resourceType: ResourceType = "no-contents";
   private isAutoAddActor: boolean = false;
   private isAutoAddMapObject: boolean = true;
-  private iconImageId: string | null = null;
+  private iconImageKey: string | null = null;
   private iconImageTag: string | null = null;
   private iconImageDirection: Direction = "none";
   private refProperty: RefProperty | null = null;
@@ -118,7 +118,7 @@ export default class ResourceMasterAddWindow extends Mixins<
   @VueEvent
   private async commit() {
     // TODO 同名プロパティチェック
-    await this.cc!.addDirect([this.resourceMasterData]);
+    await this.cc!.addDirect([{ data: this.resourceMasterData }]);
     await this.finally(true);
   }
 
@@ -135,7 +135,7 @@ export default class ResourceMasterAddWindow extends Mixins<
       isAutoAddActor: this.isAutoAddActor,
       isAutoAddMapObject: this.isAutoAddMapObject,
       icon: {
-        mediaId: this.iconImageId,
+        mediaKey: this.iconImageKey,
         mediaTag: this.iconImageTag,
         imageDirection: this.iconImageDirection
       },

@@ -406,7 +406,7 @@ export async function createNechronicaChatPalette(
     (nechronicaData.action.partsList.length + 3) * 2
   )
     .fill("")
-    .map((_: string, idx: number) => idx + 6)
+    .map((_: string, index: number) => index + 6)
     .join("|")}](${nechronicaData.action.total})`;
   strList.push(
     `|行動値|${selectStr}|6|[${

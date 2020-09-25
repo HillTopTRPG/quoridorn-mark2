@@ -1,10 +1,14 @@
 <template>
   <tr class="tr-general-type-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <general-type-select v-model="localValue" :readonly="readonly" />
+      <general-type-select
+        v-model="localValue"
+        :readonly="readonly"
+        :elmId="key"
+      />
     </td>
   </tr>
 </template>
@@ -13,11 +17,10 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import SCheck from "./SCheck.vue";
-import { ResourceType } from "../../../../@types/gameObject";
+import { ResourceType } from "@/@types/gameObject";
 import GeneralTypeSelect from "./select/GeneralTypeSelect.vue";
 
-@Component({ components: { GeneralTypeSelect, SCheck } })
+@Component({ components: { GeneralTypeSelect } })
 export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

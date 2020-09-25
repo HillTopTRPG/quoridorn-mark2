@@ -6,7 +6,7 @@
         class="object"
         :class="{ 'type-add': isAdd }"
         ref="object"
-        :draggable="isAdd && imageDocId ? 'true' : 'false'"
+        :draggable="isAdd && imageDocKey ? 'true' : 'false'"
         @dragstart="dragStart"
         @dragend="dragEnd"
       ></div>
@@ -39,7 +39,7 @@
         </th>
         <td class="value-cell">
           <background-location-select
-            :id="`${key}-background-size`"
+            :elmId="`${key}-background-size`"
             v-model="backgroundSizeVolatile"
           />
         </td>
@@ -54,7 +54,7 @@
       <!-- 画像タブ -->
       <image-picker-component
         v-if="currentTabInfo.target === 'image'"
-        v-model="imageDocIdVolatile"
+        v-model="imageDocKeyVolatile"
         :windowKey="key"
         :imageTag.sync="imageTagVolatile"
         :direction.sync="directionVolatile"
@@ -84,8 +84,8 @@
             </th>
             <td class="value-cell">
               <scene-layer-select
-                v-model="layerIdVolatile"
-                :id="`${key}-layer`"
+                v-model="layerKeyVolatile"
+                :elmId="`${key}-layer`"
               />
             </td>
           </tr>
@@ -144,7 +144,7 @@ import {
   createNechronicaChatPalette,
   isNechronicaUrl
 } from "@/app/core/utility/trpg_system/nechronica";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { MemoStore } from "@/@types/gameObject";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
@@ -219,14 +219,14 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreUseData<MemoStore>[];
-  private otherTextListVolatile: StoreUseData<MemoStore>[] = [];
+  private otherTextList!: StoreObj<MemoStore>[];
+  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 
@@ -244,16 +244,16 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: String, default: null })
-  private imageDocId!: string | null;
+  private imageDocKey!: string | null;
 
-  private imageDocIdVolatile: string | null = null;
-  @Watch("imageDocId", { immediate: true })
-  private onChangeImageDocId(value: string | null) {
-    this.imageDocIdVolatile = value;
+  private imageDocKeyVolatile: string | null = null;
+  @Watch("imageDocKey", { immediate: true })
+  private onChangeImageDocKey(value: string | null) {
+    this.imageDocKeyVolatile = value;
   }
-  @Watch("imageDocIdVolatile")
-  private onChangeImageDocIdVolatile(value: string | null) {
-    this.$emit("update:imageDocId", value);
+  @Watch("imageDocKeyVolatile")
+  private onChangeImageDocKeyVolatile(value: string | null) {
+    this.$emit("update:imageDocKey", value);
   }
 
   @Prop({ type: String, default: null })
@@ -296,16 +296,16 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: String, required: true })
-  private layerId!: string;
+  private layerKey!: string;
 
-  private layerIdVolatile: string = "";
-  @Watch("layerId", { immediate: true })
-  private onChangeLayerId(value: string) {
-    this.layerIdVolatile = value;
+  private layerKeyVolatile: string = "";
+  @Watch("layerKey", { immediate: true })
+  private onChangeLayerKey(value: string) {
+    this.layerKeyVolatile = value;
   }
-  @Watch("layerIdVolatile")
-  private onChangeLayerIdVolatile(value: string) {
-    this.$emit("update:layerId", value);
+  @Watch("layerKeyVolatile")
+  private onChangeLayerKeyVolatile(value: string) {
+    this.$emit("update:layerKey", value);
   }
 
   private tabList: TabInfo[] = [
@@ -343,13 +343,13 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Watch("isMounted")
-  @Watch("imageDocId")
+  @Watch("imageDocKey")
   @Watch("direction")
   @Watch("backgroundSize")
   private onChangeImage() {
     if (!this.isMounted) return;
     const imageObj = this.mediaList.filter(
-      obj => obj.id === this.imageDocId
+      obj => obj.key === this.imageDocKey
     )[0];
     if (!imageObj) return;
     this.imageSrc = imageObj.data!.url;

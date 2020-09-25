@@ -1,10 +1,10 @@
 import urljoin from "url-join";
 import { Texture } from "@/@types/room";
-import { StoreMetaData, StoreUseData } from "@/@types/store";
 import GameObjectManager from "../../basic/GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { ApplicationError } from "../error/ApplicationError";
 import * as jsonp from "jsonp";
+import { StoreObj } from "@/@types/store";
 
 export function getSrc(
   path: string
@@ -20,7 +20,7 @@ export function getSrc(
   return { url, dataLocation: "server" };
 }
 
-export function shuffleOrder(list: StoreUseData<any>[]): void {
+export function shuffleOrder(list: StoreObj<any>[]): void {
   for (let i = list.length - 1; i > 0; i--) {
     const r = Math.floor(Math.random() * (i + 1));
     const tmpOrder = list[i].order;
@@ -176,7 +176,7 @@ export function getTextureStyle(texture: Texture) {
     style.backgroundColor = texture.backgroundColor;
   } else {
     const mediaList = GameObjectManager.instance.mediaList;
-    const imageData = findById(mediaList, texture.mediaId);
+    const imageData = findByKey(mediaList, texture.mediaKey);
     if (imageData && imageData.data) {
       style.backgroundImage = `url('${imageData.data.url}')`;
     }
@@ -187,12 +187,9 @@ export function getTextureStyle(texture: Texture) {
   return style;
 }
 
-export function createEmptyStoreUseData<T>(
-  id: string | null,
-  data: T
-): StoreUseData<T> {
+export function createEmptyStoreUseData<T>(key: string, data: T): StoreObj<T> {
   return {
-    id,
+    key,
     collection: "volatile",
     ownerType: null,
     owner: null,
@@ -211,27 +208,6 @@ export function someByStr(list: string[], str: string | null): boolean {
   return list.some(s => s === str);
 }
 
-export function findById<T extends StoreMetaData>(
-  list: T[] | null,
-  id: string | null
-): T | null {
-  if (!list) return null;
-  return list.find(obj => obj.id === id) || null;
-}
-
-export function findRequireById<T extends StoreMetaData>(
-  list: T[],
-  id: string | null
-): T {
-  const result = list.find(obj => obj.id === id);
-  if (!result) {
-    throw new ApplicationError(
-      `findRequireById ${JSON.stringify({ id }, null, "  ")}`
-    );
-  }
-  return result;
-}
-
 export function findByKey<T extends { key: string | null }>(
   list: T[],
   key: string | null
@@ -245,7 +221,9 @@ export function findRequireByKey<T extends { key: string | null }>(
 ): T {
   const result = list.find(obj => obj.key === key);
   if (!result) {
-    throw new ApplicationError(``);
+    throw new ApplicationError(
+      `findRequireByKey ${JSON.stringify({ key }, null, "  ")}`
+    );
   }
   return result;
 }

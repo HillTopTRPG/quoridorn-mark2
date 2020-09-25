@@ -2,8 +2,8 @@
   <div
     class="layer-info"
     :class="{
-      selected: localValue === layerInfo.id,
-      unuse: !sceneAndLayerInfo(layerInfo.id).data.isUse,
+      selected: localValue === layerInfo.key,
+      unuse: !sceneAndLayerInfo(layerInfo.key).data.isUse,
       orderChanging: isOrderChanging,
       dragMode
     }"
@@ -11,7 +11,7 @@
     @mouseleave="!dragMode || $emit('onMouseHoverOrder', false)"
     @mousedown="!dragMode || $emit('onMouseDown')"
     @mouseup="!dragMode || $emit('onMouseUp')"
-    @click="localValue = layerInfo.id"
+    @click="localValue = layerInfo.key"
   >
     <span class="icon-menu drag-mark"></span>
     <span
@@ -20,7 +20,7 @@
     ></span>
     <span v-else>{{ layerInfo.data.name }}</span>
     <s-check
-      :value="sceneAndLayerInfo(layerInfo.id).data.isUse"
+      :value="sceneAndLayerInfo(layerInfo.key).data.isUse"
       colorStyle="pink"
       c-icon="eye"
       c-label=""
@@ -29,7 +29,7 @@
       @hover="onHoverView"
       @input="
         value =>
-          $emit('onChangeLayerUse', sceneAndLayerInfo(layerInfo.id).id, value)
+          $emit('onChangeLayerUse', sceneAndLayerInfo(layerInfo.key).key, value)
       "
     />
   </div>
@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { SceneAndLayer, SceneLayer } from "@/@types/room";
 import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
@@ -56,7 +56,7 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   private dragMode!: boolean;
 
   @Prop({ type: String, default: "" })
-  private value!: string; // selectedLayerId
+  private value!: string; // selectedLayerKey
 
   @Prop({ type: Boolean, required: true })
   private isOrderChanging!: boolean;
@@ -74,9 +74,9 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get sceneAndLayerInfo(): (id: string) => StoreUseData<SceneAndLayer> {
-    return (id: string) =>
-      this.sceneAndLayerList.filter(sal => sal.data!.layerId === id)[0];
+  private get sceneAndLayerInfo(): (key: string) => StoreObj<SceneAndLayer> {
+    return (key: string) =>
+      this.sceneAndLayerList.find(sal => sal.data!.layerKey === key)!;
   }
 
   @VueEvent

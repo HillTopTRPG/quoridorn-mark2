@@ -42,7 +42,7 @@
     <!-- 放物線シミュレータ (z-index: 9) -->
     <throw-parabola-container />
     <!-- カードデッキビルダー (z-index: 10) -->
-    <card-deck-builder v-if="cardView" :cardDeckId="cardDeckId" />
+    <card-deck-builder v-if="cardView" :cardDeckKey="cardDeckKey" />
     <!-- お部屋作成中 (z-index: 11) -->
     <div id="progress-message-area" v-if="progressMessage">
       <div class="message">{{ progressMessage }}</div>
@@ -75,7 +75,6 @@ import {
   getEventPoint
 } from "@/app/core/utility/CoordinateUtility";
 import {
-  ClientRoomInfo,
   GetRoomListResponse,
   LoginWindowInput,
   RoomViewResponse,
@@ -91,7 +90,7 @@ import {
 } from "task-info";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import WindowManager from "../app/core/window/WindowManager";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import CssManager from "../app/core/css/CssManager";
 import GameObjectManager from "../app/basic/GameObjectManager";
 import { CutInDeclareInfo, MediaUploadInfo } from "@/@types/room";
@@ -118,7 +117,8 @@ import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimul
 import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
 import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
-import { findById } from "@/app/core/utility/Utility";
+import { findByKey } from "@/app/core/utility/Utility";
+import { importInjection } from "@/app/core/utility/ImportUtility";
 
 @Component({
   components: {
@@ -146,7 +146,7 @@ export default class App extends Vue {
   private otherTextViewInfo: OtherTextViewInfo | null = null;
   private throwParabola: boolean = false;
   private cardView: boolean = false;
-  private cardDeckId: string = "";
+  private cardDeckKey: string = "";
 
   private cutInList = GameObjectManager.instance.cutInList;
   private isDropPiece: boolean = false;
@@ -230,7 +230,7 @@ export default class App extends Vue {
           // BGM再生通知
           const info = data.data as BgmPlayInfo;
           await BgmManager.instance.callBgm({
-            targetId: info.id,
+            targetKey: info.key,
             data: null
           });
         }
@@ -264,13 +264,18 @@ export default class App extends Vue {
     SocketFacade.instance.socketOn<RoomViewResponse[]>(
       "result-room-view",
       (err, changeList) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
         changeList.forEach(change => {
           if (change.changeType === "removed") {
             const index = serverInfo.roomList!.findIndex(
-              (info: StoreUseData<ClientRoomInfo>) => info.id === change.id
+              info => info.id === change.id
             );
             serverInfo.roomList!.splice(index, 1, {
-              id: null,
+              id: "",
+              key: "",
               collection: "room-volatile",
               ownerType: null,
               owner: null,
@@ -349,7 +354,7 @@ export default class App extends Vue {
     // ファイルをドロップインしている場合
     const resultList = await getDropFileList(event.dataTransfer!);
     // TODO idを独自化
-    // await importInjection(resultList);
+    await importInjection(resultList);
 
     if (resultList.length) {
       await TaskManager.instance.ignition<
@@ -389,17 +394,17 @@ export default class App extends Vue {
   @Watch("cutInList", { deep: true, immediate: true })
   private async onChangeCutInList() {
     const openWindowFunc = async (
-      c: StoreUseData<CutInDeclareInfo>
+      c: StoreObj<CutInDeclareInfo>
     ): Promise<void> => {
-      const targetId = c.id!;
+      const targetKey = c.key;
       const windowKeyList: (string | null)[] = [];
       BgmManager.instance.standByWindowList.push({
-        targetId,
+        targetKey,
         windowKeyList
       });
       for (let i = 0; i < 3; i++) {
         windowKeyList.push(null);
-        await BgmManager.openStandByWindow(targetId);
+        await BgmManager.openStandByWindow(targetKey);
       }
     };
 
@@ -407,9 +412,11 @@ export default class App extends Vue {
       .filter(
         c =>
           c.data!.isStandBy &&
-          !BgmManager.instance.standByWindowList.some(s => s.targetId === c.id)
+          !BgmManager.instance.standByWindowList.some(
+            s => s.targetKey === c.key
+          )
       )
-      .map((c: StoreUseData<CutInDeclareInfo>) => () => openWindowFunc(c))
+      .map((c: StoreObj<CutInDeclareInfo>) => () => openWindowFunc(c))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
@@ -632,7 +639,7 @@ export default class App extends Vue {
       GameObjectManager.instance.keepBcdiceDiceRollResultList.some(
         kbdrr =>
           kbdrr.data!.type === "secret-dice-roll" &&
-          kbdrr.owner === GameObjectManager.instance.mySelfUserId
+          kbdrr.owner === GameObjectManager.instance.mySelfUserKey
       )
     ) {
       await App.openSimpleWindow("secret-dice-roll-window");
@@ -658,9 +665,9 @@ export default class App extends Vue {
     }
     if (taskValue.type === "view-card-deck") {
       const flag: string = taskValue.value.flag;
-      const cardDeckId: string = taskValue.value.cardDeckId;
+      const cardDeckKey: string = taskValue.value.cardDeckKey;
       this.cardView = flag === "on";
-      this.cardDeckId = cardDeckId;
+      this.cardDeckKey = cardDeckKey;
       task.resolve();
     }
     if (taskValue.type === "drop-piece") {
@@ -711,9 +718,9 @@ export default class App extends Vue {
   private async resourceUpdateFinished(
     task: Task<UpdateResourceInfo, never>
   ): Promise<TaskResult<never> | void> {
-    const resourceMasterId = task.value!.resourceMasterId;
+    const resourceMasterKey = task.value!.resourceMasterKey;
     const ownerType = task.value!.ownerType;
-    const ownerId = task.value!.ownerId;
+    const ownerKey = task.value!.ownerKey;
     const operationType = task.value!.operationType;
     const value = task.value!.value;
 
@@ -723,15 +730,15 @@ export default class App extends Vue {
     const resource = resourceList.find(
       r =>
         r.ownerType === ownerType &&
-        r.owner === ownerId &&
-        r.data!.masterId === resourceMasterId
+        r.owner === ownerKey &&
+        r.data!.masterKey === resourceMasterKey
     );
     if (!resource) return;
     const resourceValue = resource.data!.value;
     if (operationType === "set") {
       resource.data!.value = value;
     } else if (operationType === "add") {
-      const resourceMaster = findById(resourceMasterList, resourceMasterId);
+      const resourceMaster = findByKey(resourceMasterList, resourceMasterKey);
       if (!resourceMaster) return;
       if (resourceMaster.data!.type !== "number") return;
       const resourceNumValue = convertNumberNull(resourceValue);
@@ -739,7 +746,9 @@ export default class App extends Vue {
       if (resourceNumValue === null || addValue === null) return;
       resource.data!.value = (resourceNumValue + addValue).toString();
     }
-    await resourceCC.updatePackage([resource.id!], [resource.data!]);
+    await resourceCC.updatePackage([
+      { key: resource.key, data: resource.data! }
+    ]);
   }
 }
 </script>

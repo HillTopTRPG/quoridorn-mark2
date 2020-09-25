@@ -15,7 +15,7 @@
         v-for="item in pagedList"
         :key="item.value"
         tabindex="-1"
-        :class="{ active: item.id === localValue }"
+        :class="{ active: item.key === localValue }"
       >
         {{ item.data.name }}
       </li>
@@ -30,7 +30,8 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../core/window/ComponentVue";
-import { StoreUseData } from "../../../@types/store";
+import { StoreObj } from "@/@types/store";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class ChatOptionSelector extends Mixins<ComponentVue>(
@@ -40,7 +41,7 @@ export default class ChatOptionSelector extends Mixins<ComponentVue>(
   private title!: string;
 
   @Prop({ type: Array, required: true })
-  private list!: StoreUseData<any>[];
+  private list!: StoreObj<any>[];
 
   @Prop({ type: Number, required: true })
   private max!: number;
@@ -66,21 +67,23 @@ export default class ChatOptionSelector extends Mixins<ComponentVue>(
    * 現在のページ番号
    */
   private get page(): number {
-    const index = this.list.findIndex(item => item.id === this.localValue);
+    const index = this.list.findIndex(item => item.key === this.localValue);
     return Math.floor(index / this.max) + 1;
   }
 
   /**
    * ページ数
    */
+  @VueEvent
   private get pageMax(): number {
     return Math.ceil(this.list.length / this.max);
   }
 
-  private get pagedList(): StoreUseData<any>[] {
-    const firstIdx = (this.page - 1) * this.max;
-    const endIdx = firstIdx + this.max;
-    return this.list.slice(firstIdx, endIdx);
+  @VueEvent
+  private get pagedList(): StoreObj<any>[] {
+    const firstIndex = (this.page - 1) * this.max;
+    const endIndex = firstIndex + this.max;
+    return this.list.slice(firstIndex, endIndex);
   }
 }
 </script>

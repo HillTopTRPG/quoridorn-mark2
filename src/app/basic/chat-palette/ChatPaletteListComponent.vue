@@ -2,9 +2,9 @@
   <div class="palette-container">
     <div
       class="palette-line"
-      :class="{ odd: !(idx % 2), even: idx % 2 }"
-      v-for="(line, idx) in paletteList"
-      :key="idx"
+      :class="{ odd: !(index % 2), even: index % 2 }"
+      v-for="(line, index) in paletteList"
+      :key="index"
       @click="$emit('selectLine', line)"
       @dblclick="$emit('sendLine')"
     >

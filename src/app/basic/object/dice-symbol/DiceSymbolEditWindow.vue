@@ -9,8 +9,8 @@
       :color.sync="color"
       :tag.sync="tag"
       :size.sync="size"
-      :layerId.sync="layerId"
-      :diceTypeId.sync="diceTypeId"
+      :layerKey.sync="layerKey"
+      :diceTypeKey.sync="diceTypeKey"
       :pips.sync="pips"
     />
 
@@ -31,7 +31,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { SceneObject, DiceMaterial } from "@/@types/gameObject";
+import { SceneObject } from "@/@types/gameObject";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -43,7 +43,6 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
 import DiceSymbolInfoForm from "@/app/basic/object/dice-symbol/DiceSymbolInfoForm.vue";
-import { Getter } from "vuex-class";
 
 @Component({ components: { DiceSymbolInfoForm, CtrlButton } })
 export default class DiceSymbolEditWindow extends Mixins<
@@ -52,7 +51,7 @@ export default class DiceSymbolEditWindow extends Mixins<
   private diceTypeList = GameObjectManager.instance.diceTypeList;
   private diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
 
-  private docId: string = "";
+  private docKey: string = "";
   private cc: NekostoreCollectionController<
     SceneObject
   > = SocketFacade.instance.sceneObjectCC();
@@ -64,10 +63,10 @@ export default class DiceSymbolEditWindow extends Mixins<
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;
-  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "dice-symbol"
-  )!.id!;
-  private diceTypeId: string = "";
+  )!.key;
+  private diceTypeKey: string = "";
   private pips: string = "1";
 
   @LifeCycle
@@ -75,9 +74,9 @@ export default class DiceSymbolEditWindow extends Mixins<
     const diceType =
       this.diceTypeList.find(dt => dt.data!.faceNum === "6") ||
       this.diceTypeList[0];
-    this.diceTypeId = diceType.id!;
+    this.diceTypeKey = diceType.key;
     const pipsList = this.diceAndPipsList
-      .filter(dap => dap.data!.diceTypeId === this.diceTypeId)
+      .filter(dap => dap.data!.diceTypeKey === this.diceTypeKey)
       .map(dap => dap.data!.pips);
     this.pips = pipsList.find(p => p === "1") || pipsList[0];
   }
@@ -85,8 +84,8 @@ export default class DiceSymbolEditWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -111,13 +110,13 @@ export default class DiceSymbolEditWindow extends Mixins<
     this.name = data.data!.name;
     this.tag = data.data!.tag;
     this.size = data.data!.columns;
-    this.layerId = data.data!.layerId;
-    this.diceTypeId = data.data!.subTypeId;
+    this.layerKey = data.data!.layerKey;
+    this.diceTypeKey = data.data!.subTypeKey;
     this.pips = data.data!.subTypeValue;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -129,7 +128,7 @@ export default class DiceSymbolEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!.data!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!.data!;
     const texture = data.textures[data.textureIndex];
     if (texture.type === "color") {
       const colorObj = parseColor(this.color);
@@ -140,10 +139,15 @@ export default class DiceSymbolEditWindow extends Mixins<
     data.tag = this.tag;
     data.rows = this.size;
     data.columns = this.size;
-    data.layerId = this.layerId;
-    data.subTypeId = this.diceTypeId;
+    data.layerKey = this.layerKey;
+    data.subTypeKey = this.diceTypeKey;
     data.subTypeValue = this.pips;
-    await this.cc!.update([this.docId], [data]);
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -162,7 +166,7 @@ export default class DiceSymbolEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

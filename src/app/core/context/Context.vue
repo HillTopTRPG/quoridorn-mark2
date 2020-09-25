@@ -8,15 +8,15 @@
       :class="`level-${level}`"
     >
       <div class="title" v-if="level === 0">{{ title }}</div>
-      <template v-for="(item, idx) in getLevelItemList(level)">
+      <template v-for="(item, index) in getLevelItemList(level)">
         <hr
-          :key="`${level}-${idx}`"
+          :key="`${level}-${index}`"
           :style="getItemStyle(item)"
           v-if="item.type === 'hr'"
-          @mouseenter="onHoverItem(level, idx)"
+          @mouseenter="onHoverItem(level, index)"
         />
         <div
-          :key="`${level}-${idx}`"
+          :key="`${level}-${index}`"
           :style="getItemStyle(item)"
           v-if="item.type !== 'hr'"
           class="item"
@@ -26,7 +26,7 @@
             item.hasChild ? 'has-child' : undefined
           ]"
           @click.left.stop="emitEvent(item)"
-          @mouseenter="onHoverItem(level, idx)"
+          @mouseenter="onHoverItem(level, index)"
         >
           {{ item.isRawText ? item.text : $t(item.text) }}
         </div>
@@ -56,9 +56,8 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import { clone } from "../utility/PrimaryDataUtility";
 import { DataReference } from "@/@types/data";
 import LifeCycle from "../decorator/LifeCycle";
-import LanguageManager from "../../../LanguageManager";
-import { findById } from "../utility/Utility";
-import { StoreUseData } from "@/@types/store";
+import { findByKey } from "../utility/Utility";
+import { StoreObj } from "@/@types/store";
 import { SceneObject } from "@/@types/gameObject";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
@@ -66,14 +65,14 @@ const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml")
 
 type Item = {
   type: string;
-  idx: number;
+  index: number;
   text?: string;
   isRawText?: boolean;
   taskName?: string;
   arg?: any;
   disabled?: boolean;
   level: number; // 階層
-  parentIdx: number; // 親が上から何番目だったか
+  parentIndex: number; // 親が上から何番目だったか
   hasChild: boolean; // 子要素があるか
 };
 
@@ -81,13 +80,13 @@ type Item = {
 export default class Context extends Vue {
   private type: string | null = null;
   private target: string | null = null;
-  private pieceId: string | undefined = undefined;
+  private pieceKey: string | undefined = undefined;
   private x: number | null = null;
   private y: number | null = null;
   private title: string = "";
 
   private itemList: Item[] = [];
-  private hoverIdxList: number[] = [0];
+  private hoverIndexList: number[] = [0];
 
   @VueEvent
   private getElm(): HTMLElement {
@@ -95,28 +94,28 @@ export default class Context extends Vue {
   }
 
   @VueEvent
-  private onHoverItem(level: number, idx: number) {
-    if (this.hoverIdxList.length - 1 > level) {
-      this.hoverIdxList.splice(this.hoverIdxList.length - 1, 1);
+  private onHoverItem(level: number, index: number) {
+    if (this.hoverIndexList.length - 1 > level) {
+      this.hoverIndexList.splice(this.hoverIndexList.length - 1, 1);
       return;
     }
-    if (this.hoverIdxList.length - 1 === level) {
-      this.hoverIdxList.splice(this.hoverIdxList.length - 1, 1, idx);
+    if (this.hoverIndexList.length - 1 === level) {
+      this.hoverIndexList.splice(this.hoverIndexList.length - 1, 1, index);
       return;
     }
-    this.hoverIdxList.push(idx);
+    this.hoverIndexList.push(index);
   }
 
   @VueEvent
   private getLevelList(): number[] {
-    const levelList = this.hoverIdxList.map((_idx, idx) => idx);
-    const lastLevel = this.hoverIdxList.length - 1;
-    const lastLevelIdx = this.hoverIdxList[this.hoverIdxList.length - 1];
+    const levelList = this.hoverIndexList.map((_index, index) => index);
+    const lastLevel = this.hoverIndexList.length - 1;
+    const lastLevelIndex = this.hoverIndexList[this.hoverIndexList.length - 1];
     const hoverItem = this.itemList.find(
-      item => item.level === lastLevel && item.idx === lastLevelIdx
+      item => item.level === lastLevel && item.index === lastLevelIndex
     );
     if (hoverItem && hoverItem.hasChild)
-      levelList.push(this.hoverIdxList.length);
+      levelList.push(this.hoverIndexList.length);
     return levelList;
   }
 
@@ -127,9 +126,9 @@ export default class Context extends Vue {
     const cRect: any = elm.getBoundingClientRect();
     const point = createPoint(0, 28);
     if (level > 0) {
-      const hoverIdx = this.hoverIdxList[level - 1] + (level === 1 ? 1 : 0);
+      const hoverIndex = this.hoverIndexList[level - 1] + (level === 1 ? 1 : 0);
       const levelElm = elm.getElementsByClassName(`level-${level - 1}`)[0];
-      const hoverItemElm = levelElm.children[hoverIdx];
+      const hoverItemElm = levelElm.children[hoverIndex];
       const elmRect: any = hoverItemElm.getBoundingClientRect();
       point.x = elmRect.x + elmRect.width - 7 - cRect.x;
       point.y = elmRect.y - cRect.y;
@@ -152,14 +151,14 @@ export default class Context extends Vue {
   ): Promise<TaskResult<never> | void> {
     this.type = task.value!.type;
     this.target = task.value!.target;
-    this.pieceId = task.value!.pieceId;
+    this.pieceKey = task.value!.pieceKey;
     this.x = task.value!.x - 10;
     this.y = task.value!.y - 10;
 
-    this.hoverIdxList = [0];
+    this.hoverIndexList = [0];
 
     const list = GameObjectManager.instance.getList(this.type)!;
-    const obj: any = list ? findById(list, this.target) : null;
+    const obj: any = list ? findByKey(list, this.target) : null;
     const name =
       obj && obj.data && "name" in obj.data
         ? " " + obj.data.name.toString()
@@ -183,10 +182,10 @@ export default class Context extends Vue {
     itemInfo = getRef(itemInfo);
 
     // 直列の非同期で全部実行する
-    const idxArg = [[-1, -1]];
+    const indexArg = [[-1, -1]];
     await itemInfo
       .map((item: ContextItemDeclare | null) => () =>
-        this.addItem(item, 0, idxArg)
+        this.addItem(item, 0, indexArg)
       )
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
@@ -197,26 +196,26 @@ export default class Context extends Vue {
    * 項目追加
    * @param item
    * @param level
-   * @param idxArg
+   * @param indexArg
    */
   private async addItem(
     item: ContextItemDeclare | null,
     level: number,
-    idxArg: number[][]
+    indexArg: number[][]
   ) {
     const contextItem: ContextItemDeclareInfo = clone<ContextItemDeclareInfo>(
       item && "ref" in item ? contextItemInfo![item!.ref] : item
     );
 
-    const levelIdxList = idxArg[level];
+    const levelIndexList = indexArg[level];
 
     // 要素がnullだったら区切り線
     if (!contextItem) {
       this.itemList.push({
         type: "hr",
         level,
-        parentIdx: levelIdxList[0],
-        idx: ++levelIdxList[1],
+        parentIndex: levelIndexList[0],
+        index: ++levelIndexList[1],
         hasChild: false
       });
       return;
@@ -224,7 +223,7 @@ export default class Context extends Vue {
 
     const type = this.type!;
     const target = this.target!;
-    const pieceId = this.pieceId;
+    const pieceKey = this.pieceKey;
     const isViewCompare = contextItem.isViewCompare;
 
     // 項目を表示するかどうかの判定
@@ -237,10 +236,10 @@ export default class Context extends Vue {
       // 非活性の判定
       const disabled = !(await judgeCompare(isDisabledCompare, type, target));
 
-      const argObj: DataReference & { pieceId?: string } = {
+      const argObj: DataReference & { pieceKey?: string } = {
         type,
-        docId: target,
-        pieceId
+        key: target,
+        pieceKey
       };
       if (!contextItem.taskArg) {
         contextItem.taskArg = {
@@ -253,11 +252,11 @@ export default class Context extends Vue {
 
       if (contextItem.argRef === "dice-pips-select") {
         const list = GameObjectManager.instance.getList(this.type!)!;
-        const obj: StoreUseData<SceneObject> | null = findById(list, target);
-        const diceTypeId = obj!.data!.subTypeId;
+        const obj: StoreObj<SceneObject> | null = findByKey(list, target);
+        const diceTypeKey = obj!.data!.subTypeKey;
         const diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
         const pipsList = diceAndPipsList
-          .filter(dap => dap.data!.diceTypeId === diceTypeId)
+          .filter(dap => dap.data!.diceTypeKey === diceTypeKey)
           .map(dap => dap.data!.pips);
         contextItem.children = pipsList.map(pips => ({
           text: pips,
@@ -270,8 +269,8 @@ export default class Context extends Vue {
       this.itemList.push({
         type: "item",
         level,
-        parentIdx: levelIdxList[0],
-        idx: ++levelIdxList[1],
+        parentIndex: levelIndexList[0],
+        index: ++levelIndexList[1],
         taskName: contextItem.taskName || "default",
         text: contextItem.text || "default",
         isRawText: contextItem.isRawText,
@@ -281,7 +280,7 @@ export default class Context extends Vue {
       });
 
       if (contextItem.children) {
-        idxArg.push([levelIdxList[1], -1]);
+        indexArg.push([levelIndexList[1], -1]);
 
         const getRef = (itemInfo: ContextDeclareInfo): ContextItemDeclare[] => {
           if ("ref" in itemInfo) return getRef(contextInfo[itemInfo.ref]);
@@ -291,7 +290,7 @@ export default class Context extends Vue {
 
         await contextItem.children
           .map((item: ContextItemDeclare | null) => () =>
-            this.addItem(item, level + 1, idxArg)
+            this.addItem(item, level + 1, indexArg)
           )
           .reduce((prev, curr) => prev.then(curr), Promise.resolve());
       }
@@ -302,8 +301,8 @@ export default class Context extends Vue {
     this.itemList.push({
       type: "hr",
       level,
-      parentIdx: levelIdxList[0],
-      idx: ++levelIdxList[1],
+      parentIndex: levelIndexList[0],
+      index: ++levelIndexList[1],
       hasChild: false
     });
   }
@@ -351,12 +350,12 @@ export default class Context extends Vue {
     const fontSize = 14;
     if (level > 1) {
       const parentElmList = elm.getElementsByClassName(`level-${level - 1}`);
-      const parentElm = parentElmList[item.parentIdx];
+      const parentElm = parentElmList[item.parentIndex];
       const parentRect: any = parentElm.getBoundingClientRect();
       point.x = parentRect.x + parentRect.width - fontSize;
       point.y = parentRect.y;
     }
-    point.y += item.idx * fontSize * 2;
+    point.y += item.index * fontSize * 2;
     return {
       left: point.x + "px",
       top: point.y + "px"

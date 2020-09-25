@@ -11,16 +11,16 @@
       <div v-show="isViewVisualBlock">
         <label
           v-for="user in userList"
-          :key="user.id"
+          :key="user.key"
           class="visual-check"
-          :class="{ disabled: user.id !== owner && !isGm }"
+          :class="{ disabled: user.key !== owner && !isGm }"
         >
-          <span>{{ getUserName(user.id) }}</span>
+          <span>{{ getUserName(user.key) }}</span>
           <input
             type="checkbox"
-            :checked="targetUserIdList.some(id => id === user.id)"
-            :disabled="user.id !== owner && !isGm"
-            @input.stop="onCheckTargetUser(user.id, $event.target.checked)"
+            :checked="targetUserKeyList.some(key => key === user.key)"
+            :disabled="user.key !== owner && !isGm"
+            @input.stop="onCheckTargetUser(user.key, $event.target.checked)"
             @keydown.enter.stop
             @keyup.enter.stop
             @keydown.229.stop
@@ -59,7 +59,7 @@
       :style="{ alignSelf: 'stretch', maxHeight: 'calc(100% - 9em)' }"
       windowKey="windowInfo"
       :isExported="true"
-      :targetUserIdList="targetUserIdList"
+      :targetUserKeyList="targetUserKeyList"
       :chatList="filteredChatList"
       :userList="userList"
       :actorList="actorList"
@@ -68,7 +68,7 @@
       :groupChatTabList="groupChatTabList"
       :editedMessage="editedMessage"
       :userTypeLanguageMap="userTypeLanguageMap"
-      @changeTab="value => (selectedTabId = value)"
+      @changeTab="value => (selectedTabKey = value)"
     />
   </div>
 </template>
@@ -82,13 +82,13 @@ import { saveHTML, saveJson, saveText } from "./app/core/utility/FileUtility";
 import ChatLogViewer from "./app/basic/chat/log/ChatLogViewer.vue";
 import VueEvent from "./app/core/decorator/VueEvent";
 import {
-  findById,
-  findRequireById,
+  findByKey,
+  findRequireByKey,
   findRequireByOwner
 } from "./app/core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import {
   ActorGroup,
   ChatInfo,
@@ -103,10 +103,10 @@ import { DiceResult } from "@/@types/bcdice";
 
 @Component({ components: { CtrlButton, ChatLogViewer } })
 export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
-  private targetUserIdList: string[] = [];
+  private targetUserKeyList: string[] = [];
   private isViewVisualBlock: boolean = true;
   private isViewSaveBlock: boolean = false;
-  private selectedTabId: string = "";
+  private selectedTabKey: string = "";
 
   // private borderStyleRegExp: RegExp | null = null;
   private chatStyleRegExp: RegExp | null = null;
@@ -114,20 +114,20 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
 
   private owner: string = "";
   private isGm: boolean = false;
-  private chatList: StoreUseData<ChatInfo>[] = [];
-  private userList: StoreUseData<UserData>[] = [];
+  private chatList: StoreObj<ChatInfo>[] = [];
+  private userList: StoreObj<UserData>[] = [];
   private userTypeLanguageMap: { [type in UserType]: string } = {
     GM: "GM",
     PL: "PL",
     VISITOR: "VISITOR"
   };
-  private actorList: StoreUseData<ActorStore>[] = [];
-  private actorGroupList: StoreUseData<ActorGroup>[] = [];
-  private chatTabList: StoreUseData<ChatTabInfo>[] = [];
-  private groupChatTabList: StoreUseData<GroupChatTabInfo>[] = [];
+  private actorList: StoreObj<ActorStore>[] = [];
+  private actorGroupList: StoreObj<ActorGroup>[] = [];
+  private chatTabList: StoreObj<ChatTabInfo>[] = [];
+  private groupChatTabList: StoreObj<GroupChatTabInfo>[] = [];
   private editedMessage: string = "";
 
-  private filteredChatList: StoreUseData<ChatInfo>[] = [];
+  private filteredChatList: StoreObj<ChatInfo>[] = [];
 
   @LifeCycle
   private beforeMount() {
@@ -138,16 +138,14 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
     const getData = (param: string) =>
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
-    this.chatTabList = getListData("chatTabList") as StoreUseData<
-      ChatTabInfo
-    >[];
-    this.chatList = getListData("chatList") as StoreUseData<ChatInfo>[];
-    this.userList = getListData("userList") as StoreUseData<UserData>[];
-    this.actorList = getListData("actorList") as StoreUseData<ActorStore>[];
-    this.actorGroupList = getListData("actorGroupList") as StoreUseData<
+    this.chatTabList = getListData("chatTabList") as StoreObj<ChatTabInfo>[];
+    this.chatList = getListData("chatList") as StoreObj<ChatInfo>[];
+    this.userList = getListData("userList") as StoreObj<UserData>[];
+    this.actorList = getListData("actorList") as StoreObj<ActorStore>[];
+    this.actorGroupList = getListData("actorGroupList") as StoreObj<
       ActorGroup
     >[];
-    this.groupChatTabList = getListData("groupChatTabList") as StoreUseData<
+    this.groupChatTabList = getListData("groupChatTabList") as StoreObj<
       GroupChatTabInfo
     >[];
     this.userTypeLanguageMap = getData("userTypeLanguageMap") as {
@@ -156,10 +154,10 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     this.editedMessage = (window as any).editedMessage as string;
     this.owner = (window as any).owner as string;
 
-    const ownerUser = findRequireById(this.userList, this.owner);
+    const ownerUser = findRequireByKey(this.userList, this.owner);
     this.isGm = ownerUser.data!.type === "GM";
-    this.targetUserIdList = !this.isGm ? [this.owner] : [];
-    this.selectedTabId = this.chatTabList[0].id!;
+    this.targetUserKeyList = !this.isGm ? [this.owner] : [];
+    this.selectedTabKey = this.chatTabList[0].key;
 
     /*
      * 正規表現のセットアップ
@@ -184,30 +182,33 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     this.chatLineRegExp = new RegExp(regExpStr, "gi");
   }
 
-  @Watch("targetUserIdList", { deep: true })
-  private onChangeTargetUserIdListDeep() {
-    const someActor = (id: string | null): boolean => {
-      const actor = findById(this.actorList, id);
+  @Watch("targetUserKeyList", { deep: true })
+  private onChangeTargetUserKeyListDeep() {
+    const someActor = (key: string | null): boolean => {
+      const actor = findByKey(this.actorList, key);
       if (!actor) return true;
-      return this.targetUserIdList.some(id => id === actor.owner);
+      return this.targetUserKeyList.some(key => key === actor.owner);
     };
     this.filteredChatList = this.chatList.filter(c => {
       if (!c.data!.isSecret) return true;
-      if (someActor(c.data!.actorId)) return true;
-      const targetId = c.data!.targetId;
+      if (someActor(c.data!.actorKey)) return true;
+      const targetKey = c.data!.targetKey;
       switch (c.data!.targetType) {
         case "group":
-          const groupChatTab = findRequireById(this.groupChatTabList, targetId);
-          const actorGroupId = groupChatTab.data!.actorGroupId;
-          const actorGroup: StoreUseData<ActorGroup> = findRequireById(
+          const groupChatTab = findRequireByKey(
+            this.groupChatTabList,
+            targetKey
+          );
+          const actorGroupKey = groupChatTab.data!.actorGroupKey;
+          const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
             this.actorGroupList,
-            actorGroupId
+            actorGroupKey
           );
           return actorGroup.data!.list.some(a =>
-            this.targetUserIdList.some(id => id === a.userId)
+            this.targetUserKeyList.some(key => key === a.userKey)
           );
         case "actor":
-          return someActor(targetId);
+          return someActor(targetKey);
         default:
           return true;
       }
@@ -215,8 +216,8 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @VueEvent
-  private getUserName(userId: string): string {
-    const user = this.userList.find(u => u.id === userId);
+  private getUserName(userKey: string): string {
+    const user = this.userList.find(u => u.key === userKey);
     return user ? user.data!.name : "???";
   }
 
@@ -234,11 +235,11 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @VueEvent
-  private onCheckTargetUser(userId: string, check: boolean) {
-    if (userId !== this.owner && !this.isGm) return;
-    const index = this.targetUserIdList.findIndex(id => id === userId);
-    if (check && index < 0) this.targetUserIdList.push(userId);
-    else if (!check && index >= 0) this.targetUserIdList.splice(index, 1);
+  private onCheckTargetUser(userKey: string, check: boolean) {
+    if (userKey !== this.owner && !this.isGm) return;
+    const index = this.targetUserKeyList.findIndex(key => key === userKey);
+    if (check && index < 0) this.targetUserKeyList.push(userKey);
+    else if (!check && index >= 0) this.targetUserKeyList.splice(index, 1);
   }
 
   @VueEvent
@@ -343,17 +344,20 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     updateTime: Date | null;
   }[] {
     return this.filteredChatList.map(c => {
-      const actor = findById(this.actorList, c.data!.actorId);
-      const user = actor ? findRequireById(this.userList, actor.owner!) : null;
+      const actor = findByKey(this.actorList, c.data!.actorKey);
+      const user = actor ? findRequireByKey(this.userList, actor.owner!) : null;
       const targetType = c.data!.targetType;
       let targetName: string | null = null;
       let isTargetAll: boolean = false;
       if (targetType === "actor") {
-        const target = findRequireById(this.actorList, c.data!.targetId);
+        const target = findRequireByKey(this.actorList, c.data!.targetKey);
         targetName = target.data!.name;
       }
       if (targetType === "group") {
-        const target = findRequireById(this.groupChatTabList, c.data!.targetId);
+        const target = findRequireByKey(
+          this.groupChatTabList,
+          c.data!.targetKey
+        );
         isTargetAll = target.data!.isSystem;
         targetName = target.data!.name;
       }
@@ -363,7 +367,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
       });
 
       return {
-        tabName: findRequireById(this.chatTabList!, c.data!.tabId).data!.name,
+        tabName: findRequireByKey(this.chatTabList!, c.data!.tabKey).data!.name,
         userName: user ? user.data!.name : "System",
         actorName: actor ? actor.data!.name : "Quoridorn",
         targetName,
@@ -373,7 +377,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
         diceRollResult: c.data!.diceRollResult,
         dices: c.data!.dices,
         customDiceBotResult: c.data!.customDiceBotResult,
-        color: this.getColor(c.data!.actorId),
+        color: this.getColor(c.data!.actorKey),
         like,
         createTime: c.createTime,
         updateTime: c.updateTime
@@ -424,15 +428,15 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     return resultTexts.join("");
   }
 
-  private getColor(actorId: string | null): string | null {
-    if (!actorId) return null;
-    let cActor: StoreUseData<ActorStore> = findRequireById(
+  private getColor(actorKey: string | null): string | null {
+    if (!actorKey) return null;
+    let cActor: StoreObj<ActorStore> = findRequireByKey(
       this.actorList,
-      actorId
+      actorKey
     );
     if (cActor.data!.chatFontColorType !== "original") {
-      const cActorOwner = findRequireById(this.userList, cActor.owner);
-      cActor = findRequireByOwner(this.actorList, cActorOwner.id);
+      const cActorOwner = findRequireByKey(this.userList, cActor.owner);
+      cActor = findRequireByOwner(this.actorList, cActorOwner.key);
     }
     return cActor.data!.chatFontColor;
   }

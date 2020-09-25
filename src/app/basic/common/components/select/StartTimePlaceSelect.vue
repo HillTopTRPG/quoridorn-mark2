@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
     ref="component"
@@ -16,7 +17,6 @@ import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
-import LanguageManager from "../../../../../LanguageManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 

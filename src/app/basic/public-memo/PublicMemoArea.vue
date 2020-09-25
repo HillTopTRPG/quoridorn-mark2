@@ -1,10 +1,10 @@
 <template>
   <div id="public-memo-area">
     <public-memo-icon
-      v-for="(publicMemo, idx) in usePublicMemoList"
+      v-for="(publicMemo, index) in usePublicMemoList"
       :key="publicMemo.key"
       :publicMemo="publicMemo"
-      :index="idx"
+      :index="index"
     />
   </div>
 </template>
@@ -15,7 +15,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import PublicMemoIcon from "@/app/basic/public-memo/PublicMemoIcon.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { PublicMemoStore } from "@/@types/gameObject";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 
@@ -26,7 +26,7 @@ export default class PublicMemoArea extends Mixins<ComponentVue>(ComponentVue) {
   private publicMemoList = GameObjectManager.instance.publicMemoList;
   private memoList = GameObjectManager.instance.memoList;
 
-  private usePublicMemoList: StoreUseData<PublicMemoStore>[] = [];
+  private usePublicMemoList: StoreObj<PublicMemoStore>[] = [];
 
   @Watch("publicMemoList", { immediate: true, deep: true })
   @Watch("memoList", { deep: true })
@@ -35,7 +35,7 @@ export default class PublicMemoArea extends Mixins<ComponentVue>(ComponentVue) {
     this.usePublicMemoList = this.publicMemoList.filter(pm => {
       if (!permissionCheck(pm, "view")) return false;
       return !!this.memoList.some(m => {
-        if (pm.id !== m.owner) return false;
+        if (pm.key !== m.owner) return false;
         return permissionCheck(m, "view", 1);
       });
     });

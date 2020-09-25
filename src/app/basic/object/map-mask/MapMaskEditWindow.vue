@@ -12,7 +12,7 @@
       :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
-      :layerId.sync="layerId"
+      :layerKey.sync="layerKey"
     />
 
     <div class="button-area">
@@ -44,14 +44,14 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { MapMaskInfoForm, CtrlButton } })
 export default class MapMastEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cc: NekostoreCollectionController<
     SceneObject
   > = SocketFacade.instance.sceneObjectCC();
@@ -65,16 +65,16 @@ export default class MapMastEditWindow extends Mixins<
   private isMounted: boolean = false;
 
   private isProcessed: boolean = false;
-  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
-  )!.id!;
-  private otherTextList: StoreUseData<MemoStore>[] = [];
+  )!.key;
+  private otherTextList: StoreObj<MemoStore>[] = [];
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -104,15 +104,15 @@ export default class MapMastEditWindow extends Mixins<
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object" && m.owner === this.docId
+        m => m.ownerType === "scene-object" && m.owner === this.docKey
       )
     )!;
 
-    this.layerId = data.data!.layerId;
+    this.layerKey = data.data!.layerKey;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -124,7 +124,7 @@ export default class MapMastEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!.data!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!.data!;
     const texture = data.textures[data.textureIndex];
     if (texture.type === "color") {
       texture.text = this.text;
@@ -136,13 +136,18 @@ export default class MapMastEditWindow extends Mixins<
     data.tag = this.tag;
     data.rows = this.height;
     data.columns = this.width;
-    data.layerId = this.layerId;
-    await this.cc!.update([this.docId], [data]);
+    data.layerKey = this.layerKey;
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data
+      }
+    ]);
 
     await GameObjectManager.instance.updateMemoList(
       this.otherTextList,
       "scene-object",
-      this.docId
+      this.docKey
     );
 
     this.isProcessed = true;
@@ -163,7 +168,7 @@ export default class MapMastEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

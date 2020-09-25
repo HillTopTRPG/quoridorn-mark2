@@ -17,7 +17,7 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
-import { ServerTestResult } from "../../../@types/socket";
+import { ServerTestResult } from "@/@types/socket";
 import VersionInfoComponent from "./VersionInfoComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
 import SocketFacade from "../../core/api/app-server/SocketFacade";

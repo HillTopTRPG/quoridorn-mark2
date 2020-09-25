@@ -7,7 +7,7 @@
       initTabTarget="basic"
       :name.sync="name"
       :otherTextList.sync="otherTextList"
-      :imageDocId.sync="imageDocId"
+      :imageDocKey.sync="imageDocKey"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
     />
@@ -30,7 +30,7 @@ import { Task, TaskResult } from "task";
 import { MemoStore, PublicMemoStore } from "@/@types/gameObject";
 import { Direction } from "@/@types/room";
 import { DataReference } from "@/@types/data";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import PublicMemoInfoForm from "@/app/basic/public-memo/PublicMemoInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -53,14 +53,14 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 export default class PublicMemoEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cc: NekostoreCollectionController<
     PublicMemoStore
   > = SocketFacade.instance.publicMemoListCC();
   private name: string = "";
   private isProcessed: boolean = false;
-  private otherTextList: StoreUseData<MemoStore>[] = [];
-  private imageDocId: string | null = null;
+  private otherTextList: StoreObj<MemoStore>[] = [];
+  private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
@@ -68,8 +68,8 @@ export default class PublicMemoEditWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -88,19 +88,19 @@ export default class PublicMemoEditWindow extends Mixins<
     }
 
     this.name = data.data!.name;
-    this.imageDocId = data.data!.mediaId;
+    this.imageDocKey = data.data!.mediaKey;
     this.imageTag = data.data!.mediaTag;
     this.direction = data.data!.direction;
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "public-memo" && m.owner === this.docId
+        m => m.ownerType === "public-memo" && m.owner === this.docKey
       )
     )!;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -112,17 +112,22 @@ export default class PublicMemoEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
-    data.data!.mediaId = this.imageDocId!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
+    data.data!.mediaKey = this.imageDocKey!;
     data.data!.mediaTag = this.imageTag!;
     data.data!.direction = this.direction;
     data.data!.name = this.name;
-    await this.cc!.update([this.docId], [data.data!]);
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data.data!
+      }
+    ]);
 
     await GameObjectManager.instance.updateMemoList(
       this.otherTextList,
       "public-memo",
-      this.docId
+      this.docKey
     );
 
     this.isProcessed = true;
@@ -143,7 +148,7 @@ export default class PublicMemoEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

@@ -37,7 +37,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import SimpleTabComponent from "../SimpleTabComponent.vue";
 import SimpleTableComponent from "./SimpleTableComponent.vue";
 import { permissionCheck } from "../../api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { TabInfo, WindowInfo, WindowTableDeclareInfo } from "@/@types/window";
 import VueEvent from "../../decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
@@ -148,71 +148,78 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Watch("useDataList", { deep: true, immediate: true })
-  private onChangeDataList(list: StoreUseData<any>[]) {
-    const tabList: TabInfo[] = [];
-    if (this.tableDeclareInfo.classificationType === "range") {
-      const ordinal: number = this.tableDeclareInfo.classificationOrdinal!;
-      let useChoice: number = list.length;
+  private onChangeDataList() {
+    try {
+      const tabList: TabInfo[] = [];
+      if (this.tableDeclareInfo.classificationType === "range") {
+        const ordinal: number = this.tableDeclareInfo.classificationOrdinal!;
+        let useChoice: number = this.useDataList.length;
 
-      if (this.tableDeclareInfo.height !== undefined && useChoice > 50) {
-        const choiceList = [];
-        let choice: number = this.tableDeclareInfo.height;
-        if (choice < 100) {
-          do {
-            choice += this.tableDeclareInfo.height;
-            choiceList.push(choice);
-          } while (choice < 100);
-        }
-        if (choice !== 100) choiceList.push(100);
-        choiceList.push(...[150, 200, 250, 300, 350, 400, 450, 500]);
-
-        for (useChoice of choiceList) {
-          if (list.length / useChoice <= 10) break;
-        }
-
-        let current: number = 0;
-        let isFirst = true;
-        while (current < list.length) {
-          const tabInfo: TabInfo = {
-            key: (current + ordinal).toString(),
-            text: `${current + ordinal}-`,
-            target: {
-              from: current,
-              to: Math.min(current + useChoice - 1, list.length - 1)
-            }
-          };
-          if (!this.currentTabInfo) {
-            this.currentTabInfo = tabInfo;
+        if (this.tableDeclareInfo.height !== undefined && useChoice > 50) {
+          const choiceList = [];
+          let choice: number = this.tableDeclareInfo.height;
+          if (choice < 100) {
+            do {
+              choice += this.tableDeclareInfo.height;
+              choiceList.push(choice);
+            } while (choice < 100);
           }
-          tabList.push(tabInfo);
-          current += useChoice;
-          isFirst = false;
+          if (choice !== 100) choiceList.push(100);
+          choiceList.push(...[150, 200, 250, 300, 350, 400, 450, 500]);
+
+          for (useChoice of choiceList) {
+            if (this.useDataList.length / useChoice <= 10) break;
+          }
+
+          let current: number = 0;
+          let isFirst = true;
+          while (current < this.useDataList.length) {
+            const tabInfo: TabInfo = {
+              key: (current + ordinal).toString(),
+              text: `${current + ordinal}-`,
+              target: {
+                from: current,
+                to: Math.min(
+                  current + useChoice - 1,
+                  this.useDataList.length - 1
+                )
+              }
+            };
+            if (!this.currentTabInfo) {
+              this.currentTabInfo = tabInfo;
+            }
+            tabList.push(tabInfo);
+            current += useChoice;
+            isFirst = false;
+          }
         }
-      }
-    } else if (this.tableDeclareInfo.classificationType === "string") {
-      const prop: string = this.tableDeclareInfo.classificationProp;
-      const propList = prop.split(".");
-      const getTargetValue = (data: any, propList: string[]): any => {
-        const value: any = data[propList.shift()!];
-        return propList.length ? getTargetValue(value, propList) : value;
-      };
-      const targetValueList: any[] = [];
-      list.forEach(data => {
-        const propValue = getTargetValue(data, propList.concat());
-        if (targetValueList.indexOf(propValue) === -1)
-          targetValueList.push(propValue);
-      });
-      targetValueList.forEach((val, idx: number) => {
-        const tabInfo = {
-          key: val.toString(),
-          text: val.toString(),
-          target: val.toString()
+      } else if (this.tableDeclareInfo.classificationType === "string") {
+        const prop: string = this.tableDeclareInfo.classificationProp;
+        const propList = prop.split(".");
+        const getTargetValue = (data: any, propList: string[]): any => {
+          const value: any = data[propList.shift()!];
+          return propList.length ? getTargetValue(value, propList) : value;
         };
-        if (!idx && !this.currentTabInfo) this.currentTabInfo = tabInfo;
-        tabList.push(tabInfo);
-      });
+        const targetValueList: any[] = [];
+        this.useDataList.forEach(data => {
+          const propValue = getTargetValue(data, propList.concat());
+          if (targetValueList.indexOf(propValue) === -1)
+            targetValueList.push(propValue);
+        });
+        targetValueList.forEach((val, index: number) => {
+          const tabInfo = {
+            key: val.toString(),
+            text: val.toString(),
+            target: val.toString()
+          };
+          if (!index && !this.currentTabInfo) this.currentTabInfo = tabInfo;
+          tabList.push(tabInfo);
+        });
+      }
+      this.tabList = tabList;
+    } catch (e) {
+      console.error(e);
     }
-    this.tabList = tabList;
   }
 }
 </script>

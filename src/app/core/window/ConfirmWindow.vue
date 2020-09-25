@@ -30,7 +30,6 @@ import TaskProcessor from "../task/TaskProcessor";
 import LifeCycle from "../decorator/LifeCycle";
 import WindowVue from "./WindowVue";
 import CtrlButton from "../component/CtrlButton.vue";
-import LanguageManager from "../../../LanguageManager";
 import BaseInput from "../component/BaseInput.vue";
 import VueEvent from "../decorator/VueEvent";
 

@@ -6,9 +6,9 @@
       :name.sync="name"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
-      :actorId.sync="actorId"
-      :sceneObjectId.sync="sceneObjectId"
-      :statusId.sync="statusId"
+      :actorKey.sync="actorKey"
+      :sceneObjectKey.sync="sceneObjectKey"
+      :statusKey.sync="statusKey"
       :isSecret.sync="isSecret"
       :paletteText.sync="paletteText"
     />
@@ -37,7 +37,7 @@ import WindowVue from "../../core/window/WindowVue";
 import ChitInfoForm from "../object/chit/ChitInfoForm.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import ChatPaletteInfoForm from "./ChatPaletteInfoForm.vue";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({
@@ -50,7 +50,7 @@ import VueEvent from "../../core/decorator/VueEvent";
 export default class ChatPaletteEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
   private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
@@ -58,17 +58,18 @@ export default class ChatPaletteEditWindow extends Mixins<
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
-  private actorId: string | null = null;
-  private sceneObjectId: string | null = null;
-  private statusId: string | null = null;
+  private actorKey: string | null = null;
+  private sceneObjectKey: string | null = null;
+  private statusKey: string | null = null;
   private isSecret: boolean = false;
   private paletteText: string = "";
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.chatPaletteListCC!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.chatPaletteListCC!.findSingle("key", this.docKey))!
+      .data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -89,15 +90,15 @@ export default class ChatPaletteEditWindow extends Mixins<
     this.name = data.data!.name;
     this.chatFontColorType = data.data!.chatFontColorType;
     this.chatFontColor = data.data!.chatFontColor;
-    this.actorId = data.data!.actorId;
-    this.sceneObjectId = data.data!.sceneObjectId;
-    this.statusId = data.data!.statusId;
+    this.actorKey = data.data!.actorKey;
+    this.sceneObjectKey = data.data!.sceneObjectKey;
+    this.statusKey = data.data!.statusKey;
     this.isSecret = data.data!.isSecret;
     this.paletteText = data.data!.paletteText;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.chatPaletteListCC.touchModify([this.docId]);
+        await this.chatPaletteListCC.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -109,16 +110,22 @@ export default class ChatPaletteEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.chatPaletteListCC!.getData(this.docId))!;
+    const data = (await this.chatPaletteListCC!.findSingle("key", this.docKey))!
+      .data!;
     data.data!.name = this.name;
     data.data!.chatFontColorType = this.chatFontColorType;
     data.data!.chatFontColor = this.chatFontColor;
-    data.data!.actorId = this.actorId;
-    data.data!.sceneObjectId = this.sceneObjectId;
-    data.data!.statusId = this.statusId;
+    data.data!.actorKey = this.actorKey;
+    data.data!.sceneObjectKey = this.sceneObjectKey;
+    data.data!.statusKey = this.statusKey;
     data.data!.isSecret = this.isSecret;
     data.data!.paletteText = this.paletteText;
-    await this.chatPaletteListCC!.update([this.docId], [data.data!]);
+    await this.chatPaletteListCC!.update([
+      {
+        key: this.docKey,
+        data: data.data!
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -137,7 +144,7 @@ export default class ChatPaletteEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.chatPaletteListCC!.releaseTouch([this.docId]);
+      await this.chatPaletteListCC!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

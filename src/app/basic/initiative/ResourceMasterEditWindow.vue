@@ -9,7 +9,7 @@
       :resourceType.sync="resourceType"
       :isAutoAddActor.sync="isAutoAddActor"
       :isAutoAddMapObject.sync="isAutoAddMapObject"
-      :iconImageId.sync="iconImageId"
+      :iconImageKey.sync="iconImageKey"
       :iconImageTag.sync="iconImageTag"
       :iconImageDirection.sync="iconImageDirection"
       :refProperty.sync="refProperty"
@@ -66,7 +66,7 @@ import { Direction } from "@/@types/room";
 export default class ResourceMasterEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cc = SocketFacade.instance.resourceMasterCC();
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
@@ -76,7 +76,7 @@ export default class ResourceMasterEditWindow extends Mixins<
   private systemColumnType: "name" | "initiative" | null = null;
   private isAutoAddActor: boolean = false;
   private isAutoAddMapObject: boolean = true;
-  private iconImageId: string | null = null;
+  private iconImageKey: string | null = null;
   private iconImageTag: string | null = null;
   private iconImageDirection: Direction | null = null;
   private refProperty: RefProperty | null = null;
@@ -92,8 +92,8 @@ export default class ResourceMasterEditWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -116,7 +116,7 @@ export default class ResourceMasterEditWindow extends Mixins<
     this.isAutoAddActor = data.data!.isAutoAddActor;
     this.isAutoAddMapObject = data.data!.isAutoAddMapObject;
     this.systemColumnType = data.data!.systemColumnType;
-    this.iconImageId = data.data!.icon.mediaId;
+    this.iconImageKey = data.data!.icon.mediaKey;
     this.iconImageTag = data.data!.icon.mediaTag;
     this.iconImageDirection = data.data!.icon.imageDirection;
     this.refProperty = data.data!.refProperty;
@@ -136,7 +136,7 @@ export default class ResourceMasterEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -173,7 +173,12 @@ export default class ResourceMasterEditWindow extends Mixins<
   @VueEvent
   private async commit() {
     // TODO 同名プロパティチェック
-    await this.cc!.update([this.docId], [this.resourceMasterData]);
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: this.resourceMasterData
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -191,7 +196,7 @@ export default class ResourceMasterEditWindow extends Mixins<
       isAutoAddActor: this.isAutoAddActor,
       isAutoAddMapObject: this.isAutoAddMapObject,
       icon: {
-        mediaId: this.iconImageId,
+        mediaKey: this.iconImageKey,
         mediaTag: this.iconImageTag,
         imageDirection: this.iconImageDirection
       },
@@ -224,7 +229,7 @@ export default class ResourceMasterEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

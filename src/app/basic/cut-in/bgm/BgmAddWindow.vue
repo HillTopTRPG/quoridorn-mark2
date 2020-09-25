@@ -35,7 +35,7 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { CutInDeclareInfo, MediaInfo } from "../../../../@types/room";
+import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
@@ -87,7 +87,7 @@ export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, boolean>>(
   @VueEvent
   private async preview() {
     await BgmManager.instance.callBgm({
-      targetId: null,
+      targetKey: null,
       data: this.cutInData
     });
   }
@@ -113,7 +113,7 @@ export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, boolean>>(
 
   @VueEvent
   private async commit() {
-    await this.cc!.addDirect([this.cutInData]);
+    await this.cc!.addDirect([{ data: this.cutInData }]);
     await this.finally(true);
   }
 

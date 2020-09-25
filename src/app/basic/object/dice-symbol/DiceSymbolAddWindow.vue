@@ -8,8 +8,8 @@
       :color.sync="color"
       :tag.sync="tag"
       :size.sync="size"
-      :layerId.sync="layerId"
-      :diceTypeId.sync="diceTypeId"
+      :layerKey.sync="layerKey"
+      :diceTypeKey.sync="diceTypeKey"
       :pips.sync="pips"
       @drag-start="dragStart"
       @drag-end="dragEnd"
@@ -27,7 +27,6 @@ import TaskProcessor from "../../../core/task/TaskProcessor";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { parseColor } from "@/app/core/utility/ColorUtility";
@@ -46,10 +45,10 @@ export default class DiceSymbolAddWindow extends Mixins<
   private color: string = "rgba(255, 255, 255, 1)";
   private size: number = 1;
   private isMounted: boolean = false;
-  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "dice-symbol"
-  )!.id!;
-  private diceTypeId: string = "";
+  )!.key;
+  private diceTypeKey: string = "";
   private pips: string = "1";
 
   @LifeCycle
@@ -57,9 +56,9 @@ export default class DiceSymbolAddWindow extends Mixins<
     const diceType =
       this.diceTypeList.find(dt => dt.data!.faceNum === "6") ||
       this.diceTypeList[0];
-    this.diceTypeId = diceType.id!;
+    this.diceTypeKey = diceType.key;
     const pipsList = this.diceAndPipsList
-      .filter(dap => dap.data!.diceTypeId === this.diceTypeId)
+      .filter(dap => dap.data!.diceTypeKey === this.diceTypeKey)
       .map(dap => dap.data!.pips);
     this.pips = pipsList.find(p => p === "1") || pipsList[0];
 
@@ -70,9 +69,9 @@ export default class DiceSymbolAddWindow extends Mixins<
     });
   }
 
-  @Watch("diceTypeId")
-  private onChangeDiceTypeId() {
-    console.log("diceTypeId", this.diceTypeId);
+  @Watch("diceTypeKey")
+  private onChangeDiceTypeKey() {
+    console.log("diceTypeKey", this.diceTypeKey);
   }
 
   @LifeCycle
@@ -121,35 +120,37 @@ export default class DiceSymbolAddWindow extends Mixins<
     const fontColor = colorObj.getRGBReverse();
     await SocketFacade.instance.sceneObjectCC().addDirect([
       {
-        type: "dice-symbol",
-        tag: this.tag,
-        name: this.name,
-        x: point.x,
-        y: point.y,
-        row: matrix.row,
-        column: matrix.column,
-        rows: this.size,
-        columns: this.size,
-        actorId: null,
-        place: "field",
-        isHideBorder: false,
-        isHideHighlight: false,
-        isLock: false,
-        layerId: this.layerId,
-        textures: [
-          {
-            type: "color",
-            backgroundColor,
-            fontColor,
-            text: ""
-          }
-        ],
-        textureIndex: 0,
-        angle: 0,
-        url: "",
-        subTypeId: this.diceTypeId,
-        subTypeValue: this.pips,
-        isHideSubType: false
+        data: {
+          type: "dice-symbol",
+          tag: this.tag,
+          name: this.name,
+          x: point.x,
+          y: point.y,
+          row: matrix.row,
+          column: matrix.column,
+          rows: this.size,
+          columns: this.size,
+          actorKey: null,
+          place: "field",
+          isHideBorder: false,
+          isHideHighlight: false,
+          isLock: false,
+          layerKey: this.layerKey,
+          textures: [
+            {
+              type: "color",
+              backgroundColor,
+              fontColor,
+              text: ""
+            }
+          ],
+          textureIndex: 0,
+          angle: 0,
+          url: "",
+          subTypeKey: this.diceTypeKey,
+          subTypeValue: this.pips,
+          isHideSubType: false
+        }
       }
     ]);
 

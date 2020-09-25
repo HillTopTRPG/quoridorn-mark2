@@ -7,7 +7,7 @@
     <div class="create-container">
       <image-picker-component
         class="image-picker-component"
-        v-model="currentImageId"
+        v-model="currentImageKey"
         :windowKey="key"
         :imageTag.sync="currentTag"
         :isSimple="true"
@@ -79,7 +79,7 @@
           :radius="radius"
           :frontBackgroundColor="frontBackgroundColor"
           :fontColor="fontColor"
-          :imageSrc="getImageUrl(currentImageId)"
+          :imageSrc="getImageUrl(currentImageKey)"
           :name="name"
           :nameHeight="nameHeight"
           :nameFontSize="nameFontSize"
@@ -127,7 +127,7 @@
           <div
             class="card-container"
             v-for="cardMeta in useCardList"
-            :key="cardMeta.id"
+            :key="cardMeta.key"
             @mouseenter="onHoverCard(cardMeta, true, $event.target)"
             @mouseleave="onHoverCard(cardMeta, false, $event.target)"
             :style="{ width: `${width}px` }"
@@ -146,7 +146,7 @@
               class="delete-button"
               icon="bin"
               colorStyle="pink"
-              @click="deleteCard(cardMeta.id)"
+              @click="deleteCard(cardMeta.key)"
             />
           </div>
         </div>
@@ -158,7 +158,6 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import { StoreUseData } from "@/@types/store";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
   createRectangle,
@@ -178,6 +177,7 @@ import CardSimulatorComponent from "./CardSimulatorComponent.vue";
 import SButton from "../../common/components/SButton.vue";
 import SCheck from "../../common/components/SCheck.vue";
 import CardComponent from "../CardComponent.vue";
+import { StoreObj } from "@/@types/store";
 const uuid = require("uuid");
 
 @Component({
@@ -255,7 +255,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   private textPaddingDefault!: number;
 
   @Prop({ type: Array, required: true })
-  private cardList!: StoreUseData<CardMeta>[];
+  private cardList!: StoreObj<CardMeta>[];
 
   private frontBackgroundColor: string = "#ffffff";
   private nameFontSize: number = 20;
@@ -294,34 +294,34 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
     this.textBackgroundColor = this.textBackgroundColorDefault;
     this.textFontSize = this.textFontSizeDefault;
     this.textPadding = this.textPaddingDefault;
-    this.currentImageId = "";
+    this.currentImageKey = "";
     this.name = "";
     this.text = "";
   }
 
-  private currentImageId: string = "";
+  private currentImageKey: string = "";
   private currentTag: string | null = null;
   private mediaList = GameObjectManager.instance.mediaList;
 
   @VueEvent
-  private getImageUrl(mediaId: string): string {
-    const media = this.mediaList.filter(m => m.id === mediaId)[0];
+  private getImageUrl(mediaKey: string): string {
+    const media = this.mediaList.filter(m => m.key === mediaKey)[0];
     if (!media) return "";
     return `url('${media.data!.url}')`;
   }
 
   @VueEvent
   private addCard() {
-    const id: string = uuid.v4();
+    const key: string = uuid.v4();
     this.cardList.push(
-      createEmptyStoreUseData(id, {
+      createEmptyStoreUseData(key, {
         width: this.width,
         height: this.height,
         padHorizontal: this.padHorizontal,
         padTop: this.padTop,
         padBottom: this.padBottom,
         radius: this.radius,
-        frontImage: this.getImageUrl(this.currentImageId),
+        frontImage: this.getImageUrl(this.currentImageKey),
         frontBackgroundColor: this.frontBackgroundColor,
         backImage: this.getImageUrl(this.backImage),
         backBackgroundColor: this.backBackgroundColor,
@@ -341,24 +341,24 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
     console.log(JSON.stringify(this.cardList, null, "  "));
   }
 
-  private hoverCardId: string | null = null;
+  private hoverCardKey: string | null = null;
 
   @VueEvent
   private onHoverCard(
-    card: StoreUseData<CardMeta>,
+    card: StoreObj<CardMeta>,
     isHover: boolean,
     elm: HTMLElement
   ) {
-    this.hoverCardId = isHover ? card.id! : null;
+    this.hoverCardKey = isHover ? card.key : null;
     const rect: any = elm.getBoundingClientRect();
     const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
     this.$emit("hover-card", card, isHover, r);
   }
 
   @VueEvent
-  private deleteCard(cardId: string) {
-    const idx = this.cardList.findIndex(c => c.id === cardId);
-    this.cardList.splice(idx, 1);
+  private deleteCard(cardKey: string) {
+    const index = this.cardList.findIndex(c => c.key === cardKey);
+    this.cardList.splice(index, 1);
   }
 }
 </script>

@@ -1,5 +1,9 @@
 <template>
-  <ctrl-select v-model="localValue" :optionInfoList="optionInfoList" />
+  <ctrl-select
+    :elmId="elmId"
+    v-model="localValue"
+    :optionInfoList="optionInfoList"
+  />
 </template>
 
 <script lang="ts">
@@ -8,17 +12,12 @@ import SelectMixin from "./base/SelectMixin";
 import { Component, Mixins } from "vue-mixin-decorator";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import {
-  SupportLangInfo,
-  supportLangList
-} from "../../../../../LanguageManager";
+import { SupportLangInfo, supportLangList } from "@/LanguageManager";
 import VueEvent from "../../../../core/decorator/VueEvent";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class LanguageSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue

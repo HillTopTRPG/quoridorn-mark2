@@ -1,10 +1,14 @@
 <template>
   <tr class="tr-actor-number-resource-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <actor-number-resource-select v-model="localValue" :readonly="readonly" />
+      <actor-number-resource-select
+        v-model="localValue"
+        :readonly="readonly"
+        :elmId="key"
+      />
     </td>
   </tr>
 </template>

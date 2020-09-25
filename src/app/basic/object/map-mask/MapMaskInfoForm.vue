@@ -87,8 +87,8 @@
             </th>
             <td class="value-cell">
               <scene-layer-select
-                v-model="layerIdVolatile"
-                :id="`${key}-layer`"
+                v-model="layerKeyVolatile"
+                :elmId="`${key}-layer`"
               />
             </td>
           </tr>
@@ -120,7 +120,7 @@ import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
 import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { MemoStore } from "@/@types/gameObject";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 
@@ -197,14 +197,14 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreUseData<MemoStore>[];
-  private otherTextListVolatile: StoreUseData<MemoStore>[] = [];
+  private otherTextList!: StoreObj<MemoStore>[];
+  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreUseData<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 
@@ -233,15 +233,15 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: String, required: true })
-  private layerId!: string;
-  private layerIdVolatile: string = "";
-  @Watch("layerId", { immediate: true })
-  private onChangeLayerId(value: string) {
-    this.layerIdVolatile = value;
+  private layerKey!: string;
+  private layerKeyVolatile: string = "";
+  @Watch("layerKey", { immediate: true })
+  private onChangeLayerKey(value: string) {
+    this.layerKeyVolatile = value;
   }
-  @Watch("layerIdVolatile")
-  private onChangeLayerIdVolatile(value: string) {
-    this.$emit("update:layerId", value);
+  @Watch("layerKeyVolatile")
+  private onChangeLayerKeyVolatile(value: string) {
+    this.$emit("update:layerKey", value);
   }
 
   private tabList: TabInfo[] = [

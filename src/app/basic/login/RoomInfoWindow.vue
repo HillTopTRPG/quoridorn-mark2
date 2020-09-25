@@ -60,7 +60,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in useUserList" :key="user.id">
+          <tr v-for="user in useUserList" :key="user.key">
             <td class="left">{{ user.data.name }}</td>
             <td
               class="center"
@@ -117,7 +117,7 @@ import { execCopy } from "../../core/utility/Utility";
 import BaseInput from "../../core/component/BaseInput.vue";
 import { ClientRoomInfo, UserType } from "../../../@types/socket";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "../../../@types/store";
+import { StoreObj } from "../../../@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
@@ -133,25 +133,24 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   WindowVue
 ) {
   private clientRoomInfo: ClientRoomInfo | null = null;
-  private userList: StoreUseData<UserData>[] =
-    GameObjectManager.instance.userList;
-  private systemId: string | null = null;
+  private userList: StoreObj<UserData>[] = GameObjectManager.instance.userList;
+  private systemKey: string | null = null;
   private systemName: string | null = null;
 
   @Watch("clientRoomInfo", { deep: true })
   private async onChangeClientRoomInfo() {
-    this.systemId = this.clientRoomInfo ? this.clientRoomInfo.system : null;
+    this.systemKey = this.clientRoomInfo ? this.clientRoomInfo.system : null;
   }
 
-  @Watch("systemId")
-  private async onChangeSystemId() {
+  @Watch("systemKey")
+  private async onChangeSystemKey() {
     this.systemName = await BcdiceManager.getBcdiceSystemName(
       SocketFacade.instance.connectInfo.bcdiceServer,
-      this.systemId
+      this.systemKey
     );
   }
 
-  private get useUserList(): StoreUseData<UserData>[] {
+  private get useUserList(): StoreObj<UserData>[] {
     const typeOrder: UserType[] = ["VISITOR", "PL", "GM"];
     return this.userList.concat().sort((u1, u2) => {
       const u1Index = typeOrder.findIndex(t => t === u1.data!.type);
@@ -164,7 +163,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     });
   }
 
-  public getInviteUrl(user?: StoreUseData<UserData>) {
+  public getInviteUrl(user?: StoreObj<UserData>) {
     if (!this.clientRoomInfo) return "";
     const roomNo = this.clientRoomInfo.roomNo;
     const name = user ? user.data!.name : "";

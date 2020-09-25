@@ -4,11 +4,11 @@
       <card-deck-set-component
         class="card-deck-set"
         v-for="deck in deckList"
-        :key="deck.cardDeckBig.id"
+        :key="deck.cardDeckBig.key"
         :deck="deck"
         :size="10"
-        :isSelected="selectedCardDeckBigId === deck.cardDeckBig.id"
-        @select="selectedCardDeckBigId = deck.cardDeckBig.id"
+        :isSelected="selectedCardDeckBigKey === deck.cardDeckBig.key"
+        @select="selectedCardDeckBigKey = deck.cardDeckBig.key"
         @dblclick="editCardDeck()"
         :style="{
           '--msg-locked': getExclusionOwnerName(deck.cardDeckBig.exclusionOwner)
@@ -19,13 +19,16 @@
       </div>
     </div>
     <div class="button-area">
-      <ctrl-button @click="editCardDeck()" :disabled="!selectedCardDeckBigId">
+      <ctrl-button @click="editCardDeck()" :disabled="!selectedCardDeckBigKey">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
-      <ctrl-button @click="chmodCardDeck()" :disabled="!selectedCardDeckBigId">
+      <ctrl-button @click="chmodCardDeck()" :disabled="!selectedCardDeckBigKey">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
-      <ctrl-button @click="deleteCardDeck()" :disabled="!selectedCardDeckBigId">
+      <ctrl-button
+        @click="deleteCardDeck()"
+        :disabled="!selectedCardDeckBigKey"
+      >
         <span v-t="'button.delete'"></span>
       </ctrl-button>
     </div>
@@ -43,10 +46,9 @@ import SocketFacade, {
 import TaskManager from "../../core/task/TaskManager";
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
-import LanguageManager from "../../../LanguageManager";
-import { WindowOpenInfo } from "../../../@types/window";
+import { WindowOpenInfo } from "@/@types/window";
 import CardDeckSetComponent, { DeckInfo } from "./CardDeckSetComponent.vue";
-import { DataReference } from "../../../@types/data";
+import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 
@@ -61,13 +63,9 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
 ) {
   private isMounted: boolean = false;
   private cardDeckBigCC = SocketFacade.instance.cardDeckBigCC();
-  private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
-  private cardObjectCC = SocketFacade.instance.cardObjectCC();
   private cardMetaList = GameObjectManager.instance.cardMetaList;
-  private cardObjectList = GameObjectManager.instance.cardObjectList;
   private cardDeckBigList = GameObjectManager.instance.cardDeckBigList;
-  private selectedCardDeckBigId: string | null = null;
-  private sceneLayerList = GameObjectManager.instance.sceneLayerList;
+  private selectedCardDeckBigKey: string | null = null;
 
   @LifeCycle
   private async mounted() {
@@ -89,7 +87,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       return {
         cardDeckBig,
         cardMetaList: this.useCardMetaList.filter(
-          cm => cm.owner === cardDeckBig.id
+          cm => cm.owner === cardDeckBig.key
         )
       };
     });
@@ -113,7 +111,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
         type: "view-card-deck",
         value: {
           flag: "on" as "on",
-          cardDeckId: ""
+          cardDeckKey: ""
         }
       }
     });
@@ -121,21 +119,21 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
 
   @VueEvent
   private async editCardDeck() {
-    if (!this.selectedCardDeckBigId) return;
+    if (!this.selectedCardDeckBigKey) return;
     await this.close();
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "card-deck-edit-window",
-        args: this.selectedCardDeckBigId
+        args: this.selectedCardDeckBigKey
       }
     });
   }
 
   @VueEvent
   private async chmodCardDeck() {
-    if (!this.selectedCardDeckBigId) return;
+    if (!this.selectedCardDeckBigKey) return;
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -143,7 +141,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
         type: "chmod-window",
         args: {
           type: "card-deck",
-          docId: this.selectedCardDeckBigId
+          key: this.selectedCardDeckBigKey
         }
       }
     });
@@ -151,11 +149,11 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
 
   @VueEvent
   private async deleteCardDeck() {
-    if (!this.selectedCardDeckBigId) return;
+    if (!this.selectedCardDeckBigKey) return;
     const result = window.confirm(this.$t("message.really-delete")!.toString());
     if (!result) return;
     try {
-      await this.cardDeckBigCC.deletePackage([this.selectedCardDeckBigId]);
+      await this.cardDeckBigCC.deletePackage([this.selectedCardDeckBigKey]);
     } catch (err) {
       // TODO show message.
       return;

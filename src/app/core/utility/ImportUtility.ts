@@ -1,4 +1,4 @@
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { MediaInfo } from "@/@types/room";
 import {
   mediaUpload,
@@ -11,39 +11,39 @@ import { UploadMediaInfo } from "@/@types/socket";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 async function jsonFileList2JsonList(jsonFileList: File[]) {
-  const importRawData: StoreUseData<any>[] = [];
+  const importRawData: StoreObj<any>[] = [];
   const jsonList = await readJsonFiles(jsonFileList);
   jsonList
     .filter(j => j.type === "quoridorn-export-data-list")
-    .forEach(j => importRawData.push(...(j.data as StoreUseData<any>[])));
+    .forEach(j => importRawData.push(...(j.data as StoreObj<any>[])));
   return importRawData;
 }
 
 async function getMediaLineage(
   dropList: (string | File)[]
 ): Promise<{
-  mediaInfoList: StoreUseData<MediaInfo>[];
-  otherInfoList: StoreUseData<any>[];
+  mediaInfoList: StoreObj<MediaInfo>[];
+  otherInfoList: StoreObj<any>[];
   mediaFileList: File[];
 }> {
-  const removeDropListIdxList: number[] = [];
+  const removeDropListIndexList: number[] = [];
   const jsonFileList: File[] = [];
-  dropList.forEach((d, idx) => {
+  dropList.forEach((d, index) => {
     if (typeof d === "string" || getExt(d.name) !== "json") return;
-    removeDropListIdxList.push(idx);
+    removeDropListIndexList.push(index);
     jsonFileList.push(d);
   });
 
-  let importRawData: StoreUseData<any>[] = await jsonFileList2JsonList(
+  let importRawData: StoreObj<any>[] = await jsonFileList2JsonList(
     jsonFileList
   );
   console.log(JSON.stringify(importRawData, null, "  "));
 
-  const mediaInfoList: StoreUseData<MediaInfo>[] = [];
-  const otherInfoList: StoreUseData<any>[] = [];
+  const mediaInfoList: StoreObj<MediaInfo>[] = [];
+  const otherInfoList: StoreObj<any>[] = [];
   importRawData.forEach(ir => {
     if (ir.collection === "media-list") {
-      mediaInfoList.push(ir as StoreUseData<MediaInfo>);
+      mediaInfoList.push(ir as StoreObj<MediaInfo>);
     } else {
       otherInfoList.push(ir);
     }
@@ -51,29 +51,29 @@ async function getMediaLineage(
 
   const mediaFileList = mediaInfoList.map(
     mi =>
-      (dropList.find((d, idx) => {
+      (dropList.find((d, index) => {
         const result = typeof d !== "string" && d.name === mi.data!.mediaFileId;
-        if (result) removeDropListIdxList.push(idx);
+        if (result) removeDropListIndexList.push(index);
         return result;
       }) as File | undefined) || null
   );
 
   // jsonファイルはアップロードしない
-  removeDropListIdxList
-    .sort((idx1, idx2) => {
-      if (idx1 > idx2) return -1;
-      if (idx1 < idx2) return 1;
+  removeDropListIndexList
+    .sort((index1, index2) => {
+      if (index1 > index2) return -1;
+      if (index1 < index2) return 1;
       return 0;
     })
-    .forEach(idx => dropList.splice(idx, 1));
+    .forEach(index => dropList.splice(index, 1));
 
-  const removeIdxList: number[] = [];
-  mediaFileList.forEach((mf, idx) => {
-    if (!mf) removeIdxList.push(idx);
+  const removeIndexList: number[] = [];
+  mediaFileList.forEach((mf, index) => {
+    if (!mf) removeIndexList.push(index);
   });
-  removeIdxList.reverse().forEach(idx => {
-    mediaFileList.splice(idx, 1);
-    mediaInfoList.splice(idx, 1);
+  removeIndexList.reverse().forEach(index => {
+    mediaFileList.splice(index, 1);
+    mediaInfoList.splice(index, 1);
   });
 
   return {
@@ -116,8 +116,8 @@ export async function importInjection(dropList: (string | File)[]) {
       mi => mi.data!.rawPath === mu.rawPath
     )!;
     conversionList.push({
-      from: new RegExp(`mediaId="${mediaInfo.id!}"`),
-      to: () => `mediaId="${mu.docId}"`
+      from: new RegExp(`mediaKey="${mediaInfo.key}"`),
+      to: () => `mediaKey="${mu.key}"`
     });
   });
 
@@ -130,7 +130,7 @@ export async function importInjection(dropList: (string | File)[]) {
     return JSON.parse(str);
   });
 
-  await SocketFacade.instance.socketCommunication<StoreUseData<any>[], void>(
+  await SocketFacade.instance.socketCommunication<StoreObj<any>[], void>(
     "import-data",
     directImportDataList
   );

@@ -161,7 +161,7 @@ expressions
           });
           if (blockType === 'TABLE-BLOCK') {
             // 両端の区切りは削除
-            block.value.forEach((line, idx) => {
+            block.value.forEach((line, index) => {
               const list = line.value;
               if (list[0].type === '|') list.splice(0, 1);
               if (list[list.length - 1].type === '|') list.splice(list.length - 1, 1);
@@ -178,16 +178,16 @@ expressions
             });
             block.value.splice(1, 1);
             const table = [];
-            block.value.forEach((line, idx) => {
+            block.value.forEach((line, index) => {
               const decCopy = dec.concat();
               const decItem = decCopy.shift();
-              table.push({ type: 'tr', value: [{ type: idx ? 'td' : 'th', value: [], align: decItem }] });
+              table.push({ type: 'tr', value: [{ type: index ? 'td' : 'th', value: [], align: decItem }] });
               const list = line.value;
               isLastDev = true;
               list.forEach((span) => {
                 if (span.type === '|') {
                   const decItem = decCopy.shift();
-                  table[table.length - 1].value.push({ type: idx ? 'td' : 'th', value: [], align: decItem });
+                  table[table.length - 1].value.push({ type: index ? 'td' : 'th', value: [], align: decItem });
                 } else {
                   const lastCellList = table[table.length - 1].value;
                   lastCellList[lastCellList.length - 1].value.push(span);
@@ -330,11 +330,11 @@ line
         let rawCount = 0;
         let devCount = 0;
         let aroCount = 0;
-        $$.value.forEach((s, idx) => {
+        $$.value.forEach((s, index) => {
           if (!s.isTableSpan) rawCount++;
           if (s.type === '|') {
             devCount++;
-            if (idx === 0 || idx === $$.value.length - 1) nonCountDev++;
+            if (index === 0 || index === $$.value.length - 1) nonCountDev++;
           }
           if (s.type === '<->') aroCount++;
         });

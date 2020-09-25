@@ -33,10 +33,10 @@
         >
           <chat-tab-component
             v-for="tab in filteredChatTabList"
-            :key="tab.id"
+            :key="tab.key"
             :tab="tab"
             :dragMode="dragModeTab"
-            :changeOrderId="changeOrderId"
+            :changeOrderKey="changeOrderKey"
             @hover="onHover"
           />
         </draggable>
@@ -72,10 +72,10 @@
         >
           <like-component
             v-for="like in filteredLikeList"
-            :key="like.id"
+            :key="like.key"
             :like="like"
             :dragMode="dragModeLike"
-            :changeOrderId="changeOrderId"
+            :changeOrderKey="changeOrderKey"
             @hover="onHover"
           />
         </draggable>
@@ -123,7 +123,7 @@ import App from "../../../views/App.vue";
 import WindowVue from "../../core/window/WindowVue";
 import { Getter, Mutation } from "vuex-class";
 import GameObjectManager from "../GameObjectManager";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
@@ -131,7 +131,6 @@ import SocketFacade, {
 } from "../../core/api/app-server/SocketFacade";
 import TaskManager from "../../core/task/TaskManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "../../../LanguageManager";
 import { ChatTabInfo } from "@/@types/room";
 import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -166,8 +165,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   private chatTabList = GameObjectManager.instance.chatTabList;
   private likeList = GameObjectManager.instance.likeList;
-  private filteredChatTabList: StoreUseData<ChatTabInfo>[] = [];
-  private filteredLikeList: StoreUseData<LikeStore>[] = [];
+  private filteredChatTabList: StoreObj<ChatTabInfo>[] = [];
+  private filteredLikeList: StoreObj<LikeStore>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
   private likeListCC = SocketFacade.instance.likeListCC();
   private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
@@ -176,8 +175,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   private dragModeTabProcessed: boolean = false;
   private dragModeLike = false;
   private dragModeLikeProcessed: boolean = false;
-  private changeOrderId: string = "";
-  private orderChangingIdList: string[] = [];
+  private changeOrderKey: string = "";
+  private orderChangingKeyList: string[] = [];
   private useReadAloudLocal: boolean = false;
 
   private isUseAllTab: boolean = false;
@@ -250,12 +249,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isEditable(tabInfo: StoreObj<ChatTabInfo>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async editTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
@@ -263,18 +262,18 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       owner: "Quoridorn",
       value: {
         type: "chat-tab-edit-window",
-        args: tabInfo.id!
+        args: tabInfo.key
       }
     });
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isChmodAble(tabInfo: StoreObj<ChatTabInfo>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async chmodTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -284,19 +283,19 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
         type: "chmod-window",
         args: {
           type: "chat-tab",
-          docId: tabInfo.id!
+          key: tabInfo.key
         }
       }
     });
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isDeletable(tabInfo: StoreObj<ChatTabInfo>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async deleteTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isDeletable(tabInfo)) return;
     const msg = this.$t("message.delete-tab")!
       .toString()
@@ -305,7 +304,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.chatTabListCC.deletePackage([tabInfo.id!]);
+      await this.chatTabListCC.deletePackage([tabInfo.key]);
     } catch (err) {
       // TODO error message.
       return;
@@ -327,11 +326,6 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     return GameObjectManager.instance.getExclusionOwnerName(exclusionOwner);
   }
 
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-setting-window.dialog." + target;
-    return LanguageManager.instance.getText(msgTarget);
-  }
-
   @VueEvent
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
@@ -341,12 +335,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @Watch("dragModeTab")
   private async onChangeDragModeTab() {
-    const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
+    const keyList: string[] = this.filteredChatTabList.map(ct => ct.key);
     if (this.dragModeTab) {
       let error: boolean = false;
 
       try {
-        await this.chatTabListCC.touchModify(idList);
+        await this.chatTabListCC.touchModify(keyList);
       } catch (err) {
         error = true;
         alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
@@ -355,14 +349,14 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       if (error) {
         this.dragModeTabProcessed = true;
         this.dragModeTab = false;
-        this.orderChangingIdList = [];
+        this.orderChangingKeyList = [];
       } else {
-        this.orderChangingIdList = idList;
+        this.orderChangingKeyList = keyList;
       }
     } else {
-      this.orderChangingIdList = [];
+      this.orderChangingKeyList = [];
       if (!this.dragModeTabProcessed) {
-        await this.chatTabListCC.releaseTouch(idList);
+        await this.chatTabListCC.releaseTouch(keyList);
         this.dragModeTabProcessed = false;
       }
     }
@@ -370,12 +364,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @Watch("dragModeLike")
   private async onChangeDragModeLike() {
-    const idList: string[] = this.filteredLikeList.map(ct => ct.id!);
+    const keyList: string[] = this.filteredLikeList.map(ct => ct.key);
     if (this.dragModeLike) {
       let error: boolean = false;
 
       try {
-        await this.likeListCC.touchModify(idList);
+        await this.likeListCC.touchModify(keyList);
       } catch (err) {
         error = true;
         alert("Failure to get likeList's lock.\nPlease try again.");
@@ -384,14 +378,14 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       if (error) {
         this.dragModeLikeProcessed = true;
         this.dragModeLike = false;
-        this.orderChangingIdList = [];
+        this.orderChangingKeyList = [];
       } else {
-        this.orderChangingIdList = idList;
+        this.orderChangingKeyList = keyList;
       }
     } else {
-      this.orderChangingIdList = [];
+      this.orderChangingKeyList = [];
       if (!this.dragModeLikeProcessed) {
-        await this.likeListCC.releaseTouch(idList);
+        await this.likeListCC.releaseTouch(keyList);
         this.dragModeLikeProcessed = false;
       }
     }
@@ -403,13 +397,13 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if (this.dragModeTab && !this.dragModeTabProcessed) {
-      const idList: string[] = this.filteredChatTabList.map(ct => ct.id!);
-      await this.chatTabListCC.releaseTouch(idList);
+      const keyList: string[] = this.filteredChatTabList.map(ct => ct.key);
+      await this.chatTabListCC.releaseTouch(keyList);
       this.dragModeTabProcessed = false;
     }
     if (this.dragModeLike && !this.dragModeLikeProcessed) {
-      const idList: string[] = this.likeList.map(ct => ct.id!);
-      await this.likeListCC.releaseTouch(idList);
+      const keyList: string[] = this.likeList.map(ct => ct.key);
+      await this.likeListCC.releaseTouch(keyList);
       this.dragModeLikeProcessed = false;
     }
   }
@@ -430,7 +424,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       owner: "Quoridorn",
       value: { type: "special-drag", value: "off" as "off" }
     });
-    this.changeOrderId = "";
+    this.changeOrderKey = "";
   }
 
   @VueEvent
@@ -447,42 +441,43 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   private static async sortUpdate<T>(
-    list: StoreUseData<T>[],
+    dataList: StoreObj<T>[],
     cc: NekostoreCollectionController<T>
   ) {
-    const idOrderList = list.map(ct => ({
-      id: ct.id!,
+    const keyOrderList = dataList.map(ct => ({
+      key: ct.key,
       order: ct.order,
       target: false
     }));
-    const orderList = idOrderList.concat().map(ido => ido.order);
+    const orderList = keyOrderList.concat().map(keyo => keyo.order);
     orderList.sort((o1, o2) => {
       if (o1 < o2) return -1;
       if (o1 > o2) return 1;
       return 0;
     });
-    idOrderList.forEach((ido, idx: number) => {
-      if (ido.order !== orderList[idx]) ido.target = true;
-      ido.order = orderList[idx];
+    keyOrderList.forEach((keyo, index: number) => {
+      if (keyo.order !== orderList[index]) keyo.target = true;
+      keyo.order = orderList[index];
     });
 
-    const idList: string[] = [];
-    const dataList: T[] = [];
-    const optionList: any = [];
-    list.forEach((obj, idx) => {
-      if (!idOrderList[idx].target) return;
-      const id = idOrderList[idx].id;
-      const order = idOrderList[idx].order;
-      const data = list.filter(ct => ct.id === id)[0].data!;
-      idList.push(id);
-      dataList.push(data);
-      optionList.push({
+    const list: (Partial<StoreObj<T>> & {
+      key: string;
+      continuous?: boolean;
+    })[] = [];
+    dataList.forEach((obj, index) => {
+      if (!keyOrderList[index].target) return;
+      const key = keyOrderList[index].key;
+      const order = keyOrderList[index].order;
+      const data = dataList.filter(ct => ct.key === key)[0].data!;
+      list.push({
+        key,
         order,
+        data,
         continuous: true
       });
     });
 
-    await cc.update(idList, dataList, optionList);
+    await cc.update(list);
   }
 }
 </script>

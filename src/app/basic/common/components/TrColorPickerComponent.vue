@@ -11,6 +11,7 @@
         :readonly="readonly"
         v-model="localValue"
         :use-alpha="useAlpha"
+        :elmId="key"
       />
     </td>
   </tr>

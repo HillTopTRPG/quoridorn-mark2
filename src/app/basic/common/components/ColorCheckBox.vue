@@ -19,14 +19,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
-export default class ColorCheckBox extends Mixins<ComponentVue>(
-  ComponentVue
-) {
+export default class ColorCheckBox extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, default: false })
   private checked!: boolean;
 
@@ -46,8 +45,10 @@ export default class ColorCheckBox extends Mixins<ComponentVue>(
     this.value = this.checked;
   }
 
-  @Emit("change")
-  onChange(checked: boolean) {}
+  @VueEvent
+  private onChange(checked: boolean) {
+    this.$emit("change", checked);
+  }
 
   @Watch("checked")
   private onChangeChecked(checked: boolean) {

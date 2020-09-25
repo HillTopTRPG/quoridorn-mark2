@@ -3,7 +3,7 @@
     class="like-info"
     :class="{
       locked: like.exclusionOwner,
-      changeOrder: changeOrderId === like.id,
+      changeOrder: changeOrderKey === like.key,
       dragMode
     }"
     :style="{
@@ -11,8 +11,8 @@
         like.exclusionOwner
       )})'`
     }"
-    @onMouseDown="changeOrderId = like.id"
-    @onMouseUp="changeOrderId = ''"
+    @onMouseDown="changeOrderKey = like.key"
+    @onMouseUp="changeOrderKey = ''"
   >
     <span class="icon-menu drag-mark"></span>
     <span>{{ like.data.char }}</span>
@@ -35,7 +35,6 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreUseData } from "@/@types/store";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
@@ -44,34 +43,35 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import { LikeStore } from "@/@types/gameObject";
+import { StoreObj } from "@/@types/store";
 
 @Component({ components: { SButton } })
 export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
-  private like!: StoreUseData<LikeStore>;
+  private like!: StoreObj<LikeStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
 
   @Prop({ type: String, required: true })
-  private changeOrderId: string = "";
+  private changeOrderKey: string = "";
 
   private likeListCC = SocketFacade.instance.likeListCC();
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<LikeStore>) {
+  private async editTab(tabInfo: StoreObj<LikeStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "like-edit-window",
-        args: tabInfo.id!
+        args: tabInfo.key
       }
     });
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<LikeStore>) {
+  private async deleteTab(tabInfo: StoreObj<LikeStore>) {
     const msg = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.char);
@@ -79,7 +79,7 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
     if (!result) return;
 
     try {
-      await this.likeListCC.deletePackage([tabInfo.id!]);
+      await this.likeListCC.deletePackage([tabInfo.key]);
     } catch (err) {
       // TODO error message.
       return;

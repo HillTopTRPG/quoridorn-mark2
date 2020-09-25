@@ -1,7 +1,7 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
-import { Permission, StoreObj, StoreUseData } from "@/@types/store";
+import { Permission, StoreObj } from "@/@types/store";
 import {
   ClientRoomInfo,
   DiceAndPips,
@@ -44,15 +44,15 @@ import {
   LikeStore
 } from "@/@types/gameObject";
 import { ApplicationError } from "../core/error/ApplicationError";
-import { findById } from "../core/utility/Utility";
+import { findByKey, findRequireByKey } from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
 import LanguageManager from "../../LanguageManager";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
-  actorId: string;
-  tabId: string;
-  targetId: string;
+  actorKey: string;
+  tabKey: string;
+  targetKey: string;
   system: string;
   bcdiceUrl: string;
 };
@@ -159,7 +159,7 @@ export default class GameObjectManager {
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
-    this.roomDataId = roomData.id!;
+    this.roomDataKey = roomData.key;
 
     // Object.assign()
     const writeSettings = (from: RoomInfoExtend, to: RoomInfoExtend) => {
@@ -179,17 +179,17 @@ export default class GameObjectManager {
       to.windowSettings.counterRemocon = from.windowSettings.counterRemocon;
     };
     this.roomData.name = roomData.data!.name;
-    this.roomData.sceneId = roomData.data!.sceneId;
+    this.roomData.sceneKey = roomData.data!.sceneKey;
     writeSettings(roomData.data!.settings, this.roomData.settings);
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
-      this.roomDataId!,
+      this.roomDataKey!,
       (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
           const d = snapshot.data.data!;
           // Object.assign()
-          this.roomData.sceneId = d.sceneId;
+          this.roomData.sceneKey = d.sceneKey;
           writeSettings(d.settings, this.roomData.settings);
         }
       }
@@ -216,23 +216,23 @@ export default class GameObjectManager {
     }
 
     // チャット設定の初期化
-    this.chatPublicInfo.actorId = this.mySelfActorId;
-    this.chatPublicInfo.tabId = this.chatTabList.find(
+    this.chatPublicInfo.actorKey = this.mySelfActorKey;
+    this.chatPublicInfo.tabKey = this.chatTabList.find(
       ct => ct.data!.isSystem
-    )!.id!;
-    this.chatPublicInfo.targetId = this.groupChatTabList.find(
+    )!.key;
+    this.chatPublicInfo.targetKey = this.groupChatTabList.find(
       gct => gct.data!.isSystem
-    )!.id!;
+    )!.key;
     this.chatPublicInfo.system = this.clientRoomInfo.system;
     this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
   }
 
   /**
    * ユーザー名を取得する
-   * @param userId
+   * @param userKey
    */
-  public getUserName(userId: string | null) {
-    const user = findById(this.userList, userId);
+  public getUserName(userKey: string | null) {
+    const user = findByKey(this.userList, userKey);
     if (!user) return LanguageManager.instance.getText("label.system");
     const type = LanguageManager.instance.getText(
       `selection.user-type.${user.data!.type}`
@@ -245,12 +245,12 @@ export default class GameObjectManager {
    * @param data
    */
   public async updateRoomData(data: PartialRoomData): Promise<void> {
-    if (!this.roomDataId)
-      throw new ApplicationError("Illegal timing error(roomDataId is null).");
+    if (!this.roomDataKey)
+      throw new ApplicationError("Illegal timing error(roomDataKey is null).");
     const cc = SocketFacade.instance.roomDataCC();
 
     try {
-      await cc.touchModify([this.roomDataId]);
+      await cc.touchModify([this.roomDataKey]);
     } catch (err) {
       // nothing.
       console.error(err);
@@ -259,7 +259,7 @@ export default class GameObjectManager {
 
     // Object.assign()
     if (data.name !== undefined) this.roomData.name = data.name;
-    if (data.sceneId !== undefined) this.roomData.sceneId = data.sceneId;
+    if (data.sceneKey !== undefined) this.roomData.sceneKey = data.sceneKey;
     const settings = data.settings;
     if (settings) {
       const copyParam = <T extends keyof RoomInfoExtend>(param: T) => {
@@ -290,33 +290,38 @@ export default class GameObjectManager {
         copyWindow("counterRemocon");
       }
     }
-    await cc.update([this.roomDataId], [this.roomData]);
+    await cc.update([
+      {
+        key: this.roomDataKey,
+        data: this.roomData
+      }
+    ]);
   }
 
   private __clientRoomInfo: ClientRoomInfo | null = null;
 
   public readonly chatPublicInfo: ChatPublicInfo = {
     isUseAllTab: false,
-    actorId: "",
-    tabId: "",
-    targetId: "",
+    actorKey: "",
+    tabKey: "",
+    targetKey: "",
     system: "",
     bcdiceUrl: ""
   };
 
-  public get selfActors(): StoreUseData<ActorStore>[] {
-    return this.actorList.filter(a => a.owner === this.mySelfUserId);
+  public get selfActors(): StoreObj<ActorStore>[] {
+    return this.actorList.filter(a => a.owner === this.mySelfUserKey);
   }
 
   // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
   public isSceneEditing: boolean = false;
-  public sceneEditingUpdateSceneId: string | null = null;
+  public sceneEditingUpdateSceneKey: string | null = null;
 
   // 部屋の設定情報
-  private roomDataId: string | null = null;
+  private roomDataKey: string | null = null;
   public readonly roomData: RoomData = {
     name: "",
-    sceneId: "",
+    sceneKey: "",
     settings: {
       visitable: true,
       isFitGrid: true,
@@ -341,48 +346,46 @@ export default class GameObjectManager {
 
   // 再生中のBGMの一覧
   public readonly playingBgmList: {
-    targetId: string | null;
+    targetKey: string | null;
     tag: string;
     windowKey: string;
   }[] = [];
 
-  public readonly chatList: StoreUseData<ChatInfo>[] = [];
-  public readonly chatTabList: StoreUseData<ChatTabInfo>[] = [];
-  public readonly groupChatTabList: StoreUseData<GroupChatTabInfo>[] = [];
-  public readonly sceneList: StoreUseData<Scene>[] = [];
-  public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
-  public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
-  public readonly mediaList: StoreUseData<MediaInfo>[] = [];
-  public readonly userList: StoreUseData<UserData>[] = [];
-  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
-  public readonly actorList: StoreUseData<ActorStore>[] = [];
-  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
-  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
-  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
-  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
-  public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
-  public readonly resourceMasterList: StoreUseData<ResourceMasterStore>[] = [];
-  public readonly resourceList: StoreUseData<ResourceStore>[] = [];
-  public readonly initiativeColumnList: StoreUseData<
-    InitiativeColumnStore
-  >[] = [];
-  public readonly propertySelectionList: StoreUseData<
+  public readonly chatList: StoreObj<ChatInfo>[] = [];
+  public readonly chatTabList: StoreObj<ChatTabInfo>[] = [];
+  public readonly groupChatTabList: StoreObj<GroupChatTabInfo>[] = [];
+  public readonly sceneList: StoreObj<Scene>[] = [];
+  public readonly cutInList: StoreObj<CutInDeclareInfo>[] = [];
+  public readonly bgmStandByList: StoreObj<BgmStandByInfo>[] = [];
+  public readonly mediaList: StoreObj<MediaInfo>[] = [];
+  public readonly userList: StoreObj<UserData>[] = [];
+  public readonly socketUserList: StoreObj<SocketUserData>[] = [];
+  public readonly actorList: StoreObj<ActorStore>[] = [];
+  public readonly sceneLayerList: StoreObj<SceneLayer>[] = [];
+  public readonly sceneAndLayerList: StoreObj<SceneAndLayer>[] = [];
+  public readonly sceneAndObjectList: StoreObj<SceneAndObject>[] = [];
+  public readonly sceneObjectList: StoreObj<SceneObject>[] = [];
+  public readonly actorStatusList: StoreObj<ActorStatusStore>[] = [];
+  public readonly resourceMasterList: StoreObj<ResourceMasterStore>[] = [];
+  public readonly resourceList: StoreObj<ResourceStore>[] = [];
+  public readonly initiativeColumnList: StoreObj<InitiativeColumnStore>[] = [];
+  public readonly propertySelectionList: StoreObj<
     PropertySelectionStore
   >[] = [];
-  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
-  public readonly cardMetaList: StoreUseData<CardMeta>[] = [];
-  public readonly cardObjectList: StoreUseData<CardObject>[] = [];
-  public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
-  public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
-  public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
-  public readonly diceTypeList: StoreUseData<DiceType>[] = [];
-  public readonly diceAndPipsList: StoreUseData<DiceAndPips>[] = [];
-  public readonly keepBcdiceDiceRollResultList: StoreUseData<
+  public readonly actorGroupList: StoreObj<ActorGroup>[] = [];
+  public readonly cardMetaList: StoreObj<CardMeta>[] = [];
+  public readonly cardObjectList: StoreObj<CardObject>[] = [];
+  public readonly cardDeckBigList: StoreObj<CardDeckBig>[] = [];
+  public readonly cardDeckSmallList: StoreObj<CardDeckSmall>[] = [];
+  public readonly chatPaletteList: StoreObj<ChatPaletteStore>[] = [];
+  public readonly diceTypeList: StoreObj<DiceType>[] = [];
+  public readonly diceAndPipsList: StoreObj<DiceAndPips>[] = [];
+  public readonly keepBcdiceDiceRollResultList: StoreObj<
     KeepBcdiceDiceRollResult
   >[] = [];
-  public readonly memoList: StoreUseData<MemoStore>[] = [];
-  public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
-  public readonly likeList: StoreUseData<LikeStore>[] = [];
+  public readonly memoList: StoreObj<MemoStore>[] = [];
+  public readonly publicMemoList: StoreObj<PublicMemoStore>[] = [];
+  public readonly likeList: StoreObj<LikeStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -393,18 +396,18 @@ export default class GameObjectManager {
     return this.__clientRoomInfo;
   }
 
-  public getExclusionOwnerId(socketId: string | null): string | null {
+  public getExclusionOwnerKey(socketId: string | null): string | null {
     const socketUserInfo = this.socketUserList.find(
       su => su.data!.socketId === socketId
     );
     if (!socketUserInfo) return null;
-    return socketUserInfo.data!.userId;
+    return socketUserInfo.data!.userKey;
   }
 
   public getExclusionOwnerName(socketId: string): string {
-    const userId = this.getExclusionOwnerId(socketId);
-    if (!userId) return "";
-    const userInfo = findById(this.userList, userId);
+    const userKey = this.getExclusionOwnerKey(socketId);
+    if (!userKey) return "";
+    const userInfo = findByKey(this.userList, userKey);
     return !userInfo
       ? LanguageManager.instance.getText("label.unknown")
       : userInfo.data!.name;
@@ -420,11 +423,12 @@ export default class GameObjectManager {
     }
   }
 
-  public get mySelfUser(): StoreUseData<UserData> | null {
-    return this.userList.find(p => p.id === this.mySelfUserId) || null;
+  public get mySelfUser(): StoreObj<UserData> | null {
+    return findByKey(this.userList, this.mySelfUserKey) || null;
   }
 
   public get isGm(): boolean {
+    if (!SocketFacade.instance.userKey) return false;
     return (
       !!this.mySelfUser &&
       !!this.mySelfUser.data &&
@@ -432,61 +436,57 @@ export default class GameObjectManager {
     );
   }
 
-  public get mySelfUserId(): string {
-    const userId = SocketFacade.instance.userId;
-    if (!userId) throw new ApplicationError(`Illegal timing error.`);
-    return userId;
+  public get mySelfUserKey(): string {
+    const userKey = SocketFacade.instance.userKey;
+    if (!userKey) throw new ApplicationError(`Illegal timing error.`);
+    return userKey;
   }
 
-  public get mySelfActorId(): string {
+  public get mySelfActorKey(): string {
     return this.actorList.find(
-      a => a.data!.type === "user" && a.owner === this.mySelfUserId
-    )!.id!;
+      a => a.data!.type === "user" && a.owner === this.mySelfUserKey
+    )!.key;
   }
 
   public async updateMemoList(
-    dataList: StoreUseData<MemoStore>[],
+    dataList: StoreObj<MemoStore>[],
     ownerType: string,
     owner: string
   ): Promise<void> {
     const memoCC = SocketFacade.instance.memoCC();
-    const deleteIdList = GameObjectManager.instance.memoList
+    const deleteKeyList = GameObjectManager.instance.memoList
       .filter(
         m =>
           m.ownerType === ownerType &&
           m.owner === owner &&
-          !dataList.some(d => d.id === m.id)
+          !dataList.some(d => d.key === m.key)
       )
-      .map(m => m.id!);
+      .map(m => m.key);
     await memoCC.updatePackage(
-      dataList.filter(ot => ot.owner).map(ot => ot.id!),
-      dataList.filter(ot => ot.owner).map(ot => ot.data!),
       dataList
-        .map(
-          (ot, idx: number): Partial<StoreObj<any>> => ({
-            order: ot.owner ? idx : -1,
-            permission: ot.permission
-          })
-        )
+        .map((ot, index) => ({
+          key: ot.key,
+          order: ot.owner ? index : -1,
+          permission: ot.permission,
+          data: ot.data!
+        }))
         .filter(data => data.order !== undefined && data.order > -1)
     );
     if (dataList.filter(ot => !ot.owner).length) {
       await memoCC.addDirect(
-        dataList.filter(ot => !ot.owner).map(ot => ot.data!),
         dataList
-          .map(
-            (ot, idx: number): Partial<StoreObj<any>> => ({
-              ownerType,
-              owner,
-              order: ot.owner ? -1 : idx,
-              permission: ot.permission
-            })
-          )
+          .map((ot, index: number) => ({
+            ownerType,
+            owner,
+            order: ot.owner ? -1 : index,
+            permission: ot.permission,
+            data: ot.data!
+          }))
           .filter(data => data.order !== undefined && data.order > -1)
       );
     }
-    if (deleteIdList.length) {
-      await memoCC.deletePackage(deleteIdList);
+    if (deleteKeyList.length) {
+      await memoCC.deletePackage(deleteKeyList);
     }
   }
 
@@ -494,12 +494,13 @@ export default class GameObjectManager {
     const ownerType = data.ownerType;
     const owner = data.owner;
     if (!ownerType) return null;
-    return GameObjectManager.instance
-      .getList(ownerType!)!
-      .find(o => o.id === owner) as StoreObj<T>;
+    return findRequireByKey(
+      GameObjectManager.instance.getList(ownerType!)!,
+      owner
+    );
   }
 
-  public getList(type: string): StoreUseData<any>[] | null {
+  public getList(type: string): StoreObj<any>[] | null {
     switch (type) {
       case "chat":
         return this.chatList;

@@ -1,14 +1,15 @@
 <template>
   <tr class="tr-actor-status-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <actor-status-select
-        :actorId="actorId"
+        :actorKey="actorKey"
         v-model="localValue"
         :nullable="nullable"
         :readonly="readonly"
+        :elmId="key"
       />
     </td>
   </tr>
@@ -28,7 +29,7 @@ export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
   private labelName!: string;
 
   @Prop({ type: String, default: null })
-  private actorId!: string | null;
+  private actorKey!: string | null;
 
   @Prop({ type: String, default: null })
   private value!: string;

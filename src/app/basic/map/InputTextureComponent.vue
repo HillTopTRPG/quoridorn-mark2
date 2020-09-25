@@ -3,7 +3,7 @@
     <background-type-radio v-model="type" />
     <image-picker-component
       v-if="type === 'image'"
-      v-model="imageId"
+      v-model="imageKey"
       :windowKey="windowKey"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
@@ -76,7 +76,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
 
   private type: "image" | "color" | null = null;
-  private imageId: string = "";
+  private imageKey: string = "";
   private imageTag: string = "";
   private direction: Direction = "none";
   private backgroundSize: BackgroundSize = "contain";
@@ -89,7 +89,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
     this.type = this.localValue.type;
     if (this.localValue.type === "image") {
       this.imageTag = this.localValue.mediaTag;
-      this.imageId = this.localValue.mediaId;
+      this.imageKey = this.localValue.mediaKey;
       this.direction = this.localValue.direction;
       this.backgroundSize = this.localValue.backgroundSize;
     } else {
@@ -119,7 +119,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
       this.localValue = {
         type: "image",
         mediaTag: this.imageTag,
-        mediaId: this.imageId,
+        mediaKey: this.imageKey,
         direction: this.direction,
         backgroundSize: this.backgroundSize
       };
@@ -136,10 +136,10 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
     }
   }
 
-  @Watch("imageId")
-  private onChangeImageId() {
+  @Watch("imageKey")
+  private onChangeImageKey() {
     if (this.localValue.type === "image") {
-      this.localValue.mediaId = this.imageId;
+      this.localValue.mediaKey = this.imageKey;
     }
   }
 

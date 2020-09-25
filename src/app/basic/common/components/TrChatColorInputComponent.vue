@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-chat-color-input-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <div class="wrap">
@@ -12,6 +12,7 @@
           :readonly="readonly"
           v-model="colorVolatile"
           :use-alpha="false"
+          :elmId="key"
         />
       </div>
     </td>

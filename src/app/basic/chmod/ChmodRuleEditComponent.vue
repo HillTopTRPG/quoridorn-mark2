@@ -91,7 +91,7 @@ export default class ChmodRuleEditComponent extends Mixins<ComponentVue>(
       let list: string[] = [];
       if (pr.type === "group") list = this.groupListInput;
       else if (pr.type === "actor") list = this.actorListInput;
-      if (pr.id) list.push(pr.id);
+      if (pr.key) list.push(pr.key);
     });
   }
 
@@ -111,7 +111,7 @@ export default class ChmodRuleEditComponent extends Mixins<ComponentVue>(
   private mergeInputList() {
     listToEmpty(this.permissionRule.list);
     const addList = (list: string[], type: PermissionNodeType) => {
-      this.permissionRule.list.push(...list.map(id => ({ type, id })));
+      this.permissionRule.list.push(...list.map(key => ({ type, key })));
     };
     addList(this.groupListInput, "group");
     addList(this.actorListInput, "actor");

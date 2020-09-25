@@ -1,11 +1,11 @@
 import YoutubeManager, { YoutubeEventHandler } from "./YoutubeManager";
 import { StandByReturnInfo } from "task-info";
-import { StoreUseData } from "../../../../@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
-import { WindowOpenInfo } from "../../../../@types/window";
-import { CutInDeclareInfo, PlayBgmInfo } from "../../../../@types/room";
-import { findById, findRequireById } from "../../../core/utility/Utility";
+import { WindowOpenInfo } from "@/@types/window";
+import { CutInDeclareInfo, PlayBgmInfo } from "@/@types/room";
+import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 
 export default class BgmManager {
   // シングルトン
@@ -15,11 +15,11 @@ export default class BgmManager {
   }
   private static _instance: BgmManager;
   public standByWindowList: {
-    targetId: string;
+    targetKey: string;
     windowKeyList: (string | null)[];
   }[] = [];
 
-  public static async openStandByWindow(targetId: string) {
+  public static async openStandByWindow(targetKey: string) {
     TaskManager.instance
       .ignition<WindowOpenInfo<PlayBgmInfo>, never>({
         type: "window-open",
@@ -27,7 +27,7 @@ export default class BgmManager {
         value: {
           type: "play-youtube-window",
           args: {
-            targetId,
+            targetKey,
             data: null
           }
         }
@@ -35,16 +35,16 @@ export default class BgmManager {
       .then();
   }
 
-  public notifyOpenedStandByWindow(targetId: string, windowKey: string) {
+  public notifyOpenedStandByWindow(targetKey: string, windowKey: string) {
     const windowKeyList = this.standByWindowList.find(
-      s => s.targetId === targetId
+      s => s.targetKey === targetKey
     )!.windowKeyList;
-    const idx = windowKeyList.findIndex(wk => !wk);
-    windowKeyList[idx] = windowKey;
+    const index = windowKeyList.findIndex(wk => !wk);
+    windowKeyList[index] = windowKey;
   }
 
   public async callBgm(playBgmInfo: PlayBgmInfo) {
-    const targetId = playBgmInfo.targetId;
+    const targetKey = playBgmInfo.targetKey;
     const cutInInfo = BgmManager.getCutInInfo(playBgmInfo);
     const tag = cutInInfo.tag;
 
@@ -72,11 +72,11 @@ export default class BgmManager {
     // 再生中の画面を閉じる
     if (!cutInInfo.isForceNew) {
       GameObjectManager.instance.playingBgmList
-        .filter(b => b.targetId === targetId || b.tag === tag)
+        .filter(b => b.targetKey === targetKey || b.tag === tag)
         .forEach(async b => {
-          if (b.targetId === targetId && cutInInfo.isForceContinue) {
+          if (b.targetKey === targetKey && cutInInfo.isForceContinue) {
             matchAndContinue = true;
-          } else if (b.targetId === targetId || b.tag === tag) {
+          } else if (b.targetKey === targetKey || b.tag === tag) {
             TaskManager.instance
               .ignition<string, never>({
                 type: "window-close",
@@ -86,27 +86,27 @@ export default class BgmManager {
               .then();
           }
           console.log(
-            b.targetId === targetId && cutInInfo.isForceContinue,
-            b.targetId === targetId || b.tag === tag
+            b.targetKey === targetKey && cutInInfo.isForceContinue,
+            b.targetKey === targetKey || b.tag === tag
           );
         });
     }
 
     if (matchAndContinue) return;
 
-    if (targetId && cutInInfo.isStandBy) {
+    if (targetKey && cutInInfo.isStandBy) {
       const standByWindowInfo = this.standByWindowList.find(
-        sbw => sbw.targetId === targetId
+        sbw => sbw.targetKey === targetKey
       )!;
       const windowKeyList = standByWindowInfo.windowKeyList;
-      let intervalId: number | null;
+      let intervalKey: number | null;
 
       const func = (): boolean => {
-        const idx = windowKeyList.findIndex(wk => wk);
-        if (idx >= 0) {
-          if (intervalId) clearInterval(intervalId);
-          const windowKey = windowKeyList[idx]!;
-          windowKeyList[idx] = null;
+        const index = windowKeyList.findIndex(wk => wk);
+        if (index >= 0) {
+          if (intervalKey) clearInterval(intervalKey);
+          const windowKey = windowKeyList[index]!;
+          windowKeyList[index] = null;
           TaskManager.instance
             .ignition<StandByReturnInfo, never>({
               type: "stand-by-return",
@@ -115,13 +115,13 @@ export default class BgmManager {
             })
             .then();
           setTimeout(() => {
-            BgmManager.openStandByWindow(targetId).then();
+            BgmManager.openStandByWindow(targetKey).then();
           });
           return true;
         }
         return false;
       };
-      if (!func()) intervalId = window.setInterval(func, 10);
+      if (!func()) intervalKey = window.setInterval(func, 10);
     } else {
       console.log(JSON.stringify(cutInInfo));
       TaskManager.instance
@@ -140,11 +140,11 @@ export default class BgmManager {
   }
 
   public static async playBgm(
-    targetId: string | null,
+    targetKey: string | null,
     cutInInfo: CutInDeclareInfo,
     windowKey: string,
     windowStatus: string,
-    playElmId: string,
+    playElmKey: string,
     playerHandler: YoutubeEventHandler
   ) {
     if (!cutInInfo) return;
@@ -153,48 +153,48 @@ export default class BgmManager {
 
     if (windowStatus === "window") {
       if (BgmManager.isYoutube(cutInInfo)) {
-        YoutubeManager.instance.open(playElmId, cutInInfo, playerHandler);
+        YoutubeManager.instance.open(playElmKey, cutInInfo, playerHandler);
       }
       if (!cutInInfo.isStandBy) {
         GameObjectManager.instance.playingBgmList.push({
-          targetId,
+          targetKey,
           tag: cutInInfo.tag,
           windowKey
         });
       }
     } else {
       if (BgmManager.isYoutube(cutInInfo)) {
-        YoutubeManager.instance.addEventHandler(playElmId, playerHandler);
-        playerHandler.setVolume(YoutubeManager.instance.getVolume(playElmId));
-        playerHandler.setIsMute(YoutubeManager.instance.isMuted(playElmId));
+        YoutubeManager.instance.addEventHandler(playElmKey, playerHandler);
+        playerHandler.setVolume(YoutubeManager.instance.getVolume(playElmKey));
+        playerHandler.setIsMute(YoutubeManager.instance.isMuted(playElmKey));
       }
     }
   }
 
   public static closeBgm(playBgmInfo: PlayBgmInfo) {
-    const targetId = playBgmInfo.targetId;
+    const targetKey = playBgmInfo.targetKey;
     const cutInInfo = BgmManager.getCutInInfo(playBgmInfo);
     const tag = cutInInfo.tag;
     const playingBgmList = GameObjectManager.instance.playingBgmList;
-    const idx = playingBgmList.findIndex(
-      b => b.targetId === targetId && b.tag === tag
+    const index = playingBgmList.findIndex(
+      b => b.targetKey === targetKey && b.tag === tag
     );
-    playingBgmList.splice(idx, 1);
+    playingBgmList.splice(index, 1);
   }
 
   private static getCutInInfo(playBgmInfo: PlayBgmInfo): CutInDeclareInfo {
     if (playBgmInfo.data) return playBgmInfo.data;
     const cutInList = GameObjectManager.instance.cutInList;
-    return findRequireById(cutInList, playBgmInfo.targetId).data!;
+    return findRequireByKey(cutInList, playBgmInfo.targetKey).data!;
   }
 
   private static getInfo(id: string | null) {
-    return findById(GameObjectManager.instance.cutInList, id);
+    return findByKey(GameObjectManager.instance.cutInList, id);
   }
 
   private static getUrl(target: string | CutInDeclareInfo): string | null {
     if (typeof target === "string") {
-      const info: StoreUseData<CutInDeclareInfo> | null = BgmManager.getInfo(
+      const info: StoreObj<CutInDeclareInfo> | null = BgmManager.getInfo(
         target
       );
       if (!info) return null;

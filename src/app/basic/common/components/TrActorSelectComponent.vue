@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-actor-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <actor-select
@@ -9,6 +9,7 @@
         :nullable="nullable"
         :multiple="false"
         :readonly="readonly"
+        :elmId="key"
       />
     </td>
   </tr>
@@ -17,11 +18,10 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "./select/ActorStatusSelect.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
 import ActorSelect from "./select/ActorSelect.vue";
 
-@Component({ components: { ActorSelect, ActorStatusSelect } })
+@Component({ components: { ActorSelect } })
 export default class TrActorSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

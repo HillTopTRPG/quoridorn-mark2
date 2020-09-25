@@ -6,13 +6,13 @@
       initTabTarget="basic"
       :name.sync="name"
       :otherTextList.sync="otherTextList"
-      :imageDocId.sync="imageDocId"
+      :imageDocKey.sync="imageDocKey"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
     />
 
     <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="!imageDocId">
+      <ctrl-button @click="commit()" :disabled="!imageDocKey">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
@@ -26,7 +26,7 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Direction } from "@/@types/room";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { MemoStore } from "@/@types/gameObject";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import PublicMemoInfoForm from "@/app/basic/public-memo/PublicMemoInfoForm.vue";
@@ -44,13 +44,13 @@ export default class PublicMemoAddWindow extends Mixins<
   WindowVue<string, boolean>
 >(WindowVue) {
   private name: string = LanguageManager.instance.getText("type.public-memo");
-  private otherTextList: StoreUseData<MemoStore>[] = [
+  private otherTextList: StoreObj<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""
     })
   ];
-  private imageDocId: string | null = null;
+  private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
@@ -64,30 +64,32 @@ export default class PublicMemoAddWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const publicMemoId: string = (
+    const publicMemoKey: string = (
       await SocketFacade.instance.publicMemoListCC().addDirect([
         {
-          name: this.name,
-          mediaId: this.imageDocId!,
-          mediaTag: this.imageTag!,
-          direction: this.direction
+          data: {
+            name: this.name,
+            mediaKey: this.imageDocKey!,
+            mediaTag: this.imageTag!,
+            direction: this.direction
+          }
         }
       ])
     )[0];
 
     await SocketFacade.instance.memoCC().addDirect(
-      this.otherTextList.map(ot => ot.data!),
-      this.otherTextList.map(() => ({
+      this.otherTextList.map(data => ({
         ownerType: "public-memo",
-        owner: publicMemoId
+        owner: publicMemoKey,
+        data: data.data!
       }))
     );
     await this.finally(true);
   }
 
-  @Watch("imageDocId", { immediate: true })
-  private onChangeImageDocId() {
-    this.windowInfo.message = this.imageDocId
+  @Watch("imageDocKey", { immediate: true })
+  private onChangeImageDocKey() {
+    this.windowInfo.message = this.imageDocKey
       ? ""
       : this.$t(`${this.windowInfo.type}.message-list.select-icon`).toString();
   }

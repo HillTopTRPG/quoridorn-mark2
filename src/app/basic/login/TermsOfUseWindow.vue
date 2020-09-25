@@ -26,7 +26,7 @@ import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { loadText } from "../../core/utility/FileUtility";
 import WindowVue from "../../core/window/WindowVue";
-import { Message } from "../../../@types/socket";
+import { Message } from "@/@types/socket";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import VueEvent from "../../core/decorator/VueEvent";
 
@@ -84,8 +84,7 @@ fieldset {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  margin: 0;
-  margin-top: 0.5rem;
+  margin: 0.5rem 0 0;
   padding: 0.5rem;
   background-color: white;
 

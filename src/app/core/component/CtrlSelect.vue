@@ -11,7 +11,7 @@
       :class="{ pending: isPending }"
       :value="selectionValue"
       @input="localValue = getSelectionValue()"
-      :id="id || undefined"
+      :id="elmId || undefined"
       ref="component"
       :disabled="disabled || readonly"
       :style="{
@@ -43,7 +43,7 @@
       class="input"
       :class="{ pending: isPending }"
       @input="localValue = getSelectionValue()"
-      :id="id || undefined"
+      :id="elmId || undefined"
       ref="component"
       :disabled="disabled || readonly"
       :style="{

@@ -43,10 +43,10 @@ import SocketFacade, {
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
-import { CutInDeclareInfo } from "../../../../@types/room";
+import { CutInDeclareInfo } from "@/@types/room";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import BgmManager from "./BgmManager";
-import { DataReference } from "../../../../@types/data";
+import { DataReference } from "@/@types/data";
 import BgmInfoForm from "./BgmInfoForm.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 
@@ -59,7 +59,7 @@ import VueEvent from "../../../core/decorator/VueEvent";
 export default class BgmEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
   private cc: NekostoreCollectionController<
@@ -84,8 +84,8 @@ export default class BgmEditWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     const info = data.data!;
     this.url = info.url;
@@ -121,7 +121,7 @@ export default class BgmEditWindow extends Mixins<
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -153,18 +153,23 @@ export default class BgmEditWindow extends Mixins<
   @VueEvent
   private async preview() {
     await BgmManager.instance.callBgm({
-      targetId: null,
+      targetKey: null,
       data: this.cutInData
     });
   }
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!.data!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!.data!;
 
     Object.assign(data, this.cutInData);
 
-    await this.cc!.update([this.docId], [data]);
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data
+      }
+    ]);
     this.isProcessed = true;
     await this.close();
   }
@@ -183,7 +188,7 @@ export default class BgmEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

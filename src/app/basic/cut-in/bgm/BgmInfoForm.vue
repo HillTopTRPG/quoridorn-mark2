@@ -176,7 +176,6 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import ChatLinkageTypeSelect from "../../common/components/select/ChatLinkageTypeSelect.vue";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
 import BaseInput from "../../../core/component/BaseInput.vue";
 import TrRangeInputComponent from "../../common/components/TrRangeInputComponent.vue";
 import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
@@ -392,7 +391,7 @@ export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   private get tags(): string[] {
     return this.cutInList
       .map(c => c.data!.tag)
-      .filter((t, idx: number, list: string[]) => list.indexOf(t) === idx);
+      .filter((t, index: number, list: string[]) => list.indexOf(t) === index);
   }
 
   @LifeCycle

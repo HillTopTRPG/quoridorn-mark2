@@ -125,7 +125,7 @@ declare module "mode" {
     type: "view-card-deck";
     value: {
       flag: "on" | "off";
-      cardDeckId: string;
+      cardDeckKey: string;
     };
   };
 
@@ -158,11 +158,11 @@ declare module "task-info" {
   };
 
   type BgmPlayInfo = {
-    id: string;
+    key: string;
   };
 
   type BgmStandByInfo = {
-    id: string;
+    key: string;
   };
 
   type StandByReturnInfo = {
@@ -189,9 +189,9 @@ declare module "task-info" {
   };
 
   type UpdateResourceInfo = {
-    resourceMasterId: string;
+    resourceMasterKey: string;
     ownerType: "actor" | "scene-object";
-    ownerId: string;
+    ownerKey: string;
     operationType: "set" | "add";
     value: string;
   };
@@ -256,7 +256,7 @@ declare module "context" {
   interface ContextTaskInfo extends Point {
     type: string;
     target: string | null;
-    pieceId?: string;
+    pieceKey?: string;
   }
 
   // 項目(表示条件ありなし)

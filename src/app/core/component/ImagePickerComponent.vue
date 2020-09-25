@@ -17,9 +17,9 @@
       <div
         class="image"
         v-for="image in useImageList"
-        :key="image.id"
-        :class="{ active: value === image.id }"
-        @click="localValue = image.id"
+        :key="image.key"
+        :class="{ active: value === image.key }"
+        @click="localValue = image.key"
       >
         <span v-if="viewName">{{ image.data.name }}</span>
         <img :src="image.data.url" alt="" draggable="false" />
@@ -39,7 +39,7 @@
         <td>
           <div class="flex-space-between">
             <image-tag-select
-              :id="`${windowKey}-image-pick-tag`"
+              :elmId="`${windowKey}-image-pick-tag`"
               class="tagSelect"
               v-model="selectImageTag"
               ref="input"
@@ -59,7 +59,7 @@
         <td>
           <div class="flex-space-between">
             <direction-type-select
-              :id="`${windowKey}-image-pick-direction`"
+              :elmId="`${windowKey}-image-pick-direction`"
               v-model="direction"
             />
           </div>
@@ -73,7 +73,7 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import ComponentVue from "../window/ComponentVue";
 import { Direction, MediaInfo } from "@/@types/room";
 import CtrlButton from "./CtrlButton.vue";
@@ -116,8 +116,8 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
   private selectImageTag: string | null = null;
 
-  private rawImageList: StoreUseData<MediaInfo>[] = [];
-  private useImageList: StoreUseData<MediaInfo>[] = [];
+  private rawImageList: StoreObj<MediaInfo>[] = [];
+  private useImageList: StoreObj<MediaInfo>[] = [];
   private searchText: string = "";
 
   @Watch("isMounted")
@@ -137,7 +137,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @VueEvent
   private get selectedTagIndexText() {
     const index = this.useImageList.findIndex(
-      image => image.id === this.localValue
+      image => image.key === this.localValue
     );
     return `${index + 1}/${this.useImageList.length}`;
   }

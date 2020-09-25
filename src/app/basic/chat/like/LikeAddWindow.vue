@@ -6,7 +6,7 @@
       initTabTarget="basic"
       :char.sync="char"
       :isThrowLinkage.sync="isThrowLinkage"
-      :linkageResourceId.sync="linkageResourceId"
+      :linkageResourceKey.sync="linkageResourceKey"
     />
 
     <div class="button-area">
@@ -44,7 +44,7 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
 
   private char: string = "";
   private isThrowLinkage: boolean = true;
-  private linkageResourceId: string | null = null;
+  private linkageResourceKey: string | null = null;
 
   @LifeCycle
   public async mounted() {
@@ -72,16 +72,17 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
   @VueEvent
   private async commit() {
     if (this.isDuplicate) return;
-    await this.cc!.addDirect(
-      [
-        {
+    await this.cc!.addDirect([
+      {
+        ownerType: null,
+        owner: null,
+        data: {
           char: this.char,
           isThrowLinkage: this.isThrowLinkage,
-          linkageResourceId: this.linkageResourceId
+          linkageResourceKey: this.linkageResourceKey
         }
-      ],
-      [{ ownerType: null, owner: null }]
-    );
+      }
+    ]);
     this.isProcessed = true;
     await this.finally(true);
   }

@@ -52,7 +52,7 @@ import SocketFacade, {
 import BaseInput from "../../core/component/BaseInput.vue";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import ChatPaletteListComponent from "./ChatPaletteListComponent.vue";
 import WindowVue from "../../core/window/WindowVue";
@@ -63,7 +63,7 @@ import { sendChatLog } from "../../core/utility/ChatUtility";
 import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
-import { findRequireById } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 import App from "@/views/App.vue";
 
 const uuid = require("uuid");
@@ -81,7 +81,6 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   WindowVue
 ) {
   // リスト/CC
-  private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
   private chatPaletteList = GameObjectManager.instance.chatPaletteList;
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
   private userList = GameObjectManager.instance.userList;
@@ -98,11 +97,11 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   // DB項目
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
-  private actorId: string | null = null;
-  private sceneObjectId: string | null = null;
-  private targetId: string | null = null;
-  private outputTabId: string | null = null;
-  private statusId: string | null = null;
+  private actorKey: string | null = null;
+  private sceneObjectKey: string | null = null;
+  private targetKey: string | null = null;
+  private outputTabKey: string | null = null;
+  private statusKey: string | null = null;
   private system: string | null = null;
   private isSecret: boolean = false;
 
@@ -113,19 +112,19 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
     this.chatFontColorType = chatPaletteData.chatFontColorType;
     this.chatFontColor = chatPaletteData.chatFontColor;
-    this.actorId = chatPaletteData.actorId;
-    this.sceneObjectId = chatPaletteData.sceneObjectId;
-    this.targetId = chatPaletteData.targetId;
-    this.outputTabId = chatPaletteData.outputTabId;
-    this.statusId = chatPaletteData.statusId;
+    this.actorKey = chatPaletteData.actorKey;
+    this.sceneObjectKey = chatPaletteData.sceneObjectKey;
+    this.targetKey = chatPaletteData.targetKey;
+    this.outputTabKey = chatPaletteData.outputTabKey;
+    this.statusKey = chatPaletteData.statusKey;
     this.system = chatPaletteData.system;
     this.isSecret = chatPaletteData.isSecret;
 
-    const userId = this.chatPaletteObj.owner;
-    if (userId === GameObjectManager.instance.mySelfUserId) {
+    const userKey = this.chatPaletteObj.owner;
+    if (userKey === GameObjectManager.instance.mySelfUserKey) {
       this.windowInfo.message = "";
     } else {
-      const user = findRequireById(this.userList, userId);
+      const user = findRequireByKey(this.userList, userKey);
       const ownerLabel = this.$t("label.owner");
       this.windowInfo.message = `${ownerLabel}：${user.data!.name}`;
     }
@@ -143,7 +142,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
       .filter(cp => permissionCheck(cp, "view"))
       .map(cp => ({
         key: uuid.v4(),
-        target: cp.id!,
+        target: cp.key,
         text: cp.data!.name
       }));
     const matchCurrent = this.currentTargetTabInfo
@@ -157,10 +156,10 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   }
 
   @VueEvent
-  private get chatPaletteObj(): StoreUseData<ChatPaletteStore> | undefined {
+  private get chatPaletteObj(): StoreObj<ChatPaletteStore> | undefined {
     return this.currentTargetTabInfo
       ? this.chatPaletteList.find(
-          cp => cp.id === this.currentTargetTabInfo!.target
+          cp => cp.key === this.currentTargetTabInfo!.target
         )
       : undefined;
   }
@@ -189,53 +188,55 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
         const splitted = p1.split(".");
         const label = splitted.length === 1 ? splitted[0] : splitted[1];
         const sceneObjectName = splitted.length === 1 ? null : splitted[0];
-        const actorId: string =
-          this.actorId || GameObjectManager.instance.chatPublicInfo.actorId;
-        const actor = findRequireById(this.actorList, actorId);
+        const actorKey: string =
+          this.actorKey || GameObjectManager.instance.chatPublicInfo.actorKey;
+        const actor = findRequireByKey(this.actorList, actorKey);
         const sceneObject = this.sceneObjectList.find(
           so =>
-            so.data!.actorId === actorId && so.data!.name === sceneObjectName
+            so.data!.actorKey === actorKey && so.data!.name === sceneObjectName
         );
-        const sceneObjectId = sceneObject ? sceneObject.id : this.sceneObjectId;
+        const sceneObjectKey = sceneObject
+          ? sceneObject.key
+          : this.sceneObjectKey;
 
         // リソース名で検索
         const resourceMaster = this.resourceMasterList.find(
           rm => rm.data!.label === label
         );
         if (resourceMaster) {
-          const filteredList: StoreUseData<
+          const filteredList: StoreObj<
             ResourceStore
           >[] = this.resourceList.filter(
-            r => r.data!.masterId === resourceMaster.id
+            r => r.data!.masterKey === resourceMaster.key
           );
 
-          if (sceneObjectId) {
+          if (sceneObjectKey) {
             // コマまで指定されている場合はコマのリソースを優先して検索する
             let resource = filteredList.find(f => {
               if (f.ownerType === "actor") return false;
-              return f.owner === sceneObjectId;
+              return f.owner === sceneObjectKey;
             });
             if (resource) return resource.data!.value;
 
             // コマで見つからない場合はアクターで検索
             resource = filteredList.find(f => {
               if (f.ownerType !== "actor") return false;
-              return f.owner === actorId;
+              return f.owner === actorKey;
             });
             if (resource) return resource.data!.value;
           } else {
             // コマが指定されていない場合はアクターのリソースを優先して検索する
             let resource = filteredList.find(f => {
               if (f.ownerType !== "actor") return false;
-              return f.owner === actorId;
+              return f.owner === actorKey;
             });
             if (resource) return resource.data!.value;
 
             // アクターのリソースが見つからない場合はコマのリソースを検索する
             resource = filteredList.find(f => {
               if (f.ownerType === "actor") return false;
-              return actor.data!.pieceIdList.some(
-                pieceId => pieceId === f.owner
+              return actor.data!.pieceKeyList.some(
+                pieceKey => pieceKey === f.owner
               );
             });
             if (resource) return resource.data!.value;
@@ -260,7 +261,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
         type: "chat-palette-edit-window",
         args: {
           type: "chat-palette",
-          docId: this.currentTargetTabInfo!.target!.toString()
+          key: this.currentTargetTabInfo!.target!.toString()
         }
       }
     });
@@ -270,12 +271,12 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   private async sendLine() {
     await sendChatLog(
       {
-        actorId:
-          this.actorId || GameObjectManager.instance.chatPublicInfo.actorId,
+        actorKey:
+          this.actorKey || GameObjectManager.instance.chatPublicInfo.actorKey,
         text: this.sendText.replace(/\\n/g, "\n"),
-        tabId: this.outputTabId,
-        statusId: this.statusId, // Actorに設定されているものを使う
-        targetId: this.targetId,
+        tabKey: this.outputTabKey,
+        statusKey: this.statusKey, // Actorに設定されているものを使う
+        targetKey: this.targetKey,
         system: this.system,
         isSecret: this.isSecret
       },

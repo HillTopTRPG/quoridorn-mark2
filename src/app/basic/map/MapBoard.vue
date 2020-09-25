@@ -14,8 +14,8 @@
 
     <scene-layer-component
       v-for="layer in useLayerList"
-      :key="layer.id"
-      :sceneId="sceneId"
+      :key="layer.key"
+      :sceneKey="sceneKey"
       :layer="layer"
     />
   </div>
@@ -32,7 +32,7 @@ import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
 import SceneLayerComponent from "./SceneLayerComponent.vue";
 import GameObjectManager from "../GameObjectManager";
 import { RoomData, Scene } from "@/@types/room";
-import { findRequireById } from "../../core/utility/Utility";
+import { findRequireByKey } from "../../core/utility/Utility";
 import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
@@ -42,7 +42,7 @@ export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
   private isMapDraggingRight: boolean = false;
 
   @Prop({ type: String, required: true })
-  private sceneId!: string;
+  private sceneKey!: string;
 
   @Prop({ type: Object, default: null })
   private scene!: Scene | null;
@@ -57,10 +57,10 @@ export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
   private get useLayerList() {
     return this.sceneAndLayerList
       .filter(
-        mal => mal.data && mal.data.sceneId === this.sceneId && mal.data.isUse
+        mal => mal.data && mal.data.sceneKey === this.sceneKey && mal.data.isUse
       )
-      .map(mal => mal.data!.layerId)
-      .map(layerId => findRequireById(this.sceneLayerList, layerId))
+      .map(mal => mal.data!.layerKey)
+      .map(layerKey => findRequireByKey(this.sceneLayerList, layerKey))
       .filter(ml => ml);
   }
 

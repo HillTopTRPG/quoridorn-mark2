@@ -29,7 +29,7 @@ import LifeCycle from "../../core/decorator/LifeCycle";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { DeleteRoomInput } from "../../../@types/socket";
+import { DeleteRoomInput } from "@/@types/socket";
 import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({

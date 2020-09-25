@@ -2,7 +2,7 @@
   <div
     class="public-memo-icon"
     :class="classList"
-    :id="publicMemo.id"
+    :id="publicMemo.key"
     @mouseover="mouseover"
     @mouseout="mouseout"
     @mousedown.right.stop="rightDown"
@@ -17,10 +17,10 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { OtherTextViewInfo, PublicMemoStore } from "@/@types/gameObject";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { findRequireById } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import {
   createRectangle,
@@ -36,7 +36,7 @@ const uuid = require("uuid");
 @Component({})
 export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
-  private publicMemo!: StoreUseData<PublicMemoStore>;
+  private publicMemo!: StoreObj<PublicMemoStore>;
 
   @Prop({ type: Number, required: true })
   private index!: number;
@@ -47,7 +47,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   private memoList = GameObjectManager.instance.memoList;
   private isMounted: boolean = false;
   private isHover: boolean = false;
-  private pieceId = uuid.v4();
+  private pieceKey = uuid.v4();
 
   @LifeCycle
   private mounted() {
@@ -58,9 +58,9 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("publicMemo")
   private onChangePublicMemo() {
     const elm: HTMLDivElement = this.$el as HTMLDivElement;
-    const media = findRequireById(
+    const media = findRequireByKey(
       this.mediaList,
-      this.publicMemo.data!.mediaId
+      this.publicMemo.data!.mediaKey
     );
     elm.style.setProperty(`--image`, `url('${media.data!.url}')`);
 
@@ -81,7 +81,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   protected async mouseover(): Promise<void> {
     this.isHover = true;
     const elm: HTMLDivElement = this.$el as HTMLDivElement;
-    const docId = this.publicMemo.id!;
+    const key = this.publicMemo.key;
     const rect = elm.getBoundingClientRect();
     await TaskManager.instance.ignition<OtherTextViewInfo, never>({
       type: "other-text-view",
@@ -89,8 +89,8 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
       value: {
         type: "public-memo",
         title: this.publicMemo.data!.name,
-        docId,
-        dataList: this.memoList.filter(m => m.owner === docId),
+        key,
+        dataList: this.memoList.filter(m => m.owner === key),
         rect: createRectangle(rect.x, rect.y, rect.width, rect.height),
         isFix: true
       }
@@ -100,11 +100,11 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   @VueEvent
   protected async mouseout(): Promise<void> {
     this.isHover = false;
-    const docId = this.publicMemo.id!;
+    const key = this.publicMemo.key;
     await TaskManager.instance.ignition<string, never>({
       type: "other-text-hide",
       owner: "Quoridorn",
-      value: docId
+      value: key
     });
   }
 
@@ -116,8 +116,8 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
       owner: "Quoridorn",
       value: {
         type: "public-memo",
-        target: this.publicMemo.id!,
-        pieceId: this.pieceId,
+        target: this.publicMemo.key,
+        pieceKey: this.pieceKey,
         x: point.x,
         y: point.y
       }
@@ -129,27 +129,25 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    const publicMemoId = (
-      await this.publicMemoListCC.addDirect(
-        [this.publicMemo.data!],
-        [
-          {
-            ownerType: this.publicMemo.ownerType,
-            owner: this.publicMemo.owner,
-            permission: this.publicMemo.permission
-          }
-        ]
-      )
+    const publicMemoKey = (
+      await this.publicMemoListCC.addDirect([
+        {
+          ownerType: this.publicMemo.ownerType,
+          owner: this.publicMemo.owner,
+          permission: this.publicMemo.permission,
+          data: this.publicMemo.data!
+        }
+      ])
     )[0];
     const targetMemoList = this.memoList.filter(
-      m => m.owner === this.publicMemo.id
+      m => m.owner === this.publicMemo.key
     );
     await this.memoListCC.addDirect(
-      targetMemoList.map(m => m.data!),
       targetMemoList.map(m => ({
         ownerType: m.ownerType,
-        owner: publicMemoId,
-        permission: m.permission
+        owner: publicMemoKey,
+        permission: m.permission,
+        data: m.data!
       }))
     );
   }
@@ -159,15 +157,15 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    await this.publicMemoListCC.deletePackage([this.publicMemo.id!]);
+    await this.publicMemoListCC.deletePackage([this.publicMemo.key]);
   }
 
   private isNotThisTask(task: Task<any, never>): boolean {
     const args = task.value.args;
     return (
       args.type !== "public-memo" ||
-      args.docId !== this.publicMemo.id ||
-      args.pieceId !== this.pieceId
+      args.docKey !== this.publicMemo.key ||
+      args.pieceKey !== this.pieceKey
     );
   }
 }

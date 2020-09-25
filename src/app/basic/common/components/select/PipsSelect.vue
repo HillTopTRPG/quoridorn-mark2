@@ -1,5 +1,6 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :multiple="multiple"
@@ -22,9 +23,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class PipsSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
@@ -32,7 +31,7 @@ export default class PipsSelect extends Mixins<MultiMixin>(
   private diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
 
   @Prop({ type: String, required: true })
-  private diceTypeId!: string;
+  private diceTypeKey!: string;
 
   private optionInfoList: HtmlOptionInfo[] = [];
 
@@ -41,8 +40,8 @@ export default class PipsSelect extends Mixins<MultiMixin>(
     this.createOptionInfoList();
   }
 
-  @Watch("diceTypeId")
-  private onChangeDiceTypeId() {
+  @Watch("diceTypeKey")
+  private onChangeDiceTypeKey() {
     this.createOptionInfoList();
   }
 
@@ -56,7 +55,7 @@ export default class PipsSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     const pipsList = this.diceAndPipsList
-      .filter(dap => dap.data!.diceTypeId === this.diceTypeId)!
+      .filter(dap => dap.data!.diceTypeKey === this.diceTypeKey)!
       .map(dap => dap.data!.pips);
     const optionInfoList: HtmlOptionInfo[] = pipsList.map(p => ({
       key: p,

@@ -165,7 +165,7 @@
         <tr>
           <th class="radio"></th>
           <th class="room-no">room-no</th>
-          <th class="user-id">user-id</th>
+          <th class="user-key">user-key</th>
           <th class="name">name</th>
           <th class="type">type</th>
           <template v-if="userInfoListAuthType === 'admin'">
@@ -184,22 +184,22 @@
       <tbody>
         <tr
           v-for="u in userInfoList"
-          :key="u.userId"
-          @click="onClickUserRow(u.userId)"
-          :class="{ selected: selectedUserId === u.userId }"
+          :key="u.userKey"
+          @click="onClickUserRow(u.userKey)"
+          :class="{ selected: selectedUserKey === u.userKey }"
         >
           <td class="radio">
             <label>
               <input
                 type="radio"
                 name="user"
-                :value="u.userId"
-                v-model="selectedUserId"
+                :value="u.userKey"
+                v-model="selectedUserKey"
               />
             </label>
           </td>
           <td class="room-no">{{ u.roomNo }}</td>
-          <td class="user-id">{{ u.userId }}</td>
+          <td class="user-key">{{ u.userKey }}</td>
           <td class="name">{{ u.name }}</td>
           <td class="type">{{ u.type }}</td>
           <template v-if="userInfoListAuthType === 'admin'">
@@ -208,7 +208,7 @@
             <td class="update-time">{{ u.updateTime | moment() }}</td>
           </template>
           <td class="get-token">
-            <ctrl-button @click="onClickGetUserToken(u.userId)"
+            <ctrl-button @click="onClickGetUserToken(u.userKey)"
               >Get</ctrl-button
             >
           </td>
@@ -216,14 +216,14 @@
             <label>
               <input
                 type="password"
-                :value="userAdditionalInfoMap[u.userId].password"
-                @input="event => updateUserPassword(u.userId, event)"
+                :value="userAdditionalInfoMap[u.userKey].password"
+                @input="event => updateUserPassword(u.userKey, event)"
               />
             </label>
           </td>
-          <td class="token">{{ userAdditionalInfoMap[u.userId].token }}</td>
+          <td class="token">{{ userAdditionalInfoMap[u.userKey].token }}</td>
           <td class="token-expires">
-            {{ userAdditionalInfoMap[u.userId].expires | moment() }}
+            {{ userAdditionalInfoMap[u.userKey].expires | moment() }}
           </td>
         </tr>
       </tbody>
@@ -266,7 +266,7 @@ type RoomInfo = {
 
 type UserInfo = {
   roomNo: number;
-  userId: string;
+  userKey: string;
   name: string;
   login: number;
   type: string;
@@ -304,7 +304,7 @@ export default class AdminTool extends Vue {
   private userInfoListAuthType: "standard" | "admin" = "standard";
   private userInfoList: UserInfo[] = [];
   private userInfoListGetTime: Date | null = null;
-  private selectedUserId: string = "";
+  private selectedUserKey: string = "";
 
   private roomAdditionalInfoMap: {
     [roomNo: number]: {
@@ -315,7 +315,7 @@ export default class AdminTool extends Vue {
   } = {};
 
   private userAdditionalInfoMap: {
-    [userId: string]: {
+    [userKey: string]: {
       token: string;
       password: string;
       expires: Date | null;
@@ -331,11 +331,11 @@ export default class AdminTool extends Vue {
   }
 
   @VueEvent
-  private updateUserPassword(userId: string, passwordInputEvent: InputEvent) {
+  private updateUserPassword(userKey: string, passwordInputEvent: InputEvent) {
     if (!(passwordInputEvent.target instanceof HTMLInputElement)) return;
-    const userAdditionalInfo = this.userAdditionalInfoMap[userId];
+    const userAdditionalInfo = this.userAdditionalInfoMap[userKey];
     userAdditionalInfo.password = passwordInputEvent.target.value;
-    this.$set(this.userAdditionalInfoMap, userId, userAdditionalInfo);
+    this.$set(this.userAdditionalInfoMap, userKey, userAdditionalInfo);
   }
 
   @VueEvent
@@ -400,7 +400,7 @@ export default class AdminTool extends Vue {
 
   @VueEvent
   private async onClickGetUserToken(
-    userId: string
+    userKey: string
   ): Promise<
     | {
         token: string;
@@ -409,7 +409,7 @@ export default class AdminTool extends Vue {
       }
     | undefined
   > {
-    const userPassword = this.userAdditionalInfoMap[this.selectedUserId]
+    const userPassword = this.userAdditionalInfoMap[this.selectedUserKey]
       .password;
     const userTokenInfo = await this.getUserTokenApi().catch(async err => {
       console.log(err);
@@ -425,14 +425,14 @@ export default class AdminTool extends Vue {
 
     console.log(userTokenInfo);
     if (userTokenInfo) {
-      this.$set(this.userAdditionalInfoMap, userId, {
+      this.$set(this.userAdditionalInfoMap, userKey, {
         password: userPassword,
         token: userTokenInfo.token,
         expires: userTokenInfo.expires
       });
-      return this.userAdditionalInfoMap[userId];
+      return this.userAdditionalInfoMap[userKey];
     } else {
-      this.$set(this.userAdditionalInfoMap, userId, {
+      this.$set(this.userAdditionalInfoMap, userKey, {
         password: "",
         token: "",
         expires: null
@@ -466,11 +466,11 @@ export default class AdminTool extends Vue {
     token: string;
     expires: Date;
   }> {
-    const userId = this.selectedUserId;
-    const roomNo = this.userInfoList.find(u => u.userId === userId)!.roomNo;
+    const userKey = this.selectedUserKey;
+    const roomNo = this.userInfoList.find(u => u.userKey === userKey)!.roomNo;
     const roomToken = this.roomAdditionalInfoMap[roomNo].token;
-    const userPassword = this.userAdditionalInfoMap[userId].password;
-    const url = `${this.apiUrlBase}v1/rooms/${roomNo}/users/${userId}/token`;
+    const userPassword = this.userAdditionalInfoMap[userKey].password;
+    const url = `${this.apiUrlBase}v1/rooms/${roomNo}/users/${userKey}/token`;
 
     const header =
       this.userInfoListAuthType === "standard"
@@ -533,13 +533,13 @@ export default class AdminTool extends Vue {
     });
     if (!result) {
       this.userInfoList = [];
-      this.selectedUserId = "";
+      this.selectedUserKey = "";
       return;
     }
     const userInfoList = result.users;
     userInfoList.forEach(u => {
-      if (this.userAdditionalInfoMap[u.userId] === undefined) {
-        this.$set(this.userAdditionalInfoMap, u.userId, {
+      if (this.userAdditionalInfoMap[u.userKey] === undefined) {
+        this.$set(this.userAdditionalInfoMap, u.userKey, {
           password: "",
           token: "",
           expires: null
@@ -547,7 +547,7 @@ export default class AdminTool extends Vue {
       }
     });
     if (userInfoList.length) {
-      this.selectedUserId = userInfoList[0].userId;
+      this.selectedUserKey = userInfoList[0].userKey;
     }
     this.userInfoList = userInfoList;
   }
@@ -558,8 +558,8 @@ export default class AdminTool extends Vue {
   }
 
   @VueEvent
-  private onClickUserRow(userId: string) {
-    this.selectedUserId = userId;
+  private onClickUserRow(userKey: string) {
+    this.selectedUserKey = userKey;
   }
 
   private async getInfoApi() {
@@ -852,7 +852,7 @@ body {
       .room-no {
         max-width: 3em;
       }
-      .user-id {
+      .user-key {
         max-width: 10em;
       }
       .login-num {

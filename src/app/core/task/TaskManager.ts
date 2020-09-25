@@ -16,7 +16,7 @@ const taskDeclareJsonList: TaskDeclareJson[] = require("./task.yaml");
 export type MouseMoveParam = {
   key: string;
   type: string | null;
-  pieceId?: string;
+  pieceKey?: string;
 };
 
 export default class TaskManager {

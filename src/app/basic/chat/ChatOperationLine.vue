@@ -3,14 +3,14 @@
     <!-- アクター選択 -->
     <label>
       <span>{{ $t("label.name") }}</span>
-      <self-actor-select v-model="actorIdVolatile" />
+      <self-actor-select v-model="actorKeyVolatile" />
     </label>
 
     <!-- ステータス選択 -->
     <label>
       <actor-status-select
-        :actorId="actorIdVolatile"
-        v-model="statusIdVolatile"
+        :actorKey="actorKeyVolatile"
+        v-model="statusKeyVolatile"
       />
     </label>
 
@@ -84,30 +84,30 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
   @Prop({ type: Object, required: true })
   private windowInfo!: WindowInfo<any>;
 
-  // actorId
+  // actorKey
   @Prop({ type: String, required: true })
-  private actorId!: string;
-  private actorIdVolatile: string = "";
-  @Watch("actorId", { immediate: true })
-  private onChangeActorId(value: string) {
-    this.actorIdVolatile = value;
+  private actorKey!: string;
+  private actorKeyVolatile: string = "";
+  @Watch("actorKey", { immediate: true })
+  private onChangeActorKey(value: string) {
+    this.actorKeyVolatile = value;
   }
-  @Watch("actorIdVolatile")
-  private onChangeActorIdVolatile(value: string) {
-    this.$emit("update:actorId", value);
+  @Watch("actorKeyVolatile")
+  private onChangeActorKeyVolatile(value: string) {
+    this.$emit("update:actorKey", value);
   }
 
-  // statusId
+  // statusKey
   @Prop({ type: String, required: true })
-  private statusId!: string;
-  private statusIdVolatile: string = "";
-  @Watch("statusId", { immediate: true })
-  private onChangeStatusId(value: string) {
-    this.statusIdVolatile = value;
+  private statusKey!: string;
+  private statusKeyVolatile: string = "";
+  @Watch("statusKey", { immediate: true })
+  private onChangeStatusKey(value: string) {
+    this.statusKeyVolatile = value;
   }
-  @Watch("statusIdVolatile")
-  private onChangeStatusIdVolatile(value: string) {
-    this.$emit("update:statusId", value);
+  @Watch("statusKeyVolatile")
+  private onChangeStatusKeyVolatile(value: string) {
+    this.$emit("update:statusKey", value);
   }
 
   // system

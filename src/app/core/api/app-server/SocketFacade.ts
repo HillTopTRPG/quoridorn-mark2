@@ -1,14 +1,8 @@
 import * as Socket from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import yaml from "js-yaml";
-import {
-  PermissionNode,
-  PermissionRule,
-  StoreObj,
-  StoreUseData
-} from "@/@types/store";
+import { PermissionNode, PermissionRule, StoreObj } from "@/@types/store";
 import { compareVersion, getFileRow, TargetVersion } from "../Github";
 import {
   ActorStatusStore,
@@ -71,21 +65,6 @@ export type Interoperability = {
   client: string;
 };
 
-export function getStoreObj<T>(
-  doc: DocumentSnapshot<StoreObj<T>>
-): StoreUseData<T> | null {
-  if (doc.exists()) {
-    const data: StoreObj<T> = doc.data;
-    if (!data) return null;
-    return {
-      ...data,
-      id: doc.ref.id
-    };
-  } else {
-    return null;
-  }
-}
-
 /**
  * パーミッションチェックを行う。
  * @param data
@@ -113,31 +92,31 @@ export function permissionCheck(
     const check = (pn: PermissionNode) => {
       if (pn.type === "group") {
         const roleGroup = GameObjectManager.instance.actorGroupList.filter(
-          r => r.id === pn.id
+          r => r.key === pn.key
         )[0];
         if (!roleGroup) return false;
         return (
           roleGroup.data!.list.findIndex(actorRef => {
             if (actorRef.type === "user")
-              return SocketFacade.instance.userId === actorRef.id;
+              return SocketFacade.instance.userKey === actorRef.key;
 
             return !!GameObjectManager.instance.actorList.filter(
               a =>
-                a.id === actorRef.id ||
-                a.owner === GameObjectManager.instance.mySelfUserId
+                a.key === actorRef.key ||
+                a.owner === GameObjectManager.instance.mySelfUserKey
             )[0];
           }) > -1
         );
       }
       if (pn.type === "actor") {
-        if (pn.id === GameObjectManager.instance.mySelfActorId) return true;
+        if (pn.key === GameObjectManager.instance.mySelfActorKey) return true;
       }
       if (pn.type === "owner") {
         let obj = data;
         for (let i = 0; i < ownerLevel; i++) {
           obj = GameObjectManager.instance.getOwner(obj)!;
         }
-        if (obj.owner === SocketFacade.instance.userId) return true;
+        if (obj.owner === SocketFacade.instance.userKey) return true;
       }
       return false;
     };
@@ -163,7 +142,7 @@ export default class SocketFacade {
     [name: string]: NekostoreCollectionController<unknown>;
   } = {};
   private __roomCollectionPrefix: string | null = null;
-  private __userId: string | null = null;
+  private __userKey: string | null = null;
   private __connectInfo: ConnectInfo | null = null;
   private __interoperability: Interoperability[] | null = null;
   private targetServer: TargetVersion = {
@@ -322,12 +301,12 @@ export default class SocketFacade {
     this.__roomCollectionPrefix = val;
   }
 
-  public set userId(val: string | null) {
-    this.__userId = val;
+  public set userKey(val: string | null) {
+    this.__userKey = val;
   }
 
-  public get userId(): string | null {
-    return this.__userId;
+  public get userKey(): string | null {
+    return this.__userKey;
   }
 
   public async socketCommunication<T, U>(event: string, args?: T): Promise<U> {
@@ -348,9 +327,9 @@ export default class SocketFacade {
   public async sendData<T>(args: Partial<SendDataRequest<T>>) {
     if (!args.data) args.data = null;
     if (!args.targetList)
-      args.targetList = GameObjectManager.instance.userList.map(u => u.id!);
+      args.targetList = GameObjectManager.instance.userList.map(u => u.key);
     if (!args.dataType) args.dataType = "general-data";
-    if (!args.owner) args.owner = GameObjectManager.instance.mySelfUserId;
+    if (!args.owner) args.owner = GameObjectManager.instance.mySelfUserKey;
     await this.socketCommunication<SendDataRequest<T>, void>(
       "send-data",
       args as SendDataRequest<T>

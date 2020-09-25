@@ -52,8 +52,8 @@ export default class ThrowParabolaContainer extends Mixins<ComponentVue>(
       }
     };
     const parabolaResult = calcParabola(radius, ratio);
-    parabolaResult.points.forEach((o: Point, idx: number, list: Point[]) => {
-      const per = (100 * idx) / (list.length - 1);
+    parabolaResult.points.forEach((o: Point, index: number, list: Point[]) => {
+      const per = (100 * index) / (list.length - 1);
       obj1[`${per}%`] = {
         translate: [o.x, o.y],
         opacity: 1

@@ -19,7 +19,7 @@
         @mousedown.right="rightDown"
         @touchstart="leftDown"
       >
-        <map-board :scene="sceneInfo" :sceneId="sceneId" v-if="isMounted" />
+        <map-board :scene="sceneInfo" :sceneKey="sceneKey" v-if="isMounted" />
       </div>
     </div>
   </div>
@@ -33,7 +33,7 @@ import { Matrix, Point } from "address";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import { DropPieceInfo } from "task-info";
-import { findById, getTextureStyle } from "../../core/utility/Utility";
+import { findByKey, getTextureStyle } from "../../core/utility/Utility";
 import TaskProcessor, {
   TaskProcessorSimple
 } from "../../core/task/TaskProcessor";
@@ -55,16 +55,16 @@ import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
   private roomData = GameObjectManager.instance.roomData;
-  private sceneId: string | null = null;
+  private sceneKey: string | null = null;
   private sceneInfo: Scene | null = null;
 
   @Watch("roomData", { immediate: true, deep: true })
   private onChangeRoomData() {
-    const sceneId = this.roomData.sceneId || null;
+    const sceneKey = this.roomData.sceneKey || null;
     if (GameObjectManager.instance.isSceneEditing) {
-      GameObjectManager.instance.sceneEditingUpdateSceneId = sceneId;
+      GameObjectManager.instance.sceneEditingUpdateSceneKey = sceneKey;
     } else {
-      this.sceneId = sceneId;
+      this.sceneKey = sceneKey;
     }
   }
 
@@ -107,8 +107,8 @@ export default class GameTable extends AddressCalcMixin {
     await this.updateScreen();
   }
 
-  @Watch("sceneId")
-  private async onChangeSceneId() {
+  @Watch("sceneKey")
+  private async onChangeSceneKey() {
     await this.updateScreen();
   }
 
@@ -116,7 +116,7 @@ export default class GameTable extends AddressCalcMixin {
   @Watch("sceneList", { deep: true })
   private async updateScreen() {
     if (!this.isMounted) return;
-    const sceneData = findById(this.sceneList, this.sceneId);
+    const sceneData = findByKey(this.sceneList, this.sceneKey);
     this.sceneInfo = sceneData ? sceneData.data! : null;
     if (this.sceneInfo) {
       CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;

@@ -15,7 +15,7 @@
         <datalist :id="`${key}-user-list`">
           <option
             v-for="user in userList"
-            :key="user.id"
+            :key="user.key"
             :value="user.data.name"
           >
             {{ user.data.name }}
@@ -65,7 +65,7 @@ import {
   UserLoginWindowInput,
   UserType
 } from "@/@types/socket";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import UserTypeSelect from "../common/components/select/UserTypeSelect.vue";
@@ -88,7 +88,7 @@ export default class UserLoginWindow extends Mixins<
   private isMounted: boolean = false;
   private isSetting: boolean = false;
   private visitable: boolean = false;
-  private userList: StoreUseData<UserData>[] | null = null;
+  private userList: StoreObj<UserData>[] | null = null;
 
   @LifeCycle
   public async created() {
@@ -116,8 +116,8 @@ export default class UserLoginWindow extends Mixins<
   @Watch("name")
   private onChangeName() {
     if (!this.isMounted) return;
-    const idx = this.userList!.findIndex(u => u.data!.name === this.name);
-    if (idx >= 0) this.type = this.userList![idx]!.data!.type;
+    const index = this.userList!.findIndex(u => u.data!.name === this.name);
+    if (index >= 0) this.type = this.userList![index]!.data!.type;
   }
 
   @Watch("currentDiceBotSystem")

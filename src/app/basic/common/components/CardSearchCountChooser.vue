@@ -21,7 +21,7 @@ import { Prop } from "vue-property-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import SCheck from "./SCheck.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 
@@ -53,9 +53,9 @@ export default class CardSearchCountChooser extends Mixins<ComponentVue>(
 
   @VueEvent
   private onInput(key: string) {
-    const idx = this.localValue.findIndex(l => l === key);
-    if (idx === -1) this.localValue.push(key);
-    else this.localValue.splice(idx, 1);
+    const index = this.localValue.findIndex(l => l === key);
+    if (index === -1) this.localValue.push(key);
+    else this.localValue.splice(index, 1);
     this.input(this.localValue);
   }
 

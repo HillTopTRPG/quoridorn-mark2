@@ -1,8 +1,8 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :id="id"
     :readonly="readonly"
     ref="component"
   />
@@ -54,8 +54,8 @@ export default class ActorNumberResourceSelect extends Mixins<MultiMixin>(
     this.optionInfoList = this.resourceMasterList
       .filter(rm => rm.data!.type === "number" && rm.data!.isAutoAddActor)
       .map(rm => ({
-        key: rm.id!,
-        value: rm.id!,
+        key: rm.key,
+        value: rm.key,
         text: rm.data!.label,
         disabled: false
       }));

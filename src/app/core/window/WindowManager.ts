@@ -17,7 +17,6 @@ import TaskManager from "../task/TaskManager";
 import { ApplicationError } from "../error/ApplicationError";
 import { clone } from "../utility/PrimaryDataUtility";
 import { findRequireByKey } from "../utility/Utility";
-import Vue from "vue";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -147,10 +146,10 @@ export default class WindowManager {
   }
 
   public arrangePointAll() {
-    this.__windowInfoList.forEach((wi, idx) => {
+    this.__windowInfoList.forEach((wi, index) => {
       wi.isMinimized = false;
       this.arrangePoint(wi.key, true);
-      wi.order = idx;
+      wi.order = index;
     });
     this.activeWindowKey = this.__windowInfoList[
       this.__windowInfoList.length - 1

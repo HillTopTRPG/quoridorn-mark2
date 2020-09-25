@@ -1,10 +1,14 @@
 <template>
   <tr class="tr-dice-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <dice-type-select v-model="localValue" :readonly="readonly" />
+      <dice-type-select
+        v-model="localValue"
+        :readonly="readonly"
+        :elmId="key"
+      />
     </td>
   </tr>
 </template>

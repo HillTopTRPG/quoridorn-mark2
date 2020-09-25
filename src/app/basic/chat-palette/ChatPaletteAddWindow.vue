@@ -6,9 +6,9 @@
       :name.sync="name"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
-      :actorId.sync="actorId"
-      :sceneObjectId.sync="sceneObjectId"
-      :statusId.sync="statusId"
+      :actorKey.sync="actorKey"
+      :sceneObjectKey.sync="sceneObjectKey"
+      :statusKey.sync="statusKey"
       :isSecret.sync="isSecret"
       :paletteText.sync="paletteText"
     />
@@ -44,9 +44,9 @@ export default class ChatPaletteAddWindow extends Mixins<
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
-  private actorId: string | null = null;
-  private sceneObjectId: string | null = null;
-  private statusId: string | null = null;
+  private actorKey: string | null = null;
+  private sceneObjectKey: string | null = null;
+  private statusKey: string | null = null;
   private isSecret: boolean = false;
   private paletteText: string = "";
 
@@ -60,17 +60,19 @@ export default class ChatPaletteAddWindow extends Mixins<
   private async commit() {
     await this.chatPaletteListCC!.addDirect([
       {
-        name: this.name,
-        chatFontColorType: this.chatFontColorType,
-        chatFontColor: this.chatFontColor,
-        actorId: this.actorId,
-        sceneObjectId: this.sceneObjectId,
-        targetId: null, // TODO 入力項目を作成
-        outputTabId: null, // TODO 入力項目を作成
-        statusId: this.statusId,
-        system: null, // TODO 入力項目を作成
-        isSecret: this.isSecret,
-        paletteText: this.paletteText
+        data: {
+          name: this.name,
+          chatFontColorType: this.chatFontColorType,
+          chatFontColor: this.chatFontColor,
+          actorKey: this.actorKey,
+          sceneObjectKey: this.sceneObjectKey,
+          targetKey: null, // TODO 入力項目を作成
+          outputTabKey: null, // TODO 入力項目を作成
+          statusKey: this.statusKey,
+          system: null, // TODO 入力項目を作成
+          isSecret: this.isSecret,
+          paletteText: this.paletteText
+        }
       }
     ]);
     await this.close();

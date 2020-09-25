@@ -49,7 +49,7 @@
       <label>
         <textarea
           v-model="
-            localValue.find(lv => lv.id === currentTabInfo.target).data.text
+            localValue.find(lv => lv.key === currentTabInfo.target).data.text
           "
           ref="textarea"
         ></textarea>
@@ -71,13 +71,11 @@ import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import { MemoStore } from "@/@types/gameObject";
-import CtrlRadio from "@/app/core/component/CtrlRadio.vue";
 import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { Permission, StoreUseData } from "@/@types/store";
+import { Permission, StoreObj } from "@/@types/store";
 import OtherTextEditModeRadio from "@/app/basic/common/components/radio/OtherTextEditModeRadio.vue";
 import TaskManager from "@/app/core/task/TaskManager";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
@@ -85,11 +83,9 @@ const uuid = require("uuid");
 
 @Component({
   components: {
-    CtrlButton,
+    OtherTextComponent,
     SimpleTabComponent,
-    OtherTextEditModeRadio,
-    CtrlRadio,
-    OtherTextComponent
+    OtherTextEditModeRadio
   }
 })
 export default class OtherTextEditComponent extends Mixins<ComponentVue>(
@@ -99,7 +95,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   public windowKey!: string;
 
   @Prop({ type: Array, required: true })
-  public value!: StoreUseData<MemoStore>[];
+  public value!: StoreObj<MemoStore>[];
 
   private mode: "edit" | "preview" = "edit";
 
@@ -113,22 +109,22 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
 
   private createTabInfoList() {
     this.tabList = this.localValue.map(lv => ({
-      key: lv.id!,
-      target: lv.id!,
+      key: lv.key,
+      target: lv.key,
       text: lv.data!.tab || this.$t("label.non-name").toString()
     }));
     this.currentTabInfo = this.tabList[0];
   }
 
-  public input(value: StoreUseData<MemoStore>[]) {
+  public input(value: StoreObj<MemoStore>[]) {
     this.$emit("input", value);
   }
 
-  public get localValue(): StoreUseData<MemoStore>[] {
+  public get localValue(): StoreObj<MemoStore>[] {
     return this.value;
   }
 
-  public set localValue(value: StoreUseData<MemoStore>[]) {
+  public set localValue(value: StoreObj<MemoStore>[]) {
     this.input(value);
   }
 
@@ -150,7 +146,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     const middleLength = selectionEnd - selectionStart;
 
     const currentValue = this.localValue.find(
-      lv => lv.id === this.currentTabInfo!.target
+      lv => lv.key === this.currentTabInfo!.target
     )!;
     const text = currentValue.data!.text;
 
@@ -288,8 +284,8 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   private async onSettingOpen() {
     const result = (
       await TaskManager.instance.ignition<
-        WindowOpenInfo<StoreUseData<MemoStore>[]>,
-        StoreUseData<MemoStore>[]
+        WindowOpenInfo<StoreObj<MemoStore>[]>,
+        StoreObj<MemoStore>[]
       >({
         type: "window-open",
         owner: "Quoridorn",
@@ -314,11 +310,11 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   @VueEvent
   private async onCLickAddTab() {
     const target = this.currentTabInfo!.target;
-    const idx = this.localValue.findIndex(lv => lv.id === target);
+    const index = this.localValue.findIndex(lv => lv.key === target);
     const tabText = await this.getInputTab("");
     if (tabText === undefined) return;
     this.localValue.splice(
-      idx + 1,
+      index + 1,
       0,
       createEmptyStoreUseData(uuid.v4(), {
         tab: tabText,
@@ -326,13 +322,13 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
       })
     );
     this.createTabInfoList();
-    this.currentTabInfo = this.tabList[idx + 1];
+    this.currentTabInfo = this.tabList[index + 1];
   }
 
   @VueEvent
   private async onCLickEditTab() {
     const target = this.currentTabInfo!.target;
-    const currentValue = this.localValue.find(lv => lv.id === target)!;
+    const currentValue = this.localValue.find(lv => lv.key === target)!;
     const text = await this.getInputTab(currentValue.data!.tab);
     if (text === undefined) return;
     currentValue.data!.tab = text;
@@ -342,7 +338,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   @VueEvent
   private async onCLickChmodTab() {
     const target = this.currentTabInfo!.target;
-    const currentValue = this.localValue.find(lv => lv.id === target)!;
+    const currentValue = this.localValue.find(lv => lv.key === target)!;
     currentValue.permission = (
       await TaskManager.instance.ignition<
         WindowOpenInfo<Permission>,
@@ -361,11 +357,11 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   @VueEvent
   private onCLickDeleteTab() {
     const target = this.currentTabInfo!.target;
-    const idx = this.localValue.findIndex(lv => lv.id === target);
-    this.localValue.splice(idx, 1);
+    const index = this.localValue.findIndex(lv => lv.key === target);
+    this.localValue.splice(index, 1);
     this.createTabInfoList();
     this.currentTabInfo = this.tabList[
-      this.localValue.length <= idx ? this.localValue.length - 1 : idx
+      this.localValue.length <= index ? this.localValue.length - 1 : index
     ];
   }
 
@@ -396,7 +392,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     const selectionEnd = textareaElm.selectionEnd;
 
     const currentValue = this.localValue.find(
-      lv => lv.id === this.currentTabInfo!.target
+      lv => lv.key === this.currentTabInfo!.target
     )!;
     const text = currentValue.data!.text;
 

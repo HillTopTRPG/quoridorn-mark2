@@ -17,13 +17,13 @@
       <tr>
         <tr-dice-select-component
           labelName="label.dice-type"
-          v-model="diceTypeIdVolatile"
+          v-model="diceTypeKeyVolatile"
         />
       </tr>
       <tr>
         <tr-pips-select-component
           labelName="label.pips"
-          :diceTypeId="diceTypeIdVolatile"
+          :diceTypeKey="diceTypeKeyVolatile"
           v-model="pipsVolatile"
         />
       </tr>
@@ -72,7 +72,7 @@
             <tr-scene-layer-select-component
               labelName="label.layer"
               width="100%"
-              v-model="layerIdVolatile"
+              v-model="layerKeyVolatile"
             />
           </tr>
         </table>
@@ -100,7 +100,7 @@ import TrSceneLayerSelectComponent from "@/app/basic/common/components/TrSceneLa
 import TrDiceSelectComponent from "@/app/basic/common/components/TrDiceSelectComponent.vue";
 import TrPipsSelectComponent from "@/app/basic/common/components/TrPipsSelectComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { findRequireById } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -182,34 +182,34 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: String, required: true })
-  private layerId!: string;
-  private layerIdVolatile: string = "";
-  @Watch("layerId", { immediate: true })
-  private onChangeLayerId(value: string) {
-    this.layerIdVolatile = value;
+  private layerKey!: string;
+  private layerKeyVolatile: string = "";
+  @Watch("layerKey", { immediate: true })
+  private onChangeLayerKey(value: string) {
+    this.layerKeyVolatile = value;
   }
-  @Watch("layerIdVolatile")
-  private onChangeLayerIdVolatile(value: string) {
-    this.$emit("update:layerId", value);
+  @Watch("layerKeyVolatile")
+  private onChangeLayerKeyVolatile(value: string) {
+    this.$emit("update:layerKey", value);
   }
 
-  // diceTypeId
+  // diceTypeKey
   @Prop({ type: String, required: true })
-  private diceTypeId!: string;
-  private diceTypeIdVolatile: string = "6";
-  @Watch("diceTypeId", { immediate: true })
-  private onChangeDiceTypeId(value: string) {
-    this.diceTypeIdVolatile = value;
+  private diceTypeKey!: string;
+  private diceTypeKeyVolatile: string = "6";
+  @Watch("diceTypeKey", { immediate: true })
+  private onChangeDiceTypeKey(value: string) {
+    this.diceTypeKeyVolatile = value;
   }
-  @Watch("diceTypeIdVolatile")
-  private onChangeDiceTypeIdVolatile(value: string) {
+  @Watch("diceTypeKeyVolatile")
+  private onChangeDiceTypeKeyVolatile(value: string) {
     const pipsList = this.diceAndPipsList
-      .filter(dap => dap.data!.diceTypeId === this.diceTypeIdVolatile)
+      .filter(dap => dap.data!.diceTypeKey === this.diceTypeKeyVolatile)
       .map(dap => dap.data!.pips);
     if (!pipsList.some(p => p === this.pipsVolatile)) {
       this.pipsVolatile = pipsList.find(p => p === "1") || pipsList[0];
     }
-    this.$emit("update:diceTypeId", value);
+    this.$emit("update:diceTypeKey", value);
     this.updateDiceImage();
   }
 
@@ -300,11 +300,11 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
   private updateDiceImage() {
     const diceAndPips = this.diceAndPipsList.find(
       dap =>
-        dap.data!.diceTypeId === this.diceTypeIdVolatile &&
+        dap.data!.diceTypeKey === this.diceTypeKeyVolatile &&
         dap.data!.pips === this.pipsVolatile
     );
-    const mediaId = diceAndPips!.data!.mediaId;
-    const media = findRequireById(this.mediaList, mediaId);
+    const mediaKey = diceAndPips!.data!.mediaKey;
+    const media = findRequireByKey(this.mediaList, mediaKey);
     this.diceImageUrl = media.data!.url;
     this.objectElm.style.setProperty("--imageSrc", `url(${this.diceImageUrl})`);
   }

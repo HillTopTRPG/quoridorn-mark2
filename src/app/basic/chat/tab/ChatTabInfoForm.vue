@@ -57,7 +57,7 @@ import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
 import TrCheckboxComponent from "../../common/components/TrCheckboxComponent.vue";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import { TabInfo } from "../../../../@types/window";
+import { TabInfo } from "@/@types/window";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 
 @Component({

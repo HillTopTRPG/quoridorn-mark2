@@ -66,8 +66,8 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
       const inputElmList = Array.prototype.slice.call(
         this.elm.getElementsByClassName("input")
       ) as HTMLInputElement[];
-      const idx = inputElmList.findIndex(elm => !elm.disabled);
-      if (idx >= 0) inputElmList[idx].focus();
+      const index = inputElmList.findIndex(elm => !elm.disabled);
+      if (index >= 0) inputElmList[index].focus();
     });
   }
 
@@ -85,13 +85,13 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
   }
 
   private tabMove(addIndex: number) {
-    let idx = this.tabList.findIndex(
+    let index = this.tabList.findIndex(
       t => JSON.stringify(t) === JSON.stringify(this.localValue)
     );
-    idx += addIndex;
-    if (idx < 0) idx = this.tabList.length - 1;
-    if (idx >= this.tabList.length) idx = 0;
-    this.localValue = this.tabList[idx];
+    index += addIndex;
+    if (index < 0) index = this.tabList.length - 1;
+    if (index >= this.tabList.length) index = 0;
+    this.localValue = this.tabList[index];
   }
 }
 </script>

@@ -1,5 +1,5 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreObj, StoreUseData } from "./store";
+import { StoreObj } from "./store";
 import { TargetVersion } from "@/app/core/api/Github";
 import { MediaInfo } from "@/@types/room";
 import { UrlType } from "@/app/core/utility/FileUtility";
@@ -46,7 +46,7 @@ type BaseRoomInfo = {
 };
 
 export type RoomLoginInfo = {
-  roomId: string;
+  roomKey: string;
   roomNo: number;
   roomPassword: string;
 };
@@ -68,7 +68,7 @@ export type UserLoginInput = {
 export type UserLoginRequest = UserLoginInput;
 
 export type UserLoginResponse = {
-  userId: string;
+  userKey: string;
   token: string;
 };
 
@@ -100,7 +100,7 @@ export type Message = {
   termsOfUse: string;
 };
 export type GetRoomListResponse = {
-  roomList: StoreUseData<ClientRoomInfo>[] | null;
+  roomList: (StoreObj<ClientRoomInfo> & { id: string })[] | null;
   message: Message;
   isNeedRoomCreatePassword: boolean;
 };
@@ -112,7 +112,7 @@ export type LoginWindowInput = GetRoomListResponse & {
 export type RoomViewResponse = {
   changeType: ChangeType;
   id: string;
-  data?: StoreObj<ClientRoomInfo>;
+  data: StoreObj<ClientRoomInfo> | undefined;
 };
 
 export type LoginResponse = ClientRoomInfo & {
@@ -170,13 +170,13 @@ export type DiceType = {
 };
 
 export type DiceAndPips = {
-  diceTypeId: string;
+  diceTypeKey: string;
   pips: string;
-  mediaId: string;
+  mediaKey: string;
 };
 
 export type UploadMediaResponse = {
-  docId: string;
+  key: string;
   rawPath: string;
   url: string;
   name: string;

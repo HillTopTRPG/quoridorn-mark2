@@ -9,11 +9,11 @@
       :otherTextList.sync="otherTextList"
       :width.sync="width"
       :height.sync="height"
-      :imageDocId.sync="imageDocId"
+      :imageDocKey.sync="imageDocKey"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
       :backgroundSize.sync="backgroundSize"
-      :layerId.sync="layerId"
+      :layerKey.sync="layerKey"
       @drag-start="dragStart"
       @drag-end="dragEnd"
     />
@@ -36,7 +36,7 @@ import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { MemoStore } from "@/@types/gameObject";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
@@ -47,7 +47,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private name: string = LanguageManager.instance.getText("type.chit");
   private tag: string = "";
-  private otherTextList: StoreUseData<MemoStore>[] = [
+  private otherTextList: StoreObj<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""
@@ -55,14 +55,14 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   ];
   private height: number = 1;
   private width: number = 1;
-  private imageDocId: string | null = null;
+  private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.sceneLayerList.find(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "character"
-  )!.id!;
+  )!.key;
 
   @LifeCycle
   public async mounted() {
@@ -71,10 +71,10 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     this.isMounted = true;
   }
 
-  @Watch("imageDocId", { immediate: true })
-  private onChangeImageDocId() {
+  @Watch("imageDocKey", { immediate: true })
+  private onChangeImageDocKey() {
     this.windowInfo.message = this.$t(
-      this.imageDocId ? "message.drag-piece" : "message.choose-image"
+      this.imageDocKey ? "message.drag-piece" : "message.choose-image"
     )!.toString();
   }
 
@@ -112,48 +112,50 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
     const point = task.value!.point;
     const matrix = task.value!.matrix;
 
-    const sceneObjectId = (
+    const sceneObjectKey = (
       await SocketFacade.instance.sceneObjectCC().addDirect([
         {
-          type: "chit",
-          tag: this.tag,
-          name: this.name,
-          x: point.x,
-          y: point.y,
-          row: matrix.row,
-          column: matrix.column,
-          actorId: null,
-          columns: this.width,
-          rows: this.height,
-          place: "field",
-          isHideBorder: false,
-          isHideHighlight: false,
-          isLock: false,
-          layerId: this.layerId,
-          textures: [
-            {
-              type: "image",
-              mediaTag: this.imageTag!,
-              mediaId: this.imageDocId!,
-              direction: this.direction,
-              backgroundSize: this.backgroundSize!
-            }
-          ],
-          textureIndex: 0,
-          angle: 0,
-          url: "",
-          subTypeId: "",
-          subTypeValue: "",
-          isHideSubType: false
+          data: {
+            type: "chit",
+            tag: this.tag,
+            name: this.name,
+            x: point.x,
+            y: point.y,
+            row: matrix.row,
+            column: matrix.column,
+            actorKey: null,
+            columns: this.width,
+            rows: this.height,
+            place: "field",
+            isHideBorder: false,
+            isHideHighlight: false,
+            isLock: false,
+            layerKey: this.layerKey,
+            textures: [
+              {
+                type: "image",
+                mediaTag: this.imageTag!,
+                mediaKey: this.imageDocKey!,
+                direction: this.direction,
+                backgroundSize: this.backgroundSize!
+              }
+            ],
+            textureIndex: 0,
+            angle: 0,
+            url: "",
+            subTypeKey: "",
+            subTypeValue: "",
+            isHideSubType: false
+          }
         }
       ])
     )[0];
 
     await SocketFacade.instance.memoCC().addDirect(
-      this.otherTextList.map(ot => ot.data!),
-      this.otherTextList.map(() => ({
+      this.otherTextList.map(data => ({
         ownerType: "scene-object",
-        owner: sceneObjectId
+        owner: sceneObjectKey,
+        data: data.data!
       }))
     );
 

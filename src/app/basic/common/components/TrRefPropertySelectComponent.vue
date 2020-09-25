@@ -1,10 +1,14 @@
 <template>
   <tr class="tr-ref-property-select-component">
     <th class="label-input">
-      <label v-t="labelName"></label>
+      <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <ref-property-select v-model="localValue" :readonly="readonly" />
+      <ref-property-select
+        v-model="localValue"
+        :readonly="readonly"
+        :elmId="key"
+      />
     </td>
   </tr>
 </template>
@@ -14,7 +18,7 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
 import RefPropertySelect from "./select/RefPropertySelect.vue";
-import { ResourceType } from "../../../../@types/gameObject";
+import { ResourceType } from "@/@types/gameObject";
 
 @Component({ components: { RefPropertySelect } })
 export default class TrRefPropertySelectComponent extends Mixins<ComponentVue>(

@@ -3,7 +3,7 @@
     class="tab-info"
     :class="{
       locked: tab.exclusionOwner,
-      changeOrder: changeOrderId === tab.id,
+      changeOrder: changeOrderKey === tab.key,
       dragMode
     }"
     :style="{
@@ -11,8 +11,8 @@
         tab.exclusionOwner
       )})'`
     }"
-    @onMouseDown="changeOrderId = tab.id"
-    @onMouseUp="changeOrderId = ''"
+    @onMouseDown="changeOrderKey = tab.key"
+    @onMouseUp="changeOrderKey = ''"
   >
     <span class="icon-menu drag-mark"></span>
     <span>{{ tab.data.name || $t("label.non-tab") }}</span>
@@ -43,7 +43,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import { ChatPaletteStore } from "@/@types/gameObject";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -56,43 +56,43 @@ export default class ChatPaletteTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private tab!: StoreUseData<ChatPaletteStore>;
+  private tab!: StoreObj<ChatPaletteStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
 
   @Prop({ type: String, required: true })
-  private changeOrderId: string = "";
+  private changeOrderKey: string = "";
 
   @VueEvent
-  private isEditable(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private isEditable(tabInfo: StoreObj<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async editTab(tabInfo: StoreObj<ChatPaletteStore>) {
     if (!this.isEditable(tabInfo)) return;
     this.$emit("edit", tabInfo);
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private isChmodAble(tabInfo: StoreObj<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async chmodTab(tabInfo: StoreObj<ChatPaletteStore>) {
     if (!this.isChmodAble(tabInfo)) return;
     this.$emit("chmod", tabInfo);
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private isDeletable(tabInfo: StoreObj<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async deleteTab(tabInfo: StoreObj<ChatPaletteStore>) {
     if (!this.isDeletable(tabInfo)) return;
     this.$emit("delete", tabInfo);
   }

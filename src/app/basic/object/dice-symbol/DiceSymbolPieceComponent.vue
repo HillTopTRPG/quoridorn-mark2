@@ -2,7 +2,7 @@
   <div
     class="dice-symbol"
     :class="basicClasses"
-    :id="docId"
+    :id="docKey"
     @mouseover="mouseover"
     @mouseout="mouseout"
     @mousedown.left="leftDown"
@@ -12,7 +12,7 @@
     ref="component"
   >
     <span class="tag" v-if="sceneObjectInfo">
-      {{ sceneObjectInfo.data.name }} - {{ elm.style.zIndex }} - {{ docId }}
+      {{ sceneObjectInfo.data.name }} - {{ elm.style.zIndex }} - {{ docKey }}
     </span>
 
     <!-- HTMLインジェクション対策済み -->

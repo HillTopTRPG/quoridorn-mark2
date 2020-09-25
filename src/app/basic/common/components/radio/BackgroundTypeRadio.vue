@@ -16,7 +16,7 @@ import CtrlRadio from "../../../../core/component/CtrlRadio.vue";
 import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 
 @Component({
   components: { CtrlRadio }

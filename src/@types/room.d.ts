@@ -6,11 +6,11 @@ import { DiceMaterial, LikeStore } from "@/@types/gameObject";
 
 export type PlayBgmInfo =
   | {
-      targetId: string;
+      targetKey: string;
       data: null;
     }
   | {
-      targetId: null;
+      targetKey: null;
       data: CutInDeclareInfo;
     };
 
@@ -24,7 +24,7 @@ export type MediaUploadInfo = {
  */
 type RoomData = {
   name: string;
-  sceneId: string;
+  sceneKey: string;
   settings: RoomInfoExtend;
 };
 
@@ -47,7 +47,7 @@ type UserData = {
  * 通信1本に関する情報
  */
 type SocketUserData = {
-  userId: string;
+  userKey: string;
   socketId: string;
 };
 
@@ -86,7 +86,7 @@ type TextureColor = {
 type TextureImage = {
   type: "image";
   mediaTag: string;
-  mediaId: string;
+  mediaKey: string;
   direction: Direction;
   backgroundSize: BackgroundSize;
 };
@@ -129,8 +129,8 @@ type SceneLayer = {
  * マップとレイヤーの紐付き1本単位の情報
  */
 type SceneAndLayer = {
-  sceneId: string;
-  layerId: string;
+  sceneKey: string;
+  layerKey: string;
   isUse: boolean;
 };
 
@@ -139,8 +139,8 @@ type SceneAndLayer = {
  * マップとオブジェクトの紐付き1本単位の情報
  */
 type SceneAndObject = {
-  sceneId: string;
-  objectId: string;
+  sceneKey: string;
+  objectKey: string;
   // startTimeStatus: "" | "normal" | string; // マップに同期切替した際に設定されるステータス（キャラクターのみ）
   // startTimePlace: "" | Place; // マップに同期切替した際に設定される場所
   isOriginalAddress: boolean; // マップ独自の座標を持つかどうか
@@ -239,9 +239,9 @@ type MediaInfo = {
 };
 
 export type ActorRef = {
-  id: string;
+  key: string;
   type: "user" | "other";
-  userId: string | null;
+  userKey: string | null;
 };
 
 /**
@@ -257,9 +257,9 @@ export type ActorGroup = {
 export type GroupChatTabInfo = {
   name: string;
   isSystem: boolean;
-  actorGroupId: string;
+  actorGroupKey: string;
   isSecret: boolean;
-  outputChatTabId: string | null;
+  outputChatTabKey: string | null;
 };
 
 /**
@@ -307,23 +307,23 @@ type CustomDiceBotInfo = {
 
 type Like = {
   char: string;
-  actorId: string;
+  actorKey: string;
   count: number;
 };
 
 type ChatInfo = {
   chatType: "chat" | "system-message";
-  tabId: string;
+  tabKey: string;
   text: string;
   diceRollResult: string | null;
   dices: DiceResult[];
   isSecretDice: boolean; // BCDiceのシークレットダイス
   customDiceBotResult: string | null;
-  actorId: string | null;
-  statusId: string | null;
+  actorKey: string | null;
+  statusKey: string | null;
   system: string;
   targetType: "group" | "actor" | null;
-  targetId: string;
+  targetKey: string;
   isSecret: boolean; // 秘匿チャット
   like: Like[];
 };

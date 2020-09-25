@@ -3,7 +3,7 @@
     class="tab-info"
     :class="{
       locked: tab.exclusionOwner,
-      changeOrder: changeOrderId === tab.id,
+      changeOrder: changeOrderKey === tab.key,
       dragMode
     }"
     :style="{
@@ -11,8 +11,8 @@
         tab.exclusionOwner
       )})'`
     }"
-    @onMouseDown="changeOrderId = tab.id"
-    @onMouseUp="changeOrderId = ''"
+    @onMouseDown="changeOrderKey = tab.key"
+    @onMouseUp="changeOrderKey = ''"
   >
     <span class="icon-menu drag-mark"></span>
     <span>{{ tab.data.name }}</span>
@@ -43,7 +43,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -57,30 +57,28 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 
-@Component({
-  components: { SButton }
-})
+@Component({ components: { SButton } })
 export default class ChatTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private tab!: StoreUseData<ChatTabInfo>;
+  private tab!: StoreObj<ChatTabInfo>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
 
   @Prop({ type: String, required: true })
-  private changeOrderId: string = "";
+  private changeOrderKey: string = "";
 
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
 
   @VueEvent
-  private isEditable(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isEditable(tabInfo: StoreObj<ChatTabInfo>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async editTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
@@ -88,18 +86,18 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
       owner: "Quoridorn",
       value: {
         type: "chat-tab-edit-window",
-        args: tabInfo.id!
+        args: tabInfo.key
       }
     });
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isChmodAble(tabInfo: StoreObj<ChatTabInfo>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async chmodTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -109,19 +107,19 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
         type: "chmod-window",
         args: {
           type: "chat-tab",
-          docId: tabInfo.id!
+          key: tabInfo.key
         }
       }
     });
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreUseData<ChatTabInfo>) {
+  private isDeletable(tabInfo: StoreObj<ChatTabInfo>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<ChatTabInfo>) {
+  private async deleteTab(tabInfo: StoreObj<ChatTabInfo>) {
     if (!this.isDeletable(tabInfo)) return;
     const msg = this.$t("message.delete-tab")!
       .toString()
@@ -130,7 +128,7 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
     if (!result) return;
 
     try {
-      await this.chatTabListCC.deletePackage([tabInfo.id!]);
+      await this.chatTabListCC.deletePackage([tabInfo.key]);
     } catch (err) {
       // TODO error message.
       return;

@@ -142,7 +142,7 @@
       <!-- 画像タブ -->
       <image-picker-component
         v-if="currentTabInfo.target === 'icon'"
-        v-model="iconImageIdVolatile"
+        v-model="iconImageKeyVolatile"
         :windowKey="key"
         :imageTag.sync="iconImageTagVolatile"
         :direction.sync="iconImageDirectionVolatile"
@@ -254,17 +254,17 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
     this.$emit("update:isAutoAddMapObject", value);
   }
 
-  // iconImageId
+  // iconImageKey
   @Prop({ type: String, default: null })
-  private iconImageId!: string | null;
-  private iconImageIdVolatile: string | null = null;
-  @Watch("iconImageId", { immediate: true })
-  private onChangeIconImageId(value: string | null) {
-    this.iconImageIdVolatile = value;
+  private iconImageKey!: string | null;
+  private iconImageKeyVolatile: string | null = null;
+  @Watch("iconImageKey", { immediate: true })
+  private onChangeIconImageKey(value: string | null) {
+    this.iconImageKeyVolatile = value;
   }
-  @Watch("iconImageIdVolatile")
-  private onChangeIconImageIdVolatile(value: string | null) {
-    this.$emit("update:iconImageId", value);
+  @Watch("iconImageKeyVolatile")
+  private onChangeIconImageKeyVolatile(value: string | null) {
+    this.$emit("update:iconImageKey", value);
   }
 
   // iconImageTag

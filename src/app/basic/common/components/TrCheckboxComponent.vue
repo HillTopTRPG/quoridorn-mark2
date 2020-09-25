@@ -2,15 +2,15 @@
   <tr class="tr-check-box-component">
     <th class="label-input">
       <label
+        :for="key"
         v-if="labelName"
         v-t="labelName"
         @click="localValue = !localValue"
       ></label>
-      <label v-else @click="localValue = !localValue">&nbsp;</label>
+      <label v-else :for="key" @click="localValue = !localValue">&nbsp;</label>
     </th>
     <td>
       <s-check
-        :id="key"
         :readonly="readonly"
         v-model="localValue"
         colorStyle="skyblue"
@@ -18,6 +18,7 @@
         :c-label="cLabel"
         n-icon=""
         :n-label="nLabel"
+        :elmId="key"
       />
     </td>
   </tr>

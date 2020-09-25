@@ -9,15 +9,15 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
 import { LikeStore } from "@/@types/gameObject";
+import { StoreObj } from "@/@types/store";
 
 @Component
 export default class ChatLogLikeAddComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private like!: StoreUseData<LikeStore>;
+  private like!: StoreObj<LikeStore>;
 
   @VueEvent
   private onClick() {

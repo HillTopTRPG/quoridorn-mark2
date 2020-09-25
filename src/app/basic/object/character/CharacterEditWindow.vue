@@ -10,11 +10,11 @@
       :otherTextList.sync="otherTextList"
       :url.sync="url"
       :size.sync="size"
-      :imageDocId.sync="imageDocId"
+      :imageDocKey.sync="imageDocKey"
       :imageTag.sync="imageTag"
       :direction.sync="direction"
       :backgroundSize.sync="backgroundSize"
-      :layerId.sync="layerId"
+      :layerKey.sync="layerKey"
     />
 
     <div class="button-area">
@@ -46,7 +46,7 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
@@ -58,7 +58,7 @@ import { clone } from "@/app/core/utility/PrimaryDataUtility";
 export default class CharacterEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
-  private docId: string = "";
+  private docKey: string = "";
   private cc: NekostoreCollectionController<
     SceneObject
   > = SocketFacade.instance.sceneObjectCC();
@@ -66,22 +66,22 @@ export default class CharacterEditWindow extends Mixins<
   private url: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private otherTextList: StoreUseData<MemoStore>[] = [];
+  private otherTextList: StoreObj<MemoStore>[] = [];
   private size: number = 1;
-  private imageDocId: string | null = null;
+  private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
-  private layerId: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.filter(
     ml => ml.data!.type === "character"
-  )[0].id!;
+  )[0].key;
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.docId = this.windowInfo.args!.docId;
-    const data = (await this.cc!.getData(this.docId))!;
+    this.docKey = this.windowInfo.args!.key;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -101,7 +101,7 @@ export default class CharacterEditWindow extends Mixins<
 
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      this.imageDocId = backgroundInfo.mediaId;
+      this.imageDocKey = backgroundInfo.mediaKey;
       this.imageTag = backgroundInfo.mediaTag;
       this.backgroundSize = backgroundInfo.backgroundSize;
       this.direction = backgroundInfo.direction;
@@ -110,17 +110,17 @@ export default class CharacterEditWindow extends Mixins<
     this.url = data.data!.url;
     this.name = data.data!.name;
     this.size = data.data!.columns;
-    this.layerId = data.data!.layerId;
+    this.layerKey = data.data!.layerKey;
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object" && m.owner === this.docId
+        m => m.ownerType === "scene-object" && m.owner === this.docKey
       )
     )!;
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -132,10 +132,10 @@ export default class CharacterEditWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    const data = (await this.cc!.getData(this.docId))!;
+    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      backgroundInfo.mediaId = this.imageDocId!;
+      backgroundInfo.mediaKey = this.imageDocKey!;
       backgroundInfo.mediaTag = this.imageTag!;
       backgroundInfo.backgroundSize = this.backgroundSize;
       backgroundInfo.direction = this.direction;
@@ -145,13 +145,18 @@ export default class CharacterEditWindow extends Mixins<
     data.data!.name = this.name;
     data.data!.rows = this.size;
     data.data!.columns = this.size;
-    data.data!.layerId = this.layerId;
-    await this.cc!.update([this.docId], [data.data!]);
+    data.data!.layerKey = this.layerKey;
+    await this.cc!.update([
+      {
+        key: this.docKey,
+        data: data.data!
+      }
+    ]);
 
     await GameObjectManager.instance.updateMemoList(
       this.otherTextList,
       "scene-object",
-      this.docId
+      this.docKey
     );
 
     this.isProcessed = true;
@@ -172,7 +177,7 @@ export default class CharacterEditWindow extends Mixins<
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId]);
+      await this.cc!.releaseTouch([this.docKey]);
     } catch (err) {
       // nothing
     }

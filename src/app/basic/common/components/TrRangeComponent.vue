@@ -7,11 +7,11 @@
       <range-component
         tag="td"
         :readonly="readonly"
-        :raw-key="key"
         :min="min"
         :max="max"
         :step="step"
         v-model="localValue"
+        :elmId="key"
       />
     </td>
   </tr>

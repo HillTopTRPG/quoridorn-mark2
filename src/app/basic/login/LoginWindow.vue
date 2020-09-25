@@ -145,7 +145,7 @@ import {
   UserLoginResponse,
   UserLoginWindowInput
 } from "@/@types/socket";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import {
   AddRoomPresetDataRequest,
@@ -200,7 +200,7 @@ import { DiceMaterial, LikeStore } from "@/@types/gameObject";
 export default class LoginWindow extends Mixins<
   WindowVue<LoginWindowInput, never>
 >(WindowVue) {
-  private roomList: StoreUseData<ClientRoomInfo>[] | null = null;
+  private roomList: (StoreObj<ClientRoomInfo> & { id: string })[] | null = null;
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
   private roomStatus: "normal" | "processing" | "processingNoneRelease" =
@@ -385,7 +385,9 @@ export default class LoginWindow extends Mixins<
                 info => info.id === change.id
               );
               this.roomList!.splice(index, 1, {
+                id: "",
                 collection: "rooms",
+                key: "",
                 ownerType: null,
                 owner: null,
                 order: index,
@@ -394,14 +396,13 @@ export default class LoginWindow extends Mixins<
                 permission: null,
                 status: null,
                 createTime: new Date(),
-                updateTime: null,
-                id: null
+                updateTime: null
               });
             } else {
               const index = change.data!.order;
               this.roomList!.splice(index, 1, {
-                ...change.data!,
-                id: change.id
+                id: change.id,
+                ...change.data!
               });
             }
           });
@@ -419,11 +420,9 @@ export default class LoginWindow extends Mixins<
       if (serverInfo.roomList) {
         if (!this.roomList) this.roomList = [];
         else listToEmpty(this.roomList!);
-        serverInfo.roomList.forEach(
-          (roomInfo: StoreUseData<ClientRoomInfo>) => {
-            this.roomList!.push(roomInfo);
-          }
-        );
+        serverInfo.roomList.forEach(roomInfo => {
+          this.roomList!.push(roomInfo);
+        });
       } else {
         this.roomList = null;
       }
@@ -547,7 +546,7 @@ export default class LoginWindow extends Mixins<
         DeleteRoomRequest,
         boolean
       >("delete-room", {
-        roomId: this.roomList![order].id!,
+        roomKey: this.roomList![order].key,
         roomNo: order,
         ...deleteRoomInput
       });
@@ -567,7 +566,7 @@ export default class LoginWindow extends Mixins<
   }
 
   @VueEvent
-  private getRowClasses(data: StoreUseData<ClientRoomInfo>): string[] {
+  private getRowClasses(data: StoreObj<ClientRoomInfo>): string[] {
     const classList: string[] = [];
     if (data.exclusionOwner) {
       classList.push(data.data ? "isEditing" : "isCreating");
@@ -684,7 +683,7 @@ export default class LoginWindow extends Mixins<
       return;
     }
 
-    const roomId = this.roomList![this.selectedRoomNo].id!;
+    const roomKey = this.roomList![this.selectedRoomNo].key;
 
     /* ----------------------------------------------------------------------
      * 部屋の使用準備
@@ -704,7 +703,7 @@ export default class LoginWindow extends Mixins<
         CreateRoomRequest,
         string
       >("create-room", {
-        roomId,
+        roomKey,
         roomNo: this.selectedRoomNo,
         ...createRoomInput
       });
@@ -777,8 +776,8 @@ export default class LoginWindow extends Mixins<
       return;
     }
 
-    SocketFacade.instance.userId = userLoginResponse.userId;
-    Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
+    SocketFacade.instance.userKey = userLoginResponse.userKey;
+    Cookies.set(`${roomKey}/${userLoginInput.name}`, userLoginResponse.token, {
       expires: 365
     });
 
@@ -836,8 +835,8 @@ export default class LoginWindow extends Mixins<
       this.urlPlayerName = getUrlParam("player");
 
       if (this.urlPlayerName) {
-        // const roomId = this.roomList.filter(r => r.order === no)[0].id;
-        // const cookieToken = Cookies.get(`${roomId}/${this.urlPlayerName}`);
+        // const roomKey = this.roomList.filter(r => r.order === no)[0].key;
+        // const cookieToken = Cookies.get(`${roomKey}/${this.urlPlayerName}`);
         // console.log(`token: ${cookieToken}`);
       } else {
         if (!this.disabledLogin) await this.login();
@@ -898,7 +897,7 @@ export default class LoginWindow extends Mixins<
       }
     }
 
-    const roomId = this.roomList![this.selectedRoomNo].id!;
+    const roomKey = this.roomList![this.selectedRoomNo].key;
 
     /* ----------------------------------------------------------------------
      * 部屋ログインリクエスト
@@ -908,7 +907,7 @@ export default class LoginWindow extends Mixins<
         RoomLoginRequest,
         string
       >("room-login", {
-        roomId,
+        roomKey,
         roomNo: this.selectedRoomNo,
         ...loginRoomInput
       });
@@ -972,8 +971,8 @@ export default class LoginWindow extends Mixins<
       return;
     }
     this.roomStatus = "normal";
-    SocketFacade.instance.userId = userLoginResponse.userId;
-    Cookies.set(`${roomId}/${userLoginInput.name}`, userLoginResponse.token, {
+    SocketFacade.instance.userKey = userLoginResponse.userKey;
+    Cookies.set(`${roomKey}/${userLoginInput.name}`, userLoginResponse.token, {
       expires: 365
     });
 
@@ -1069,16 +1068,20 @@ export default class LoginWindow extends Mixins<
     const uploadMediaInfoList = await raw2UploadMediaInfoList(
       mediaDataList.map(md => md.url!)
     );
-    uploadMediaInfoList.forEach((umi: UploadMediaInfo, idx: number) => {
-      const mediaData = mediaDataList[idx];
+    uploadMediaInfoList.forEach((umi: UploadMediaInfo, index: number) => {
+      const mediaData = mediaDataList[index];
       if (mediaData.name !== undefined) umi.name = mediaData.name;
       if (mediaData.tag !== undefined) umi.tag = mediaData.tag;
     });
+
+    console.log("$$$$$$");
+    console.log(uploadMediaInfoList);
 
     const uploadMediaResponse = await mediaUpload({
       uploadMediaInfoList,
       option: { ownerType: null, owner: null }
     });
+    console.log(uploadMediaResponse);
 
     uploadMediaResponse.forEach(umr => {
       if (umr.tag === "dice" && umr.urlType === "image") {
@@ -1089,7 +1092,7 @@ export default class LoginWindow extends Mixins<
         const pips = nameSplit.pop()!.replace(/\..+/, "");
         const diceType = nameSplit.join("-");
         diceMaterial[faceNum].find(dm => dm.type === diceType)!.pips[pips] =
-          umr.docId;
+          umr.key;
       }
     });
 
@@ -1118,7 +1121,7 @@ export default class LoginWindow extends Mixins<
       texture: {
         type: "image",
         mediaTag: imageInfo.tag,
-        mediaId: imageInfo.docId,
+        mediaKey: imageInfo.key,
         direction: "none",
         backgroundSize: "100%"
       },
@@ -1126,7 +1129,7 @@ export default class LoginWindow extends Mixins<
         texture: {
           type: "image",
           mediaTag: imageInfo.tag,
-          mediaId: imageInfo.docId,
+          mediaKey: imageInfo.key,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1137,7 +1140,7 @@ export default class LoginWindow extends Mixins<
         texture: {
           type: "image",
           mediaTag: imageInfo.tag,
-          mediaId: imageInfo.docId,
+          mediaKey: imageInfo.key,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1162,17 +1165,17 @@ export default class LoginWindow extends Mixins<
       {
         char: "💗",
         isThrowLinkage: true,
-        linkageResourceId: null
+        linkageResourceKey: null
       },
       {
         char: "💐",
         isThrowLinkage: true,
-        linkageResourceId: null
+        linkageResourceKey: null
       },
       {
         char: "✨",
         isThrowLinkage: false,
-        linkageResourceId: null
+        linkageResourceKey: null
       }
     ];
 

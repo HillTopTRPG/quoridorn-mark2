@@ -5,13 +5,13 @@
       <div
         class="user"
         v-for="actorCount in actorCountList"
-        :key="actorCount.actorId"
+        :key="actorCount.actorKey"
       >
-        <span>{{ getName(actorCount.actorId) }}: {{ actorCount.count }}</span>
+        <span>{{ getName(actorCount.actorKey) }}: {{ actorCount.count }}</span>
         <span
           v-if="like.collection === 'like-list'"
           class="like-minus"
-          @click.stop="onClickMinus(actorCount.actorId)"
+          @click.stop="onClickMinus(actorCount.actorKey)"
           >{{ like.data.char }}</span
         >
       </div>
@@ -25,33 +25,32 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { UserData } from "@/@types/room";
-import { StoreUseData } from "@/@types/store";
 import { ActorStore, LikeStore } from "@/@types/gameObject";
+import { StoreObj } from "@/@types/store";
 
 @Component
 export default class ChatLogLikeViewComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private like!: StoreUseData<LikeStore>;
+  private like!: StoreObj<LikeStore>;
 
   @Prop({ type: Boolean, required: true })
   private isOpen!: boolean;
 
   @Prop({ type: Array, required: true })
-  private actorCountList!: { actorId: string; count: number }[];
+  private actorCountList!: { actorKey: string; count: number }[];
 
   @Prop({ type: Array, required: true })
-  private actorList!: StoreUseData<ActorStore>[];
+  private actorList!: StoreObj<ActorStore>[];
 
   @VueEvent
   private get charCount() {
     return this.actorCountList.reduce((prev, curr) => prev + curr.count, 0);
   }
 
-  private getName(actorId: string): string {
-    const actor = this.actorList.find(u => u.id === actorId);
+  private getName(actorKey: string): string {
+    const actor = this.actorList.find(u => u.key === actorKey);
     return actor ? actor.data!.name : "???";
   }
 
@@ -61,8 +60,8 @@ export default class ChatLogLikeViewComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private onClickMinus(actorId: string) {
-    this.$emit("minus", actorId, this.like);
+  private onClickMinus(actorKey: string) {
+    this.$emit("minus", actorKey, this.like);
   }
 }
 </script>

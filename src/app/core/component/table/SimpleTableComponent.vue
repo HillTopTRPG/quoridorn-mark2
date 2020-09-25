@@ -69,13 +69,13 @@
           </tr>
           <!-- コンテンツ -->
           <tr
-            v-for="(row, idx) in rowList"
+            v-for="(row, index) in rowList"
             :key="row.data[keyProp]"
-            :class="getRowClass(row, idx)"
+            :class="getRowClass(row, index)"
             @mousedown.left="selectTr(row.data[keyProp])"
             @touchstart="selectTr(row.data[keyProp])"
             @dblclick="doubleClick(row)"
-            :ref="`row-${idx}`"
+            :ref="`row-${index}`"
           >
             <!-- セル -->
             <td
@@ -158,8 +158,7 @@ import {
   getEventPoint
 } from "../../utility/CoordinateUtility";
 import VueEvent from "../../decorator/VueEvent";
-import { StoreUseData } from "@/@types/store";
-import LanguageManager from "../../../../LanguageManager";
+import { StoreObj } from "@/@types/store";
 import Divider from "./Divider.vue";
 
 type RowInfo<T> = {
@@ -189,7 +188,7 @@ export default class SimpleTableComponent extends Vue {
   @Prop({ type: Object, required: false, default: null })
   private tabInfo!: TabInfo | null;
   @Prop({ type: Array, required: true })
-  private dataList!: StoreUseData<any>[];
+  private dataList!: StoreObj<any>[];
   @Prop({ type: String, required: false, default: "key" })
   private keyProp!: string;
   @Prop({ type: Function, required: false, default: () => [] })
@@ -226,7 +225,7 @@ export default class SimpleTableComponent extends Vue {
   private fromLastWidth: number = 0;
   private rowList: RowInfo<any>[] = [];
 
-  private doubleClickTimeoutId: number | null = null;
+  private doubleClickTimeoutKey: number | null = null;
 
   private doubleClickedKey: string | number | null = null;
 
@@ -476,9 +475,9 @@ export default class SimpleTableComponent extends Vue {
   }
 
   @VueEvent
-  private getRowClass(row: RowInfo<any>, idx: number): string[] {
+  private getRowClass(row: RowInfo<any>, index: number): string[] {
     if (!this.isMounted) return [];
-    const rowElmList = this.$refs[`row-${idx}`] as HTMLTableRowElement[];
+    const rowElmList = this.$refs[`row-${index}`] as HTMLTableRowElement[];
     const rowElm = rowElmList ? rowElmList[0] : null;
     const rowClass = this.rowClassGetter(row.data, rowElm);
     if (row.isSelected) rowClass.push("isSelected");
@@ -510,13 +509,13 @@ export default class SimpleTableComponent extends Vue {
     const key = row.data[this.keyProp];
     this.doubleClickedKey = key;
     row.isDoubleClick = true;
-    if (this.doubleClickTimeoutId !== null) {
-      clearTimeout(this.doubleClickTimeoutId);
+    if (this.doubleClickTimeoutKey !== null) {
+      clearTimeout(this.doubleClickTimeoutKey);
     }
-    this.doubleClickTimeoutId = window.setTimeout(() => {
+    this.doubleClickTimeoutKey = window.setTimeout(() => {
       this.doubleClickedKey = null;
       row.isDoubleClick = false;
-      this.doubleClickTimeoutId = null;
+      this.doubleClickTimeoutKey = null;
     }, 100);
     this.$emit("doubleClick", key);
   }
@@ -672,20 +671,20 @@ export default class SimpleTableComponent extends Vue {
   }
 
   private rowSelect(addIndex: number) {
-    let idx = this.rowList.findIndex(
+    let index = this.rowList.findIndex(
       row => row.data[this.keyProp] === this.localValue
     );
-    if (idx === -1) {
-      idx = addIndex < 0 ? this.rowList.length - 1 : 0;
+    if (index === -1) {
+      index = addIndex < 0 ? this.rowList.length - 1 : 0;
     } else {
-      this.rowList[idx].isSelected = false;
-      idx += addIndex;
-      if (idx === -1) idx = this.rowList.length - 1;
-      if (idx >= this.rowList.length) idx = 0;
+      this.rowList[index].isSelected = false;
+      index += addIndex;
+      if (index === -1) index = this.rowList.length - 1;
+      if (index >= this.rowList.length) index = 0;
     }
-    this.rowList[idx].isSelected = true;
-    this.localValue = this.rowList[idx].data[this.keyProp];
-    const rowElmList = this.$refs[`row-${idx}`] as HTMLTableRowElement[];
+    this.rowList[index].isSelected = true;
+    this.localValue = this.rowList[index].data[this.keyProp];
+    const rowElmList = this.$refs[`row-${index}`] as HTMLTableRowElement[];
     const rowElm = rowElmList ? rowElmList[0] : null;
     if (rowElm) rowElm.scrollIntoView(true);
   }

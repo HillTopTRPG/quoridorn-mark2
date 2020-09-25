@@ -20,10 +20,10 @@
         >
           <template v-for="tab in filteredTabList">
             <chat-palette-tab-component
-              :key="tab.id"
+              :key="tab.key"
               :tab="tab"
               :dragMode="dragMode"
-              :changeOrderId="changeOrderId"
+              :changeOrderKey="changeOrderKey"
               @hover="onHover"
               @edit="editTab"
               @chmod="chmodTab"
@@ -63,7 +63,7 @@ import WindowVue from "../../core/window/WindowVue";
 import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
-import { StoreUseData } from "@/@types/store";
+import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
@@ -95,13 +95,13 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   WindowVue<void, void>
 >(WindowVue) {
   public chatPaletteList = GameObjectManager.instance.chatPaletteList;
-  private filteredTabList: StoreUseData<ChatPaletteStore>[] = [];
+  private filteredTabList: StoreObj<ChatPaletteStore>[] = [];
   private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
 
   private dragMode = false;
-  private changeOrderId: string = "";
+  private changeOrderKey: string = "";
   private dragModeProcessed: boolean = false;
-  private orderChangingIdList: string[] = [];
+  private orderChangingKeyList: string[] = [];
 
   private tabList: TabInfo[] = [{ key: "1", target: "tab-list", text: "" }];
   private currentTabInfo: TabInfo = this.tabList[0];
@@ -138,7 +138,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async editTab(tabInfo: StoreObj<ChatPaletteStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, null>({
       type: "window-open",
       owner: "Quoridorn",
@@ -146,14 +146,14 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
         type: "chat-palette-edit-window",
         args: {
           type: "chat-palette",
-          docId: tabInfo.id!
+          key: tabInfo.key
         }
       }
     });
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async chmodTab(tabInfo: StoreObj<ChatPaletteStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, void>({
       type: "window-open",
       owner: "Quoridorn",
@@ -161,7 +161,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
         type: "chmod-window",
         args: {
           type: "chat-palette",
-          docId: tabInfo.id!
+          key: tabInfo.key
         }
       }
     });
@@ -173,7 +173,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreUseData<ChatPaletteStore>) {
+  private async deleteTab(tabInfo: StoreObj<ChatPaletteStore>) {
     const msg = ChatPaletteTabSettingWindow.getDialogMessage(
       "delete-tab"
     ).replace("$1", tabInfo.data!.name);
@@ -181,7 +181,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
     if (!result) return;
 
     try {
-      await this.chatPaletteListCC.deletePackage([tabInfo.id!]);
+      await this.chatPaletteListCC.deletePackage([tabInfo.key]);
     } catch (err) {
       // TODO error message.
       return;
@@ -209,12 +209,12 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   private async onChangeDragMode() {
     this.$emit("onChangeDragMode", this.dragMode);
 
-    const idList: string[] = this.filteredTabList.map(ct => ct.id!);
+    const keyList: string[] = this.filteredTabList.map(ct => ct.key);
     if (this.dragMode) {
       let error: boolean = false;
 
       try {
-        await this.chatPaletteListCC.touchModify(idList);
+        await this.chatPaletteListCC.touchModify(keyList);
       } catch (err) {
         error = true;
         alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
@@ -223,16 +223,16 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
       if (error) {
         this.dragModeProcessed = true;
         this.dragMode = false;
-        this.orderChangingIdList = [];
+        this.orderChangingKeyList = [];
       } else {
-        this.orderChangingIdList = idList;
+        this.orderChangingKeyList = keyList;
       }
     } else {
-      this.orderChangingIdList = [];
+      this.orderChangingKeyList = [];
       console.log(this.dragModeProcessed);
       if (!this.dragModeProcessed) {
-        await this.chatPaletteListCC.releaseTouch(idList);
-        console.log("releaseTouched", idList);
+        await this.chatPaletteListCC.releaseTouch(keyList);
+        console.log("releaseTouched", keyList);
         this.dragModeProcessed = false;
       }
     }
@@ -244,8 +244,8 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if (this.dragMode && !this.dragModeProcessed) {
-      const idList: string[] = this.filteredTabList.map(ct => ct.id!);
-      await this.chatPaletteListCC.releaseTouch(idList);
+      const keyList: string[] = this.filteredTabList.map(ct => ct.key);
+      await this.chatPaletteListCC.releaseTouch(keyList);
       this.dragModeProcessed = false;
     }
   }
@@ -262,39 +262,41 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   @VueEvent
   private async onSortOrderChange() {
     console.log("onEndOrderChange");
-    const idOrderList = this.filteredTabList.map(ct => ({
-      id: ct.id!,
+    const keyOrderList = this.filteredTabList.map(ct => ({
+      key: ct.key,
       order: ct.order,
       target: false
     }));
-    const orderList = idOrderList.concat().map(ido => ido.order);
+    const orderList = keyOrderList.concat().map(keyo => keyo.order);
     orderList.sort((o1, o2) => {
       if (o1 < o2) return -1;
       if (o1 > o2) return 1;
       return 0;
     });
-    idOrderList.forEach((ido, idx: number) => {
-      if (ido.order !== orderList[idx]) ido.target = true;
-      ido.order = orderList[idx];
+    keyOrderList.forEach((keyo, index: number) => {
+      if (keyo.order !== orderList[index]) keyo.target = true;
+      keyo.order = orderList[index];
     });
 
-    const idList: string[] = [];
-    const dataList: ChatPaletteStore[] = [];
-    const optionList: any = [];
-    this.filteredTabList.forEach((obj, idx) => {
-      if (!idOrderList[idx].target) return;
-      const id = idOrderList[idx].id;
-      const order = idOrderList[idx].order;
-      const data = this.filteredTabList.filter(ct => ct.id === id)[0].data!;
-      idList.push(id);
-      dataList.push(data);
-      optionList.push({
+    const list: (Partial<StoreObj<ChatPaletteStore>> & {
+      key: string;
+      data: ChatPaletteStore;
+      continuous?: boolean;
+    })[] = [];
+    this.filteredTabList.forEach((obj, index) => {
+      if (!keyOrderList[index].target) return;
+      const key = keyOrderList[index].key;
+      const order = keyOrderList[index].order;
+      const data = this.filteredTabList.filter(ct => ct.key === key)[0].data!;
+      list.push({
+        key,
         order,
+        data,
         continuous: true
       });
     });
 
-    await this.chatPaletteListCC.update(idList, dataList, optionList);
+    await this.chatPaletteListCC.update(list);
   }
 
   @VueEvent
@@ -304,7 +306,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
       owner: "Quoridorn",
       value: { type: "special-drag", value: "off" as "off" }
     });
-    this.changeOrderId = "";
+    this.changeOrderKey = "";
   }
 }
 </script>

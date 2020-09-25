@@ -42,7 +42,7 @@ import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
 export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
-  private docId: string | null = null;
+  private docKey: string | null = null;
   private chatTabList = GameObjectManager.instance.chatTabList;
   private isProcessed: boolean = false;
   private cc = SocketFacade.instance.chatTabListCC();
@@ -56,8 +56,8 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     await this.init();
     this.inputEnter("input:not([type='button'])", this.commit);
 
-    this.docId = this.windowInfo.args!;
-    const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
+    this.docKey = this.windowInfo.args!;
+    const data = this.chatTabList.filter(ct => ct.key === this.docKey)[0];
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -81,7 +81,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
 
     if (this.windowInfo.status === "window") {
       try {
-        await this.cc.touchModify([this.docId]);
+        await this.cc.touchModify([this.docKey]);
       } catch (err) {
         console.warn(err);
         this.isProcessed = true;
@@ -94,15 +94,15 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     if (this.tabName === null) return false;
     return (
       this.chatTabList.filter(
-        ct => ct.data!.name === this.tabName && ct.id !== this.docId
+        ct => ct.data!.name === this.tabName && ct.key !== this.docKey
       ).length > 0
     );
   }
 
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
-    if (this.docId === null) return;
-    const tab = this.chatTabList.filter(ct => ct.id === this.docId)[0];
+    if (this.docKey === null) return;
+    const tab = this.chatTabList.filter(ct => ct.key === this.docKey)[0];
     this.windowInfo.message = this.isDuplicate
       ? this.$t("message.tab-duplicate")!.toString()
       : this.$t("message.original")!
@@ -118,11 +118,16 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async commit() {
     if (!this.isDuplicate) {
-      const data = this.chatTabList.filter(ct => ct.id === this.docId)[0];
+      const data = this.chatTabList.filter(ct => ct.key === this.docKey)[0];
       data.data!.name = this.tabName!;
       data.data!.useReadAloud = this.useReadAloud!;
       data.data!.readAloudVolume = this.readAloudVolume!;
-      await this.cc!.update([this.docId!], [data.data!]);
+      await this.cc!.update([
+        {
+          key: this.docKey!,
+          data: data.data!
+        }
+      ]);
     }
     this.isProcessed = true;
     await this.close();
@@ -142,7 +147,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async rollback() {
     try {
-      await this.cc!.releaseTouch([this.docId!]);
+      await this.cc!.releaseTouch([this.docKey!]);
     } catch (err) {
       // nothing
     }

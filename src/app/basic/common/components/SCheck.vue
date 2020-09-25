@@ -1,6 +1,7 @@
 <template>
   <span
     class="simple-check"
+    :id="elmId"
     :class="[
       value ? 'checked' : undefined,
       disabled ? 'disabled' : undefined,
@@ -31,11 +32,15 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Boolean, required: true })
   private value!: boolean;
+
+  @Prop({ type: String, default: null })
+  public elmId!: string | null;
 
   @Prop({ type: Boolean, default: false })
   private iconBefore!: boolean;
@@ -73,6 +78,7 @@ export default class SCheck extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("input", value);
   }
 
+  @VueEvent
   private onClick() {
     if (this.disabled || this.readonly) return;
     this.localValue = !this.localValue;

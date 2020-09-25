@@ -5,7 +5,7 @@
         class="youtube-container-transform"
         :class="{ isResizing, isWindowMoving }"
       >
-        <div :id="youtubeElementId" class="youtube"></div>
+        <div :id="youtubeElementKey" class="youtube"></div>
       </div>
     </div>
     <div class="youtube-container-outer" v-else>
@@ -52,7 +52,6 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
 import BgmManager from "./BgmManager";
 import YoutubeManager, {
   getYoutubeThunbnail,
@@ -75,7 +74,7 @@ export default class PlayYoutubeWindow
   private isIpadTesting!: boolean;
 
   private bgmInfo: CutInDeclareInfo | null = null;
-  private targetId: string | null = null;
+  private targetKey: string | null = null;
   private volume: number = 0;
   private isWindowMoving = false;
 
@@ -121,13 +120,13 @@ export default class PlayYoutubeWindow
     );
     this.isMounted = true;
 
-    // targetIdかdataはどちらかが設定されてくる
-    let { targetId, data } = this.windowInfo.args!;
-    this.targetId = targetId;
+    // targetKeyかdataはどちらかが設定されてくる
+    let { targetKey, data } = this.windowInfo.args!;
+    this.targetKey = targetKey;
 
     if (!data) {
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
-      data = (await cutInDataCC.getData(targetId!))!.data!;
+      data = (await cutInDataCC.findSingle("key", targetKey!))!.data!.data!;
     }
     this.bgmInfo = data;
 
@@ -140,11 +139,11 @@ export default class PlayYoutubeWindow
     }
 
     await BgmManager.playBgm(
-      targetId || null,
+      targetKey || null,
       this.bgmInfo,
       this.windowKey,
       this.windowInfo.status,
-      this.youtubeElementId,
+      this.youtubeElementKey,
       this
     );
     this.maxVolume = this.bgmInfo.volume;
@@ -153,7 +152,7 @@ export default class PlayYoutubeWindow
   }
 
   private get isStandByBgm(): boolean {
-    return (this.targetId && this.bgmInfo!.isStandBy) as boolean;
+    return (this.targetKey && this.bgmInfo!.isStandBy) as boolean;
   }
 
   public setVolume(volume: number) {
@@ -168,7 +167,7 @@ export default class PlayYoutubeWindow
   async onChangeCutInDeclareInfo() {
     if (!this.windowInfo.args) {
       if (this.bgmInfo)
-        YoutubeManager.instance.destroyed(this.youtubeElementId);
+        YoutubeManager.instance.destroyed(this.youtubeElementKey);
       return;
     }
     if (!this.isMounted) return;
@@ -180,7 +179,7 @@ export default class PlayYoutubeWindow
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if ("window" !== this.windowInfo.status) return;
-    YoutubeManager.instance.pause(this.youtubeElementId);
+    YoutubeManager.instance.pause(this.youtubeElementKey);
 
     BgmManager.closeBgm(this.windowInfo.args!);
   }
@@ -194,16 +193,16 @@ export default class PlayYoutubeWindow
     this.windowInfo.heightPx = this.windowInfo.declare.size.heightPx;
     WindowManager.instance.arrangePoint(this.windowKey, true);
     GameObjectManager.instance.playingBgmList.push({
-      targetId: this.targetId,
+      targetKey: this.targetKey,
       tag: this.bgmInfo!.tag,
       windowKey: this.windowKey
     });
     setTimeout(() => {
-      YoutubeManager.instance.play(this.youtubeElementId);
+      YoutubeManager.instance.play(this.youtubeElementKey);
     });
   }
 
-  private get youtubeElementId() {
+  private get youtubeElementKey() {
     return `${this.windowKey}-${this.status}-youtube`;
   }
 
@@ -220,7 +219,7 @@ export default class PlayYoutubeWindow
   @LifeCycle
   private destroyed() {
     if (this.status !== "window") return;
-    YoutubeManager.instance.destroyed(this.youtubeElementId);
+    YoutubeManager.instance.destroyed(this.youtubeElementKey);
   }
 
   public onReady(): void {
@@ -233,7 +232,7 @@ export default class PlayYoutubeWindow
       this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
       this.windowInfo.message = this.bgmInfo!.title;
       if (this.bgmInfo!.fadeIn > 1)
-        YoutubeManager.instance.setVolume(this.youtubeElementId, 0);
+        YoutubeManager.instance.setVolume(this.youtubeElementKey, 0);
 
       this.playStart();
 
@@ -243,16 +242,16 @@ export default class PlayYoutubeWindow
       if (this.isStandByBgm) {
         if (this.isIpadTesting) console.log("isStandByBgm to pause");
         BgmManager.instance.notifyOpenedStandByWindow(
-          this.targetId!,
+          this.targetKey!,
           this.windowKey
         );
         setTimeout(() => {
           YoutubeManager.instance.seekTo(
-            this.youtubeElementId,
+            this.youtubeElementKey,
             this.bgmInfo!.start,
             true
           );
-          YoutubeManager.instance.pause(this.youtubeElementId);
+          YoutubeManager.instance.pause(this.youtubeElementKey);
         }, 100);
       }
     });
@@ -263,9 +262,12 @@ export default class PlayYoutubeWindow
     if (this.isFirstOnReady) {
       this.onChangeMute();
     }
-    // YoutubeManager.instance.mute(this.youtubeElementId);
-    YoutubeManager.instance.loadVideoById(this.youtubeElementId, this.bgmInfo!);
-    YoutubeManager.instance.play(this.youtubeElementId);
+    // YoutubeManager.instance.mute(this.youtubeElementKey);
+    YoutubeManager.instance.loadVideoById(
+      this.youtubeElementKey,
+      this.bgmInfo!
+    );
+    YoutubeManager.instance.play(this.youtubeElementKey);
   }
 
   public onError(error: any): void {
@@ -294,9 +296,11 @@ export default class PlayYoutubeWindow
     this.isPlay = true;
     const updateDB = !this.bgmInfo!.duration;
     this.bgmInfo!.duration = duration;
-    if (updateDB && this.targetId) {
+    if (updateDB && this.targetKey) {
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
-      await cutInDataCC.updatePackage([this.targetId!], [this.bgmInfo!]);
+      await cutInDataCC.updatePackage([
+        { key: this.targetKey!, data: this.bgmInfo! }
+      ]);
     }
     // this.isPlay = true;
 
@@ -346,7 +350,7 @@ export default class PlayYoutubeWindow
         if (this.bgmInfo!.isRepeat) {
           this.seek = this.bgmStart;
           YoutubeManager.instance.seekTo(
-            this.youtubeElementId,
+            this.youtubeElementKey,
             this.bgmStart,
             true
           );
@@ -391,7 +395,7 @@ export default class PlayYoutubeWindow
     if (this.bgmInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(
-        this.youtubeElementId,
+        this.youtubeElementKey,
         this.bgmStart,
         true
       );
@@ -421,7 +425,7 @@ export default class PlayYoutubeWindow
     this.isSeekToAfter = this.bgmEnd < seek;
     setTimeout(() => {
       YoutubeManager.instance.seekTo(
-        this.youtubeElementId,
+        this.youtubeElementKey,
         seek,
         allowSeekAhead
       );
@@ -429,10 +433,10 @@ export default class PlayYoutubeWindow
       if (this.isPlay) {
         this.isSeekChanging = true;
         if (allowSeekAhead) {
-          YoutubeManager.instance.play(this.youtubeElementId);
+          YoutubeManager.instance.play(this.youtubeElementKey);
           this.isSeekChanging = false;
         } else {
-          YoutubeManager.instance.pause(this.youtubeElementId);
+          YoutubeManager.instance.pause(this.youtubeElementKey);
         }
       }
     });
@@ -454,7 +458,7 @@ export default class PlayYoutubeWindow
 
     if (this.bgmInfo) {
       if (this.status === "window") {
-        YoutubeManager.instance.setVolume(this.youtubeElementId, this.volume);
+        YoutubeManager.instance.setVolume(this.youtubeElementKey, this.volume);
       } else {
         await TaskManager.instance.ignition<YoutubeVolumeChangeInfo, never>({
           type: "bgm-volume-change",
@@ -493,8 +497,8 @@ export default class PlayYoutubeWindow
 
     if (this.bgmInfo) {
       if (this.status === "window") {
-        if (this.isMute) YoutubeManager.instance.mute(this.youtubeElementId);
-        else YoutubeManager.instance.unMute(this.youtubeElementId);
+        if (this.isMute) YoutubeManager.instance.mute(this.youtubeElementKey);
+        else YoutubeManager.instance.unMute(this.youtubeElementKey);
       } else {
         await TaskManager.instance.ignition<YoutubeMuteChangeInfo, never>({
           type: "bgm-mute-change",

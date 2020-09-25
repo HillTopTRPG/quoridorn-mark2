@@ -165,7 +165,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
           owner: "Quoridorn",
           value: {
             type: "",
-            docId: this.windowInfo.key,
+            key: this.windowInfo.key,
             dataList: [
               createEmptyStoreUseData(uuid.v4(), {
                 tab: "",

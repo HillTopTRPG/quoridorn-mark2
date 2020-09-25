@@ -1,8 +1,8 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :id="id"
     ref="component"
   />
 </template>
@@ -19,13 +19,11 @@ import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 import LanguageManager from "../../../../../LanguageManager";
-import { findRequireById } from "@/app/core/utility/Utility";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class SceneLayerSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
@@ -36,25 +34,25 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
   @LifeCycle
   private async created() {
     const roomData = GameObjectManager.instance.roomData;
-    const sceneId = roomData.sceneId;
+    const sceneKey = roomData.sceneKey;
     GameObjectManager.instance.sceneAndLayerList
-      .filter(mal => mal.data!.sceneId === sceneId)
+      .filter(mal => mal.data!.sceneKey === sceneKey)
       .forEach(mal => {
-        const layerId = mal.data!.layerId;
-        const layer = findRequireById(
+        const layerKey = mal.data!.layerKey;
+        const layer = findRequireByKey(
           GameObjectManager.instance.sceneLayerList,
-          layerId
+          layerKey
         );
         // TODO やり残し？
       });
     this.orderList = GameObjectManager.instance.sceneAndLayerList
-      .filter(mal => mal.data!.sceneId === sceneId)
+      .filter(mal => mal.data!.sceneKey === sceneKey)
       .sort((mal1, mal2) => {
         if (mal1.order < mal2.order) return -1;
         if (mal1.order > mal2.order) return 1;
         return 0;
       })
-      .map(mal => mal.data!.layerId);
+      .map(mal => mal.data!.layerKey);
     this.createOptionInfoList();
   }
 
@@ -69,20 +67,20 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
   private createOptionInfoList() {
     this.optionInfoList = GameObjectManager.instance.sceneLayerList
       .sort((ml1, ml2) => {
-        const ml1Index = this.orderList.findIndex(o => o === ml1.id);
-        const ml2Index = this.orderList.findIndex(o => o === ml2.id);
+        const ml1Index = this.orderList.findIndex(o => o === ml1.key);
+        const ml2Index = this.orderList.findIndex(o => o === ml2.key);
         if (ml1Index < ml2Index) return 1;
         if (ml1Index > ml2Index) return -1;
         return 0;
       })
       .map(ml => {
-        const mlIndex = this.orderList.findIndex(o => o === ml.id);
+        const mlIndex = this.orderList.findIndex(o => o === ml.key);
         let text = ml.data!.name;
         if (ml.data!.type !== "other")
           text = this.$t(`type.${ml.data!.type}`)!.toString();
         return {
-          key: ml.id!,
-          value: ml.id!,
+          key: ml.key,
+          value: ml.key,
           text: `${mlIndex + 1}：${text}`,
           disabled: false
         };

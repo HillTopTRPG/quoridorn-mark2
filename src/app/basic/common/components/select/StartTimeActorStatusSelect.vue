@@ -1,8 +1,8 @@
 <template>
   <ctrl-select
+    :elmId="elmId"
     v-model="localValue"
     :optionInfoList="optionInfoList"
-    :id="id"
     ref="component"
   />
 </template>
@@ -17,20 +17,18 @@ import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
-import { HtmlOptionInfo } from "../../../../../@types/window";
+import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class StartTimeActorStatusSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
-  private parentId!: string;
+  private parentKey!: string;
 
   private optionInfoList: HtmlOptionInfo[] = [];
 
@@ -38,10 +36,10 @@ export default class StartTimeActorStatusSelect extends Mixins<MultiMixin>(
 
   private get optionInfoContents(): HtmlOptionInfo[] {
     return this.actorStatusList
-      .filter(s => s.owner === this.parentId)
+      .filter(s => s.owner === this.parentKey)
       .map(s => ({
-        key: s.id!,
-        value: s.id!,
+        key: s.key,
+        value: s.key,
         text: s.data!.name,
         disabled: false
       }));
