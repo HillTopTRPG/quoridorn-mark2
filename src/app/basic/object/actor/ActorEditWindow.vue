@@ -116,7 +116,7 @@ export default class ActorEditWindow extends Mixins<
   private onChangeIsDuplicate() {
     const actor = findRequireByKey(this.actorList, this.docKey);
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.tab-duplicate")!.toString()
+      ? this.$t("message.name-duplicate")!.toString()
       : this.$t("message.original")!
           .toString()
           .replace("$1", actor ? actor.data!.name : "");

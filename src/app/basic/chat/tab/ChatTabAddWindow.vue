@@ -60,7 +60,7 @@ export default class ChatTabAddWindow extends Mixins<
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.tab-duplicate")!.toString()
+      ? this.$t("message.name-duplicate")!.toString()
       : "";
   }
 

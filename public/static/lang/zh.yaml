@@ -356,7 +356,7 @@ message:
   drag-piece: マップにドラッグすると作成できます。
   delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
   original: "元：$1"
-  tab-duplicate: "他のタブと重複します。"
+  name-duplicate: "名前が重複します。"
   delete-failure: 削除に失敗しました。
 
 play-youtube-window:

@@ -24,7 +24,7 @@
     />
 
     <div class="button-area">
-      <ctrl-button @click="commit()">
+      <ctrl-button @click="commit()" :disabled="isDuplicate || !name">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
@@ -56,6 +56,8 @@ import {
   RefProperty,
   ResourceType
 } from "@/@types/store-data-optional";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -88,6 +90,8 @@ export default class ResourceMasterEditWindow extends Mixins<
   private defaultValueNumber: number = 0;
   private defaultValueBoolean: boolean = false;
   private defaultValueColor: string = "#000000";
+
+  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
 
   @LifeCycle
   public async mounted() {
@@ -144,6 +148,27 @@ export default class ResourceMasterEditWindow extends Mixins<
       }
     }
     this.isMounted = true;
+  }
+
+  @VueEvent
+  private get isDuplicate(): boolean {
+    return this.resourceMasterList.some(
+      rm => rm.data!.label === this.name && rm.key !== this.docKey
+    );
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    if (this.docKey === null) return;
+    const resourceMaster = findRequireByKey(
+      this.resourceMasterList,
+      this.docKey
+    );
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", resourceMaster.data!.label);
   }
 
   @Watch("resourceType")

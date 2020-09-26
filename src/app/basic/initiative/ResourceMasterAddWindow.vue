@@ -24,7 +24,7 @@
     />
 
     <div class="button-area">
-      <ctrl-button @click="commit()">
+      <ctrl-button @click="commit()" :disabled="isDuplicate || !name">
         <span v-t="'button.add'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
@@ -55,13 +55,9 @@ import {
   RefProperty,
   ResourceType
 } from "@/@types/store-data-optional";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
-@Component({
-  components: {
-    CtrlButton,
-    ResourceMasterInfoForm
-  }
-})
+@Component({ components: { CtrlButton, ResourceMasterInfoForm } })
 export default class ResourceMasterAddWindow extends Mixins<
   WindowVue<string, boolean>
 >(WindowVue) {
@@ -85,10 +81,24 @@ export default class ResourceMasterAddWindow extends Mixins<
   private defaultValueBoolean: boolean = false;
   private defaultValueColor: string = "#000000";
 
+  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
+
   @LifeCycle
   public async mounted() {
     await this.init();
     this.isMounted = true;
+  }
+
+  @VueEvent
+  private get isDuplicate(): boolean {
+    return this.resourceMasterList.some(rm => rm.data!.label === this.name);
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
   }
 
   @Watch("resourceType")

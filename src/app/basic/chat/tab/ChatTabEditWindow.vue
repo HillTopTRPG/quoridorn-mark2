@@ -103,7 +103,7 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
     if (this.docKey === null) return;
     const tab = findRequireByKey(this.chatTabList, this.docKey);
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.tab-duplicate")!.toString()
+      ? this.$t("message.name-duplicate")!.toString()
       : this.$t("message.original")!
           .toString()
           .replace("$1", tab.data!.name);

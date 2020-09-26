@@ -102,7 +102,7 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
     if (this.docKey === null) return;
     const tab = this.likeList.filter(ct => ct.key === this.docKey)[0];
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.tab-duplicate")!.toString()
+      ? this.$t("message.name-duplicate")!.toString()
       : this.$t("message.original")!
           .toString()
           .replace("$1", tab.data!.char);

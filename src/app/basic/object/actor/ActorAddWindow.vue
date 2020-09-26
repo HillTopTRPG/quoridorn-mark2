@@ -64,7 +64,7 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.tab-duplicate")!.toString()
+      ? this.$t("message.name-duplicate")!.toString()
       : "";
   }
 
