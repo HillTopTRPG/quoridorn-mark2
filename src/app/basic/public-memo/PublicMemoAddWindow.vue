@@ -54,12 +54,16 @@ export default class PublicMemoAddWindow extends Mixins<
   private mediaTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
+  private mediaList = GameObjectManager.instance.mediaList;
 
   @LifeCycle
   public async mounted() {
     await this.init();
     this.mediaTag = this.$t("type.public-memo")!.toString();
     this.isMounted = true;
+    const media = this.mediaList[this.mediaList.length > 1 ? 1 : 0];
+    this.mediaKey = media.key;
+    this.mediaTag = media.data!.tag;
   }
 
   @VueEvent
