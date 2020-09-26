@@ -200,7 +200,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private get ownerActorList(): StoreData<ActorStore>[] {
+  private get ownerActorList(): StoreUseData<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -214,7 +214,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private get tabbedOwnerActorList(): StoreData<ActorStore>[] {
+  private get tabbedOwnerActorList(): StoreUseData<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -234,13 +234,13 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private getSceneObjectList(actor: StoreData<ActorStore>) {
+  private getSceneObjectList(actor: StoreUseData<ActorStore>) {
     const sceneKey = GameObjectManager.instance.roomData.sceneKey;
     return this.sceneAndObjectList
       .filter(
         sao =>
           sao.data!.sceneKey === sceneKey &&
-          actor.data!.pieceKeyList.filter(p => p === sao.data!.objectKey).length
+          actor.data!.pieceKeyList.some(p => p === sao.data!.objectKey)
       )
       .map(sao => findRequireByKey(this.sceneObjectList, sao.data!.objectKey))
       .filter(so => so.data!.place === "field");
@@ -307,12 +307,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreData<ActorStore>) {
+  private isEditable(tabInfo: StoreUseData<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editActor(actor: StoreData<ActorStore>) {
+  private async editActor(actor: StoreUseData<ActorStore>) {
     if (!this.isEditable(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -329,12 +329,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreData<ActorStore>) {
+  private isChmodAble(tabInfo: StoreUseData<ActorStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodActor(actor: StoreData<ActorStore>) {
+  private async chmodActor(actor: StoreUseData<ActorStore>) {
     if (!this.isChmodAble(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -351,12 +351,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreData<ActorStore>) {
+  private isDeletable(tabInfo: StoreUseData<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteActor(actor: StoreData<ActorStore>) {
+  private async deleteActor(actor: StoreUseData<ActorStore>) {
     if (!this.isDeletable(actor)) return;
     const msg = PlayerBoxWindow.getDialogMessage("delete-actor").replace(
       "$1",

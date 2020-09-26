@@ -72,7 +72,7 @@
         :fontColor.sync="fontColor"
         :backBackgroundColor.sync="newDeckBackColor"
         :backImageKey.sync="newDeckBackImageKey"
-        :imageTag.sync="newDeckTag"
+        :mediaTag.sync="newDeckTag"
         :nameHeight.sync="nameHeight"
         :nameFontSize.sync="nameFontSize"
         :nameBackgroundColor.sync="nameBackgroundColor"
@@ -109,7 +109,7 @@
         @next="subStatusNum = 4"
         :color.sync="newDeckBackColor"
         :backImageKey.sync="newDeckBackImageKey"
-        :imageTag.sync="newDeckTag"
+        :mediaTag.sync="newDeckTag"
       />
       <card-deck-create-card-component
         class="sub-contents create-card"
@@ -117,7 +117,7 @@
         @back="subStatusNum = 3"
         @next="statusNum = 3"
         :width="width"
-        :imageTag="newDeckTag"
+        :mediaTag="newDeckTag"
         :height="height"
         :padTop="padTop"
         :padHorizontal="padHorizontal"
@@ -177,7 +177,11 @@ import {
   createAddress,
   createPoint
 } from "@/app/core/utility/CoordinateUtility";
-import { createEmptyStoreUseData, getSrc } from "@/app/core/utility/Utility";
+import {
+  createEmptyStoreUseData,
+  findRequireByKey,
+  getSrc
+} from "@/app/core/utility/Utility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import { CardCountInfo } from "./CardChooserComponent.vue";
 import { loadYaml } from "@/app/core/utility/FileUtility";
@@ -298,7 +302,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
     const cardMetaList: CardMetaStore[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
-      .map(ccInfo => this.cardList.filter(c => c.key === ccInfo.key)[0].data!);
+      .map(ccInfo => findRequireByKey(this.cardList, ccInfo.key).data!);
     const cardMetaKeyList = await this.cardMetaCC.addDirect(
       cardMetaList.map(data => ({
         owner: cardDeckBigKey,
@@ -395,11 +399,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
     this.presetDeckList
       .concat(this.dbDeckList)
-      .filter(
-        deck =>
-          this.selectedDeckKeyList.findIndex(
-            key => key === deck.cardDeckBig.key
-          ) > -1
+      .filter(deck =>
+        this.selectedDeckKeyList.some(key => key === deck.cardDeckBig.key)
       )
       .forEach(deck => {
         resultList.push(...deck.cardMetaList);

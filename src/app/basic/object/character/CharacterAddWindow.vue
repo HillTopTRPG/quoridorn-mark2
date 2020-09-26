@@ -9,8 +9,8 @@
       :otherTextList.sync="otherTextList"
       :url.sync="url"
       :size.sync="size"
-      :imageDocKey.sync="imageDocKey"
-      :imageTag.sync="imageTag"
+      :mediaKey.sync="mediaKey"
+      :mediaTag.sync="mediaTag"
       :direction.sync="direction"
       :backgroundSize.sync="backgroundSize"
       :layerKey.sync="layerKey"
@@ -54,8 +54,8 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   ];
   private url: string = "";
   private size: number = 1;
-  private imageDocKey: string | null = null;
-  private imageTag: string | null = null;
+  private mediaKey: string | null = null;
+  private mediaTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
@@ -66,14 +66,14 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = this.$t("type.character")!.toString();
+    this.mediaTag = this.$t("type.character")!.toString();
     this.isMounted = true;
   }
 
-  @Watch("imageDocKey", { immediate: true })
+  @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey() {
     this.windowInfo.message = this.$t(
-      this.imageDocKey ? "message.drag-piece" : "message.choose-image"
+      this.mediaKey ? "message.drag-piece" : "message.choose-image"
     )!.toString();
   }
 
@@ -133,8 +133,8 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
             textures: [
               {
                 type: "image",
-                mediaTag: this.imageTag!,
-                mediaKey: this.imageDocKey!,
+                mediaTag: this.mediaTag!,
+                mediaKey: this.mediaKey!,
                 direction: this.direction,
                 backgroundSize: this.backgroundSize!
               }

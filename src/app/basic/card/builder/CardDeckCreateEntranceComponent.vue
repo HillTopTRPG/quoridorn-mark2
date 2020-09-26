@@ -164,17 +164,17 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
     this.$emit("update:backImageKey", value);
   }
 
-  // imageTag
+  // mediaTag
   @Prop({ required: true })
-  private imageTag!: string | null;
-  private imageTagVolatile: string | null = null;
-  @Watch("imageTag", { immediate: true })
+  private mediaTag!: string | null;
+  private mediaTagVolatile: string | null = null;
+  @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
-    this.imageTagVolatile = value;
+    this.mediaTagVolatile = value;
   }
-  @Watch("imageTagVolatile")
+  @Watch("mediaTagVolatile")
   private onChangeImageTagVolatile(value: string | null) {
-    this.$emit("update:imageTag", value);
+    this.$emit("update:mediaTag", value);
   }
 
   // fontColor
@@ -308,7 +308,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
     const getImageUrl = (
       name: string
     ): { key: string; tag: string; url: string } | null => {
-      const media = this.mediaList.filter(m => m.data!.name.endsWith(name))[0];
+      const media = this.mediaList.find(m => m.data!.name.endsWith(name));
       return media
         ? {
             key: media.key,
@@ -342,7 +342,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
       if (i === 1) {
         backImageUrl = imageUrl.url;
         this.backImageKeyVolatile = imageUrl.key;
-        this.imageTagVolatile = imageUrl.tag;
+        this.mediaTagVolatile = imageUrl.tag;
         continue;
       }
 

@@ -39,8 +39,8 @@ import CardComponent from "./CardComponent.vue";
 import { Size } from "@/@types/store-data-optional";
 
 export type DeckInfo = {
-  cardDeckBig: StoreData<CardDeckBigStore>;
-  cardMetaList: StoreData<CardMetaStore>[];
+  cardDeckBig: StoreUseData<CardDeckBigStore>;
+  cardMetaList: StoreUseData<CardMetaStore>[];
 };
 
 @Component({

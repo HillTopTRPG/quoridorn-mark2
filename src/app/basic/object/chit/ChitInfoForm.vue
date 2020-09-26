@@ -6,7 +6,7 @@
         class="object"
         :class="{ 'type-add': isAdd }"
         ref="object"
-        :draggable="isAdd && !!imageDocKey"
+        :draggable="isAdd && !!mediaKey"
         @dragstart="dragStart"
         @dragend="dragEnd"
       ></div>
@@ -55,9 +55,9 @@
       <!-- 画像タブ -->
       <image-picker-component
         v-if="currentTabInfo.target === 'image'"
-        v-model="imageDocKeyVolatile"
+        v-model="mediaKeyVolatile"
         :windowKey="key"
-        :imageTag.sync="imageTagVolatile"
+        :mediaTag.sync="mediaTagVolatile"
         :direction.sync="directionVolatile"
         ref="imagePicker"
       />
@@ -220,28 +220,28 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @Prop({ type: String, default: null })
-  private imageDocKey!: string | null;
-  private imageDocKeyVolatile: string | null = null;
-  @Watch("imageDocKey", { immediate: true })
+  private mediaKey!: string | null;
+  private mediaKeyVolatile: string | null = null;
+  @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey(value: string | null) {
-    this.imageDocKeyVolatile = value;
+    this.mediaKeyVolatile = value;
   }
-  @Watch("imageDocKeyVolatile")
+  @Watch("mediaKeyVolatile")
   private onChangeImageDocKeyVolatile(value: string | null) {
-    this.$emit("update:imageDocKey", value);
+    this.$emit("update:mediaKey", value);
   }
 
   @Prop({ type: String, default: null })
-  private imageTag!: string | null;
+  private mediaTag!: string | null;
 
-  private imageTagVolatile: string | null = null;
-  @Watch("imageTag", { immediate: true })
+  private mediaTagVolatile: string | null = null;
+  @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
-    this.imageTagVolatile = value;
+    this.mediaTagVolatile = value;
   }
-  @Watch("imageTagVolatile")
+  @Watch("mediaTagVolatile")
   private onChangeImageTagVolatile(value: string | null) {
-    this.$emit("update:imageTag", value);
+    this.$emit("update:mediaTag", value);
   }
 
   @Prop({ type: String, required: true })
@@ -312,20 +312,18 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @LifeCycle
   public async mounted() {
     this.isMounted = true;
-    this.currentTabInfo = this.tabList.filter(
+    this.currentTabInfo = this.tabList.find(
       t => t.target === this.initTabTarget
-    )[0];
+    )!;
   }
 
   @Watch("isMounted")
-  @Watch("imageDocKey")
+  @Watch("mediaKey")
   @Watch("direction")
   @Watch("backgroundSize")
   private onChangeImage() {
     if (!this.isMounted) return;
-    const imageObj = this.mediaList.filter(
-      obj => obj.key === this.imageDocKey
-    )[0];
+    const imageObj = this.mediaList.find(obj => obj.key === this.mediaKey);
     if (!imageObj) return;
     this.imageSrc = imageObj.data!.url;
     this.objectElm.style.setProperty("--imageSrc", `url('${this.imageSrc}')`);

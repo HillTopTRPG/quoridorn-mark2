@@ -110,6 +110,7 @@ import SButton from "../../common/components/SButton.vue";
 import { CardMetaStore } from "@/@types/store-data";
 import CardComponent from "../CardComponent.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { findByKey } from "@/app/core/utility/Utility";
 
 export type CardCountInfo = {
   key: string;
@@ -133,7 +134,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   @Prop({ type: Array, required: true })
   private cardList!: StoreData<CardMetaStore>[];
 
-  // selectedCardIdList
+  // selectedCardKeyList
   @Prop({ type: Array, required: true })
   private selectedCardList!: CardCountInfo[];
 
@@ -150,7 +151,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
     this.$emit("update:cardDeckName", value);
   }
 
-  private hoverCardId: string | null = null;
+  private hoverCardKey: string | null = null;
 
   private searchText: string = "";
   private searchCountList: string[] = ["0", "1", "2", "3", "4", "more"];
@@ -203,8 +204,8 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private getSelectedCount(cardId: string): number {
-    const info = this.selectedCardList.filter(c => c.key === cardId)[0];
+  private getSelectedCount(cardKey: string): number {
+    const info = findByKey(this.selectedCardList, cardKey);
     return info ? info.count : 0;
   }
 
@@ -241,7 +242,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
     isHover: boolean,
     elm: HTMLElement
   ) {
-    this.hoverCardId = isHover ? card.key : null;
+    this.hoverCardKey = isHover ? card.key : null;
     const rect: any = elm.getBoundingClientRect();
     const r = createRectangle(rect.x, rect.y, rect.width, rect.height);
     this.$emit("hover-card", card, isHover, r);

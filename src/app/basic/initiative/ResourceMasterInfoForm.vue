@@ -144,7 +144,7 @@
         v-if="currentTabInfo.target === 'icon'"
         v-model="iconImageKeyVolatile"
         :windowKey="key"
-        :imageTag.sync="iconImageTagVolatile"
+        :mediaTag.sync="iconImageTagVolatile"
         :direction.sync="iconImageDirectionVolatile"
         ref="imagePicker"
       />
@@ -437,9 +437,9 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
   @LifeCycle
   public async mounted() {
     this.isMounted = true;
-    this.currentTabInfo = this.tabList.filter(
+    this.currentTabInfo = this.tabList.find(
       t => t.target === this.initTabTarget
-    )[0];
+    )!;
   }
 }
 </script>

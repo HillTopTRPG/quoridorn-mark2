@@ -48,6 +48,7 @@ import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
+import { findByKey } from "@/app/core/utility/Utility";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -88,20 +89,21 @@ export function permissionCheck(
   if (permissionRule.list.length) {
     const check = (pn: PermissionNode) => {
       if (pn.type === "group") {
-        const roleGroup = GameObjectManager.instance.actorGroupList.filter(
-          r => r.key === pn.key
-        )[0];
+        const roleGroup = findByKey(
+          GameObjectManager.instance.actorGroupList,
+          pn.key || null
+        );
         if (!roleGroup) return false;
         return (
           roleGroup.data!.list.findIndex(actorRef => {
             if (actorRef.type === "user")
               return SocketFacade.instance.userKey === actorRef.userKey;
 
-            return !!GameObjectManager.instance.actorList.filter(
+            return GameObjectManager.instance.actorList.some(
               a =>
                 a.key === actorRef.key ||
                 a.owner === SocketFacade.instance.userKey
-            )[0];
+            );
           }) > -1
         );
       }

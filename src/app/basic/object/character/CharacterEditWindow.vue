@@ -10,8 +10,8 @@
       :otherTextList.sync="otherTextList"
       :url.sync="url"
       :size.sync="size"
-      :imageDocKey.sync="imageDocKey"
-      :imageTag.sync="imageTag"
+      :mediaKey.sync="mediaKey"
+      :mediaTag.sync="mediaTag"
       :direction.sync="direction"
       :backgroundSize.sync="backgroundSize"
       :layerKey.sync="layerKey"
@@ -67,8 +67,8 @@ export default class CharacterEditWindow extends Mixins<
   private isProcessed: boolean = false;
   private otherTextList: StoreData<MemoStore>[] = [];
   private size: number = 1;
-  private imageDocKey: string | null = null;
-  private imageTag: string | null = null;
+  private mediaKey: string | null = null;
+  private mediaTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
@@ -100,8 +100,8 @@ export default class CharacterEditWindow extends Mixins<
 
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      this.imageDocKey = backgroundInfo.mediaKey;
-      this.imageTag = backgroundInfo.mediaTag;
+      this.mediaKey = backgroundInfo.mediaKey;
+      this.mediaTag = backgroundInfo.mediaTag;
       this.backgroundSize = backgroundInfo.backgroundSize;
       this.direction = backgroundInfo.direction;
     }
@@ -134,8 +134,8 @@ export default class CharacterEditWindow extends Mixins<
     const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
     const backgroundInfo = data.data!.textures[data.data!.textureIndex];
     if (backgroundInfo.type === "image") {
-      backgroundInfo.mediaKey = this.imageDocKey!;
-      backgroundInfo.mediaTag = this.imageTag!;
+      backgroundInfo.mediaKey = this.mediaKey!;
+      backgroundInfo.mediaTag = this.mediaTag!;
       backgroundInfo.backgroundSize = this.backgroundSize;
       backgroundInfo.direction = this.direction;
     }

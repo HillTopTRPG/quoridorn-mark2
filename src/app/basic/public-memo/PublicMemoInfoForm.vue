@@ -21,9 +21,9 @@
       <!-- アイコンタブ -->
       <image-picker-component
         v-if="currentTabInfo.target === 'icon'"
-        v-model="imageDocKeyVolatile"
+        v-model="mediaKeyVolatile"
         :windowKey="key"
-        :imageTag.sync="imageTagVolatile"
+        :mediaTag.sync="mediaTagVolatile"
         :direction.sync="directionVolatile"
         ref="imagePicker"
       />
@@ -102,30 +102,30 @@ export default class PublicMemoInfoForm extends Mixins<ComponentVue>(
     this.$emit("update:otherTextList", value);
   }
 
-  // imageDocKey
+  // mediaKey
   @Prop({ type: String, default: null })
-  private imageDocKey!: string | null;
-  private imageDocKeyVolatile: string | null = null;
-  @Watch("imageDocKey", { immediate: true })
+  private mediaKey!: string | null;
+  private mediaKeyVolatile: string | null = null;
+  @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey(value: string | null) {
-    this.imageDocKeyVolatile = value;
+    this.mediaKeyVolatile = value;
   }
-  @Watch("imageDocKeyVolatile")
+  @Watch("mediaKeyVolatile")
   private onChangeImageDocKeyVolatile(value: string | null) {
-    this.$emit("update:imageDocKey", value);
+    this.$emit("update:mediaKey", value);
   }
 
-  // imageTag
+  // mediaTag
   @Prop({ type: String, default: null })
-  private imageTag!: string | null;
-  private imageTagVolatile: string | null = null;
-  @Watch("imageTag", { immediate: true })
+  private mediaTag!: string | null;
+  private mediaTagVolatile: string | null = null;
+  @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
-    this.imageTagVolatile = value;
+    this.mediaTagVolatile = value;
   }
-  @Watch("imageTagVolatile")
+  @Watch("mediaTagVolatile")
   private onChangeImageTagVolatile(value: string | null) {
-    this.$emit("update:imageTag", value);
+    this.$emit("update:mediaTag", value);
   }
 
   // direction

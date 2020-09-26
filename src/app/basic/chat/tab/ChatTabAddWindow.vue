@@ -54,9 +54,7 @@ export default class ChatTabAddWindow extends Mixins<
   }
 
   private get isDuplicate(): boolean {
-    return (
-      this.chatTabList.filter(ct => ct.data!.name === this.tabName).length > 0
-    );
+    return this.chatTabList.some(ct => ct.data!.name === this.tabName);
   }
 
   @Watch("isDuplicate")
@@ -74,9 +72,9 @@ export default class ChatTabAddWindow extends Mixins<
   @VueEvent
   private async commit() {
     if (this.isDuplicate) return;
-    const gameMastersActorGroup = this.actorGroupList.filter(
+    const gameMastersActorGroup = this.actorGroupList.find(
       ag => ag.data!.isSystem && ag.data!.name === "GameMasters"
-    )[0];
+    )!;
     const gameMastersPermission: PermissionNode = {
       type: "group",
       key: gameMastersActorGroup.key

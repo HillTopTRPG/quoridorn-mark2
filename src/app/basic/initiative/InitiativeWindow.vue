@@ -91,11 +91,13 @@
       ></option>
     </datalist>
 
+    <!--
     <div class="button-area">
       <ctrl-button @click="changeSettings">
         <span v-t="'button.setting'"></span>
       </ctrl-button>
     </div>
+    -->
   </div>
 </template>
 
@@ -207,9 +209,9 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const type = colDec.type;
     const target = colDec.target;
 
-    const resourceMaster = this.resourceMasterList.filter(
+    const resourceMaster = this.resourceMasterList.find(
       rm => rm.data!.label === target
-    )[0];
+    );
 
     if (!resourceMaster)
       return data.data![target] === null ? nullText : data.data![target];
@@ -582,37 +584,6 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     ]);
   }
 
-  //
-  // @Watch("commonPropertyListAll", { immediate: true, deep: true })
-  // private onChangeCommonPropertyListAll() {
-  //   const columnList = this.windowInfo.declare.tableInfoList[0].columnList;
-  //   const newColumnList: WindowTableColumn[] = [];
-  //   this.commonPropertyListAll.forEach(cp => {
-  //     const column: WindowTableColumn = columnList.filter(
-  //       c => c.target === cp.data!.label
-  //     )[0] || {
-  //       width: 50,
-  //       type: cp.data!.type,
-  //       align: "center",
-  //       target: cp.data!.label
-  //     };
-  //     const columnIndex = columnList.findIndex(
-  //       c => c.target === cp.data!.label
-  //     );
-  //     if (columnIndex >= 0) {
-  //       column.width = this.windowInfo.tableInfoList[0].columnWidthList[
-  //         columnIndex
-  //       ];
-  //     }
-  //     newColumnList.push(column);
-  //   });
-  //   listToEmpty(columnList);
-  //   columnList.push(...newColumnList);
-  //   this.windowInfo.tableInfoList[0].columnWidthList = columnList.map(
-  //     c => c.width
-  //   );
-  // }
-
   @VueEvent
   private get selectionInfoList(): { elmId: string; optionList: string[] }[] {
     return this.initiativeColumnList
@@ -671,46 +642,12 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     this.windowInfo.tableInfoList[0].columnWidthList = columnList.map(
       c => c.width
     );
-    // console.log(JSON.stringify(this.initiativeColumnList, null, "  "));
-    // console.log(JSON.stringify(columnList, null, "  "));
   }
 
-  // private get initiativeList(): StoreData<any>[] {
-  //   const resultList: StoreData<any>[] = [];
-  //   const dataList = this.propertyList.filter(p => p.owner);
-  //   const ownerList = dataList
-  //     .map(d => d.owner)
-  //     .filter((d, i, self) => self.indexOf(d) === i);
-  //
-  //   ownerList.forEach((owner, ownerInd) => {
-  //     const actor = this.actorList.filter(a => a.key === owner)[0];
-  //     const resultData: StoreData<any> = {
-  //       id: uuid.v4(),
-  //       ownerType: "actor-list",
-  //       owner: actor.key,
-  //       order: ownerInd,
-  //       exclusionOwner: null,
-  //       lastExclusionOwner: null,
-  //       permission: GameObjectManager.PERMISSION_DEFAULT,
-  //       status: "added",
-  //       createTime: new Date(),
-  //       updateTime: null,
-  //       data: {}
-  //     };
-  //     dataList
-  //       .filter(d => d.owner === owner)
-  //       .forEach(d => {
-  //         resultData.data[d.data!.label] = d.data!.value;
-  //       });
-  //     resultList.push(resultData);
-  //   });
-  //   return resultList;
+  // @VueEvent
+  // private async changeSettings() {
+  //   console.log("changeSettings");
   // }
-
-  @VueEvent
-  private async changeSettings() {
-    console.log("changeSettings");
-  }
 
   @VueEvent
   private getRowClasses(

@@ -13,7 +13,7 @@
       class="image-picker-component"
       v-model="backImageKeyVolatile"
       :windowKey="key"
-      :imageTag.sync="imageTagVolatile"
+      :mediaTag.sync="mediaTagVolatile"
       :isSimple="true"
       imageSize="20em"
     />
@@ -64,17 +64,17 @@ export default class CardDeckChooseBackImageComponent extends Mixins<
     this.$emit("update:backImageKey", value);
   }
 
-  // imageTag
+  // mediaTag
   @Prop({ required: true })
-  private imageTag!: string | null;
-  private imageTagVolatile: string | null = null;
-  @Watch("imageTag", { immediate: true })
+  private mediaTag!: string | null;
+  private mediaTagVolatile: string | null = null;
+  @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
-    this.imageTagVolatile = value;
+    this.mediaTagVolatile = value;
   }
-  @Watch("imageTagVolatile")
+  @Watch("mediaTagVolatile")
   private onChangeImageTagVolatile(value: string | null) {
-    this.$emit("update:imageTag", value);
+    this.$emit("update:mediaTag", value);
   }
 }
 </script>

@@ -9,7 +9,7 @@
         class="image-picker-component"
         v-model="currentImageKey"
         :windowKey="key"
-        :imageTag.sync="currentTag"
+        :mediaTag.sync="currentTag"
         :isSimple="true"
         :viewName="true"
         imageSize="20em"
@@ -165,7 +165,7 @@ import {
 } from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "../../../core/window/ComponentVue";
 import GameObjectManager from "../../GameObjectManager";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import { createEmptyStoreUseData, findByKey } from "@/app/core/utility/Utility";
 import { CardMetaStore } from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
@@ -220,10 +220,10 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   private backImage!: string;
 
   @Prop({ required: true })
-  private imageTag!: string | null;
-  @Watch("imageTag")
+  private mediaTag!: string | null;
+  @Watch("mediaTag")
   private onChangeImageTag() {
-    this.currentTag = this.imageTag;
+    this.currentTag = this.mediaTag;
   }
 
   @Prop({ type: String, required: true })
@@ -278,7 +278,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   @LifeCycle
   private mounted() {
     this.setDefault();
-    this.currentTag = this.imageTag;
+    this.currentTag = this.mediaTag;
   }
 
   @VueEvent
@@ -304,7 +304,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private getImageUrl(mediaKey: string): string {
-    const media = this.mediaList.filter(m => m.key === mediaKey)[0];
+    const media = findByKey(this.mediaList, mediaKey);
     if (!media) return "";
     return `url('${media.data!.url}')`;
   }

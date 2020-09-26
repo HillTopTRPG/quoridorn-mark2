@@ -97,7 +97,7 @@ import CardComponent from "./CardComponent.vue";
 import CssManager from "../../core/css/CssManager";
 import ResizeKnob from "../../core/window/ResizeKnob.vue";
 import GameObjectManager from "../GameObjectManager";
-import { shuffleOrder } from "../../core/utility/Utility";
+import { findRequireByKey, shuffleOrder } from "../../core/utility/Utility";
 import ComponentVue from "../../core/window/ComponentVue";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -182,9 +182,9 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   @VueEvent
   private getCardMeta(cardObject: StoreData<CardObjectStore>) {
-    return this.cardMetaList.filter(
+    return this.cardMetaList.find(
       cm => cm.key === cardObject.data!.cardMetaKey
-    )[0];
+    );
   }
 
   @VueEvent
@@ -576,11 +576,11 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     } else {
       const toDeck = this.cardDeckSmallList
         .reverse()
-        .filter(cds => isContain(getDeckRectangle(cds), cCenter))[0];
+        .find(cds => isContain(getDeckRectangle(cds), cCenter));
 
-      const cardObject = this.cardObjectList.filter(
+      const cardObject = this.cardObjectList.find(
         co => co.key === this.moveCardKey
-      )[0];
+      );
       if (!cardObject) return;
 
       try {
@@ -668,9 +668,10 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     console.log(
       JSON.stringify(
         this.useCardObjectList.map(co => {
-          const cardMeta = this.cardMetaList.filter(
-            cm => cm.key === co.data!.cardMetaKey
-          )[0];
+          const cardMeta = findRequireByKey(
+            this.cardMetaList,
+            co.data!.cardMetaKey
+          );
           return {
             order: co.order,
             name: cardMeta.data!.name
@@ -722,9 +723,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private async updateAllCard(info: Partial<CardObjectStore>) {
     await this.cardObjectCC.updatePackage(
       this.useCardObjectList.map(co => {
-        const cardObject = this.cardObjectList.filter(
-          co => co.key === co.key
-        )[0];
+        const cardObject = findRequireByKey(this.cardObjectList, co.key);
         const data = cardObject.data!;
         Object.assign(data, info);
         return {
@@ -739,7 +738,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     task: Task<any, never>
   ): StoreData<CardObjectStore> | null {
     const cardKey = task.value.args.docKey;
-    const cardObject = this.cardObjectList.filter(co => co.key === cardKey)[0];
+    const cardObject = this.cardObjectList.find(co => co.key === cardKey);
     if (!cardObject) return null;
     if (cardObject.owner !== this.docKey) return null;
     return cardObject;

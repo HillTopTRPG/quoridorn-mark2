@@ -54,7 +54,7 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
   }
 
   private get isDuplicate(): boolean {
-    return this.actorList.filter(ct => ct.data!.name === this.name).length > 0;
+    return this.actorList.some(ct => ct.data!.name === this.name);
   }
 
   private get isCommitAble(): boolean {

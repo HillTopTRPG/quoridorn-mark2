@@ -5,7 +5,7 @@
       v-if="type === 'image'"
       v-model="imageKey"
       :windowKey="windowKey"
-      :imageTag.sync="imageTag"
+      :mediaTag.sync="mediaTag"
       :direction.sync="direction"
     />
     <div v-else>
@@ -81,7 +81,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
 
   private type: "image" | "color" | null = null;
   private imageKey: string = "";
-  private imageTag: string = "";
+  private mediaTag: string = "";
   private direction: Direction = "none";
   private backgroundSize: BackgroundSize = "contain";
 
@@ -92,7 +92,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   private async mounted() {
     this.type = this.localValue.type;
     if (this.localValue.type === "image") {
-      this.imageTag = this.localValue.mediaTag;
+      this.mediaTag = this.localValue.mediaTag;
       this.imageKey = this.localValue.mediaKey;
       this.direction = this.localValue.direction;
       this.backgroundSize = this.localValue.backgroundSize;
@@ -119,10 +119,10 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   private onChangeType(newValue: string | null, oldValue: string | null) {
     if (!newValue || !oldValue) return;
     if (newValue === "image") {
-      if (!this.imageTag) this.imageTag = this.defaultTag;
+      if (!this.mediaTag) this.mediaTag = this.defaultTag;
       this.localValue = {
         type: "image",
-        mediaTag: this.imageTag,
+        mediaTag: this.mediaTag,
         mediaKey: this.imageKey,
         direction: this.direction,
         backgroundSize: this.backgroundSize
@@ -147,10 +147,10 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
     }
   }
 
-  @Watch("imageTag")
+  @Watch("mediaTag")
   private onChangeImageTag() {
     if (this.localValue.type === "image") {
-      this.localValue.mediaTag = this.imageTag;
+      this.localValue.mediaTag = this.mediaTag;
     }
   }
 

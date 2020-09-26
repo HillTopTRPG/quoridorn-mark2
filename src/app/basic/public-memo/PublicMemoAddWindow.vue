@@ -6,13 +6,13 @@
       initTabTarget="basic"
       :name.sync="name"
       :otherTextList.sync="otherTextList"
-      :imageDocKey.sync="imageDocKey"
-      :imageTag.sync="imageTag"
+      :mediaKey.sync="mediaKey"
+      :mediaTag.sync="mediaTag"
       :direction.sync="direction"
     />
 
     <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="!imageDocKey">
+      <ctrl-button @click="commit()" :disabled="!mediaKey">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
@@ -35,6 +35,7 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { Direction } from "@/@types/store-data-optional";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 const uuid = require("uuid");
 
@@ -49,15 +50,15 @@ export default class PublicMemoAddWindow extends Mixins<
       text: ""
     })
   ];
-  private imageDocKey: string | null = null;
-  private imageTag: string | null = null;
+  private mediaKey: string | null = null;
+  private mediaTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.imageTag = this.$t("type.public-memo")!.toString();
+    this.mediaTag = this.$t("type.public-memo")!.toString();
     this.isMounted = true;
   }
 
@@ -68,8 +69,8 @@ export default class PublicMemoAddWindow extends Mixins<
         {
           data: {
             name: this.name,
-            mediaKey: this.imageDocKey!,
-            mediaTag: this.imageTag!,
+            mediaKey: this.mediaKey!,
+            mediaTag: this.mediaTag!,
             direction: this.direction
           }
         }
@@ -86,9 +87,9 @@ export default class PublicMemoAddWindow extends Mixins<
     await this.finally(true);
   }
 
-  @Watch("imageDocKey", { immediate: true })
+  @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey() {
-    this.windowInfo.message = this.imageDocKey
+    this.windowInfo.message = this.mediaKey
       ? ""
       : this.$t(`${this.windowInfo.type}.message-list.select-icon`).toString();
   }

@@ -99,7 +99,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   private value!: string | null;
 
   @Prop({ type: String, default: null })
-  private imageTag!: string | null;
+  private mediaTag!: string | null;
 
   @Prop({ type: String, default: "none" })
   private direction!: Direction;
@@ -162,14 +162,14 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     this.$emit("input", colorStr);
   }
 
-  @Watch("imageTag", { immediate: true })
+  @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string) {
     this.selectImageTag = value;
   }
 
   @Watch("selectImageTag")
   private onChangeSelectImageTag() {
-    this.$emit("update:imageTag", this.selectImageTag);
+    this.$emit("update:mediaTag", this.selectImageTag);
   }
 
   @Watch("direction")

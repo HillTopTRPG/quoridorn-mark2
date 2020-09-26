@@ -102,10 +102,8 @@ export default class ActorEditWindow extends Mixins<
   }
 
   private get isDuplicate(): boolean {
-    return (
-      this.actorList.filter(
-        ct => ct.data!.name === this.name && ct.key !== this.docKey
-      ).length > 0
+    return this.actorList.some(
+      ct => ct.data!.name === this.name && ct.key !== this.docKey
     );
   }
 

@@ -7,8 +7,8 @@
       initTabTarget="basic"
       :name.sync="name"
       :otherTextList.sync="otherTextList"
-      :imageDocKey.sync="imageDocKey"
-      :imageTag.sync="imageTag"
+      :mediaKey.sync="mediaKey"
+      :mediaTag.sync="mediaTag"
       :direction.sync="direction"
     />
 
@@ -59,8 +59,8 @@ export default class PublicMemoEditWindow extends Mixins<
   private name: string = "";
   private isProcessed: boolean = false;
   private otherTextList: StoreData<MemoStore>[] = [];
-  private imageDocKey: string | null = null;
-  private imageTag: string | null = null;
+  private mediaKey: string | null = null;
+  private mediaTag: string | null = null;
   private direction: Direction = "none";
   private isMounted: boolean = false;
 
@@ -87,8 +87,8 @@ export default class PublicMemoEditWindow extends Mixins<
     }
 
     this.name = data.data!.name;
-    this.imageDocKey = data.data!.mediaKey;
-    this.imageTag = data.data!.mediaTag;
+    this.mediaKey = data.data!.mediaKey;
+    this.mediaTag = data.data!.mediaTag;
     this.direction = data.data!.direction;
 
     this.otherTextList = clone(
@@ -112,8 +112,8 @@ export default class PublicMemoEditWindow extends Mixins<
   @VueEvent
   private async commit() {
     const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
-    data.data!.mediaKey = this.imageDocKey!;
-    data.data!.mediaTag = this.imageTag!;
+    data.data!.mediaKey = this.mediaKey!;
+    data.data!.mediaTag = this.mediaTag!;
     data.data!.direction = this.direction;
     data.data!.name = this.name;
     await this.cc!.update([
