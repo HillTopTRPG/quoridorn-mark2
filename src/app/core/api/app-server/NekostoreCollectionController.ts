@@ -4,7 +4,6 @@ import Unsubscribe from "nekostore/src/Unsubscribe";
 import CollectionReference from "nekostore/src/CollectionReference";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import Query from "nekostore/lib/Query";
-import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   AddDirectRequest,
   DeleteDataRequest,
@@ -18,7 +17,8 @@ export default class NekostoreCollectionController<T> {
   constructor(
     private readonly socket: any,
     private readonly nekostore: Nekostore,
-    public readonly collectionName: string
+    public readonly collectionName: string,
+    public readonly collectionNameSuffix: string
   ) {}
 
   private touchKeyList: string[] = [];
@@ -41,7 +41,7 @@ export default class NekostoreCollectionController<T> {
   private snapshotMap: { [ownerKey in string]: Unsubscribe } = {};
 
   private getCollection() {
-    return this.nekostore.collection<StoreObj<T>>(this.collectionName);
+    return this.nekostore.collection<StoreData<T>>(this.collectionName);
   }
 
   /*****************************************************************************
@@ -67,38 +67,36 @@ export default class NekostoreCollectionController<T> {
     argList.push(...list);
     await this.setCollectionSnapshot(
       "NekostoreCollectionController",
-      (snapshot: QuerySnapshot<StoreObj<T>>) => {
-        snapshot.docs.forEach(() => {
-          let wantSort = false;
-          snapshot.docs.forEach(doc => {
-            const index = argList!.findIndex(p => p.id === doc.ref.id);
-            if (doc.type === "removed") {
-              argList!.splice(index, 1);
-            } else {
-              const status = doc.data!.status;
-              if (
-                (status !== "initial-touched" && index === -1) ||
-                status === "added" ||
-                status === "modified" ||
-                status === "modify-touched"
-              ) {
-                argList!.splice(index, index < 0 ? 0 : 1, {
-                  id: doc.ref.id,
-                  ...doc.data!
-                });
-                wantSort = true;
-              }
+      (snapshot: QuerySnapshot<StoreData<T>>) => {
+        let wantSort = false;
+        snapshot.docs.forEach(doc => {
+          const index = argList!.findIndex(p => p.id === doc.ref.id);
+          if (doc.type === "removed" && index >= 0) {
+            argList!.splice(index, 1);
+          } else {
+            const status = doc.data!.status;
+            if (
+              (status !== "initial-touched" && index === -1) ||
+              status === "added" ||
+              status === "modified" ||
+              status === "modify-touched"
+            ) {
+              argList!.splice(index, index < 0 ? 0 : 1, {
+                id: doc.ref.id,
+                ...doc.data!
+              });
+              wantSort = true;
             }
-          });
-          if (wantSort) {
-            argList!.sort((i1: any, i2: any) => {
-              if (i1[sortColumn] < i2[sortColumn]) return -1;
-              if (i1[sortColumn] > i2[sortColumn]) return 1;
-              return 0;
-            });
-            // console.log("sorted", argList!);
           }
         });
+        if (wantSort) {
+          argList!.sort((i1: any, i2: any) => {
+            if (i1[sortColumn] < i2[sortColumn]) return -1;
+            if (i1[sortColumn] > i2[sortColumn]) return 1;
+            return 0;
+          });
+          // console.log("sorted", argList!);
+        }
       }
     );
     return argList!;
@@ -110,8 +108,8 @@ export default class NekostoreCollectionController<T> {
    */
   public async findList(
     options: { property: string; operand: "=="; value: any }[]
-  ): Promise<DocumentSnapshot<StoreObj<T>>[] | null> {
-    let c: Query<StoreObj<T>> = this.getCollection();
+  ): Promise<DocumentSnapshot<StoreData<T>>[] | null> {
+    let c: Query<StoreData<T>> = this.getCollection();
     options.forEach(o => {
       c = c.where(o.property, o.operand, o.value);
     });
@@ -128,7 +126,7 @@ export default class NekostoreCollectionController<T> {
   public async findSingle(
     property: string,
     value: any
-  ): Promise<DocumentSnapshot<StoreObj<T>> | null> {
+  ): Promise<DocumentSnapshot<StoreData<T>> | null> {
     const list = await this.findList([{ property, operand: "==", value }]);
     return list ? list[0] : null;
   }
@@ -172,7 +170,7 @@ export default class NekostoreCollectionController<T> {
    * @param list データリスト
    */
   public async addDirect(
-    list: (Partial<StoreObj<any>> & { data: any })[]
+    list: (Partial<StoreData<any>> & { data: any })[]
   ): Promise<string[]> {
     return await SocketFacade.instance.socketCommunication<
       AddDirectRequest,
@@ -188,7 +186,7 @@ export default class NekostoreCollectionController<T> {
    * list
    */
   public async update(
-    list: (Partial<StoreObj<T>> & {
+    list: (Partial<StoreData<T>> & {
       key: string;
       continuous?: boolean;
     })[]
@@ -208,7 +206,7 @@ export default class NekostoreCollectionController<T> {
   }
 
   public async updatePackage(
-    list: (Partial<StoreObj<T>> & {
+    list: (Partial<StoreData<T>> & {
       key: string;
       data: T;
       continuous?: boolean;
@@ -250,7 +248,7 @@ export default class NekostoreCollectionController<T> {
   public async setSnapshot(
     ownerKey: string,
     key: string,
-    onNext: (snapshot: DocumentSnapshot<StoreObj<T>>) => void
+    onNext: (snapshot: DocumentSnapshot<StoreData<T>>) => void
   ): Promise<Unsubscribe> {
     const doc = (await this.findSingle("key", key))!;
     const unsubscribe = await doc.ref.onSnapshot(onNext);
@@ -264,9 +262,9 @@ export default class NekostoreCollectionController<T> {
 
   public async setCollectionSnapshot(
     ownerKey: string,
-    onNext: (snapshot: QuerySnapshot<StoreObj<T>>) => void
+    onNext: (snapshot: QuerySnapshot<StoreData<T>>) => void
   ): Promise<Unsubscribe> {
-    let target: CollectionReference<StoreObj<T>> = this.getCollection();
+    let target: CollectionReference<StoreData<T>> = this.getCollection();
     const unsubscribe = await target.onSnapshot(onNext);
     if (this.snapshotMap[ownerKey]) this.snapshotMap[ownerKey]();
     this.snapshotMap[ownerKey] = unsubscribe;

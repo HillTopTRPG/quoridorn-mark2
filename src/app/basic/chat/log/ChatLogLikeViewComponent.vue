@@ -25,15 +25,14 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { ActorStore, LikeStore } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { ActorStore, LikeStore } from "@/@types/store-data";
 
 @Component
 export default class ChatLogLikeViewComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private like!: StoreObj<LikeStore>;
+  private like!: StoreData<LikeStore>;
 
   @Prop({ type: Boolean, required: true })
   private isOpen!: boolean;
@@ -42,7 +41,7 @@ export default class ChatLogLikeViewComponent extends Mixins<ComponentVue>(
   private actorCountList!: { actorKey: string; count: number }[];
 
   @Prop({ type: Array, required: true })
-  private actorList!: StoreObj<ActorStore>[];
+  private actorList!: StoreData<ActorStore>[];
 
   @VueEvent
   private get charCount() {

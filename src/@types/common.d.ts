@@ -29,25 +29,6 @@ declare var swal: (
 declare var YT: any;
 
 declare module "address" {
-  type Point = {
-    x: number;
-    y: number;
-  };
-
-  type Size = {
-    width: number;
-    height: number;
-  };
-
-  type Rectangle = Point & Size;
-
-  type Matrix = {
-    column: number;
-    row: number;
-  };
-
-  type Address = Point & Matrix;
-
   type Anchor =
     | "left-top"
     | "left-center"
@@ -190,7 +171,7 @@ declare module "task-info" {
 
   type UpdateResourceInfo = {
     resourceMasterKey: string;
-    ownerType: "actor" | "scene-object";
+    ownerType: "actor-list" | "scene-object-list";
     ownerKey: string;
     operationType: "set" | "add";
     value: string;
@@ -250,8 +231,8 @@ declare module "task" {
 }
 
 declare module "context" {
-  import { Point } from "address";
   import { CompareInfo } from "compare";
+  import { Point } from "@/@types/store-data-optional";
 
   interface ContextTaskInfo extends Point {
     type: string;

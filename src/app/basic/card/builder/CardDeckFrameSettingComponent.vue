@@ -169,7 +169,7 @@ import { Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
 import { importJson, saveJson } from "@/app/core/utility/FileUtility";
-import { CardMeta } from "@/@types/gameObject";
+import { CardMetaStore } from "@/@types/store-data";
 import CardDeckBuilder from "./CardDeckBuilder.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
@@ -394,7 +394,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     "It is the fifth heaviest living bird species, after only the larger varieties of ratite.\n" +
     "The emperor penguin has a circumpolar distribution in the Antarctic almost exclusively between the 66° and 77° south latitudes.";
 
-  private inSaneFrameSetting: CardMeta = {
+  private inSaneFrameSetting: CardMetaStore = {
     width: 200,
     height: 300,
     radius: 6,
@@ -417,10 +417,10 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     text: ""
   };
 
-  public paranoiaRebootedFrameSetting: CardMeta =
+  public paranoiaRebootedFrameSetting: CardMetaStore =
     CardDeckBuilder.DEFAULT_CARD_FRAME_PARANOIA_REBOOTED;
 
-  private tnmFrameSetting: CardMeta = {
+  private tnmFrameSetting: CardMetaStore = {
     width: 180,
     height: 251,
     radius: 0,
@@ -443,7 +443,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     text: ""
   };
 
-  private tnxFrameSetting: CardMeta = {
+  private tnxFrameSetting: CardMetaStore = {
     width: 179,
     height: 249,
     radius: 5,
@@ -466,7 +466,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     text: ""
   };
 
-  private setFramePreset(preset: CardMeta) {
+  private setFramePreset(preset: CardMetaStore) {
     this.widthVolatile = preset.width;
     this.heightVolatile = preset.height;
     this.radiusVolatile = preset.radius;

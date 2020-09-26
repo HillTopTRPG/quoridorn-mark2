@@ -39,17 +39,16 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { Size } from "address";
 import ComponentVue from "../../core/window/ComponentVue";
 import { createSize } from "../../core/utility/CoordinateUtility";
-import { CardMeta } from "@/@types/gameObject";
+import { CardMetaStore } from "@/@types/store-data";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
+import { Size } from "@/@types/store-data-optional";
 
 @Component
 export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
-  private cardMeta!: StoreObj<CardMeta>;
+  private cardMeta!: StoreData<CardMetaStore>;
 
   @Prop({ type: Object, required: true })
   private size!: Size;

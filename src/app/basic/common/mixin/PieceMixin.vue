@@ -2,7 +2,6 @@
 import AddressCalcMixin from "./AddressCalcMixin.vue";
 import { Prop, Watch } from "vue-property-decorator";
 import { Mixin, Mixins } from "vue-mixin-decorator";
-import { Point } from "address";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
@@ -13,14 +12,11 @@ import SocketFacade, {
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import {
-  KeepBcdiceDiceRollResult,
+  KeepBcdiceDiceRollResultStore,
   MemoStore,
-  ObjectMoveInfo,
-  OtherTextViewInfo,
-  SceneObject,
-  SceneObjectType
-} from "@/@types/gameObject";
-import { StoreObj, StoreUseData } from "@/@types/store";
+  SceneObjectStore,
+  SceneAndObjectStore
+} from "@/@types/store-data";
 import {
   copyAddress,
   createAddress,
@@ -31,7 +27,6 @@ import {
 import { findRequireByKey } from "@/app/core/utility/Utility";
 import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { SceneAndObject } from "@/@types/room";
 import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
@@ -41,6 +36,12 @@ import { sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 const uuid = require("uuid");
 import { exportData } from "@/app/core/utility/ExportUtility";
+import {
+  ObjectMoveInfo,
+  OtherTextViewInfo,
+  Point,
+  SceneObjectType
+} from "@/@types/store-data-optional";
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -64,8 +65,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   private memoList = GameObjectManager.instance.memoList;
 
   protected isMounted: boolean = false;
-  protected sceneObjectInfo: StoreObj<SceneObject> | null = null;
-  protected sceneAndObjectInfo: StoreObj<SceneAndObject> | null = null;
+  protected sceneObjectInfo: StoreData<SceneObjectStore> | null = null;
+  protected sceneAndObjectInfo: StoreData<SceneAndObjectStore> | null = null;
   private otherLockTimeoutKey: number | null = null;
   private isTransitioning: boolean = false;
   private roomData = GameObjectManager.instance.roomData;
@@ -150,7 +151,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     this.sceneAndObjectUnsubscribe = await this.sceneAndObjectCC!.setSnapshot(
       this.docKey,
       this.sceneAndObjectInfo.key,
-      (snapshot: DocumentSnapshot<StoreObj<SceneAndObject>>) => {
+      (snapshot: DocumentSnapshot<StoreData<SceneAndObjectStore>>) => {
         if (!snapshot.data) return;
         const status = snapshot.data.status;
         if (status === "modified" || status === "modify-touched") {
@@ -200,16 +201,16 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
   private get isOtherLastModify(): boolean {
     if (!this.sceneObjectInfo) return false;
-    const targetStoreObj = this.sceneAndObjectInfo!.data!.isOriginalAddress
+    const targetStoreData = this.sceneAndObjectInfo!.data!.isOriginalAddress
       ? this.sceneAndObjectInfo!
       : this.sceneObjectInfo!;
-    const lastExclusionOwner = targetStoreObj.lastExclusionOwner;
+    const lastExclusionOwner = targetStoreData.lastExclusionOwner;
     const lastExclusionOwnerKey = GameObjectManager.instance.getExclusionOwnerKey(
       lastExclusionOwner
     );
     return (
       !!lastExclusionOwnerKey &&
-      lastExclusionOwnerKey !== GameObjectManager.instance.mySelfUserKey
+      lastExclusionOwnerKey !== SocketFacade.instance.userKey
     );
   }
 
@@ -223,7 +224,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       permissionCheck(this.sceneObjectInfo, "edit")
         ? "editable"
         : "non-editable",
-      this.sceneObjectInfo.owner === GameObjectManager.instance.mySelfUserKey
+      this.sceneObjectInfo.owner === SocketFacade.instance.userKey
         ? "owners"
         : "non-owners"
     ];
@@ -284,7 +285,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   @Watch("memoList", { deep: true })
   private onChangeOtherText() {
     this.otherTextList = this.memoList.filter(
-      m => m.ownerType === "scene-object" && m.owner === this.docKey
+      m => m.ownerType === "scene-object-list" && m.owner === this.docKey
     );
   }
 
@@ -511,7 +512,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       `【copy:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
     );
 
-    const data: SceneObject = (await this.sceneObjectCC!.findSingle(
+    const data: SceneObjectStore = (await this.sceneObjectCC!.findSingle(
       "key",
       this.docKey
     ))!.data!.data!;
@@ -522,7 +523,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     if (this.otherTextList.length) {
       await SocketFacade.instance.memoCC().addDirect(
         this.otherTextList.map(data => ({
-          ownerType: "scene-object",
+          ownerType: "scene-object-list",
           owner: sceneObjectKey,
           data: data.data!
         }))
@@ -549,7 +550,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       }
     ]))!.map(doc => doc.data!);
 
-    const exportList: StoreObj<any>[] = [];
+    const exportList: StoreData<any>[] = [];
     exportList.push(sceneObject);
     if (memoList.length) {
       exportList.push(...memoList);
@@ -769,8 +770,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     }
   }
 
-  private async getKeepBcdiceDiceRollResult(): Promise<StoreObj<
-    KeepBcdiceDiceRollResult
+  private async getKeepBcdiceDiceRollResult(): Promise<StoreData<
+    KeepBcdiceDiceRollResultStore
   > | null> {
     const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
     const list = await keepBcdiceDiceRollResultListCC.findList([
@@ -945,7 +946,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     }
 
     if (this.sceneAndObjectInfo!.data!.isOriginalAddress) {
-      const data: SceneAndObject = clone(this.sceneAndObjectInfo!.data)!;
+      const data: SceneAndObjectStore = clone(this.sceneAndObjectInfo!.data)!;
       if (!data.originalAddress)
         data.originalAddress = createAddress(0, 0, 0, 0);
       copyAddress(address, data.originalAddress);
@@ -956,7 +957,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         }
       ]);
     } else {
-      const data: SceneObject = clone(this.sceneObjectInfo!.data)!;
+      const data: SceneObjectStore = clone(this.sceneObjectInfo!.data)!;
       copyAddress(address, data);
       await this.sceneObjectCC!.update([
         {

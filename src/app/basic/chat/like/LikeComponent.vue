@@ -42,13 +42,12 @@ import { WindowOpenInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { LikeStore } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { LikeStore } from "@/@types/store-data";
 
 @Component({ components: { SButton } })
 export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
-  private like!: StoreObj<LikeStore>;
+  private like!: StoreData<LikeStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
@@ -59,7 +58,7 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
   private likeListCC = SocketFacade.instance.likeListCC();
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<LikeStore>) {
+  private async editTab(tabInfo: StoreData<LikeStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -71,7 +70,7 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<LikeStore>) {
+  private async deleteTab(tabInfo: StoreData<LikeStore>) {
     const msg = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.char);

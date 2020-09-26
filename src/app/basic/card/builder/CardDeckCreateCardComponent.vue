@@ -166,7 +166,7 @@ import {
 import ComponentVue from "../../../core/window/ComponentVue";
 import GameObjectManager from "../../GameObjectManager";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import { CardMeta } from "@/@types/gameObject";
+import { CardMetaStore } from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
 import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
@@ -177,7 +177,6 @@ import CardSimulatorComponent from "./CardSimulatorComponent.vue";
 import SButton from "../../common/components/SButton.vue";
 import SCheck from "../../common/components/SCheck.vue";
 import CardComponent from "../CardComponent.vue";
-import { StoreObj } from "@/@types/store";
 const uuid = require("uuid");
 
 @Component({
@@ -255,7 +254,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   private textPaddingDefault!: number;
 
   @Prop({ type: Array, required: true })
-  private cardList!: StoreObj<CardMeta>[];
+  private cardList!: StoreData<CardMetaStore>[];
 
   private frontBackgroundColor: string = "#ffffff";
   private nameFontSize: number = 20;
@@ -283,7 +282,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private getCardSize(cardMeta: CardMeta) {
+  private getCardSize(cardMeta: CardMetaStore) {
     return createSize(cardMeta.width, cardMeta.height);
   }
 
@@ -345,7 +344,7 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private onHoverCard(
-    card: StoreObj<CardMeta>,
+    card: StoreData<CardMetaStore>,
     isHover: boolean,
     elm: HTMLElement
   ) {

@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import { Size } from "address";
 import { ModeInfo } from "mode";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { createSize } from "../../core/utility/CoordinateUtility";
@@ -31,11 +30,12 @@ import TaskManager from "../../core/task/TaskManager";
 import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
 import SceneLayerComponent from "./SceneLayerComponent.vue";
 import GameObjectManager from "../GameObjectManager";
-import { RoomData, Scene } from "@/@types/room";
+import { RoomDataStore, SceneStore } from "@/@types/store-data";
 import { findRequireByKey } from "../../core/utility/Utility";
 import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import { Size } from "@/@types/store-data-optional";
 
 @Component({ components: { SceneLayerComponent } })
 export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
@@ -45,9 +45,9 @@ export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
   private sceneKey!: string;
 
   @Prop({ type: Object, default: null })
-  private scene!: Scene | null;
+  private scene!: SceneStore | null;
 
-  private roomData: RoomData = GameObjectManager.instance.roomData;
+  private roomData: RoomDataStore = GameObjectManager.instance.roomData;
   private sceneLayerList = GameObjectManager.instance.sceneLayerList;
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
 

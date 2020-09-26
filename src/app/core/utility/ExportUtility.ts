@@ -1,4 +1,3 @@
-import { StoreObj, StoreUseData } from "@/@types/store";
 import {
   createJsonBlob,
   saveFile,
@@ -30,7 +29,7 @@ async function fetchFile(url: string): Promise<{ src: any; fileName: string }> {
   });
 }
 
-export async function exportData(list: StoreObj<any>[]) {
+export async function exportData(list: StoreData<any>[]) {
   const dateStr = moment().format("YYYYMMDD_HHmmss");
   const fileName = `quoridorn_export_data_${dateStr}`;
 

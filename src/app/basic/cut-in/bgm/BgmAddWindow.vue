@@ -35,7 +35,7 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { CutInDeclareInfo, MediaInfo } from "@/@types/room";
+import { CutInStore, MediaStore } from "@/@types/store-data";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
@@ -50,11 +50,11 @@ import VueEvent from "../../../core/decorator/VueEvent";
     CtrlButton
   }
 })
-export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, boolean>>(
-  WindowVue
-) {
+export default class BgmAddWindow extends Mixins<
+  WindowVue<MediaStore, boolean>
+>(WindowVue) {
   private cc: NekostoreCollectionController<
-    CutInDeclareInfo
+    CutInStore
   > = SocketFacade.instance.cutInDataCC();
 
   private url: string = "";
@@ -92,7 +92,7 @@ export default class BgmAddWindow extends Mixins<WindowVue<MediaInfo, boolean>>(
     });
   }
 
-  private get cutInData(): CutInDeclareInfo {
+  private get cutInData(): CutInStore {
     return {
       url: this.url,
       title: this.title,

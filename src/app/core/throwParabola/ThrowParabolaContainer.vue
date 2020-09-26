@@ -11,10 +11,10 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import animations from "create-keyframe-animation";
 import { ThrowParabolaInfo } from "task-info";
-import { Point } from "address";
 import TaskProcessor from "../task/TaskProcessor";
 import ComponentVue from "../window/ComponentVue";
 import { calcParabola } from "./parabolaUtil";
+import { Point } from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
 @Component

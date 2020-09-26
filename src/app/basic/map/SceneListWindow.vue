@@ -54,9 +54,8 @@ import SocketFacade, {
 } from "../../core/api/app-server/SocketFacade";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { Scene } from "@/@types/room";
+import { SceneStore } from "@/@types/store-data";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
@@ -142,7 +141,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private selectAreaMap(scene: StoreObj<Scene>) {
+  private selectAreaMap(scene: StoreData<SceneStore>) {
     this.selectedSceneKey = scene.key;
   }
 
@@ -203,7 +202,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
     const firstImage = this.mediaList[0].data!;
     const firstImageKey = this.mediaList[0].key;
 
-    const scene: Scene = {
+    const scene: SceneStore = {
       name: "New map",
       columns: 20,
       rows: 15,

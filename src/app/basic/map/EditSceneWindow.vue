@@ -246,13 +246,16 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { SceneObject } from "@/@types/gameObject";
-import { Scene, SceneAndLayer, SceneLayer } from "@/@types/room";
+import {
+  SceneObjectStore,
+  SceneStore,
+  SceneAndLayerStore,
+  SceneLayerStore
+} from "@/@types/store-data";
 import AddressInput from "../common/components/AddressInput.vue";
 import EditSceneObjectChooserComponent from "./EditSceneObjectChooserComponent.vue";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import BorderStyleSelect from "../common/components/select/BorderStyleSelect.vue";
-import { StoreObj } from "@/@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
@@ -311,11 +314,13 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
 
   private cc = SocketFacade.instance.sceneListCC();
 
-  private sceneInfo: StoreObj<Scene> | null = null;
-  private sceneData: Scene | null = null;
-  private sceneAndLayerInfoList: StoreObj<SceneAndLayer>[] | null = null;
-  private sceneObjectInfoList: StoreObj<SceneObject>[] | null = null;
-  private layerInfoList: StoreObj<SceneLayer>[] | null = null;
+  private sceneInfo: StoreUseData<SceneStore> | null = null;
+  private sceneData: SceneStore | null = null;
+  private sceneAndLayerInfoList:
+    | StoreUseData<SceneAndLayerStore>[]
+    | null = null;
+  private sceneObjectInfoList: StoreUseData<SceneObjectStore>[] | null = null;
+  private layerInfoList: StoreUseData<SceneLayerStore>[] | null = null;
 
   private selectedLayerKey: string = "";
   private selectedSceneObjectKey: string = "";
@@ -324,7 +329,7 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   @Watch("selectedLayerKey")
   private async onChangeSceneObjectInfoList() {
     setTimeout(async () => {
-      type SceneObjectList = StoreObj<SceneObject>[];
+      type SceneObjectList = StoreUseData<SceneObjectStore>[];
       const oldList: SceneObjectList = [];
 
       if (this.sceneObjectInfoList) {
@@ -378,7 +383,7 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
       return;
     }
 
-    type SceneObjectList = StoreObj<SceneObject>[];
+    type SceneObjectList = StoreUseData<SceneObjectStore>[];
 
     const clearFocusList: SceneObjectList = this.sceneObjectInfoList.filter(
       so => so.key !== newVal
@@ -444,7 +449,10 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @Watch("sceneData", { deep: true })
-  private async onChangeSceneData(_newValue: Scene, oldValue: Scene | null) {
+  private async onChangeSceneData(
+    _newValue: SceneStore,
+    oldValue: SceneStore | null
+  ) {
     if (oldValue === null) return;
 
     try {

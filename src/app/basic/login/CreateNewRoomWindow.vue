@@ -71,12 +71,12 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import BcdiceSystemInput from "../common/components/BcdiceSystemInput.vue";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import WindowVue from "../../core/window/WindowVue";
-import { CreateRoomInput, RoomInfoExtend } from "../../../@types/socket";
+import { CreateRoomInput } from "@/@types/socket";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
-import LanguageManager from "../../../LanguageManager";
 import BaseInput from "../../core/component/BaseInput.vue";
 import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
+import { RoomInfoExtend } from "@/@types/store-data-optional";
 
 @Component({
   components: {

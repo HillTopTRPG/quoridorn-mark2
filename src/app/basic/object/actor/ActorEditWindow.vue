@@ -26,7 +26,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { ActorStore } from "@/@types/gameObject";
+import { ActorStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";

@@ -70,10 +70,9 @@ import ComponentVue from "../../core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { Permission, StoreObj } from "@/@types/store";
 import OtherTextEditModeRadio from "@/app/basic/common/components/radio/OtherTextEditModeRadio.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
@@ -95,7 +94,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   public windowKey!: string;
 
   @Prop({ type: Array, required: true })
-  public value!: StoreObj<MemoStore>[];
+  public value!: StoreData<MemoStore>[];
 
   private mode: "edit" | "preview" = "edit";
 
@@ -116,15 +115,15 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     this.currentTabInfo = this.tabList[0];
   }
 
-  public input(value: StoreObj<MemoStore>[]) {
+  public input(value: StoreData<MemoStore>[]) {
     this.$emit("input", value);
   }
 
-  public get localValue(): StoreObj<MemoStore>[] {
+  public get localValue(): StoreData<MemoStore>[] {
     return this.value;
   }
 
-  public set localValue(value: StoreObj<MemoStore>[]) {
+  public set localValue(value: StoreData<MemoStore>[]) {
     this.input(value);
   }
 
@@ -284,8 +283,8 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   private async onSettingOpen() {
     const result = (
       await TaskManager.instance.ignition<
-        WindowOpenInfo<StoreObj<MemoStore>[]>,
-        StoreObj<MemoStore>[]
+        WindowOpenInfo<StoreData<MemoStore>[]>,
+        StoreData<MemoStore>[]
       >({
         type: "window-open",
         owner: "Quoridorn",

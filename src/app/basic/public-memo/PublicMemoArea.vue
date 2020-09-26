@@ -15,8 +15,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import PublicMemoIcon from "@/app/basic/public-memo/PublicMemoIcon.vue";
-import { StoreObj } from "@/@types/store";
-import { PublicMemoStore } from "@/@types/gameObject";
+import { PublicMemoStore } from "@/@types/store-data";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 
 @Component({
@@ -26,7 +25,7 @@ export default class PublicMemoArea extends Mixins<ComponentVue>(ComponentVue) {
   private publicMemoList = GameObjectManager.instance.publicMemoList;
   private memoList = GameObjectManager.instance.memoList;
 
-  private usePublicMemoList: StoreObj<PublicMemoStore>[] = [];
+  private usePublicMemoList: StoreData<PublicMemoStore>[] = [];
 
   @Watch("publicMemoList", { immediate: true, deep: true })
   @Watch("memoList", { deep: true })

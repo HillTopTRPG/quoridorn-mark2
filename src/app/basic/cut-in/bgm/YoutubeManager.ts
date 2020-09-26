@@ -1,7 +1,7 @@
-import { Size } from "address";
 import { createSize } from "@/app/core/utility/CoordinateUtility";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
+import { Size } from "@/@types/store-data-optional";
 
 type PlayerInfo = {
   player: any;
@@ -72,7 +72,7 @@ export default class YoutubeManager {
 
   public open(
     elementId: string,
-    { url, start, end }: CutInDeclareInfo,
+    { url, start, end }: CutInStore,
     eventHandler: YoutubeEventHandler
   ) {
     let playerObj = this.playerMapping[elementId];
@@ -196,7 +196,7 @@ export default class YoutubeManager {
   /** IDを指定して読み込ませる */
   public loadVideoById(
     elementId: string,
-    { url, start, end }: CutInDeclareInfo,
+    { url, start, end }: CutInStore,
     suggestedQuality: string = "small"
   ) {
     let playerObj = this.playerMapping[elementId];

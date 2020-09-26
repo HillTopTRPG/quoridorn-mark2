@@ -67,13 +67,11 @@ import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
-import { WindowOpenInfo } from "../../../@types/window";
-import { DataReference } from "../../../@types/data";
+import { WindowOpenInfo } from "@/@types/window";
+import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import { importJson, saveJson } from "../../core/utility/FileUtility";
-import { StoreObj } from "../../../@types/store";
-import { ResourceMasterStore } from "../../../@types/gameObject";
-import LanguageManager from "../../../LanguageManager";
+import { ResourceMasterStore } from "@/@types/store-data";
 import * as moment from "moment";
 import App from "../../../views/App.vue";
 
@@ -105,7 +103,7 @@ export default class ResourceMasterListWindow extends Mixins<
   private async downloadData() {
     console.log(JSON.stringify(this.resourceMasterList, null, "  "));
     const dateTimeStr = moment().format("YYYYMMDDHHmmss");
-    saveJson<StoreObj<ResourceMasterStore>[]>(
+    saveJson<StoreData<ResourceMasterStore>[]>(
       `Quoridorn_ResourceMaster_${dateTimeStr}`,
       "resource-master",
       this.resourceMasterList
@@ -115,7 +113,7 @@ export default class ResourceMasterListWindow extends Mixins<
   @VueEvent
   private async uploadData() {
     console.log(JSON.stringify(this.resourceMasterList, null, "  "));
-    const dataContainer = await importJson<StoreObj<ResourceMasterStore>[]>(
+    const dataContainer = await importJson<StoreData<ResourceMasterStore>[]>(
       "resource-master"
     );
     if (!dataContainer) {

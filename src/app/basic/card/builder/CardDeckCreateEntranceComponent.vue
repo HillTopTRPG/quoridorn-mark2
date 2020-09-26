@@ -32,11 +32,10 @@ import GameObjectManager from "../../GameObjectManager";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import SButton from "../../common/components/SButton.vue";
 import BaseInput from "../../../core/component/BaseInput.vue";
-import { CardMeta } from "@/@types/gameObject";
+import { CardMetaStore } from "@/@types/store-data";
 import CardDeckBuilder from "./CardDeckBuilder.vue";
 import { importText } from "@/app/core/utility/FileUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 const uuid = require("uuid");
 
 @Component({
@@ -46,7 +45,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {
   @Prop({ type: Array, required: true })
-  private cardList!: StoreObj<CardMeta>[];
+  private cardList!: StoreData<CardMetaStore>[];
 
   // width
   @Prop({ type: Number, required: true })
@@ -389,7 +388,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
     this.$emit("import-direct");
   }
 
-  private setFramePreset(preset: CardMeta) {
+  private setFramePreset(preset: CardMetaStore) {
     this.widthVolatile = preset.width;
     this.heightVolatile = preset.height;
     this.radiusVolatile = preset.radius;

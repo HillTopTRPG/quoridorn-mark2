@@ -33,7 +33,7 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import MapMaskInfoForm from "./MapMaskInfoForm.vue";
-import { MemoStore, SceneObject } from "@/@types/gameObject";
+import { MemoStore, SceneObjectStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -44,7 +44,6 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
-import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { MapMaskInfoForm, CtrlButton } })
@@ -53,7 +52,7 @@ export default class MapMastEditWindow extends Mixins<
 >(WindowVue) {
   private docKey: string = "";
   private cc: NekostoreCollectionController<
-    SceneObject
+    SceneObjectStore
   > = SocketFacade.instance.sceneObjectCC();
 
   private name: string = "";
@@ -68,7 +67,7 @@ export default class MapMastEditWindow extends Mixins<
   private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
   )!.key;
-  private otherTextList: StoreObj<MemoStore>[] = [];
+  private otherTextList: StoreData<MemoStore>[] = [];
 
   @LifeCycle
   public async mounted() {
@@ -104,7 +103,7 @@ export default class MapMastEditWindow extends Mixins<
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object" && m.owner === this.docKey
+        m => m.ownerType === "scene-object-list" && m.owner === this.docKey
       )
     )!;
 

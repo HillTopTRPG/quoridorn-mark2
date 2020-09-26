@@ -16,12 +16,11 @@
 
 <script lang="ts">
 import { Component, Watch, Prop } from "vue-property-decorator";
-import { Point, Rectangle, Size } from "address";
 import { Task, TaskResult } from "task";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { MemoStore, OtherTextViewInfo } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import {
   createPoint,
   createRectangle,
@@ -33,7 +32,12 @@ import CssManager from "../../../core/css/CssManager";
 import { MouseMoveParam } from "@/app/core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import { StoreObj } from "@/@types/store";
+import {
+  OtherTextViewInfo,
+  Point,
+  Rectangle,
+  Size
+} from "@/@types/store-data-optional";
 
 @Component({
   components: { OtherTextComponent }
@@ -47,7 +51,7 @@ export default class TextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   private static DEFAULT_FONT_SIZE = 14;
 
-  private useMemoList: StoreObj<MemoStore>[] = [];
+  private useMemoList: StoreData<MemoStore>[] = [];
   private docId: string | null = null;
   private isMounted: boolean = false;
 

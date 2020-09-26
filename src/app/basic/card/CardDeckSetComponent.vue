@@ -30,18 +30,17 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
-import { Size } from "address";
 import { createSize } from "../../core/utility/CoordinateUtility";
 import ComponentVue from "../../core/window/ComponentVue";
-import { CardDeckBig, CardMeta } from "@/@types/gameObject";
+import { CardDeckBigStore, CardMetaStore } from "@/@types/store-data";
 import { getCssPxNum } from "../../core/css/Css";
 import VueEvent from "../../core/decorator/VueEvent";
 import CardComponent from "./CardComponent.vue";
-import { StoreObj } from "@/@types/store";
+import { Size } from "@/@types/store-data-optional";
 
 export type DeckInfo = {
-  cardDeckBig: StoreObj<CardDeckBig>;
-  cardMetaList: StoreObj<CardMeta>[];
+  cardDeckBig: StoreData<CardDeckBigStore>;
+  cardMetaList: StoreData<CardMetaStore>[];
 };
 
 @Component({
@@ -73,7 +72,7 @@ export default class CardDeckSetComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private getSampleList(list: StoreObj<CardMeta>[]) {
+  private getSampleList(list: StoreData<CardMetaStore>[]) {
     return list.slice(0, 3);
   }
 }

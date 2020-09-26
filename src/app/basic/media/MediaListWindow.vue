@@ -58,8 +58,7 @@ import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
-import { MediaInfo } from "@/@types/room";
+import { MediaStore } from "@/@types/store-data";
 import TaskManager from "../../core/task/TaskManager";
 import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
@@ -81,7 +80,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   WindowVue
 ) {
   private mediaList = GameObjectManager.instance.mediaList;
-  private useMediaList: StoreObj<MediaInfo>[] = [];
+  private useMediaList: StoreData<MediaStore>[] = [];
   private mediaCC = SocketFacade.instance.mediaCC();
 
   private tabList: TabInfo[] = [];
@@ -167,7 +166,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async chmodMedia(media: StoreObj<MediaInfo>) {
+  private async chmodMedia(media: StoreData<MediaStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
@@ -182,7 +181,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async deleteMedia(media: StoreObj<MediaInfo>) {
+  private async deleteMedia(media: StoreData<MediaStore>) {
     const msg = MediaListWindow.getDialogMessage("delete-media").replace(
       "$1",
       media.data!.name
@@ -212,8 +211,8 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private async addCutIn(media: StoreObj<MediaInfo>) {
-    await TaskManager.instance.ignition<WindowOpenInfo<MediaInfo>, never>({
+  private async addCutIn(media: StoreData<MediaStore>) {
+    await TaskManager.instance.ignition<WindowOpenInfo<MediaStore>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {

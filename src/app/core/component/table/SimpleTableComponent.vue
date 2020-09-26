@@ -137,7 +137,6 @@
 import { Component } from "vue-mixin-decorator";
 import { Emit, Prop, Watch, Vue } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
-import { Point } from "address";
 import { RowSelectInfo } from "task-info";
 import LifeCycle from "../../decorator/LifeCycle";
 import TaskProcessor from "../../task/TaskProcessor";
@@ -158,8 +157,8 @@ import {
   getEventPoint
 } from "../../utility/CoordinateUtility";
 import VueEvent from "../../decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import Divider from "./Divider.vue";
+import { Point } from "@/@types/store-data-optional";
 
 type RowInfo<T> = {
   isSelected: boolean;
@@ -188,7 +187,7 @@ export default class SimpleTableComponent extends Vue {
   @Prop({ type: Object, required: false, default: null })
   private tabInfo!: TabInfo | null;
   @Prop({ type: Array, required: true })
-  private dataList!: StoreObj<any>[];
+  private dataList!: StoreData<any>[];
   @Prop({ type: String, required: false, default: "key" })
   private keyProp!: string;
   @Prop({ type: Function, required: false, default: () => [] })

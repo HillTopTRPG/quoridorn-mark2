@@ -163,9 +163,8 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { markdown } from "@/app/core/markdown/markdown";
 import OtherTextSpanComponent from "@/app/basic/other-text/OtherTextSpanComponent.vue";
 import { TabInfo } from "@/@types/window";
@@ -184,7 +183,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   private windowKey!: string;
 
   @Prop({ type: Array, required: true })
-  private value!: StoreObj<MemoStore>[];
+  private value!: StoreData<MemoStore>[];
 
   @Prop({ type: Boolean, default: false })
   private useScroll!: boolean;
@@ -217,7 +216,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     this.currentTabInfo = this.tabList[0] || null;
   }
 
-  public input(value: StoreObj<MemoStore>[]) {
+  public input(value: StoreData<MemoStore>[]) {
     this.$emit("input", value);
   }
 

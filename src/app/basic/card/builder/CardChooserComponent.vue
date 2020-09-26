@@ -107,10 +107,9 @@ import ComponentVue from "../../../core/window/ComponentVue";
 import CardSearchCountChooser from "../../common/components/CardSearchCountChooser.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import SButton from "../../common/components/SButton.vue";
-import { CardMeta } from "@/@types/gameObject";
+import { CardMetaStore } from "@/@types/store-data";
 import CardComponent from "../CardComponent.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 
 export type CardCountInfo = {
   key: string;
@@ -132,7 +131,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   private title!: string;
 
   @Prop({ type: Array, required: true })
-  private cardList!: StoreObj<CardMeta>[];
+  private cardList!: StoreData<CardMetaStore>[];
 
   // selectedCardIdList
   @Prop({ type: Array, required: true })
@@ -173,7 +172,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private getCardSize(cardMeta: CardMeta) {
+  private getCardSize(cardMeta: CardMetaStore) {
     return createSize(cardMeta.width, cardMeta.height);
   }
 
@@ -210,7 +209,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private onPlusCard(cardMeta: StoreObj<CardMeta>) {
+  private onPlusCard(cardMeta: StoreData<CardMetaStore>) {
     const findIndex = this.selectedCardList.findIndex(
       c => c.key === cardMeta.key
     );
@@ -225,7 +224,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private onMinusCard(cardMeta: StoreObj<CardMeta>) {
+  private onMinusCard(cardMeta: StoreData<CardMetaStore>) {
     const findIndex = this.selectedCardList.findIndex(
       c => c.key === cardMeta.key
     );
@@ -238,7 +237,7 @@ export default class CardChooserComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private onHoverCard(
-    card: StoreObj<CardMeta>,
+    card: StoreData<CardMetaStore>,
     isHover: boolean,
     elm: HTMLElement
   ) {

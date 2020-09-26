@@ -64,10 +64,9 @@ import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import WindowVue from "../../core/window/WindowVue";
 import { permissionCheck } from "../../core/api/app-server/SocketFacade";
-import { Permission, StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
@@ -96,9 +95,9 @@ const uuid = require("uuid");
   }
 })
 export default class MemoTabSettingWindow extends Mixins<
-  WindowVue<StoreObj<MemoStore>[], StoreObj<MemoStore>[]>
+  WindowVue<StoreData<MemoStore>[], StoreData<MemoStore>[]>
 >(WindowVue) {
-  public useMemoList: StoreObj<MemoStore>[] = [];
+  public useMemoList: StoreData<MemoStore>[] = [];
 
   private dragMode = false;
   private changeOrderKey: string = "";
@@ -132,7 +131,7 @@ export default class MemoTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<MemoStore>) {
+  private async editTab(tabInfo: StoreData<MemoStore>) {
     const useMemo = this.useMemoList.find(lv => lv.key === tabInfo.key)!;
     const text = await this.getInputTab(useMemo.data!.tab);
     if (text) {
@@ -141,7 +140,7 @@ export default class MemoTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreObj<MemoStore>) {
+  private async chmodTab(tabInfo: StoreData<MemoStore>) {
     const useMemo = this.useMemoList.find(lv => lv.key === tabInfo.key)!;
     useMemo.permission = (
       await TaskManager.instance.ignition<
@@ -159,7 +158,7 @@ export default class MemoTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<MemoStore>) {
+  private async deleteTab(tabInfo: StoreData<MemoStore>) {
     const index = this.useMemoList.findIndex(lv => lv.key === tabInfo.key);
     this.useMemoList.splice(index, 1);
   }
@@ -209,7 +208,7 @@ export default class MemoTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private localPermissionCheck(data: StoreObj<MemoStore>) {
+  private localPermissionCheck(data: StoreData<MemoStore>) {
     return permissionCheck(data, "view", 1);
   }
 

@@ -42,12 +42,12 @@
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Address } from "address";
 import ComponentVue from "../../../core/window/ComponentVue";
 import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
 import TrNumberInputComponent from "./TrNumberInputComponent.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { Address } from "@/@types/store-data-optional";
 
 @Component({ components: { TrNumberInputComponent } })
 export default class AddressInput extends Mixins<ComponentVue>(ComponentVue) {

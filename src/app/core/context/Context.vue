@@ -57,8 +57,7 @@ import { clone } from "../utility/PrimaryDataUtility";
 import { DataReference } from "@/@types/data";
 import LifeCycle from "../decorator/LifeCycle";
 import { findByKey } from "../utility/Utility";
-import { StoreObj } from "@/@types/store";
-import { SceneObject } from "@/@types/gameObject";
+import { SceneObjectStore } from "@/@types/store-data";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -252,7 +251,7 @@ export default class Context extends Vue {
 
       if (contextItem.argRef === "dice-pips-select") {
         const list = GameObjectManager.instance.getList(this.type!)!;
-        const obj: StoreObj<SceneObject> | null = findByKey(list, target);
+        const obj: StoreData<SceneObjectStore> | null = findByKey(list, target);
         const diceTypeKey = obj!.data!.subTypeKey;
         const diceAndPipsList = GameObjectManager.instance.diceAndPipsList;
         const pipsList = diceAndPipsList

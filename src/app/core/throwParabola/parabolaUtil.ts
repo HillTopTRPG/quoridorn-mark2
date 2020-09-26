@@ -1,5 +1,5 @@
-import { Point } from "address";
 import { createPoint } from "../utility/CoordinateUtility";
+import { Point } from "@/@types/store-data-optional";
 
 /**
  * ２点間の距離を算出する

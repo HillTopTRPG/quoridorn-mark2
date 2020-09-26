@@ -38,24 +38,25 @@ import { Mixins } from "vue-mixin-decorator";
 import ChatLogLineComponent from "./ChatLogLineComponent.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
 import {
-  ActorGroup,
-  ChatInfo,
-  ChatTabInfo,
-  GroupChatTabInfo,
-  UserData
-} from "@/@types/room";
-import { ActorStore, LikeStore } from "@/@types/gameObject";
+  ActorStore,
+  LikeStore,
+  ActorGroupStore,
+  ChatStore,
+  ChatTabInfoStore,
+  GroupChatTabInfoStore,
+  UserStore
+} from "@/@types/store-data";
 import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
-import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { UserType } from "@/@types/socket";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import App from "../../../../views/App.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import { UserType } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -75,35 +76,35 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({
     type: Array,
-    default: () => [GameObjectManager.instance.mySelfUserKey]
+    default: () => [SocketFacade.instance.userKey]
   })
   private targetUserKeyList!: string[];
 
   @Prop({ type: Array, required: true })
-  private userList!: StoreObj<UserData>[];
+  private userList!: StoreData<UserStore>[];
 
   @Prop({ type: Array, required: true })
-  private actorList!: StoreObj<ActorStore>[];
+  private actorList!: StoreData<ActorStore>[];
 
   @Prop({ type: Array, required: true })
-  private actorGroupList!: StoreObj<ActorGroup>[];
+  private actorGroupList!: StoreData<ActorGroupStore>[];
 
   @Prop({ type: Array, required: true })
-  private groupChatTabList!: StoreObj<GroupChatTabInfo>[];
+  private groupChatTabList!: StoreData<GroupChatTabInfoStore>[];
 
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
 
   @Prop({ type: Array, required: true })
-  private chatList!: StoreObj<ChatInfo>[];
+  private chatList!: StoreData<ChatStore>[];
 
   @Prop({ type: Array, default: () => [] })
-  private likeList!: StoreObj<LikeStore>[];
+  private likeList!: StoreData<LikeStore>[];
 
   @Prop({ type: Array, required: true })
-  private chatTabList!: StoreObj<ChatTabInfo>[];
+  private chatTabList!: StoreData<ChatTabInfoStore>[];
 
-  private useChatList: StoreObj<ChatInfo>[] = [];
+  private useChatList: StoreData<ChatStore>[] = [];
 
   // tab controls
   private tabList: TabInfo[] = [];
@@ -191,7 +192,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
             targetKey
           );
           const actorGroupKey = groupChatTab.data!.actorGroupKey;
-          const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
+          const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
             this.actorGroupList,
             actorGroupKey
           );

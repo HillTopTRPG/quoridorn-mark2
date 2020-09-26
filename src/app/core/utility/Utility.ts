@@ -1,10 +1,9 @@
 import urljoin from "url-join";
-import { Texture } from "@/@types/room";
 import GameObjectManager from "../../basic/GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { ApplicationError } from "../error/ApplicationError";
 import * as jsonp from "jsonp";
-import { StoreObj, StoreUseData } from "@/@types/store";
+import { Texture } from "@/@types/store-data-optional";
 
 export function getSrc(
   path: string
@@ -20,7 +19,7 @@ export function getSrc(
   return { url, dataLocation: "server" };
 }
 
-export function shuffleOrder(list: StoreObj<any>[]): void {
+export function shuffleOrder(list: StoreData<any>[]): void {
   for (let i = list.length - 1; i > 0; i--) {
     const r = Math.floor(Math.random() * (i + 1));
     const tmpOrder = list[i].order;
@@ -195,15 +194,16 @@ export function createEmptyStoreUseData<T>(
     id: "",
     collection: "volatile",
     key,
+    order: -1,
     ownerType: null,
     owner: null,
-    order: -1,
     exclusionOwner: null,
     lastExclusionOwner: null,
     permission: null,
     status: "added",
     createTime: new Date(),
     updateTime: null,
+    refNum: 0,
     data
   };
 }

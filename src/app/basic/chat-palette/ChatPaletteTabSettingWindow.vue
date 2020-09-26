@@ -58,12 +58,11 @@ import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
-import { ChatPaletteStore } from "@/@types/gameObject";
+import { ChatPaletteStore } from "@/@types/store-data";
 import WindowVue from "../../core/window/WindowVue";
 import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
@@ -95,7 +94,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   WindowVue<void, void>
 >(WindowVue) {
   public chatPaletteList = GameObjectManager.instance.chatPaletteList;
-  private filteredTabList: StoreObj<ChatPaletteStore>[] = [];
+  private filteredTabList: StoreData<ChatPaletteStore>[] = [];
   private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
 
   private dragMode = false;
@@ -138,7 +137,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async editTab(tabInfo: StoreData<ChatPaletteStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, null>({
       type: "window-open",
       owner: "Quoridorn",
@@ -153,7 +152,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async chmodTab(tabInfo: StoreData<ChatPaletteStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, void>({
       type: "window-open",
       owner: "Quoridorn",
@@ -173,7 +172,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async deleteTab(tabInfo: StoreData<ChatPaletteStore>) {
     const msg = ChatPaletteTabSettingWindow.getDialogMessage(
       "delete-tab"
     ).replace("$1", tabInfo.data!.name);
@@ -278,7 +277,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
       keyo.order = orderList[index];
     });
 
-    const list: (Partial<StoreObj<ChatPaletteStore>> & {
+    const list: (Partial<StoreData<ChatPaletteStore>> & {
       key: string;
       data: ChatPaletteStore;
       continuous?: boolean;

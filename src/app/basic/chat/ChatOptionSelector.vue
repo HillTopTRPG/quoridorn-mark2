@@ -30,7 +30,6 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../core/window/ComponentVue";
-import { StoreObj } from "@/@types/store";
 import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
@@ -41,7 +40,7 @@ export default class ChatOptionSelector extends Mixins<ComponentVue>(
   private title!: string;
 
   @Prop({ type: Array, required: true })
-  private list!: StoreObj<any>[];
+  private list!: StoreData<any>[];
 
   @Prop({ type: Number, required: true })
   private max!: number;
@@ -80,7 +79,7 @@ export default class ChatOptionSelector extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get pagedList(): StoreObj<any>[] {
+  private get pagedList(): StoreData<any>[] {
     const firstIndex = (this.page - 1) * this.max;
     const endIndex = firstIndex + this.max;
     return this.list.slice(firstIndex, endIndex);

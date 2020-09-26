@@ -12,11 +12,11 @@ import {
   getWindowSize
 } from "../utility/CoordinateUtility";
 import { getCssPxNum } from "../css/Css";
-import { Point } from "address";
 import TaskManager from "../task/TaskManager";
 import { ApplicationError } from "../error/ApplicationError";
 import { clone } from "../utility/PrimaryDataUtility";
 import { findRequireByKey } from "../utility/Utility";
+import { Point } from "@/@types/store-data-optional";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;

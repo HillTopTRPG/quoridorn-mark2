@@ -28,7 +28,6 @@ import { ModeInfo } from "mode";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CharacterInfoForm from "./CharacterInfoForm.vue";
-import { BackgroundSize, Direction } from "@/@types/room";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
@@ -36,9 +35,9 @@ import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
 @Component({ components: { CharacterInfoForm } })
@@ -47,7 +46,7 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
 ) {
   private name: string = LanguageManager.instance.getText("type.character");
   private tag: string = "";
-  private otherTextList: StoreObj<MemoStore>[] = [
+  private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""
@@ -153,7 +152,7 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
 
     await SocketFacade.instance.memoCC().addDirect(
       this.otherTextList.map(data => ({
-        ownerType: "scene-object",
+        ownerType: "scene-object-list",
         owner: sceneObjectKey,
         data: data.data!
       }))

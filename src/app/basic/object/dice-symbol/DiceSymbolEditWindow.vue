@@ -31,7 +31,7 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { SceneObject } from "@/@types/gameObject";
+import { SceneObjectStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
@@ -53,7 +53,7 @@ export default class DiceSymbolEditWindow extends Mixins<
 
   private docKey: string = "";
   private cc: NekostoreCollectionController<
-    SceneObject
+    SceneObjectStore
   > = SocketFacade.instance.sceneObjectCC();
 
   private name: string = "";

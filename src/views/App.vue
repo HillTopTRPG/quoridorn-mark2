@@ -62,13 +62,12 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { Point, Size } from "address";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
 import LifeCycle from "../app/core/decorator/LifeCycle";
 import TaskProcessor from "../app/core/task/TaskProcessor";
-import { OtherTextViewInfo } from "@/@types/gameObject";
+import { CutInStore } from "@/@types/store-data";
 import {
   createPoint,
   createSize,
@@ -90,10 +89,9 @@ import {
 } from "task-info";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import WindowManager from "../app/core/window/WindowManager";
-import { StoreObj } from "@/@types/store";
 import CssManager from "../app/core/css/CssManager";
 import GameObjectManager from "../app/basic/GameObjectManager";
-import { CutInDeclareInfo, MediaUploadInfo } from "@/@types/room";
+import { MediaUploadInfo } from "@/@types/room";
 import SocketFacade from "../app/core/api/app-server/SocketFacade";
 import VueEvent from "../app/core/decorator/VueEvent";
 import {
@@ -119,6 +117,7 @@ import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 import { findByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
+import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -275,17 +274,18 @@ export default class App extends Vue {
             );
             serverInfo.roomList!.splice(index, 1, {
               id: "",
-              key: "",
               collection: "room-volatile",
+              key: "",
+              order: index,
               ownerType: null,
               owner: null,
-              order: index,
               exclusionOwner: null,
               lastExclusionOwner: null,
               permission: null,
               status: null,
               createTime: new Date(),
-              updateTime: null
+              updateTime: null,
+              refNum: 0
             });
           } else {
             const index = change.data!.order;
@@ -393,9 +393,7 @@ export default class App extends Vue {
 
   @Watch("cutInList", { deep: true, immediate: true })
   private async onChangeCutInList() {
-    const openWindowFunc = async (
-      c: StoreObj<CutInDeclareInfo>
-    ): Promise<void> => {
+    const openWindowFunc = async (c: StoreData<CutInStore>): Promise<void> => {
       const targetKey = c.key;
       const windowKeyList: (string | null)[] = [];
       BgmManager.instance.standByWindowList.push({
@@ -416,7 +414,7 @@ export default class App extends Vue {
             s => s.targetKey === c.key
           )
       )
-      .map((c: StoreObj<CutInDeclareInfo>) => () => openWindowFunc(c))
+      .map((c: StoreData<CutInStore>) => () => openWindowFunc(c))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
   }
 
@@ -639,7 +637,7 @@ export default class App extends Vue {
       GameObjectManager.instance.keepBcdiceDiceRollResultList.some(
         kbdrr =>
           kbdrr.data!.type === "secret-dice-roll" &&
-          kbdrr.owner === GameObjectManager.instance.mySelfUserKey
+          kbdrr.owner === SocketFacade.instance.userKey
       )
     ) {
       await App.openSimpleWindow("secret-dice-roll-window");

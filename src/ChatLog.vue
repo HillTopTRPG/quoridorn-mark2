@@ -88,18 +88,16 @@ import {
 } from "./app/core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj } from "@/@types/store";
 import {
-  ActorGroup,
-  ChatInfo,
-  ChatTabInfo,
-  GroupChatTabInfo,
-  UserData
-} from "@/@types/room";
-import { ActorStore } from "@/@types/gameObject";
-import { UserType } from "@/@types/socket";
+  ActorStore,
+  ActorGroupStore,
+  ChatStore,
+  ChatTabInfoStore,
+  GroupChatTabInfoStore,
+  UserStore
+} from "@/@types/store-data";
 import { Watch } from "vue-property-decorator";
-import { DiceResult } from "@/@types/bcdice";
+import { DiceResult, UserType } from "@/@types/store-data-optional";
 
 @Component({ components: { CtrlButton, ChatLogViewer } })
 export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
@@ -114,20 +112,20 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
 
   private owner: string = "";
   private isGm: boolean = false;
-  private chatList: StoreObj<ChatInfo>[] = [];
-  private userList: StoreObj<UserData>[] = [];
+  private chatList: StoreData<ChatStore>[] = [];
+  private userList: StoreData<UserStore>[] = [];
   private userTypeLanguageMap: { [type in UserType]: string } = {
     GM: "GM",
     PL: "PL",
     VISITOR: "VISITOR"
   };
-  private actorList: StoreObj<ActorStore>[] = [];
-  private actorGroupList: StoreObj<ActorGroup>[] = [];
-  private chatTabList: StoreObj<ChatTabInfo>[] = [];
-  private groupChatTabList: StoreObj<GroupChatTabInfo>[] = [];
+  private actorList: StoreData<ActorStore>[] = [];
+  private actorGroupList: StoreData<ActorGroupStore>[] = [];
+  private chatTabList: StoreData<ChatTabInfoStore>[] = [];
+  private groupChatTabList: StoreData<GroupChatTabInfoStore>[] = [];
   private editedMessage: string = "";
 
-  private filteredChatList: StoreObj<ChatInfo>[] = [];
+  private filteredChatList: StoreData<ChatStore>[] = [];
 
   @LifeCycle
   private beforeMount() {
@@ -138,15 +136,17 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
     const getData = (param: string) =>
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
-    this.chatTabList = getListData("chatTabList") as StoreObj<ChatTabInfo>[];
-    this.chatList = getListData("chatList") as StoreObj<ChatInfo>[];
-    this.userList = getListData("userList") as StoreObj<UserData>[];
-    this.actorList = getListData("actorList") as StoreObj<ActorStore>[];
-    this.actorGroupList = getListData("actorGroupList") as StoreObj<
-      ActorGroup
+    this.chatTabList = getListData("chatTabList") as StoreData<
+      ChatTabInfoStore
     >[];
-    this.groupChatTabList = getListData("groupChatTabList") as StoreObj<
-      GroupChatTabInfo
+    this.chatList = getListData("chatList") as StoreData<ChatStore>[];
+    this.userList = getListData("userList") as StoreData<UserStore>[];
+    this.actorList = getListData("actorList") as StoreData<ActorStore>[];
+    this.actorGroupList = getListData("actorGroupList") as StoreData<
+      ActorGroupStore
+    >[];
+    this.groupChatTabList = getListData("groupChatTabList") as StoreData<
+      GroupChatTabInfoStore
     >[];
     this.userTypeLanguageMap = getData("userTypeLanguageMap") as {
       [type in UserType]: string;
@@ -200,7 +200,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
             targetKey
           );
           const actorGroupKey = groupChatTab.data!.actorGroupKey;
-          const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
+          const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
             this.actorGroupList,
             actorGroupKey
           );
@@ -430,7 +430,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
 
   private getColor(actorKey: string | null): string | null {
     if (!actorKey) return null;
-    let cActor: StoreObj<ActorStore> = findRequireByKey(
+    let cActor: StoreData<ActorStore> = findRequireByKey(
       this.actorList,
       actorKey
     );

@@ -11,7 +11,6 @@
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { StoreObj } from "@/@types/store";
 import { WindowTableColumn } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
 import { convertBooleanFalse } from "../../core/utility/PrimaryDataUtility";
@@ -26,7 +25,7 @@ export default class InitiativeInputComponent extends Mixins<ComponentVue>(
   private colDec!: WindowTableColumn;
 
   @Prop({ type: Object, required: true })
-  private dataObj!: StoreObj<any>;
+  private dataObj!: StoreData<any>;
 
   @Prop({ type: String, required: true })
   private inputType!: string;

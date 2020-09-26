@@ -17,8 +17,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj } from "@/@types/store";
-import { OtherTextViewInfo, PublicMemoStore } from "@/@types/gameObject";
+import { PublicMemoStore } from "@/@types/store-data";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { findRequireByKey } from "@/app/core/utility/Utility";
 import VueEvent from "@/app/core/decorator/VueEvent";
@@ -31,12 +30,13 @@ import { ContextTaskInfo } from "context";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Task, TaskResult } from "task";
+import { OtherTextViewInfo } from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
 @Component({})
 export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: Object, required: true })
-  private publicMemo!: StoreObj<PublicMemoStore>;
+  private publicMemo!: StoreData<PublicMemoStore>;
 
   @Prop({ type: Number, required: true })
   private index!: number;
@@ -87,7 +87,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
       type: "other-text-view",
       owner: "Quoridorn",
       value: {
-        type: "public-memo",
+        type: "public-memo-list",
         title: this.publicMemo.data!.name,
         key,
         dataList: this.memoList.filter(m => m.owner === key),

@@ -1,28 +1,27 @@
-import { Matrix, Point } from "address";
-import { StoreObj } from "./store";
+import { Matrix, Point } from "@/@types/store-data-optional";
 
-export type TouchModifyRequest<T> = {
+type TouchModifyRequest<T> = {
   collection: string;
-  list: (Partial<StoreObj<T>> & { key: string; continuous?: boolean })[];
+  list: (Partial<StoreData<T>> & { key: string; continuous?: boolean })[];
 };
-export type ReleaseTouchRequest<T> = TouchModifyRequest<T> & {
-  list: (Partial<StoreObj<T>> & { continuous?: boolean })[];
+type ReleaseTouchRequest<T> = TouchModifyRequest<T> & {
+  list: (Partial<StoreData<T>> & { continuous?: boolean })[];
 };
-export type AddDirectRequest = {
+type AddDirectRequest = {
   collection: string;
-  list: (Partial<StoreObj<any>> & { data: any })[];
+  list: (Partial<StoreData<any>> & { data: any })[];
 };
-export type DeleteDataRequest<T> = TouchModifyRequest<T>;
-export type UpdateDataRequest<T> = TouchModifyRequest<T> & {
-  list: (Partial<StoreObj<T>> & { key: string; continuous?: boolean })[];
+type DeleteDataRequest<T> = TouchModifyRequest<T>;
+type UpdateDataRequest<T> = TouchModifyRequest<T> & {
+  list: (Partial<StoreData<T>> & { key: string; continuous?: boolean })[];
 };
 
-export type DataReference = {
+type DataReference = {
   type: string;
   key: string;
 };
 
-export type AddObjectInfo = {
+type AddObjectInfo = {
   dropWindow: string;
   point: Point;
   matrix: Matrix;

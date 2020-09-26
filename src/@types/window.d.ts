@@ -1,6 +1,7 @@
-import { Anchor, Point, Rectangle } from "address";
+import { Anchor } from "address";
+import { Point, Rectangle } from "@/@types/store-data-optional";
 
-export type WindowSize = {
+type WindowSize = {
   widthEm: number;
   widthRem: number;
   widthPx: number;
@@ -11,14 +12,14 @@ export type WindowSize = {
   heightScrollBar: number;
 };
 
-export type WindowTableColumn = {
+type WindowTableColumn = {
   width: number;
   type: string;
   align: "left" | "center" | "right";
   target: string;
 };
 
-export type WindowTableDeclareInfo = {
+type WindowTableDeclareInfo = {
   readonly type: "free" | "fix-on-side" | "fix-on-right";
   height?: number;
   readonly classificationProp: string;
@@ -27,7 +28,7 @@ export type WindowTableDeclareInfo = {
   readonly columnList: WindowTableColumn[];
 };
 
-export type WindowDeclareInfo = {
+type WindowDeclareInfo = {
   readonly icon: string;
   readonly parentTypeList: string[];
   readonly isInputWindow: boolean;
@@ -45,41 +46,41 @@ export type WindowDeclareInfo = {
   readonly tableInfoList: WindowTableDeclareInfo[];
 };
 
-export type WindowMoveInfo = {
+type WindowMoveInfo = {
   point: Point;
   windowKey: string;
 };
 
-export type PaneMoveInfo = {
+type PaneMoveInfo = {
   point: Point;
   windowKey: string;
 };
 
-export type WindowOpenInfo<T> = {
+type WindowOpenInfo<T> = {
   type: string;
   args?: T;
   key?: string;
 };
 
-export type WindowResizeInfo = {
+type WindowResizeInfo = {
   key: string;
   status: string;
 };
 
-export type WindowTableInfo = {
+type WindowTableInfo = {
   selectLineKey: string | null;
   hoverLineIndex: number | null;
   operateDividerIndex: number | null;
   columnWidthList: number[];
 };
 
-export interface WindowTaskInfo {
+interface WindowTaskInfo {
   readonly type: string;
   readonly declare: WindowDeclareInfo;
   readonly parentKey?: string;
 }
 
-export type TaskInfo = {
+type TaskInfo = {
   taskKey?: string;
 };
 
@@ -94,11 +95,7 @@ type WindowStatus =
   | "right-pane"
   | "right-pane-moving";
 
-export interface WindowInfo<T>
-  extends Point,
-    WindowSize,
-    WindowTaskInfo,
-    TaskInfo {
+interface WindowInfo<T> extends Point, WindowSize, WindowTaskInfo, TaskInfo {
   readonly key: string;
   title: string;
   status: WindowStatus;
@@ -115,7 +112,7 @@ export interface WindowInfo<T>
   readonly tableInfoList: WindowTableInfo[];
 }
 
-export type TabInfo = {
+type TabInfo = {
   key: string;
   text: string;
   target:
@@ -126,7 +123,7 @@ export type TabInfo = {
       };
 };
 
-export type HtmlOptionInfo = {
+type HtmlOptionInfo = {
   value: string | null;
   text: string;
   key: string | null;

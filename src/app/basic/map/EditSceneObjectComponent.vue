@@ -36,10 +36,8 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
-import { StoreObj } from "@/@types/store";
 import ComponentVue from "../../core/window/ComponentVue";
-import { SceneObject } from "@/@types/gameObject";
-import { SceneAndObject } from "@/@types/room";
+import { SceneObjectStore, SceneAndObjectStore } from "@/@types/store-data";
 import SCheck from "../common/components/SCheck.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -49,10 +47,10 @@ export default class EditSceneObjectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private sceneObject!: StoreObj<SceneObject>;
+  private sceneObject!: StoreData<SceneObjectStore>;
 
   @Prop({ type: Object, default: null })
-  private sceneAndObject!: StoreObj<SceneAndObject>;
+  private sceneAndObject!: StoreData<SceneAndObjectStore>;
 
   @Prop({ type: Boolean, required: true })
   private isSelected!: boolean;

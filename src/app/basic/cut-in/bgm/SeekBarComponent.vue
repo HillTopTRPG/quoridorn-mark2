@@ -26,7 +26,7 @@ import LifeCycle from "../../../core/decorator/LifeCycle";
 import { zeroPadding } from "@/app/core/utility/PrimaryDataUtility";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import CssManager from "../../../core/css/CssManager";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
@@ -38,7 +38,7 @@ export default class SeekBarComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private bgmInfo!: CutInDeclareInfo;
+  private bgmInfo!: CutInStore;
   @Prop({ type: Number, required: true })
   private duration!: number;
   @Prop({ type: Number, required: true })

@@ -72,14 +72,17 @@
 import { Prop, Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Point, Rectangle, Size } from "address";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CtrlSelect from "../../../core/component/CtrlSelect.vue";
-import { OtherTextViewInfo } from "@/@types/gameObject";
+import {
+  OtherTextViewInfo,
+  Point,
+  Rectangle,
+  Size
+} from "@/@types/store-data-optional";
 import ComponentVue from "../../../core/window/ComponentVue";
 import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
-import { BcdiceSystemInfo, DiceSystem } from "@/@types/bcdice";
 import { getCssPxNum } from "@/app/core/css/Css";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import SButton from "./SButton.vue";

@@ -29,7 +29,6 @@
 import MapBoard from "./MapBoard.vue";
 import { Component } from "vue-mixin-decorator";
 import { Watch } from "vue-property-decorator";
-import { Matrix, Point } from "address";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import { DropPieceInfo } from "task-info";
@@ -43,20 +42,21 @@ import {
   createPoint,
   getEventPoint
 } from "../../core/utility/CoordinateUtility";
-import { Scene, Texture } from "@/@types/room";
+import { SceneStore } from "@/@types/store-data";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import CssManager from "../../core/css/CssManager";
 import SceneLayerComponent from "./SceneLayerComponent.vue";
 import GameObjectManager from "../GameObjectManager";
 import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
+import { Matrix, Point, Texture } from "@/@types/store-data-optional";
 
 @Component({ components: { SceneLayerComponent, MapBoard } })
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
   private roomData = GameObjectManager.instance.roomData;
   private sceneKey: string | null = null;
-  private sceneInfo: Scene | null = null;
+  private sceneInfo: SceneStore | null = null;
 
   @Watch("roomData", { immediate: true, deep: true })
   private onChangeRoomData() {
@@ -137,7 +137,7 @@ export default class GameTable extends AddressCalcMixin {
     });
   }
 
-  private async setCss(scene: Scene | null) {
+  private async setCss(scene: SceneStore | null) {
     if (!this.isMounted || !scene) return;
     const margin = scene.margin;
     const background = scene.background;

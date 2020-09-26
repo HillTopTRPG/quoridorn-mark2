@@ -166,17 +166,13 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
 import { ModeInfo } from "mode";
 import urljoin from "url-join";
-import { Rectangle } from "address";
 import ComponentVue from "../../../core/window/ComponentVue";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
-  CardDeckBig,
-  CardMeta,
-  CardObject,
-  CardYamlInfo,
-  InputCardInfo,
-  OtherTextViewInfo
-} from "@/@types/gameObject";
+  CardDeckBigStore,
+  CardMetaStore,
+  CardObjectStore
+} from "@/@types/store-data";
 import {
   createAddress,
   createPoint
@@ -195,12 +191,17 @@ import CardDeckCreateCardComponent from "./CardDeckCreateCardComponent.vue";
 import CardChooserComponent from "./CardChooserComponent.vue";
 import CardDeckFrameSettingComponent from "./CardDeckFrameSettingComponent.vue";
 import TextFrame from "./TextFrame.vue";
-import { StoreObj } from "@/@types/store";
+import {
+  CardYamlInfo,
+  InputCardInfo,
+  OtherTextViewInfo,
+  Rectangle
+} from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
 type DeckInfo = {
-  cardDeckBig: StoreObj<CardDeckBig>;
-  cardMetaList: StoreObj<CardMeta>[];
+  cardDeckBig: StoreData<CardDeckBigStore>;
+  cardMetaList: StoreData<CardMetaStore>[];
 };
 
 @Component({
@@ -220,7 +221,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   @Prop({ type: String, default: "" })
   private cardDeckId!: string;
 
-  public static DEFAULT_CARD_FRAME_PARANOIA_REBOOTED: CardMeta = {
+  public static DEFAULT_CARD_FRAME_PARANOIA_REBOOTED: CardMetaStore = {
     width: 200,
     height: 300,
     radius: 0,
@@ -274,7 +275,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private textPadding: number = 0;
   private textBackgroundColor: string = "rgba(255, 255, 255, 0.3)";
 
-  private newCardList: StoreObj<CardMeta>[] = [];
+  private newCardList: StoreData<CardMetaStore>[] = [];
 
   private selectedCardList: CardCountInfo[] = [];
   private statusNum: number = 1;
@@ -295,7 +296,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       await this.cardDeckBigCC.addDirect([{ data: { name: this.newDeckName } }])
     )[0];
 
-    const cardMetaList: CardMeta[] = this.selectedCardList
+    const cardMetaList: CardMetaStore[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
       .map(ccInfo => this.cardList.filter(c => c.key === ccInfo.key)[0].data!);
     const cardMetaKeyList = await this.cardMetaCC.addDirect(
@@ -308,7 +309,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
     console.log(JSON.stringify(cardMetaList, null, "  "));
     console.log(JSON.stringify(cardMetaKeyList, null, "  "));
 
-    const cardObjectList: CardObject[] = this.selectedCardList
+    const cardObjectList: CardObjectStore[] = this.selectedCardList
       .filter(ccInfo => ccInfo.count)
       .map((ccInfo, index) => {
         // const index: number = this.cardList.findIndex(c => (c.key = ccInfo.id));
@@ -354,7 +355,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
       cardObjectList.map((data, v) => ({
         order: v,
         owner: cardDeckSmallKey,
-        ownerType: "card-deck-small",
+        ownerType: "card-deck-small-list",
         data
       }))
     );
@@ -363,14 +364,14 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
 
   @VueEvent
   private hoverCard(
-    card: StoreObj<CardMeta>,
+    card: StoreData<CardMetaStore>,
     isHover: boolean,
     rect: Rectangle
   ) {
     if (isHover) {
       const text = `${card.data!.name}\n${card.data!.text}`;
       this.otherTextViewInfo = {
-        type: "card-meta",
+        type: "card-meta-list",
         key: card.key,
         dataList: [
           createEmptyStoreUseData(uuid.v4(), {
@@ -387,8 +388,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get cardList(): StoreObj<CardMeta>[] {
-    const resultList: StoreObj<CardMeta>[] = [];
+  private get cardList(): StoreData<CardMetaStore>[] {
+    const resultList: StoreData<CardMetaStore>[] = [];
 
     resultList.push(...this.newCardList);
 
@@ -410,9 +411,9 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
   private async created() {
     // DBデッキリストを参照
     this.cardDeckBigList.forEach(cardDeckBig => {
-      const cardMetaList: StoreObj<CardMeta>[] = this.cardMetaList.filter(
-        cm => cm.owner === cardDeckBig.key
-      );
+      const cardMetaList: StoreUseData<
+        CardMetaStore
+      >[] = this.cardMetaList.filter(cm => cm.owner === cardDeckBig.key);
       this.dbDeckList.push({ cardDeckBig, cardMetaList });
     });
 
@@ -424,11 +425,11 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
           const name = presetDeck.title;
           const key = `preset-deck-${name}-${deckIndex}`;
           const cardDeckBig = createEmptyStoreUseData(key, { name });
-          const cardMetaList: StoreObj<CardMeta>[] = presetDeck.cards.map(
+          const cardMetaList: StoreData<CardMetaStore>[] = presetDeck.cards.map(
             (c: InputCardInfo, cardIndex: number) => {
               const cardKey = `preset-card-${deckIndex}-${cardIndex}`;
               const basePath = presetDeck.basePath || "";
-              const cardMeta: CardMeta = {
+              const cardMeta: CardMetaStore = {
                 width: presetDeck.width,
                 height: presetDeck.height,
                 padHorizontal: presetDeck.padHorizontal || 0,

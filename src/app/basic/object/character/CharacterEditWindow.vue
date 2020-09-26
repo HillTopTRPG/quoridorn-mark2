@@ -35,19 +35,18 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import CharacterInfoForm from "./CharacterInfoForm.vue";
-import { MemoStore, SceneObject } from "@/@types/gameObject";
+import { MemoStore, SceneObjectStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { BackgroundSize, Direction } from "@/@types/room";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
-import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -60,13 +59,13 @@ export default class CharacterEditWindow extends Mixins<
 >(WindowVue) {
   private docKey: string = "";
   private cc: NekostoreCollectionController<
-    SceneObject
+    SceneObjectStore
   > = SocketFacade.instance.sceneObjectCC();
   private tag: string = "";
   private url: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
-  private otherTextList: StoreObj<MemoStore>[] = [];
+  private otherTextList: StoreData<MemoStore>[] = [];
   private size: number = 1;
   private imageDocKey: string | null = null;
   private imageTag: string | null = null;
@@ -114,7 +113,7 @@ export default class CharacterEditWindow extends Mixins<
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object" && m.owner === this.docKey
+        m => m.ownerType === "scene-object-list" && m.owner === this.docKey
       )
     )!;
 

@@ -44,7 +44,7 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { ChatPaletteStore, ResourceStore } from "@/@types/gameObject";
+import { ChatPaletteStore, ResourceStore } from "@/@types/store-data";
 import { CustomDiceBotInfo } from "@/@types/room";
 import SocketFacade, {
   permissionCheck
@@ -52,7 +52,6 @@ import SocketFacade, {
 import BaseInput from "../../core/component/BaseInput.vue";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
 import ChatPaletteListComponent from "./ChatPaletteListComponent.vue";
 import WindowVue from "../../core/window/WindowVue";
@@ -121,7 +120,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
     this.isSecret = chatPaletteData.isSecret;
 
     const userKey = this.chatPaletteObj.owner;
-    if (userKey === GameObjectManager.instance.mySelfUserKey) {
+    if (userKey === SocketFacade.instance.userKey) {
       this.windowInfo.message = "";
     } else {
       const user = findRequireByKey(this.userList, userKey);
@@ -156,7 +155,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
   }
 
   @VueEvent
-  private get chatPaletteObj(): StoreObj<ChatPaletteStore> | undefined {
+  private get chatPaletteObj(): StoreData<ChatPaletteStore> | undefined {
     return this.currentTargetTabInfo
       ? this.chatPaletteList.find(
           cp => cp.key === this.currentTargetTabInfo!.target
@@ -204,7 +203,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
           rm => rm.data!.label === label
         );
         if (resourceMaster) {
-          const filteredList: StoreObj<
+          const filteredList: StoreUseData<
             ResourceStore
           >[] = this.resourceList.filter(
             r => r.data!.masterKey === resourceMaster.key
@@ -213,28 +212,28 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
           if (sceneObjectKey) {
             // コマまで指定されている場合はコマのリソースを優先して検索する
             let resource = filteredList.find(f => {
-              if (f.ownerType === "actor") return false;
+              if (f.ownerType === "actor-list") return false;
               return f.owner === sceneObjectKey;
             });
             if (resource) return resource.data!.value;
 
             // コマで見つからない場合はアクターで検索
             resource = filteredList.find(f => {
-              if (f.ownerType !== "actor") return false;
+              if (f.ownerType !== "actor-list") return false;
               return f.owner === actorKey;
             });
             if (resource) return resource.data!.value;
           } else {
             // コマが指定されていない場合はアクターのリソースを優先して検索する
             let resource = filteredList.find(f => {
-              if (f.ownerType !== "actor") return false;
+              if (f.ownerType !== "actor-list") return false;
               return f.owner === actorKey;
             });
             if (resource) return resource.data!.value;
 
             // アクターのリソースが見つからない場合はコマのリソースを検索する
             resource = filteredList.find(f => {
-              if (f.ownerType === "actor") return false;
+              if (f.ownerType === "actor-list") return false;
               return actor.data!.pieceKeyList.some(
                 pieceKey => pieceKey === f.owner
               );

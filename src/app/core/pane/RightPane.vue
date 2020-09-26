@@ -28,7 +28,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
-import { Point } from "address";
 import ResizeKnob from "../window/ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
@@ -45,6 +44,7 @@ import PaneFrame from "./PaneFrame.vue";
 import LifeCycle from "../decorator/LifeCycle";
 import { PaneMoveInfo, WindowInfo, WindowMoveInfo } from "@/@types/window";
 import { getCssPxNum } from "../css/Css";
+import { Point } from "@/@types/store-data-optional";
 
 @Component({
   components: { PaneFrame, ResizeKnob }

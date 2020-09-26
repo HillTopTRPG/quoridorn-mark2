@@ -66,21 +66,21 @@ export default class SceneLayerSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList = GameObjectManager.instance.sceneLayerList
-      .sort((ml1, ml2) => {
-        const ml1Index = this.orderList.findIndex(o => o === ml1.key);
-        const ml2Index = this.orderList.findIndex(o => o === ml2.key);
-        if (ml1Index < ml2Index) return 1;
-        if (ml1Index > ml2Index) return -1;
+      .sort((sl1, sl2) => {
+        const sl1Index = this.orderList.findIndex(o => o === sl1.key);
+        const sl2Index = this.orderList.findIndex(o => o === sl2.key);
+        if (sl1Index < sl2Index) return 1;
+        if (sl1Index > sl2Index) return -1;
         return 0;
       })
-      .map(ml => {
-        const mlIndex = this.orderList.findIndex(o => o === ml.key);
-        let text = ml.data!.name;
-        if (ml.data!.type !== "other")
-          text = this.$t(`type.${ml.data!.type}`)!.toString();
+      .map(sl => {
+        const mlIndex = this.orderList.findIndex(o => o === sl.key);
+        let text = sl.data!.name;
+        if (sl.data!.type !== "other")
+          text = this.$t(`type.${sl.data!.type}`)!.toString();
         return {
-          key: ml.key,
-          value: ml.key,
+          key: sl.key,
+          value: sl.key,
           text: `${mlIndex + 1}：${text}`,
           disabled: false
         };

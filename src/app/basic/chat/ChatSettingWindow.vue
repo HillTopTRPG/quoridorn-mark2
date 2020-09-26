@@ -123,7 +123,6 @@ import App from "../../../views/App.vue";
 import WindowVue from "../../core/window/WindowVue";
 import { Getter, Mutation } from "vuex-class";
 import GameObjectManager from "../GameObjectManager";
-import { StoreObj } from "@/@types/store";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import SocketFacade, {
@@ -131,7 +130,6 @@ import SocketFacade, {
 } from "../../core/api/app-server/SocketFacade";
 import TaskManager from "../../core/task/TaskManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { ChatTabInfo } from "@/@types/room";
 import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
@@ -141,7 +139,7 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
-import { LikeStore } from "@/@types/gameObject";
+import { LikeStore, ChatTabInfoStore } from "@/@types/store-data";
 
 @Component({
   components: {
@@ -165,8 +163,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   private chatTabList = GameObjectManager.instance.chatTabList;
   private likeList = GameObjectManager.instance.likeList;
-  private filteredChatTabList: StoreObj<ChatTabInfo>[] = [];
-  private filteredLikeList: StoreObj<LikeStore>[] = [];
+  private filteredChatTabList: StoreData<ChatTabInfoStore>[] = [];
+  private filteredLikeList: StoreData<LikeStore>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
   private likeListCC = SocketFacade.instance.likeListCC();
   private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
@@ -249,12 +247,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreObj<ChatTabInfo>) {
+  private isEditable(tabInfo: StoreData<ChatTabInfoStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<ChatTabInfo>) {
+  private async editTab(tabInfo: StoreData<ChatTabInfoStore>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
@@ -268,12 +266,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreObj<ChatTabInfo>) {
+  private isChmodAble(tabInfo: StoreData<ChatTabInfoStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreObj<ChatTabInfo>) {
+  private async chmodTab(tabInfo: StoreData<ChatTabInfoStore>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -290,12 +288,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreObj<ChatTabInfo>) {
+  private isDeletable(tabInfo: StoreData<ChatTabInfoStore>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<ChatTabInfo>) {
+  private async deleteTab(tabInfo: StoreData<ChatTabInfoStore>) {
     if (!this.isDeletable(tabInfo)) return;
     const msg = this.$t("message.delete-tab")!
       .toString()
@@ -441,7 +439,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   private static async sortUpdate<T>(
-    dataList: StoreObj<T>[],
+    dataList: StoreData<T>[],
     cc: NekostoreCollectionController<T>
   ) {
     const keyOrderList = dataList.map(ct => ({
@@ -460,7 +458,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       keyo.order = orderList[index];
     });
 
-    const list: (Partial<StoreObj<T>> & {
+    const list: (Partial<StoreData<T>> & {
       key: string;
       continuous?: boolean;
     })[] = [];

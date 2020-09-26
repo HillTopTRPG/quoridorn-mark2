@@ -58,11 +58,11 @@ import YoutubeManager, {
   YoutubeEventHandler
 } from "./YoutubeManager";
 import {
-  CutInDeclareInfo,
   PlayBgmInfo,
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -73,7 +73,7 @@ export default class PlayYoutubeWindow
   @Prop({ type: Boolean, default: false })
   private isIpadTesting!: boolean;
 
-  private bgmInfo: CutInDeclareInfo | null = null;
+  private bgmInfo: CutInStore | null = null;
   private targetKey: string | null = null;
   private volume: number = 0;
   private isWindowMoving = false;

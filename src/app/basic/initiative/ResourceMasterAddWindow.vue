@@ -43,18 +43,18 @@ import {
   convertNumberZero
 } from "../../core/utility/PrimaryDataUtility";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
-import {
-  RefProperty,
-  ResourceMasterStore,
-  ResourceType
-} from "@/@types/gameObject";
+import { ResourceMasterStore } from "@/@types/store-data";
 import VueEvent from "../../core/decorator/VueEvent";
 import { parseColor } from "../../core/utility/ColorUtility";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
-import { Direction } from "@/@types/room";
+import {
+  Direction,
+  RefProperty,
+  ResourceType
+} from "@/@types/store-data-optional";
 
 @Component({
   components: {

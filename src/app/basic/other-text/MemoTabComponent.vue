@@ -43,9 +43,8 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
@@ -56,7 +55,7 @@ export default class MemoTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private tab!: StoreObj<MemoStore>;
+  private tab!: StoreData<MemoStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
@@ -65,34 +64,34 @@ export default class MemoTabComponent extends Mixins<ComponentVue>(
   private changeOrderKey: string = "";
 
   @VueEvent
-  private isEditable(tabInfo: StoreObj<MemoStore>) {
+  private isEditable(tabInfo: StoreData<MemoStore>) {
     return permissionCheck(tabInfo, "edit", 1);
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<MemoStore>) {
+  private async editTab(tabInfo: StoreData<MemoStore>) {
     if (!this.isEditable(tabInfo)) return;
     this.$emit("edit", tabInfo);
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreObj<MemoStore>) {
+  private isChmodAble(tabInfo: StoreData<MemoStore>) {
     return permissionCheck(tabInfo, "chmod", 1);
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreObj<MemoStore>) {
+  private async chmodTab(tabInfo: StoreData<MemoStore>) {
     if (!this.isChmodAble(tabInfo)) return;
     this.$emit("chmod", tabInfo);
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreObj<MemoStore>) {
+  private isDeletable(tabInfo: StoreData<MemoStore>) {
     return permissionCheck(tabInfo, "edit", 1);
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<MemoStore>) {
+  private async deleteTab(tabInfo: StoreData<MemoStore>) {
     if (!this.isDeletable(tabInfo)) return;
     this.$emit("delete", tabInfo);
   }

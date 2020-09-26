@@ -46,7 +46,6 @@ import VueEvent from "../../core/decorator/VueEvent";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
-import { Permission } from "@/@types/store";
 import { TabInfo } from "@/@types/window";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";

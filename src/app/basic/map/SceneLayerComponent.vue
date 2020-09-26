@@ -42,10 +42,9 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
+import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
 import GameObjectManager from "../GameObjectManager";
 import CardDeckSmallComponent from "../card/CardDeckSmallComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -72,7 +71,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   private sceneKey!: string;
 
   @Prop({ type: Object, required: true })
-  private layer!: StoreObj<SceneLayer>;
+  private layer!: StoreData<SceneLayerStore>;
 
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
@@ -81,7 +80,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
   private isMounted: boolean = false;
-  private sceneAndLayerInfo: StoreObj<SceneAndLayer> | null = null;
+  private sceneAndLayerInfo: StoreData<SceneAndLayerStore> | null = null;
 
   @VueEvent
   private get className(): string {
@@ -100,7 +99,7 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
     await this.sceneAndLayerCC!.setSnapshot(
       this.key,
       sceneAndLayerInfo.key,
-      (snapshot: DocumentSnapshot<StoreObj<SceneAndLayer>>) => {
+      (snapshot: DocumentSnapshot<StoreData<SceneAndLayerStore>>) => {
         if (!snapshot.data) return;
         const status = snapshot.data.status;
         if (status === "modified" || status === "modify-touched") {

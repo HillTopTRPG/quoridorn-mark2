@@ -1,10 +1,10 @@
 import YoutubeManager, { YoutubeEventHandler } from "./YoutubeManager";
 import { StandByReturnInfo } from "task-info";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
-import { CutInDeclareInfo, PlayBgmInfo } from "@/@types/room";
+import { PlayBgmInfo } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 
 export default class BgmManager {
@@ -141,7 +141,7 @@ export default class BgmManager {
 
   public static async playBgm(
     targetKey: string | null,
-    cutInInfo: CutInDeclareInfo,
+    cutInInfo: CutInStore,
     windowKey: string,
     windowStatus: string,
     playElmKey: string,
@@ -182,7 +182,7 @@ export default class BgmManager {
     playingBgmList.splice(index, 1);
   }
 
-  private static getCutInInfo(playBgmInfo: PlayBgmInfo): CutInDeclareInfo {
+  private static getCutInInfo(playBgmInfo: PlayBgmInfo): CutInStore {
     if (playBgmInfo.data) return playBgmInfo.data;
     const cutInList = GameObjectManager.instance.cutInList;
     return findRequireByKey(cutInList, playBgmInfo.targetKey).data!;
@@ -192,11 +192,9 @@ export default class BgmManager {
     return findByKey(GameObjectManager.instance.cutInList, id);
   }
 
-  private static getUrl(target: string | CutInDeclareInfo): string | null {
+  private static getUrl(target: string | CutInStore): string | null {
     if (typeof target === "string") {
-      const info: StoreObj<CutInDeclareInfo> | null = BgmManager.getInfo(
-        target
-      );
+      const info: StoreData<CutInStore> | null = BgmManager.getInfo(target);
       if (!info) return null;
       return info.data!.url;
     } else {
@@ -204,13 +202,13 @@ export default class BgmManager {
     }
   }
 
-  public static isYoutube(target: string | CutInDeclareInfo) {
+  public static isYoutube(target: string | CutInStore) {
     const url = BgmManager.getUrl(target);
     if (!url) return false;
     return /www\.youtube\.com/.test(url);
   }
 
-  public static isDropbox(target: string | CutInDeclareInfo) {
+  public static isDropbox(target: string | CutInStore) {
     const url = BgmManager.getUrl(target);
     if (!url) return false;
     return /dropbox/.test(url);

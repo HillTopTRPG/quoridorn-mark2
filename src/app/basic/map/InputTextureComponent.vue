@@ -36,7 +36,6 @@ import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { BackgroundSize, Direction, Texture } from "@/@types/room";
 import { parseColor } from "../../core/utility/ColorUtility";
 import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
@@ -46,6 +45,11 @@ import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import {
+  BackgroundSize,
+  Direction,
+  Texture
+} from "@/@types/store-data-optional";
 
 @Component({
   components: {

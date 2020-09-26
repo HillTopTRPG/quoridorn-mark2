@@ -1,14 +1,15 @@
 import { all, create } from "mathjs";
-import { ChatInfo, CustomDiceBotInfo } from "@/@types/room";
+import { CustomDiceBotInfo } from "@/@types/room";
+import { ChatStore } from "@/@types/store-data";
 import GameObjectManager from "../../basic/GameObjectManager";
 import BcdiceManager from "../api/bcdice/BcdiceManager";
 import { sum } from "./PrimaryDataUtility";
 import SocketFacade from "../api/app-server/SocketFacade";
 import { findByKey, findRequireByKey, someByStr } from "./Utility";
-import { BcdiceDiceRollResult, DiceResult } from "@/@types/bcdice";
 import LanguageManager from "@/LanguageManager";
 import App from "@/views/App.vue";
 import WindowManager from "@/app/core/window/WindowManager";
+import { BcdiceDiceRollResult, DiceResult } from "@/@types/store-data-optional";
 
 const config = {};
 const math = create(all, config);
@@ -142,7 +143,7 @@ export type SendChatInfo = {
   dices?: DiceResult[];
 };
 
-async function addChatLog(chatInfo: ChatInfo): Promise<string> {
+async function addChatLog(chatInfo: ChatStore): Promise<string> {
   const actorList = GameObjectManager.instance.actorList;
   const actor = findByKey(actorList, chatInfo.actorKey);
   const chatTabList = GameObjectManager.instance.chatTabList;
@@ -224,7 +225,7 @@ export async function sendChatLog(
     statusKey = actorStatus.key;
   }
 
-  const chatInfo: ChatInfo = {
+  const chatInfo: ChatStore = {
     chatType: payload.chatType || "chat",
     tabKey: tabKey!,
     text: payload.text,

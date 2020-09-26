@@ -189,8 +189,7 @@
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 import { Component } from "vue-property-decorator";
-import { StoreObj } from "@/@types/store";
-import { ActorGroup, UserData } from "@/@types/room";
+import { ActorGroupStore, UserStore } from "@/@types/store-data";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
 import App from "../../../views/App.vue";
@@ -203,7 +202,6 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import MenuWindowItem from "@/app/basic/menu/MenuWindowItem.vue";
 import { createPoint } from "@/app/core/utility/CoordinateUtility";
-import { Point } from "address";
 import WindowManager from "@/app/core/window/WindowManager";
 import MenuDownItem from "@/app/basic/menu/MenuDownItem.vue";
 import EventProcessor from "@/app/core/event/EventProcessor";
@@ -211,6 +209,8 @@ import moment from "moment/moment";
 import * as Mustache from "mustache";
 import { saveHTML } from "@/app/core/utility/FileUtility";
 import urljoin from "url-join";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { Point } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -219,7 +219,7 @@ import urljoin from "url-join";
     MenuBooleanItem
   },
   filters: {
-    loginNum: (userList: StoreObj<UserData>[]) =>
+    loginNum: (userList: StoreData<UserStore>[]) =>
       userList.filter(user => user!.data!.login > 0).length
   }
 })
@@ -229,7 +229,8 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private isSelecting: boolean = false;
   private currentMenu: string = "";
   private currentMenuPoint: Point = createPoint(0, 0);
-  private userList: StoreObj<UserData>[] = GameObjectManager.instance.userList;
+  private userList: StoreData<UserStore>[] =
+    GameObjectManager.instance.userList;
 
   public key: string = "menu";
 
@@ -327,7 +328,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
       const someActor = (key: string | null): boolean => {
         const actor = findByKey(actorList, key);
         if (!actor) return true;
-        return actor.owner === GameObjectManager.instance.mySelfUserKey;
+        return actor.owner === SocketFacade.instance.userKey;
       };
       chatList = chatList.filter(c => {
         if (!c.data!.isSecret) return true;
@@ -337,12 +338,12 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
           case "group":
             const groupChatTab = findRequireByKey(groupChatTabList, targetKey);
             const actorGroupKey = groupChatTab.data!.actorGroupKey;
-            const actorGroup: StoreObj<ActorGroup> = findRequireByKey(
+            const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
               actorGroupList,
               actorGroupKey
             );
             return actorGroup.data!.list.some(
-              a => a.userKey === GameObjectManager.instance.mySelfUserKey
+              a => a.userKey === SocketFacade.instance.userKey
             );
           case "actor":
             return someActor(targetKey);
@@ -353,7 +354,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     }
 
     const data = {
-      owner: GameObjectManager.instance.mySelfUserKey,
+      owner: SocketFacade.instance.userKey,
       chatTabList: convert(chatTabList),
       chatList: convert(chatList),
       userList: convert(userList),

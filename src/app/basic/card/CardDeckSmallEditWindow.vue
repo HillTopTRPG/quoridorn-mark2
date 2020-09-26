@@ -109,7 +109,7 @@ import SocketFacade, {
   permissionCheck
 } from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
-import { CardDeckLayout } from "@/@types/gameObject";
+import { CardDeckLayout } from "@/@types/store-data-optional";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";

@@ -124,7 +124,6 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { BackgroundSize, Direction } from "@/@types/room";
 import GameObjectManager from "../../GameObjectManager";
 import { TabInfo } from "@/@types/window";
 import VueEvent from "../../../core/decorator/VueEvent";
@@ -144,9 +143,9 @@ import {
   createNechronicaChatPalette,
   isNechronicaUrl
 } from "@/app/core/utility/trpg_system/nechronica";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
 @Component({
@@ -219,14 +218,14 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreObj<MemoStore>[];
-  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
+  private otherTextList!: StoreData<MemoStore>[];
+  private otherTextListVolatile: StoreData<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreData<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreData<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 

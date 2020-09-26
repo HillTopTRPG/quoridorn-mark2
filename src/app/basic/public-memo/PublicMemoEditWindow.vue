@@ -27,10 +27,8 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { MemoStore, PublicMemoStore } from "@/@types/gameObject";
-import { Direction } from "@/@types/room";
+import { MemoStore, PublicMemoStore } from "@/@types/store-data";
 import { DataReference } from "@/@types/data";
-import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import PublicMemoInfoForm from "@/app/basic/public-memo/PublicMemoInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -43,6 +41,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -59,7 +58,7 @@ export default class PublicMemoEditWindow extends Mixins<
   > = SocketFacade.instance.publicMemoListCC();
   private name: string = "";
   private isProcessed: boolean = false;
-  private otherTextList: StoreObj<MemoStore>[] = [];
+  private otherTextList: StoreData<MemoStore>[] = [];
   private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";

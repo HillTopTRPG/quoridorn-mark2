@@ -77,7 +77,6 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
-import { Point, Rectangle, Size } from "address";
 import { ContextTaskInfo } from "context";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../core/decorator/LifeCycle";
@@ -91,13 +90,7 @@ import {
   getEventPoint,
   isContain
 } from "../../core/utility/CoordinateUtility";
-import {
-  CardDeckLayout,
-  CardDeckSmall,
-  CardObject,
-  ObjectMoveInfo
-} from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { CardDeckSmallStore, CardObjectStore } from "@/@types/store-data";
 import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
 import SButton from "../common/components/SButton.vue";
 import CardComponent from "./CardComponent.vue";
@@ -112,6 +105,13 @@ import { clone } from "../../core/utility/PrimaryDataUtility";
 import { WindowOpenInfo } from "@/@types/window";
 import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
 import { DataReference } from "@/@types/data";
+import {
+  CardDeckLayout,
+  ObjectMoveInfo,
+  Point,
+  Rectangle,
+  Size
+} from "@/@types/store-data-optional";
 
 interface MultiMixin extends AddressCalcMixin, ComponentVue {}
 
@@ -123,7 +123,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private deck!: StoreObj<CardDeckSmall>;
+  private deck!: StoreData<CardDeckSmallStore>;
 
   private contentsMoveInfo: ObjectMoveInfo = {
     fromPoint: createPoint(0, 0),
@@ -154,7 +154,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private cardObjectCC = SocketFacade.instance.cardObjectCC();
   private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
 
-  private hoverCardObject: StoreObj<CardObject> | null = null;
+  private hoverCardObject: StoreData<CardObjectStore> | null = null;
   private isMounted: boolean = false;
   private moveCardKey: string | null = null;
 
@@ -181,7 +181,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   }
 
   @VueEvent
-  private getCardMeta(cardObject: StoreObj<CardObject>) {
+  private getCardMeta(cardObject: StoreData<CardObjectStore>) {
     return this.cardMetaList.filter(
       cm => cm.key === cardObject.data!.cardMetaKey
     )[0];
@@ -209,7 +209,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   }
 
   @VueEvent
-  private hoverCard(card: StoreObj<CardObject>, isHover: boolean) {
+  private hoverCard(card: StoreData<CardObjectStore>, isHover: boolean) {
     this.hoverCardObject = isHover ? card : null;
   }
 
@@ -287,7 +287,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
    * カードのスタイル
    */
   @VueEvent
-  private getCardStyle(card: StoreObj<CardObject>, index: number) {
+  private getCardStyle(card: StoreData<CardObjectStore>, index: number) {
     const isMoving = this.moveCardKey === card.key;
     const arrangePoint = createPoint(0, 0);
     const transition = this.movingMode === "card" ? undefined : "all 0.5s ease";
@@ -350,7 +350,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const lastExclusionOwnerKey = GameObjectManager.instance.getExclusionOwnerKey(
       lastExclusionOwner
     );
-    return lastExclusionOwnerKey !== GameObjectManager.instance.mySelfUserKey;
+    return lastExclusionOwnerKey !== SocketFacade.instance.userKey;
   }
 
   @VueEvent
@@ -409,7 +409,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
    */
   @VueEvent
   private async cardLeftDown(
-    cardObject: StoreObj<CardObject>,
+    cardObject: StoreData<CardObjectStore>,
     event: MouseEvent
   ) {
     console.log("cardLeftDown");
@@ -543,7 +543,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       address.y = (address.row - 1) * gridSize;
     }
 
-    const data: CardDeckSmall = clone(this.deck!.data)!;
+    const data: CardDeckSmallStore = clone(this.deck!.data)!;
     copyAddress(address, data.address);
     await this.cardDeckSmallCC!.update([
       {
@@ -561,7 +561,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const cCenter = this.cardMoveInfo.cardCenter;
     const cardSize = this.cardSize;
 
-    const getDeckRectangle = (deck: StoreObj<CardDeckSmall>) => {
+    const getDeckRectangle = (deck: StoreData<CardDeckSmallStore>) => {
       return createRectangle(
         gridSize * deck.data!.address.column,
         gridSize * deck.data!.address.row,
@@ -696,9 +696,9 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   }
 
   private async updateDeck(
-    deck: StoreObj<CardDeckSmall>,
-    info: Partial<CardDeckSmall>,
-    option?: Partial<StoreObj<CardDeckSmall>>
+    deck: StoreData<CardDeckSmallStore>,
+    info: Partial<CardDeckSmallStore>,
+    option?: Partial<StoreData<CardDeckSmallStore>>
   ) {
     Object.assign(deck.data!, info);
     if (option) {
@@ -719,7 +719,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     }
   }
 
-  private async updateAllCard(info: Partial<CardObject>) {
+  private async updateAllCard(info: Partial<CardObjectStore>) {
     await this.cardObjectCC.updatePackage(
       this.useCardObjectList.map(co => {
         const cardObject = this.cardObjectList.filter(
@@ -737,7 +737,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   private getTaskCardObject(
     task: Task<any, never>
-  ): StoreObj<CardObject> | null {
+  ): StoreData<CardObjectStore> | null {
     const cardKey = task.value.args.docKey;
     const cardObject = this.cardObjectList.filter(co => co.key === cardKey)[0];
     if (!cardObject) return null;
@@ -976,8 +976,8 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   private async changeLayout(layout: CardDeckLayout) {
     this.deck.data!.layout = layout;
-    const option: Partial<StoreObj<CardDeckSmall>> = {
-      owner: layout === "hand" ? GameObjectManager.instance.mySelfUserKey : null
+    const option: Partial<StoreData<CardDeckSmallStore>> = {
+      owner: layout === "hand" ? SocketFacade.instance.userKey : null
     };
     await this.updateDeck(this.deck, { layout }, option);
   }

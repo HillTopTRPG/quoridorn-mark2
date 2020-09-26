@@ -44,21 +44,19 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { Address } from "address";
 import draggable from "vuedraggable";
 import { ModeInfo } from "mode";
-import { StoreObj } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
-import { SceneObject } from "@/@types/gameObject";
+import { SceneObjectStore, SceneAndObjectStore } from "@/@types/store-data";
 import TaskManager from "../../core/task/TaskManager";
-import { SceneAndObject } from "@/@types/room";
 import GameObjectManager from "../GameObjectManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import { clone } from "../../core/utility/PrimaryDataUtility";
 import EditSceneObjectComponent from "./EditSceneObjectComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
 import VueEvent from "../../core/decorator/VueEvent";
+import { Address } from "@/@types/store-data-optional";
 
 @Component({ components: { EditSceneObjectComponent, BaseInput, draggable } })
 export default class EditSceneObjectChooserComponent extends Mixins<
@@ -97,7 +95,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
   private sceneAndObjectList = GameObjectManager.instance.sceneAndObjectList;
 
-  private sceneObjectInfoList: StoreObj<SceneObject>[] = [];
+  private sceneObjectInfoList: StoreUseData<SceneObjectStore>[] = [];
 
   @Watch("sceneObjectList", { immediate: true })
   @Watch("sceneAndObjectList")
@@ -176,7 +174,7 @@ export default class EditSceneObjectChooserComponent extends Mixins<
       keyo.order = orderList[index];
     });
 
-    const list: (Partial<StoreObj<SceneAndObject>> & {
+    const list: (Partial<StoreUseData<SceneAndObjectStore>> & {
       key: string;
       continuous?: boolean;
     })[] = [];
@@ -230,17 +228,19 @@ export default class EditSceneObjectChooserComponent extends Mixins<
   }
 
   @VueEvent
-  private getSceneAndObjectInfo(objectKey: string): StoreObj<SceneAndObject> {
+  private getSceneAndObjectInfo(
+    objectKey: string
+  ): StoreUseData<SceneAndObjectStore> {
     return this.sceneAndObjectList.filter(
       o => o.data!.objectKey === objectKey && o.data!.sceneKey === this.sceneKey
     )[0];
   }
 
-  private get sceneObjectInfo(): StoreObj<SceneObject> {
+  private get sceneObjectInfo(): StoreUseData<SceneObjectStore> {
     return this.sceneObjectList.filter(o => o.key === this.localValue)[0];
   }
 
-  private get sceneAndObjectInfo(): StoreObj<SceneAndObject> {
+  private get sceneAndObjectInfo(): StoreUseData<SceneAndObjectStore> {
     return this.sceneAndObjectList.filter(
       o =>
         o.data!.objectKey === this.localValue &&
@@ -248,8 +248,8 @@ export default class EditSceneObjectChooserComponent extends Mixins<
     )[0];
   }
 
-  private async updateSceneAndObject(partObj: Partial<SceneAndObject>) {
-    const sceneAndObjectData: SceneAndObject = clone(
+  private async updateSceneAndObject(partObj: Partial<SceneAndObjectStore>) {
+    const sceneAndObjectData: SceneAndObjectStore = clone(
       this.sceneAndObjectInfo.data
     )!;
 

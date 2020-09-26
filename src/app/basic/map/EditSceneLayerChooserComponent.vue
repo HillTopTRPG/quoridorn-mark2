@@ -43,11 +43,10 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import draggable from "vuedraggable";
 import { ModeInfo } from "mode";
-import { StoreObj } from "@/@types/store";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import EditSceneLayerComponent from "./EditSceneLayerComponent.vue";
 import TaskManager from "../../core/task/TaskManager";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
+import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
 import GameObjectManager from "../GameObjectManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -81,13 +80,15 @@ export default class EditSceneLayerChooserComponent extends Mixins<
   }
 
   @VueEvent
-  private get sceneAndLayerInfo(): (key: string) => StoreObj<SceneAndLayer> {
+  private get sceneAndLayerInfo(): (
+    key: string
+  ) => StoreData<SceneAndLayerStore> {
     return (key: string) =>
       this.sceneAndLayerList.filter(sal => sal.data!.layerKey === key)[0];
   }
 
-  private sceneAndLayerInfoList: StoreObj<SceneAndLayer>[] | null = null;
-  private layerInfoList: StoreObj<SceneLayer>[] | null = null;
+  private sceneAndLayerInfoList: StoreData<SceneAndLayerStore>[] | null = null;
+  private layerInfoList: StoreData<SceneLayerStore>[] | null = null;
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 
   private sceneAndLayerList = GameObjectManager.instance.sceneAndLayerList;
@@ -102,7 +103,7 @@ export default class EditSceneLayerChooserComponent extends Mixins<
       ml => ml.key === mapAndKayerKey
     )[0].data!;
     data.isUse = checked;
-    const option: Partial<StoreObj<SceneAndLayer>> & {
+    const option: Partial<StoreData<SceneAndLayerStore>> & {
       key: string;
       continuous?: boolean;
     } = {
@@ -137,7 +138,7 @@ export default class EditSceneLayerChooserComponent extends Mixins<
   }
 
   @Watch("sceneAndLayerList", { deep: true })
-  private async onChangeSceneAndLayerInfoList() {
+  private async onChangeSceneAndLayerStoreInfoList() {
     if (this.dragMode) {
       const keyList = this.sceneAndLayerList
         .filter(
@@ -233,7 +234,7 @@ export default class EditSceneLayerChooserComponent extends Mixins<
       keyo.order = orderList[index];
     });
 
-    const list: (Partial<StoreObj<SceneAndLayer>> & {
+    const list: (Partial<StoreData<SceneAndLayerStore>> & {
       key: string;
       continuous?: boolean;
     })[] = [];

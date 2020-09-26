@@ -41,11 +41,6 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import { listToEmpty } from "../../core/utility/PrimaryDataUtility";
-import {
-  PermissionNodeType,
-  PermissionRule,
-  PermissionRuleType
-} from "@/@types/store";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import ActorGroupSelect from "../common/components/select/ActorGroupSelect.vue";
 import SCheck from "../common/components/SCheck.vue";

@@ -114,13 +114,16 @@ import SocketFacade from "../../core/api/app-server/SocketFacade";
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import { WindowResizeInfo, WindowTableColumn } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
-import { CutInDeclareInfo, UserData } from "@/@types/room";
 import { DataReference } from "@/@types/data";
-import { ActorStore, RefProperty, SceneObject } from "@/@types/gameObject";
+import {
+  ActorStore,
+  SceneObjectStore,
+  CutInStore,
+  UserStore
+} from "@/@types/store-data";
 import {
   findRequireByKey,
   findRequireByOwner
@@ -128,6 +131,7 @@ import {
 import { parseColor } from "../../core/utility/ColorUtility";
 import App from "../../../views/App.vue";
 import SelectionValueSelect from "../common/components/select/SelectionValueSelect.vue";
+import { RefProperty } from "@/@types/store-data-optional";
 
 const uuid = require("uuid");
 
@@ -213,14 +217,14 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
 
     const getPropValue = (
       resourceType: "ref-normal" | "ref-owner",
-      dataType: "scene-object" | "actor",
+      dataType: "scene-object-list" | "actor-list",
       refProperty: string,
-      sceneObject: StoreObj<SceneObject> | null,
-      actor: StoreObj<ActorStore>
+      sceneObject: StoreData<SceneObjectStore> | null,
+      actor: StoreData<ActorStore>
     ): string => {
       const owner = findRequireByKey(
         this.userList,
-        dataType === "scene-object" ? sceneObject!.owner : actor.owner
+        dataType === "scene-object-list" ? sceneObject!.owner : actor.owner
       );
 
       actor =
@@ -240,10 +244,10 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           )[0]
         : null;
 
-      let base: StoreObj<SceneObject | ActorStore | UserData> = owner;
+      let base: StoreData<SceneObjectStore | ActorStore | UserStore> = owner;
       let isBaseActor: boolean = false;
       if (resourceType !== "ref-owner") {
-        if (dataType === "actor") {
+        if (dataType === "actor-list") {
           base = actor;
           isBaseActor = true;
         } else {
@@ -253,7 +257,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
 
       const getTypeStr = (
         isActor: boolean,
-        d: StoreObj<SceneObject | ActorStore | UserData>
+        d: StoreData<SceneObjectStore | ActorStore | UserStore>
       ): string => {
         const typeText = this.$t(`type.${d.data!.type}`)!.toString();
         if (!isActor) return typeText;
@@ -288,7 +292,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         case "actor-status-name":
           return status.data!.name;
         case "actor-chat-text-color": {
-          let cActor: StoreObj<ActorStore> = actor;
+          let cActor: StoreData<ActorStore> = actor;
           if (cActor.data!["chatFontColorType"] !== "original") {
             const cActorOwner = findRequireByKey(this.userList, cActor.owner);
             cActor = findRequireByOwner(this.actorList, cActorOwner.key);
@@ -302,9 +306,9 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       }
     };
 
-    let sceneObject: StoreObj<SceneObject> | null = null;
+    let sceneObject: StoreData<SceneObjectStore> | null = null;
     let actorKey: string = data.owner;
-    if (data.ownerType === "scene-object") {
+    if (data.ownerType === "scene-object-list") {
       sceneObject = this.sceneObjectList.filter(so => so.key === data.owner)[0];
       actorKey = sceneObject.data!.actorKey!;
     }
@@ -328,7 +332,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   private get dataOwnerList(): DataReference[] {
     try {
       type SortableTargetInfo = {
-        type: "scene-object" | "actor";
+        type: "scene-object-list" | "actor-list";
         userKey: string;
         userOrder: number;
         actorKey: string;
@@ -365,7 +369,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
             ? convertNumberNull(r.data!.value)
             : null;
 
-        if (r.ownerType === "actor") {
+        if (r.ownerType === "actor-list") {
           actorKey = r.owner!;
         } else {
           sceneObjectKey = r.owner;
@@ -380,7 +384,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         const actor = findRequireByKey(this.actorList, actorKey);
         const actorOrder = actor.order;
         const actorName = actor.data!.name;
-        if (r.ownerType === "actor") {
+        if (r.ownerType === "actor-list") {
           userKey = actor.owner!;
         }
 
@@ -393,7 +397,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         );
         if (!sortableTargetInfo) {
           sortableTargetInfo = {
-            type: r.ownerType === "actor" ? "actor" : "scene-object",
+            type:
+              r.ownerType === "actor-list" ? "actor-list" : "scene-object-list",
             userKey,
             userOrder,
             actorKey,
@@ -451,8 +456,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           return 0;
         })
         .map(sti => ({
-          type: sti.type === "actor" ? "actor" : "scene-object",
-          key: sti.type === "actor" ? sti.actorKey : sti.sceneObjectKey!
+          type: sti.type,
+          key: sti.type === "actor-list" ? sti.actorKey : sti.sceneObjectKey!
         }));
     } catch (err) {
       console.error(err);
@@ -461,22 +466,23 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   }
 
   @VueEvent
-  private get initiativeDataList(): StoreObj<any>[] {
-    const resultList: StoreObj<any>[] = [];
+  private get initiativeDataList(): StoreData<any>[] {
+    const resultList: StoreData<any>[] = [];
 
     this.dataOwnerList.forEach((df, ind) => {
-      const resultData: StoreObj<any> = {
-        key: uuid.v4(),
+      const resultData: StoreData<any> = {
         collection: "initiative-volatile",
+        key: uuid.v4(),
+        order: ind,
         ownerType: df.type,
         owner: df.key,
-        order: ind,
         exclusionOwner: null,
         lastExclusionOwner: null,
         permission: GameObjectManager.PERMISSION_DEFAULT,
         status: "added",
         createTime: new Date(),
         updateTime: null,
+        refNum: 0,
         data: {}
       };
       this.initiativeColumnList
@@ -669,8 +675,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     // console.log(JSON.stringify(columnList, null, "  "));
   }
 
-  // private get initiativeList(): StoreObj<any>[] {
-  //   const resultList: StoreObj<any>[] = [];
+  // private get initiativeList(): StoreData<any>[] {
+  //   const resultList: StoreData<any>[] = [];
   //   const dataList = this.propertyList.filter(p => p.owner);
   //   const ownerList = dataList
   //     .map(d => d.owner)
@@ -678,9 +684,9 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
   //
   //   ownerList.forEach((owner, ownerInd) => {
   //     const actor = this.actorList.filter(a => a.key === owner)[0];
-  //     const resultData: StoreObj<any> = {
+  //     const resultData: StoreData<any> = {
   //       id: uuid.v4(),
-  //       ownerType: "actor",
+  //       ownerType: "actor-list",
   //       owner: actor.key,
   //       order: ownerInd,
   //       exclusionOwner: null,
@@ -708,7 +714,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private getRowClasses(
-    data: StoreObj<CutInDeclareInfo>,
+    data: StoreData<CutInStore>,
     trElm: HTMLTableRowElement | null
   ): string[] {
     const classList: string[] = [];

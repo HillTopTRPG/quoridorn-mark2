@@ -1,5 +1,4 @@
-import { StoreObj } from "@/@types/store";
-import { MediaInfo } from "@/@types/room";
+import { MediaStore } from "@/@types/store-data";
 import {
   mediaUpload,
   raw2UploadMediaInfoList,
@@ -11,19 +10,19 @@ import { UploadMediaInfo } from "@/@types/socket";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 async function jsonFileList2JsonList(jsonFileList: File[]) {
-  const importRawData: StoreObj<any>[] = [];
+  const importRawData: StoreData<any>[] = [];
   const jsonList = await readJsonFiles(jsonFileList);
   jsonList
     .filter(j => j.type === "quoridorn-export-data-list")
-    .forEach(j => importRawData.push(...(j.data as StoreObj<any>[])));
+    .forEach(j => importRawData.push(...(j.data as StoreData<any>[])));
   return importRawData;
 }
 
 async function getMediaLineage(
   dropList: (string | File)[]
 ): Promise<{
-  mediaInfoList: StoreObj<MediaInfo>[];
-  otherInfoList: StoreObj<any>[];
+  mediaInfoList: StoreData<MediaStore>[];
+  otherInfoList: StoreData<any>[];
   mediaFileList: File[];
 }> {
   const removeDropListIndexList: number[] = [];
@@ -34,16 +33,16 @@ async function getMediaLineage(
     jsonFileList.push(d);
   });
 
-  let importRawData: StoreObj<any>[] = await jsonFileList2JsonList(
+  let importRawData: StoreData<any>[] = await jsonFileList2JsonList(
     jsonFileList
   );
   // console.log(JSON.stringify(importRawData, null, "  "));
 
-  const mediaInfoList: StoreObj<MediaInfo>[] = [];
-  const otherInfoList: StoreObj<any>[] = [];
+  const mediaInfoList: StoreData<MediaStore>[] = [];
+  const otherInfoList: StoreData<any>[] = [];
   importRawData.forEach(ir => {
     if (ir.collection === "media-list") {
-      mediaInfoList.push(ir as StoreObj<MediaInfo>);
+      mediaInfoList.push(ir as StoreData<MediaStore>);
     } else {
       otherInfoList.push(ir);
     }
@@ -136,7 +135,7 @@ export async function importInjection(dropList: (string | File)[]) {
     return JSON.parse(str);
   });
 
-  await SocketFacade.instance.socketCommunication<StoreObj<any>[], void>(
+  await SocketFacade.instance.socketCommunication<StoreData<any>[], void>(
     "import-data",
     directImportDataList
   );

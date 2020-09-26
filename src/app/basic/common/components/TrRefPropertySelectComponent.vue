@@ -18,7 +18,7 @@ import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
 import RefPropertySelect from "./select/RefPropertySelect.vue";
-import { ResourceType } from "@/@types/gameObject";
+import { ResourceType } from "@/@types/store-data-optional";
 
 @Component({ components: { RefPropertySelect } })
 export default class TrRefPropertySelectComponent extends Mixins<ComponentVue>(

@@ -79,9 +79,8 @@ import NekostoreCollectionController from "../../core/api/app-server/NekostoreCo
 import TableComponent from "../../core/component/table/TableComponent.vue";
 import { WindowOpenInfo, WindowResizeInfo } from "@/@types/window";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../core/task/TaskManager";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
@@ -93,13 +92,13 @@ import App from "../../../views/App.vue";
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
-    icon: (data: StoreObj<CutInDeclareInfo>) => {
+    icon: (data: StoreData<CutInStore>) => {
       if (!data.data!.url) return "icon-stop2";
       if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
       if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
       return "icon-file-music";
     },
-    time: (data: StoreObj<CutInDeclareInfo>) => {
+    time: (data: StoreData<CutInStore>) => {
       if (!data.data!.url) return "-";
       if (data.data!.start && data.data!.end)
         return `${data.data!.start}〜${data.data!.end}`;
@@ -107,11 +106,11 @@ import App from "../../../views/App.vue";
       if (data.data!.end) return `〜${data.data!.end}`;
       return "All";
     },
-    isRepeat: (data: StoreObj<CutInDeclareInfo>) =>
+    isRepeat: (data: StoreData<CutInStore>) =>
       data.data!.url && data.data!.isRepeat ? "" : "-",
-    volume: (data: StoreObj<CutInDeclareInfo>) =>
+    volume: (data: StoreData<CutInStore>) =>
       data.data!.url ? data.data!.volume : "-",
-    fade: (data: StoreObj<CutInDeclareInfo>) => {
+    fade: (data: StoreData<CutInStore>) => {
       if (!data.data!.url) return "-";
       if (data.data!.fadeIn > 0 && data.data!.fadeOut > 0) return "in/out";
       if (data.data!.fadeIn > 0 && data.data!.fadeOut === 0) return "in";
@@ -126,7 +125,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   private selectedCutInKey: string | null = null;
   private cutInList = GameObjectManager.instance.cutInList;
   private cc: NekostoreCollectionController<
-    CutInDeclareInfo
+    CutInStore
   > = SocketFacade.instance.cutInDataCC();
   private fontSize: number = 12;
 
@@ -157,7 +156,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     });
   }
 
-  private get cutInInfo(): StoreObj<CutInDeclareInfo> | null {
+  private get cutInInfo(): StoreData<CutInStore> | null {
     return findByKey(this.cutInList, this.selectedCutInKey);
   }
 
@@ -176,7 +175,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private getRowClasses(
-    data: StoreObj<CutInDeclareInfo>,
+    data: StoreData<CutInStore>,
     trElm: HTMLTableRowElement | null
   ): string[] {
     const classList: string[] = [];

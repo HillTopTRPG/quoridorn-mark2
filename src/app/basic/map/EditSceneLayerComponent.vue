@@ -37,8 +37,7 @@
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import { StoreObj } from "@/@types/store";
-import { SceneAndLayer, SceneLayer } from "@/@types/room";
+import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
 import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -50,7 +49,7 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private layerInfo!: SceneLayer;
+  private layerInfo!: SceneLayerStore;
 
   @Prop({ type: Boolean, required: true })
   private dragMode!: boolean;
@@ -74,7 +73,9 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get sceneAndLayerInfo(): (key: string) => StoreObj<SceneAndLayer> {
+  private get sceneAndLayerInfo(): (
+    key: string
+  ) => StoreData<SceneAndLayerStore> {
     return (key: string) =>
       this.sceneAndLayerList.find(sal => sal.data!.layerKey === key)!;
   }

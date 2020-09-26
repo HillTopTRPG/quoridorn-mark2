@@ -25,9 +25,7 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { Direction } from "@/@types/room";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import PublicMemoInfoForm from "@/app/basic/public-memo/PublicMemoInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -36,6 +34,7 @@ import LanguageManager from "@/LanguageManager";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { Direction } from "@/@types/store-data-optional";
 
 const uuid = require("uuid");
 
@@ -44,7 +43,7 @@ export default class PublicMemoAddWindow extends Mixins<
   WindowVue<string, boolean>
 >(WindowVue) {
   private name: string = LanguageManager.instance.getText("type.public-memo");
-  private otherTextList: StoreObj<MemoStore>[] = [
+  private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""

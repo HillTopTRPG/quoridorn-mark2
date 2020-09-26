@@ -3,7 +3,6 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import { ApplicationError } from "../error/ApplicationError";
 import SocketFacade, { permissionCheck } from "../api/app-server/SocketFacade";
 import { findRequireByKey } from "./Utility";
-import { StoreObj } from "@/@types/store";
 
 /**
  * オペランドの値を取得する
@@ -18,7 +17,7 @@ async function getOperandValue(
 ): Promise<any> {
   if (!o || typeof o !== "object") return o;
   if (o.refType === "variable-myself") {
-    return GameObjectManager.instance.mySelfUserKey;
+    return SocketFacade.instance.userKey;
   }
   if (o.refType === "db-id-exist") {
     const list = GameObjectManager.instance.getList(type!);
@@ -47,7 +46,7 @@ async function getOperandValue(
     ]);
     return dataList ? dataList.length : 0;
   }
-  const getObject = (type: string, key: string): StoreObj<any> => {
+  const getObject = (type: string, key: string): StoreData<any> => {
     const list = GameObjectManager.instance.getList(type);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     return findRequireByKey(list, key);
@@ -63,7 +62,7 @@ async function getOperandValue(
     return getProperty(useData, o.property);
   }
   if (o.refType === "db-id-owner-property") {
-    let useData: StoreObj<any> = getObject(type!, key!);
+    let useData: StoreData<any> = getObject(type!, key!);
     for (let level = 0; level < o.level; level++) {
       if (!useData.ownerType || !useData.owner) {
         throw new ApplicationError(

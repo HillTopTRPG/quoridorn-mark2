@@ -27,7 +27,7 @@ import { Task, TaskResult } from "task";
 import { StandByReturnInfo } from "task-info";
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import LifeCycle from "../../../core/decorator/LifeCycle";
-import { WindowMoveInfo } from "../../../../@types/window";
+import { WindowMoveInfo } from "@/@types/window";
 import SeekBarComponent from "./SeekBarComponent.vue";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import WindowManager from "../../../core/window/WindowManager";
@@ -37,18 +37,17 @@ import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
 import BgmManager from "./BgmManager";
 import YoutubeManager, {
   getYoutubeThunbnail,
   YoutubeEventHandler
 } from "./YoutubeManager";
 import {
-  CutInDeclareInfo,
   PlayBgmInfo,
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
-} from "../../../../@types/room";
+} from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -59,7 +58,7 @@ export default class PlayBgmFileWindow
   @Prop({ type: Boolean, default: false })
   private isIpadTesting!: boolean;
 
-  private bgmInfo: CutInDeclareInfo | null = null;
+  private bgmInfo: CutInStore | null = null;
   private targetKey: string | null = null;
   private volume: number = 0;
   private isWindowMoving = false;

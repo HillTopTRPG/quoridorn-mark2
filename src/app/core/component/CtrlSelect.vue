@@ -77,11 +77,11 @@
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
 import { Component } from "vue-mixin-decorator";
-import { Rectangle } from "address";
 import { createRectangle } from "../utility/CoordinateUtility";
 import { HtmlOptionInfo } from "@/@types/window";
 import SelectMixin from "../../basic/common/components/select/base/SelectMixin";
 import VueEvent from "../decorator/VueEvent";
+import { Rectangle } from "@/@types/store-data-optional";
 
 @Component
 export default class CtrlSelect extends SelectMixin {

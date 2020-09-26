@@ -22,7 +22,7 @@ import { Component, Watch, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
-import { MemoStore, OtherTextViewInfo } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import {
   createPoint,
   createRectangle,
@@ -30,13 +30,17 @@ import {
 } from "@/app/core/utility/CoordinateUtility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import OtherTextComponent from "@/app/basic/other-text/OtherTextComponent.vue";
-import { Point, Rectangle, Size } from "address";
 import { MouseMoveParam } from "@/app/core/task/TaskManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { Task, TaskResult } from "task";
+import {
+  OtherTextViewInfo,
+  Point,
+  Rectangle,
+  Size
+} from "@/@types/store-data-optional";
 
 @Component({ components: { OtherTextComponent } })
 export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
@@ -48,7 +52,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   private static DEFAULT_FONT_SIZE = 14;
 
-  private useMemoList: StoreObj<MemoStore>[] = [];
+  private useMemoList: StoreData<MemoStore>[] = [];
   private docKey: string | null = null;
   private isMounted: boolean = false;
 

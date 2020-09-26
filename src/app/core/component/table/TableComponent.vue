@@ -37,7 +37,6 @@ import { Prop, Watch } from "vue-property-decorator";
 import SimpleTabComponent from "../SimpleTabComponent.vue";
 import SimpleTableComponent from "./SimpleTableComponent.vue";
 import { permissionCheck } from "../../api/app-server/SocketFacade";
-import { StoreObj } from "@/@types/store";
 import { TabInfo, WindowInfo, WindowTableDeclareInfo } from "@/@types/window";
 import VueEvent from "../../decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";

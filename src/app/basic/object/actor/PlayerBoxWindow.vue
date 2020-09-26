@@ -143,12 +143,11 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { ActorStore } from "@/@types/gameObject";
+import { ActorStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { StoreObj } from "@/@types/store";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
@@ -190,7 +189,6 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   private userList = GameObjectManager.instance.userList;
   private actorCC = SocketFacade.instance.actorCC();
   private actorList = GameObjectManager.instance.actorList;
-  private userKey: string = GameObjectManager.instance.mySelfUserKey;
   private viewType: "actor" | "piece" = "actor";
   private searchText: string = "";
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
@@ -202,7 +200,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private get ownerActorList(): StoreObj<ActorStore>[] {
+  private get ownerActorList(): StoreData<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -211,12 +209,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
         const regExp = new RegExp(this.searchText);
         if (!name.match(regExp)) return false;
       }
-      return !(this.userKey && a.owner !== this.userKey);
+      return a.owner === SocketFacade.instance.userKey;
     });
   }
 
   @VueEvent
-  private get tabbedOwnerActorList(): StoreObj<ActorStore>[] {
+  private get tabbedOwnerActorList(): StoreData<ActorStore>[] {
     return this.actorList.filter(a => {
       if (!permissionCheck(a, "view")) return false;
 
@@ -231,12 +229,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       ) {
         return false;
       }
-      return !(this.userKey && a.owner !== this.userKey);
+      return a.owner === SocketFacade.instance.userKey;
     });
   }
 
   @VueEvent
-  private getSceneObjectList(actor: StoreObj<ActorStore>) {
+  private getSceneObjectList(actor: StoreData<ActorStore>) {
     const sceneKey = GameObjectManager.instance.roomData.sceneKey;
     return this.sceneAndObjectList
       .filter(
@@ -309,12 +307,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreObj<ActorStore>) {
+  private isEditable(tabInfo: StoreData<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editActor(actor: StoreObj<ActorStore>) {
+  private async editActor(actor: StoreData<ActorStore>) {
     if (!this.isEditable(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -331,12 +329,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreObj<ActorStore>) {
+  private isChmodAble(tabInfo: StoreData<ActorStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodActor(actor: StoreObj<ActorStore>) {
+  private async chmodActor(actor: StoreData<ActorStore>) {
     if (!this.isChmodAble(actor)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -353,12 +351,12 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreObj<ActorStore>) {
+  private isDeletable(tabInfo: StoreData<ActorStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteActor(actor: StoreObj<ActorStore>) {
+  private async deleteActor(actor: StoreData<ActorStore>) {
     if (!this.isDeletable(actor)) return;
     const msg = PlayerBoxWindow.getDialogMessage("delete-actor").replace(
       "$1",

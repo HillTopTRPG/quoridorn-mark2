@@ -120,8 +120,7 @@ import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
 import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 
 @Component({
@@ -197,14 +196,14 @@ export default class MapMaskInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreObj<MemoStore>[];
-  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
+  private otherTextList!: StoreData<MemoStore>[];
+  private otherTextListVolatile: StoreData<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreData<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreData<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 

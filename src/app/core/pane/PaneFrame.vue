@@ -70,12 +70,12 @@ import {
   getRightPaneRectangle
 } from "../utility/CoordinateUtility";
 import { getCssPxNum } from "../css/Css";
-import { Point, Rectangle } from "address";
 import TaskProcessor from "../task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import TitleIcon from "../window/TitleIcon.vue";
-import { PaneMoveInfo, WindowInfo } from "../../../@types/window";
+import { PaneMoveInfo, WindowInfo } from "@/@types/window";
 import LifeCycle from "../decorator/LifeCycle";
+import { Point, Rectangle } from "@/@types/store-data-optional";
 
 @Component({
   components: { TitleIcon, ResizeKnob }

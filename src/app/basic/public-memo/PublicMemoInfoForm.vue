@@ -42,18 +42,17 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { Direction } from "@/@types/room";
 import { TabInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import ComponentVue from "@/app/core/window/ComponentVue";
-import { MemoStore } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { MemoStore } from "@/@types/store-data";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import { Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -92,14 +91,14 @@ export default class PublicMemoInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreObj<MemoStore>[];
-  private otherTextListVolatile: StoreObj<MemoStore>[] = [];
+  private otherTextList!: StoreData<MemoStore>[];
+  private otherTextListVolatile: StoreData<MemoStore>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextList(value: StoreData<MemoStore>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreObj<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(value: StoreData<MemoStore>[]) {
     this.$emit("update:otherTextList", value);
   }
 

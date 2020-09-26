@@ -43,9 +43,8 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { ChatPaletteStore } from "@/@types/gameObject";
+import { ChatPaletteStore } from "@/@types/store-data";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
@@ -56,7 +55,7 @@ export default class ChatPaletteTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private tab!: StoreObj<ChatPaletteStore>;
+  private tab!: StoreData<ChatPaletteStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
@@ -65,34 +64,34 @@ export default class ChatPaletteTabComponent extends Mixins<ComponentVue>(
   private changeOrderKey: string = "";
 
   @VueEvent
-  private isEditable(tabInfo: StoreObj<ChatPaletteStore>) {
+  private isEditable(tabInfo: StoreData<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async editTab(tabInfo: StoreData<ChatPaletteStore>) {
     if (!this.isEditable(tabInfo)) return;
     this.$emit("edit", tabInfo);
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreObj<ChatPaletteStore>) {
+  private isChmodAble(tabInfo: StoreData<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async chmodTab(tabInfo: StoreData<ChatPaletteStore>) {
     if (!this.isChmodAble(tabInfo)) return;
     this.$emit("chmod", tabInfo);
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreObj<ChatPaletteStore>) {
+  private isDeletable(tabInfo: StoreData<ChatPaletteStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreObj<ChatPaletteStore>) {
+  private async deleteTab(tabInfo: StoreData<ChatPaletteStore>) {
     if (!this.isDeletable(tabInfo)) return;
     this.$emit("delete", tabInfo);
   }

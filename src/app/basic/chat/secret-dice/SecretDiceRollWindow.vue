@@ -41,7 +41,7 @@ export default class SecretDiceRollWindow extends Mixins<
     return this.keepBcdiceDiceRollResultList.filter(
       kbdrr =>
         kbdrr.data!.type === "secret-dice-roll" &&
-        kbdrr.owner === GameObjectManager.instance.mySelfUserKey
+        kbdrr.owner === SocketFacade.instance.userKey
     );
   }
 

@@ -1,5 +1,5 @@
 import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 
 type NechronicaClass =

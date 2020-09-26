@@ -56,20 +56,16 @@
 import { Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { UserData } from "@/@types/room";
+import { UserStore } from "@/@types/store-data";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import BaseInput from "../../core/component/BaseInput.vue";
 import VueEvent from "../../core/decorator/VueEvent";
-import {
-  UserLoginInput,
-  UserLoginWindowInput,
-  UserType
-} from "@/@types/socket";
-import { StoreObj } from "@/@types/store";
+import { UserLoginInput, UserLoginWindowInput } from "@/@types/socket";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import UserTypeSelect from "../common/components/select/UserTypeSelect.vue";
 import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
+import { UserType } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -88,7 +84,7 @@ export default class UserLoginWindow extends Mixins<
   private isMounted: boolean = false;
   private isSetting: boolean = false;
   private visitable: boolean = false;
-  private userList: StoreObj<UserData>[] | null = null;
+  private userList: StoreData<UserStore>[] | null = null;
 
   @LifeCycle
   public async created() {

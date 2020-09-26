@@ -91,13 +91,13 @@ import LifeCycle from "../../core/decorator/LifeCycle";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import UnitTableComponent from "./UnitTableComponent.vue";
 import {
-  ChatInfo,
-  ChatTabInfo,
-  CustomDiceBotInfo,
-  GroupChatTabInfo
-} from "@/@types/room";
-import { ActorStore, LikeStore } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+  ActorStore,
+  LikeStore,
+  ChatStore,
+  ChatTabInfoStore,
+  GroupChatTabInfoStore
+} from "@/@types/store-data";
+import { CustomDiceBotInfo } from "@/@types/room";
 import ChatOperationLine from "./ChatOperationLine.vue";
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
@@ -117,12 +117,12 @@ import {
   findRequireByOwner
 } from "../../core/utility/Utility";
 import LanguageManager from "../../../LanguageManager";
-import { UserType } from "@/@types/socket";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import ReadAloudManager from "../../../ReadAloudManager";
 import { Getter } from "vuex-class";
 import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
 import TaskManager from "@/app/core/task/TaskManager";
+import { UserType } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -148,10 +148,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private userList = GameObjectManager.instance.userList;
   private likeList = GameObjectManager.instance.likeList;
   private actorList = GameObjectManager.instance.actorList;
-  private selfActors: StoreObj<ActorStore>[] = [];
+  private selfActors: StoreUseData<ActorStore>[] = [];
   private chatTabList = GameObjectManager.instance.chatTabList;
-  private outputTabList: StoreObj<ChatTabInfo>[] = [];
-  private isSecretList: StoreObj<{ name: string }>[] = [
+  private outputTabList: StoreUseData<ChatTabInfoStore>[] = [];
+  private isSecretList: StoreUseData<{ name: string }>[] = [
     createEmptyStoreUseData<{ name: string }>("false", {
       name: LanguageManager.instance.getText("label.non-secret")
     }),
@@ -162,7 +162,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private actorGroupList = GameObjectManager.instance.actorGroupList;
   private chatFormatList = GameObjectManager.instance.chatFormatList;
   private actorStatusList = GameObjectManager.instance.actorStatusList;
-  private chatFormatWrapList: StoreObj<{ name: string }>[] = [];
+  private chatFormatWrapList: StoreUseData<{ name: string }>[] = [];
   private groupChatTabList = GameObjectManager.instance.groupChatTabList;
   private customDiceBotList: CustomDiceBotInfo[] = [];
 
@@ -196,7 +196,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   /** 秘匿通信かどうか */
   private isSecret: boolean = false;
   /** 後からチャット内容を更新するID */
-  private edittingChat: StoreObj<ChatInfo> | null = null;
+  private edittingChat: StoreUseData<ChatStore> | null = null;
   /** 出力先タブ */
   private outputTabKey: string | null = null;
   /** 発言に括弧をつけるかどうか */
@@ -238,7 +238,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     | "select-is-secret" = "none"; // ?
 
   private chatOptionMax: number = 7;
-  private chatOptionList: StoreObj<any>[] | null = null;
+  private chatOptionList: StoreUseData<any>[] | null = null;
   private chatOptionValue: string | null = null;
 
   /** 選択中のチャットフォーマット */
@@ -256,7 +256,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   /*
    * getters
    */
-  private get targetList(): StoreObj<GroupChatTabInfo | ActorStore>[] {
+  private get targetList(): StoreUseData<GroupChatTabInfoStore | ActorStore>[] {
     return [...this.groupChatTabList, ...this.actorList];
   }
 
@@ -334,15 +334,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("actorList", { immediate: true, deep: true })
   private onChangeActorList() {
     this.selfActors = this.actorList.filter(
-      a => a.owner === GameObjectManager.instance.mySelfUserKey
+      a => a.owner === SocketFacade.instance.userKey
     );
 
     if (this.isMounted) this.setFontColors();
   }
 
   private setFontColors() {
-    const getFontColor = (actor: StoreObj<ActorStore>) => {
-      let cActor: StoreObj<ActorStore> = actor;
+    const getFontColor = (actor: StoreUseData<ActorStore>) => {
+      let cActor: StoreUseData<ActorStore> = actor;
       if (cActor.data!.chatFontColorType !== "original") {
         const cActorOwner = findRequireByKey(this.userList, cActor.owner);
         cActor = findRequireByOwner(this.actorList, cActorOwner.key);
@@ -454,7 +454,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         }
         const actor = findRequireByKey(this.actorList, actorRef.key);
         if (
-          actor.owner === GameObjectManager.instance.mySelfUserKey &&
+          actor.owner === SocketFacade.instance.userKey &&
           !otherMatchActorKey
         ) {
           otherMatchActorKey = actor.key;
@@ -480,7 +480,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private onInputChat(text: string) {
     const getKeyByName = (
       text: string,
-      list: StoreObj<any>[],
+      list: StoreUseData<any>[],
       defaultKey: string | null
     ): string | null => {
       if (text.length === 0) return defaultKey;
@@ -672,7 +672,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private async onLike(
     actorKey: string,
     chatKey: string,
-    like: StoreObj<LikeStore>,
+    like: StoreUseData<LikeStore>,
     add: number
   ) {
     const chat = findRequireByKey(this.chatList, chatKey);
@@ -707,7 +707,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         owner: "Quoridorn",
         value: {
           resourceMasterKey,
-          ownerType: "actor",
+          ownerType: "actor-list",
           ownerKey: chat.data!.actorKey!,
           operationType: "add",
           value: add.toString()
@@ -753,7 +753,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     outputTabList.splice(
       0,
       0,
-      createEmptyStoreUseData<ChatTabInfo>("", {
+      createEmptyStoreUseData<ChatTabInfoStore>("", {
         name: this.selectedItemLabel,
         isSystem: true,
         useReadAloud: false,

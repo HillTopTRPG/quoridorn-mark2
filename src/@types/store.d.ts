@@ -1,15 +1,14 @@
 /**
  * DBに格納されるデータのラッパー
  */
-export type StoreObj<T> = {
+type StoreData<T> = {
   collection: string;
   key: string;
+  order: number;
   ownerType: string | null;
   owner: string | null; // 部屋データに含まれるデータのオーナー。部屋データにはオーナーは存在しない
-  order: number;
   exclusionOwner: string | null; // 排他制御のオーナー
   lastExclusionOwner: string | null; // 排他制御のオーナー
-  data?: T;
   permission: Permission | null; // 通常はnullではない
   status:
     | "initial-touched"
@@ -20,27 +19,23 @@ export type StoreObj<T> = {
     | null;
   createTime: Date;
   updateTime: Date | null;
+  refNum: number; // このデータへの参照数
+  data?: T;
 };
 
-export type StoreUseData<T> = StoreObj<T> & {
+type StoreUseData<T> = StoreData<T> & {
   id: string;
-};
-
-export type ExportDataFormat<T> = {
-  type: string;
-  version: string;
-  data: T;
 };
 
 /**
  * 権限対象の種別
  */
-export type PermissionNodeType = "group" | "actor" | "owner";
+type PermissionNodeType = "group" | "actor" | "owner";
 
 /**
  * 権限対象1件の表現
  */
-export type PermissionNode = {
+type PermissionNode = {
   type: PermissionNodeType;
   key?: string;
 };
@@ -48,12 +43,12 @@ export type PermissionNode = {
 /**
  * 権限のルールタイプ
  */
-export type PermissionRuleType = "none" | "allow" | "deny";
+type PermissionRuleType = "none" | "allow" | "deny";
 
 /**
  * 権限のルール単位の表現
  */
-export type PermissionRule = {
+type PermissionRule = {
   type: PermissionRuleType;
   list: PermissionNode[];
 };
@@ -62,7 +57,7 @@ export type PermissionRule = {
  * 表示・編集・権限編集の3種の権限の集合体。
  * これがDBデータ1件ごとに設定される
  */
-export type Permission = {
+type Permission = {
   view: PermissionRule;
   edit: PermissionRule;
   chmod: PermissionRule;

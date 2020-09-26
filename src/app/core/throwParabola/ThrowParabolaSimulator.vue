@@ -20,7 +20,6 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import { Point, Size } from "address";
 import { Task, TaskResult } from "task";
 import { ThrowParabolaInfo } from "task-info";
 import LifeCycle from "../decorator/LifeCycle";
@@ -39,6 +38,7 @@ import VueEvent from "../decorator/VueEvent";
 import ThrowCharSelect from "../../basic/common/components/select/ThrowCharSelect.vue";
 import TaskManager from "../task/TaskManager";
 import { drawLine2 } from "../utility/CanvasDrawUtility";
+import { Point, Size } from "@/@types/store-data-optional";
 
 @Component({
   components: { ThrowCharSelect }

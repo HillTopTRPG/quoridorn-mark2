@@ -15,8 +15,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
-import { KeepBcdiceDiceRollResult } from "@/@types/gameObject";
-import { StoreObj } from "@/@types/store";
+import { KeepBcdiceDiceRollResultStore } from "@/@types/store-data";
 import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({ components: { CtrlButton } })
@@ -24,7 +23,7 @@ export default class SecretDiceRollComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private secretDiceRoll!: StoreObj<KeepBcdiceDiceRollResult>;
+  private secretDiceRoll!: StoreData<KeepBcdiceDiceRollResultStore>;
 
   @VueEvent
   private get viewText() {

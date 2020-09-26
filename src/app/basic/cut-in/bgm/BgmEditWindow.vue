@@ -43,7 +43,7 @@ import SocketFacade, {
 import TaskProcessor from "../../../core/task/TaskProcessor";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
-import { CutInDeclareInfo } from "@/@types/room";
+import { CutInStore } from "@/@types/store-data";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import BgmManager from "./BgmManager";
 import { DataReference } from "@/@types/data";
@@ -63,7 +63,7 @@ export default class BgmEditWindow extends Mixins<
   private isMounted: boolean = false;
   private isProcessed: boolean = false;
   private cc: NekostoreCollectionController<
-    CutInDeclareInfo
+    CutInStore
   > = SocketFacade.instance.cutInDataCC();
 
   private url: string = "";
@@ -131,7 +131,7 @@ export default class BgmEditWindow extends Mixins<
     this.isMounted = true;
   }
 
-  private get cutInData(): CutInDeclareInfo {
+  private get cutInData(): CutInStore {
     return {
       url: this.url,
       title: this.title,

@@ -27,7 +27,7 @@ import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { BackgroundSize, Direction } from "@/@types/room";
+import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 import TaskManager from "../../../core/task/TaskManager";
 import WindowVue from "../../../core/window/WindowVue";
 import ChitInfoForm from "./ChitInfoForm.vue";
@@ -36,8 +36,7 @@ import LanguageManager from "../../../../LanguageManager";
 import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
 
@@ -47,7 +46,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
 ) {
   private name: string = LanguageManager.instance.getText("type.chit");
   private tag: string = "";
-  private otherTextList: StoreObj<MemoStore>[] = [
+  private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""
@@ -153,7 +152,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
 
     await SocketFacade.instance.memoCC().addDirect(
       this.otherTextList.map(data => ({
-        ownerType: "scene-object",
+        ownerType: "scene-object-list",
         owner: sceneObjectKey,
         data: data.data!
       }))

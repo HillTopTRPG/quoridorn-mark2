@@ -59,12 +59,15 @@
 import { Prop, Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import moment from "moment/moment";
-import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import { ChatInfo, GroupChatTabInfo, UserData } from "@/@types/room";
 import { transText } from "@/app/core/utility/ChatUtility";
-import { ActorStore, LikeStore } from "@/@types/gameObject";
-import { UserType } from "@/@types/socket";
+import {
+  ActorStore,
+  LikeStore,
+  ChatStore,
+  GroupChatTabInfoStore,
+  UserStore
+} from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
@@ -77,6 +80,7 @@ import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import ChatLogLikeAddComponent from "@/app/basic/chat/log/ChatLogLikeAddComponent.vue";
 import ChatLogLikeViewComponent from "@/app/basic/chat/log/ChatLogLikeViewComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import { UserType } from "@/@types/store-data-optional";
 
 @Component({
   components: { ChatLogLikeViewComponent, ChatLogLikeAddComponent }
@@ -85,7 +89,7 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private chat!: StoreObj<ChatInfo>;
+  private chat!: StoreData<ChatStore>;
 
   @Prop({ type: Boolean, required: true })
   private isExported!: boolean;
@@ -100,22 +104,22 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   private editedMessage!: string;
 
   @Prop({ type: Array, required: true })
-  private likeList!: StoreObj<LikeStore>[];
+  private likeList!: StoreData<LikeStore>[];
 
   @Prop({ type: Array, required: true })
-  private actorList!: StoreObj<ActorStore>[];
+  private actorList!: StoreData<ActorStore>[];
 
   @Prop({ type: Array, required: true })
-  private userList!: StoreObj<UserData>[];
+  private userList!: StoreData<UserStore>[];
 
   @Prop({ type: Array, required: true })
-  private groupChatTabList!: StoreObj<GroupChatTabInfo>[];
+  private groupChatTabList!: StoreData<GroupChatTabInfoStore>[];
 
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
 
   private likeInfoList: {
-    like: StoreObj<LikeStore>;
+    like: StoreData<LikeStore>;
     list: { actorKey: string; count: number }[];
   }[] = [];
   private selectedChar: string | null = null;
@@ -132,18 +136,18 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private onAddLike(like: StoreObj<LikeStore>) {
+  private onAddLike(like: StoreData<LikeStore>) {
     const actorKey = GameObjectManager.instance.chatPublicInfo.actorKey;
     this.$emit("like", actorKey, this.chat.key, like, 1);
   }
 
   @VueEvent
-  private onMinusLike(actorKey: string, like: StoreObj<LikeStore>) {
+  private onMinusLike(actorKey: string, like: StoreData<LikeStore>) {
     this.$emit("like", actorKey, this.chat.key, like, -1);
   }
 
   @VueEvent
-  private onSelectChar(like: StoreObj<LikeStore>) {
+  private onSelectChar(like: StoreData<LikeStore>) {
     this.selectedChar = like ? like.data!.char : null;
   }
 
@@ -196,7 +200,7 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private isEditable(chat: StoreObj<ChatInfo>): boolean {
+  private isEditable(chat: StoreData<ChatStore>): boolean {
     return permissionCheck(chat, "edit");
   }
 
@@ -215,7 +219,7 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private getSender(chat: ChatInfo): string {
+  private getSender(chat: ChatStore): string {
     const actorName = this.getName(chat.actorKey, "actor");
     const delimiter = " ＞＞ ";
     const targetName = this.getName(chat.targetKey, chat.targetType);

@@ -162,7 +162,6 @@
 
 <script lang="ts">
 import { Component, Prop, Watch, Vue } from "vue-property-decorator";
-import { Point, Size } from "address";
 import ResizeKnob from "./ResizeKnob.vue";
 import TaskManager, { MouseMoveParam } from "../task/TaskManager";
 import TaskProcessor from "../task/TaskProcessor";
@@ -179,6 +178,7 @@ import LifeCycle from "../decorator/LifeCycle";
 import { convertNumberZero } from "../utility/PrimaryDataUtility";
 import { getCssPxNum } from "../css/Css";
 import VueEvent from "../decorator/VueEvent";
+import { Point, Size } from "@/@types/store-data-optional";
 
 @Component({
   components: { TitleIcon, ResizeKnob }

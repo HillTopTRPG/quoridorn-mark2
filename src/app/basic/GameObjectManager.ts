@@ -1,52 +1,47 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { BgmStandByInfo } from "task-info";
-import { Permission, StoreObj, StoreUseData } from "@/@types/store";
-import {
-  ClientRoomInfo,
-  DiceAndPips,
-  DiceType,
-  RoomInfoExtend,
-  WindowSettings
-} from "@/@types/socket";
-import {
-  ActorGroup,
-  ChatInfo,
-  ChatTabInfo,
-  CutInDeclareInfo,
-  GroupChatTabInfo,
-  MediaInfo,
-  PartialRoomData,
-  RoomData,
-  Scene,
-  SceneAndLayer,
-  SceneAndObject,
-  SceneLayer,
-  SocketUserData,
-  UserData
-} from "@/@types/room";
+import { ClientRoomInfo, DiceAndPips, DiceType } from "@/@types/socket";
 import {
   ActorStatusStore,
   ActorStore,
-  CardDeckBig,
-  CardDeckSmall,
-  CardMeta,
-  CardObject,
-  KeepBcdiceDiceRollResult,
+  CardDeckBigStore,
+  CardDeckSmallStore,
+  CardMetaStore,
+  CardObjectStore,
+  KeepBcdiceDiceRollResultStore,
   ChatPaletteStore,
   InitiativeColumnStore,
   PropertySelectionStore,
   ResourceMasterStore,
   ResourceStore,
-  SceneObject,
+  SceneObjectStore,
   MemoStore,
   PublicMemoStore,
-  LikeStore
-} from "@/@types/gameObject";
+  LikeStore,
+  ActorGroupStore,
+  ChatStore,
+  ChatTabInfoStore,
+  CutInStore,
+  GroupChatTabInfoStore,
+  MediaStore,
+  RoomDataStore,
+  SceneStore,
+  SceneAndLayerStore,
+  SceneAndObjectStore,
+  SceneLayerStore,
+  SocketUserStore,
+  UserStore
+} from "@/@types/store-data";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findByKey, findRequireByKey } from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
 import LanguageManager from "../../LanguageManager";
+import {
+  PartialRoomData,
+  RoomInfoExtend,
+  WindowSettings
+} from "@/@types/store-data-optional";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -185,7 +180,7 @@ export default class GameObjectManager {
     await roomDataCC.setSnapshot(
       "GameObjectManager",
       this.roomDataKey!,
-      (snapshot: DocumentSnapshot<StoreObj<RoomData>>) => {
+      (snapshot: DocumentSnapshot<StoreData<RoomDataStore>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
           const d = snapshot.data.data!;
           // Object.assign()
@@ -309,17 +304,13 @@ export default class GameObjectManager {
     bcdiceUrl: ""
   };
 
-  public get selfActors(): StoreObj<ActorStore>[] {
-    return this.actorList.filter(a => a.owner === this.mySelfUserKey);
-  }
-
   // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
   public isSceneEditing: boolean = false;
   public sceneEditingUpdateSceneKey: string | null = null;
 
   // 部屋の設定情報
   private roomDataKey: string | null = null;
-  public readonly roomData: RoomData = {
+  public readonly roomData: RoomDataStore = {
     name: "",
     sceneKey: "",
     settings: {
@@ -351,20 +342,20 @@ export default class GameObjectManager {
     windowKey: string;
   }[] = [];
 
-  public readonly chatList: StoreUseData<ChatInfo>[] = [];
-  public readonly chatTabList: StoreUseData<ChatTabInfo>[] = [];
-  public readonly groupChatTabList: StoreUseData<GroupChatTabInfo>[] = [];
-  public readonly sceneList: StoreUseData<Scene>[] = [];
-  public readonly cutInList: StoreUseData<CutInDeclareInfo>[] = [];
+  public readonly chatList: StoreUseData<ChatStore>[] = [];
+  public readonly chatTabList: StoreUseData<ChatTabInfoStore>[] = [];
+  public readonly groupChatTabList: StoreUseData<GroupChatTabInfoStore>[] = [];
+  public readonly sceneList: StoreUseData<SceneStore>[] = [];
+  public readonly cutInList: StoreUseData<CutInStore>[] = [];
   public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
-  public readonly mediaList: StoreUseData<MediaInfo>[] = [];
-  public readonly userList: StoreUseData<UserData>[] = [];
-  public readonly socketUserList: StoreUseData<SocketUserData>[] = [];
+  public readonly mediaList: StoreUseData<MediaStore>[] = [];
+  public readonly userList: StoreUseData<UserStore>[] = [];
+  public readonly socketUserList: StoreUseData<SocketUserStore>[] = [];
   public readonly actorList: StoreUseData<ActorStore>[] = [];
-  public readonly sceneLayerList: StoreUseData<SceneLayer>[] = [];
-  public readonly sceneAndLayerList: StoreUseData<SceneAndLayer>[] = [];
-  public readonly sceneAndObjectList: StoreUseData<SceneAndObject>[] = [];
-  public readonly sceneObjectList: StoreUseData<SceneObject>[] = [];
+  public readonly sceneLayerList: StoreUseData<SceneLayerStore>[] = [];
+  public readonly sceneAndLayerList: StoreUseData<SceneAndLayerStore>[] = [];
+  public readonly sceneAndObjectList: StoreUseData<SceneAndObjectStore>[] = [];
+  public readonly sceneObjectList: StoreUseData<SceneObjectStore>[] = [];
   public readonly actorStatusList: StoreUseData<ActorStatusStore>[] = [];
   public readonly resourceMasterList: StoreUseData<ResourceMasterStore>[] = [];
   public readonly resourceList: StoreUseData<ResourceStore>[] = [];
@@ -374,16 +365,16 @@ export default class GameObjectManager {
   public readonly propertySelectionList: StoreUseData<
     PropertySelectionStore
   >[] = [];
-  public readonly actorGroupList: StoreUseData<ActorGroup>[] = [];
-  public readonly cardMetaList: StoreUseData<CardMeta>[] = [];
-  public readonly cardObjectList: StoreUseData<CardObject>[] = [];
-  public readonly cardDeckBigList: StoreUseData<CardDeckBig>[] = [];
-  public readonly cardDeckSmallList: StoreUseData<CardDeckSmall>[] = [];
+  public readonly actorGroupList: StoreUseData<ActorGroupStore>[] = [];
+  public readonly cardMetaList: StoreUseData<CardMetaStore>[] = [];
+  public readonly cardObjectList: StoreUseData<CardObjectStore>[] = [];
+  public readonly cardDeckBigList: StoreUseData<CardDeckBigStore>[] = [];
+  public readonly cardDeckSmallList: StoreUseData<CardDeckSmallStore>[] = [];
   public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
   public readonly diceTypeList: StoreUseData<DiceType>[] = [];
   public readonly diceAndPipsList: StoreUseData<DiceAndPips>[] = [];
   public readonly keepBcdiceDiceRollResultList: StoreUseData<
-    KeepBcdiceDiceRollResult
+    KeepBcdiceDiceRollResultStore
   >[] = [];
   public readonly memoList: StoreUseData<MemoStore>[] = [];
   public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
@@ -425,8 +416,8 @@ export default class GameObjectManager {
     }
   }
 
-  public get mySelfUser(): StoreUseData<UserData> | null {
-    return findByKey(this.userList, this.mySelfUserKey) || null;
+  public get mySelfUser(): StoreUseData<UserStore> | null {
+    return findByKey(this.userList, SocketFacade.instance.userKey) || null;
   }
 
   public get isGm(): boolean {
@@ -438,20 +429,14 @@ export default class GameObjectManager {
     );
   }
 
-  public get mySelfUserKey(): string {
-    const userKey = SocketFacade.instance.userKey;
-    if (!userKey) throw new ApplicationError(`Illegal timing error.`);
-    return userKey;
-  }
-
   public get mySelfActorKey(): string {
     return this.actorList.find(
-      a => a.data!.type === "user" && a.owner === this.mySelfUserKey
+      a => a.data!.type === "user" && a.owner === SocketFacade.instance.userKey
     )!.key;
   }
 
   public async updateMemoList(
-    dataList: StoreObj<MemoStore>[],
+    dataList: StoreData<MemoStore>[],
     ownerType: string,
     owner: string
   ): Promise<void> {
@@ -492,7 +477,7 @@ export default class GameObjectManager {
     }
   }
 
-  public getOwner<T>(data: StoreObj<T>): StoreObj<T> | null {
+  public getOwner<T>(data: StoreData<T>): StoreData<T> | null {
     const ownerType = data.ownerType;
     const owner = data.owner;
     if (!ownerType) return null;
@@ -502,7 +487,7 @@ export default class GameObjectManager {
     );
   }
 
-  public getList(type: string): StoreObj<any>[] | null {
+  public getList(type: string): StoreData<any>[] | null {
     switch (type) {
       case "chat":
         return this.chatList;

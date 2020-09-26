@@ -1,15 +1,10 @@
 import { listToEmpty } from "../../utility/PrimaryDataUtility";
 import TaskManager from "../../task/TaskManager";
-import {
-  BcdiceDiceRollResult,
-  BcdiceSystemInfo,
-  BcdiceVersionInfo,
-  DiceSystem
-} from "@/@types/bcdice";
 import { CustomDiceBotInfo } from "@/@types/room";
 import SocketFacade from "../app-server/SocketFacade";
 import LanguageManager from "../../../../LanguageManager";
 import { loadYaml } from "../../utility/FileUtility";
+import { BcdiceDiceRollResult } from "@/@types/store-data-optional";
 
 export default class BcdiceManager {
   // シングルトン

@@ -20,13 +20,11 @@ import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
-import { Place } from "@/@types/gameObject";
+import { Place } from "@/@types/store-data-optional";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
-@Component({
-  components: { CtrlSelect }
-})
+@Component({ components: { CtrlSelect } })
 export default class CharacterSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue

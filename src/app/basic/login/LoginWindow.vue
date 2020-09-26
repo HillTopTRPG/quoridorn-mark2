@@ -145,14 +145,8 @@ import {
   UserLoginResponse,
   UserLoginWindowInput
 } from "@/@types/socket";
-import { StoreObj } from "@/@types/store";
 import TableComponent from "../../core/component/table/TableComponent.vue";
-import {
-  AddRoomPresetDataRequest,
-  CutInDeclareInfo,
-  MediaInfo,
-  Scene
-} from "@/@types/room";
+import { AddRoomPresetDataRequest } from "@/@types/room";
 import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
 import VersionInfoComponent from "./VersionInfoComponent.vue";
@@ -169,7 +163,13 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
-import { DiceMaterial, LikeStore } from "@/@types/gameObject";
+import {
+  LikeStore,
+  CutInStore,
+  MediaStore,
+  SceneStore
+} from "@/@types/store-data";
+import { DiceMaterial } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -179,19 +179,19 @@ import { DiceMaterial, LikeStore } from "@/@types/gameObject";
     CtrlButton
   },
   filters: {
-    roomNo: (storeObj: StoreObj<ClientRoomInfo>) => storeObj.order,
-    system: (storeObj: StoreObj<ClientRoomInfo>) =>
+    roomNo: (storeObj: StoreData<ClientRoomInfo>) => storeObj.order,
+    system: (storeObj: StoreData<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.system : "",
-    memberNum: (storeObj: StoreObj<ClientRoomInfo>) =>
+    memberNum: (storeObj: StoreData<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
-    updateDate: (data: StoreObj<ClientRoomInfo>) => {
+    updateDate: (data: StoreData<ClientRoomInfo>) => {
       if (!data) return "";
       if (!data.data) return "";
       return moment(data.updateTime ? data.updateTime : data.createTime).format(
         "YYYY/MM/DD HH:mm:ss"
       );
     },
-    deleteButtonDisabled: (storeObj: StoreObj<ClientRoomInfo>) =>
+    deleteButtonDisabled: (storeObj: StoreData<ClientRoomInfo>) =>
       !storeObj.data ||
       !!storeObj.exclusionOwner ||
       (storeObj.data && storeObj.data.memberNum > 0)
@@ -200,7 +200,9 @@ import { DiceMaterial, LikeStore } from "@/@types/gameObject";
 export default class LoginWindow extends Mixins<
   WindowVue<LoginWindowInput, never>
 >(WindowVue) {
-  private roomList: (StoreObj<ClientRoomInfo> & { id: string })[] | null = null;
+  private roomList:
+    | (StoreData<ClientRoomInfo> & { id: string })[]
+    | null = null;
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
   private roomStatus: "normal" | "processing" | "processingNoneRelease" =
@@ -388,15 +390,16 @@ export default class LoginWindow extends Mixins<
                 id: "",
                 collection: "rooms",
                 key: "",
+                order: index,
                 ownerType: null,
                 owner: null,
-                order: index,
                 exclusionOwner: null,
                 lastExclusionOwner: null,
                 permission: null,
                 status: null,
                 createTime: new Date(),
-                updateTime: null
+                updateTime: null,
+                refNum: 0
               });
             } else {
               const index = change.data!.order;
@@ -566,7 +569,7 @@ export default class LoginWindow extends Mixins<
   }
 
   @VueEvent
-  private getRowClasses(data: StoreObj<ClientRoomInfo>): string[] {
+  private getRowClasses(data: StoreData<ClientRoomInfo>): string[] {
     const classList: string[] = [];
     if (data.exclusionOwner) {
       classList.push(data.data ? "isEditing" : "isCreating");
@@ -1012,11 +1015,11 @@ export default class LoginWindow extends Mixins<
      * メディアデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const mediaDataList = await loadYaml<Partial<MediaInfo>[]>(
+    const mediaDataList = await loadYaml<Partial<MediaStore>[]>(
       "static/conf/media.yaml"
     );
 
-    mediaDataList.forEach((media: Partial<MediaInfo>) => {
+    mediaDataList.forEach((media: Partial<MediaStore>) => {
       if (!media.tag) media.tag = "";
     });
 
@@ -1024,9 +1027,7 @@ export default class LoginWindow extends Mixins<
      * カットインデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const cutInDataList = await loadYaml<CutInDeclareInfo[]>(
-      "static/conf/bgm.yaml"
-    );
+    const cutInDataList = await loadYaml<CutInStore[]>("static/conf/bgm.yaml");
     cutInDataList.forEach(cutIn => {
       cutIn.duration = 0;
 
@@ -1097,7 +1098,7 @@ export default class LoginWindow extends Mixins<
     /* --------------------------------------------------
      * マップデータのプリセットデータを用意する
      */
-    const scene: Scene = {
+    const scene: SceneStore = {
       name: "A-1",
       columns: 20,
       rows: 15,

@@ -60,10 +60,9 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { StoreObj } from "@/@types/store";
 import { permissionCheck } from "../../core/api/app-server/SocketFacade";
 import ComponentVue from "../../core/window/ComponentVue";
-import { MediaInfo } from "@/@types/room";
+import { MediaStore } from "@/@types/store-data";
 import GameObjectManager from "../GameObjectManager";
 import SButton from "../common/components/SButton.vue";
 import { getYoutubeThunbnail } from "../cut-in/bgm/YoutubeManager";
@@ -76,7 +75,7 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private media!: StoreObj<MediaInfo>;
+  private media!: StoreData<MediaStore>;
 
   @Prop({ type: Boolean, required: true })
   private isViewThumbnail!: boolean;

@@ -111,17 +111,17 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "../../core/decorator/LifeCycle";
-import { UserData } from "../../../@types/room";
+import { UserStore } from "@/@types/store-data";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import { execCopy } from "../../core/utility/Utility";
 import BaseInput from "../../core/component/BaseInput.vue";
-import { ClientRoomInfo, UserType } from "../../../@types/socket";
+import { ClientRoomInfo } from "@/@types/socket";
 import VueEvent from "../../core/decorator/VueEvent";
-import { StoreObj } from "../../../@types/store";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import BcdiceManager from "../../core/api/bcdice/BcdiceManager";
+import { UserType } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -133,7 +133,8 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   WindowVue
 ) {
   private clientRoomInfo: ClientRoomInfo | null = null;
-  private userList: StoreObj<UserData>[] = GameObjectManager.instance.userList;
+  private userList: StoreData<UserStore>[] =
+    GameObjectManager.instance.userList;
   private systemKey: string | null = null;
   private systemName: string | null = null;
 
@@ -150,7 +151,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     );
   }
 
-  private get useUserList(): StoreObj<UserData>[] {
+  private get useUserList(): StoreData<UserStore>[] {
     const typeOrder: UserType[] = ["VISITOR", "PL", "GM"];
     return this.userList.concat().sort((u1, u2) => {
       const u1Index = typeOrder.findIndex(t => t === u1.data!.type);
@@ -163,7 +164,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     });
   }
 
-  public getInviteUrl(user?: StoreObj<UserData>) {
+  public getInviteUrl(user?: StoreData<UserStore>) {
     if (!this.clientRoomInfo) return "";
     const roomNo = this.clientRoomInfo.roomNo;
     const name = user ? user.data!.name : "";

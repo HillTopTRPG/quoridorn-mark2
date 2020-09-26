@@ -34,19 +34,18 @@ import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../core/task/TaskProcessor";
-import { MemoStore, SceneObject } from "@/@types/gameObject";
+import { MemoStore, SceneObjectStore } from "@/@types/store-data";
 import SocketFacade, {
   permissionCheck
 } from "../../../core/api/app-server/SocketFacade";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import VueEvent from "../../../core/decorator/VueEvent";
-import { BackgroundSize, Direction } from "@/@types/room";
+import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 import WindowVue from "../../../core/window/WindowVue";
 import ChitInfoForm from "./ChitInfoForm.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import { DataReference } from "@/@types/data";
-import { StoreObj } from "@/@types/store";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { ChitInfoForm, CtrlButton } })
@@ -55,14 +54,14 @@ export default class ChitEditWindow extends Mixins<
 >(WindowVue) {
   private docKey: string = "";
   private cc: NekostoreCollectionController<
-    SceneObject
+    SceneObjectStore
   > = SocketFacade.instance.sceneObjectCC();
   private tag: string = "";
   private name: string = "";
   private isProcessed: boolean = false;
   private height: number = 1;
   private width: number = 1;
-  private otherTextList: StoreObj<MemoStore>[] = [];
+  private otherTextList: StoreData<MemoStore>[] = [];
   private imageDocKey: string | null = null;
   private imageTag: string | null = null;
   private direction: Direction = "none";
@@ -109,7 +108,7 @@ export default class ChitEditWindow extends Mixins<
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object" && m.owner === this.docKey
+        m => m.ownerType === "scene-object-list" && m.owner === this.docKey
       )
     )!;
 

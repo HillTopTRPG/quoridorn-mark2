@@ -1,42 +1,11 @@
 import { ChangeType } from "nekostore/lib/DocumentChange";
-import { StoreObj } from "./store";
 import { TargetVersion } from "@/app/core/api/Github";
-import { MediaInfo } from "@/@types/room";
-import { UrlType } from "@/app/core/utility/FileUtility";
-
-type WindowSetting =
-  | "not-use" // 使えなくします
-  | "free" // 特に指定はありません
-  | "init-view" // 入室時に表示します
-  | "always-open"; // 常に開いています。閉じることはできません。
-
-type WindowSettings = {
-  chat: WindowSetting;
-  resource: WindowSetting;
-  initiative: WindowSetting;
-  chatPalette: WindowSetting;
-  counterRemocon: WindowSetting;
-};
-
-/**
- * 部屋の追加情報
- */
-export type RoomInfoExtend = {
-  visitable: boolean; // 見学許可
-  isFitGrid: boolean; // マップオブジェクトをセルに自動調整するか
-  isViewDice: boolean; // ダイスを表示するか
-  isViewCutIn: boolean; // カットインを表示するか
-  isDrawGridId: boolean; // マップ座標を表示するか
-  mapRotatable: boolean; // マップを回転させるか
-  isDrawGridLine: boolean; // マップ罫線を表示するか
-  isShowStandImage: boolean; // 立ち絵を表示するか,
-  isShowRotateMarker: boolean; // マップオブジェクトの回転マーカーを表示するか
-  windowSettings: WindowSettings;
-};
-
-export type PartialRoomInfoExtend = Partial<RoomInfoExtend> & {
-  windowSettings?: Partial<WindowSettings>;
-};
+import { MediaStore } from "@/@types/store-data";
+import {
+  RoomInfoExtend,
+  UrlType,
+  UserType
+} from "@/@types/store-data-optional";
 
 type BaseRoomInfo = {
   name: string;
@@ -45,91 +14,85 @@ type BaseRoomInfo = {
   extend: RoomInfoExtend;
 };
 
-export type RoomLoginInfo = {
+type RoomLoginInfo = {
   roomKey: string;
   roomNo: number;
   roomPassword: string;
 };
 
-export type UserType = "GM" | "PL" | "VISITOR";
-
-export type UserLoginWindowInput = {
+type UserLoginWindowInput = {
   isSetting: boolean;
   visitable: boolean;
   nameList: string[];
   name: string | null;
 };
 
-export type UserLoginInput = {
+type UserLoginInput = {
   name: string;
   type?: UserType;
   password: string;
 };
-export type UserLoginRequest = UserLoginInput;
+type UserLoginRequest = UserLoginInput;
 
-export type UserLoginResponse = {
+type UserLoginResponse = {
   userKey: string;
   token: string;
 };
 
-export type TouchRequest = {
+type TouchRequest = {
   roomNo: number;
 };
-export type ReleaseTouchRequest = TouchRequest;
+type ReleaseTouchRequest = TouchRequest;
 
-export type CreateRoomInput = BaseRoomInfo & {
+type CreateRoomInput = BaseRoomInfo & {
   roomPassword: string;
   roomCreatePassword?: string;
 };
-export type DeleteRoomInput = {
+type DeleteRoomInput = {
   roomPassword: string;
 };
-export type LoginRoomInput = DeleteRoomInput;
-export type RoomLoginRequest = RoomLoginInfo;
-export type CreateRoomRequest = RoomLoginInfo & BaseRoomInfo;
-export type DeleteRoomRequest = RoomLoginInfo;
+type LoginRoomInput = DeleteRoomInput;
+type RoomLoginRequest = RoomLoginInfo;
+type CreateRoomRequest = RoomLoginInfo & BaseRoomInfo;
+type DeleteRoomRequest = RoomLoginInfo;
 
-export type ClientRoomInfo = BaseRoomInfo & {
+type ClientRoomInfo = BaseRoomInfo & {
   memberNum: number;
   hasPassword: boolean;
   roomNo: number;
 };
-export type Message = {
+type Message = {
   title: string;
   descriptions: string[];
   termsOfUse: string;
 };
-export type GetRoomListResponse = {
-  roomList: (StoreObj<ClientRoomInfo> & { id: string })[] | null;
+type GetRoomListResponse = {
+  roomList: (StoreData<ClientRoomInfo> & { id: string })[] | null;
   message: Message;
   isNeedRoomCreatePassword: boolean;
 };
 
-export type LoginWindowInput = GetRoomListResponse & {
+type LoginWindowInput = GetRoomListResponse & {
   serverTestResult: ServerTestResult;
 };
 
-export type RoomViewResponse = {
+type RoomViewResponse = {
   changeType: ChangeType;
   id: string;
-  data: StoreObj<ClientRoomInfo> | undefined;
+  data: StoreData<ClientRoomInfo> | undefined;
 };
 
-export type LoginResponse = ClientRoomInfo & {
-  roomCollectionPrefix: string;
-};
-
-export type AppServerSettingInput = {
+type AppServerSettingInput = {
   url: string;
 };
 
-export type GetVersionResponse = {
+type GetVersionResponse = {
   version: string;
   title: string;
   targetClient: TargetVersion;
 };
 
-export type ServerTestResult = {
+type ServerTestResult = {
   serverVersion: string;
   title: string;
   targetClient: TargetVersion;
@@ -137,23 +100,18 @@ export type ServerTestResult = {
   usable: boolean;
 };
 
-export type DefaultServerInfo = ServerTestResult & {
+type DefaultServerInfo = ServerTestResult & {
   url: string;
 };
 
-export type VersionWindowInfo = {
-  message: Message;
-  version: string;
-};
-
-export type SendDataRequest<T> = {
+type SendDataRequest<T> = {
   targetList: string[];
   dataType: string;
   owner: string;
   data: T | null;
 };
 
-export type UploadMediaInfo = MediaInfo &
+type UploadMediaInfo = MediaStore &
   (
     | { dataLocation: "direct" }
     | {
@@ -163,19 +121,19 @@ export type UploadMediaInfo = MediaInfo &
       }
   );
 
-export type DiceType = {
+type DiceType = {
   faceNum: string;
   subType: string;
   label: string;
 };
 
-export type DiceAndPips = {
+type DiceAndPips = {
   diceTypeKey: string;
   pips: string;
   mediaKey: string;
 };
 
-export type UploadMediaResponse = {
+type UploadMediaResponse = {
   key: string;
   rawPath: string;
   url: string;
@@ -184,11 +142,11 @@ export type UploadMediaResponse = {
   urlType: UrlType;
 }[];
 
-export type UploadMediaRequest = {
+type UploadMediaRequest = {
   uploadMediaInfoList: UploadMediaInfo[];
-  option: Partial<StoreObj<any>>;
+  option: Partial<StoreData<any>>;
 };
 
-export type DeleteFileRequest = {
+type DeleteFileRequest = {
   urlList: string[];
 };

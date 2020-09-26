@@ -159,7 +159,7 @@ import { Task, TaskResult } from "task";
 import TaskProcessor from "../../core/task/TaskProcessor";
 import LifeCycle from "../../core/decorator/LifeCycle";
 import ComponentVue from "../../core/window/ComponentVue";
-import { ResourceType } from "@/@types/gameObject";
+import { Direction, ResourceType } from "@/@types/store-data-optional";
 import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
 import TrRefPropertySelectComponent from "../common/components/TrRefPropertySelectComponent.vue";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
@@ -169,7 +169,6 @@ import TrStringInputComponent from "../common/components/TrStringInputComponent.
 import { TabInfo } from "@/@types/window";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import { Direction } from "@/@types/room";
 import TrSelectionValueSelectComponent from "../common/components/TrSelectionValueSelectComponent.vue";
 
 @Component({

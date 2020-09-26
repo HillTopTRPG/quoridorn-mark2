@@ -34,8 +34,7 @@ import { AddObjectInfo } from "@/@types/data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import { parseColor } from "@/app/core/utility/ColorUtility";
 import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import { StoreObj } from "@/@types/store";
-import { MemoStore } from "@/@types/gameObject";
+import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
 
@@ -53,7 +52,7 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
   private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "map-mask"
   )!.key;
-  private otherTextList: StoreObj<MemoStore>[] = [
+  private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
       text: ""
@@ -145,7 +144,7 @@ export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
 
     await SocketFacade.instance.memoCC().addDirect(
       this.otherTextList.map(data => ({
-        ownerType: "scene-object",
+        ownerType: "scene-object-list",
         owner: sceneObjectKey,
         data: data.data!
       }))

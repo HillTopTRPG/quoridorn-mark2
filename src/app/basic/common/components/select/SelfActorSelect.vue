@@ -19,6 +19,7 @@ import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
 import GameObjectManager from "../../../GameObjectManager";
 import { findRequireByKey } from "@/app/core/utility/Utility";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -52,7 +53,7 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList = this.actorList
-      .filter(a => a.owner === GameObjectManager.instance.mySelfUserKey)
+      .filter(a => a.owner === SocketFacade.instance.userKey)
       .map(a => {
         let additionalText = "";
         if (a.data!.type === "user") {

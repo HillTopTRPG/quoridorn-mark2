@@ -17,7 +17,7 @@
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import { ResourceType } from "@/@types/gameObject";
+import { ResourceType } from "@/@types/store-data-optional";
 import GeneralTypeSelect from "./select/GeneralTypeSelect.vue";
 
 @Component({ components: { GeneralTypeSelect } })
