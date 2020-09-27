@@ -4,8 +4,10 @@
     :type="inputType"
     :value="dataObj.data[colDec.target]"
     :checked="parseBoolean(dataObj.data[colDec.target])"
-    @focus.stop="onFocus()"
-    @input="inputCell(dataObj, colDec.target)"
+    @input="inputCell(dataObj, colDec.target, $event.target)"
+    @click.stop
+    @mousedown.stop
+    @mouseup.stop
   />
 </template>
 
@@ -41,22 +43,17 @@ export default class InitiativeInputComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private inputCell(data: any, target: string) {
+  private inputCell(data: StoreData<any>, target: string) {
+    const param = this.inputType === "checkbox" ? "checked" : "value";
+    const value = (this.$el as HTMLInputElement)[param]!.toString();
+    if (value === this.dataObj.data![this.colDec.target]) return;
     this.$emit("inputCell", data, target, this.elmId);
   }
 
   @VueEvent
-  private onFocus() {
-    console.log("onFocus");
-  }
-
-  @VueEvent
-  private parseBoolean(bool: string) {
+  private parseBoolean(bool: string): boolean {
+    console.log(convertBooleanFalse(bool));
     return convertBooleanFalse(bool);
   }
 }
 </script>
-
-<style scoped lang="scss">
-@import "../../../assets/common";
-</style>

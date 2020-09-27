@@ -697,7 +697,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const heightDiffPx = this.windowInfo.diffRect.height;
     const initHeightPx = this.windowInfo.declare.size.heightPx;
     let rowNum = (heightPx + heightDiffPx - initHeightPx) / (fontSize * 2);
-    rowNum = Math.floor(rowNum) + 10;
+    rowNum = Math.floor(rowNum) + 12;
     this.windowInfo.declare.tableInfoList[0].height = rowNum;
   }
 }
