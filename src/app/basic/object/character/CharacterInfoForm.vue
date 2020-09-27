@@ -336,9 +336,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   @LifeCycle
   public async mounted() {
     this.isMounted = true;
-    this.currentTabInfo = this.tabList.filter(
+    this.currentTabInfo = this.tabList.find(
       t => t.target === this.initTabTarget
-    )[0];
+    )!;
   }
 
   @Watch("isMounted")

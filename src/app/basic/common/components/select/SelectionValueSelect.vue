@@ -49,7 +49,7 @@ export default class SelectionValueSelect extends Mixins<MultiMixin>(
       .map(s => s.trim())
       .map(s => ({ value: s, key: s, text: s, disabled: false }));
     const getDisabledValue = (v: string): string => {
-      const disabledOption = this.optionInfoList.filter(o => o.value === v)[0];
+      const disabledOption = this.optionInfoList.find(o => o.value === v);
       return disabledOption ? getDisabledValue("#" + v) : v;
     };
     const disabledValue = getDisabledValue("");

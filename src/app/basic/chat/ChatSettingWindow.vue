@@ -140,6 +140,7 @@ import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
 import { LikeStore, ChatTabInfoStore } from "@/@types/store-data";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -209,7 +210,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   public async mounted() {
     await this.init();
     this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
-    this.currentTabInfo = this.tabList.filter(t => t.target === "tab-list")[0];
+    this.currentTabInfo = this.tabList.find(t => t.target === "tab-list")!;
   }
 
   @Watch("currentTabInfo")
@@ -466,7 +467,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       if (!keyOrderList[index].target) return;
       const key = keyOrderList[index].key;
       const order = keyOrderList[index].order;
-      const data = dataList.filter(ct => ct.key === key)[0].data!;
+      const data = findRequireByKey(dataList, key).data!;
       list.push({
         key,
         order,

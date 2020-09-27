@@ -52,6 +52,7 @@ import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
 export default class EditSceneLayerChooserComponent extends Mixins<
@@ -84,7 +85,7 @@ export default class EditSceneLayerChooserComponent extends Mixins<
     key: string
   ) => StoreData<SceneAndLayerStore> {
     return (key: string) =>
-      this.sceneAndLayerList.filter(sal => sal.data!.layerKey === key)[0];
+      this.sceneAndLayerList.find(sal => sal.data!.layerKey === key)!;
   }
 
   private sceneAndLayerInfoList: StoreData<SceneAndLayerStore>[] | null = null;
@@ -99,9 +100,8 @@ export default class EditSceneLayerChooserComponent extends Mixins<
     if (!this.dragMode) {
       await this.sceneAndLayerCC.touchModify([mapAndKayerKey]);
     }
-    const data = this.sceneAndLayerInfoList!.filter(
-      ml => ml.key === mapAndKayerKey
-    )[0].data!;
+    const data = findRequireByKey(this.sceneAndLayerInfoList!, mapAndKayerKey)
+      .data!;
     data.isUse = checked;
     const option: Partial<StoreData<SceneAndLayerStore>> & {
       key: string;
@@ -128,8 +128,8 @@ export default class EditSceneLayerChooserComponent extends Mixins<
         return 0;
       });
     this.layerInfoList = this.sceneAndLayerInfoList
-      .map(ml => this.layerList.filter(l => l.key === ml.data!.layerKey)[0])
-      .filter(l => l);
+      .map(ml => this.layerList.find(l => l.key === ml.data!.layerKey))
+      .filter(l => l) as StoreData<SceneLayerStore>[];
   }
 
   @LifeCycle
@@ -245,7 +245,7 @@ export default class EditSceneLayerChooserComponent extends Mixins<
       list.push({
         key,
         order: keyOrderList[index].order,
-        data: this.sceneAndLayerList.filter(sao => sao.key === key)[0].data!,
+        data: findRequireByKey(this.sceneAndLayerList, key).data!,
         continuous: true
       });
     });

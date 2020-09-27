@@ -8,6 +8,7 @@ import {
   TaskResult
 } from "task";
 import { ApplicationError } from "../error/ApplicationError";
+import { findByKey } from "@/app/core/utility/Utility";
 
 const uuid = require("uuid");
 
@@ -43,8 +44,7 @@ export default class TaskManager {
     const list = this.taskStore[type];
     if (!list) return null;
     if (target) {
-      if (typeof target === "string")
-        return list.filter(task => task.key === target)[0] || null;
+      if (typeof target === "string") return findByKey(list, target) || null;
       else return list[target];
     } else {
       return list[0];
@@ -108,9 +108,9 @@ export default class TaskManager {
    */
   public async ignition<T, U>(taskInput: TaskInput<T>): Promise<U[]> {
     const taskKey: string = uuid.v4();
-    const taskDeclareJson = this.taskDeclareJsonList.filter(
-      tdj => tdj.types.findIndex(t => t === taskInput.type) > -1
-    )[0];
+    const taskDeclareJson = this.taskDeclareJsonList.find(tdj =>
+      tdj.types.some(t => t === taskInput.type)
+    );
     if (!taskDeclareJson) {
       throw new ApplicationError(`No such declare. task='${taskInput.type}'`);
     }

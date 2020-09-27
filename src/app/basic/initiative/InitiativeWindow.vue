@@ -561,9 +561,9 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
 
     this.inputtingElmId = elmId;
 
-    const resourceMaster = this.resourceMasterList.filter(
+    const resourceMaster = this.resourceMasterList.find(
       rm => rm.data!.label === target
-    )[0];
+    );
     if (!resourceMaster) {
       console.error(`Not found resource(${target}).`);
       return;

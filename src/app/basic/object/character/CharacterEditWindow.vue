@@ -72,9 +72,9 @@ export default class CharacterEditWindow extends Mixins<
   private direction: Direction = "none";
   private isMounted: boolean = false;
   private backgroundSize: BackgroundSize = "contain";
-  private layerKey: string = GameObjectManager.instance.sceneLayerList.filter(
+  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
     ml => ml.data!.type === "character"
-  )[0].key;
+  )!.key;
 
   @LifeCycle
   public async mounted() {
