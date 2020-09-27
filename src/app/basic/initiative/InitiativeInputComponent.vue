@@ -52,7 +52,6 @@ export default class InitiativeInputComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private parseBoolean(bool: string): boolean {
-    console.log(convertBooleanFalse(bool));
     return convertBooleanFalse(bool);
   }
 }

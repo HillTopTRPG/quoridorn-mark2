@@ -48,7 +48,7 @@
               "
             />
           </template>
-          <label v-else-if="colDec.type === 'combo'">
+          <template v-else-if="colDec.type === 'combo'">
             <input
               :id="`prop-${data.owner}-${colDec.target}`"
               type="text"
@@ -62,19 +62,17 @@
                 )
               "
             />
-          </label>
-          <label v-else>
+          </template>
+          <template v-else>
             {{ (__staticValue = getStaticValue(colDec, data, "-")) && null }}
             <input
-              type="color"
               v-if="isColorText(__staticValue)"
+              type="color"
               :value="__staticValue"
               disabled="disabled"
             />
-            <span v-else>
-              {{ __staticValue }}
-            </span>
-          </label>
+            <template v-else>{{ __staticValue }}</template>
+          </template>
         </keep-alive>
       </template>
     </table-component>
@@ -127,6 +125,7 @@ import {
   UserStore
 } from "@/@types/store-data";
 import {
+  findByKey,
   findRequireByKey,
   findRequireByOwner
 } from "../../core/utility/Utility";
@@ -232,18 +231,14 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       actor =
         resourceType === "ref-normal"
           ? actor
-          : this.actorList.filter(
+          : this.actorList.find(
               a => a.owner === owner.key && a.data!.type === "user"
-            )[0];
+            )!;
 
-      const status = this.actorStatusList.filter(
-        as => as.key === actor.data!.statusKey
-      )[0];
+      const status = findByKey(this.actorStatusList, actor.data!.statusKey);
 
       const layer = sceneObject
-        ? this.sceneLayerList.filter(
-            sl => sl.key === sceneObject.data!.layerKey
-          )[0]
+        ? findByKey(this.sceneLayerList, sceneObject.data!.layerKey)
         : null;
 
       let base: StoreData<SceneObjectStore | ActorStore | UserStore> = owner;
@@ -292,7 +287,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           return this.$t(`type.${layer.data!.type}`)!.toString();
         }
         case "actor-status-name":
-          return status.data!.name;
+          return status!.data!.name;
         case "actor-chat-text-color": {
           let cActor: StoreData<ActorStore> = actor;
           if (cActor.data!["chatFontColorType"] !== "original") {
