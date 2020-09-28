@@ -17,6 +17,9 @@
     <div class="name">
       <span class="owner">{{ ownerStr }}</span>
       <span class="media-name">{{ media.data.name }}</span>
+      <span class="ref-list" v-for="ref in media.refList" :key="ref.key">
+        {{ ref.type }}-{{ ref.key }}
+      </span>
     </div>
     <div class="operation-box">
       <s-button
@@ -68,9 +71,7 @@ import SButton from "../common/components/SButton.vue";
 import { getYoutubeThunbnail } from "../cut-in/bgm/YoutubeManager";
 import VueEvent from "../../core/decorator/VueEvent";
 
-@Component({
-  components: { SButton }
-})
+@Component({ components: { SButton } })
 export default class MediaItemComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

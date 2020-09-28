@@ -59,7 +59,6 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import { sendChatLog } from "../../core/utility/ChatUtility";
-import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import { findRequireByKey } from "@/app/core/utility/Utility";
@@ -206,7 +205,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
           const filteredList: StoreUseData<
             ResourceStore
           >[] = this.resourceList.filter(
-            r => r.data!.masterKey === resourceMaster.key
+            r => r.data!.resourceMasterKey === resourceMaster.key
           );
 
           if (sceneObjectKey) {

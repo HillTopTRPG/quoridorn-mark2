@@ -15,7 +15,7 @@
       :tableIndex="0"
       :status="status"
       :dataList="cutInList"
-      keyProp="id"
+      keyProp="key"
       :rowClassGetter="getRowClasses"
       v-model="selectedCutInKey"
       @doubleClick="send"
@@ -85,7 +85,6 @@ import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import BgmManager from "./bgm/BgmManager";
-import { DataReference } from "@/@types/data";
 import { findByKey } from "../../core/utility/Utility";
 import App from "../../../views/App.vue";
 
@@ -263,7 +262,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "cut-in",
+          type: "cut-in-list",
           key: this.selectedCutInKey!
         }
       }

@@ -285,7 +285,7 @@ export default class App extends Vue {
               status: null,
               createTime: new Date(),
               updateTime: null,
-              refNum: 0
+              refList: []
             });
           } else {
             const index = change.data!.order;
@@ -729,7 +729,7 @@ export default class App extends Vue {
       r =>
         r.ownerType === ownerType &&
         r.owner === ownerKey &&
-        r.data!.masterKey === resourceMasterKey
+        r.data!.resourceMasterKey === resourceMasterKey
     );
     if (!resource) return;
     const resourceValue = resource.data!.value;

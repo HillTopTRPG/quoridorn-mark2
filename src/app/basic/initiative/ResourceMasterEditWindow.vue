@@ -50,7 +50,6 @@ import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import LanguageManager from "../../../LanguageManager";
 import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
-import { DataReference } from "@/@types/data";
 import {
   Direction,
   RefProperty,

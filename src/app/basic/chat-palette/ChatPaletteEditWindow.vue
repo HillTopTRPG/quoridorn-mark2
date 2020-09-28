@@ -37,7 +37,6 @@ import WindowVue from "../../core/window/WindowVue";
 import ChitInfoForm from "../object/chit/ChitInfoForm.vue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import ChatPaletteInfoForm from "./ChatPaletteInfoForm.vue";
-import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 
 @Component({

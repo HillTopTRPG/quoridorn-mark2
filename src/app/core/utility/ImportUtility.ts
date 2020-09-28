@@ -117,7 +117,8 @@ export async function importInjection(dropList: (string | File)[]) {
       from: new RegExp(
         `"mediaKey": ?"${
           mediaInfoList.find(mi => mi.data!.rawPath === mu.rawPath)!.key
-        }"`
+        }"`,
+        "g"
       ),
       to: () => `"mediaKey":"${mu.key}"`
     }))
@@ -130,7 +131,7 @@ export async function importInjection(dropList: (string | File)[]) {
   const directImportDataList = otherInfoList.map(info => {
     let str = JSON.stringify(info);
     conversionList.forEach(c => {
-      str = str.replace(c.from, c.to);
+      str = str.replaceAll(c.from, c.to);
     });
     return JSON.parse(str);
   });

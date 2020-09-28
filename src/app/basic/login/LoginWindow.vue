@@ -399,7 +399,7 @@ export default class LoginWindow extends Mixins<
                 status: null,
                 createTime: new Date(),
                 updateTime: null,
-                refNum: 0
+                refList: []
               });
             } else {
               const index = change.data!.order;

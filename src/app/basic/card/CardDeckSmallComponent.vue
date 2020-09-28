@@ -104,7 +104,6 @@ import VueEvent from "../../core/decorator/VueEvent";
 import { clone } from "../../core/utility/PrimaryDataUtility";
 import { WindowOpenInfo } from "@/@types/window";
 import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
-import { DataReference } from "@/@types/data";
 import {
   CardDeckLayout,
   ObjectMoveInfo,

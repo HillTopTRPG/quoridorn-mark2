@@ -153,7 +153,6 @@ import WindowVue from "../../../core/window/WindowVue";
 import GameObjectManager from "../../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "../../../../LanguageManager";
-import { DataReference } from "@/@types/data";
 import UserSelect from "../../common/components/select/UserSelect.vue";
 import PlayerBoxViewTypeRadio from "../../common/components/radio/PlayerBoxViewTypeRadio.vue";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
@@ -186,6 +185,7 @@ import BaseInput from "@/app/core/component/BaseInput.vue";
 export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
+  private userKey = SocketFacade.instance.userKey;
   private userList = GameObjectManager.instance.userList;
   private actorCC = SocketFacade.instance.actorCC();
   private actorList = GameObjectManager.instance.actorList;
@@ -343,7 +343,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "actor",
+          type: actor.collection,
           key: actor.key
         }
       }

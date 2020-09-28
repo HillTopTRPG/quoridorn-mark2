@@ -48,7 +48,6 @@ import WindowVue from "../../core/window/WindowVue";
 import GameObjectManager from "../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import CardDeckSetComponent, { DeckInfo } from "./CardDeckSetComponent.vue";
-import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 
@@ -140,7 +139,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "card-deck",
+          type: "card-deck-big-list",
           key: this.selectedCardDeckBigKey
         }
       }

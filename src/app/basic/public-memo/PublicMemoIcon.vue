@@ -144,7 +144,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
     );
     await this.memoListCC.addDirect(
       targetMemoList.map(m => ({
-        ownerType: m.ownerType,
+        ownerType: "public-memo-list",
         owner: publicMemoKey,
         permission: m.permission,
         data: m.data!

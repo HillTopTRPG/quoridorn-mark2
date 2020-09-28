@@ -42,8 +42,8 @@ import {
   LikeStore,
   ActorGroupStore,
   ChatStore,
-  ChatTabInfoStore,
-  GroupChatTabInfoStore,
+  ChatTabStore,
+  GroupChatTabStore,
   UserStore
 } from "@/@types/store-data";
 import { TabInfo } from "@/@types/window";
@@ -90,7 +90,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private actorGroupList!: StoreData<ActorGroupStore>[];
 
   @Prop({ type: Array, required: true })
-  private groupChatTabList!: StoreData<GroupChatTabInfoStore>[];
+  private groupChatTabList!: StoreData<GroupChatTabStore>[];
 
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };
@@ -102,7 +102,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private likeList!: StoreData<LikeStore>[];
 
   @Prop({ type: Array, required: true })
-  private chatTabList!: StoreData<ChatTabInfoStore>[];
+  private chatTabList!: StoreData<ChatTabStore>[];
 
   private useChatList: StoreData<ChatStore>[] = [];
 

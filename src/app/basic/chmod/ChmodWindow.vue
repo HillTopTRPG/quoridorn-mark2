@@ -52,7 +52,6 @@ import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
 import { TabInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({

@@ -203,7 +203,7 @@ export function createEmptyStoreUseData<T>(
     status: "added",
     createTime: new Date(),
     updateTime: null,
-    refNum: 0,
+    refList: [],
     data
   };
 }

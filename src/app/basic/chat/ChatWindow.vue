@@ -94,8 +94,8 @@ import {
   ActorStore,
   LikeStore,
   ChatStore,
-  ChatTabInfoStore,
-  GroupChatTabInfoStore
+  ChatTabStore,
+  GroupChatTabStore
 } from "@/@types/store-data";
 import { CustomDiceBotInfo } from "@/@types/room";
 import ChatOperationLine from "./ChatOperationLine.vue";
@@ -150,7 +150,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private actorList = GameObjectManager.instance.actorList;
   private selfActors: StoreUseData<ActorStore>[] = [];
   private chatTabList = GameObjectManager.instance.chatTabList;
-  private outputTabList: StoreUseData<ChatTabInfoStore>[] = [];
+  private outputTabList: StoreUseData<ChatTabStore>[] = [];
   private isSecretList: StoreUseData<{ name: string }>[] = [
     createEmptyStoreUseData<{ name: string }>("false", {
       name: LanguageManager.instance.getText("label.non-secret")
@@ -256,7 +256,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   /*
    * getters
    */
-  private get targetList(): StoreUseData<GroupChatTabInfoStore | ActorStore>[] {
+  private get targetList(): StoreUseData<GroupChatTabStore | ActorStore>[] {
     return [...this.groupChatTabList, ...this.actorList];
   }
 
@@ -447,12 +447,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       actorGroupInfo.data!.list.forEach(actorRef => {
         if (isMatchCurrentActor) return;
         if (
-          actorRef.key === GameObjectManager.instance.chatPublicInfo.actorKey
+          actorRef.actorKey ===
+          GameObjectManager.instance.chatPublicInfo.actorKey
         ) {
           isMatchCurrentActor = true;
           return;
         }
-        const actor = findRequireByKey(this.actorList, actorRef.key);
+        const actor = findRequireByKey(this.actorList, actorRef.actorKey);
         if (
           actor.owner === SocketFacade.instance.userKey &&
           !otherMatchActorKey
@@ -753,7 +754,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     outputTabList.splice(
       0,
       0,
-      createEmptyStoreUseData<ChatTabInfoStore>("", {
+      createEmptyStoreUseData<ChatTabStore>("", {
         name: this.selectedItemLabel,
         isSystem: true,
         useReadAloud: false,

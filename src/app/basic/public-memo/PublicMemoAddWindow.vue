@@ -83,7 +83,7 @@ export default class PublicMemoAddWindow extends Mixins<
 
     await SocketFacade.instance.memoCC().addDirect(
       this.otherTextList.map(data => ({
-        ownerType: "public-memo",
+        ownerType: "public-memo-list",
         owner: publicMemoKey,
         data: data.data!
       }))

@@ -44,7 +44,6 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
-import { DataReference } from "@/@types/data";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 

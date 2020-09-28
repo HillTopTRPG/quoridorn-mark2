@@ -77,7 +77,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ChatPaletteTabComponent from "@/app/basic/chat-palette/ChatPaletteTabComponent.vue";
 import App from "@/views/App.vue";
-import { DataReference } from "@/@types/data";
 
 @Component({
   components: {
@@ -159,7 +158,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
       value: {
         type: "chmod-window",
         args: {
-          type: "chat-palette",
+          type: tabInfo.collection,
           key: tabInfo.key
         }
       }

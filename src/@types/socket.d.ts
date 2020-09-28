@@ -121,18 +121,6 @@ type UploadMediaInfo = MediaStore &
       }
   );
 
-type DiceType = {
-  faceNum: string;
-  subType: string;
-  label: string;
-};
-
-type DiceAndPips = {
-  diceTypeKey: string;
-  pips: string;
-  mediaKey: string;
-};
-
 type UploadMediaResponse = {
   key: string;
   rawPath: string;

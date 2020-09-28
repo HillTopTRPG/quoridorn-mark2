@@ -28,7 +28,6 @@ import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { MemoStore, PublicMemoStore } from "@/@types/store-data";
-import { DataReference } from "@/@types/data";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import PublicMemoInfoForm from "@/app/basic/public-memo/PublicMemoInfoForm.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";

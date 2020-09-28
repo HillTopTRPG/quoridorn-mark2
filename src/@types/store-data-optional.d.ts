@@ -1,11 +1,5 @@
 import { MemoStore, RoomDataStore } from "@/@types/store-data";
 
-type ActorRef = {
-  key: string;
-  type: "user" | "other";
-  userKey: string | null;
-};
-
 type Address = Point & Matrix;
 
 /**
@@ -100,6 +94,12 @@ type DiceResult = {
  * 向き
  */
 type Direction = "none" | "horizontal" | "vertical" | "180";
+
+type GroupRef = {
+  type: "user" | "actor";
+  actorKey: string;
+  userKey: string | null;
+};
 
 type IconClass =
   | "icon-warning"

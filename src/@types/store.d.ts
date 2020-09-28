@@ -1,6 +1,11 @@
 /**
  * DBに格納されるデータのラッパー
  */
+type DataReference = {
+  type: string;
+  key: string;
+};
+
 type StoreData<T> = {
   collection: string;
   key: string;
@@ -19,7 +24,7 @@ type StoreData<T> = {
     | null;
   createTime: Date;
   updateTime: Date | null;
-  refNum: number; // このデータへの参照数
+  refList: DataReference[]; // このデータへの参照
   data?: T;
 };
 

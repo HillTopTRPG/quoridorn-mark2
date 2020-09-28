@@ -92,8 +92,8 @@ import {
   ActorStore,
   ActorGroupStore,
   ChatStore,
-  ChatTabInfoStore,
-  GroupChatTabInfoStore,
+  ChatTabStore,
+  GroupChatTabStore,
   UserStore
 } from "@/@types/store-data";
 import { Watch } from "vue-property-decorator";
@@ -121,8 +121,8 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
   };
   private actorList: StoreData<ActorStore>[] = [];
   private actorGroupList: StoreData<ActorGroupStore>[] = [];
-  private chatTabList: StoreData<ChatTabInfoStore>[] = [];
-  private groupChatTabList: StoreData<GroupChatTabInfoStore>[] = [];
+  private chatTabList: StoreData<ChatTabStore>[] = [];
+  private groupChatTabList: StoreData<GroupChatTabStore>[] = [];
   private editedMessage: string = "";
 
   private filteredChatList: StoreData<ChatStore>[] = [];
@@ -136,9 +136,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
     const getData = (param: string) =>
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
-    this.chatTabList = getListData("chatTabList") as StoreData<
-      ChatTabInfoStore
-    >[];
+    this.chatTabList = getListData("chatTabList") as StoreData<ChatTabStore>[];
     this.chatList = getListData("chatList") as StoreData<ChatStore>[];
     this.userList = getListData("userList") as StoreData<UserStore>[];
     this.actorList = getListData("actorList") as StoreData<ActorStore>[];
@@ -146,7 +144,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
       ActorGroupStore
     >[];
     this.groupChatTabList = getListData("groupChatTabList") as StoreData<
-      GroupChatTabInfoStore
+      GroupChatTabStore
     >[];
     this.userTypeLanguageMap = getData("userTypeLanguageMap") as {
       [type in UserType]: string;

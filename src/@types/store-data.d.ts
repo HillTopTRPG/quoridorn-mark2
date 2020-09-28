@@ -1,5 +1,5 @@
 import {
-  ActorRef,
+  GroupRef,
   Address,
   BcdiceDiceRollResult,
   Border,
@@ -29,15 +29,14 @@ import {
 type ActorGroupStore = {
   name: string;
   isSystem: boolean;
-  list: ActorRef[];
+  list: GroupRef[];
 };
 
 type ActorStatusStore = {
   // actorKey: string; actorKeyはownerで管理
   name: string; // ステータス名
   isSystem: boolean;
-  standImageInfoKey: string | null; // id
-  chatPaletteInfoKey: string | null; // id
+  standImageKey: string | null; // id
 };
 
 type ActorStore = {
@@ -142,7 +141,7 @@ type ChatStore = {
   like: Like[];
 };
 
-type ChatTabInfoStore = {
+type ChatTabStore = {
   name: string;
   isSystem: boolean;
   useReadAloud: boolean;
@@ -170,7 +169,19 @@ type CutInStore = {
   duration?: number; // 長さ（再生することで得られる）
 };
 
-type GroupChatTabInfoStore = {
+type DiceTypeStore = {
+  faceNum: string;
+  subType: string;
+  label: string;
+};
+
+type DiceAndPipsStore = {
+  diceTypeKey: string;
+  pips: string;
+  mediaKey: string;
+};
+
+type GroupChatTabStore = {
   name: string;
   isSystem: boolean;
   actorGroupKey: string;
@@ -249,7 +260,7 @@ type ResourceMasterStore = {
 // リソースインスタンス
 type ResourceStore = {
   // 誰のリソースかはownerで表現
-  masterKey: string;
+  resourceMasterKey: string;
   type: ResourceType;
   value: string;
 };

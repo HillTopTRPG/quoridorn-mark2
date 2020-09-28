@@ -130,7 +130,6 @@ import SocketFacade, {
 } from "../../core/api/app-server/SocketFacade";
 import TaskManager from "../../core/task/TaskManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
 import ChatTabComponent from "./tab/ChatTabComponent.vue";
@@ -139,7 +138,7 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
-import { LikeStore, ChatTabInfoStore } from "@/@types/store-data";
+import { LikeStore, ChatTabStore } from "@/@types/store-data";
 import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({
@@ -164,7 +163,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   private chatTabList = GameObjectManager.instance.chatTabList;
   private likeList = GameObjectManager.instance.likeList;
-  private filteredChatTabList: StoreData<ChatTabInfoStore>[] = [];
+  private filteredChatTabList: StoreData<ChatTabStore>[] = [];
   private filteredLikeList: StoreData<LikeStore>[] = [];
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
   private likeListCC = SocketFacade.instance.likeListCC();
@@ -248,12 +247,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isEditable(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isEditable(tabInfo: StoreData<ChatTabStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async editTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
@@ -267,12 +266,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isChmodAble(tabInfo: StoreData<ChatTabStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async chmodTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -281,7 +280,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "chat-tab",
+          type: tabInfo.collection,
           key: tabInfo.key
         }
       }
@@ -289,12 +288,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isDeletable(tabInfo: StoreData<ChatTabStore>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async deleteTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isDeletable(tabInfo)) return;
     const msg = this.$t("message.delete-tab")!
       .toString()

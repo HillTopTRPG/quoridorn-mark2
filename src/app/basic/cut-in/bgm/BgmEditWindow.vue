@@ -46,7 +46,6 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import { CutInStore } from "@/@types/store-data";
 import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
 import BgmManager from "./BgmManager";
-import { DataReference } from "@/@types/data";
 import BgmInfoForm from "./BgmInfoForm.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
 

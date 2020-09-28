@@ -16,11 +16,6 @@ type UpdateDataRequest<T> = TouchModifyRequest<T> & {
   list: (Partial<StoreData<T>> & { key: string; continuous?: boolean })[];
 };
 
-type DataReference = {
-  type: string;
-  key: string;
-};
-
 type AddObjectInfo = {
   dropWindow: string;
   point: Point;

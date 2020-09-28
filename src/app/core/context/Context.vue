@@ -54,7 +54,6 @@ import VueEvent from "../decorator/VueEvent";
 import { createPoint } from "../utility/CoordinateUtility";
 import GameObjectManager from "../../basic/GameObjectManager";
 import { clone } from "../utility/PrimaryDataUtility";
-import { DataReference } from "@/@types/data";
 import LifeCycle from "../decorator/LifeCycle";
 import { findByKey } from "../utility/Utility";
 import { SceneObjectStore } from "@/@types/store-data";

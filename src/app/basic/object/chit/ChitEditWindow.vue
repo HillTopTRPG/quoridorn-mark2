@@ -45,7 +45,6 @@ import WindowVue from "../../../core/window/WindowVue";
 import ChitInfoForm from "./ChitInfoForm.vue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
-import { DataReference } from "@/@types/data";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { ChitInfoForm, CtrlButton } })

@@ -65,7 +65,7 @@ import {
   ActorStore,
   LikeStore,
   ChatStore,
-  GroupChatTabInfoStore,
+  GroupChatTabStore,
   UserStore
 } from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
@@ -113,7 +113,7 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   private userList!: StoreData<UserStore>[];
 
   @Prop({ type: Array, required: true })
-  private groupChatTabList!: StoreData<GroupChatTabInfoStore>[];
+  private groupChatTabList!: StoreData<GroupChatTabStore>[];
 
   @Prop({ type: Object, required: true })
   private userTypeLanguageMap!: { [type in UserType]: string };

@@ -41,7 +41,6 @@ import { parseColor } from "@/app/core/utility/ColorUtility";
 import WindowVue from "../../../core/window/WindowVue";
 import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
-import { DataReference } from "@/@types/data";
 import DiceSymbolInfoForm from "@/app/basic/object/dice-symbol/DiceSymbolInfoForm.vue";
 
 @Component({ components: { DiceSymbolInfoForm, CtrlButton } })

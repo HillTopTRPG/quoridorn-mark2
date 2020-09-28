@@ -64,7 +64,6 @@ import SCheck from "../common/components/SCheck.vue";
 import GameObjectManager from "../GameObjectManager";
 import LanguageManager from "../../../LanguageManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { DeleteFileRequest } from "@/@types/socket";
 
@@ -140,6 +139,9 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   private createTabInfoList() {
+    this.windowInfo.message = this.$t(
+      "media-list-window.message-list.how-to-upload"
+    ).toString();
     this.tabList = this.mediaList
       .filter(m => permissionCheck(m, "view"))
       .map(m => m.data!.tag)
@@ -173,7 +175,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "media",
+          type: media.collection,
           key: media.key
         }
       }

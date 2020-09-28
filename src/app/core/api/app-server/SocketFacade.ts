@@ -22,9 +22,9 @@ import {
   LikeStore,
   ActorGroupStore,
   ChatStore,
-  ChatTabInfoStore,
+  ChatTabStore,
   CutInStore,
-  GroupChatTabInfoStore,
+  GroupChatTabStore,
   MediaStore,
   RoomDataStore,
   SceneStore,
@@ -32,14 +32,14 @@ import {
   SceneAndObjectStore,
   SceneLayerStore,
   SocketUserStore,
-  UserStore
+  UserStore,
+  DiceTypeStore,
+  DiceAndPipsStore
 } from "@/@types/store-data";
 import GameObjectManager from "../../../basic/GameObjectManager";
 import { ApplicationError } from "../../error/ApplicationError";
 import {
   DefaultServerInfo,
-  DiceAndPips,
-  DiceType,
   GetVersionResponse,
   SendDataRequest,
   ServerTestResult
@@ -101,7 +101,7 @@ export function permissionCheck(
 
             return GameObjectManager.instance.actorList.some(
               a =>
-                a.key === actorRef.key ||
+                a.key === actorRef.actorKey ||
                 a.owner === SocketFacade.instance.userKey
             );
           }) > -1
@@ -452,11 +452,11 @@ export default class SocketFacade {
   }
 
   public chatTabListCC() {
-    return this.roomCollectionController<ChatTabInfoStore>("chat-tab-list");
+    return this.roomCollectionController<ChatTabStore>("chat-tab-list");
   }
 
   public groupChatTabListCC() {
-    return this.roomCollectionController<GroupChatTabInfoStore>(
+    return this.roomCollectionController<GroupChatTabStore>(
       "group-chat-tab-list"
     );
   }
@@ -564,11 +564,13 @@ export default class SocketFacade {
   }
 
   public diceTypeListCC() {
-    return this.roomCollectionController<DiceType>("dice-type-list");
+    return this.roomCollectionController<DiceTypeStore>("dice-type-list");
   }
 
   public diceAndPipsListCC() {
-    return this.roomCollectionController<DiceAndPips>("dice-and-pips-list");
+    return this.roomCollectionController<DiceAndPipsStore>(
+      "dice-and-pips-list"
+    );
   }
 
   public memoCC() {

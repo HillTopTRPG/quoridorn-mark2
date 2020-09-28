@@ -37,7 +37,6 @@ import CtrlButton from "../../../core/component/CtrlButton.vue";
 import GameObjectManager from "../../GameObjectManager";
 import LanguageManager from "../../../../LanguageManager";
 import ActorInfoForm from "./ActorInfoForm.vue";
-import { DataReference } from "@/@types/data";
 import { findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({

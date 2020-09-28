@@ -50,8 +50,7 @@ import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import LanguageManager from "../../../../LanguageManager";
-import { ChatTabInfoStore } from "@/@types/store-data";
-import { DataReference } from "@/@types/data";
+import { ChatTabStore } from "@/@types/store-data";
 import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
@@ -61,7 +60,7 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private tab!: StoreData<ChatTabInfoStore>;
+  private tab!: StoreData<ChatTabStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode = false;
@@ -72,12 +71,12 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   private chatTabListCC = SocketFacade.instance.chatTabListCC();
 
   @VueEvent
-  private isEditable(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isEditable(tabInfo: StoreData<ChatTabStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async editTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
@@ -91,12 +90,12 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isChmodAble(tabInfo: StoreData<ChatTabStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async chmodTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -105,7 +104,7 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
       value: {
         type: "chmod-window",
         args: {
-          type: "chat-tab",
+          type: tabInfo.collection,
           key: tabInfo.key
         }
       }
@@ -113,12 +112,12 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreData<ChatTabInfoStore>) {
+  private isDeletable(tabInfo: StoreData<ChatTabStore>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreData<ChatTabInfoStore>) {
+  private async deleteTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isDeletable(tabInfo)) return;
     const msg = this.$t("message.delete-tab")!
       .toString()

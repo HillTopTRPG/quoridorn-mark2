@@ -611,6 +611,7 @@ media-list-window:
     list: リスト
   message-list:
     choose-view-mode: 表示形式の変更
+    how-to-upload: アップロードするには画面にファイルをドロップインしてください
   dialog:
     delete-media: "本当にメディア「$1」を削除しますか？\nこの操作は取り消せません。"
 

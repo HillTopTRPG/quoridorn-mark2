@@ -19,31 +19,17 @@ import LifeCycle from "../../../../core/decorator/LifeCycle";
 import TaskProcessor from "../../../../core/task/TaskProcessor";
 import ComponentVue from "../../../../core/window/ComponentVue";
 import { HtmlOptionInfo } from "@/@types/window";
+import SelectMixin from "@/app/basic/common/components/select/base/SelectMixin";
+
+interface MultiMixin extends SelectMixin, ComponentVue {}
 
 @Component({ components: { CtrlSelect } })
-export default class ChatColorTypeSelect extends Mixins<ComponentVue>(
+export default class ChatColorTypeSelect extends Mixins<MultiMixin>(
+  SelectMixin,
   ComponentVue
 ) {
   @Prop({ type: String, default: "owner" })
   public value!: string;
-
-  @Prop({ type: Boolean, default: false })
-  public disabled!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  public readonly!: boolean;
-
-  public input(value: string) {
-    this.$emit("input", value);
-  }
-
-  private get localValue(): string {
-    return this.value || "";
-  }
-
-  private set localValue(value: string) {
-    this.input(value);
-  }
 
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },

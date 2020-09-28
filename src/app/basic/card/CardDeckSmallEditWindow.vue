@@ -116,7 +116,6 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
 import TrSceneLayerSelectComponent from "../common/components/TrSceneLayerSelectComponent.vue";
 import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
-import { DataReference } from "@/@types/data";
 import TrCardDeckLayoutSelectComponent from "../common/components/TrCardDeckLayoutSelectComponent.vue";
 
 @Component({

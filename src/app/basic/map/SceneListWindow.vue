@@ -62,7 +62,6 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
-import { DataReference } from "@/@types/data";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 
 @Component({
@@ -182,7 +181,7 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       value: {
         type: "chmod-window",
         args: {
-          type: "scene",
+          type: "scene-list",
           key: this.selectedSceneKey
         }
       }

@@ -133,13 +133,15 @@ character:
       isNot: true
   - text: context.edit-actor
     taskName: edit-actor
-  - ~
+  - ref: hr-permission-check
   - ref: object-fix
   - ref: object-un-fix
   - ref: object-hide-border
   - ref: object-view-border
   - ref: object-hide-highlight
   - ref: object-view-highlight
+  - ~
+  - ref: export-object
 
 dice-symbol:
   - ref: dice-roll

@@ -1,7 +1,6 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { BgmStandByInfo } from "task-info";
-import { ClientRoomInfo, DiceAndPips, DiceType } from "@/@types/socket";
+import { ClientRoomInfo } from "@/@types/socket";
 import {
   ActorStatusStore,
   ActorStore,
@@ -12,7 +11,6 @@ import {
   KeepBcdiceDiceRollResultStore,
   ChatPaletteStore,
   InitiativeColumnStore,
-  PropertySelectionStore,
   ResourceMasterStore,
   ResourceStore,
   SceneObjectStore,
@@ -21,9 +19,9 @@ import {
   LikeStore,
   ActorGroupStore,
   ChatStore,
-  ChatTabInfoStore,
+  ChatTabStore,
   CutInStore,
-  GroupChatTabInfoStore,
+  GroupChatTabStore,
   MediaStore,
   RoomDataStore,
   SceneStore,
@@ -31,7 +29,9 @@ import {
   SceneAndObjectStore,
   SceneLayerStore,
   SocketUserStore,
-  UserStore
+  UserStore,
+  DiceTypeStore,
+  DiceAndPipsStore
 } from "@/@types/store-data";
 import { ApplicationError } from "../core/error/ApplicationError";
 import { findByKey, findRequireByKey } from "../core/utility/Utility";
@@ -129,7 +129,6 @@ export default class GameObjectManager {
     await Promise.all([
       sf.actorStatusCC().getList(true, this.actorStatusList),
       sf.sceneAndLayerCC().getList(true, this.sceneAndLayerList),
-      sf.propertySelectionCC().getList(true, this.propertySelectionList),
       sf.sceneListCC().getList(true, this.sceneList),
       sf
         .keepBcdiceDiceRollResultListCC()
@@ -343,11 +342,10 @@ export default class GameObjectManager {
   }[] = [];
 
   public readonly chatList: StoreUseData<ChatStore>[] = [];
-  public readonly chatTabList: StoreUseData<ChatTabInfoStore>[] = [];
-  public readonly groupChatTabList: StoreUseData<GroupChatTabInfoStore>[] = [];
+  public readonly chatTabList: StoreUseData<ChatTabStore>[] = [];
+  public readonly groupChatTabList: StoreUseData<GroupChatTabStore>[] = [];
   public readonly sceneList: StoreUseData<SceneStore>[] = [];
   public readonly cutInList: StoreUseData<CutInStore>[] = [];
-  public readonly bgmStandByList: StoreUseData<BgmStandByInfo>[] = [];
   public readonly mediaList: StoreUseData<MediaStore>[] = [];
   public readonly userList: StoreUseData<UserStore>[] = [];
   public readonly socketUserList: StoreUseData<SocketUserStore>[] = [];
@@ -362,17 +360,14 @@ export default class GameObjectManager {
   public readonly initiativeColumnList: StoreUseData<
     InitiativeColumnStore
   >[] = [];
-  public readonly propertySelectionList: StoreUseData<
-    PropertySelectionStore
-  >[] = [];
   public readonly actorGroupList: StoreUseData<ActorGroupStore>[] = [];
   public readonly cardMetaList: StoreUseData<CardMetaStore>[] = [];
   public readonly cardObjectList: StoreUseData<CardObjectStore>[] = [];
   public readonly cardDeckBigList: StoreUseData<CardDeckBigStore>[] = [];
   public readonly cardDeckSmallList: StoreUseData<CardDeckSmallStore>[] = [];
   public readonly chatPaletteList: StoreUseData<ChatPaletteStore>[] = [];
-  public readonly diceTypeList: StoreUseData<DiceType>[] = [];
-  public readonly diceAndPipsList: StoreUseData<DiceAndPips>[] = [];
+  public readonly diceTypeList: StoreUseData<DiceTypeStore>[] = [];
+  public readonly diceAndPipsList: StoreUseData<DiceAndPipsStore>[] = [];
   public readonly keepBcdiceDiceRollResultList: StoreUseData<
     KeepBcdiceDiceRollResultStore
   >[] = [];
@@ -489,62 +484,58 @@ export default class GameObjectManager {
 
   public getList(type: string): StoreData<any>[] | null {
     switch (type) {
-      case "chat":
+      case "chat-list":
         return this.chatList;
-      case "chatTab":
+      case "chat-tab-list":
         return this.chatTabList;
-      case "groupChatTab":
+      case "group-chat-tab-list":
         return this.groupChatTabList;
-      case "scene":
+      case "scene-list":
         return this.sceneList;
-      case "media":
+      case "media-list":
         return this.mediaList;
-      case "bgm-stand-by":
-        return this.bgmStandByList;
-      case "user":
+      case "user-list":
         return this.userList;
-      case "socket-user":
+      case "socket-user-list":
         return this.socketUserList;
-      case "scene-object":
+      case "scene-object-list":
       case "map-mask":
       case "chit":
       case "floor-tile":
       case "dice-symbol":
       case "character":
         return this.sceneObjectList;
-      case "actor-status":
+      case "actor-status-list":
         return this.actorStatusList;
-      case "actor":
+      case "actor-list":
         return this.actorList;
-      case "scene-layer":
+      case "scene-layer-list":
         return this.sceneLayerList;
-      case "scene-and-layer":
+      case "scene-and-layer-list":
         return this.sceneAndLayerList;
-      case "scene-and-object":
+      case "scene-and-object-list":
         return this.sceneAndObjectList;
-      case "resource-master":
+      case "resource-master-list":
         return this.resourceMasterList;
-      case "resource":
+      case "resource-list":
         return this.resourceList;
-      case "initiative-column":
+      case "initiative-column-list":
         return this.initiativeColumnList;
-      case "property-selection":
-        return this.propertySelectionList;
-      case "actor-group":
+      case "actor-group-list":
         return this.actorGroupList;
-      case "card-meta":
+      case "card-meta-list":
         return this.cardMetaList;
-      case "card-object":
+      case "card-object-list":
         return this.cardObjectList;
-      case "card-deck-big":
+      case "card-deck-big-list":
         return this.cardDeckBigList;
-      case "card-deck-small":
+      case "card-deck-small-list":
         return this.cardDeckSmallList;
-      case "cut-in":
+      case "cut-in-list":
         return this.cutInList;
-      case "chat-palette":
+      case "chat-palette-list":
         return this.chatPaletteList;
-      case "dice-type":
+      case "dice-type-list":
         return this.diceTypeList;
       case "dice-and-pips":
         return this.diceAndPipsList;

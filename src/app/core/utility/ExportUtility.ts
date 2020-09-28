@@ -52,7 +52,7 @@ export async function exportData(list: StoreData<any>[]) {
   );
 
   const userList = list
-    .filter(l => l.ownerType === "user")
+    .filter(l => l.ownerType === "user-list")
     .map(l => findRequireByKey(GameObjectManager.instance.userList, l.owner))
     .filter(
       u =>

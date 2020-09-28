@@ -13,7 +13,7 @@
       :status="status"
       :dataList="initiativeDataList"
       :isUseHeaderI18n="false"
-      keyProp="id"
+      keyProp="key"
       :rowClassGetter="getRowClasses"
       v-model="selectedTargetKey"
       @adjustWidth="adjustWidth"
@@ -117,7 +117,6 @@ import VueEvent from "../../core/decorator/VueEvent";
 import WindowVue from "../../core/window/WindowVue";
 import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
-import { DataReference } from "@/@types/data";
 import {
   ActorStore,
   SceneObjectStore,
@@ -344,7 +343,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       this.resourceList.forEach(r => {
         const resourceMaster = findRequireByKey(
           this.resourceMasterList,
-          r.data!.masterKey
+          r.data!.resourceMasterKey
         );
 
         if (
@@ -479,7 +478,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         status: "added",
         createTime: new Date(),
         updateTime: null,
-        refNum: 0,
+        refList: [],
         data: {}
       };
       this.initiativeColumnList
@@ -495,7 +494,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           resourceMaster: rm,
           resource: this.resourceList.find(
             r =>
-              r.data!.masterKey === rm.key &&
+              r.data!.resourceMasterKey === rm.key &&
               r.owner === df.key &&
               r.ownerType === df.type
           )
@@ -566,7 +565,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
 
     const resource = this.resourceList.filter(
       r =>
-        r.data!.masterKey === resourceMaster.key &&
+        r.data!.resourceMasterKey === resourceMaster.key &&
         r.ownerType === data.ownerType &&
         r.owner === data.owner
     )[0];

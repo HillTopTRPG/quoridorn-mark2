@@ -68,7 +68,6 @@ import CtrlButton from "../../core/component/CtrlButton.vue";
 import GameObjectManager from "../GameObjectManager";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import { WindowOpenInfo } from "@/@types/window";
-import { DataReference } from "@/@types/data";
 import VueEvent from "../../core/decorator/VueEvent";
 import { importJson, saveJson } from "../../core/utility/FileUtility";
 import { ResourceMasterStore } from "@/@types/store-data";
