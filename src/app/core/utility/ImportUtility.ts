@@ -93,6 +93,7 @@ export async function importInjection(dropList: (string | File)[]) {
     const mediaInfo = mediaInfoList.find(
       mi => mi.data!.mediaFileId === ui.rawPath
     )!;
+    ui.key = mediaInfo.key;
     ui.name = mediaInfo.data!.name;
     ui.rawPath = mediaInfo.data!.rawPath;
     ui.mediaFileId = mediaInfo.data!.mediaFileId;
@@ -126,6 +127,8 @@ export async function importInjection(dropList: (string | File)[]) {
 
   // TODO User Key の置換
   // TODO Actor Key の置換
+
+  if (!otherInfoList.length) return;
 
   // データを変換していく
   const directImportDataList = otherInfoList.map(info => {

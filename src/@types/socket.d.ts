@@ -111,8 +111,7 @@ type SendDataRequest<T> = {
   data: T | null;
 };
 
-type UploadMediaInfo = MediaStore &
-  (
+type UploadMediaInfo = MediaStore & { key?: string } & (
     | { dataLocation: "direct" }
     | {
         dataLocation: "server";
