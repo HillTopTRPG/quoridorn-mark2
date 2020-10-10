@@ -130,6 +130,7 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     this.useImageList = this.rawImageList.filter(d => {
       if (!d || !d.data) return false;
       if (regExp && !d.data.name.match(regExp)) return false;
+      if (this.selectImageTag === null) return d.data.tag === "";
       return d.data.tag === this.selectImageTag;
     });
   }
