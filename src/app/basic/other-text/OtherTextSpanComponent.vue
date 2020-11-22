@@ -117,7 +117,7 @@ export default class OtherTextSpanComponent extends Mixins<ComponentVue>(
 
     const value = this.spans[0].value;
     if (!value || typeof value !== "string") return;
-    if (value.startsWith("◆")) {
+    if (value.startsWith("¦")) {
       this.isTableReverse = true;
       this.spans[0].value = value.substr(1);
     }

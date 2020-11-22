@@ -2,8 +2,7 @@ import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import {
   convertNumberNull,
-  convertNumberZero,
-  listToEmpty
+  convertNumberZero
 } from "@/app/core/utility/PrimaryDataUtility";
 import {
   createTokugi,
@@ -161,50 +160,76 @@ function createMagicaLogiaData(url: string, json: any): MagicaLogia {
   };
 }
 
-export async function createMagicaLogiaChatPalette(
-  url: string
-): Promise<MemoStore[] | null> {
-  const json = await getJsonForTrpgSystemData<any>(
-    url,
-    /https?:\/\/character-sheets\.appspot\.com\/mglg\/.+\?key=([^&]+)/,
-    "https://character-sheets.appspot.com/mglg/display?ajax=1&key={key}"
-  );
-  if (!json) return null;
-  const magicaLogiaData = createMagicaLogiaData(url, json);
-
-  // console.log(JSON.stringify(magicaLogiaData, null, "  "));
-
-  const resultList: MemoStore[] = [];
+function addLibrary(magicaLogiaData: MagicaLogia, resultList: MemoStore[]) {
   const strList: string[] = [];
+  // 蔵書
+  strList.push("## 蔵書");
+  strList.push("||魔法名|タイプ|指定特技|目標|コスト|チャージ|効果|呪句|");
+  strList.push("|:---|:---|:---:|:---|:---|:---|:---:|:---|:---:|");
+  const rep = (text: string) =>
+    text.replaceAll("\n", "<br>").replaceAll("。", "。<br>");
+  strList.push(
+    ...magicaLogiaData.libraryList.map(
+      l =>
+        `|[${l.check ? "X" : " "}]|${rep(l.name)}|${rep(l.type)}|${rep(
+          l.skill
+        )}|${rep(l.target)}|${l.cost}|{チャージ}[0|1|2|3|4|5|6](0)|${rep(
+          l.effect
+        )}|[${l.ivCheck ? "X" : " "}]|`
+    )
+  );
 
+  resultList.push({ tab: "蔵書", text: strList.join("\r\n") });
+}
+
+function addBasic(magicaLogiaData: MagicaLogia, resultList: MemoStore[]) {
+  const strList: string[] = [];
   // 基本情報
   strList.push("## 基本情報");
   strList.push(`PL: ${magicaLogiaData.player}`);
 
-  strList.push(
-    `かりそめ: ${magicaLogiaData.coverName}(${
-      magicaLogiaData.age
-    }歳 ${magicaLogiaData.sex || "性別なし"} ${magicaLogiaData.cover ||
-      "表の顔なし"})`
-  );
-  strList.push("");
+  strList.push("### かりそめ");
+  const ageText = magicaLogiaData.age
+    ? convertNumberNull(magicaLogiaData.age) !== null
+      ? `${magicaLogiaData.age}歳`
+      : magicaLogiaData.age
+    : "年齢不詳";
+  const sexText = magicaLogiaData.sex || "性別なし";
+  strList.push(`${magicaLogiaData.coverName}（${ageText} ${sexText}）`);
+  strList.push(`表の顔: ${magicaLogiaData.cover || "なし"}`);
+
+  strList.push("### 魔法使い");
   strList.push(`魔法名: ${magicaLogiaData.magicName || "なし"}`);
-  strList.push(
-    `第${magicaLogiaData.level}階梯「${magicaLogiaData.levelName}」 ${magicaLogiaData.domain}の${magicaLogiaData.career}`
-  );
   strList.push(`信条: ${magicaLogiaData.belief || "なし"}`);
-  strList.push(`功績点: ${magicaLogiaData.exp || "なし"}`);
+  strList.push("|階梯|領域|経歴/機関|功績点|");
+  strList.push("|:---:|:---:|:---:|:---:|");
+  strList.push(
+    `|第${magicaLogiaData.level}階梯「${magicaLogiaData.levelName}」|${
+      magicaLogiaData.domain
+    }|${magicaLogiaData.career || "なし"}|${magicaLogiaData.exp || "なし"}|`
+  );
 
   strList.push("### 真の姿");
   strList.push("|||");
   strList.push("|:---|:---|");
   strList.push(`|◇名称|${magicaLogiaData.trueForm.name}|`);
   strList.push(`|◇効果|${magicaLogiaData.trueForm.effect}|`);
-  strList.push(`|◇説明|${magicaLogiaData.trueForm.notes}|`);
+  strList.push(
+    `|◇説明|${magicaLogiaData.trueForm.notes
+      .replaceAll("\\n", "<br>")
+      .replaceAll("。", "。<br>")}|`
+  );
 
-  strList.push("### ステータス");
-  strList.push("|攻撃力|防御力|根源力|魔力|");
-  strList.push("|:---:|:---:|:---:|:---:|");
+  resultList.push({ tab: "基本情報", text: strList.join("\r\n") });
+}
+
+function addAnchor(magicaLogiaData: MagicaLogia, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  // ステータス
+  strList.push("## ステータス");
+  strList.push("|攻撃力|防御力|根源力|魔力|一時的魔力|");
+  strList.push("|:---:|:---:|:---:|:---:|:---:|");
   const createSelect = (
     label: string,
     max: number | string | null,
@@ -212,31 +237,33 @@ export async function createMagicaLogiaChatPalette(
   ) => {
     const maxNum = typeof max === "number" ? max : convertNumberNull(max);
     if (maxNum === null) return current;
-    return `{${label}}[${[...Array(maxNum + 1)]
+    return `${label ? `{${label}}` : ""}[${[...Array(maxNum + 1)]
       .map((_, i) => i)
       .reverse()
       .join("|")}](${current})`;
   };
   strList.push(
-    `|${createSelect("攻撃力", 6, magicaLogiaData.attack)}|${createSelect(
+    `|${createSelect("攻撃力", 8, magicaLogiaData.attack)}|${createSelect(
       "防御力",
-      6,
+      8,
       magicaLogiaData.defense
-    )}|${createSelect("根源力", 6, magicaLogiaData.source)}|${createSelect(
+    )}|${createSelect("根源力", 8, magicaLogiaData.source)}|${createSelect(
       "魔力",
       magicaLogiaData.magic.max,
       magicaLogiaData.magic.value
-    )}`
+    )}|${createSelect("一時的魔力", 10, 0)}`
   );
 
-  strList.push("### 状態");
+  // 変調
+  strList.push("### 変調");
   strList.push("|封印|綻び|虚弱|病魔|遮断|不運|");
   strList.push("|:---:|:---:|:---:|:---:|:---:|:---:|");
   strList.push("|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|");
+  strList.push("");
 
-  // 人物欄
-  strList.push("## 人物欄");
-  strList.push("||アンカー名|運命|属性|設定|");
+  // アンカー
+  strList.push("## アンカー");
+  strList.push("|運命の力|アンカー名|運命|属性|設定|");
   strList.push("|:---:|:---|:---:|:---|:---|");
   magicaLogiaData.anchorList.forEach(a => {
     strList.push(
@@ -245,16 +272,25 @@ export async function createMagicaLogiaChatPalette(
       }|{運命}[3|2|1|0](${a.destiny.toLowerCase()})|${a.attribute}|${a.memo}|`
     );
   });
-  strList.push("");
 
-  resultList.push({ tab: "基本情報", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  // 義務
+  strList.push("### 義務");
+  strList.push("|アンカー名|内容|");
+  strList.push("|:---|:---|");
+  magicaLogiaData.dutyList.forEach(d => {
+    strList.push(`|${d.anchor}|${d.notes}|`);
+  });
 
+  resultList.push({ tab: "状態・関係", text: strList.join("\r\n") });
+}
+
+function addTokugi(magicaLogiaData: MagicaLogia, resultList: MemoStore[]) {
+  const strList: string[] = [];
   // 特技
   strList.push("## 特技");
   strList.push(`魂の特技: ${magicaLogiaData.soul.skill}`);
   const gapText = (ind: number) =>
-    magicaLogiaData.tokugi.spaceList.indexOf(ind) > -1 ? "◆　" : "　";
+    magicaLogiaData.tokugi.spaceList.indexOf(ind) > -1 ? "¦　" : "　";
   const gapColList = [
     { spaceIndex: 5, colText: "1/星" },
     { spaceIndex: 0, colText: "2/獣" },
@@ -280,7 +316,7 @@ export async function createMagicaLogiaChatPalette(
         .map(
           (t: string, c: number) =>
             `|${gapText(gapColList[c].spaceIndex)}|${
-              learnedList.some(t => t.row === r && t.column === c) ? "◆" : ""
+              learnedList.some(t => t.row === r && t.column === c) ? "¦" : ""
             }${checkStr(damagedList, r, c)}${t}`
         )
         .join("") + `|${r + 2}|`
@@ -298,27 +334,31 @@ export async function createMagicaLogiaChatPalette(
   );
 
   resultList.push({ tab: "特技", text: strList.join("\r\n") });
-  listToEmpty(strList);
+}
+
+export async function createMagicaLogiaChatPalette(
+  url: string
+): Promise<MemoStore[] | null> {
+  const json = await getJsonForTrpgSystemData<any>(
+    url,
+    /https?:\/\/character-sheets\.appspot\.com\/mglg\/.+\?key=([^&]+)/,
+    "https://character-sheets.appspot.com/mglg/display?ajax=1&key={key}"
+  );
+  if (!json) return null;
+  const magicaLogiaData = createMagicaLogiaData(url, json);
+
+  // console.log(JSON.stringify(magicaLogiaData, null, "  "));
+
+  const resultList: MemoStore[] = [];
 
   // 蔵書
-  strList.push("## 蔵書");
-  strList.push("||魔法名|タイプ|指定特技|目標|コスト|チャージ|効果|呪句|");
-  strList.push("|:---|:---|:---:|:---|:---|:---|:---:|:---|:---:|");
-  const rep = (text: string) =>
-    text.replaceAll("\n", "<br>").replaceAll("。", "。<br>");
-  strList.push(
-    ...magicaLogiaData.libraryList.map(
-      l =>
-        `|[${l.check ? "X" : " "}]|${rep(l.name)}|${rep(l.type)}|${rep(
-          l.skill
-        )}|${rep(rep(l.target))}|${l.cost}|[0|1|2|3|4|5|6](0)|${rep(
-          l.effect
-        )}|[${l.ivCheck ? "X" : " "}]|`
-    )
-  );
-
-  resultList.push({ tab: "蔵書", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  addLibrary(magicaLogiaData, resultList);
+  // 義務・関係
+  addAnchor(magicaLogiaData, resultList);
+  // 基本情報
+  addBasic(magicaLogiaData, resultList);
+  // 特技
+  addTokugi(magicaLogiaData, resultList);
 
   return resultList;
 }

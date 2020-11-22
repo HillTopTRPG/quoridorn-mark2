@@ -1282,10 +1282,10 @@
     heightPx: 4
     heightEm: 18
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 15個
     widthPx: 2
     widthScrollBar: 1
-    widthEm: 52
+    widthEm: 72
     # 6em(行数) + 4em(選択画像サイズ) * 6個
     heightPx: 4
     heightEm: 30
@@ -1322,10 +1322,10 @@
     heightEm: 20
     heightRem: 0.5
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
+    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 15個
     widthPx: 2
     widthScrollBar: 1
-    widthEm: 52
+    widthEm: 72
     # 8em(行数) + 4em(選択画像サイズ) * 6個
     heightPx: 4
     heightEm: 32

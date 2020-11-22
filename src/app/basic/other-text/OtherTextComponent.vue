@@ -193,7 +193,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     "g"
   );
   private readonly selectRegExp: RegExp = new RegExp(
-    "(\\[[^\\r\\n]+])\\([^\\r\\n]*\\)",
+    "(\\[[^\\r\\n\]]+])\\([^\\r\\n)]*\\)",
     "g"
   );
 
@@ -251,14 +251,6 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get isEditable(): boolean {
-    const otherText = this.value.find(
-      v => v.key === this.currentTabInfo!.target
-    )!;
-    return permissionCheck(otherText, "edit", 1);
-  }
-
-  @VueEvent
   private onChangeSelect(index: number, value: string) {
     const currentValue = this.value.find(
       lv => lv.key === this.currentTabInfo!.target
@@ -266,8 +258,18 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     if (!permissionCheck(currentValue, "edit", 1)) return;
     currentValue.data!.text = currentValue.data!.text.replace(
       this.selectRegExp,
-      (m, p1) => (index-- ? m : `${p1}(${value})`)
+      (m, p1) => {
+        return index-- ? m : `${p1}(${value})`;
+      }
     );
+  }
+
+  @VueEvent
+  private get isEditable(): boolean {
+    const otherText = this.value.find(
+      v => v.key === this.currentTabInfo!.target
+    )!;
+    return permissionCheck(otherText, "edit", 1);
   }
 }
 </script>

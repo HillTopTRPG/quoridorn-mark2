@@ -199,7 +199,7 @@ export async function createShinobigamiChatPalette(
   strList.push("## 特技");
   const damagedColList = shinobigamiData.tokugi.damagedColList;
   const gapText = (ind: number) =>
-    shinobigamiData.tokugi.spaceList.indexOf(ind) > -1 ? "◆　" : "　";
+    shinobigamiData.tokugi.spaceList.indexOf(ind) > -1 ? "¦　" : "　";
   const gapColList = [
     { spaceIndex: 5, colText: "器術" },
     { spaceIndex: 0, colText: "体術" },
@@ -228,7 +228,7 @@ export async function createShinobigamiChatPalette(
         .map(
           (t: string, c: number) =>
             `|${gapText(gapColList[c].spaceIndex)}|${
-              learnedList.some(t => t.row === r && t.column === c) ? "◆" : ""
+              learnedList.some(t => t.row === r && t.column === c) ? "¦" : ""
             }${t}`
         )
         .join("") + `|${r + 2}|`
