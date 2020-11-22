@@ -48,11 +48,11 @@ export default class CardDeckSubContainerComponent extends Mixins<ComponentVue>(
   private nextDisabled!: boolean;
 
   @VueEvent
-  private get msgText() {
+  private get msgText(): string {
     return this.$t(
       `card-deck-builder.message-list.${this.message}`,
       this.messageArg
-    );
+    ).toString();
   }
 }
 </script>

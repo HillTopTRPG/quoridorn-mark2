@@ -6,7 +6,7 @@
         v-for="(tab, index) in tabList"
         :class="{ isActive: tab.key === localValue.key }"
         :key="index"
-        @click="localValue = tab"
+        @click="onClickTab(tab)"
         tabindex="0"
         @keydown.space.prevent="localValue = tab"
       >
@@ -28,6 +28,7 @@ import { Task, TaskResult } from "task";
 import ComponentVue from "../window/ComponentVue";
 import { TabInfo } from "@/@types/window";
 import TaskProcessor from "../task/TaskProcessor";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class SimpleTabComponent extends Mixins<ComponentVue>(
@@ -69,6 +70,14 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
       const index = inputElmList.findIndex(elm => !elm.disabled);
       if (index >= 0) inputElmList[index].focus();
     });
+  }
+
+  @VueEvent
+  private onClickTab(tab: TabInfo) {
+    if (this.localValue !== tab) {
+      this.localValue = tab;
+      this.$emit("change");
+    }
   }
 
   private get elm(): HTMLElement {

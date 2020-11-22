@@ -177,6 +177,7 @@ import TrNumberInputComponent from "../../common/components/TrNumberInputCompone
 import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
 import CardSimulatorComponent from "./CardSimulatorComponent.vue";
 import SButton from "../../common/components/SButton.vue";
+import { errorDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -510,7 +511,10 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
   private async doImport() {
     const dataContainer: any = await importJson<any>("card_deck_frame");
     if (!dataContainer) {
-      alert(this.$t("label.importFailure"));
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: this.$t("label.importFailure").toString()
+      });
       return;
     }
     const data: any = dataContainer.data;

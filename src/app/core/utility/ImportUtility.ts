@@ -8,23 +8,51 @@ import { getExt } from "@/app/core/utility/PrimaryDataUtility";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { UploadMediaInfo } from "@/@types/socket";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { ExportLevel } from "./ExportUtility";
 
-async function jsonFileList2JsonList(jsonFileList: File[]) {
-  const importRawData: StoreData<any>[] = [];
+async function jsonFileList2JsonList(
+  jsonFileList: File[]
+): Promise<{ [exportLevel in ExportLevel]?: StoreData<any>[] }> {
+  const importRawData: {
+    [exportLevel in ExportLevel]?: StoreData<any>[];
+  } = {};
   const jsonList = await readJsonFiles(jsonFileList);
   jsonList
     .filter(j => j.type === "quoridorn-export-data-list")
-    .forEach(j => importRawData.push(...(j.data as StoreData<any>[])));
+    .forEach(j => {
+      const exportLevelRaw = j.data.exportLevel;
+      if (
+        exportLevelRaw !== "part" ||
+        exportLevelRaw !== "actor" ||
+        exportLevelRaw !== "user" ||
+        exportLevelRaw !== "full"
+      )
+        return;
+      const exportLevel = exportLevelRaw as ExportLevel;
+      const rawData = importRawData[exportLevel];
+      const list = j.data.list as StoreData<any>[];
+      if (rawData) {
+        rawData.push(...list);
+      } else {
+        importRawData[exportLevel] = list;
+      }
+    });
   return importRawData;
 }
 
 async function getMediaLineage(
   dropList: (string | File)[]
 ): Promise<{
+  exportLevel: ExportLevel;
   mediaInfoList: StoreData<MediaStore>[];
   otherInfoList: StoreData<any>[];
   mediaFileList: File[];
 }> {
+  let exportLevel: ExportLevel = "part";
+  const mediaInfoList: StoreData<MediaStore>[] = [];
+  const otherInfoList: StoreData<any>[] = [];
+  const mediaFileList: File[] = [];
+
   const removeDropListIndexList: number[] = [];
   const jsonFileList: File[] = [];
   dropList.forEach((d, index) => {
@@ -33,38 +61,39 @@ async function getMediaLineage(
     jsonFileList.push(d);
   });
 
-  let importRawData: StoreData<any>[] = await jsonFileList2JsonList(
-    jsonFileList
-  );
-  // console.log(JSON.stringify(importRawData, null, "  "));
+  let importRawData = await jsonFileList2JsonList(jsonFileList);
+  const createResult = (
+    exportLevel: "part" | "full",
+    rawData: StoreData<any>[]
+  ): void => {
+    rawData.forEach(ir => {
+      if (ir.collection === "media-list") {
+        mediaInfoList.push(ir as StoreData<MediaStore>);
+      } else {
+        otherInfoList.push(ir);
+      }
+    });
 
-  const mediaInfoList: StoreData<MediaStore>[] = [];
-  const otherInfoList: StoreData<any>[] = [];
-  importRawData.forEach(ir => {
-    if (ir.collection === "media-list") {
-      mediaInfoList.push(ir as StoreData<MediaStore>);
-    } else {
-      otherInfoList.push(ir);
-    }
-  });
+    mediaFileList.push(
+      ...mediaInfoList.map(
+        mi =>
+          (dropList.find((d, index) => {
+            const result =
+              typeof d !== "string" && d.name === mi.data!.mediaFileId;
+            if (result) removeDropListIndexList.push(index);
+            return result;
+          }) as File) || null
+      )
+    );
+  };
 
-  const mediaFileList = mediaInfoList.map(
-    mi =>
-      (dropList.find((d, index) => {
-        const result = typeof d !== "string" && d.name === mi.data!.mediaFileId;
-        if (result) removeDropListIndexList.push(index);
-        return result;
-      }) as File | undefined) || null
-  );
-
-  // jsonファイルはアップロードしない
-  removeDropListIndexList
-    .sort((index1, index2) => {
-      if (index1 > index2) return -1;
-      if (index1 < index2) return 1;
-      return 0;
-    })
-    .forEach(index => dropList.splice(index, 1));
+  if (importRawData.full) {
+    createResult("full", importRawData.full);
+    exportLevel = "full";
+  }
+  if (importRawData.part) {
+    createResult("part", importRawData.part);
+  }
 
   const removeIndexList: number[] = [];
   mediaFileList.forEach((mf, index) => {
@@ -75,17 +104,30 @@ async function getMediaLineage(
     mediaInfoList.splice(index, 1);
   });
 
+  // 除外ファイルはアップロードしない
+  removeDropListIndexList
+    .sort((index1, index2) => {
+      if (index1 > index2) return -1;
+      if (index1 < index2) return 1;
+      return 0;
+    })
+    .forEach(index => dropList.splice(index, 1));
+
   return {
     mediaInfoList,
     otherInfoList,
-    mediaFileList: mediaFileList as File[]
+    mediaFileList,
+    exportLevel
   };
 }
 
 export async function importInjection(dropList: (string | File)[]) {
-  const { mediaInfoList, otherInfoList, mediaFileList } = await getMediaLineage(
-    dropList
-  );
+  const {
+    exportLevel,
+    mediaFileList,
+    mediaInfoList,
+    otherInfoList
+  } = await getMediaLineage(dropList);
   const uploadMediaInfoList: UploadMediaInfo[] = await raw2UploadMediaInfoList(
     mediaFileList
   );
@@ -125,7 +167,7 @@ export async function importInjection(dropList: (string | File)[]) {
     }))
   );
 
-  // TODO User Key の置換
+  // TODO User Key の置
   // TODO Actor Key の置換
 
   if (!otherInfoList.length) return;
@@ -139,8 +181,11 @@ export async function importInjection(dropList: (string | File)[]) {
     return JSON.parse(str);
   });
 
-  await SocketFacade.instance.socketCommunication<StoreData<any>[], void>(
-    "import-data",
-    directImportDataList
-  );
+  await SocketFacade.instance.socketCommunication<
+    { importType: ExportLevel; list: StoreData<any>[] },
+    void
+  >("import-data", {
+    importType: exportLevel,
+    list: directImportDataList
+  });
 }

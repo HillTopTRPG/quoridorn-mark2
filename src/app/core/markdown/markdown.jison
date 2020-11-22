@@ -183,7 +183,6 @@ expressions
               const decItem = decCopy.shift();
               table.push({ type: 'tr', value: [{ type: index ? 'td' : 'th', value: [], align: decItem }] });
               const list = line.value;
-              isLastDev = true;
               list.forEach((span) => {
                 if (span.type === '|') {
                   const decItem = decCopy.shift();
@@ -192,7 +191,6 @@ expressions
                   const lastCellList = table[table.length - 1].value;
                   lastCellList[lastCellList.length - 1].value.push(span);
                 }
-                isLastDev = span.type === '|';
               });
             });
             block.value = table;
@@ -353,15 +351,14 @@ line
 spans
     : spans span
       {
+        const last = $1[$1.length - 1];
         if (
-          $1[$1.length - 1].type === $2.type &&
-          $1[$1.length - 1].connectable &&
-          $2.connectable
+          last.type === $2.type &&
+          last.connectable && $2.connectable
         ) {
-          $1[$1.length - 1].value += $2.value;
-          $1[$1.length - 1].raw += $2.raw;
+          last.value += $2.value;
+          last.raw += $2.raw;
         } else {
-          const last = $1[$1.length - 1];
           if (last.type === '<->' && $2.type !== '|') {
             $1.splice($1.length - 1, 1, parseTableLine(last), $2);
             arrangeTableLineList($1);

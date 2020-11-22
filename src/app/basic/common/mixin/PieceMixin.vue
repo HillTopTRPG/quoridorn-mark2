@@ -212,7 +212,6 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       lastExclusionOwnerKey !== SocketFacade.instance.userKey
     );
   }
-
   protected get basicClasses() {
     if (!this.isMounted || !this.sceneObjectInfo) return [];
     const result = [
@@ -234,7 +233,6 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
     return result;
   }
-
   protected get elm(): HTMLElement {
     return this.$refs.component as HTMLElement;
   }
@@ -550,12 +548,22 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     ]))!.map(doc => doc.data!);
 
     const exportList: StoreData<any>[] = [];
-    exportList.push(sceneObject);
-    if (memoList.length) {
-      exportList.push(...memoList);
+
+    if (this.type === "character") {
+      const actor = GameObjectManager.instance.actorList.find(
+        a => a.key === sceneObject.data!.actorKey
+      )!;
+      exportList.push(actor);
+      const statusList = GameObjectManager.instance.actorStatusList.filter(
+        as => as.owner === actor.key
+      );
+      exportList.push(...statusList);
     }
+
+    exportList.push(sceneObject);
+    if (memoList.length) exportList.push(...memoList);
     console.log(exportList);
-    await exportData(exportList);
+    await exportData(exportList, "part");
   }
 
   @TaskProcessor("delete-object-finished")

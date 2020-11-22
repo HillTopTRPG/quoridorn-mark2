@@ -170,6 +170,7 @@ import {
   SceneStore
 } from "@/@types/store-data";
 import { DiceMaterial } from "@/@types/store-data-optional";
+import { errorDialog, successDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -562,9 +563,17 @@ export default class LoginWindow extends Mixins<
     this.roomStatus = "normal";
 
     setTimeout(() => {
-      alert(
-        deleteResult ? "部屋を削除しました。" : "部屋の削除に失敗しました。"
-      );
+      if (deleteResult) {
+        successDialog({
+          title: this.$t("button.delete").toString(),
+          text: "部屋を削除しました。"
+        }).then();
+      } else {
+        errorDialog({
+          title: this.$t("button.delete").toString(),
+          text: "部屋の削除に失敗しました。"
+        }).then();
+      }
     });
   }
 
@@ -611,7 +620,10 @@ export default class LoginWindow extends Mixins<
   @VueEvent
   private async createRoom() {
     if (this.selectedRoomNo === null) {
-      alert("部屋を選択してから新規作成をしてください。");
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: "部屋を選択してから新規作成をしてください。"
+      });
       return;
     }
 
@@ -712,10 +724,9 @@ export default class LoginWindow extends Mixins<
       });
     } catch (err) {
       console.warn(err);
-      await swal({
+      await errorDialog({
         title: err.name,
-        text: err.detail,
-        icon: "error"
+        text: err.detail
       });
 
       await LoginWindow.viewProcessView("");
@@ -753,7 +764,10 @@ export default class LoginWindow extends Mixins<
       >("user-login", userLoginInput);
     } catch (err) {
       console.warn(err);
-      alert("ログイン失敗");
+      await errorDialog({
+        title: "ログイン失敗",
+        text: ""
+      });
 
       await LoginWindow.viewProcessView("");
 
@@ -855,7 +869,10 @@ export default class LoginWindow extends Mixins<
   @VueEvent
   private async login() {
     if (this.selectedRoomNo === null) {
-      alert("部屋を選択してからログインをしてください。");
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: "部屋を選択してからログインをしてください。"
+      });
       return;
     }
 
@@ -916,7 +933,10 @@ export default class LoginWindow extends Mixins<
       });
     } catch (err) {
       console.warn(err);
-      alert("ログイン失敗");
+      await errorDialog({
+        title: "ログイン失敗",
+        text: ""
+      });
       this.roomStatus = "normal";
       return;
     }
@@ -968,7 +988,10 @@ export default class LoginWindow extends Mixins<
       >("user-login", userLoginInput);
     } catch (err) {
       console.warn(err);
-      alert("ログイン失敗");
+      await errorDialog({
+        title: "ログイン失敗",
+        text: ""
+      });
       this.roomStatus = "normal";
       SocketFacade.instance.roomCollectionPrefix = null;
       return;

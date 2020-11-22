@@ -52,7 +52,7 @@ import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { errorDialog, findRequireByKey } from "@/app/core/utility/Utility";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
 export default class EditSceneLayerChooserComponent extends Mixins<
@@ -152,7 +152,10 @@ export default class EditSceneLayerChooserComponent extends Mixins<
         await this.sceneAndLayerCC.touchModify(keyList);
         this.orderChangingKeyList.push(...keyList);
       } catch (err) {
-        alert("このタイミングでは例外にならないはず");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "このタイミングでは例外にならないはず"
+        });
       }
     }
   }
@@ -172,7 +175,10 @@ export default class EditSceneLayerChooserComponent extends Mixins<
         await this.sceneAndLayerCC.touchModify(keyList);
         this.orderChangingKeyList = keyList;
       } catch (err) {
-        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "Failure to get sceneAndLayerList's lock.\nPlease try again."
+        });
         this.dragModeProcessed = true;
         this.dragMode = false;
         this.orderChangingKeyList = [];

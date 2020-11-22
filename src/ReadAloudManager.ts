@@ -1,3 +1,5 @@
+import { warningDialog } from "@/app/core/utility/Utility";
+
 const synth = window.speechSynthesis;
 
 export default class ReadAloudManager {
@@ -77,11 +79,10 @@ export default class ReadAloudManager {
     utterThis.onerror = function(event) {
       // エラーメッセージの出力
       console.log(event.error);
-      swal({
+      warningDialog({
         title: "自動音声に問題あり",
         text:
-          "自動音声を許可するには\nchrome://settings/content/sound\nでこのページのURLを許可設定してください。",
-        icon: "warning"
+          "自動音声を許可するには\nchrome://settings/content/sound\nでこのページのURLを許可設定してください。"
       }).then();
     };
 

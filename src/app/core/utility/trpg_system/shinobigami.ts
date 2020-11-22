@@ -1,6 +1,11 @@
 import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import {
+  createTokugi,
+  SaikoroFictionTokugi,
+  TokugiInfo
+} from "@/app/core/utility/trpg_system/SaikoroFiction";
 
 export async function isShinobigamiUrl(url: string) {
   return !!url.match(
@@ -35,18 +40,6 @@ type ShinobigamiNinpou = {
   page: string;
 };
 
-type ShinobigamiLearnedTokugi = {
-  name: string;
-  row: number;
-  column: number;
-};
-
-type ShinobigamiTokugi = {
-  table: string[][];
-  tokugiList: ShinobigamiLearnedTokugi[];
-  spaceList: number[];
-};
-
 type Shinobigami = {
   url: string;
   playerName: string;
@@ -65,7 +58,7 @@ type Shinobigami = {
   stylerule: string;
   ninpouList: ShinobigamiNinpou[];
   backgroundList: ShinobigamiHaikei[];
-  tokugi: ShinobigamiTokugi;
+  tokugi: SaikoroFictionTokugi;
 };
 
 function createShinobigamiData(url: string, json: any): Shinobigami {
@@ -85,25 +78,35 @@ function createShinobigamiData(url: string, json: any): Shinobigami {
     cover: json["base"]["cover"] || "",
     belief: json["base"]["belief"] || "",
     stylerule: json["base"]["stylerule"] || "",
-    ninpouList: [],
-    backgroundList: [],
-    tokugi: {
-      table: [
-        ["絡繰術", "騎乗術", "生存術", "医術", "兵糧術", "異形化"],
-        ["火術", "砲術", "潜伏術", "毒術", "鳥獣術", "召喚術"],
-        ["水術", "手裏剣術", "遁走術", "罠術", "野戦術", "死霊術"],
-        ["針術", "手練", "盗聴術", "調査術", "地の利", "結界術"],
-        ["仕込み", "身体操術", "腹話術", "詐術", "意気", "封術"],
-        ["衣装術", "歩法", "隠形術", "対人術", "用兵術", "言霊術"],
-        ["縄術", "走法", "変装術", "遊芸", "記憶術", "幻術"],
-        ["登術", "飛術", "香術", "九ノ一の術", "見敵術", "瞳術"],
-        ["拷問術", "骨法術", "分身の術", "傀儡の術", "暗号術", "千里眼の術"],
-        ["壊器術", "刀術", "隠蔽術", "流言の術", "伝達術", "憑依術"],
-        ["掘削術", "怪力", "第六感", "経済力", "人脈", "呪術"]
-      ],
-      tokugiList: [],
-      spaceList: []
-    }
+    ninpouList: (json["ninpou"] as any[]).map(n => ({
+      secret: !!n["secret"],
+      name: n["name"] || "",
+      type: n["type"] || "",
+      targetSkill: n["targetSkill"] || "",
+      range: n["range"] || "",
+      cost: n["cost"] || "",
+      effect: n["effect"] ? n["effect"].replace(/\r?\n/g, "\\n") : "",
+      page: n["page"] || ""
+    })),
+    backgroundList: (json["background"] as any[]).map(b => ({
+      name: b["name"] || "",
+      type: b["type"] || "",
+      point: b["point"] || "0",
+      effect: b["effect"] ? b["effect"].replace(/\r?\n/g, "\\n") : ""
+    })),
+    tokugi: createTokugi(json, [
+      ["絡繰術", "騎乗術", "生存術", "医術", "兵糧術", "異形化"],
+      ["火術", "砲術", "潜伏術", "毒術", "鳥獣術", "召喚術"],
+      ["水術", "手裏剣術", "遁走術", "罠術", "野戦術", "死霊術"],
+      ["針術", "手練", "盗聴術", "調査術", "地の利", "結界術"],
+      ["仕込み", "身体操術", "腹話術", "詐術", "意気", "封術"],
+      ["衣装術", "歩法", "隠形術", "対人術", "用兵術", "言霊術"],
+      ["縄術", "走法", "変装術", "遊芸", "記憶術", "幻術"],
+      ["登術", "飛術", "香術", "九ノ一の術", "見敵術", "瞳術"],
+      ["拷問術", "骨法術", "分身の術", "傀儡の術", "暗号術", "千里眼の術"],
+      ["壊器術", "刀術", "隠蔽術", "流言の術", "伝達術", "憑依術"],
+      ["掘削術", "怪力", "第六感", "経済力", "人脈", "呪術"]
+    ])
   };
   switch (json["base"]["upperstyle"]) {
     case "a":
@@ -126,45 +129,6 @@ function createShinobigamiData(url: string, json: any): Shinobigami {
       break;
     default:
       shinobigamiData.upperStyle = "";
-  }
-  shinobigamiData.backgroundList = (json["background"] as any[]).map(b => ({
-    name: b["name"] || "",
-    type: b["type"] || "",
-    point: b["point"] || "0",
-    effect: b["effect"] ? b["effect"].replace(/\r?\n/g, "\\n") : ""
-  }));
-  shinobigamiData.ninpouList = (json["ninpou"] as any[]).map(n => ({
-    secret: !!n["secret"],
-    name: n["name"] || "",
-    type: n["type"] || "",
-    targetSkill: n["targetSkill"] || "",
-    range: n["range"] || "",
-    cost: n["cost"] || "",
-    effect: n["effect"] ? n["effect"].replace(/\r?\n/g, "\\n") : "",
-    page: n["page"] || ""
-  }));
-  (json["learned"] as any[]).forEach(learnedJson => {
-    // const hiddenSkill = learnedJson["hiddenSkill"];
-    const id = learnedJson["id"];
-    // const judge = learnedJson["judge"];
-
-    if (!id) return;
-
-    const row = parseInt(id.match(/row([0-9]+)/)[1]);
-    const column = parseInt(id.match(/name([0-9]+)/)[1]);
-    const name = shinobigamiData.tokugi.table[row][column];
-
-    shinobigamiData.tokugi.tokugiList.push({
-      column,
-      row,
-      name
-    });
-  });
-
-  for (let i = 0; i < 6; i++) {
-    if (json["skills"][String.fromCharCode("a".charCodeAt(0) + i)]) {
-      shinobigamiData.tokugi.spaceList.push(i);
-    }
   }
   return shinobigamiData;
 }
@@ -233,36 +197,41 @@ export async function createShinobigamiChatPalette(
 
   // 特技
   strList.push("## 特技");
+  const damagedColList = shinobigamiData.tokugi.damagedColList;
+  const gapText = (ind: number) =>
+    shinobigamiData.tokugi.spaceList.indexOf(ind) > -1 ? "◆　" : "　";
+  const gapColList = [
+    { spaceIndex: 5, colText: "器術" },
+    { spaceIndex: 0, colText: "体術" },
+    { spaceIndex: 1, colText: "忍術" },
+    { spaceIndex: 2, colText: "謀術" },
+    { spaceIndex: 3, colText: "戦術" },
+    { spaceIndex: 4, colText: "妖術" }
+  ];
   strList.push(
-    `|[${
-      shinobigamiData.tokugi.spaceList.indexOf(5) > -1 ? "x" : " "
-    }]|器術　　　　|[${
-      shinobigamiData.tokugi.spaceList.indexOf(0) > -1 ? "x" : " "
-    }]|体術　　　　|[${
-      shinobigamiData.tokugi.spaceList.indexOf(1) > -1 ? "x" : " "
-    }]|忍術　　　　|[${
-      shinobigamiData.tokugi.spaceList.indexOf(2) > -1 ? "x" : " "
-    }]|謀術　　　　|[${
-      shinobigamiData.tokugi.spaceList.indexOf(3) > -1 ? "x" : " "
-    }]|戦術　　　　|[${
-      shinobigamiData.tokugi.spaceList.indexOf(4) > -1 ? "x" : " "
-    }]|妖術　　　　||`
+    `|${gapColList
+      .map(
+        (gc, ind) =>
+          `${gapText(gc.spaceIndex)}|${gc.colText}[${
+            damagedColList.some(d => d === ind) ? "x" : " "
+          }]　　　`
+      )
+      .join("|")}||`
   );
   strList.push("|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--:|");
-  shinobigamiData.tokugi.table.forEach((tList: string[], rIndex: number) => {
+  const checkStr = (list: TokugiInfo[], r: number, c: number) =>
+    `[${list.some(lt => lt.row === r && lt.column === c) ? "x" : " "}]`;
+  const learnedList = shinobigamiData.tokugi.learnedList;
+  shinobigamiData.tokugi.table.forEach((tList: string[], r: number) => {
     strList.push(
       tList
         .map(
-          (t: string, cIndex: number) =>
-            `||[${
-              shinobigamiData.tokugi.tokugiList.some(
-                lt => lt.row === rIndex && lt.column === cIndex
-              )
-                ? "x"
-                : " "
-            }]${t}`
+          (t: string, c: number) =>
+            `|${gapText(gapColList[c].spaceIndex)}|${
+              learnedList.some(t => t.row === r && t.column === c) ? "◆" : ""
+            }${t}`
         )
-        .join("") + `|${rIndex + 2}|`
+        .join("") + `|${r + 2}|`
     );
   });
 

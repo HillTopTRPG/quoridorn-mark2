@@ -18,12 +18,13 @@ DEVELOP_HTML  = "public/static/chatLogTemplate.html"
 
 # --------------------------------------------------
 PATTERN_INPUT_SCRIPT = [
-    re.compile("<script src=.+(js/.+)><\/script>"),
+    re.compile("<script src=\"?.+(js/.+?)\"?><\/script>"),
     "<script type=\"text/javascript\">\n\1\n</script>"
 ]
 
 PATTERN_INPUT_CSS = [
-    re.compile("<link href=.+(css/.+) rel=stylesheet>"),
+    re.compile("<link href=\"?.+(css/.+?)\"? rel=stylesheet>"),
+
     "<style type=\"text/css\">\n\1\n</style>"
 ]
 

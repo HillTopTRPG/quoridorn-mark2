@@ -117,7 +117,7 @@
           <!-- TABLE-BLOCK -->
           <template v-if="block.type === 'TABLE-BLOCK'">
             <table :key="blockIndex">
-              <thead>
+              <thead v-if="isEmptyTh(block.value[0].value)">
                 <tr>
                   <other-text-span-component
                     v-for="(cell, cellIndex) in block.value[0].value"
@@ -199,6 +199,11 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
 
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
+
+  @VueEvent
+  private isEmptyTh(block: any[]) {
+    return block.some(b => (b.value as any[]).length);
+  }
 
   @LifeCycle
   private async created() {

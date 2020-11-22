@@ -29,7 +29,16 @@ async function fetchFile(url: string): Promise<{ src: any; fileName: string }> {
   });
 }
 
-export async function exportData(list: StoreData<any>[]) {
+export type ExportLevel =
+  | "full" // 部屋データ全体
+  | "user" // ユーザーデータ
+  | "actor" // アクターデータ
+  | "part"; // 個別データ
+
+export async function exportData(
+  list: StoreData<any>[],
+  exportLevel: ExportLevel
+) {
   const dateStr = moment().format("YYYYMMDD_HHmmss");
   const fileName = `quoridorn_export_data_${dateStr}`;
 
@@ -84,11 +93,17 @@ export async function exportData(list: StoreData<any>[]) {
   });
 
   console.log(mediaUrlList);
+
+  const exportData = {
+    exportLevel,
+    list: exportJsonList
+  };
+
   const resultList = (
     await Promise.all(mediaUrlList.map(url => fetchFile(url)))
   ).filter(r => r.src);
   if (!resultList.length) {
-    await saveJson(fileName, "quoridorn-export-data-list", exportJsonList);
+    await saveJson(fileName, "quoridorn-export-data-list", exportData);
   } else {
     const zip = new JSZip();
 
@@ -100,7 +115,7 @@ export async function exportData(list: StoreData<any>[]) {
     // JSONを追加
     zip.file(
       "data.json",
-      createJsonBlob("quoridorn-export-data-list", exportJsonList)
+      createJsonBlob("quoridorn-export-data-list", exportData)
     );
 
     // zip を生成

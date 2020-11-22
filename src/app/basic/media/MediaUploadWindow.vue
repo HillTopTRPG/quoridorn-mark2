@@ -81,6 +81,7 @@ import { TabInfo } from "@/@types/window";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { UploadMediaInfo } from "@/@types/socket";
+import { questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -148,12 +149,17 @@ export default class MediaUploadWindow extends Mixins<
   }
 
   @VueEvent
-  private deleteAll() {
-    const msg = this.$t(
+  private async deleteAll() {
+    const text = this.$t(
       "media-upload-window.dialog.delete-together"
     )!.toString();
-    const result = window.confirm(msg);
-    if (!result) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
 
     const indexList: number[] = [];
     this.useLocalResultList.forEach(ur => {

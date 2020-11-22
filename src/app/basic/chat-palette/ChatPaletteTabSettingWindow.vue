@@ -77,6 +77,7 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ChatPaletteTabComponent from "@/app/basic/chat-palette/ChatPaletteTabComponent.vue";
 import App from "@/views/App.vue";
+import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -172,11 +173,16 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
 
   @VueEvent
   private async deleteTab(tabInfo: StoreData<ChatPaletteStore>) {
-    const msg = ChatPaletteTabSettingWindow.getDialogMessage(
+    const text = ChatPaletteTabSettingWindow.getDialogMessage(
       "delete-tab"
     ).replace("$1", tabInfo.data!.name);
-    const result = window.confirm(msg);
-    if (!result) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
 
     try {
       await this.chatPaletteListCC.deletePackage([tabInfo.key]);
@@ -215,7 +221,10 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
         await this.chatPaletteListCC.touchModify(keyList);
       } catch (err) {
         error = true;
-        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "Failure to get sceneAndLayerList's lock.\nPlease try again."
+        });
       }
 
       if (error) {

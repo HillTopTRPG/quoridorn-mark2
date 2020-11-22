@@ -34,7 +34,11 @@ import {
   DiceAndPipsStore
 } from "@/@types/store-data";
 import { ApplicationError } from "../core/error/ApplicationError";
-import { findByKey, findRequireByKey } from "../core/utility/Utility";
+import {
+  errorDialog,
+  findByKey,
+  findRequireByKey
+} from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
 import LanguageManager from "../../LanguageManager";
 import {
@@ -405,9 +409,11 @@ export default class GameObjectManager {
     try {
       await SocketFacade.instance.sceneObjectCC()!.deletePackage([id]);
     } catch (err) {
-      const msg =
-        "Failure to delete object.\nAny data is locked.\nPlease try again latter.";
-      alert(msg);
+      await errorDialog({
+        title: LanguageManager.instance.getText("message.error"),
+        text:
+          "Failure to delete object.\nAny data is locked.\nPlease try again latter."
+      });
     }
   }
 
@@ -454,18 +460,17 @@ export default class GameObjectManager {
         }))
         .filter(data => data.order !== undefined && data.order > -1)
     );
-    if (dataList.filter(ot => !ot.owner).length) {
-      await memoCC.addDirect(
-        dataList
-          .map((ot, index: number) => ({
-            ownerType,
-            owner,
-            order: ot.owner ? -1 : index,
-            permission: ot.permission,
-            data: ot.data!
-          }))
-          .filter(data => data.order !== undefined && data.order > -1)
-      );
+    if (dataList.filter(ot => ot.collection === "volatile").length) {
+      const addDataList = dataList
+        .map((ot, index: number) => ({
+          ownerType,
+          owner,
+          order: ot.collection === "volatile" ? index : -1,
+          permission: ot.permission,
+          data: ot.data!
+        }))
+        .filter(data => data.order > -1);
+      await memoCC.addDirect(addDataList);
     }
     if (deleteKeyList.length) {
       await memoCC.deletePackage(deleteKeyList);

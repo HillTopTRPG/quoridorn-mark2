@@ -159,7 +159,10 @@ export function execCopy(text: string): boolean {
     const message = LanguageManager.instance.getText(
       "message.copy-to-clipboard"
     );
-    alert(`${message}\n${text}`);
+    successDialog({
+      title: LanguageManager.instance.getText("message.success"),
+      text: `${message}\n${text}`
+    }).then();
   }
 
   return result;
@@ -263,4 +266,70 @@ export async function getJsonForTrpgSystemData<T>(
   // const editUrl = 'https://character-sheets.appspot.com/shinobigami/edit.html?key=' + key;
   const jsonUrl = jsonUrlFormat.replace("{key}", key);
   return (await getJson(jsonUrl)) as T;
+}
+
+async function simpleDialog(obj: {
+  title: string;
+  text: string;
+  icon: "warning" | "error" | "success" | "info" | "question";
+}): Promise<void> {
+  const html = `<div style="text-align: left;">${obj.text.replaceAll(
+    "\n",
+    "<br />"
+  )}</div>`;
+  delete obj.text;
+  const confirm = await Swal.fire({
+    ...obj,
+    html
+  });
+}
+
+export async function errorDialog(obj: {
+  title: string;
+  text: string;
+}): Promise<void> {
+  await simpleDialog({
+    ...obj,
+    icon: "error"
+  });
+}
+
+export async function warningDialog(obj: {
+  title: string;
+  text: string;
+}): Promise<void> {
+  await simpleDialog({
+    ...obj,
+    icon: "warning"
+  });
+}
+
+export async function successDialog(obj: {
+  title: string;
+  text: string;
+}): Promise<void> {
+  await simpleDialog({
+    ...obj,
+    icon: "success"
+  });
+}
+
+export async function questionDialog(obj: {
+  title: string;
+  text: string;
+  confirmButtonText: string;
+  cancelButtonText: string;
+}): Promise<boolean> {
+  const html = `<div style="text-align: left;">${obj.text.replaceAll(
+    "\n",
+    "<br />"
+  )}</div>`;
+  delete obj.text;
+  const confirm = await Swal.fire({
+    ...obj,
+    html,
+    icon: "question",
+    showCancelButton: true
+  });
+  return confirm.isConfirmed;
 }

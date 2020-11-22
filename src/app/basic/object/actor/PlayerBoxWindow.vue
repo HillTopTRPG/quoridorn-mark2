@@ -163,7 +163,7 @@ import TrActorStatusSelectComponent from "../../common/components/TrActorStatusS
 import MapMaskPieceComponent from "../map-mask/MapMaskPieceComponent.vue";
 import ChitPieceComponent from "../chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../character/CharacterPieceComponent.vue";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { findRequireByKey, questionDialog } from "@/app/core/utility/Utility";
 import App from "../../../../views/App.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 
@@ -358,12 +358,17 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async deleteActor(actor: StoreUseData<ActorStore>) {
     if (!this.isDeletable(actor)) return;
-    const msg = PlayerBoxWindow.getDialogMessage("delete-actor").replace(
+    const text = PlayerBoxWindow.getDialogMessage("delete-actor").replace(
       "$1",
       actor.data!.name
     );
-    const result = window.confirm(msg);
-    if (!result) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
 
     try {
       await this.actorCC.deletePackage([actor.key]);

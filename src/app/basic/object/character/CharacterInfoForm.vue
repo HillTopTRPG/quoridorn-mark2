@@ -96,7 +96,7 @@
               v-model="urlVolatile"
             />
           </tr>
-          <tr v-if="characterSheetType">
+          <tr v-if="createCharacterSheetFunc">
             <th></th>
             <td>
               <ctrl-button @click.stop="readCharacterSheet()">
@@ -143,8 +143,15 @@ import {
   createNechronicaChatPalette,
   isNechronicaUrl
 } from "@/app/core/utility/trpg_system/nechronica";
+import {
+  createMagicaLogiaChatPalette,
+  isMagicaLogia
+} from "@/app/core/utility/trpg_system/magicalogia";
 import { MemoStore } from "@/@types/store-data";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import {
+  questionDialog,
+  createEmptyStoreUseData
+} from "@/app/core/utility/Utility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 const uuid = require("uuid");
 
@@ -176,7 +183,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
   private imageSrc: string = "";
 
-  private characterSheetType: "シノビガミ" | "ネクロニカ" | null = null;
+  private createCharacterSheetFunc:
+    | null
+    | ((url: string) => Promise<MemoStore[] | null>) = null;
 
   @Prop({ type: String, required: true })
   private name!: string;
@@ -416,30 +425,54 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   @Watch("urlVolatile", { immediate: true })
   private async onChangeUrlVolatile2(value: string) {
     if (await isShinobigamiUrl(value)) {
-      this.characterSheetType = "シノビガミ";
+      this.createCharacterSheetFunc = createShinobigamiChatPalette;
     } else if (await isNechronicaUrl(value)) {
-      this.characterSheetType = "ネクロニカ";
+      this.createCharacterSheetFunc = createNechronicaChatPalette;
+    } else if (await isMagicaLogia(value)) {
+      this.createCharacterSheetFunc = createMagicaLogiaChatPalette;
     } else {
-      this.characterSheetType = null;
+      this.createCharacterSheetFunc = null;
     }
   }
 
   @VueEvent
   private async readCharacterSheet() {
-    if (this.characterSheetType === "シノビガミ") {
-      const resultList = await createShinobigamiChatPalette(this.urlVolatile);
-      if (!resultList) return;
-      this.otherTextListVolatile.push(
-        ...resultList.map(r => createEmptyStoreUseData(uuid.v4(), r))
+    if (!this.createCharacterSheetFunc) return;
+
+    const confirm = await questionDialog({
+      title: this.$t("message.load-other-text-character-sheet").toString(),
+      text: this.$t("message.load-other-text-character-sheet-text").toString(),
+      confirmButtonText: this.$t("button.commit").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
+
+    const resultList = await this.createCharacterSheetFunc(this.urlVolatile);
+    if (!resultList) return;
+
+    // 中身が空のタブを削除
+    this.otherTextListVolatile
+      .filter(v => !v.data!.tab && !v.data!.text)
+      .map((v, ind) => ind)
+      .reverse()
+      .forEach(ind => this.otherTextListVolatile.splice(ind, 1));
+
+    // 生成したデータからDB用データを生成
+    const otherTextDataList = resultList.map(r =>
+      createEmptyStoreUseData(uuid.v4(), r)
+    );
+
+    // タブ名が重複するものは上書き、そうでないものは追加
+    otherTextDataList.forEach(otd => {
+      const duplicate = this.otherTextListVolatile.find(
+        v => v.data!.tab === otd.data!.tab
       );
-    }
-    if (this.characterSheetType === "ネクロニカ") {
-      const resultList = await createNechronicaChatPalette(this.urlVolatile);
-      if (!resultList) return;
-      this.otherTextListVolatile.push(
-        ...resultList.map(r => createEmptyStoreUseData(uuid.v4(), r))
-      );
-    }
+      if (!duplicate) {
+        this.otherTextListVolatile.push(otd);
+      } else {
+        duplicate.data!.text = otd.data!.text;
+      }
+    });
   }
 }
 </script>

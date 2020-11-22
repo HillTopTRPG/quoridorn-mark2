@@ -112,9 +112,11 @@ import ChatLogViewer from "./log/ChatLogViewer.vue";
 import VueEvent from "../../core/decorator/VueEvent";
 import {
   createEmptyStoreUseData,
+  errorDialog,
   findByKey,
   findRequireByKey,
-  findRequireByOwner
+  findRequireByOwner,
+  questionDialog
 } from "../../core/utility/Utility";
 import LanguageManager from "../../../LanguageManager";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
@@ -810,14 +812,20 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   @VueEvent
   private async deleteChat(key: string) {
-    const flg = window.confirm(
-      this.$t("chat-window.dialog.delete-chat")!.toString()
-    );
-    if (!flg) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text: this.$t("chat-window.dialog.delete-chat").toString(),
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
     try {
       await this.chatListCC.deletePackage([key]);
     } catch (err) {
-      alert(this.$t("message.delete-failure")!.toString());
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: this.$t("message.delete-failure")!.toString()
+      });
       return;
     }
   }

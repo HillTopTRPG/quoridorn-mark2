@@ -1,5 +1,11 @@
 <template>
-  <component v-bind:is="tag" v-bind="$attrs" v-on="listeners" class="line">
+  <component
+    v-bind:is="useTag"
+    v-bind="$attrs"
+    v-on="listeners"
+    class="line"
+    :class="{ 'table-reverse': isTableReverse }"
+  >
     <template v-for="(span, index) in spans">
       <span
         :key="index"
@@ -44,13 +50,15 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({
-  components: {}
+  components: { BaseInput }
 })
 export default class OtherTextSpanComponent extends Mixins<ComponentVue>(
   ComponentVue
@@ -68,6 +76,51 @@ export default class OtherTextSpanComponent extends Mixins<ComponentVue>(
     return {
       ...this.$listeners
     };
+  }
+
+  private isMounted: boolean = false;
+  private useTag: string = "";
+  private isTableReverse: boolean = false;
+
+  @LifeCycle
+  private mounted() {
+    this.isMounted = true;
+  }
+
+  @Watch("isMounted")
+  @Watch("spans", { deep: true })
+  private onChangeSpans() {
+    if (!this.isMounted) return;
+    this.fixBeforeTdConvert();
+    this.fixBeforeTableReverse();
+  }
+
+  private fixBeforeTdConvert() {
+    this.useTag = this.tag;
+
+    if (this.tag !== "td") return;
+    if (!this.spans.length) return;
+
+    const value = this.spans[0].value;
+    if (!value || typeof value !== "string") return;
+    if (value.startsWith("◇")) {
+      this.useTag = "th";
+      this.spans[0].value = value.substr(1);
+    }
+  }
+
+  private fixBeforeTableReverse() {
+    this.isTableReverse = false;
+
+    if (this.tag !== "th" && this.tag !== "td") return;
+    if (!this.spans.length) return;
+
+    const value = this.spans[0].value;
+    if (!value || typeof value !== "string") return;
+    if (value.startsWith("◆")) {
+      this.isTableReverse = true;
+      this.spans[0].value = value.substr(1);
+    }
   }
 
   @VueEvent
@@ -96,5 +149,10 @@ pre {
 }
 label {
   @include inline-flex-box(row, flex-start, center);
+}
+
+.table-reverse {
+  background-color: black;
+  color: white;
 }
 </style>

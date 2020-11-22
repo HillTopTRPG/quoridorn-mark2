@@ -48,7 +48,7 @@ import NekostoreCollectionController from "./NekostoreCollectionController";
 import { loadYaml } from "../../utility/FileUtility";
 import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
-import { findByKey } from "@/app/core/utility/Utility";
+import { errorDialog, findByKey } from "@/app/core/utility/Utility";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -202,10 +202,9 @@ export default class SocketFacade {
     await this.setDefaultServerUrlList();
     const serverInfo = this.appServerUrlList[0];
     if (!serverInfo) {
-      await swal({
+      await errorDialog({
         title: "通信エラー",
-        text: "有効なアプリケーションサーバに接続できませんでした。",
-        icon: "error"
+        text: "有効なアプリケーションサーバに接続できませんでした。"
       });
 
       await TaskManager.instance.ignition<ModeInfo, never>({

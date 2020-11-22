@@ -73,6 +73,7 @@ import { importJson, saveJson } from "../../core/utility/FileUtility";
 import { ResourceMasterStore } from "@/@types/store-data";
 import * as moment from "moment";
 import App from "../../../views/App.vue";
+import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -116,7 +117,10 @@ export default class ResourceMasterListWindow extends Mixins<
       "resource-master"
     );
     if (!dataContainer) {
-      alert(this.$t("label.importFailure"));
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: this.$t("label.importFailure")!.toString()
+      });
       return;
     }
     const importResourceMasterList = dataContainer.data;
@@ -143,14 +147,22 @@ export default class ResourceMasterListWindow extends Mixins<
 
   @VueEvent
   private async deleteResource(key: string) {
-    const flg = window.confirm(
-      this.$t(`${this.windowInfo.type}.dialog.delete-resource`)!.toString()
-    );
-    if (!flg) return;
+    const result = questionDialog({
+      title: this.$t("button.delete").toString(),
+      text: this.$t(
+        `${this.windowInfo.type}.dialog.delete-resource`
+      )!.toString(),
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!result) return;
     try {
       await this.cc.deletePackage([key]);
     } catch (err) {
-      alert(this.$t("message.delete-failure")!.toString());
+      await errorDialog({
+        title: this.$t("message.error").toString(),
+        text: this.$t("message.delete-failure")!.toString()
+      });
       return;
     }
   }

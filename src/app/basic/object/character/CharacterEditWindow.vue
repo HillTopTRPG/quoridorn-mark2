@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import LifeCycle from "../../../core/decorator/LifeCycle";
@@ -153,7 +153,7 @@ export default class CharacterEditWindow extends Mixins<
 
     await GameObjectManager.instance.updateMemoList(
       this.otherTextList,
-      "scene-object",
+      "scene-object-list",
       this.docKey
     );
 

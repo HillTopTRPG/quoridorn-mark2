@@ -236,6 +236,7 @@ import { Component, Vue } from "vue-property-decorator";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import moment from "moment/moment";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
 
 const locale =
   (window.navigator as any)["userLanguage"] ||
@@ -340,12 +341,11 @@ export default class AdminTool extends Vue {
 
   @VueEvent
   private async onClickDeleteRoom(roomNo: number): Promise<void> {
-    const isConfirm = await swal({
+    const isConfirm = await questionDialog({
       title: "Are you sure?",
       text: "This operation is irreversible.",
-      icon: "warning",
-      buttons: ["Cancel", "Delete"],
-      dangerMode: true
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel"
     });
     if (isConfirm) {
       this.deleteRoomApi(roomNo)
@@ -658,10 +658,9 @@ export default class AdminTool extends Vue {
       console.log(
         `${status}: ${errMsg} [DELETE] ${url.replace(this.apiUrlBase, "")}`
       );
-      await swal({
+      await errorDialog({
         title: status.toString(),
-        text: errMsg,
-        icon: "error"
+        text: errMsg
       });
       throw new HttpError(status, errMsg);
     }
@@ -669,10 +668,9 @@ export default class AdminTool extends Vue {
 
   private async getJson(url: string, authorization?: string): Promise<any> {
     if (!this.apiUrlBase) {
-      await swal({
+      await errorDialog({
         title: "Please specify a valid server URL.",
-        text: `URL: ${url}`,
-        icon: "error"
+        text: `URL: ${url}`
       });
       return;
     }
@@ -689,10 +687,9 @@ export default class AdminTool extends Vue {
       .catch(() => null);
 
     if (!result) {
-      await swal({
+      await errorDialog({
         title: "Please specify a valid server URL.",
-        text: `URL: ${url}`,
-        icon: "error"
+        text: `URL: ${url}`
       });
       return;
     }
@@ -710,10 +707,9 @@ export default class AdminTool extends Vue {
           !errMsg.startsWith("Invalid token.") &&
           !errMsg.startsWith("Need token."))
       ) {
-        await swal({
+        await errorDialog({
           title: status.toString(),
-          text: errMsg,
-          icon: "error"
+          text: errMsg
         });
       }
       throw new HttpError(status, errMsg);
@@ -722,10 +718,9 @@ export default class AdminTool extends Vue {
     try {
       return await result.json();
     } catch (err) {
-      await swal({
+      await errorDialog({
         title: "Please specify a valid server URL.",
-        text: `URL: ${url}`,
-        icon: "error"
+        text: `URL: ${url}`
       });
     }
   }

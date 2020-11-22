@@ -97,7 +97,11 @@ import CardComponent from "./CardComponent.vue";
 import CssManager from "../../core/css/CssManager";
 import ResizeKnob from "../../core/window/ResizeKnob.vue";
 import GameObjectManager from "../GameObjectManager";
-import { findRequireByKey, shuffleOrder } from "../../core/utility/Utility";
+import {
+  findRequireByKey,
+  questionDialog,
+  shuffleOrder
+} from "../../core/utility/Utility";
 import ComponentVue from "../../core/window/ComponentVue";
 import SocketFacade from "../../core/api/app-server/SocketFacade";
 import VueEvent from "../../core/decorator/VueEvent";
@@ -685,8 +689,13 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   @VueEvent
   private async deleteDeck() {
     if (this.useCardObjectList.length) return;
-    const msg = this.$t("message.delete-deck")!.toString();
-    if (!window.confirm(msg)) return;
+    const result = questionDialog({
+      title: this.$t("button.delete").toString(),
+      text: this.$t("message.delete-deck")!.toString(),
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!result) return;
     try {
       await this.cardDeckSmallCC.deletePackage([this.docKey]);
     } catch (err) {

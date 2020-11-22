@@ -123,7 +123,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
       this.windowInfo.message = "";
     } else {
       const user = findRequireByKey(this.userList, userKey);
-      const ownerLabel = this.$t("label.owner");
+      const ownerLabel = this.$t("label.owner").toString();
       this.windowInfo.message = `${ownerLabel}：${user.data!.name}`;
     }
   }

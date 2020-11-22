@@ -139,7 +139,12 @@ import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
 import { LikeStore, ChatTabStore } from "@/@types/store-data";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import {
+  errorDialog,
+  findRequireByKey,
+  questionDialog
+} from "@/app/core/utility/Utility";
+import LanguageManager from "@/LanguageManager";
 
 @Component({
   components: {
@@ -295,10 +300,15 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   @VueEvent
   private async deleteTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isDeletable(tabInfo)) return;
-    const msg = this.$t("message.delete-tab")!
+    const text = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.name);
-    const result = window.confirm(msg);
+    const result = questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
     if (!result) return;
 
     try {
@@ -341,7 +351,10 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
         await this.chatTabListCC.touchModify(keyList);
       } catch (err) {
         error = true;
-        alert("Failure to get sceneAndLayerList's lock.\nPlease try again.");
+        await errorDialog({
+          title: LanguageManager.instance.getText("message.error"),
+          text: "Failure to get sceneAndLayerList's lock.\nPlease try again."
+        });
       }
 
       if (error) {
@@ -370,7 +383,10 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
         await this.likeListCC.touchModify(keyList);
       } catch (err) {
         error = true;
-        alert("Failure to get likeList's lock.\nPlease try again.");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "Failure to get likeList's lock.\nPlease try again."
+        });
       }
 
       if (error) {

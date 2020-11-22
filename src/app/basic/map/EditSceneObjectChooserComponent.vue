@@ -57,6 +57,7 @@ import EditSceneObjectComponent from "./EditSceneObjectComponent.vue";
 import BaseInput from "../../core/component/BaseInput.vue";
 import VueEvent from "../../core/decorator/VueEvent";
 import { Address } from "@/@types/store-data-optional";
+import { errorDialog } from "@/app/core/utility/Utility";
 
 @Component({ components: { EditSceneObjectComponent, BaseInput, draggable } })
 export default class EditSceneObjectChooserComponent extends Mixins<
@@ -125,7 +126,10 @@ export default class EditSceneObjectChooserComponent extends Mixins<
         await this.sceneAndObjectCC.touchModify(keyList);
         this.orderChangingKeyList.push(...keyList);
       } catch (err) {
-        alert("このタイミングでは例外にならないはず");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "このタイミングでは例外にならないはず"
+        });
       }
     }
   }
@@ -211,7 +215,10 @@ export default class EditSceneObjectChooserComponent extends Mixins<
         this.dragModeProcessed = true;
         this.dragMode = false;
         this.orderChangingKeyList = [];
-        alert("Failure to get sceneAndObjectList's lock.\nPlease try again.");
+        await errorDialog({
+          title: this.$t("message.error").toString(),
+          text: "Failure to get sceneAndObjectList's lock.\nPlease try again."
+        });
       }
     } else {
       this.orderChangingKeyList = [];

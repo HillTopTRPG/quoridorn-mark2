@@ -51,7 +51,6 @@
           :c-label="$t('label.sort')"
           n-icon=""
           :n-label="$t('label.sort')"
-          @hover="onHoverView"
         />
       </div>
     </simple-tab-component>

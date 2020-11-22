@@ -43,6 +43,7 @@ import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import { LikeStore } from "@/@types/store-data";
+import { questionDialog } from "@/app/core/utility/Utility";
 
 @Component({ components: { SButton } })
 export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
@@ -71,10 +72,15 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private async deleteTab(tabInfo: StoreData<LikeStore>) {
-    const msg = this.$t("message.delete-tab")!
+    const text = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.char);
-    const result = window.confirm(msg);
+    const result = questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
     if (!result) return;
 
     try {

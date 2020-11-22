@@ -29,13 +29,17 @@ import { Prop, Watch } from "vue-property-decorator";
 import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
 import ComponentVue from "../../../core/window/ComponentVue";
 import GameObjectManager from "../../GameObjectManager";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import {
+  createEmptyStoreUseData,
+  errorDialog
+} from "@/app/core/utility/Utility";
 import SButton from "../../common/components/SButton.vue";
 import BaseInput from "../../../core/component/BaseInput.vue";
 import { CardMetaStore } from "@/@types/store-data";
 import CardDeckBuilder from "./CardDeckBuilder.vue";
 import { importText } from "@/app/core/utility/FileUtility";
 import VueEvent from "../../../core/decorator/VueEvent";
+import LanguageManager from "@/LanguageManager";
 const uuid = require("uuid");
 
 @Component({
@@ -297,7 +301,10 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
   private async importParanoiaRebooted() {
     const text = await importText();
     const failure = (reason: string) => {
-      alert(this.$t("label.importFailure"));
+      errorDialog({
+        title: LanguageManager.instance.getText("message.error"),
+        text: this.$t("lathis\\.\\$t\\([^)]+\\);bel.importFailure").toString()
+      }).then();
       console.warn(`import failure. [${reason}]`);
       this.cardList.splice(0, this.cardList.length);
     };

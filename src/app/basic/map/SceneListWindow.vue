@@ -63,6 +63,7 @@ import GameObjectManager from "../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+import { questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -191,8 +192,13 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private async deleteMap() {
     if (!this.selectedSceneKey) return;
-    const result = window.confirm(this.$t("message.really-delete")!.toString());
-    if (!result) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text: this.$t("message.really-delete").toString(),
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
     await this.cc.deletePackage([this.selectedSceneKey]);
   }
 

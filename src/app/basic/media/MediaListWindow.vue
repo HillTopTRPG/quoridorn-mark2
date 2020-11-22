@@ -66,6 +66,7 @@ import LanguageManager from "../../../LanguageManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { DeleteFileRequest } from "@/@types/socket";
+import { questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -184,12 +185,17 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async deleteMedia(media: StoreData<MediaStore>) {
-    const msg = MediaListWindow.getDialogMessage("delete-media").replace(
+    const text = MediaListWindow.getDialogMessage("delete-media").replace(
       "$1",
       media.data!.name
     );
-    const result = window.confirm(msg);
-    if (!result) return;
+    const confirm = await questionDialog({
+      title: this.$t("button.delete").toString(),
+      text,
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
 
     try {
       await this.mediaCC.deletePackage([media.key]);

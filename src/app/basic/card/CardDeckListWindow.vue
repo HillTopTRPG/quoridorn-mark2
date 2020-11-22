@@ -50,6 +50,7 @@ import { WindowOpenInfo } from "@/@types/window";
 import CardDeckSetComponent, { DeckInfo } from "./CardDeckSetComponent.vue";
 import VueEvent from "../../core/decorator/VueEvent";
 import CtrlButton from "../../core/component/CtrlButton.vue";
+import { questionDialog } from "@/app/core/utility/Utility";
 
 @Component({
   components: {
@@ -149,7 +150,12 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async deleteCardDeck() {
     if (!this.selectedCardDeckBigKey) return;
-    const result = window.confirm(this.$t("message.really-delete")!.toString());
+    const result = questionDialog({
+      title: this.$t("button.delete").toString(),
+      text: this.$t("message.really-delete")!.toString(),
+      confirmButtonText: this.$t("button.delete").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
     if (!result) return;
     try {
       await this.cardDeckBigCC.deletePackage([this.selectedCardDeckBigKey]);
