@@ -243,7 +243,6 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
 
   @EventProcessor("click")
   private mouseDown(event: MouseEvent | TouchEvent): void {
-    event.preventDefault();
     this.isSelecting = false;
   }
 
