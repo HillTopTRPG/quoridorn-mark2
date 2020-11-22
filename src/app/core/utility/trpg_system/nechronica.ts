@@ -345,13 +345,13 @@ export async function createNechronicaChatPalette(
   strList.push("|||||||");
   strList.push("|--:|:--|--:|:--|--:|:--|");
   strList.push(
-    `|種族|${nechronicaData.shuzoku}|享年|${nechronicaData.age}|初期配置|${nechronicaData.initLocate}|`
+    `|◇種族|${nechronicaData.shuzoku}|◇享年|${nechronicaData.age}|◇初期配置|${nechronicaData.initLocate}|`
   );
   strList.push(
-    `|身長|${nechronicaData.height}|体重|${nechronicaData.weight}|暗示|${nechronicaData.carma}|`
+    `|◇身長|${nechronicaData.height}|◇体重|${nechronicaData.weight}|◇暗示|${nechronicaData.carma}|`
   );
   strList.push(
-    `|髪の色|${nechronicaData.hairColor}|瞳の色|${nechronicaData.eyeColor}|肌の色|${nechronicaData.skinColor}|`
+    `|◇髪の色|${nechronicaData.hairColor}|◇瞳の色|${nechronicaData.eyeColor}|◇肌の色|${nechronicaData.skinColor}|`
   );
   strList.push("");
 
@@ -475,7 +475,7 @@ export async function createNechronicaChatPalette(
   // マニューバ
   strList.push("## マニューバ");
   strList.push(
-    "|損傷|使用|カテゴリ|部位|○マニューバ|タイミング|ｺｽﾄ|射程|効果|取得先|"
+    "|損傷|使用|カテゴリ|部位|マニューバ|タイミング|ｺｽﾄ|射程|効果|取得先|"
   );
   strList.push("|:--:|:--:|:--:|:--:|:--|:--:|--:|:--:|:--|:--|");
   nechronicaData.powerList.forEach(p => {
