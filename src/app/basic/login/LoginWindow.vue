@@ -820,7 +820,10 @@ export default class LoginWindow extends Mixins<
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
-    await sendSystemChatLog(`${userLoginInput.name} が入室しました。`);
+    const msg = this.$t("message.login-text")
+      .toString()
+      .replace("{0}", `${userLoginInput.name}`);
+    await sendSystemChatLog(msg);
 
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
       type: "room-initialize",
@@ -1019,7 +1022,10 @@ export default class LoginWindow extends Mixins<
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
-    await sendSystemChatLog(`${userLoginInput.name} が入室しました。`);
+    const msg = this.$t("message.login-text")
+      .toString()
+      .replace("{0}", `${userLoginInput.name}`);
+    await sendSystemChatLog(msg);
 
     await TaskManager.instance.ignition<ClientRoomInfo, void>({
       type: "room-initialize",
