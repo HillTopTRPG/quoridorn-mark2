@@ -27,6 +27,24 @@
                 v-else-if="line.type === '```'"
                 >{{ line.value }}</pre
               >
+              <textarea
+                :key="`${blockIndex}-${lineIndex}`"
+                v-else-if="line.type === ':::'"
+                :style="{ width: line.width, height: line.height }"
+                :value="line.value"
+                :data-index="line.index"
+                @input.stop.prevent="onChangeInput(line.index)"
+                @change.stop.prevent
+                ref="textareas"
+              >
+              </textarea>
+              <button
+                :key="`${blockIndex}-${lineIndex}`"
+                v-else-if="line.type === '@@@'"
+                @click="onClickButton(line.value)"
+              >
+                {{ getButtonText(line.value) }}
+              </button>
               <hr
                 :key="`${blockIndex}-${lineIndex}`"
                 v-else-if="line.type === 'hr'"
@@ -49,6 +67,22 @@
                   @select="onChangeSelect"
                 />
               </blockquote>
+              <div
+                :key="`${blockIndex}-${lineIndex}`"
+                v-else-if="/h[1-6]/.test(line.type)"
+              >
+                <component v-bind:is="line.type">
+                  <other-text-span-component
+                    tag="div"
+                    v-if="typeof line.value !== 'string'"
+                    :spans="line.value"
+                    :disabled="!isEditable"
+                    @check="onChangeCheck"
+                    @select="onChangeSelect"
+                  />
+                  <template v-else>{{ line.value }}</template>
+                </component>
+              </div>
               <component
                 :key="`${blockIndex}-${lineIndex}`"
                 v-bind:is="line.type"
@@ -172,6 +206,10 @@ import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import TaskManager from "@/app/core/task/TaskManager";
+import { OtherTextUpdateInfo } from "task-info";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import ResizeObserver from "resize-observer-polyfill";
 
 @Component({
   components: { SimpleTabComponent, OtherTextSpanComponent }
@@ -179,6 +217,12 @@ import { Mixins } from "vue-mixin-decorator";
 export default class OtherTextComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
+  @Prop({ type: String, required: true })
+  private docType!: string;
+
+  @Prop({ type: String, required: true })
+  private docKey!: string;
+
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
@@ -192,10 +236,12 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     "\\[[ x]](\\([^\\r\\n]*\\))?",
     "g"
   );
-  private readonly selectRegExp: RegExp = new RegExp(
-    "(\\[[^\\r\\n\]]+])\\([^\\r\\n)]*\\)",
+  private readonly selectRegExp: RegExp = /\[([^\]]+?)\]\(([^)]*?)\)/g;
+  private readonly textareaRegExp: RegExp = new RegExp(
+    ":::([0-9]+px):([0-9]+px)\\r?\\n((?:(?!\:\:\:END\;\;\;).|\\s)*):::END;;;",
     "g"
   );
+  private resizeObserver: ResizeObserver | null = null;
 
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
@@ -208,6 +254,108 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   @LifeCycle
   private async created() {
     this.createTabInfoList();
+    this.resizeObserver = new ResizeObserver((entries: any) => {
+      entries.forEach(
+        ({
+          target,
+          contentRect
+        }: {
+          target: HTMLElement;
+          contentRect: { width: number; height: number };
+        }) => {
+          let { width, height } = contentRect;
+          width = Math.max(width, 50);
+          height = Math.max(height, 30);
+          const currentValue = this.value.find(
+            lv => lv.key === this.currentTabInfo!.target
+          )!;
+          if (!permissionCheck(currentValue, "edit", 1)) return;
+          let index: number = convertNumberZero(target.dataset.index || "");
+          currentValue.data!.text = currentValue.data!.text.replace(
+            this.textareaRegExp,
+            (m, p1, p2, p3) =>
+              index-- ? m : `:::${width}px:${height}px\n${p3}:::END;;;`
+          );
+        }
+      );
+    });
+  }
+
+  @LifeCycle
+  private async mounted() {
+    const textareaElmList: HTMLElement[] = this.$refs
+      .textareas as HTMLElement[];
+    if (!textareaElmList) return;
+    textareaElmList.forEach(elm => this.resizeObserver!.observe(elm));
+  }
+
+  @VueEvent
+  private async onClickButton(type: string): Promise<void> {
+    switch (type) {
+      case "RELOAD-CHARACTER-SHEET":
+        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
+          type: "other-text-update",
+          owner: "Quoridorn",
+          value: {
+            docType: this.docType,
+            docKey: this.docKey,
+            target: this.currentTabInfo!.target.toString()
+          }
+        });
+        break;
+      case "RELOAD-CHARACTER-SHEET-ALL":
+        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
+          type: "other-text-update",
+          owner: "Quoridorn",
+          value: {
+            docType: this.docType,
+            docKey: this.docKey,
+            target: null
+          }
+        });
+        break;
+      default:
+    }
+  }
+
+  @VueEvent
+  private getButtonText(type: string): string {
+    switch (type) {
+      case "RELOAD-CHARACTER-SHEET":
+        return "Reload";
+      case "RELOAD-CHARACTER-SHEET-ALL":
+        return "Reload(All)";
+      default:
+    }
+    return "UNKNOWN";
+  }
+
+  @VueEvent
+  private onChangeInput(index: number) {
+    this.$emit("inputTextArea");
+    const textareaElmList: HTMLTextAreaElement[] = this.$refs
+      .textareas as HTMLTextAreaElement[];
+    if (!textareaElmList) return;
+    const value = textareaElmList[index].value;
+    const currentValue = this.value.find(
+      lv => lv.key === this.currentTabInfo!.target
+    )!;
+    if (!permissionCheck(currentValue, "edit", 1)) return;
+    currentValue.data!.text = currentValue.data!.text.replace(
+      this.textareaRegExp,
+      (m, p1, p2) => (index-- ? m : `:::${p1}:${p2}\n${value}:::END;;;`)
+    );
+  }
+
+  @LifeCycle
+  private beforeDestroy() {
+    const textareaElmList: HTMLElement[] = this.$refs
+      .textareas as HTMLElement[];
+    if (!textareaElmList) return;
+    textareaElmList.forEach(elm => {
+      this.resizeObserver!.unobserve(elm);
+      this.resizeObserver!.disconnect();
+    });
   }
 
   private createTabInfoList() {
@@ -259,7 +407,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     currentValue.data!.text = currentValue.data!.text.replace(
       this.selectRegExp,
       (m, p1) => {
-        return index-- ? m : `${p1}(${value})`;
+        return index-- ? m : `[${p1}](${value})`;
       }
     );
   }
@@ -337,6 +485,11 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     }
   }
 
+  button {
+    @include inline-flex-box(row, center, center);
+    margin-right: 0.5em;
+  }
+
   h1,
   h2,
   h3,
@@ -407,5 +560,11 @@ blockquote {
   border-left: 3px solid darkgray;
   color: #555;
   margin: 0;
+}
+
+textarea {
+  display: block;
+  margin-right: 10px !important;
+  margin-bottom: 10px !important;
 }
 </style>

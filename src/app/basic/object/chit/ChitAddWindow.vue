@@ -49,6 +49,7 @@ export default class ChitAddWindow extends Mixins<WindowVue<string, never>>(
   private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
+      type: "normal",
       text: ""
     })
   ];

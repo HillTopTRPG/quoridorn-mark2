@@ -380,6 +380,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
         dataList: [
           createEmptyStoreUseData(uuid.v4(), {
             tab: "",
+            type: "normal",
             text
           })
         ],

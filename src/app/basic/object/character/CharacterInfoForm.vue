@@ -96,7 +96,7 @@
               v-model="urlVolatile"
             />
           </tr>
-          <tr v-if="createCharacterSheetFunc">
+          <tr v-if="trpgSystemHelper">
             <th></th>
             <td>
               <ctrl-button @click.stop="readCharacterSheet()">
@@ -135,24 +135,16 @@ import ImagePickerComponent from "../../../core/component/ImagePickerComponent.v
 import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import {
-  createShinobigamiChatPalette,
-  isShinobigamiUrl
-} from "@/app/core/utility/trpg_system/shinobigami";
-import {
-  createNechronicaChatPalette,
-  isNechronicaUrl
-} from "@/app/core/utility/trpg_system/nechronica";
-import {
-  createMagicaLogiaChatPalette,
-  isMagicaLogia
-} from "@/app/core/utility/trpg_system/magicalogia";
 import { MemoStore } from "@/@types/store-data";
 import {
   questionDialog,
   createEmptyStoreUseData
 } from "@/app/core/utility/Utility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
+import {
+  getTrpgSystemHelper,
+  TrpgSystemHelper
+} from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 const uuid = require("uuid");
 
 @Component({
@@ -183,9 +175,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
   private imageSrc: string = "";
 
-  private createCharacterSheetFunc:
-    | null
-    | ((url: string) => Promise<MemoStore[] | null>) = null;
+  private trpgSystemHelper: TrpgSystemHelper | null = null;
 
   @Prop({ type: String, required: true })
   private name!: string;
@@ -424,20 +414,12 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Watch("urlVolatile", { immediate: true })
   private async onChangeUrlVolatile2(value: string) {
-    if (await isShinobigamiUrl(value)) {
-      this.createCharacterSheetFunc = createShinobigamiChatPalette;
-    } else if (await isNechronicaUrl(value)) {
-      this.createCharacterSheetFunc = createNechronicaChatPalette;
-    } else if (await isMagicaLogia(value)) {
-      this.createCharacterSheetFunc = createMagicaLogiaChatPalette;
-    } else {
-      this.createCharacterSheetFunc = null;
-    }
+    this.trpgSystemHelper = await getTrpgSystemHelper(value);
   }
 
   @VueEvent
   private async readCharacterSheet() {
-    if (!this.createCharacterSheetFunc) return;
+    if (!this.trpgSystemHelper) return;
 
     const confirm = await questionDialog({
       title: this.$t("message.load-other-text-character-sheet").toString(),
@@ -447,8 +429,10 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     });
     if (!confirm) return;
 
-    const resultList = await this.createCharacterSheetFunc(this.urlVolatile);
-    if (!resultList) return;
+    const memoList = await this.trpgSystemHelper.createOtherText(
+      this.urlVolatile
+    );
+    if (!memoList) return;
 
     // 中身が空のタブを削除
     this.otherTextListVolatile
@@ -458,19 +442,28 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
       .forEach(ind => this.otherTextListVolatile.splice(ind, 1));
 
     // 生成したデータからDB用データを生成
-    const otherTextDataList = resultList.map(r =>
+    const otherTextDataList = memoList.map(r =>
       createEmptyStoreUseData(uuid.v4(), r)
     );
 
     // タブ名が重複するものは上書き、そうでないものは追加
     otherTextDataList.forEach(otd => {
-      const duplicate = this.otherTextListVolatile.find(
+      const duplicateList = this.otherTextListVolatile.filter(
         v => v.data!.tab === otd.data!.tab
       );
-      if (!duplicate) {
+      if (!duplicateList.length) {
+        // 重複が無かったらそのまま追加
         this.otherTextListVolatile.push(otd);
       } else {
-        duplicate.data!.text = otd.data!.text;
+        // 重複があったら、タイプがURLだったら更新
+        if (otd.data!.type === "url") {
+          const duplicate = duplicateList.find(d => d.data!.type === "url");
+          if (duplicate) {
+            duplicate.data!.text = otd.data!.text;
+          } else {
+            this.otherTextListVolatile.push(otd);
+          }
+        }
       }
     });
   }

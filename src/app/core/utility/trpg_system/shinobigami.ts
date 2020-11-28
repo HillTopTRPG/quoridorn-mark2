@@ -3,15 +3,39 @@ import { MemoStore } from "@/@types/store-data";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import {
   createTokugi,
-  SaikoroFictionTokugi,
-  TokugiInfo
+  SaikoroFictionTokugi
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 
-export async function isShinobigamiUrl(url: string) {
-  return !!url.match(
-    /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/
-  );
-}
+// URL
+const urlRegExp = /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/;
+const jsonpUrl =
+  "https://character-sheets.appspot.com/shinobigami/display?ajax=1&key={key}";
+
+const shinobigami: TrpgSystemHelper = {
+  isThis: async (url: string) => !!url.match(urlRegExp),
+  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
+    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
+    if (!json) return null;
+    const shinobigamiData = createShinobigamiData(url, json);
+    // console.log(JSON.stringify(shinobigamiData, null, "  "));
+
+    const resultList: MemoStore[] = [];
+
+    // メモ
+    addMemo(shinobigamiData, resultList);
+    // 基本情報
+    addBasic(shinobigamiData, resultList);
+    // 特技
+    addTokugi(shinobigamiData, resultList);
+    // 忍法
+    addNinpou(shinobigamiData, resultList);
+
+    return resultList;
+  }
+};
+
+export default shinobigami;
 
 type ShinobigamiUpperStyle =
   | "斜歯忍軍"
@@ -133,21 +157,22 @@ function createShinobigamiData(url: string, json: any): Shinobigami {
   return shinobigamiData;
 }
 
-export async function createShinobigamiChatPalette(
-  url: string
-): Promise<MemoStore[] | null> {
-  const json = await getJsonForTrpgSystemData<any>(
-    url,
-    /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/,
-    "https://character-sheets.appspot.com/shinobigami/display?ajax=1&key={key}"
-  );
-  if (!json) return null;
-  const shinobigamiData = createShinobigamiData(url, json);
-
-  console.log(JSON.stringify(shinobigamiData, null, "  "));
-
-  const resultList: MemoStore[] = [];
+function addMemo(shinobigamiData: Shinobigami, resultList: MemoStore[]) {
   const strList: string[] = [];
+
+  // メモ
+  strList.push("### メモ");
+  strList.push(":::200px:100px");
+  strList.push(":::END;;;");
+
+  resultList.push({ tab: "メモ", type: "normal", text: strList.join("\r\n") });
+}
+
+function addBasic(shinobigamiData: Shinobigami, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // 基本情報
   strList.push("## 基本情報");
@@ -192,8 +217,18 @@ export async function createShinobigamiChatPalette(
     )
   );
 
-  resultList.push({ tab: "基本情報", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  resultList.push({
+    tab: "基本情報",
+    type: "url",
+    text: strList.join("\r\n")
+  });
+}
+
+function addTokugi(shinobigamiData: Shinobigami, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // 特技
   strList.push("## 特技");
@@ -219,8 +254,6 @@ export async function createShinobigamiChatPalette(
       .join("|")}||`
   );
   strList.push("|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--:|");
-  const checkStr = (list: TokugiInfo[], r: number, c: number) =>
-    `[${list.some(lt => lt.row === r && lt.column === c) ? "x" : " "}]`;
   const learnedList = shinobigamiData.tokugi.learnedList;
   shinobigamiData.tokugi.table.forEach((tList: string[], r: number) => {
     strList.push(
@@ -235,8 +268,14 @@ export async function createShinobigamiChatPalette(
     );
   });
 
-  resultList.push({ tab: "特技", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  resultList.push({ tab: "特技", type: "url", text: strList.join("\r\n") });
+}
+
+function addNinpou(shinobigamiData: Shinobigami, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // 忍法
   strList.push("## 忍法");
@@ -249,8 +288,5 @@ export async function createShinobigamiChatPalette(
     )
   );
 
-  resultList.push({ tab: "忍法", text: strList.join("\r\n") });
-  listToEmpty(strList);
-
-  return resultList;
+  resultList.push({ tab: "忍法", type: "url", text: strList.join("\r\n") });
 }

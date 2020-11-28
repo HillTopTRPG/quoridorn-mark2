@@ -49,6 +49,7 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
+      type: "normal",
       text: ""
     })
   ];

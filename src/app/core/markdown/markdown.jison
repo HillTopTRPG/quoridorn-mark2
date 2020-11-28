@@ -103,8 +103,12 @@ function fixSpans(spans, isRow) {
                            return lex.call(this, 'i', 'SPAN');
 <INITIAL,SPAN>'`'[^\r\n`]+?'`'
                            return lex.call(this, '`', 'SPAN');
+<INITIAL>'@@@'((?!\@\@\@).+?)'@@@'(\r?\n)?
+                           return lex.call(this, '@@@');
 <INITIAL>'```'(\s|.)+?'```'\r?\n
                            return lex.call(this, '```');
+<INITIAL>':::'[0-9]+((px)|(em))':'[0-9]+((px)|(em))\r?\n((?:(?!\:\:\:END\;\;\;).|\s)*)':::END;;;'(\r?\n)?
+                           return lex.call(this, ':::');
 <SPAN>\r?\n                return lex.call(this, 'nl', '');
 <SPAN>.                    return lex.call(this, '.');
 <INITIAL>\r?\n             return lex.call(this, 'nl');
@@ -117,6 +121,8 @@ function fixSpans(spans, isRow) {
 
 %left '.'
 %left '```'
+%left ':::'
+%left '@@@'
 %left 'hr' 'ul' 'ol' '>'
 %left 'bi' 'b' 'i' '`'
 %left '|' '<->'
@@ -142,10 +148,12 @@ expressions
         }
         let checkCount = 0;
         let selectCount = 0;
+        let textareaCount = 0;
         $1.forEach(block => {
           const blockType = block.type;
           block.value.forEach(line => {
             delete line.raw;
+            if (line.type === ':::') line.index = textareaCount++;
             if (line.value && Array.isArray(line.value)) {
               line.value.forEach(span => {
                 if (span.type === 'check') span.index = checkCount++;
@@ -322,6 +330,11 @@ line
     | '#' { $$ = { type: `h${$1.match(/^#{1,6}/)[0].length}`, value: $1.replace(/^#{1,6} *(.+)\r?\n$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
     | 'hr' { $$ = { type: 'hr', raw: $1, nlCount: 1 }; }
     | '```' { $$ = { type: '```', value: $1.replace(/^```((?:.|\s)+?)```\r?\n$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
+    | ':::'
+      { let res = $1.match(/^:::([0-9]+px):([0-9]+px)\r?\n((?:(?!\:\:\:END\;\;\;).|\s)*):::END;;;(\r?\n)?$/);
+        $$ = { type: ':::', width: res[1], height: res[2], value: res[3], raw: $1, nlCount: 1 };
+      }
+    | '@@@' { $$ = { type: '@@@', value: $1.match(/@@@(.+)@@@(\r?\n)?/)[1], raw: $1, nlCount: 1 }; }
     | spans 'nl'
       { $$ = { type: 'line', value: fixSpans($1, 0), raw: spansRaw($1), nlCount: 1 };
         let nonCountDev = 0;

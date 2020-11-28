@@ -1,6 +1,39 @@
 import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
-import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+
+// URL
+const urlRegExp = /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/;
+const jsonpUrl = "https://charasheet.vampire-blood.net/{key}.js";
+
+const nechronica: TrpgSystemHelper = {
+  isThis: async (url: string) => {
+    if (!url.match(urlRegExp)) return false;
+    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
+    return json["game"] === "nechro";
+  },
+  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
+    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
+    if (!json) return null;
+    const nechronicaData = createNechronicaData(url, json);
+    // console.log(JSON.stringify(nechronicaData, null, "  "));
+
+    const resultList: MemoStore[] = [];
+
+    // メモ
+    addMemo(nechronicaData, resultList);
+    // パーソナルデータ
+    addPersonal(nechronicaData, resultList);
+    // 管理
+    addManagement(nechronicaData, resultList);
+    // マニューバ
+    addManeuver(nechronicaData, resultList);
+
+    return resultList;
+  }
+};
+
+export default nechronica;
 
 type NechronicaClass =
   | ""
@@ -158,17 +191,6 @@ type Nechornica = {
   memoRows: number;
 };
 
-export async function isNechronicaUrl(url: string): Promise<boolean> {
-  if (!url.match(/https?:\/\/charasheet\.vampire-blood\.net\/(.+)/))
-    return false;
-  const json = await getJsonForTrpgSystemData<any>(
-    url,
-    /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/,
-    "https://charasheet.vampire-blood.net/{key}.js"
-  );
-  return json["game"] === "nechro";
-}
-
 function createNechronicaData(url: string, json: any): Nechornica {
   const nechronicaData: Nechornica = {
     url,
@@ -319,23 +341,22 @@ function createNechronicaData(url: string, json: any): Nechornica {
   return nechronicaData;
 }
 
-export async function createNechronicaChatPalette(
-  url: string
-): Promise<MemoStore[] | null> {
-  const json = await getJsonForTrpgSystemData<any>(
-    url,
-    /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/,
-    "https://charasheet.vampire-blood.net/{key}.js"
-  );
-  if (!json) return null;
-  console.log(json);
-
-  const nechronicaData = createNechronicaData(url, json);
-
-  console.log(JSON.stringify(nechronicaData, null, "  "));
-
-  const resultList: MemoStore[] = [];
+function addMemo(nechronicaData: Nechornica, resultList: MemoStore[]) {
   const strList: string[] = [];
+
+  // メモ
+  strList.push("### メモ");
+  strList.push(":::200px:100px");
+  strList.push(":::END;;;");
+
+  resultList.push({ tab: "メモ", type: "normal", text: strList.join("\r\n") });
+}
+
+function addPersonal(nechronicaData: Nechornica, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // 基本情報
   strList.push("## 基本情報");
@@ -387,8 +408,18 @@ export async function createNechronicaChatPalette(
   strList.push(`|寵愛による修正|${nechronicaData.loveBonus.join("|")}|`);
   strList.push(`|総計|${nechronicaData.status.join("|")}|`);
 
-  resultList.push({ tab: "パーソナルデータ", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  resultList.push({
+    tab: "パーソナルデータ",
+    type: "url",
+    text: strList.join("\r\n")
+  });
+}
+
+function addManagement(nechronicaData: Nechornica, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // 行動値
   strList.push("## 行動値");
@@ -469,8 +500,14 @@ export async function createNechronicaChatPalette(
     );
   });
 
-  resultList.push({ tab: "管理", text: strList.join("\r\n") });
-  listToEmpty(strList);
+  resultList.push({ tab: "管理", type: "url", text: strList.join("\r\n") });
+}
+
+function addManeuver(nechronicaData: Nechornica, resultList: MemoStore[]) {
+  const strList: string[] = [];
+
+  strList.push("@@@RELOAD-CHARACTER-SHEET@@@");
+  strList.push("@@@RELOAD-CHARACTER-SHEET-ALL@@@");
 
   // マニューバ
   strList.push("## マニューバ");
@@ -493,8 +530,9 @@ export async function createNechronicaChatPalette(
     strList.push(powerTextList.join(""));
   });
 
-  resultList.push({ tab: "マニューバ", text: strList.join("\r\n") });
-  listToEmpty(strList);
-
-  return resultList;
+  resultList.push({
+    tab: "マニューバ",
+    type: "url",
+    text: strList.join("\r\n")
+  });
 }

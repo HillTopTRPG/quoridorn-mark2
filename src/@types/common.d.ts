@@ -166,6 +166,12 @@ declare module "task-info" {
     operationType: "set" | "add";
     value: string;
   };
+
+  type OtherTextUpdateInfo = {
+    docType: string;
+    docKey: string;
+    target: string | null;
+  };
 }
 
 declare module "task" {

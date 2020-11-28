@@ -85,6 +85,7 @@
     - change-dice-view
     - resource-update
     - export-object
+    - other-text-update
 
 - taskAttribute:
     isIgniteWithParam: false

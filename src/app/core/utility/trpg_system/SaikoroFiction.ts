@@ -1,3 +1,8 @@
+import {
+  convertNumberNull,
+  convertNumberZero
+} from "@/app/core/utility/PrimaryDataUtility";
+
 export type TokugiInfo = {
   name: string;
   row: number;
@@ -39,7 +44,10 @@ export function createTokugi(
     if (json["skills"][String.fromCharCode("a".charCodeAt(0) + i)] !== null) {
       tokugi.spaceList.push(i);
     }
-    if (json["skills"]["damage"][`check${i}`] !== null) {
+    if (
+      json["skills"]["damage"] &&
+      json["skills"]["damage"][`check${i}`] !== null
+    ) {
       tokugi.damagedColList.push(i);
     }
     for (let j = 0; j < 11; j++) {
@@ -53,4 +61,23 @@ export function createTokugi(
     }
   }
   return tokugi;
+}
+
+export function createSelect(
+  label: string,
+  max: number | string | null,
+  current: string | number | null
+): string {
+  const maxNum: number | null =
+    typeof max === "number" ? max : convertNumberNull(max);
+  if (maxNum === null) return current ? current.toString() : "";
+  return `${label ? `{${label}}` : ""}[${[...Array(maxNum + 1)]
+    .map((_, i) => i)
+    .reverse()
+    .join("|")}](${convertNumberZero(current ? current.toString() : null)})`;
+}
+
+export function nlFormat(text: string | null) {
+  if (!text) return "";
+  return text.replaceAll(/。\n?/g, "。<br>").replaceAll("\n", "<br>");
 }

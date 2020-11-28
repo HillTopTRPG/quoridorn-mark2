@@ -172,6 +172,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
             dataList: [
               createEmptyStoreUseData(uuid.v4(), {
                 tab: "",
+                type: "normal",
                 text: this.helpMessage
               })
             ],

@@ -222,6 +222,7 @@ type MediaStore = {
 type MemoStore = {
   // 所有者はownerで表現(characterだとその他欄, publicMemoだと共有メモといった具合)
   tab: string;
+  type: "normal" | "url";
   text: string;
 };
 

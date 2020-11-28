@@ -317,6 +317,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
       0,
       createEmptyStoreUseData(uuid.v4(), {
         tab: tabText,
+        type: "normal",
         text: ""
       })
     );

@@ -1065,7 +1065,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       type: "other-text-view",
       owner: "Quoridorn",
       value: {
-        type: this.type,
+        type: "scene-object-list",
         key: this.docKey,
         dataList: this.otherTextList,
         rect: createRectangle(data.x, data.y, rect.width, rect.height),

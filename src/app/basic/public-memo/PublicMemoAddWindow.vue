@@ -47,6 +47,7 @@ export default class PublicMemoAddWindow extends Mixins<
   private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
+      type: "normal",
       text: ""
     })
   ];

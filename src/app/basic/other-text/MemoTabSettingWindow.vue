@@ -189,6 +189,7 @@ export default class MemoTabSettingWindow extends Mixins<
     this.useMemoList.push(
       createEmptyStoreUseData(uuid.v4(), {
         tab: text,
+        type: "normal",
         text: ""
       })
     );
