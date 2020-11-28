@@ -94,7 +94,10 @@ export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("scene", { deep: true })
   private onChangeScene() {
     if (!this.isMounted) return;
-    this.paint();
+    // setTimeoutを入れないと罫線の反映がされない場合がある
+    setTimeout(() => {
+      this.paint();
+    });
   }
 
   private get mapCanvasSize(): Size {
