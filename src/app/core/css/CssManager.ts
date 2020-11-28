@@ -35,22 +35,27 @@ export default class CssManager {
   /** スクロールバーの幅 (ピクセル単位) を取得する */
   private static getScrollbarWidth() {
     document.documentElement.style.overflow = "scroll";
+
     // スクロールバーの幅を取得するための要素を生成する
-    const scrollbarElem = document.createElement("div");
-    scrollbarElem.setAttribute(
-      "style",
-      "visibility: hidden; position: absolute; top: 0; left: 0; width: 100vw;"
-    );
-    document.body.appendChild(scrollbarElem);
-    const vw = convertNumberZero(
-      window.getComputedStyle(scrollbarElem).width.replace("px", "")
-    );
-    scrollbarElem.style.width = "100%";
-    const pc = convertNumberZero(
-      window.getComputedStyle(scrollbarElem).width.replace("px", "")
-    );
-    document.body.removeChild(scrollbarElem);
+    const contentElm = document.createElement("div");
+    contentElm.style.visibility = "hidden";
+    contentElm.style.position = "absolute";
+    contentElm.style.top = "0";
+    contentElm.style.left = "0";
+    document.body.appendChild(contentElm);
+
+    const getWindowWidth = (widthStyle: string): number => {
+      contentElm.style.width = widthStyle;
+      const elmWidth = window.getComputedStyle(contentElm).width;
+      return convertNumberZero(elmWidth.replace("px", ""));
+    };
+    const vw = getWindowWidth("100vw");
+    const pc = getWindowWidth("100%");
+
+    document.body.removeChild(contentElm);
     document.documentElement.style.overflow = "hidden";
+
+    // スクロールバーの有無によって変化するwindowの幅の違いがスクロールバーの幅
     return vw - pc;
   }
 

@@ -27,7 +27,10 @@ export function convertNumberNull(
   radix: number = 10
 ): number | null {
   if (str === null) return null;
-  return str.match(/^-?[0-9]+$/) ? parseInt(str, radix) : null;
+  if (radix === 16 && /^-?[0-9a-fA-F]+$/.test(str)) return parseInt(str, 16);
+  if (radix === 10 && /^-?[0-9]+$/.test(str)) return parseInt(str, radix);
+  if (radix === 10 && /^-?[0-9]*\.[0-9]+$/.test(str)) return parseFloat(str);
+  return null;
 }
 
 /**
@@ -40,11 +43,7 @@ export function convertNumberZero(
   str: string | null,
   radix: number = 10
 ): number {
-  if (str === null) return 0;
-  if (radix === 10) return str.match(/^[0-9]+$/) ? parseInt(str, radix) : 0;
-  else if (radix === 16)
-    return str.match(/^[0-9a-fA-F]+$/) ? parseInt(str, radix) : 0;
-  return 0;
+  return convertNumberNull(str, radix) || 0;
 }
 
 /**

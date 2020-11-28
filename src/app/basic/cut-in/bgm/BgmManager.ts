@@ -54,7 +54,7 @@ export default class BgmManager {
     if (!cutInInfo.url) {
       GameObjectManager.instance.playingBgmList
         .filter(b => b.tag === tag)
-        .forEach(async b => {
+        .forEach(b => {
           TaskManager.instance
             .ignition<string, never>({
               type: "window-close",
@@ -73,7 +73,7 @@ export default class BgmManager {
     if (!cutInInfo.isForceNew) {
       GameObjectManager.instance.playingBgmList
         .filter(b => b.targetKey === targetKey || b.tag === tag)
-        .forEach(async b => {
+        .forEach(b => {
           if (b.targetKey === targetKey && cutInInfo.isForceContinue) {
             matchAndContinue = true;
           } else if (b.targetKey === targetKey || b.tag === tag) {
