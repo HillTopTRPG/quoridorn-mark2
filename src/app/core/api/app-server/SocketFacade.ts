@@ -591,7 +591,7 @@ export default class SocketFacade {
   }
 
   public getCC(type: string): NekostoreCollectionController<any> {
-    const cc = <NekostoreCollectionController<any>>(
+    let cc = <NekostoreCollectionController<any>>(
       [
         this.chatListCC(),
         this.chatTabListCC(),
@@ -626,6 +626,13 @@ export default class SocketFacade {
         this.likeListCC()
       ].find(cc => cc.collectionNameSuffix === type)
     );
+    if (!cc) {
+      if (
+        ["character", "map-mask", "chit", "dice-symbol"].some(t => t === type)
+      ) {
+        cc = this.sceneObjectCC();
+      }
+    }
     if (!cc) throw new ApplicationError(`Invalid type error. type=${type}`);
     return cc;
   }
