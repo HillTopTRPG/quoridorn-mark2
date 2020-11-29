@@ -30,7 +30,9 @@ export async function loadText(
   isErrorIgnore: boolean = false
 ): Promise<string> {
   try {
-    const response = await fetch(process.env.BASE_URL + path);
+    const response = await fetch(
+      `${process.env.BASE_URL}${path}?version=${process.env.VUE_APP_VERSION!}`
+    );
     return await response.text();
   } catch (err) {
     throw new ApplicationError(`textファイルの読み込みに失敗しました：${path}`);
