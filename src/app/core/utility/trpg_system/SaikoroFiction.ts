@@ -15,18 +15,163 @@ export type SaikoroFictionTokugi = {
   damagedList: TokugiInfo[];
   damagedColList: number[];
   spaceList: number[];
+  outRow: boolean;
 };
+
+export type Personality = {
+  emotion: string; // 感情
+  name: string; // 人物名
+  place: boolean; // 居所
+  secret: boolean; // 秘密
+  specialEffect: boolean; // 奥義
+};
+
+const emotionList: string[][] = [
+  ["なし", "なし"],
+  ["1+:共感", "1-:不信"],
+  ["2+:友情", "2-:怒り"],
+  ["3+:愛情", "3-:妬み"],
+  ["4+:忠誠", "4-:侮蔑"],
+  ["5+:憧憬", "5-:劣等感"],
+  ["6+:狂信", "6-:殺意"]
+];
+
+export function createEmotion(json: any): Personality[] {
+  return (json["personalities"] as any[]).map(p => ({
+    emotion:
+      emotionList[convertNumberZero(p.emotion)][
+        convertNumberZero(p.direction) - 1
+      ],
+    name: p.name,
+    place: p.place !== null,
+    secret: p.secret !== null,
+    specialEffect: p.specialEffect !== null
+  }));
+}
+
+function outputTable<T>(
+  data: T,
+  props: {
+    label: string;
+    prop: keyof T | null;
+  }[],
+  convertFunc?: (
+    prop: { label: string; prop: keyof T | null },
+    value: T[keyof T] | null,
+    data: T
+  ) => string | null
+): string {
+  return `|${props
+    .map(p => {
+      const v = p.prop ? data[p.prop] : null;
+      if (convertFunc) {
+        const convertResult = convertFunc(p, v, data);
+        if (convertResult) return nlFormat(convertResult);
+      }
+      if (typeof v === "boolean") return `[${v ? "x" : " "}]`;
+      return nlFormat(v);
+    })
+    .join("|")}|`;
+}
+
+export function outputTableList<T>(
+  dataList: T[],
+  props: {
+    label: string;
+    prop: keyof T | null;
+    align: "left" | "center" | "right";
+  }[],
+  convertFunc?: (
+    prop: { label: string; prop: keyof T | null },
+    value: T[keyof T] | null,
+    data: T
+  ) => string | null
+): string[] {
+  const strList: string[] = [];
+  strList.push(`|${props.map(p => p.label).join("|")}|`);
+  strList.push(
+    `|${props
+      .map(
+        p =>
+          `${p.align === "right" ? "" : ":"}---${p.align === "left" ? "" : ":"}`
+      )
+      .join("|")}|`
+  );
+  strList.push(
+    ...dataList.map(d =>
+      outputTable<T>(
+        d,
+        props.map(p => ({ label: p.label, prop: p.prop })),
+        convertFunc
+      )
+    )
+  );
+  return strList;
+}
+
+export function outputPersonalityList(
+  personalityList: Personality[],
+  props: {
+    prop: keyof Personality;
+    label: string;
+    align: "left" | "center" | "right";
+  }[]
+): string[] {
+  return outputTableList(personalityList, props, (prop, value) => {
+    if (prop.prop === "emotion") {
+      return `{感情}[${emotionList
+        .flatMap((l, ind) => (ind ? l : [l[0]]))
+        .join("|")}](${value})`;
+    }
+    return null;
+  });
+}
+
+export function outputTokugiTable(
+  tokugi: SaikoroFictionTokugi,
+  gapColList: { spaceIndex: number; colText: string }[],
+  isOutputDamage: boolean,
+  headerFunc: (text: string, ind: number) => string
+): string[] {
+  const checkStr = (list: TokugiInfo[], r: number, c: number) =>
+    `[${list.some(lt => lt.row === r && lt.column === c) ? "x" : " "}]`;
+  return [
+    `|${gapColList
+      .map((gc, ind) => `　|${headerFunc(gc.colText, ind)}`)
+      .join("|")}||`,
+    "|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--|:--:|",
+    ...tokugi.table.map(
+      (tList: string[], r: number) =>
+        tList
+          .map(
+            (t: string, c: number) =>
+              `|${
+                tokugi.spaceList.indexOf(gapColList[c].spaceIndex) > -1
+                  ? "¦"
+                  : ""
+              }　|${
+                tokugi.learnedList.some(t => t.row === r && t.column === c)
+                  ? "¦"
+                  : ""
+              }${isOutputDamage ? checkStr(tokugi.damagedList, r, c) : ""}${t}`
+          )
+          .join("") + `|◇${r + 2}|`
+    )
+  ];
+}
 
 export function createTokugi(
   json: any,
   table: string[][]
 ): SaikoroFictionTokugi {
+  const outRow = json["skills"]["outRow"];
   const tokugi: SaikoroFictionTokugi = {
     table,
     learnedList: [],
     damagedList: [],
     damagedColList: [],
-    spaceList: []
+    spaceList: [],
+    outRow: outRow !== null
   };
   (json["learned"] as any[])
     .filter(t => t["id"])
@@ -77,7 +222,10 @@ export function createSelect(
     .join("|")}](${convertNumberZero(current ? current.toString() : null)})`;
 }
 
-export function nlFormat(text: string | null) {
-  if (!text) return "";
-  return text.replaceAll(/。\n?/g, "。<br>").replaceAll("\n", "<br>");
+export function nlFormat(text: any) {
+  if (text === null) return "";
+  return text
+    .toString()
+    .replaceAll(/。\n?/g, "。<br>")
+    .replaceAll("\n", "<br>");
 }
