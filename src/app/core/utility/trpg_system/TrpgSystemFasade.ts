@@ -2,6 +2,7 @@ import shinobigami from "@/app/core/utility/trpg_system/shinobigami";
 import nechronica from "@/app/core/utility/trpg_system/nechronica";
 import magicaLogia from "@/app/core/utility/trpg_system/magicalogia";
 import inSane from "@/app/core/utility/trpg_system/insane";
+import stellarKnights from "@/app/core/utility/trpg_system/stellarKnights";
 import { MemoStore } from "@/@types/store-data";
 
 export type TrpgSystemHelper = {
@@ -16,5 +17,6 @@ export async function getTrpgSystemHelper(
   if (await nechronica.isThis(url)) return nechronica; // ネクロニカ
   if (await magicaLogia.isThis(url)) return magicaLogia; // マギカロギア
   if (await inSane.isThis(url)) return inSane; // インセイン
+  if (await stellarKnights.isThis(url)) return stellarKnights; // ステラナイツ
   return null;
 }

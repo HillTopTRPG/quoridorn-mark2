@@ -55,17 +55,19 @@ function outputTable<T>(
     label: string;
     prop: keyof T | null;
   }[],
+  ind: number,
   convertFunc?: (
     prop: { label: string; prop: keyof T | null },
     value: T[keyof T] | null,
-    data: T
+    data: T,
+    ind: number
   ) => string | null
 ): string {
   return `|${props
     .map(p => {
       const v = p.prop ? data[p.prop] : null;
       if (convertFunc) {
-        const convertResult = convertFunc(p, v, data);
+        const convertResult = convertFunc(p, v, data, ind);
         if (convertResult) return nlFormat(convertResult);
       }
       if (typeof v === "boolean") return `[${v ? "x" : " "}]`;
@@ -84,7 +86,8 @@ export function outputTableList<T>(
   convertFunc?: (
     prop: { label: string; prop: keyof T | null },
     value: T[keyof T] | null,
-    data: T
+    data: T,
+    ind: number
   ) => string | null
 ): string[] {
   const strList: string[] = [];
@@ -98,10 +101,11 @@ export function outputTableList<T>(
       .join("|")}|`
   );
   strList.push(
-    ...dataList.map(d =>
+    ...dataList.map((d, ind) =>
       outputTable<T>(
         d,
         props.map(p => ({ label: p.label, prop: p.prop })),
+        ind,
         convertFunc
       )
     )
