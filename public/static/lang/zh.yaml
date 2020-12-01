@@ -30,7 +30,7 @@ button:
 type:
   map-mask: 地圖遮罩
   map-marker: 地圖迷霧
-  dice-symbol: 骰子符號
+  dice-symbol: 骰子結果
   chit: 棋子
   character: 角色
   map: 地圖
@@ -81,7 +81,7 @@ context:
   placement-reset: 重置配置
   ref-url: 參考用URL
   edit-actor: 演員編輯
-  add-dice-symbol: 新增骰子符號
+  add-dice-symbol: 新增骰子結果
   dice-pips-change: 骰子結果變更
   dice-hide: 骰子結果隱藏
   dice-view: 骰子結果顯示
@@ -103,7 +103,7 @@ selection:
     contain: 內容
     cover-start: 封面(始)
     cover-center: 封面(中)
-    cover-end: 封面(終)
+    cover-end: 封面(後)
     100%: 100%
   permission:
     view: 閲覧權限
@@ -116,8 +116,8 @@ selection:
   resource-type:
     label: 種類
     no-contents: 沒有内容
-    ref-normal: 參考情報
-    ref-owner: 參考情報(擁有者)
+    ref-normal: 參考資訊
+    ref-owner: 參考資訊(擁有者)
     text: 固定文字
     input-text: 輸入文字
     number: 數值
@@ -192,7 +192,7 @@ bgm-info-form:
     fade-out: 淡出
     volume: 音量
     play-start: 播放開始
-    play-end: 播放終了
+    play-end: 播放後了
     second: 秒
     url-placeholder: 沒有指定時「停止」
 
@@ -205,13 +205,13 @@ like-info-form:
     resource-restriction: 可以從相同類型的資源中選擇鏈接的資源，這些資源會自動分配（演員）。
 
 menu:
-  window: 畫面
+  window: 圖面
   management: 管理
   directing: 演出
   export-room-data: 匯出房間資料
   import-room-data: 匯入房間資料
   export-chat-log: 匯出聊天紀錄
-  window-position-reset: 重置畫面配置
+  window-position-reset: 重置圖面配置
   create: 新增
   help: 幫助信息
   goto-official-site: 官方網站
@@ -234,7 +234,7 @@ label:
   tag: 標籤 # OK
   non-tag: 沒有標籤 # OK
   layer: 圖層 # OK
-  image: 畫像
+  image: 圖像
   other-text: 其他欄
   image-tag: 圖像標籤
   client: 客戶端 # OK
@@ -274,7 +274,7 @@ label:
   y: Y
   original-address: 獨立座標
   char: 文字
-  additional-info: 附加情報
+  additional-info: 附加資訊
   chat-linkage: 聊天室連動
   chat-linkage-target: 聊天室連動對象
   javascript-regexp: Javascript的正規表示
@@ -283,7 +283,7 @@ label:
   title: 標題
   editing: 編輯中
   unknown: "[不明]"
-  input-bcdice-url: 設置BCDice-API服務器的URL
+  input-bcdice-url: 設置BCDice-API伺服器的URL
   target-all: 所有
   all: 所有
   status: 狀態
@@ -332,43 +332,43 @@ label:
   export: 匯出
 
 message:
-  copy-to-clipboard: クリップボードにコピーしました。
-  setting-up-quoridorn: Quoridornをセットアップ中です！
-  processing: 処理中です！
-  creating-room: お房間を新增しています！
-  entering-room: お房間に入ります！
-  add-preset-room: プリセットデータを登録しています！
-  last-process-room: お房間を顯示するために頑張ってます！
-  delete-deck: 山札を刪除しますか？
-  change-pips-dice-symbol: 骰子符號的目を變更（{0}：{1} -> {2}）
-  change-pips-dice-symbol-hide: 骰子符號（機密）的目を變更
-  dice-roll-dice-symbol: 骰子符號（機密）的目を變更（擲骰）
-  dice-roll-dice-symbol-hide: 骰子符號的目を變更（擲骰）
-  hide-dice-symbol: 骰子符號を機密
-  view-dice-symbol: 骰子符號を公開（{0}：{1}）
-  view-dice-symbol-dice-roll: 骰子符號を公開（{0}：{1}）擲骰結果：{2}
-  dice-roll-secret-dice: シークレット骰子をロール
-  open-secret-dice: シークレット骰子を公開
-  room-create-password: 房間を新增するには密碼が必要です
+  copy-to-clipboard: 將其複製到剪貼板。
+  setting-up-quoridorn: 正在建立Quoridorn！
+  processing: 處理中！
+  creating-room: 新增房間中！
+  entering-room: 進入房間中！
+  add-preset-room: 正在註冊預設數據！
+  last-process-room: 正在盡力展示房間！
+  delete-deck: 刪除牌堆？
+  change-pips-dice-symbol: 骰子結果變更（{0}：{1} -> {2}）
+  change-pips-dice-symbol-hide: 骰子結果（機密）變更
+  dice-roll-dice-symbol: 骰子結果（機密）變更（擲骰）
+  dice-roll-dice-symbol-hide: 骰子結果變更（擲骰）
+  hide-dice-symbol: 隱藏骰子結果
+  view-dice-symbol: 公開骰子結果（{0}：{1}）
+  view-dice-symbol-dice-roll: 公開骰子結果（{0}：{1}）擲骰結果：{2}
+  dice-roll-secret-dice: 秘密擲骰
+  open-secret-dice: 公開秘密擲骰
+  room-create-password: 新增房間必需要密碼
   drop-area: "どうぞそ的まま\nドロップインしてください。"
-  really-delete: 本当に刪除しますか？
-  choose-image: 畫像を選擇してください。
-  drag-piece: 地圖にドラッグすると新增できます。
-  delete-tab: "本当に分頁「$1」を刪除しますか？\nこ的操作は取り消せません。"
-  original: "元：$1"
-  name-duplicate: "名字が重複します。"
-  delete-failure: 刪除に失敗しました。
-  load-other-text-character-sheet: 其他欄生成
-  load-other-text-character-sheet-text: "データ參考先URLからデータを読み込みます。\n分頁名が重複する場合は上書きします。"
+  really-delete: 真的要刪除？
+  choose-image: 選擇圖像。
+  drag-piece: 您可以通過拖動去新增地圖。
+  delete-tab: "您確定要刪除分頁「$1」？\n此操作無法取消。"
+  original: "本來：$1"
+  name-duplicate: "重複名字。"
+  delete-failure: 刪除失敗。
+  load-other-text-character-sheet: 其他欄建立
+  load-other-text-character-sheet-text: "從目標URL讀取數據。 \ n如果頁面名稱重複，它將被覆蓋。"
   success: 成功
-  error: エラー
-  login-text: "{0} が入室しました。"
+  error: 錯誤
+  login-text: "{0} 的房間。"
 
 play-youtube-window:
   window-title: Youtube播放畫面
 
 cut-in-list-window:
-  window-title: カットイン列表
+  window-title: Cut-in列表
   table-columns:
     -
       - 連動
@@ -376,128 +376,128 @@ cut-in-list-window:
       - 類型
       - 標題
       - 時間
-      - 繰
+      - 重覆
       - 音量
       - fade
 
 login-window:
-  window-title: ログイン畫面
+  window-title: 登入畫面
   label:
-    terms-of-use: 利用規約
+    terms-of-use: 使用合約
     empty-room: （空房間）
     possible: 可
     creating: 新增中
-    version-info: バージョン情報
+    version-info: 版本資訊
   table-columns:
     -
       - No.
       - 房間名
-      - ゲーム系統
-      - 入室人数
+      - 遊戲系統
+      - 房間人数
       - 密碼
-      - 見学
-      - 最終更新時刻
+      - 訪客
+      - 最後更新時間
       - 刪除
 
 create-new-room-window:
-  window-title: 新規房間新增
-  message: 新規房間を新增します。
+  window-title: 新增新房間
+  message: 新增新房間。
   label:
-    room-name-placeholder: 房間名(必須項目)
-    game-system-input: ゲーム系統(輸入指定も可)
-    room-password: 入室密碼
-    room-create-password: 房間新增密碼
+    room-name-placeholder: 房間名(必要項目)
+    game-system-input: 遊戲系統(可以輸入指定)
+    room-password: 房間密碼
+    room-create-password: 新增房間密碼
 
 user-login-window:
-  window-title: 使用者ログイン
-  message: 使用者情報を輸入してください。
+  window-title: 使用者登入
+  message: 請輸入使用者資訊。
 
 bcdice-api-server-setting-window:
-  window-title: BCDice-APIサーバ設定
-  message: BCDice-APIサーバに関する設定
-  success: 接続成功
-  error: 接続失敗
+  window-title: BCDice-API設定
+  message: BCDice-API伺服器設定
+  success: 連接成功
+  error: 連接失敗
   error-messages:
-    connect-error: 接続に失敗しました。
+    connect-error: 連接失敗。
 
 app-server-setting-window:
-  window-title: アプリケーションサーバ設定
-  message: アプリケーションサーバに関する設定
-  testing: テスト中
-  not-quoridorn: Quoridornサーバでは已存在ません
-  no-such-server: 接続できませんでした
-  internal-server-error: サーバ内でエラーが発生しました
-  un-match-version: 互換性的沒有いバージョン的サーバです
-  success: 接続成功
+  window-title: 應用程序伺服器設置
+  message: 應用伺服器設定
+  testing: 測試中
+  not-quoridorn: Quoridorn伺服器尚未存在
+  no-such-server: 無法連接
+  internal-server-error: 伺服器發生錯誤
+  un-match-version: 它不是伺服器的兼容版本。
+  success: 連接成功
 
 terms-of-use-window:
-  window-title: 利用規約確認
-  message: 下記はプログラム設置者が定めた利用規約です。利用者はこ的両方を守ってご利用ください。
+  window-title: 使用協議確認
+  message: 以下是程序的使用協議。使用時請牢記。
 
 delete-room-window:
-  window-title: 房間刪除
-  message: 房間を刪除します。
+  window-title: 刪除房間
+  message: 刪除房間。
 
 confirm-window:
   window-title: 確認畫面
   delete-room:
     title: 房間刪除
-    message: 房間を刪除しますか？
+    message: 要刪除房間？
 
 login-room-window:
-  window-title: ログインチェック
-  message: 房間にログインします。
+  window-title: 登入檢查
+  message: 登入房間。
 
 version-info-window:
-  window-title: バージョン情報
+  window-title: 版本資訊
   label:
-    adequate-client: 適正的クライアント
-    adequate-server: 適正的サーバ
-    version-compatible: バージョン互換性
-    adequate: 適正
-    inadequate: 不適正
+    adequate-client: 合適的客戶端
+    adequate-server: 合適的伺服器
+    version-compatible: 版本互換性
+    adequate: 合適
+    inadequate: 不合適
 
 room-info-window:
-  window-title: 房間情報顯示
+  window-title: 房間資訊顯示
   label:
     bcdice-api-url: BCDice-API的URL
-    game-system-view: ゲーム系統
-    comeback-url: 復帰URL
+    game-system-view: 遊戲系統
+    comeback-url: 再連接URL
     invite-url: 招待URL
-    room-member-num: 入室数
-    room-no: 房間番号
+    room-member-num: 房間人數
+    room-no: 房間號碼
 
 map-mask-add-window:
-  window-title: 地圖迷霧新增
+  window-title: 新增地圖迷霧
 
 map-mask-edit-window:
-  window-title: 地圖迷霧編輯
+  window-title: 編輯地圖迷霧
 
 chit-add-window:
-  window-title: 棋子新增
+  window-title: 新增棋子
 
 chit-edit-window:
-  window-title: 棋子編輯
+  window-title: 編輯棋子
 
 scene-list-window:
-  window-title: シーン列表
+  window-title: 場景列表
 
 edit-scene-window:
-  window-title: シーン編輯
+  window-title: 編輯場景
   label:
-    sub: サブ
-    grid-size: マス(px)
-    grid-line: 方眼線
-    grid-line-color: 方眼線色
-    blur: ぼかし
-    mask: マスク
-    frame-border: 枠線
+    sub: 副
+    grid-size: 大小(px)
+    grid-line: 格線
+    grid-line-color: 格線顏色
+    blur: Blur
+    mask: 迷霧
+    frame-border: 格線
   message-select:
     layer-view: 圖層的顯示・非顯示を切り替えます。
     layer-order-mode-on: 圖層的順番を入れ替える模式にします。
     layer-order-mode-off: 通常的模式に戻します。
     layer-order: ドラッグで圖層的順番を入れ替えます。
-    original-address: 他的シーンと異なる座標を持つか的設定です。
+    original-address: 他的場景と異なる座標を持つか的設定です。
     object-order-mode-on: 物體的順番を入れ替える模式にします。
     object-order-mode-off: 通常的模式に戻します。
     object-order: ドラッグで物體的順番を入れ替えます。
@@ -568,20 +568,20 @@ card-deck-builder:
   title: Quoridorn咭牌山札ビルダー Ver.1.0.0a1
   description:
     tool: 房間データに山札を1つ登録するため的功能です。
-    import-text-paranoia-rebooted: "クリックすることでファイル指定ダイアログが顯示します。\n専用的文字ファイルを読み込んで、山札を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌畫像ファイルzipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下的文字ファイルを指定してください。\n「allCards.txt」だけは使用できません。\n事前に畫像ファイルをQuoridorn上にアップロードしておく必要が已存在ます。"
+    import-text-paranoia-rebooted: "クリックすることでファイル指定ダイアログが顯示します。\n専用的文字ファイルを読み込んで、山札を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌圖像ファイルzipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下的文字ファイルを指定してください。\n「allCards.txt」だけは使用できません。\n事前に圖像ファイルをQuoridorn上にアップロードしておく必要が已存在ます。"
   card-frame-preset:
     text-template: "文字テンプレート\n（inSANe）"
-    template-image: 畫像テンプレート
-    full-image-paranoia: "畫像フル\n（Paranoia Rebooted）"
-    full-image-tnm: "畫像フル\n（トーキョー・ナイトメア）"
-    full-image-tnx: "畫像フル\n（トーキョーN◎VA）"
+    template-image: 圖像テンプレート
+    full-image-paranoia: "圖像フル\n（Paranoia Rebooted）"
+    full-image-tnm: "圖像フル\n（トーキョー・ナイトメア）"
+    full-image-tnx: "圖像フル\n（トーキョーN◎VA）"
   button:
     import-text-paranoia-rebooted: "文字からインポート\n（Paranoia Rebooted）"
   message-list:
     choose-base-deck: ベース山札的選擇
     create-card: 山札的新規新增
-    create-deck-entrance: "Quoridornにアップロードされた畫像を使って、新しい山札を新增します。\n特殊処理を使わない場合は、畫面下部的矢印で進んでください。"
-    setting-frame: "咭牌的表面的フレームを設定してください。\nここで指定したフレームが、後続的工程で流し込む畫像や文字的ベースとなります。"
+    create-deck-entrance: "Quoridornにアップロードされた圖像を使って、新しい山札を新增します。\n特殊處理を使わない場合は、圖面下部的矢印で進んでください。"
+    setting-frame: "咭牌的表面的フレームを設定してください。\nここで指定したフレームが、後続的工程で流し込む圖像や文字的ベースとなります。"
     choose-back-image: "山札に共通する咭牌的裏面を選んでください。\n新規新增的際に設定できる裏面的種類は１種類的みです。\n複数的裏面を持つ山札は、複数的山札を組み合わせることで新增してください。"
     create-front: 咭牌的表面を選びつつ咭牌データを輸入してください。
     choose-card: 咭牌的選擇・山札登録
@@ -616,7 +616,7 @@ media-list-window:
     list: リスト
   message-list:
     choose-view-mode: 顯示形式的變更
-    how-to-upload: アップロードするには畫面にファイルをドロップインしてください
+    how-to-upload: アップロードするには圖面にファイルをドロップインしてください
   dialog:
     delete-media: "本当にメディア「$1」を刪除しますか？\nこ的操作は取り消せません。"
 
@@ -671,10 +671,10 @@ chat-palette-edit-window:
   window-title: 聊天室パレット編輯
 
 dice-symbol-add-window:
-  window-title: 骰子符號新增
+  window-title: 骰子結果新增
 
 dice-symbol-edit-window:
-  window-title: 骰子符號編輯
+  window-title: 骰子結果編輯
 
 secret-dice-roll-window:
   window-title: 隠し擲骰結果
@@ -697,7 +697,7 @@ public-memo-edit-window:
   window-title: 共用筆記編輯
 
 like-add-window:
-  window-title: いいね新增
+  window-title: Like新增
 
 like-edit-window:
-  window-title: いいね編輯
+  window-title: Like編輯
