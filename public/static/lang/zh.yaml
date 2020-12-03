@@ -350,7 +350,7 @@ message:
   dice-roll-secret-dice: 秘密擲骰
   open-secret-dice: 公開秘密擲骰
   room-create-password: 新增房間必需要密碼
-  drop-area: "どうぞそ的まま\nドロップインしてください。"
+  drop-area: "請拖放\n可以直接插入。"
   really-delete: 真的要刪除？
   choose-image: 選擇圖像。
   drag-piece: 您可以通過拖動去新增地圖。
@@ -393,7 +393,7 @@ login-window:
       - No.
       - 房間名
       - 遊戲系統
-      - 房間人数
+      - 房間人數
       - 密碼
       - 訪客
       - 最後更新時間
@@ -493,14 +493,14 @@ edit-scene-window:
     mask: 迷霧
     frame-border: 格線
   message-select:
-    layer-view: 圖層的顯示・非顯示を切り替えます。
-    layer-order-mode-on: 圖層的順番を入れ替える模式にします。
-    layer-order-mode-off: 通常的模式に戻します。
-    layer-order: ドラッグで圖層的順番を入れ替えます。
-    original-address: 他的場景と異なる座標を持つか的設定です。
-    object-order-mode-on: 物體的順番を入れ替える模式にします。
-    object-order-mode-off: 通常的模式に戻します。
-    object-order: ドラッグで物體的順番を入れ替えます。
+    layer-view: 圖層的顯示・非顯示之間切換。
+    layer-order-mode-on: 圖層的順序更改模式開啓。
+    layer-order-mode-off: 回到通常模式。
+    layer-order: 通過拖動更改圖層的順序。
+    original-address: 此設置的坐標與其他場景不同。
+    object-order-mode-on: 開啓物體的順序更改模式。
+    object-order-mode-off: 回到通常模式。
+    object-order: 通過拖動物體的更改順序。
 
 chmod-window:
   window-title: 權限變更
@@ -509,85 +509,85 @@ chmod-input-window:
   window-title: 權限變更
 
 bgm-add-window:
-  window-title: BGM新增
+  window-title: 新增BGM
 
 bgm-edit-window:
-  window-title: BGM編輯
+  window-title: 編輯BGM
 
 chat-window:
   window-title: 聊天室
-  placeholder: "メッセージ（改行はShift + Enter）\n部分フォント變更は \"&\" を輸入"
+  placeholder: "輸入（改行按Shift + Enter）\n部分字型變更 \"&\" 輸入"
   options:
-    select-sender: 送信者的選擇
-    select-output-tab: 送信先分頁的選擇
-    select-target: 送信相手的選擇
-    select-chat-format: 部分フォーマット選擇
-    select-is-secret: 機密聊天室かどうか
+    select-sender: 選擇發送者
+    select-output-tab: 選擇分頁
+    select-target: 選擇發送對像
+    select-chat-format: 選擇格式
+    select-is-secret: 是否秘密聊天室
     selected-item: "[選擇中]"
     goto-head: "[最初]"
     goto-next: "[下一次]"
     goto-last: "[上一次]"
     goto-tail: "[最後]"
   input-info:
-    message-sender: 現在的送信者を顯示しています
-    message-target: 聊天室的送信先を顯示しています
-    message-outputTab: 聊天室を顯示する分頁を顯示しています
-    message-secret: 機密聊天室かどうかを顯示しています
+    message-sender: 顯示當前發送人
+    message-target: 顯示聊天室的發送對像
+    message-outputTab: 顯示聊天室的發送分頁
+    message-secret: 顯示是否秘密聊天室
   dialog:
-    delete-chat: "本当にこ的聊天室を消しますか？\nこ的操作は取り消せません。"
+    delete-chat: "真的要把該聊天室刪除？\n這操作不能撒回。"
 
 chat-setting-window:
   window-title: 聊天室設定
   message-list:
     edit: 編輯
-    chmod: 權限編輯
+    chmod: 編輯權限
     delete: 刪除
 
 chat-tab-add-window:
-  window-title: 聊天室分頁新增
+  window-title: 新增聊天室分頁
 
 chat-tab-edit-window:
-  window-title: 聊天室分頁編輯
+  window-title: 編輯聊天室分頁
 
 actor-add-window:
-  window-title: 演員新增
+  window-title: 新增演員
 
 actor-edit-window:
-  window-title: 演員編輯
+  window-title: 編輯演員
 
 player-box-window:
-  window-title: プ圖層ボックス
+  window-title: 玩家盒
   message-list:
     edit: 編輯
-    chmod: 權限編輯
+    chmod: 編輯權限
     delete: 刪除
   dialog:
-    delete-actor: "本当に演員「$1」を刪除しますか？\nこ的操作は取り消せません。"
+    delete-actor: "要把演員「$1」刪除？\n這操作不能撒回。"
 
 card-deck-builder:
-  title: Quoridorn咭牌山札ビルダー Ver.1.0.0a1
+  title: Quoridorn咭牌牌堆創建工具 Ver.1.0.0a1
   description:
-    tool: 房間データに山札を1つ登録するため的功能です。
-    import-text-paranoia-rebooted: "クリックすることでファイル指定ダイアログが顯示します。\n専用的文字ファイルを読み込んで、山札を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌圖像ファイルzipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下的文字ファイルを指定してください。\n「allCards.txt」だけは使用できません。\n事前に圖像ファイルをQuoridorn上にアップロードしておく必要が已存在ます。"
+    tool: 這是一個有用的功能，可以在房間註冊一個牌堆。
+    import-text-paranoia-rebooted: "クリックすることで檔案指定ダイアログが顯示します。\n専用的文字檔案を読み込んで、牌堆を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌圖像檔案zipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下的文字檔案を指定してください。\n「allCards.txt」だけは使用できません。\n事前に圖像檔案をQuoridorn上にアップロードしておく必要が已存在ます。"
   card-frame-preset:
-    text-template: "文字テンプレート\n（inSANe）"
-    template-image: 圖像テンプレート
-    full-image-paranoia: "圖像フル\n（Paranoia Rebooted）"
-    full-image-tnm: "圖像フル\n（トーキョー・ナイトメア）"
-    full-image-tnx: "圖像フル\n（トーキョーN◎VA）"
+    text-template: "文字模板\n（inSANe）"
+    template-image: 圖像模板
+    full-image-paranoia: "圖像\n（Paranoia Rebooted）"
+    full-image-tnm: "圖像\n（トーキョー・ナイトメア）"
+    full-image-tnx: "圖像\n（トーキョーN◎VA）"
   button:
-    import-text-paranoia-rebooted: "文字からインポート\n（Paranoia Rebooted）"
+    import-text-paranoia-rebooted: "匯入文字\n（Paranoia Rebooted）"
   message-list:
-    choose-base-deck: ベース山札的選擇
-    create-card: 山札的新規新增
-    create-deck-entrance: "Quoridornにアップロードされた圖像を使って、新しい山札を新增します。\n特殊處理を使わない場合は、圖面下部的矢印で進んでください。"
-    setting-frame: "咭牌的表面的フレームを設定してください。\nここで指定したフレームが、後続的工程で流し込む圖像や文字的ベースとなります。"
-    choose-back-image: "山札に共通する咭牌的裏面を選んでください。\n新規新增的際に設定できる裏面的種類は１種類的みです。\n複数的裏面を持つ山札は、複数的山札を組み合わせることで新增してください。"
-    create-front: 咭牌的表面を選びつつ咭牌データを輸入してください。
-    choose-card: 咭牌的選擇・山札登録
+    choose-base-deck: 選擇牌堆底部
+    create-card: 新增牌堆
+    create-deck-entrance: "使用上傳到Quoridorn的圖片新增新的牌堆。\n如果您不使用特殊處理，請遵循圖像底部的方向。"
+    setting-frame: "請設定一個咭牌的表面。\n此處圖像將是將在後續過程中指定的圖像或文字。"
+    choose-back-image: "請選擇所有牌堆共用的背面。\n新增時，只能設置一種背面。\n複數背面的牌堆、請另外新增。"
+    create-front: 請輸入咭牌表面數據。
+    choose-card: 選擇咭牌・登録牌堆
   header:
-    deck-set-preset: プリセット
-    deck-set-room: 房間データ
+    deck-set-preset: 預設
+    deck-set-room: 房間數據
     card-list: 咭牌列表
   options:
     count-zero: 0張
@@ -598,106 +598,106 @@ card-deck-builder:
     count-more: 5張以上
 
 card-deck-list-window:
-  window-title: 山札列表
+  window-title: 牌堆列表
 
 media-upload-window:
-  window-title: メディアアップロード
+  window-title: 上傳媒體
   dialog:
-    input-tag: "まとめて設定する標籤を輸入してください。"
-    delete-together: "まとめて刪除しますか？"
+    input-tag: "請輸入要一起設置的標籤。"
+    delete-together: "是否要一次將其全部刪除？？"
   message-list:
-    edit-tag-together: まとめて標籤編輯
-    delete-together: まとめて刪除
+    edit-tag-together: 一次性編輯標籤
+    delete-together: 一次性刪除
 
 media-list-window:
-  window-title: メディア列表
+  window-title: 媒體列表
   label:
-    thumbnail: サムネイル
-    list: リスト
+    thumbnail: 縮圖
+    list: 列表
   message-list:
-    choose-view-mode: 顯示形式的變更
-    how-to-upload: アップロードするには圖面にファイルをドロップインしてください
+    choose-view-mode: 變更顯示形式
+    how-to-upload: 請放入版面中進行上傳
   dialog:
-    delete-media: "本当にメディア「$1」を刪除しますか？\nこ的操作は取り消せません。"
+    delete-media: "真的要把媒體「$1」刪除？\n這操作不能撒回。"
 
 card-deck-small-edit-window:
-  window-title: 山札編輯
+  window-title: 牌堆編輯
   label:
-    hand-card-area-width: 手札領域的闊度
-    card-deck-columns: 闊度(マス数)
-    card-deck-rows: 高度(マス数)
-    card-width-ratio: 咭牌闊度(割合)
-    card-height-ratio: 咭牌高度(割合)
-    card-layout-columns: 咭牌配置列数
-    card-layout-rows: 咭牌配置行数
-    hover-view: マウスカーソルONビュー
+    hand-card-area-width: 手牌領域的闊度
+    card-deck-columns: 闊度(行數)
+    card-deck-rows: 高度(行數)
+    card-width-ratio: 咭牌闊度(比例)
+    card-height-ratio: 咭牌高度(比例)
+    card-layout-columns: 配置咭牌列數
+    card-layout-rows: 配置咭牌行數
+    hover-view: 滑鼠光標在視圖上
 
 play-bgm-file-window:
-  window-title: 音樂ファイル播放
+  window-title: 播放音樂檔案
 
 character-add-window:
-  window-title: 角色新增
+  window-title: 新增角色
 
 character-edit-window:
-  window-title: 角色編輯
+  window-title: 編輯角色
 
 initiative-window:
-  window-title: イニシアティブ(INI)表
+  window-title: 行動(INI)表
 
 resource-master-add-window:
-  window-title: 資源新增
+  window-title: 新增資源
 
 resource-master-edit-window:
-  window-title: 資源編輯
+  window-title: 編輯資源
 
 resource-master-list-window:
   window-title: 資源列表
   header:
-    name: 資源名
+    name: 資源名稱
     type: 種類
-    initiative: 自動付与
+    initiative: 自動授予
     initiative-actor: 演員
     initiative-map-object: 場景
   dialog:
-    delete-resource: "本当にこ的資源を消しますか？\nこ的操作は取り消せません。"
+    delete-resource: "真的要把此資源刪除？\n這操作不能撒回。"
 
 chat-palette-window:
-  window-title: 聊天室パレット
+  window-title: 聊天組合版
 
 chat-palette-add-window:
-  window-title: 聊天室パレット新增
+  window-title: 新增聊天組合版
 
 chat-palette-edit-window:
-  window-title: 聊天室パレット編輯
+  window-title: 編輯聊天組合版
 
 dice-symbol-add-window:
-  window-title: 骰子結果新增
+  window-title: 新增骰子結果
 
 dice-symbol-edit-window:
-  window-title: 骰子結果編輯
+  window-title: 編輯骰子結果
 
 secret-dice-roll-window:
-  window-title: 隠し擲骰結果
+  window-title: 隱藏擲骰結果
 
 simple-text-input-window:
-  window-title: 文字輸入（こ的文言は実際には顯示されない）
+  window-title: 文字輸入（該內容實際上並未顯示）
 
 memo-tab-setting-window:
   window-title: 筆記分頁設定
 
 chat-palette-tab-setting-window:
-  window-title: 聊天室パレット分頁設定
+  window-title: 聊天室分頁設定
 
 public-memo-add-window:
-  window-title: 共用筆記新增
+  window-title: 新增共用筆記
   message-list:
-    select-icon: 圖示を選擇してください。
+    select-icon: 請選擇圖示。
 
 public-memo-edit-window:
-  window-title: 共用筆記編輯
+  window-title: 編輯共用筆記
 
 like-add-window:
-  window-title: Like新增
+  window-title: 新增Like
 
 like-edit-window:
-  window-title: Like編輯
+  window-title: 編輯Like
