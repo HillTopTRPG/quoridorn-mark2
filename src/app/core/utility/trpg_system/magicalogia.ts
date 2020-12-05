@@ -1,4 +1,3 @@
-import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import {
   convertNumberNull,
@@ -7,15 +6,160 @@ import {
 import {
   createTokugi,
   outputTableList,
+  outputTokugiChatPalette,
   outputTokugiTable,
   SaikoroFictionTokugi
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
-import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 
-// URL
-const urlRegExp = /https?:\/\/character-sheets\.appspot\.com\/mglg\/.+\?key=([^&]+)/;
-const jsonpUrl =
-  "https://character-sheets.appspot.com/mglg/display?ajax=1&key={key}";
+export class MagicalogiaHelper extends TrpgSystemHelper<MagicaLogia> {
+  public readonly isSupportedOtherText = true;
+  public readonly isSupportedChatPalette = true;
+
+  public constructor(url: string) {
+    super(
+      url,
+      /https?:\/\/character-sheets\.appspot\.com\/mglg\/.+\?key=([^&]+)/,
+      "https://character-sheets.appspot.com/mglg/display?ajax=1&key={key}"
+    );
+  }
+
+  /**
+   * このシステムに対応しているキャラシのURLかどうかを判定する
+   * @return true: 対応したキャラシである, false: 対応したキャラシではない
+   */
+  public async isThis(): Promise<boolean> {
+    return this.urlRegExp.test(this.url);
+  }
+
+  /**
+   * その他欄の情報を生成する
+   */
+  public async createOtherText(): Promise<MemoStore[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>();
+    if (!data) return null;
+
+    // メモ
+    addMemo(data, list);
+    // 蔵書
+    addLibrary(data, list);
+    // 基本情報
+    addBasic(data, list);
+    // 特技
+    addTokugi(data, list);
+
+    return list;
+  }
+
+  /**
+   * チャットパレットの情報を生成する
+   */
+  public async createChatPalette(): Promise<
+    {
+      name: string;
+      paletteText: string;
+    }[]
+  > {
+    const { data, list } = await this.createResultList<string>();
+    if (!data) return [];
+
+    list.push(
+      "2D6",
+      "2D6>=",
+      ...outputTokugiChatPalette(data.tokugi),
+      `2D6>=6 魂の特技「${data.soul.skill}」`,
+      "ST シーン表",
+      "FCT 運命変転表",
+      "RTT ランダム特技表",
+      "FT ファンブル表",
+      "WT 変調表",
+      "AT 事件表",
+      "choice[〇〇,△△,□□]",
+      ...data.libraryList
+        .flatMap(l => [
+          "",
+          `【${l.name}】《${l.skill}》（${l.target}）`,
+          `効果:${l.effect}`
+        ])
+        .map(text => text.replaceAll(/\r?\n/g, ""))
+    );
+
+    return [
+      {
+        name: `◆${data.coverName}`,
+        paletteText: list.join("\n")
+      }
+    ];
+  }
+
+  /**
+   * JSONPから取得した生データから処理用のデータを生成する
+   * @param json JSONPから取得した生データ
+   * @protected
+   */
+  protected createData(json: any): MagicaLogia | null {
+    if (!json) return null;
+    const textFilter = (text: string | null) => {
+      if (!text) return "";
+      return text.trim().replace(/\r?\n/g, "\n");
+    };
+    return {
+      url: this.url,
+      age: textFilter(json["base"]["age"]),
+      attack: textFilter(json["base"]["attack"]),
+      belief: textFilter(json["base"]["belief"]),
+      career: textFilter(json["base"]["career"]),
+      cover: textFilter(json["base"]["cover"]),
+      coverName: textFilter(json["base"]["covername"]),
+      defense: textFilter(json["base"]["defense"]),
+      domain: domainDict[json["base"]["domain"]] || "",
+      exp: textFilter(json["base"]["exp"]),
+      level: textFilter(json["base"]["level"]),
+      levelName: textFilter(json["base"]["levelname"]),
+      magicName: textFilter(json["base"]["magicname"]),
+      memo: textFilter(json["base"]["memo"]),
+      player: textFilter(json["base"]["player"]),
+      sex: textFilter(json["base"]["sex"]),
+      source: textFilter(json["base"]["source"]),
+      anchorList: (json["anchor"] as any[]).map(a => ({
+        attribute: textFilter(a["attribute"]),
+        check: !!a["check"],
+        destiny: textFilter(a["destiny"]),
+        memo: textFilter(a["memo"]),
+        name: textFilter(a["name"])
+      })),
+      dutyList: (json["duty"] as any[]).map(d => ({
+        anchor: textFilter(d["anchor"]),
+        notes: textFilter(d["notes"])
+      })),
+      libraryList: (json["library"] as any[]).map(l => ({
+        charge: convertNumberZero(l["charge"]["value"]),
+        check: !!l["check"],
+        cost: textFilter(l["cost"]),
+        effect: textFilter(l["effect"]),
+        ivCheck: !!l["ivcheck"],
+        name: textFilter(l["name"]),
+        skill: textFilter(l["skill"]),
+        target: textFilter(l["target"]),
+        type: textFilter(l["type"])
+      })),
+      tokugi: createTokugi(json, tokugiTable),
+      soul: {
+        skill: textFilter(json["soul"]["skill"]),
+        judge: textFilter(json["soul"]["learned"]["judge"])
+      },
+      magic: {
+        max: convertNumberZero(json["magic"]["max"]),
+        value: convertNumberZero(json["magic"]["value"])
+      },
+      trueForm: {
+        effect: textFilter(json["trueform"]["effect"]),
+        name: textFilter(json["trueform"]["name"]),
+        notes: textFilter(json["trueform"]["notes"])
+      }
+    };
+  }
+}
 
 const gapColList = [
   { spaceIndex: 5, colText: "1/星" },
@@ -48,32 +192,6 @@ const tokugiTable: string[][] = [
   ["天空", "翼", "光", "癒し", "希望", "絶望"],
   ["異界", "エロス", "円環", "時", "未来", "死"]
 ];
-
-const magicaLogia: TrpgSystemHelper = {
-  isThis: async (url: string) => !!url.match(urlRegExp),
-  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
-    if (!json) return null;
-    const data = createData(url, json);
-    // console.log(JSON.stringify(json, null, "  "));
-    // console.log(JSON.stringify(data, null, "  "));
-
-    const resultList: MemoStore[] = [];
-
-    // メモ
-    addMemo(data, resultList);
-    // 蔵書
-    addLibrary(data, resultList);
-    // 基本情報
-    addBasic(data, resultList);
-    // 特技
-    addTokugi(data, resultList);
-
-    return resultList;
-  }
-};
-
-export default magicaLogia;
 
 type Library = {
   charge: number; // チャージ
@@ -138,68 +256,6 @@ type MagicaLogia = {
     notes: string; // 説明
   };
 };
-
-function createData(url: string, json: any): MagicaLogia {
-  const textFilter = (text: string | null) => {
-    if (!text) return "";
-    return text.trim();
-  };
-  return {
-    url,
-    age: textFilter(json["base"]["age"]),
-    attack: textFilter(json["base"]["attack"]),
-    belief: textFilter(json["base"]["belief"]),
-    career: textFilter(json["base"]["career"]),
-    cover: textFilter(json["base"]["cover"]),
-    coverName: textFilter(json["base"]["covername"]),
-    defense: textFilter(json["base"]["defense"]),
-    domain: domainDict[json["base"]["domain"]] || "",
-    exp: textFilter(json["base"]["exp"]),
-    level: textFilter(json["base"]["level"]),
-    levelName: textFilter(json["base"]["levelname"]),
-    magicName: textFilter(json["base"]["magicname"]),
-    memo: textFilter(json["base"]["memo"]),
-    player: textFilter(json["base"]["player"]),
-    sex: textFilter(json["base"]["sex"]),
-    source: textFilter(json["base"]["source"]),
-    anchorList: (json["anchor"] as any[]).map(a => ({
-      attribute: textFilter(a["attribute"]),
-      check: !!a["check"],
-      destiny: textFilter(a["destiny"]),
-      memo: textFilter(a["memo"]),
-      name: textFilter(a["name"])
-    })),
-    dutyList: (json["duty"] as any[]).map(d => ({
-      anchor: textFilter(d["anchor"]),
-      notes: textFilter(d["notes"])
-    })),
-    libraryList: (json["library"] as any[]).map(l => ({
-      charge: convertNumberZero(l["charge"]["value"]),
-      check: !!l["check"],
-      cost: textFilter(l["cost"]),
-      effect: textFilter(l["effect"]),
-      ivCheck: !!l["ivcheck"],
-      name: textFilter(l["name"]),
-      skill: textFilter(l["skill"]),
-      target: textFilter(l["target"]),
-      type: textFilter(l["type"])
-    })),
-    tokugi: createTokugi(json, tokugiTable),
-    soul: {
-      skill: textFilter(json["soul"]["skill"]),
-      judge: textFilter(json["soul"]["learned"]["judge"])
-    },
-    magic: {
-      max: convertNumberZero(json["magic"]["max"]),
-      value: convertNumberZero(json["magic"]["value"])
-    },
-    trueForm: {
-      effect: textFilter(json["trueform"]["effect"]),
-      name: textFilter(json["trueform"]["name"]),
-      notes: textFilter(json["trueform"]["notes"])
-    }
-  };
-}
 
 function addMemo(data: MagicaLogia, resultList: MemoStore[]) {
   resultList.push({
@@ -291,7 +347,6 @@ function addBasic(data: MagicaLogia, resultList: MemoStore[]) {
         ],
         (prop, value) => {
           if (prop.prop === "destiny") {
-            console.log("destiny:", value);
             return `{運命}[3|2|1|0](${value})`;
           }
           return null;

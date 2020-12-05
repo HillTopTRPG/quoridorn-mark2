@@ -1,20 +1,157 @@
-import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import {
   createEmotion,
   createTokugi,
   outputPersonalityList,
   outputTableList,
+  outputTokugiChatPalette,
   outputTokugiTable,
   Personality,
   SaikoroFictionTokugi
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
-import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 
-// URL
-const urlRegExp = /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/;
-const jsonpUrl =
-  "https://character-sheets.appspot.com/shinobigami/display?ajax=1&key={key}";
+export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
+  public readonly isSupportedOtherText = true;
+  public readonly isSupportedChatPalette = true;
+
+  public constructor(url: string) {
+    super(
+      url,
+      /https?:\/\/character-sheets\.appspot\.com\/shinobigami\/.+\?key=([^&]+)/,
+      "https://character-sheets.appspot.com/shinobigami/display?ajax=1&key={key}"
+    );
+  }
+
+  /**
+   * このシステムに対応しているキャラシのURLかどうかを判定する
+   * @return true: 対応したキャラシである, false: 対応したキャラシではない
+   */
+  public async isThis(): Promise<boolean> {
+    return this.urlRegExp.test(this.url);
+  }
+
+  /**
+   * その他欄の情報を生成する
+   */
+  public async createOtherText(): Promise<MemoStore[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>();
+    if (!data) return null;
+
+    // メモ
+    addMemo(data, list);
+    // 基本情報
+    addBasic(data, list);
+    // 特技
+    addTokugi(data, list);
+    // 忍法
+    addNinpou(data, list);
+
+    return list;
+  }
+
+  /**
+   * チャットパレットの情報を生成する
+   */
+  public async createChatPalette(): Promise<
+    {
+      name: string;
+      paletteText: string;
+    }[]
+  > {
+    const { data, list } = await this.createResultList<string>();
+    if (!data) return [];
+
+    list.push(
+      "2D6",
+      "2D6>=",
+      ...outputTokugiChatPalette(data.tokugi),
+      "ST (無印)シーン表",
+      "FT ファンブル表",
+      "ET 感情表",
+      "KWT 変調表",
+      "RTT ランダム特技決定表",
+      "D66",
+      "choice[〇〇,△△,□□]",
+      "",
+      "兵糧丸を１つ使用",
+      "兵糧丸を１つ獲得",
+      "神通丸を１つ使用",
+      "神通丸を１つ獲得",
+      "遁甲符を１つ使用",
+      "遁甲符を１つ獲得",
+      ...data.ninpouList
+        .flatMap(n => [
+          "",
+          `【${n.name}】《${n.targetSkill}》ｺｽﾄ：${n.cost ||
+            "なし"}／間合:${n.range || "なし"}`,
+          `効果:${n.effect}`
+        ])
+        .map(text => text.replaceAll(/\r?\n/g, ""))
+    );
+
+    return [
+      {
+        name: `◆${data.characterName}`,
+        paletteText: list.join("\n")
+      }
+    ];
+  }
+
+  /**
+   * JSONPから取得した生データから処理用のデータを生成する
+   * @param json JSONPから取得した生データ
+   * @protected
+   */
+  protected createData(json: any): Shinobigami | null {
+    if (!json) return null;
+    const textFilter = (text: string | null) => {
+      if (!text) return "";
+      return text.trim().replace(/\r?\n/g, "\n");
+    };
+    return {
+      url: this.url,
+      playerName: textFilter(json["base"]["player"]),
+      characterName: textFilter(json["base"]["name"]),
+      characterNameKana: textFilter(json["base"]["nameKana"]),
+      foe: textFilter(json["base"]["foe"]),
+      exp: textFilter(json["base"]["exp"]),
+      memo: textFilter(json["base"]["memo"]),
+      upperStyle: upperStyleDict[json["base"]["upperstyle"]] || "",
+      subStyle: textFilter(json["base"]["substyle"]),
+      level: textFilter(json["base"]["level"]),
+      age: textFilter(json["base"]["age"]),
+      sex: textFilter(json["base"]["sex"]),
+      cover: textFilter(json["base"]["cover"]),
+      belief: textFilter(json["base"]["belief"]),
+      stylerule: textFilter(json["base"]["stylerule"]),
+      ninpouList: (json["ninpou"] as any[]).map(n => ({
+        secret: !!n["secret"],
+        name: textFilter(n["name"]),
+        type: textFilter(n["type"]),
+        targetSkill: textFilter(n["targetSkill"]),
+        range: textFilter(n["range"]),
+        cost: textFilter(n["cost"]),
+        effect: textFilter(n["effect"]),
+        page: textFilter(n["page"])
+      })),
+      personalityList: createEmotion(json),
+      scenario: {
+        handout: textFilter(json["scenario"]["handout"]),
+        mission: textFilter(json["scenario"]["mission"]),
+        name: textFilter(json["scenario"]["name"]),
+        pcno: textFilter(json["scenario"]["pcno"])
+      },
+      backgroundList: (json["background"] as any[]).map(b => ({
+        name: textFilter(b["name"]),
+        type: textFilter(b["type"]),
+        point: b["point"] || "0",
+        effect: textFilter(b["effect"]).replace(/\r?\n/g, "\\n")
+      })),
+      tokugi: createTokugi(json, tokugiTable)
+    };
+  }
+}
 
 const gapColList = [
   { spaceIndex: 5, colText: "器術" },
@@ -47,32 +184,6 @@ const tokugiTable: string[][] = [
   ["壊器術", "刀術", "隠蔽術", "流言の術", "伝達術", "憑依術"],
   ["掘削術", "怪力", "第六感", "経済力", "人脈", "呪術"]
 ];
-
-const shinobigami: TrpgSystemHelper = {
-  isThis: async (url: string) => !!url.match(urlRegExp),
-  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
-    if (!json) return null;
-    const data = createData(url, json);
-    // console.log(JSON.stringify(json, null, "  "));
-    // console.log(JSON.stringify(data, null, "  "));
-
-    const resultList: MemoStore[] = [];
-
-    // メモ
-    addMemo(data, resultList);
-    // 基本情報
-    addBasic(data, resultList);
-    // 特技
-    addTokugi(data, resultList);
-    // 忍法
-    addNinpou(data, resultList);
-
-    return resultList;
-  }
-};
-
-export default shinobigami;
 
 type Haikei = {
   name: string;
@@ -119,54 +230,6 @@ type Shinobigami = {
   backgroundList: Haikei[]; // 背景
   tokugi: SaikoroFictionTokugi; // 特技
 };
-
-function createData(url: string, json: any): Shinobigami {
-  const textFilter = (text: string | null) => {
-    if (!text) return "";
-    return text.trim();
-  };
-  return {
-    url,
-    playerName: textFilter(json["base"]["player"]),
-    characterName: textFilter(json["base"]["name"]),
-    characterNameKana: textFilter(json["base"]["nameKana"]),
-    foe: textFilter(json["base"]["foe"]),
-    exp: textFilter(json["base"]["exp"]),
-    memo: textFilter(json["base"]["memo"]),
-    upperStyle: upperStyleDict[json["base"]["upperstyle"]] || "",
-    subStyle: textFilter(json["base"]["substyle"]),
-    level: textFilter(json["base"]["level"]),
-    age: textFilter(json["base"]["age"]),
-    sex: textFilter(json["base"]["sex"]),
-    cover: textFilter(json["base"]["cover"]),
-    belief: textFilter(json["base"]["belief"]),
-    stylerule: textFilter(json["base"]["stylerule"]),
-    ninpouList: (json["ninpou"] as any[]).map(n => ({
-      secret: !!n["secret"],
-      name: textFilter(n["name"]),
-      type: textFilter(n["type"]),
-      targetSkill: textFilter(n["targetSkill"]),
-      range: textFilter(n["range"]),
-      cost: textFilter(n["cost"]),
-      effect: textFilter(n["effect"]).replace(/\r?\n/g, "\\n"),
-      page: textFilter(n["page"])
-    })),
-    personalityList: createEmotion(json),
-    scenario: {
-      handout: textFilter(json["scenario"]["handout"]),
-      mission: textFilter(json["scenario"]["mission"]),
-      name: textFilter(json["scenario"]["name"]),
-      pcno: textFilter(json["scenario"]["pcno"])
-    },
-    backgroundList: (json["background"] as any[]).map(b => ({
-      name: textFilter(b["name"]),
-      type: textFilter(b["type"]),
-      point: b["point"] || "0",
-      effect: textFilter(b["effect"]).replace(/\r?\n/g, "\\n")
-    })),
-    tokugi: createTokugi(json, tokugiTable)
-  };
-}
 
 function addMemo(data: Shinobigami, resultList: MemoStore[]) {
   const damagedColList = data.tokugi.damagedColList;

@@ -24,7 +24,7 @@ import {
   createRectangle,
   getEventPoint
 } from "@/app/core/utility/CoordinateUtility";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { findRequireByKey, questionDialog } from "@/app/core/utility/Utility";
 import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CssManager from "../../../core/css/CssManager";
@@ -33,7 +33,6 @@ import { WindowOpenInfo } from "@/@types/window";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-const uuid = require("uuid");
 import { exportData } from "@/app/core/utility/ExportUtility";
 import {
   ObjectMoveInfo,
@@ -41,6 +40,8 @@ import {
   Point,
   SceneObjectType
 } from "@/@types/store-data-optional";
+import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+const uuid = require("uuid");
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -534,10 +535,9 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
 
-    const sceneObject = (await this.sceneObjectCC!.findSingle(
-      "key",
-      this.docKey
-    ))!.data!;
+    const sceneObject = GameObjectManager.instance.sceneObjectList.find(
+      so => so.key === this.docKey
+    )!;
 
     const memoList = (await SocketFacade.instance.memoCC().findList([
       {
@@ -586,6 +586,82 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
       .data!;
     window.open(data.data!.url, "_blank");
+  }
+
+  @TaskProcessor("create-chat-palette-finished")
+  private async createChatPaletteFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.isNotThisTask(task)) return;
+    const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
+      .data!;
+    const url = data.data!.url;
+    const trpgSystemHelper = await getTrpgSystemHelper(url);
+    if (!trpgSystemHelper || !trpgSystemHelper.isSupportedChatPalette) return;
+
+    const confirm = await questionDialog({
+      title: this.$t("message.load-chat-palette-character-sheet").toString(),
+      text: this.$t(
+        "message.load-chat-palette-character-sheet-text"
+      ).toString(),
+      confirmButtonText: this.$t("button.commit").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
+    const sceneObject = GameObjectManager.instance.sceneObjectList.find(
+      so => so.key === this.docKey
+    )!;
+    const actor = GameObjectManager.instance.actorList.find(
+      a => a.key === sceneObject.data!.actorKey
+    )!;
+    const chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
+    const userKey = SocketFacade.instance.userKey;
+    const helperName = trpgSystemHelper.constructor.name;
+    const duplicateSnapShotList = await chatPaletteListCC.findList([
+      { property: "ownerType", operand: "==", value: "user-list" },
+      { property: "owner", operand: "==", value: userKey },
+      { property: "data.source", operand: "==", value: helperName }
+    ]);
+
+    const chatPaletteInfoList = await trpgSystemHelper.createChatPalette();
+
+    if (duplicateSnapShotList) {
+      duplicateSnapShotList.map(sp => {
+        const cpInfoInd = chatPaletteInfoList.findIndex(
+          cpi => cpi.name === sp.data!.data!.name
+        );
+        if (cpInfoInd > -1) {
+          sp.data!.data!.paletteText =
+            chatPaletteInfoList[cpInfoInd].paletteText;
+          sp.ref.update(sp.data!);
+          chatPaletteInfoList.splice(cpInfoInd, 1);
+        }
+      });
+    }
+
+    if (chatPaletteInfoList.length) {
+      await chatPaletteListCC.addDirect(
+        chatPaletteInfoList.map(cpi => ({
+          ownerType: "user-list",
+          owner: userKey,
+          permission: GameObjectManager.PERMISSION_OWNER_VIEW,
+          data: {
+            name: cpi.name,
+            source: helperName,
+            chatFontColorType: "owner",
+            chatFontColor: "#000000",
+            actorKey: actor.key,
+            sceneObjectKey: this.docKey,
+            targetKey: null, // TODO 入力項目を作成
+            outputTabKey: null, // TODO 入力項目を作成
+            statusKey: null,
+            system: null, // TODO 入力項目を作成
+            isSecret: false,
+            paletteText: cpi.paletteText
+          }
+        }))
+      );
+    }
   }
 
   @TaskProcessor("edit-actor-finished")

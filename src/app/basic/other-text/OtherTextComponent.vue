@@ -195,7 +195,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import VueEvent from "../../core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { MemoStore } from "@/@types/store-data";
@@ -210,6 +210,7 @@ import TaskManager from "@/app/core/task/TaskManager";
 import { OtherTextUpdateInfo } from "task-info";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import ResizeObserver from "resize-observer-polyfill";
+import { getCssPxNum } from "@/app/core/css/Css";
 
 @Component({
   components: { SimpleTabComponent, OtherTextSpanComponent }
@@ -254,6 +255,23 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   @LifeCycle
   private async created() {
     this.createTabInfoList();
+  }
+
+  @LifeCycle
+  private async mounted() {
+    this.remakeResizeObserver();
+  }
+
+  @Watch("currentTabInfo", { deep: true })
+  private onChangeCurrentTabInfo() {
+    this.remakeResizeObserver();
+  }
+
+  private remakeResizeObserver() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+      this.resizeObserver = null;
+    }
     this.resizeObserver = new ResizeObserver((entries: any) => {
       entries.forEach(
         ({
@@ -263,30 +281,31 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
           target: HTMLElement;
           contentRect: { width: number; height: number };
         }) => {
-          let { width, height } = contentRect;
-          width = Math.max(width, 50);
-          height = Math.max(height, 30);
           const currentValue = this.value.find(
             lv => lv.key === this.currentTabInfo!.target
           )!;
           if (!permissionCheck(currentValue, "edit", 1)) return;
+
+          let { width, height } = contentRect;
+          const scrollBarWidth = getCssPxNum("--scroll-bar-width");
+          const w = Math.max(width, 50);
+          const h = Math.max(height, 30);
+
           let index: number = convertNumberZero(target.dataset.index || "");
           currentValue.data!.text = currentValue.data!.text.replace(
             this.textareaRegExp,
             (m, p1, p2, p3) =>
-              index-- ? m : `:::${width}px:${height}px\n${p3}:::END;;;`
+              index-- ? m : `:::${w + scrollBarWidth}px:${h}px\n${p3}:::END;;;`
           );
         }
       );
     });
-  }
-
-  @LifeCycle
-  private async mounted() {
     const textareaElmList: HTMLElement[] = this.$refs
       .textareas as HTMLElement[];
     if (!textareaElmList) return;
-    textareaElmList.forEach(elm => this.resizeObserver!.observe(elm));
+    setTimeout(() => {
+      textareaElmList.forEach(elm => this.resizeObserver!.observe(elm));
+    });
   }
 
   @VueEvent
@@ -564,6 +583,7 @@ blockquote {
 
 textarea {
   display: block;
+  overflow-y: scroll;
   margin-right: 10px !important;
   margin-bottom: 10px !important;
 }

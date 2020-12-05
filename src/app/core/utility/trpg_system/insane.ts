@@ -1,4 +1,3 @@
-import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import {
   convertNumberNull,
@@ -10,16 +9,155 @@ import {
   createTokugi,
   outputPersonalityList,
   outputTableList,
+  outputTokugiChatPalette,
   outputTokugiTable,
   Personality,
   SaikoroFictionTokugi
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
-import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 
-// URL
-const urlRegExp = /https?:\/\/character-sheets\.appspot\.com\/insane\/.+\?key=([^&]+)/;
-const jsonpUrl =
-  "https://character-sheets.appspot.com/insane/display?ajax=1&key={key}";
+export class InSaneHelper extends TrpgSystemHelper<Insane> {
+  public readonly isSupportedOtherText = true;
+  public readonly isSupportedChatPalette = true;
+
+  public constructor(url: string) {
+    super(
+      url,
+      /https?:\/\/character-sheets\.appspot\.com\/insane\/.+\?key=([^&]+)/,
+      "https://character-sheets.appspot.com/insane/display?ajax=1&key={key}"
+    );
+  }
+
+  /**
+   * このシステムに対応しているキャラシのURLかどうかを判定する
+   * @return true: 対応したキャラシである, false: 対応したキャラシではない
+   */
+  public async isThis(): Promise<boolean> {
+    return this.urlRegExp.test(this.url);
+  }
+
+  /**
+   * その他欄の情報を生成する
+   */
+  public async createOtherText(): Promise<MemoStore[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>();
+    if (!data) return null;
+
+    // メモ
+    addMemo(data, list);
+    // アビリティ
+    addAbility(data, list);
+    // 基本情報
+    addBasic(data, list);
+    // 特技
+    addTokugi(data, list);
+
+    return list;
+  }
+
+  /**
+   * チャットパレットの情報を生成する
+   */
+  public async createChatPalette(): Promise<
+    {
+      name: string;
+      paletteText: string;
+    }[]
+  > {
+    const { data, list } = await this.createResultList<string>();
+    if (!data) return [];
+
+    list.push(
+      "2D6",
+      "2D6>=",
+      ...outputTokugiChatPalette(data.tokugi),
+      "ST シーン表",
+      "FT 感情表",
+      "RTT ランダム特技決定表",
+      "TVT 指定特技(暴力)表",
+      "TET 指定特技(情動)表",
+      "TPT 指定特技(知覚)表",
+      "TST 指定特技(技術)表",
+      "TKT 指定特技(知識)表",
+      "TMT 指定特技(怪異)表",
+      "D66",
+      "choice[〇〇,△△,□□]",
+      "",
+      "鎮痛剤を１つ使用",
+      "鎮痛剤を１つ獲得",
+      "武器を１つ使用",
+      "武器を１つ獲得",
+      "お守りを１つ使用",
+      "お守りを１つ獲得",
+      ...data.abilityList
+        .flatMap(a => [
+          "",
+          `【${a.name}】《${a.targetSkill}》`,
+          `効果:${a.effect}`
+        ])
+        .map(text => text.replaceAll(/\r?\n/g, ""))
+    );
+
+    return [
+      {
+        name: `◆${data.name}`,
+        paletteText: list.join("\n")
+      }
+    ];
+  }
+
+  /**
+   * JSONPから取得した生データから処理用のデータを生成する
+   * @param json JSONPから取得した生データ
+   * @protected
+   */
+  protected createData(json: any): Insane | null {
+    if (!json) return null;
+    const textFilter = (text: string | null) => {
+      if (!text) return "";
+      return text.trim().replace(/\r?\n/g, "\n");
+    };
+    const getNumber = (prop: string) => ({
+      max: convertNumberZero(json[prop]["max"]),
+      value: convertNumberZero(json[prop]["value"])
+    });
+    return {
+      url: this.url,
+      age: textFilter(json["base"]["age"]),
+      cover: textFilter(json["base"]["cover"]),
+      curiosity: curiosityDict[json["base"]["curiosity"]] || "",
+      exp: textFilter(json["base"]["exp"]),
+      memo: textFilter(json["base"]["memo"]),
+      name: textFilter(json["base"]["name"]),
+      nameKana: textFilter(json["base"]["nameKana"]),
+      nightmare: textFilter(json["base"]["nightmare"]),
+      player: textFilter(json["base"]["player"]),
+      sex: textFilter(json["base"]["sex"]),
+      hitPoint: getNumber("hitpoint"),
+      sanePoint: getNumber("sanepoint"),
+      scenario: {
+        handout: textFilter(json["scenario"]["handout"]),
+        mission: textFilter(json["scenario"]["mission"]),
+        name: textFilter(json["scenario"]["name"]),
+        pcno: textFilter(json["scenario"]["pcno"])
+      },
+      abilityList: (json["ability"] as any[]).map(a => ({
+        effect: textFilter(a.effect),
+        name: textFilter(a.name),
+        page: textFilter(a.page),
+        targetSkill: textFilter(a.targetSkill),
+        type: textFilter(a.type)
+      })),
+      itemList: (json["item"] as any[]).map(i => ({
+        count: textFilter(i.count),
+        effect: textFilter(i.effect),
+        name: textFilter(i.name)
+      })),
+      personalityList: createEmotion(json),
+      tokugi: createTokugi(json, tokugiTable)
+    };
+  }
+}
 
 const gapColList: { spaceIndex: number; colText: string }[] = [
   { spaceIndex: 5, colText: "1/暴力" },
@@ -52,32 +190,6 @@ const tokugiTable: string[][] = [
   ["戦争", "哀しみ", "第六感", "罠", "考古学", "地底"],
   ["埋葬", "愛", "物陰", "兵器", "天文学", "宇宙"]
 ];
-
-const inSane: TrpgSystemHelper = {
-  isThis: async (url: string) => !!url.match(urlRegExp),
-  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
-    if (!json) return null;
-    const data = createData(url, json);
-    // console.log(JSON.stringify(json, null, "  "));
-    // console.log(JSON.stringify(data, null, "  "));
-
-    const resultList: MemoStore[] = [];
-
-    // メモ
-    addMemo(data, resultList);
-    // アビリティ
-    addAbility(data, resultList);
-    // 基本情報
-    addBasic(data, resultList);
-    // 特技
-    addTokugi(data, resultList);
-
-    return resultList;
-  }
-};
-
-export default inSane;
 
 type Item = {
   count: string; // 個数
@@ -126,52 +238,6 @@ type Insane = {
   tokugi: SaikoroFictionTokugi; // 特技
   personalityList: Personality[]; // 人物欄
 };
-
-function createData(url: string, json: any): Insane {
-  const textFilter = (text: string | null) => {
-    if (!text) return "";
-    return text.trim();
-  };
-  const getNumber = (prop: string) => ({
-    max: convertNumberZero(json[prop]["max"]),
-    value: convertNumberZero(json[prop]["value"])
-  });
-  return {
-    url,
-    age: textFilter(json["base"]["age"]),
-    cover: textFilter(json["base"]["cover"]),
-    curiosity: curiosityDict[json["base"]["curiosity"]] || "",
-    exp: textFilter(json["base"]["exp"]),
-    memo: textFilter(json["base"]["memo"]),
-    name: textFilter(json["base"]["name"]),
-    nameKana: textFilter(json["base"]["nameKana"]),
-    nightmare: textFilter(json["base"]["nightmare"]),
-    player: textFilter(json["base"]["player"]),
-    sex: textFilter(json["base"]["sex"]),
-    hitPoint: getNumber("hitpoint"),
-    sanePoint: getNumber("sanepoint"),
-    scenario: {
-      handout: textFilter(json["scenario"]["handout"]),
-      mission: textFilter(json["scenario"]["mission"]),
-      name: textFilter(json["scenario"]["name"]),
-      pcno: textFilter(json["scenario"]["pcno"])
-    },
-    abilityList: (json["ability"] as any[]).map(a => ({
-      effect: textFilter(a.effect),
-      name: textFilter(a.name),
-      page: textFilter(a.page),
-      targetSkill: textFilter(a.targetSkill),
-      type: textFilter(a.type)
-    })),
-    itemList: (json["item"] as any[]).map(i => ({
-      count: textFilter(i.count),
-      effect: textFilter(i.effect),
-      name: textFilter(i.name)
-    })),
-    personalityList: createEmotion(json),
-    tokugi: createTokugi(json, tokugiTable)
-  };
-}
 
 function addMemo(data: Insane, resultList: MemoStore[]) {
   resultList.push({

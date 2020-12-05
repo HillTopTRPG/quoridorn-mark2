@@ -86,6 +86,7 @@
     - resource-update
     - export-object
     - other-text-update
+    - create-chat-palette
 
 - taskAttribute:
     isIgniteWithParam: false

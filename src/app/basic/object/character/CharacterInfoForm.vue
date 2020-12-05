@@ -418,8 +418,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private async readCharacterSheet() {
-    if (!this.trpgSystemHelper) return;
+  private async createOtherText() {
+    if (!this.trpgSystemHelper || !this.trpgSystemHelper.isSupportedOtherText)
+      return;
 
     const confirm = await questionDialog({
       title: this.$t("message.load-other-text-character-sheet").toString(),
@@ -429,9 +430,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     });
     if (!confirm) return;
 
-    const memoList = await this.trpgSystemHelper.createOtherText(
-      this.urlVolatile
-    );
+    const memoList = await this.trpgSystemHelper.createOtherText();
     if (!memoList) return;
 
     // 中身が空のタブを削除

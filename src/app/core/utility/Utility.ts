@@ -255,19 +255,6 @@ export async function getJson(url: string): Promise<any> {
   });
 }
 
-export async function getJsonForTrpgSystemData<T>(
-  url: string,
-  regexpFrom: RegExp,
-  jsonUrlFormat: string
-): Promise<T | null> {
-  const matchResult = url.match(regexpFrom);
-  if (!matchResult) return null;
-  const key = matchResult[1];
-  // const editUrl = 'https://character-sheets.appspot.com/shinobigami/edit.html?key=' + key;
-  const jsonUrl = jsonUrlFormat.replace("{key}", key);
-  return (await getJson(jsonUrl)) as T;
-}
-
 async function simpleDialog(obj: {
   title: string;
   text: string;

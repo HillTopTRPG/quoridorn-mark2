@@ -131,6 +131,12 @@ character:
         property: data.url
       rhs: ""
       isNot: true
+  - text: context.create-chat-palette
+    taskName: create-chat-palette
+    isDisabledCompare:
+      lhs:
+        refType: can-create-chat-palette
+      rhs: true
   - text: context.edit-actor
     taskName: edit-actor
   - ref: hr-permission-check

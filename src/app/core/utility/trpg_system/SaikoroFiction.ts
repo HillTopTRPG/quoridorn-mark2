@@ -164,6 +164,12 @@ export function outputTokugiTable(
   ];
 }
 
+export function outputTokugiChatPalette(tokugi: SaikoroFictionTokugi) {
+  return tokugi.learnedList.map(
+    t => `2D6>=5 《${tokugi.table[t.row][t.column]}》`
+  );
+}
+
 export function createTokugi(
   json: any,
   table: string[][]

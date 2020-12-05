@@ -3,6 +3,7 @@ import GameObjectManager from "../../basic/GameObjectManager";
 import { ApplicationError } from "../error/ApplicationError";
 import SocketFacade, { permissionCheck } from "../api/app-server/SocketFacade";
 import { findRequireByKey } from "./Utility";
+import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 
 /**
  * オペランドの値を取得する
@@ -97,6 +98,12 @@ async function getOperandValue(
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     const useData = findRequireByKey(list, key);
     return !useData.exclusionOwner;
+  }
+  if (o.refType === "can-create-chat-palette") {
+    const useData = getObject(type!, key!);
+    const url = useData.data!.url;
+    const trpgSystemHelper = await getTrpgSystemHelper(url);
+    return trpgSystemHelper && trpgSystemHelper.isSupportedChatPalette;
   }
   throw new ApplicationError(`Un supported refType='${(<any>o).refType}'`);
 }

@@ -1,54 +1,175 @@
-import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
 import { convertNumberNull } from "@/app/core/utility/PrimaryDataUtility";
 import {
   createSelect,
   outputTableList
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
-import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 
-// URL
-const urlRegExp = /https?:\/\/character-sheets\.appspot\.com\/stellar\/.+\?key=([^&]+)/;
-const jsonpUrl =
-  "https://character-sheets.appspot.com/stellar/display?ajax=1&key={key}";
+export class StellarKnightsHelper extends TrpgSystemHelper<StellarKnights> {
+  public readonly isSupportedOtherText = true;
+  public readonly isSupportedChatPalette = true;
 
-const stellarKnights: TrpgSystemHelper = {
-  isThis: async (url: string) => urlRegExp.test(url),
-  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
-    if (!json) return null;
-    const data = createData(url, json);
-    console.log(JSON.stringify(json, null, "  "));
-    console.log(JSON.stringify(data, null, "  "));
+  public constructor(url: string) {
+    super(
+      url,
+      /https?:\/\/character-sheets\.appspot\.com\/stellar\/.+\?key=([^&]+)/,
+      "https://character-sheets.appspot.com/stellar/display?ajax=1&key={key}"
+    );
+  }
 
-    const resultList: MemoStore[] = [];
+  /**
+   * このシステムに対応しているキャラシのURLかどうかを判定する
+   * @return true: 対応したキャラシである, false: 対応したキャラシではない
+   */
+  public async isThis() {
+    return this.urlRegExp.test(this.url);
+  }
+
+  /**
+   * その他欄の情報を生成する
+   */
+  public async createOtherText(): Promise<MemoStore[] | null> {
+    const { data, json, list } = await this.createResultList<MemoStore>();
+    if (!data) return null;
 
     // メモ
-    addMemo(data, resultList);
+    addMemo(data, list);
     // スキル
-    addSkills(data, resultList);
+    addSkills(data, list);
     // 基本情報
-    addBasic(data, resultList);
+    addBasic(data, list);
 
+    // シースのURLが設定されていたら読込
     const sheathUrl = json["partner"]["sheath"]["url"];
-    if (sheathUrl && urlRegExp.test(sheathUrl)) {
-      const sheathJson = await getJsonForTrpgSystemData<any>(
-        sheathUrl,
-        urlRegExp,
-        jsonpUrl
-      );
-      if (sheathJson) {
-        const sheathData = createData(sheathUrl, sheathJson);
+    console.log(sheathUrl);
+    if (sheathUrl && this.urlRegExp.test(sheathUrl)) {
+      const sheath = await this.createResultList(sheathUrl);
+      console.log("####");
+      console.log(JSON.stringify(sheath.json, null, "  "));
+      if (sheath.data) {
         // シース
-        addSheath(sheathData, resultList, data);
+        addSheath(sheath.data, list, data);
       }
     }
 
-    return resultList;
+    return list;
   }
-};
 
-export default stellarKnights;
+  /**
+   * チャットパレットの情報を生成する
+   */
+  public async createChatPalette(): Promise<
+    {
+      name: string;
+      paletteText: string;
+    }[]
+  > {
+    const { data, list } = await this.createResultList<string>();
+    if (!data) return [];
+
+    list.push(
+      "2B6",
+      "D66",
+      "choice[〇〇,△△,□□]",
+      ...[...Array(8)].map(
+        (_, ind) =>
+          `(${data.status.charge || 0}+${ind +
+            1})B6 チャージ判定（ラウンド${ind + 1}）`
+      ),
+      "",
+      ...[...Array(3)].flatMap((_, diceNum) =>
+        [...Array(6)].map(
+          (_, defend) =>
+            `${diceNum + 1}B6>=${defend + 1} ｱﾀｯｸ判定(${diceNum +
+              1}ダイス, 相手の防御力=${defend + 1})`
+        )
+      ),
+      ...data.skillList
+        .flatMap((s, ind) => [
+          "",
+          `No.${ind + 1}【${s.name}】${s.type} ${s.timing || "なし"}`,
+          `効果:${s.effect}`
+        ])
+        .map(text => text.replaceAll(/\r?\n/g, "")),
+      "",
+      "ALLS シチュエーション表",
+      "STM シチュエーション表：マルジナリア世界",
+      "STBR シチュエーション表B：場所（リコレクト・ドール）",
+      "STCR シチュエーション表C：リコレクト",
+      "STBS シチュエーション表B：シトラセッティング",
+      "STE シチュエーション表：エクリプス専用",
+      "STAL シチュエーション表：オルトリヴート",
+      "FT フラグメント表"
+    );
+
+    return [
+      {
+        name: `◆${(data.name || "").replaceAll(/[(（].+[)）]/g, "")}`,
+        paletteText: list.join("\n")
+      }
+    ];
+  }
+
+  /**
+   * JSONPから取得した生データから処理用のデータを生成する
+   * @param json JSONPから取得した生データ
+   * @param url 元となったキャラクターシートのURL
+   * @protected
+   */
+  protected createData(json: any, url?: string): StellarKnights | null {
+    if (!json) return null;
+    const textFilter = (text: string | null) => {
+      if (!text) return "";
+      return text.trim().replace(/\r?\n/g, "\n");
+    };
+    const getBasicInfo = (prop: string): BasicInfo => {
+      return {
+        age: textFilter(json[prop]["age"]),
+        character: {
+          "1st": textFilter(json[prop]["character"]["1st"]),
+          "2nd": textFilter(json[prop]["character"]["2nd"])
+        },
+        hopeDespair: {
+          choice: textFilter(json[prop]["hopedespair"]["choice"]),
+          detail: textFilter(json[prop]["hopedespair"]["detail"])
+        },
+        keyword: textFilter(json[prop]["keyword"]),
+        name: textFilter(json[prop]["name"]),
+        organization: textFilter(json[prop]["organization"]),
+        personalFlower: {
+          color: textFilter(json[prop]["personalflower"]["color"]),
+          essence: textFilter(json[prop]["personalflower"]["essence"])
+        },
+        phrase: textFilter(json[prop]["phrase"]),
+        player: textFilter(json[prop]["player"]),
+        sex: textFilter(json[prop]["sex"]),
+        wish: textFilter(json[prop]["wish"]),
+        yourStory: textFilter(json[prop]["yourstory"])
+      };
+    };
+    return {
+      url: url || this.url,
+      ...getBasicInfo("base"),
+      knightType: textFilter(json["base"]["knight"]["type"]),
+      sheath: getBasicInfo("sheath"),
+      skillList: (json["skills"] as any[]).map(s => ({
+        effect: textFilter(s.effect),
+        hidden: s.hidden !== null,
+        name: textFilter(s.name),
+        timing: textFilter(s.timing),
+        type: textFilter(s.type)
+      })),
+      status: {
+        charge: textFilter(json["status"]["charge"]),
+        defense: textFilter(json["status"]["defense"]),
+        hp: textFilter(json["status"]["hp"]),
+        medal: textFilter(json["status"]["medal"]),
+        resonance: textFilter(json["status"]["resonance"])
+      }
+    };
+  }
+}
 
 type Skill = {
   effect: string; // エフェクト
@@ -98,58 +219,6 @@ type StellarKnights = BasicInfo & {
     resonance: string; // 歪みの共鳴
   };
 };
-
-function createData(url: string, json: any): StellarKnights {
-  const textFilter = (text: string | null) => {
-    if (!text) return "";
-    return text.trim();
-  };
-  const getBasicInfo = (prop: string): BasicInfo => {
-    return {
-      age: textFilter(json[prop]["age"]),
-      character: {
-        "1st": textFilter(json[prop]["character"]["1st"]),
-        "2nd": textFilter(json[prop]["character"]["2nd"])
-      },
-      hopeDespair: {
-        choice: textFilter(json[prop]["hopedespair"]["choice"]),
-        detail: textFilter(json[prop]["hopedespair"]["detail"])
-      },
-      keyword: textFilter(json[prop]["keyword"]),
-      name: textFilter(json[prop]["name"]),
-      organization: textFilter(json[prop]["organization"]),
-      personalFlower: {
-        color: textFilter(json[prop]["personalflower"]["color"]),
-        essence: textFilter(json[prop]["personalflower"]["essence"])
-      },
-      phrase: textFilter(json[prop]["phrase"]),
-      player: textFilter(json[prop]["player"]),
-      sex: textFilter(json[prop]["sex"]),
-      wish: textFilter(json[prop]["wish"]),
-      yourStory: textFilter(json[prop]["yourstory"])
-    };
-  };
-  return {
-    url,
-    ...getBasicInfo("base"),
-    knightType: textFilter(json["base"]["knight"]["type"]),
-    sheath: getBasicInfo("sheath"),
-    skillList: (json["skills"] as any[]).map(s => ({
-      effect: textFilter(s.effect),
-      hidden: s.hidden !== null,
-      name: textFilter(s.name),
-      timing: textFilter(s.timing),
-      type: textFilter(s.type)
-    })),
-    status: {
-      charge: textFilter(json["status"]["charge"]),
-      defense: textFilter(json["status"]["defense"]),
-      hp: textFilter(json["status"]["hp"]),
-      medal: textFilter(json["status"]["medal"]),
-      resonance: textFilter(json["status"]["resonance"])
-    }
-  };
-}
 
 function addMemo(data: StellarKnights, resultList: MemoStore[]) {
   resultList.push({

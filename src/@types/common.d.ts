@@ -55,6 +55,7 @@ declare module "compare" {
         searchValue: string;
         property: string;
       }
+    | { refType: "can-create-chat-palette" }
     | string
     | number
     | boolean;

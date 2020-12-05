@@ -25,7 +25,7 @@ button:
   setting: 設定
   clear: クリア
   open-dice-roll-result: 結果公開
-  read-character-sheet: その他欄を参照先から生成
+  create-other-text: 参照先からその他欄を生成
 
 type:
   map-mask: マップマスク
@@ -86,6 +86,7 @@ context:
   dice-hide: 出目を隠す
   dice-view: 出目を表示
   dice-roll: ダイスロール
+  create-chat-palette: チャットパレットを生成
 
 selection:
   chat-color-type:
@@ -360,6 +361,8 @@ message:
   delete-failure: 削除に失敗しました。
   load-other-text-character-sheet: その他欄生成
   load-other-text-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
+  load-chat-palette-character-sheet: チャットパレット生成
+  load-chat-palette-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
   success: 成功
   error: エラー
   login-text: "{0} が入室しました。"
