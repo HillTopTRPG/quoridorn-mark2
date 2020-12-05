@@ -1491,7 +1491,7 @@
     widthEm: 0
     widthRem: 0
     heightPx: 4
-    heightEm: 40
+    heightEm: 65
     heightRem: 0.5
   minimizable: true
   paneContainable: true
