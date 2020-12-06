@@ -41,7 +41,7 @@ export default class YoutubeManager {
 
   public static init() {
     const script = document.createElement("script");
-    script.src = "https://www.youtube.com/player_api";
+    script.src = "https://www.youtube.com/iframe_api";
     const firstScript: HTMLScriptElement = document.getElementsByTagName(
       "script"
     )[0] as HTMLScriptElement;
@@ -139,7 +139,7 @@ export default class YoutubeManager {
           playsinline: 1,
           fs: 0,
           list: "search", // 検索クエリ使用
-          listType: "search", // 検索クエリ使用
+          // listType: "search", // 検索クエリ使用
           loop: 0, // 0:ループしない or 1:ループする 後で再設定する
           rel: 0, // 関連動画出さない
           start,
