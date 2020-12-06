@@ -52,6 +52,7 @@ type:
 context:
   bgm-setting: BGM設定
   add-map-mask: マップマスク作成
+  add-map-marker: マップマーカー作成
   add-chit: チット作成
   add-character: キャラクター作成
   modify: 変更
@@ -63,6 +64,10 @@ context:
   hide-border: 枠線を非表示
   view-highlight: ハイライトを表示
   hide-highlight: ハイライトを非表示
+  view-marker-deco: 装飾を表示
+  hide-marker-deco: 装飾を非表示
+  view-marker-back: 塗りつぶす
+  hide-marker-back: 塗りつぶさない
   view-scene-list: シーン一覧表示
   chmod: 権限変更
   shuffle: シャッフル
@@ -331,6 +336,7 @@ label:
   non-throw: 飛ばさない
   linkage-resource: 連動リソース
   export: エクスポート
+  fill: 塗りつぶす
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -475,6 +481,12 @@ map-mask-add-window:
 
 map-mask-edit-window:
   window-title: マップマスク編集
+
+map-marker-add-window:
+  window-title: マップマーカー作成
+
+map-marker-edit-window:
+  window-title: マップマーカー編集
 
 chit-add-window:
   window-title: チット作成
@@ -704,3 +716,4 @@ like-add-window:
 
 like-edit-window:
   window-title: いいね編集
+

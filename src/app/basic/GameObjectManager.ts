@@ -505,6 +505,7 @@ export default class GameObjectManager {
         return this.socketUserList;
       case "scene-object-list":
       case "map-mask":
+      case "map-marker":
       case "chit":
       case "floor-tile":
       case "dice-symbol":

@@ -230,7 +230,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     if (this.isFocused) result.push("focus");
     if (this.isOtherLastModify) result.push("other-player-last-modify");
     if (this.isTransitioning) result.push("transitioning");
-    if (this.sceneObjectInfo.data!.isHideSubType) result.push("hide-sub-type");
+    if (this.sceneObjectInfo.data!.type === "map-marker") {
+      if (!this.sceneObjectInfo.data!.isHideSubType) {
+        result.push("hide-back");
+        result.push("hide-front");
+      }
+    } else {
+      if (this.sceneObjectInfo.data!.isHideSubType)
+        result.push("hide-sub-type");
+    }
 
     return result;
   }
@@ -324,10 +332,25 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
   @Watch("isMounted")
   @Watch("sceneObjectInfo.data.isHideHighlight")
+  @Watch("sceneObjectInfo.data.isHideSubType")
   private onChangeIsHideHighlight() {
-    const outlineWidth = this.sceneObjectInfo!.data!.isHideHighlight ? 0 : 6;
-    this.elm.style.outlineOffset = `-${outlineWidth}px`;
-    this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
+    if (this.sceneObjectInfo!.data!.type === "map-marker") {
+      const texture = this.sceneObjectInfo!.data!.textures[
+        this.sceneObjectInfo!.data!.textureIndex
+      ];
+      if (this.sceneObjectInfo!.data!.isHideSubType) {
+        this.elm.style.outlineOffset = `0px`;
+        this.elm.style.outline = "";
+      } else {
+        this.elm.style.outlineOffset = "-6px";
+        if (texture.type === "color")
+          this.elm.style.outline = `${texture.backgroundColor} solid 6px`;
+      }
+    } else {
+      const outlineWidth = this.sceneObjectInfo!.data!.isHideHighlight ? 0 : 6;
+      this.elm.style.outlineOffset = `-${outlineWidth}px`;
+      this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
+    }
   }
 
   private boxShadowColor: string = "";
@@ -441,24 +464,36 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     );
   }
 
+  private async changeFlag<T extends keyof SceneObjectStore>(
+    prop: T,
+    value: NonNullable<SceneObjectStore[T]>
+  ) {
+    console.log(
+      `【${prop.toString()}:${value}】 type: ${this.type}, docKey: ${
+        this.docKey
+      }`
+    );
+    try {
+      const data: SceneObjectStore = (await this.sceneObjectCC!.findSingle(
+        "key",
+        this.docKey
+      ))!.data!.data!;
+      data[prop]! = value;
+      await this.sceneObjectCC!.updatePackage([
+        { key: this.docKey, data: data }
+      ]);
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
   @TaskProcessor("change-highlight-view-finished")
   private async changeHighlightViewFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【highlight:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isHideHighlight = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideHighlight", val);
   }
 
   @TaskProcessor("change-border-view-finished")
@@ -466,19 +501,17 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【border:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isHideBorder = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideBorder", val);
+  }
+
+  @TaskProcessor("change-marker-back-view-finished")
+  private async changeMarkerBackViewFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.isNotThisTask(task)) return;
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideSubType", val);
   }
 
   @TaskProcessor("lock-object-finished")
@@ -486,19 +519,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【lock:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isLock = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isLock", val);
   }
 
   @TaskProcessor("copy-object-finished")

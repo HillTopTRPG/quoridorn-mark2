@@ -28,6 +28,13 @@
         type="character"
       />
 
+      <map-marker-piece-component
+        v-if="sceneObject.data.type === 'map-marker'"
+        :key="sceneObject.key"
+        :docKey="sceneObject.key"
+        type="map-marker"
+      />
+
       <dice-symbol-piece-component
         v-if="sceneObject.data.type === 'dice-symbol'"
         :key="sceneObject.key"
@@ -54,9 +61,11 @@ import ChitPieceComponent from "../object/chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../object/character/CharacterPieceComponent.vue";
 import { findRequireByKey } from "../../core/utility/Utility";
 import DiceSymbolPieceComponent from "@/app/basic/object/dice-symbol/DiceSymbolPieceComponent.vue";
+import MapMarkerPieceComponent from "@/app/basic/object/map-marker/MapMarkerPieceComponent.vue";
 
 @Component({
   components: {
+    MapMarkerPieceComponent,
     DiceSymbolPieceComponent,
     CharacterPieceComponent,
     ChitPieceComponent,

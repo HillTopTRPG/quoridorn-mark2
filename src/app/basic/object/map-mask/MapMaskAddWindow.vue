@@ -39,7 +39,7 @@ import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 const uuid = require("uuid");
 
 @Component({ components: { MapMaskInfoForm } })
-export default class MapMastAddWindow extends Mixins<WindowVue<string, never>>(
+export default class MapMaskAddWindow extends Mixins<WindowVue<string, never>>(
   WindowVue
 ) {
   private name: string = LanguageManager.instance.getText("type.map-mask");

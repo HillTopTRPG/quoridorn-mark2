@@ -551,6 +551,50 @@
   resizable: false
   tableInfoList: []
 
+"map-marker-add-window":
+  icon: plus
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 17em(カラーピッカー) + 5em(ラベル)
+    widthPx: 4
+    widthEm: 34
+    widthRem: 0.4
+    heightPx: 2
+    heightEm: 16
+    heightRem: 0
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: false
+  tableInfoList: []
+
+"map-marker-edit-window":
+  icon: pencil
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    # 12em(ドラッグ部分) + 17em(カラーピッカー) + 5em(ラベル)
+    widthPx: 4
+    widthEm: 34
+    widthRem: 0.4
+    heightPx: 2
+    heightEm: 18
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: false
+  tableInfoList: []
+
 "chit-add-window":
   icon: plus
   parentTypeList: []
