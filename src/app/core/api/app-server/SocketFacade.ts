@@ -633,6 +633,7 @@ export default class SocketFacade {
         cc = this.sceneObjectCC();
       }
     }
+    if (!cc && "public-memo" === type) cc = this.publicMemoListCC();
     if (!cc) throw new ApplicationError(`Invalid type error. type=${type}`);
     return cc;
   }

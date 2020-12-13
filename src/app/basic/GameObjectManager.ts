@@ -543,15 +543,16 @@ export default class GameObjectManager {
         return this.chatPaletteList;
       case "dice-type-list":
         return this.diceTypeList;
-      case "dice-and-pips":
+      case "dice-and-pips-list":
         return this.diceAndPipsList;
-      case "chat-bcdice-dice-roll-result":
+      case "chat-bcdice-dice-roll-result-list":
         return this.keepBcdiceDiceRollResultList;
-      case "memo":
+      case "memo-list":
         return this.memoList;
+      case "public-memo-list":
       case "public-memo":
         return this.publicMemoList;
-      case "like":
+      case "like-list":
         return this.likeList;
     }
     return null;
