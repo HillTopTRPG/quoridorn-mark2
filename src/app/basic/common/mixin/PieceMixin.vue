@@ -31,7 +31,7 @@ import CssManager from "../../../core/css/CssManager";
 import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { sendChatLog } from "@/app/core/utility/ChatUtility";
+import { escapeHtml, sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import { exportData } from "@/app/core/utility/ExportUtility";
 import {
@@ -88,9 +88,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       const name = GameObjectManager.instance.getExclusionOwnerName(
         this.sceneObjectInfo.exclusionOwner
       );
-      result = name
-        ? `<span class="icon-lock"></span>sceneObject(${escape(name)})`
-        : "";
+      result = name ? `<span class="icon-lock"></span>${escapeHtml(name)}` : "";
     }
 
     let additional = "";
@@ -99,7 +97,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         this.sceneAndObjectInfo.exclusionOwner
       );
       additional = name
-        ? `<span class="icon-lock"></span>sceneAndObject(${escape(name)})`
+        ? `<span class="icon-lock"></span>${escapeHtml(name)}`
         : "";
     }
 
