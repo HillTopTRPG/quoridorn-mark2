@@ -133,13 +133,13 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     await this.init();
   }
 
-  @TaskProcessor("global-enter-finished")
-  private async globalEnterFinished(
-    task: Task<never, never>
-  ): Promise<TaskResult<never> | void> {
-    await this.send();
-    task.resolve();
-  }
+  // @TaskProcessor("global-enter-finished")
+  // private async globalEnterFinished(
+  //   task: Task<never, never>
+  // ): Promise<TaskResult<never> | void> {
+  //   await this.send();
+  //   task.resolve();
+  // }
 
   @VueEvent
   private async send(cutInKey?: string) {
