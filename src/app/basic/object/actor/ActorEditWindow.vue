@@ -4,6 +4,7 @@
       v-if="isMounted"
       :name.sync="name"
       :tag.sync="tag"
+      :actorType="actorType"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :standImagePosition.sync="standImagePosition"
@@ -53,6 +54,7 @@ export default class ActorEditWindow extends Mixins<
   private actorList = GameObjectManager.instance.actorList;
   private isProcessed: boolean = false;
   private isMounted: boolean = false;
+  private actorType: "user" | "character" = "user";
 
   private name: string = "";
   private tag: string = "";
@@ -87,6 +89,7 @@ export default class ActorEditWindow extends Mixins<
     this.chatFontColorType = data.data!.chatFontColorType;
     this.chatFontColor = data.data!.chatFontColor;
     this.standImagePosition = data.data!.standImagePosition;
+    this.actorType = data.data!.type;
 
     if (this.windowInfo.status === "window") {
       try {

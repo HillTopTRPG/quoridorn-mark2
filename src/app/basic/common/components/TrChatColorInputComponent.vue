@@ -5,7 +5,11 @@
     </th>
     <td>
       <div class="wrap">
-        <chat-color-type-select v-model="typeVolatile" :readonly="readonly" />
+        <chat-color-type-select
+          v-model="typeVolatile"
+          :actorType="actorType"
+          :readonly="readonly"
+        />
         <color-picker-component
           :key="key"
           :disabled="disabled"
@@ -30,6 +34,9 @@ import ChatColorTypeSelect from "./select/ChatColorTypeSelect.vue";
 export default class TrChatColorInputComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
+  @Prop({ type: String, required: true })
+  private actorType!: "user" | "character";
+
   @Prop({ type: String, required: true })
   private labelName!: string;
 

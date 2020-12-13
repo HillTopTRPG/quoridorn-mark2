@@ -77,6 +77,7 @@
                   <tr-chat-color-input-component
                     labelName="label.chat-font-color"
                     :readonly="true"
+                    :actorType="actor.data.type"
                     :type.sync="actor.data.chatFontColorType"
                     :color.sync="actor.data.chatFontColor"
                   />

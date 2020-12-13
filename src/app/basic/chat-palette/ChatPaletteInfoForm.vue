@@ -11,6 +11,7 @@
       <tr>
         <tr-chat-color-input-component
           labelName="label.chat-font-color"
+          :actorType="'character'"
           :type.sync="chatFontColorTypeVolatile"
           :color.sync="chatFontColorVolatile"
         />
