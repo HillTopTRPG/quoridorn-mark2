@@ -321,10 +321,6 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
       VISITOR: this.$t("selection.user-type.VISITOR")!.toString()
     };
 
-    const convert = (data: any) => {
-      return JSON.stringify(data);
-    };
-
     if (!GameObjectManager.instance.isGm) {
       const someActor = (key: string | null): boolean => {
         const actor = findByKey(actorList, key);
@@ -353,6 +349,10 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
         }
       });
     }
+
+    const convert = (data: any) => {
+      return JSON.stringify(data).replaceAll(/\\n/g, "\\\\n");
+    };
 
     const data = {
       owner: SocketFacade.instance.userKey,

@@ -490,18 +490,18 @@ export default class App extends Vue {
       return;
     }
 
-    if (event.key === "Shift" && event.ctrlKey) {
-      // TODO ブーケトス機能
-      await TaskManager.instance.ignition<ModeInfo, never>({
-        type: "mode-change",
-        owner: "Quoridorn",
-        value: {
-          type: "throw-parabola",
-          value: (this.throwParabola ? "off" : "on") as "on" | "off"
-        }
-      });
-      return;
-    }
+    // if (event.key === "Shift" && event.ctrlKey) {
+    //   // TODO ブーケトス機能
+    //   await TaskManager.instance.ignition<ModeInfo, never>({
+    //     type: "mode-change",
+    //     owner: "Quoridorn",
+    //     value: {
+    //       type: "throw-parabola",
+    //       value: (this.throwParabola ? "off" : "on") as "on" | "off"
+    //     }
+    //   });
+    //   return;
+    // }
     // console.log(event.key);
   }
 

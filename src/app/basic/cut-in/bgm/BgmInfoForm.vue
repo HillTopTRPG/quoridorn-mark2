@@ -1,169 +1,221 @@
 <template>
   <div class="bgm-info-form">
-    <table>
-      <tr>
-        <!-- URL -->
-        <tr-string-input-component
-          class="url"
-          labelName="label.url"
-          v-model="urlVolatile"
-          :placeholder="$t('bgm-info-form.label.url-placeholder')"
-          inputWidth="100%"
-        />
-      </tr>
-      <tr>
-        <!-- タイトル -->
-        <tr-string-input-component
-          class="title"
-          labelName="label.title"
-          v-model="titleVolatile"
-          inputWidth="100%"
-        />
-      </tr>
-      <tr>
-        <!-- タグ -->
-        <tr-string-input-component
-          class="tag"
-          labelName="label.tag"
-          v-model="tagVolatile"
-          :list="`${key}-tag-values`"
-        />
-      </tr>
-      <tr class="space"></tr>
-      <tr>
-        <!-- 音量 -->
-        <tr-range-input-component
-          class="volume"
-          labelName="bgm-info-form.label.volume"
-          v-model="volumeVolatile"
-          :step="1"
-          :min="0"
-          :max="100"
-        />
-      </tr>
-      <tr>
-        <!-- 再生開始 -->
-        <tr-number-input-component
-          class="start"
-          labelName="bgm-info-form.label.play-start"
-          v-model="startVolatile"
-          :step="0.1"
-          :min="-10000"
-          :max="10000"
-          unitLabel="bgm-info-form.label.second"
-        />
-      </tr>
-      <tr>
-        <!-- 再生終了 -->
-        <tr-number-input-component
-          class="end"
-          labelName="bgm-info-form.label.play-end"
-          v-model="endVolatile"
-          :step="0.1"
-          :min="-10000"
-          :max="10000"
-          unitLabel="bgm-info-form.label.second"
-        />
-      </tr>
-      <tr class="space"></tr>
-      <tr>
-        <!-- フェードイン -->
-        <tr-number-input-component
-          class="fade-in"
-          labelName="bgm-info-form.label.fade-in"
-          v-model="fadeInVolatile"
-          :step="0.1"
-          :min="0"
-          :max="200"
-          unitLabel="bgm-info-form.label.second"
-        />
-      </tr>
-      <tr>
-        <!-- フェードアウト -->
-        <tr-number-input-component
-          class="fade-out"
-          labelName="bgm-info-form.label.fade-out"
-          v-model="fadeOutVolatile"
-          :step="0.1"
-          :min="0"
-          :max="200"
-          unitLabel="bgm-info-form.label.second"
-        />
-      </tr>
-      <tr class="space"></tr>
-      <tr>
-        <!-- チャット連動オプション -->
-        <th>
-          <label
-            class="label-input"
-            :for="`${key}-chat-linkage`"
-            v-t="'label.chat-linkage'"
-          ></label>
-        </th>
-        <td>
-          <chat-linkage-type-select
-            :id="`${key}-chat-linkage`"
-            v-model="chatLinkageTypeVolatile"
-          />
-        </td>
-      </tr>
-      <tr>
-        <!-- チャット連動対象 -->
-        <tr-string-input-component
-          class="chat-linkage-target"
-          labelName="label.chat-linkage-target"
-          v-model="chatLinkageTargetVolatile"
-          :disabled="chatLinkageTypeVolatile === 'none'"
-          :placeholder="chatLinkagePlaceholder"
-        />
-      </tr>
-    </table>
+    <simple-tab-component
+      :windowKey="windowKey"
+      :tabList="tabList"
+      v-model="currentTabInfo"
+    >
+      <!-- 基本タブ -->
+      <div class="layer-block" v-if="currentTabInfo.target === 'basic'">
+        <table>
+          <tr>
+            <!-- URL -->
+            <tr-string-input-component
+              class="url"
+              labelName="label.url"
+              v-model="urlVolatile"
+              :placeholder="$t('bgm-info-form.label.url-placeholder')"
+              inputWidth="100%"
+            />
+          </tr>
+          <tr class="space"></tr>
+          <tr>
+            <!-- タイトル -->
+            <tr-string-input-component
+              class="title"
+              labelName="label.title"
+              v-model="titleVolatile"
+              inputWidth="100%"
+            />
+          </tr>
+          <tr>
+            <!-- タグ -->
+            <tr-string-input-component
+              class="tag"
+              labelName="label.tag"
+              v-model="tagVolatile"
+              :list="`${key}-tag-values`"
+            />
+          </tr>
+          <tr class="space"></tr>
+          <tr>
+            <!-- チャット連動オプション -->
+            <th>
+              <label
+                class="label-input"
+                :for="`${key}-chat-linkage`"
+                v-t="'label.chat-linkage'"
+              ></label>
+            </th>
+            <td>
+              <chat-linkage-type-select
+                :id="`${key}-chat-linkage`"
+                v-model="chatLinkageTypeVolatile"
+              />
+            </td>
+          </tr>
+          <tr>
+            <!-- チャット連動対象 -->
+            <tr-string-input-component
+              class="chat-linkage-target"
+              labelName="label.chat-linkage-target"
+              v-model="chatLinkageTargetVolatile"
+              :disabled="chatLinkageTypeVolatile === 'none'"
+              :placeholder="chatLinkagePlaceholder"
+            />
+          </tr>
+        </table>
 
-    <datalist :id="`${key}-tag-values`">
-      <option v-for="tag in tags" :key="tag" :value="tag">
-        {{ tag }}
-      </option>
-    </datalist>
-
-    <div class="check-block">
-      <!-- 無限ループ -->
-      <div
-        class="check-box inline repeat"
-        :class="{ checked: isRepeatVolatile }"
-        @click="isRepeatVolatile = !isRepeat"
-        @contextmenu.prevent
-      >
-        <i class="icon-loop"></i>
-        <span v-t="'bgm-info-form.label.repeat'"></span>
+        <datalist :id="`${key}-tag-values`">
+          <option v-for="tag in tags" :key="tag" :value="tag">
+            {{ tag }}
+          </option>
+        </datalist>
       </div>
 
-      <!-- スタンバイ -->
-      <div
-        class="check-box inline stand-by"
-        :class="{ checked: isStandByVolatile }"
-        @click="isStandByVolatile = !isStandBy"
-        @contextmenu.prevent
-        v-t="'bgm-info-form.label.stand-by'"
-      ></div>
-    </div>
+      <!-- 画像タブ -->
+      <image-picker-component
+        v-if="currentTabInfo.target === 'image'"
+        v-model="imageKeyVolatile"
+        :windowKey="key"
+        :mediaTag.sync="imageTagVolatile"
+        :direction.sync="directionVolatile"
+        ref="imagePicker"
+      />
 
-    <!-- 多重再生時強制続行 -->
-    <div
-      class="check-box force-continue"
-      :class="{ checked: isForceContinueVolatile }"
-      @click="isForceContinueVolatile = !isForceContinue"
-      @contextmenu.prevent
-      v-t="'bgm-info-form.label.force-continue'"
-    ></div>
+      <!-- 画像設定タブ -->
+      <div class="layer-block" v-if="currentTabInfo.target === 'image-setting'">
+        <table>
+          <tr>
+            <tr-string-input-component
+              labelName="label.tag"
+              width="100%"
+              v-model="tagVolatile"
+            />
+          </tr>
+        </table>
+      </div>
 
-    <!-- 強制新規作成 -->
-    <div
-      class="check-box force-new"
-      :class="{ checked: isForceNewVolatile }"
-      @click="isForceNewVolatile = !isForceNew"
-      @contextmenu.prevent
-      v-t="'bgm-info-form.label.force-new'"
-    ></div>
+      <!-- BGMタブ -->
+      <image-picker-component
+        v-if="currentTabInfo.target === 'bgm'"
+        v-model="bgmKeyVolatile"
+        :windowKey="key"
+        :mediaTag.sync="bgmTagVolatile"
+        :direction.sync="directionVolatile"
+        ref="bgmPicker"
+      />
+
+      <!-- BGM設定タブ -->
+      <div class="layer-block" v-if="currentTabInfo.target === 'bgm-setting'">
+        <table>
+          <tr>
+            <!-- 音量 -->
+            <tr-range-input-component
+              class="volume"
+              labelName="bgm-info-form.label.volume"
+              v-model="volumeVolatile"
+              :step="1"
+              :min="0"
+              :max="100"
+            />
+          </tr>
+          <tr>
+            <!-- 再生開始 -->
+            <tr-number-input-component
+              class="start"
+              labelName="bgm-info-form.label.play-start"
+              v-model="startVolatile"
+              :step="0.1"
+              :min="-10000"
+              :max="10000"
+              unitLabel="bgm-info-form.label.second"
+            />
+          </tr>
+          <tr>
+            <!-- 再生終了 -->
+            <tr-number-input-component
+              class="end"
+              labelName="bgm-info-form.label.play-end"
+              v-model="endVolatile"
+              :step="0.1"
+              :min="-10000"
+              :max="10000"
+              unitLabel="bgm-info-form.label.second"
+            />
+          </tr>
+          <tr class="space"></tr>
+          <tr>
+            <!-- フェードイン -->
+            <tr-number-input-component
+              class="fade-in"
+              labelName="bgm-info-form.label.fade-in"
+              v-model="fadeInVolatile"
+              :step="0.1"
+              :min="0"
+              :max="200"
+              unitLabel="bgm-info-form.label.second"
+            />
+          </tr>
+          <tr>
+            <!-- フェードアウト -->
+            <tr-number-input-component
+              class="fade-out"
+              labelName="bgm-info-form.label.fade-out"
+              v-model="fadeOutVolatile"
+              :step="0.1"
+              :min="0"
+              :max="200"
+              unitLabel="bgm-info-form.label.second"
+            />
+          </tr>
+        </table>
+
+        <div class="check-block">
+          <!-- 無限ループ -->
+          <div
+            class="check-box repeat"
+            :class="{ checked: isRepeatVolatile }"
+            @click="isRepeatVolatile = !isRepeat"
+            @contextmenu.prevent
+          >
+            <i class="icon-loop"></i>
+            <span v-t="'bgm-info-form.label.repeat'"></span>
+          </div>
+
+          <!-- スタンバイ -->
+          <div
+            class="check-box stand-by"
+            :class="{ checked: isStandByVolatile }"
+            @click="isStandByVolatile = !isStandBy"
+            @contextmenu.prevent
+            v-t="'bgm-info-form.label.stand-by'"
+          ></div>
+        </div>
+
+        <div class="check-block">
+          <!-- 多重再生時強制続行 -->
+          <div
+            class="check-box force-continue"
+            :class="{ checked: isForceContinueVolatile }"
+            @click="isForceContinueVolatile = !isForceContinue"
+            @contextmenu.prevent
+            v-t="'bgm-info-form.label.force-continue'"
+          ></div>
+        </div>
+
+        <div class="check-block">
+          <!-- 強制新規作成 -->
+          <div
+            class="check-box force-new"
+            :class="{ checked: isForceNewVolatile }"
+            @click="isForceNewVolatile = !isForceNew"
+            @contextmenu.prevent
+            v-t="'bgm-info-form.label.force-new'"
+          ></div>
+        </div>
+      </div>
+    </simple-tab-component>
   </div>
 </template>
 
@@ -180,9 +232,17 @@ import BaseInput from "../../../core/component/BaseInput.vue";
 import TrRangeInputComponent from "../../common/components/TrRangeInputComponent.vue";
 import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import { TabInfo } from "@/@types/window";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import { Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
+    SimpleTabComponent,
+    ImagePickerComponent,
     ChatLinkageTypeSelect,
     TrRangeInputComponent,
     TrNumberInputComponent,
@@ -192,6 +252,37 @@ import VueEvent from "../../../core/decorator/VueEvent";
   }
 })
 export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
+  @Prop({ type: String, required: true })
+  private windowKey!: string;
+
+  private tabList: TabInfo[] = [
+    { key: "1", target: "basic", text: "" },
+    { key: "2", target: "image", text: "" },
+    { key: "3", target: "image-setting", text: "" },
+    { key: "4", target: "bgm", text: "" },
+    { key: "5", target: "bgm-setting", text: "" }
+  ];
+  private currentTabInfo: TabInfo = this.tabList[0];
+
+  @TaskProcessor("language-change-finished")
+  private async languageChangeFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    this.createTabInfoList();
+    task.resolve();
+  }
+
+  @LifeCycle
+  private async created() {
+    this.createTabInfoList();
+  }
+
+  private createTabInfoList() {
+    this.tabList.forEach(t => {
+      t.text = this.$t(`label.${t.target}`)!.toString();
+    });
+  }
+
   private isMounted: boolean = false;
 
   private isYoutube: boolean = false;
@@ -388,6 +479,69 @@ export default class BgmInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:isForceNew", value);
   }
 
+  @Prop({ type: String, default: null })
+  private imageKey!: string | null;
+  private imageKeyVolatile: string | null = null;
+  @Watch("imageKey", { immediate: true })
+  private onChangeImageKey(value: string | null) {
+    this.imageKeyVolatile = value;
+  }
+  @Watch("imageKeyVolatile")
+  private onChangeImageKeyVolatile(value: string | null) {
+    this.$emit("update:imageKey", value);
+  }
+
+  @Prop({ type: String, default: null })
+  private imageTag!: string | null;
+
+  private imageTagVolatile: string | null = null;
+  @Watch("imageTag", { immediate: true })
+  private onChangeImageTag(value: string | null) {
+    this.imageTagVolatile = value;
+  }
+  @Watch("imageTagVolatile")
+  private onChangeImageTagVolatile(value: string | null) {
+    this.$emit("update:imageTag", value);
+  }
+
+  @Prop({ type: String, required: true })
+  private direction!: Direction;
+
+  private directionVolatile: Direction = "none";
+  @Watch("direction", { immediate: true })
+  private onChangeDirection(value: Direction) {
+    this.directionVolatile = value;
+  }
+  @Watch("directionVolatile")
+  private onChangeDirectionVolatile(value: Direction) {
+    this.$emit("update:direction", value);
+  }
+
+  @Prop({ type: String, default: null })
+  private bgmKey!: string | null;
+  private bgmKeyVolatile: string | null = null;
+  @Watch("bgmKey", { immediate: true })
+  private onChangeBgmKey(value: string | null) {
+    this.bgmKeyVolatile = value;
+  }
+  @Watch("bgmKeyVolatile")
+  private onChangeBgmKeyVolatile(value: string | null) {
+    this.$emit("update:bgmKey", value);
+  }
+
+  @Prop({ type: String, default: null })
+  private bgmTag!: string | null;
+
+  private bgmTagVolatile: string | null = null;
+  @Watch("bgmTag", { immediate: true })
+  private onChangeBgmTag(value: string | null) {
+    this.bgmTagVolatile = value;
+  }
+  @Watch("bgmTagVolatile")
+  private onChangeBgmTagVolatile(value: string | null) {
+    this.$emit("update:bgmTag", value);
+  }
+
   private get tags(): string[] {
     return this.cutInList
       .map(c => c.data!.tag)
@@ -435,7 +589,7 @@ th {
 }
 
 .check-box {
-  @include flex-box(row, flex-start, center);
+  @include inline-flex-box(row, flex-start, center);
 
   &.inline {
     @include inline-flex-box(row, flex-start, center);
@@ -465,6 +619,29 @@ th {
     &:after {
       visibility: visible;
     }
+  }
+}
+
+.simple-tab-component {
+  align-self: stretch;
+  height: calc(100% - 2em - 0.5rem);
+
+  > *:not(:first-child) {
+    width: 100%;
+    height: calc(100% - 2em);
+    flex: 1;
+  }
+
+  > div:not(.image-picker-container) {
+    border: solid 1px gray;
+    box-sizing: border-box;
+    padding: 0.2rem;
+  }
+
+  textarea {
+    resize: none;
+    padding: 0;
+    box-sizing: border-box;
   }
 }
 </style>

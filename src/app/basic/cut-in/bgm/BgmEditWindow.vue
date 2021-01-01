@@ -1,6 +1,7 @@
 <template>
   <div class="container" ref="window-container">
     <bgm-info-form
+      :window-key="windowKey"
       v-if="isMounted"
       :url.sync="url"
       :title.sync="title"
@@ -16,6 +17,11 @@
       :isStandBy.sync="isStandBy"
       :isForceContinue.sync="isForceContinue"
       :isForceNew.sync="isForceNew"
+      :image-key="imageKey"
+      :image-tag="imageTag"
+      :direction="direction"
+      :bgm-key="bgmKey"
+      :bgm-tag="bgmTag"
     />
 
     <div class="button-area">
@@ -48,6 +54,7 @@ import NekostoreCollectionController from "../../../core/api/app-server/Nekostor
 import BgmManager from "./BgmManager";
 import BgmInfoForm from "./BgmInfoForm.vue";
 import VueEvent from "../../../core/decorator/VueEvent";
+import { Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
@@ -79,6 +86,11 @@ export default class BgmEditWindow extends Mixins<
   private isStandBy: boolean = false;
   private isForceContinue: boolean = false;
   private isForceNew: boolean = false;
+  private imageKey: string | null = null;
+  private imageTag: string | null = null;
+  private direction: Direction = "none";
+  private bgmKey: string | null = null;
+  private bgmTag: string | null = null;
 
   @LifeCycle
   public async mounted() {
@@ -101,6 +113,11 @@ export default class BgmEditWindow extends Mixins<
     this.isStandBy = info.isStandBy;
     this.isForceContinue = info.isForceContinue;
     this.isForceNew = info.isForceNew;
+    this.imageKey = info.imageKey;
+    this.imageTag = info.imageTag;
+    this.direction = info.direction;
+    this.bgmKey = info.bgmKey;
+    this.bgmTag = info.bgmTag;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -145,7 +162,12 @@ export default class BgmEditWindow extends Mixins<
       chatLinkageTarget: this.chatLinkageTarget,
       isStandBy: this.isStandBy,
       isForceContinue: this.isForceContinue,
-      isForceNew: this.isForceNew
+      isForceNew: this.isForceNew,
+      imageKey: this.imageKey,
+      imageTag: this.imageTag,
+      direction: this.direction,
+      bgmKey: this.bgmKey,
+      bgmTag: this.bgmTag
     };
   }
 
