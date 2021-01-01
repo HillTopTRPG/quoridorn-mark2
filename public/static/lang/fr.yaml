@@ -25,7 +25,7 @@ button:
   setting: 設定
   clear: クリア
   open-dice-roll-result: 結果公開
-  read-character-sheet: その他欄を参照先から生成
+  create-other-text: 参照先からその他欄を生成
 
 type:
   map-mask: マップマスク
@@ -52,6 +52,7 @@ type:
 context:
   bgm-setting: BGM設定
   add-map-mask: マップマスク作成
+  add-map-marker: マップマーカー作成
   add-chit: チット作成
   add-character: キャラクター作成
   modify: 変更
@@ -63,6 +64,10 @@ context:
   hide-border: 枠線を非表示
   view-highlight: ハイライトを表示
   hide-highlight: ハイライトを非表示
+  view-marker-deco: 装飾を表示
+  hide-marker-deco: 装飾を非表示
+  view-marker-back: 塗りつぶす
+  hide-marker-back: 塗りつぶさない
   view-scene-list: シーン一覧表示
   chmod: 権限変更
   shuffle: シャッフル
@@ -86,6 +91,7 @@ context:
   dice-hide: 出目を隠す
   dice-view: 出目を表示
   dice-roll: ダイスロール
+  create-chat-palette: チャットパレットを生成
 
 selection:
   chat-color-type:
@@ -330,6 +336,7 @@ label:
   non-throw: 飛ばさない
   linkage-resource: 連動リソース
   export: エクスポート
+  fill: 塗りつぶす
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -356,10 +363,12 @@ message:
   drag-piece: マップにドラッグすると作成できます。
   delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
   original: "元：$1"
-  name-duplicate: "名前が重複します。"
+  name-duplicate: 名前が重複します。
   delete-failure: 削除に失敗しました。
   load-other-text-character-sheet: その他欄生成
   load-other-text-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
+  load-chat-palette-character-sheet: チャットパレット生成
+  load-chat-palette-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
   success: 成功
   error: エラー
   login-text: "{0} が入室しました。"
@@ -472,6 +481,12 @@ map-mask-add-window:
 
 map-mask-edit-window:
   window-title: マップマスク編集
+
+map-marker-add-window:
+  window-title: マップマーカー作成
+
+map-marker-edit-window:
+  window-title: マップマーカー編集
 
 chit-add-window:
   window-title: チット作成

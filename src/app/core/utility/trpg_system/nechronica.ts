@@ -1,42 +1,235 @@
-import { getJsonForTrpgSystemData } from "@/app/core/utility/Utility";
 import { MemoStore } from "@/@types/store-data";
-import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import { outputTableList } from "@/app/core/utility/trpg_system/SaikoroFiction";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 
-// URL
-const urlRegExp = /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/;
-const jsonpUrl = "https://charasheet.vampire-blood.net/{key}.js";
+export class NechronicaHelper extends TrpgSystemHelper<Nechornica> {
+  public readonly isSupportedOtherText = true;
+  public readonly isSupportedChatPalette = true;
 
-const nechronica: TrpgSystemHelper = {
-  isThis: async (url: string) => {
-    if (!url.match(urlRegExp)) return false;
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
+  public constructor(url: string) {
+    super(
+      url,
+      /https?:\/\/charasheet\.vampire-blood\.net\/(.+)/,
+      "https://charasheet.vampire-blood.net/{key}.js"
+    );
+  }
+
+  /**
+   * このシステムに対応しているキャラシのURLかどうかを判定する
+   * @return true: 対応したキャラシである, false: 対応したキャラシではない
+   */
+  public async isThis(): Promise<boolean> {
+    if (!this.urlRegExp.test(this.url)) return false;
+    const json = await this.getJsonData();
     return json["game"] === "nechro";
-  },
-  createOtherText: async (url: string): Promise<MemoStore[] | null> => {
-    const json = await getJsonForTrpgSystemData<any>(url, urlRegExp, jsonpUrl);
-    if (!json) return null;
-    const data = createData(url, json);
-    // console.log(JSON.stringify(json, null, "  "));
-    // console.log(JSON.stringify(data, null, "  "));
+  }
 
-    const resultList: MemoStore[] = [];
+  /**
+   * その他欄の情報を生成する
+   */
+  public async createOtherText(): Promise<MemoStore[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>();
+    if (!data) return null;
 
     // メモ
-    addMemo(data, resultList);
+    addMemo(data, list);
     // パーソナルデータ
-    addPersonal(data, resultList);
+    addPersonal(data, list);
     // 管理
-    addManagement(data, resultList);
+    addManagement(data, list);
     // マニューバ
-    addManeuver(data, resultList);
+    addManeuver(data, list);
 
-    return resultList;
+    return list;
   }
-};
 
-export default nechronica;
+  /**
+   * チャットパレットの情報を生成する
+   */
+  public async createChatPalette(): Promise<
+    {
+      name: string;
+      paletteText: string;
+    }[]
+  > {
+    const { data } = await this.createResultList<string>();
+    if (!data) return [];
+
+    const characterName = data.characterName.substr(0, 4);
+
+    const outputCommand = (afterText: string): string[] => {
+      const suffix = afterText ? " " + afterText : "";
+      return [
+        "",
+        `1nc+2${suffix}`,
+        `1nc+1${suffix}`,
+        `1nc${suffix}`,
+        `1nc-1${suffix}`,
+        `1nc-2${suffix}`
+      ];
+    };
+
+    return [
+      {
+        name: `◆${characterName}１`,
+        paletteText: [
+          "nm 未練決定",
+          ...outputCommand(""),
+          ...outputCommand("対話判定："),
+          ...outputCommand("行動判定"),
+          ...outputCommand("狂気判定"),
+          "",
+          "たからものへの未練【依存】に狂気点＋１",
+          "たからものへの未練【依存】から狂気点－１",
+          "たからものへの未練【依存】が発狂（[幼児退行]最大行動値減少(-2)）",
+          "",
+          ...loisTypeList
+            .filter(l => l)
+            .flatMap(l => [
+              `への未練【${l}】に狂気点＋１`,
+              `への未練【${l}】から狂気点－１`,
+              `への未練【${l}】が発狂`
+            ]),
+          "",
+          "精神崩壊(未練が全て発狂状態)"
+        ]
+          .map(text => text.replaceAll(/\r?\n/g, ""))
+          .join("\n")
+      },
+      {
+        name: `◆${characterName}２`,
+        paletteText: [
+          "対象：",
+          "対象：",
+          "を攻撃",
+          "を攻撃",
+          "",
+          ...hanteiTypeList
+            .filter((_, ind) => ind >= 4)
+            .map(h => `損傷：${h} 全損`),
+          "損傷：完全解体",
+          ...data.powerList.flatMap(p => {
+            const resultList = [
+              "",
+              `【${p.name}】${p.hantei || "なし"}／${p.timing ||
+                "なし"}／${p.cost || "なし"}／${p.range || "なし"}`
+            ];
+            if (hanteiTypeList.findIndex(h => h === p.hantei) >= 4) {
+              resultList.push(`損傷：${p.hantei}【${p.name}】`);
+              resultList.push(`修復：${p.hantei}【${p.name}】`);
+            }
+            resultList.push(`${p.memo}`);
+            return resultList;
+          })
+        ]
+          .map(text => text.replaceAll(/\r?\n/g, ""))
+          .join("\n")
+      }
+    ];
+  }
+
+  /**
+   * JSONPから取得した生データから処理用のデータを生成する
+   * @param json JSONPから取得した生データ
+   * @protected
+   */
+  protected createData(json: any): Nechornica | null {
+    if (!json) return null;
+    const textFilter = (text: string | null) => {
+      if (!text) return "";
+      return text.trim().replace(/\r?\n/g, "\n");
+    };
+    const getFlatNumberValue = (type: string) => [
+      convertNumberZero(json[`${type}1`]),
+      convertNumberZero(json[`${type}2`]),
+      convertNumberZero(json[`${type}3`])
+    ];
+    return {
+      url: this.url,
+      characterName: textFilter(json["pc_name"]),
+      tag: textFilter(json["pc_tags"]),
+      positionName: textFilter(json["Position_Name"]),
+      mainClass: textFilter(json["MCLS_Name"]),
+      mainClassStatus: getFlatNumberValue("MC"),
+      subClass: textFilter(json["SCLS_Name"]),
+      subClassStatus: getFlatNumberValue("SC"),
+      statusBonus:
+        statusBonusList[convertNumberZero(json["ST_Bonus"]) - 1] || "",
+      loveBonus: getFlatNumberValue("TM"),
+      status: getFlatNumberValue("NP"),
+      action: {
+        total: convertNumberZero(json["Act_Total"]),
+        partsList: ["A", "B", "C"]
+          .map(type => ({
+            name: json[`Act_parts_${type}`],
+            isAlive: json[`Act_parts${type}_alive`] === "1",
+            value: json[`Act_Parts${type}_Ef`]
+          }))
+          .filter(o => o.name || o.value),
+        isAliveEyeball: json["medama_alive"] === "1",
+        isAliveBrain: json["nou_alive"] === "1"
+      },
+      powerList: (json["Power_Lost"] as any[]).map((p, i) => ({
+        name: textFilter(json["Power_name"][i]),
+        isLost: textFilter(json["Power_Lost"][i]) === "1",
+        isUsed: textFilter(json["Power_Used"][i]) === "1",
+        type: powerTypeList[convertNumberZero(json["Power_Type"][i])] || "",
+        hantei:
+          hanteiTypeList[convertNumberZero(json["Power_hantei"][i])] || "",
+        timing:
+          timingTypeList[convertNumberZero(json["Power_timing"][i])] || "",
+        cost: textFilter(json["Power_cost"][i]),
+        range: textFilter(json["Power_range"][i]),
+        shozoku: textFilter(json["Power_shozoku"][i]),
+        memo: textFilter(json["Power_memo"][i])
+      })),
+      carmaList: (json["carma_name"] as any[])
+        .map((_, i) => ({
+          isCompleted: textFilter(json["carma_completed"][i]) === "1",
+          memo: textFilter(json["carma_memo"][i]),
+          name: textFilter(json["carma_name"][i])
+        }))
+        .filter(o => o.name || o.memo),
+      kakeraList: (json["kakera_name"] as any[])
+        .map((_, i) => ({
+          name: textFilter(json["kakera_name"][i]),
+          memo: textFilter(json["kakera_memo"][i])
+        }))
+        .filter(o => o.memo || o.name),
+      loisList: (json["roice_break"] as any[])
+        .map((_, i) => ({
+          name: textFilter(json["roice_name"][i]),
+          pos: textFilter(json["roice_pos"][i]),
+          damage: loisDamageList[convertNumberZero(json["roice_damage"][i])],
+          negative: textFilter(json["roice_neg"][i]),
+          break: textFilter(json["roice_break"][i]),
+          memo: textFilter(json["roice_memo"][i])
+        }))
+        .filter(o => o.name || o.pos || o.negative || o.break || o.memo),
+      exp: textFilter(json["exp_his_sum"]),
+      sessionList: (json["adv_exp_his"] as any[])
+        .map((_, i) => ({
+          advanceExp: textFilter(json["adv_exp_his"][i]),
+          bonusExp: textFilter(json["bns_exp_his"][i]),
+          sumExp: textFilter(json["get_exp_his"][i]),
+          memo: textFilter(json["seicho_memo_his"][i])
+        }))
+        .filter(o => o.advanceExp || o.bonusExp || o.memo),
+      shuzoku: textFilter(json["shuzoku"]),
+      age: textFilter(json["age"]),
+      initLocate: "煉獄",
+      height: textFilter(json["pc_height"]),
+      weight: textFilter(json["pc_weight"]),
+      carma: textFilter(json["pc_carma"]),
+      hairColor: textFilter(json["color_hair"]),
+      eyeColor: textFilter(json["color_eye"]),
+      skinColor: textFilter(json["color_skin"]),
+      memo: textFilter(json["pc_making_memo"]),
+      memoRows: convertNumberZero(json["pc_making_memo_rows"])
+    };
+  }
+}
 
 const powerTypeList: string[] = [
   "",
@@ -183,98 +376,6 @@ type Nechornica = {
   memo: string;
   memoRows: number;
 };
-
-function createData(url: string, json: any): Nechornica {
-  const textFilter = (text: string | null) => {
-    if (!text) return "";
-    return text.trim();
-  };
-  const getFlatNumberValue = (type: string) => [
-    convertNumberZero(json[`${type}1`]),
-    convertNumberZero(json[`${type}2`]),
-    convertNumberZero(json[`${type}3`])
-  ];
-  return {
-    url,
-    characterName: textFilter(json["pc_name"]),
-    tag: textFilter(json["pc_tags"]),
-    positionName: textFilter(json["Position_Name"]),
-    mainClass: textFilter(json["MCLS_Name"]),
-    mainClassStatus: getFlatNumberValue("MC"),
-    subClass: textFilter(json["SCLS_Name"]),
-    subClassStatus: getFlatNumberValue("SC"),
-    statusBonus: statusBonusList[convertNumberZero(json["ST_Bonus"]) - 1] || "",
-    loveBonus: getFlatNumberValue("TM"),
-    status: getFlatNumberValue("NP"),
-    action: {
-      total: convertNumberZero(json["Act_Total"]),
-      partsList: ["A", "B", "C"]
-        .map(type => ({
-          name: json[`Act_parts_${type}`],
-          isAlive: json[`Act_parts${type}_alive`] === "1",
-          value: json[`Act_Parts${type}_Ef`]
-        }))
-        .filter(o => o.name || o.value),
-      isAliveEyeball: json["medama_alive"] === "1",
-      isAliveBrain: json["nou_alive"] === "1"
-    },
-    powerList: (json["Power_Lost"] as any[]).map((p, i) => ({
-      name: textFilter(json["Power_name"][i]),
-      isLost: textFilter(json["Power_Lost"][i]) === "1",
-      isUsed: textFilter(json["Power_Used"][i]) === "1",
-      type: powerTypeList[convertNumberZero(json["Power_Type"][i])] || "",
-      hantei: hanteiTypeList[convertNumberZero(json["Power_hantei"][i])] || "",
-      timing: timingTypeList[convertNumberZero(json["Power_timing"][i])] || "",
-      cost: textFilter(json["Power_cost"][i]),
-      range: textFilter(json["Power_range"][i]),
-      shozoku: textFilter(json["Power_shozoku"][i]),
-      memo: textFilter(json["Power_memo"][i])
-    })),
-    carmaList: (json["carma_name"] as any[])
-      .map((_, i) => ({
-        isCompleted: textFilter(json["carma_completed"][i]) === "1",
-        memo: textFilter(json["carma_memo"][i]),
-        name: textFilter(json["carma_name"][i])
-      }))
-      .filter(o => o.name || o.memo),
-    kakeraList: (json["kakera_name"] as any[])
-      .map((_, i) => ({
-        name: textFilter(json["kakera_name"][i]),
-        memo: textFilter(json["kakera_memo"][i])
-      }))
-      .filter(o => o.memo || o.name),
-    loisList: (json["roice_break"] as any[])
-      .map((_, i) => ({
-        name: textFilter(json["roice_name"][i]),
-        pos: textFilter(json["roice_pos"][i]),
-        damage: loisDamageList[convertNumberZero(json["roice_damage"][i])],
-        negative: textFilter(json["roice_neg"][i]),
-        break: textFilter(json["roice_break"][i]),
-        memo: textFilter(json["roice_memo"][i])
-      }))
-      .filter(o => o.name || o.pos || o.negative || o.break || o.memo),
-    exp: textFilter(json["exp_his_sum"]),
-    sessionList: (json["adv_exp_his"] as any[])
-      .map((_, i) => ({
-        advanceExp: textFilter(json["adv_exp_his"][i]),
-        bonusExp: textFilter(json["bns_exp_his"][i]),
-        sumExp: textFilter(json["get_exp_his"][i]),
-        memo: textFilter(json["seicho_memo_his"][i])
-      }))
-      .filter(o => o.advanceExp || o.bonusExp || o.memo),
-    shuzoku: textFilter(json["shuzoku"]),
-    age: textFilter(json["age"]),
-    initLocate: "煉獄",
-    height: textFilter(json["pc_height"]),
-    weight: textFilter(json["pc_weight"]),
-    carma: textFilter(json["pc_carma"]),
-    hairColor: textFilter(json["color_hair"]),
-    eyeColor: textFilter(json["color_eye"]),
-    skinColor: textFilter(json["color_skin"]),
-    memo: textFilter(json["pc_making_memo"]),
-    memoRows: convertNumberZero(json["pc_making_memo_rows"])
-  };
-}
 
 function addMemo(data: Nechornica, resultList: MemoStore[]) {
   resultList.push({

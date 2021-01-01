@@ -112,6 +112,7 @@ type CardObjectStore = {
 
 type ChatPaletteStore = {
   name: string;
+  source: "normal" | string;
   paletteText: string;
   chatFontColorType: "owner" | "original"; // チャット文字色はオーナーの色か独自の色か
   chatFontColor: string; // 独自のチャット文字色

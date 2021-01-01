@@ -3,6 +3,10 @@ map:
     taskName: window-open
     taskArg:
       type: map-mask-add-window
+  - text: context.add-map-marker
+    taskName: window-open
+    taskArg:
+      type: map-marker-add-window
   - text: context.add-chit
     taskName: window-open
     taskArg:
@@ -76,6 +80,37 @@ map-mask:
   - ~
   - ref: export-object
 
+map-marker:
+  - text: context.modify
+    taskName: window-open
+    isViewCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
+      rhs:
+        true
+    taskArg:
+      type: map-marker-edit-window
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod
+  - ref: hr-permission-check
+  - ref: object-fix
+  - ref: object-un-fix
+  - ref: object-hide-border
+  - ref: object-view-border
+  - ref: object-hide-marker-deco
+  - ref: object-view-marker-deco
+  - ref: object-hide-marker-back
+  - ref: object-view-marker-back
+  - ~
+  - ref: export-object
+
 chit:
   - text: context.modify
     taskName: window-open
@@ -131,6 +166,12 @@ character:
         property: data.url
       rhs: ""
       isNot: true
+  - text: context.create-chat-palette
+    taskName: create-chat-palette
+    isDisabledCompare:
+      lhs:
+        refType: can-create-chat-palette
+      rhs: true
   - text: context.edit-actor
     taskName: edit-actor
   - ref: hr-permission-check

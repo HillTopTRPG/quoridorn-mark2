@@ -46,12 +46,12 @@ import {
 } from "@/@types/store-data-optional";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { OtherTextUpdateInfo } from "task-info";
-import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 import {
   createEmptyStoreUseData,
   warningDialog
 } from "@/app/core/utility/Utility";
 import uuid from "uuid";
+import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 
 @Component({ components: { OtherTextComponent } })
 export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
@@ -268,8 +268,14 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
         text: ""
       });
     }
+    if (!helper.isSupportedOtherText) {
+      return await warningDialog({
+        title: "このシステムはその他欄の生成に対応していません。",
+        text: ""
+      });
+    }
 
-    const memoList = await helper.createOtherText(url);
+    const memoList = await helper.createOtherText();
     if (!memoList) return;
 
     // 生成したデータからDB用データを生成

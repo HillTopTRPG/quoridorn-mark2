@@ -4,6 +4,7 @@
       :windowKey="windowKey"
       v-if="isMounted"
       :isAdd="false"
+      :docKey="docKey"
       initTabTarget="image"
       :name.sync="name"
       :tag.sync="tag"
@@ -18,7 +19,7 @@
     />
 
     <div class="button-area">
-      <ctrl-button @click="commit()">
+      <ctrl-button @click="commit()" :disabled="isDuplicate">
         <span v-t="'button.modify'"></span>
       </ctrl-button>
       <ctrl-button @click="rollback()">
@@ -57,6 +58,8 @@ export default class CharacterEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docKey: string = "";
+  private actorList = GameObjectManager.instance.actorList;
+  private sceneObjectList = GameObjectManager.instance.sceneObjectList;
   private cc: NekostoreCollectionController<
     SceneObjectStore
   > = SocketFacade.instance.sceneObjectCC();
@@ -183,6 +186,20 @@ export default class CharacterEditWindow extends Mixins<
       this.isProcessed = true;
       await this.close();
     }
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
+  }
+
+  private get isDuplicate(): boolean {
+    const data = this.sceneObjectList.find(so => so.key === this.docKey);
+    return this.actorList.some(
+      ct => ct.data!.name === this.name && ct.key !== data!.data!.actorKey
+    );
   }
 }
 </script>

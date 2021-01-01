@@ -25,7 +25,7 @@ button:
   setting: 設定
   clear: 清除
   open-dice-roll-result: 公開結果
-  read-character-sheet: 參考其他欄位新增
+  create-other-text: 參考其他欄位新增
 
 type:
   map-mask: 地圖遮罩
@@ -51,7 +51,8 @@ type:
 
 context:
   bgm-setting: BGM設定
-  add-map-mask: 新增地圖迷霧
+  add-map-mask: 新增地圖遮罩
+  add-map-marker: 新增地圖迷霧
   add-chit: 新增棋子
   add-character: 新增角色
   modify: 變更
@@ -63,6 +64,10 @@ context:
   hide-border: 不顯示格線
   view-highlight: 顯示高亮
   hide-highlight: 不顯示高亮
+  view-marker-deco: 顯示裝飾
+  hide-marker-deco: 不顯示裝飾
+  view-marker-back: 顯示填充
+  hide-marker-back: 不顯示填充
   view-scene-list: 顯示場景清單
   chmod: 變更權限
   shuffle: 隨機
@@ -86,7 +91,7 @@ context:
   dice-hide: 骰子結果隱藏
   dice-view: 骰子結果顯示
   dice-roll: 擲骰
-
+  create-chat-palette: チャットパレットを生成
 selection:
   chat-color-type:
     label: 文字顏色類型
@@ -330,6 +335,7 @@ label:
   non-throw: 沒有投
   linkage-resource: 連動資源
   export: 匯出
+  fill: 填充
 
 message:
   copy-to-clipboard: 將其複製到剪貼板。
@@ -360,6 +366,8 @@ message:
   delete-failure: 刪除失敗。
   load-other-text-character-sheet: 其他欄建立
   load-other-text-character-sheet-text: "從目標URL讀取數據。 \ n如果頁面名稱重複，它將被覆蓋。"
+  load-chat-palette-character-sheet: 聊天組合板生成
+  load-chat-palette-character-sheet-text: "從REF URL讀取數據。 \ n如果Tab的名稱重複，它將被覆蓋。 ”
   success: 成功
   error: 錯誤
   login-text: "{0} 的房間。"
@@ -472,6 +480,12 @@ map-mask-add-window:
 
 map-mask-edit-window:
   window-title: 編輯地圖迷霧
+
+map-marker-add-window:
+  window-title: マップマーカー作成
+
+map-marker-edit-window:
+  window-title: マップマーカー編集
 
 chit-add-window:
   window-title: 新增棋子

@@ -46,7 +46,7 @@ import GameObjectManager from "../../GameObjectManager";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({ components: { MapMaskInfoForm, CtrlButton } })
-export default class MapMastEditWindow extends Mixins<
+export default class MapMaskEditWindow extends Mixins<
   WindowVue<DataReference, never>
 >(WindowVue) {
   private docKey: string = "";

@@ -6,7 +6,9 @@
         class="object"
         :class="{ 'type-add': isAdd }"
         ref="object"
-        :draggable="isAdd && mediaKey ? 'true' : 'false'"
+        :draggable="
+          !!name && !isDuplicate && isAdd && mediaKey ? 'true' : 'false'
+        "
         @dragstart="dragStart"
         @dragend="dragEnd"
       ></div>
@@ -96,11 +98,11 @@
               v-model="urlVolatile"
             />
           </tr>
-          <tr v-if="trpgSystemHelper">
+          <tr v-if="trpgSystemHelper && trpgSystemHelper.isSupportedOtherText">
             <th></th>
             <td>
-              <ctrl-button @click.stop="readCharacterSheet()">
-                <span v-t="'button.read-character-sheet'"></span>
+              <ctrl-button @click.stop="createOtherText()">
+                <span v-t="'button.create-other-text'"></span>
               </ctrl-button>
             </td>
           </tr>
@@ -141,10 +143,9 @@ import {
   createEmptyStoreUseData
 } from "@/app/core/utility/Utility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
-import {
-  getTrpgSystemHelper,
-  TrpgSystemHelper
-} from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
+import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+
 const uuid = require("uuid");
 
 @Component({
@@ -174,12 +175,15 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   private mediaList = GameObjectManager.instance.mediaList;
   private isMounted: boolean = false;
   private imageSrc: string = "";
+  private actorList = GameObjectManager.instance.actorList;
 
-  private trpgSystemHelper: TrpgSystemHelper | null = null;
+  private trpgSystemHelper: TrpgSystemHelper<any> | null = null;
+
+  @Prop({ type: String, default: null })
+  private docKey!: string;
 
   @Prop({ type: String, required: true })
   private name!: string;
-
   private nameVolatile: string = "";
   @Watch("name", { immediate: true })
   private onChangeName(value: string) {
@@ -192,7 +196,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private tag!: string;
-
   private tagVolatile: string = "";
   @Watch("tag", { immediate: true })
   private onChangeTag(value: string) {
@@ -205,7 +208,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private url!: string;
-
   private urlVolatile: string = "";
   @Watch("url", { immediate: true })
   private onChangeUrl(value: string) {
@@ -230,7 +232,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: Number, required: true })
   private size!: number;
-
   private sizeVolatile: number = 0;
   @Watch("size", { immediate: true })
   private onChangeSize(value: number) {
@@ -243,7 +244,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: null })
   private mediaKey!: string | null;
-
   private mediaKeyVolatile: string | null = null;
   @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey(value: string | null) {
@@ -256,7 +256,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: null })
   private mediaTag!: string | null;
-
   private mediaTagVolatile: string | null = null;
   @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
@@ -269,7 +268,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private direction!: Direction;
-
   private directionVolatile: Direction = "none";
   @Watch("direction", { immediate: true })
   private onChangeDirection(value: Direction) {
@@ -282,7 +280,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private backgroundSize!: BackgroundSize;
-
   private backgroundSizeVolatile: BackgroundSize = "contain";
   @Watch("backgroundSize", { immediate: true })
   private onChangeBackgroundSize(value: BackgroundSize) {
@@ -295,7 +292,6 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private layerKey!: string;
-
   private layerKeyVolatile: string = "";
   @Watch("layerKey", { immediate: true })
   private onChangeLayerKey(value: string) {
@@ -338,6 +334,12 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     this.currentTabInfo = this.tabList.find(
       t => t.target === this.initTabTarget
     )!;
+  }
+
+  private get isDuplicate(): boolean {
+    return this.actorList.some(
+      ct => ct.data!.name === this.name && ct.key !== this.docKey
+    );
   }
 
   @Watch("isMounted")
@@ -418,8 +420,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private async readCharacterSheet() {
-    if (!this.trpgSystemHelper) return;
+  private async createOtherText() {
+    if (!this.trpgSystemHelper || !this.trpgSystemHelper.isSupportedOtherText)
+      return;
 
     const confirm = await questionDialog({
       title: this.$t("message.load-other-text-character-sheet").toString(),
@@ -429,9 +432,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     });
     if (!confirm) return;
 
-    const memoList = await this.trpgSystemHelper.createOtherText(
-      this.urlVolatile
-    );
+    const memoList = await this.trpgSystemHelper.createOtherText();
     if (!memoList) return;
 
     // 中身が空のタブを削除

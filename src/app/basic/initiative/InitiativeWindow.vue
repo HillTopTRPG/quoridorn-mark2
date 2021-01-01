@@ -423,8 +423,8 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         .sort((sti1, sti2) => {
           if (sti1.initiative !== null && sti2.initiative !== null) {
             // イニシアティブ値が null でないのが2つ
-            if (sti1.initiative < sti2.initiative) return -1;
-            if (sti1.initiative > sti2.initiative) return 1;
+            if (sti1.initiative > sti2.initiative) return -1;
+            if (sti1.initiative < sti2.initiative) return 1;
           } else if (sti1.initiative !== null || sti2.initiative !== null) {
             // イニシアティブ値が null でないのが1つ
             // nullは下の方へ

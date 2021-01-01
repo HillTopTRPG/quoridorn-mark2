@@ -138,6 +138,18 @@
     */
   }
 
+  &.hide-back {
+    &:before {
+      display: none;
+    }
+  }
+
+  &.hide-front {
+    &:after {
+      display: none;
+    }
+  }
+
   &.hide-sub-type {
     &.non-owners:before {
       background-image: none;

@@ -192,6 +192,98 @@ object-view-highlight:
   taskArg:
     value: false
 
+object-hide-marker-deco:
+  text: context.hide-marker-deco
+  taskName: change-highlight-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideHighlight
+    rhs: false
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: true
+
+object-view-marker-deco:
+  text: context.view-marker-deco
+  taskName: change-highlight-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideHighlight
+    rhs: true
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: false
+
+object-hide-marker-back:
+  text: context.hide-marker-back
+  taskName: change-marker-back-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideSubType
+    rhs: true
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: false
+
+object-view-marker-back:
+  text: context.view-marker-back
+  taskName: change-marker-back-view
+  isViewCompare:
+    lhs:
+      refType: db-id-property
+      property: data.isHideSubType
+    rhs: false
+  isDisabledCompare:
+    operator: and
+    list:
+      - lhs:
+          refType: exclusion-check
+        rhs:
+          true
+      - lhs:
+          refType: permission-check
+          type: edit
+        rhs:
+          true
+  taskArg:
+    value: true
+
 card-deck-placement-reset-from-card:
   text: context.placement-reset
   taskName: card-placement-reset-from-card

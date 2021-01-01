@@ -38,6 +38,7 @@ import SocketFacade from "../../../core/api/app-server/SocketFacade";
 import { MemoStore } from "@/@types/store-data";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 const uuid = require("uuid");
 
 @Component({ components: { CharacterInfoForm } })
@@ -46,6 +47,7 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
 ) {
   private name: string = LanguageManager.instance.getText("type.character");
   private tag: string = "";
+  private actorList = GameObjectManager.instance.actorList;
   private otherTextList: StoreData<MemoStore>[] = [
     createEmptyStoreUseData(uuid.v4(), {
       tab: "",
@@ -68,14 +70,44 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   public async mounted() {
     await this.init();
     this.mediaTag = this.$t("type.character")!.toString();
+    this.name = this.getUnDuplicateName();
     this.isMounted = true;
   }
 
+  private setNextName() {
+    const numberSuffixRegExp = /(.+)([0-9]+)/;
+    if (numberSuffixRegExp.test(this.name)) {
+      this.name = this.name.replace(
+        numberSuffixRegExp,
+        (m, p1, p2) => `${p1}${convertNumberZero(p2) + 1}`
+      );
+    } else {
+      this.name = `${this.name}2`;
+    }
+  }
+
+  private getUnDuplicateName(): string {
+    if (!this.actorList.some(ct => ct.data!.name === this.name))
+      return this.name;
+
+    this.setNextName();
+    return this.getUnDuplicateName();
+  }
+
+  @Watch("isDuplicate")
   @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey() {
     this.windowInfo.message = this.$t(
-      this.mediaKey ? "message.drag-piece" : "message.choose-image"
+      this.isDuplicate
+        ? "message.name-duplicate"
+        : this.mediaKey
+        ? "message.drag-piece"
+        : "message.choose-image"
     )!.toString();
+  }
+
+  private get isDuplicate(): boolean {
+    return this.actorList.some(ct => ct.data!.name === this.name);
   }
 
   @VueEvent
@@ -102,6 +134,7 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
         value: "off" as "off"
       }
     });
+    this.setNextName();
   }
 
   @TaskProcessor("added-object-finished")

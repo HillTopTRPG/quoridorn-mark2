@@ -108,6 +108,7 @@
       <menu-window-item type="scene-list-window" @click="menuClick" />
       <hr />
       <menu-window-item type="map-mask-add-window" @click="menuClick" />
+      <menu-window-item type="map-marker-add-window" @click="menuClick" />
       <menu-window-item type="chit-add-window" @click="menuClick" />
       <menu-window-item type="character-add-window" @click="menuClick" />
       <menu-window-item type="dice-symbol-add-window" @click="menuClick" />
@@ -138,6 +139,7 @@
       ></div>
       <hr />
       <menu-window-item type="map-mask-add-window" @click="menuClick" />
+      <menu-window-item type="map-marker-add-window" @click="menuClick" />
       <menu-window-item type="chit-add-window" @click="menuClick" />
       <menu-window-item type="character-add-window" @click="menuClick" />
       <menu-window-item type="dice-symbol-add-window" @click="menuClick" />

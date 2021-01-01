@@ -124,6 +124,13 @@
                     :docKey="sceneObject.key"
                     type="character"
                   />
+
+                  <map-marker-piece-component
+                    v-if="sceneObject.data.type === 'map-marker'"
+                    :key="sceneObject.key"
+                    :docKey="sceneObject.key"
+                    type="map-marker"
+                  />
                 </template>
               </div>
             </div>
@@ -166,9 +173,11 @@ import CharacterPieceComponent from "../character/CharacterPieceComponent.vue";
 import { findRequireByKey, questionDialog } from "@/app/core/utility/Utility";
 import App from "../../../../views/App.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
+import MapMarkerPieceComponent from "@/app/basic/object/map-marker/MapMarkerPieceComponent.vue";
 
 @Component({
   components: {
+    MapMarkerPieceComponent,
     BaseInput,
     CharacterPieceComponent,
     ChitPieceComponent,

@@ -86,6 +86,8 @@
     - resource-update
     - export-object
     - other-text-update
+    - create-chat-palette
+    - change-marker-back-view
 
 - taskAttribute:
     isIgniteWithParam: false

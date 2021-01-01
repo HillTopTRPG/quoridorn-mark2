@@ -45,7 +45,6 @@
           :c-label="$t('label.sort')"
           n-icon=""
           :n-label="$t('label.sort')"
-          @hover="onHoverView"
         />
       </div>
     </simple-tab-component>
@@ -167,7 +166,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   }
 
   private static getDialogMessage(target: string): string {
-    const msgTarget = "chat-palette-tab-setting-window.message-list." + target;
+    const msgTarget = "message." + target;
     return LanguageManager.instance.getText(msgTarget);
   }
 

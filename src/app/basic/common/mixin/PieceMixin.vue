@@ -24,7 +24,7 @@ import {
   createRectangle,
   getEventPoint
 } from "@/app/core/utility/CoordinateUtility";
-import { findRequireByKey } from "@/app/core/utility/Utility";
+import { findRequireByKey, questionDialog } from "@/app/core/utility/Utility";
 import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
 import VueEvent from "../../../core/decorator/VueEvent";
 import CssManager from "../../../core/css/CssManager";
@@ -33,7 +33,6 @@ import { WindowOpenInfo } from "@/@types/window";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { sendChatLog } from "@/app/core/utility/ChatUtility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
-const uuid = require("uuid");
 import { exportData } from "@/app/core/utility/ExportUtility";
 import {
   ObjectMoveInfo,
@@ -41,6 +40,8 @@ import {
   Point,
   SceneObjectType
 } from "@/@types/store-data-optional";
+import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+const uuid = require("uuid");
 
 @Mixin
 export default class PieceMixin<T extends SceneObjectType> extends Mixins<
@@ -229,7 +230,15 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     if (this.isFocused) result.push("focus");
     if (this.isOtherLastModify) result.push("other-player-last-modify");
     if (this.isTransitioning) result.push("transitioning");
-    if (this.sceneObjectInfo.data!.isHideSubType) result.push("hide-sub-type");
+    if (this.sceneObjectInfo.data!.type === "map-marker") {
+      if (!this.sceneObjectInfo.data!.isHideSubType) {
+        result.push("hide-back");
+        result.push("hide-front");
+      }
+    } else {
+      if (this.sceneObjectInfo.data!.isHideSubType)
+        result.push("hide-sub-type");
+    }
 
     return result;
   }
@@ -323,10 +332,25 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
 
   @Watch("isMounted")
   @Watch("sceneObjectInfo.data.isHideHighlight")
+  @Watch("sceneObjectInfo.data.isHideSubType")
   private onChangeIsHideHighlight() {
-    const outlineWidth = this.sceneObjectInfo!.data!.isHideHighlight ? 0 : 6;
-    this.elm.style.outlineOffset = `-${outlineWidth}px`;
-    this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
+    if (this.sceneObjectInfo!.data!.type === "map-marker") {
+      const texture = this.sceneObjectInfo!.data!.textures[
+        this.sceneObjectInfo!.data!.textureIndex
+      ];
+      if (this.sceneObjectInfo!.data!.isHideSubType) {
+        this.elm.style.outlineOffset = `0px`;
+        this.elm.style.outline = "";
+      } else {
+        this.elm.style.outlineOffset = "-6px";
+        if (texture.type === "color")
+          this.elm.style.outline = `${texture.backgroundColor} solid 6px`;
+      }
+    } else {
+      const outlineWidth = this.sceneObjectInfo!.data!.isHideHighlight ? 0 : 6;
+      this.elm.style.outlineOffset = `-${outlineWidth}px`;
+      this.elm.style.outline = `rgb(187, 187, 255) solid ${outlineWidth}px`;
+    }
   }
 
   private boxShadowColor: string = "";
@@ -440,24 +464,36 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     );
   }
 
+  private async changeFlag<T extends keyof SceneObjectStore>(
+    prop: T,
+    value: NonNullable<SceneObjectStore[T]>
+  ) {
+    console.log(
+      `【${prop.toString()}:${value}】 type: ${this.type}, docKey: ${
+        this.docKey
+      }`
+    );
+    try {
+      const data: SceneObjectStore = (await this.sceneObjectCC!.findSingle(
+        "key",
+        this.docKey
+      ))!.data!.data!;
+      data[prop]! = value;
+      await this.sceneObjectCC!.updatePackage([
+        { key: this.docKey, data: data }
+      ]);
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
   @TaskProcessor("change-highlight-view-finished")
   private async changeHighlightViewFinished(
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【highlight:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isHideHighlight = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideHighlight", val);
   }
 
   @TaskProcessor("change-border-view-finished")
@@ -465,19 +501,17 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【border:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isHideBorder = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideBorder", val);
+  }
+
+  @TaskProcessor("change-marker-back-view-finished")
+  private async changeMarkerBackViewFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.isNotThisTask(task)) return;
+    const val: boolean = task.value.value;
+    await this.changeFlag("isHideSubType", val);
   }
 
   @TaskProcessor("lock-object-finished")
@@ -485,19 +519,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
-    console.log(
-      `【lock:${task.value.value}】 type: ${this.type}, docKey: ${this.docKey}`
-    );
-    try {
-      const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
-        .data!;
-      data.data!.isLock = task.value.value;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
-    }
+    const val: boolean = task.value.value;
+    await this.changeFlag("isLock", val);
   }
 
   @TaskProcessor("copy-object-finished")
@@ -534,10 +557,9 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   ): Promise<TaskResult<never> | void> {
     if (this.isNotThisTask(task)) return;
 
-    const sceneObject = (await this.sceneObjectCC!.findSingle(
-      "key",
-      this.docKey
-    ))!.data!;
+    const sceneObject = GameObjectManager.instance.sceneObjectList.find(
+      so => so.key === this.docKey
+    )!;
 
     const memoList = (await SocketFacade.instance.memoCC().findList([
       {
@@ -586,6 +608,82 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
       .data!;
     window.open(data.data!.url, "_blank");
+  }
+
+  @TaskProcessor("create-chat-palette-finished")
+  private async createChatPaletteFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    if (this.isNotThisTask(task)) return;
+    const data = (await this.sceneObjectCC!.findSingle("key", this.docKey))!
+      .data!;
+    const url = data.data!.url;
+    const trpgSystemHelper = await getTrpgSystemHelper(url);
+    if (!trpgSystemHelper || !trpgSystemHelper.isSupportedChatPalette) return;
+
+    const confirm = await questionDialog({
+      title: this.$t("message.load-chat-palette-character-sheet").toString(),
+      text: this.$t(
+        "message.load-chat-palette-character-sheet-text"
+      ).toString(),
+      confirmButtonText: this.$t("button.commit").toString(),
+      cancelButtonText: this.$t("button.reject").toString()
+    });
+    if (!confirm) return;
+    const sceneObject = GameObjectManager.instance.sceneObjectList.find(
+      so => so.key === this.docKey
+    )!;
+    const actor = GameObjectManager.instance.actorList.find(
+      a => a.key === sceneObject.data!.actorKey
+    )!;
+    const chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
+    const userKey = SocketFacade.instance.userKey;
+    const helperName = trpgSystemHelper.constructor.name;
+    const duplicateSnapShotList = await chatPaletteListCC.findList([
+      { property: "ownerType", operand: "==", value: "user-list" },
+      { property: "owner", operand: "==", value: userKey },
+      { property: "data.source", operand: "==", value: helperName }
+    ]);
+
+    const chatPaletteInfoList = await trpgSystemHelper.createChatPalette();
+
+    if (duplicateSnapShotList) {
+      duplicateSnapShotList.map(sp => {
+        const cpInfoInd = chatPaletteInfoList.findIndex(
+          cpi => cpi.name === sp.data!.data!.name
+        );
+        if (cpInfoInd > -1) {
+          sp.data!.data!.paletteText =
+            chatPaletteInfoList[cpInfoInd].paletteText;
+          sp.ref.update(sp.data!);
+          chatPaletteInfoList.splice(cpInfoInd, 1);
+        }
+      });
+    }
+
+    if (chatPaletteInfoList.length) {
+      await chatPaletteListCC.addDirect(
+        chatPaletteInfoList.map(cpi => ({
+          ownerType: "user-list",
+          owner: userKey,
+          permission: GameObjectManager.PERMISSION_OWNER_VIEW,
+          data: {
+            name: cpi.name,
+            source: helperName,
+            chatFontColorType: "owner",
+            chatFontColor: "#000000",
+            actorKey: actor.key,
+            sceneObjectKey: this.docKey,
+            targetKey: null, // TODO 入力項目を作成
+            outputTabKey: null, // TODO 入力項目を作成
+            statusKey: null,
+            system: null, // TODO 入力項目を作成
+            isSecret: false,
+            paletteText: cpi.paletteText
+          }
+        }))
+      );
+    }
   }
 
   @TaskProcessor("edit-actor-finished")
