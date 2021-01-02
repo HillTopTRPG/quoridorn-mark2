@@ -257,7 +257,6 @@ import EditSceneObjectChooserComponent from "./EditSceneObjectChooserComponent.v
 import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
 import BorderStyleSelect from "../common/components/select/BorderStyleSelect.vue";
 import WindowVue from "../../core/window/WindowVue";
-import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
 import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
 import GameObjectManager from "../GameObjectManager";
 import EditSceneLayerChooserComponent from "./EditSceneLayerChooserComponent.vue";
@@ -289,7 +288,6 @@ import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
     AddressInput,
     BorderStyleSelect,
     InputTextureComponent,
-    ImagePickerComponent,
     BackgroundTypeRadio,
     SceneLayerSelect,
     SimpleTabComponent,
@@ -470,10 +468,10 @@ export default class EditSceneWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "map", text: "" },
-    { key: "2", target: "margin", text: "" },
-    { key: "3", target: "background", text: "" },
-    { key: "4", target: "layer", text: "" }
+    { key: "1", target: "map", text: "", isDisabled: false },
+    { key: "2", target: "margin", text: "", isDisabled: false },
+    { key: "3", target: "background", text: "", isDisabled: false },
+    { key: "4", target: "layer", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 

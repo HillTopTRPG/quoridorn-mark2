@@ -14,8 +14,9 @@
       v-model="backImageKeyVolatile"
       :windowKey="key"
       :mediaTag.sync="mediaTagVolatile"
-      :isSimple="true"
+      :isDisabledDirection="true"
       imageSize="20em"
+      :is-simple.sync="isSimple"
     />
   </card-deck-sub-container-component>
 </template>
@@ -38,6 +39,8 @@ import ColorPickerComponent from "../../../core/component/ColorPickerComponent.v
 export default class CardDeckChooseBackImageComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {
+  private isSimple: boolean = true;
+
   // color
   @Prop({ type: String, required: true })
   private color!: string;

@@ -115,7 +115,9 @@ export default class LikeInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:linkageResourceKey", value);
   }
 
-  private tabList: TabInfo[] = [{ key: "1", target: "basic", text: "" }];
+  private tabList: TabInfo[] = [
+    { key: "1", target: "basic", text: "", isDisabled: false }
+  ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
   @TaskProcessor("language-change-finished")

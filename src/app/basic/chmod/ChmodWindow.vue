@@ -72,9 +72,9 @@ export default class ChmodWindow extends Mixins<
   private cc: NekostoreCollectionController<unknown> | null = null;
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "view", text: "" },
-    { key: "2", target: "edit", text: "" },
-    { key: "3", target: "chmod", text: "" }
+    { key: "1", target: "view", text: "", isDisabled: false },
+    { key: "2", target: "edit", text: "", isDisabled: false },
+    { key: "3", target: "chmod", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 

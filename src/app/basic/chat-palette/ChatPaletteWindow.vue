@@ -141,7 +141,8 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
       .map(cp => ({
         key: uuid.v4(),
         target: cp.key,
-        text: cp.data!.name
+        text: cp.data!.name,
+        isDisabled: false
       }));
     const matchCurrent = this.currentTargetTabInfo
       ? this.targetTabList.find(

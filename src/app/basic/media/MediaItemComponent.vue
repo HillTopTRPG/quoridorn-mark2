@@ -17,8 +17,8 @@
     <div class="name">
       <span class="owner">{{ ownerStr }}</span>
       <span class="media-name">{{ media.data.name }}</span>
-      <span class="ref-list" v-for="ref in media.refList" :key="ref.key">
-        {{ ref.type }}-{{ ref.key }}
+      <span class="ref-list">
+        {{ getMediaRefListStr(media) }}
       </span>
     </div>
     <div class="operation-box">
@@ -80,6 +80,14 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, required: true })
   private isViewThumbnail!: boolean;
+
+  @VueEvent
+  private getMediaRefListStr(media: StoreData<MediaStore>): string {
+    return media.refList
+      .map(ref => `[${ref.type}]`)
+      .filter((type, index, self) => self.findIndex(s => s === type) === index)
+      .join(", ");
+  }
 
   @VueEvent
   private get typeStr(): string {

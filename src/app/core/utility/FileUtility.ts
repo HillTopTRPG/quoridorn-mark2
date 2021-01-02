@@ -1,7 +1,6 @@
 import yaml from "js-yaml";
 import { getFileName } from "./PrimaryDataUtility";
 import { ApplicationError } from "../error/ApplicationError";
-import { getYoutubeThunbnail } from "../../basic/cut-in/bgm/YoutubeManager";
 import DropBoxManager from "../api/drop-box/DropBoxManager";
 import {
   UploadMediaInfo,
@@ -12,6 +11,7 @@ import SocketFacade from "../api/app-server/SocketFacade";
 import { getSrc } from "@/app/core/utility/Utility";
 import LanguageManager from "@/LanguageManager";
 import { IconClass, UrlType } from "@/@types/store-data-optional";
+import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
 
 export type ExportDataFormat<T> = {
   type: string;

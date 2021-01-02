@@ -268,8 +268,8 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   }
 
   private actorTabList: TabInfo[] = [
-    { key: "1", target: "actor", text: "" },
-    { key: "2", target: "piece", text: "" }
+    { key: "1", target: "actor", text: "", isDisabled: false },
+    { key: "2", target: "piece", text: "", isDisabled: false }
   ];
   private currentActorTabInfo: TabInfo | null = this.actorTabList[0];
 
@@ -297,7 +297,8 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       .map((tag, index) => ({
         key: index.toString(),
         target: tag,
-        text: tag || this.$t("label.non-tag")!.toString()
+        text: tag || this.$t("label.non-tag")!.toString(),
+        isDisabled: false
       }));
     const index = this.currentActorTabInfo
       ? this.actorTabList.findIndex(

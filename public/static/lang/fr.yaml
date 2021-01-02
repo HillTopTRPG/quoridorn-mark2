@@ -242,7 +242,6 @@ label:
   layer: レイヤー # OK
   image: 画像
   other-text: その他欄
-  image-tag: 画像タグ
   client: クライアント # OK
   server: サーバ # OK
   version: バージョン
@@ -337,6 +336,11 @@ label:
   linkage-resource: 連動リソース
   export: エクスポート
   fill: 塗りつぶす
+  bgm: BGM
+  bgm-setting: BGM設定
+  image-setting: 画像設定
+  simple: シンプル
+  detail: 詳細
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -523,11 +527,11 @@ chmod-window:
 chmod-input-window:
   window-title: 権限変更
 
-bgm-add-window:
-  window-title: BGM作成
+cut-in-add-window:
+  window-title: カットイン作成
 
-bgm-edit-window:
-  window-title: BGM編集
+cut-in-edit-window:
+  window-title: カットイン編集
 
 chat-window:
   window-title: チャット

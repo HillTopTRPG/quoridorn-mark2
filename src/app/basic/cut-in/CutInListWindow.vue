@@ -235,7 +235,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async addMusic() {
-    await App.openSimpleWindow("bgm-add-window");
+    await App.openSimpleWindow("cut-in-add-window");
   }
 
   @VueEvent
@@ -245,7 +245,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "bgm-edit-window",
+        type: "cut-in-edit-window",
         args: {
           type: "bgm",
           key: this.selectedCutInKey

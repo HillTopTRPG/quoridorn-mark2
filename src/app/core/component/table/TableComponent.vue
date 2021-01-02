@@ -182,7 +182,8 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
                   current + useChoice - 1,
                   this.useDataList.length - 1
                 )
-              }
+              },
+              isDisabled: false
             };
             if (!this.currentTabInfo) {
               this.currentTabInfo = tabInfo;
@@ -206,10 +207,11 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
             targetValueList.push(propValue);
         });
         targetValueList.forEach((val, index: number) => {
-          const tabInfo = {
+          const tabInfo: TabInfo = {
             key: val.toString(),
             text: val.toString(),
-            target: val.toString()
+            target: val.toString(),
+            isDisabled: false
           };
           if (!index && !this.currentTabInfo) this.currentTabInfo = tabInfo;
           tabList.push(tabInfo);

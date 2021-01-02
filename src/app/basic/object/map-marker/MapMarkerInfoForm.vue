@@ -272,9 +272,9 @@ export default class MapMarkerInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "background", text: "" },
-    { key: "2", target: "additional-info", text: "" },
-    { key: "3", target: "other-text", text: "" }
+    { key: "1", target: "background", text: "", isDisabled: false },
+    { key: "2", target: "additional-info", text: "", isDisabled: false },
+    { key: "3", target: "other-text", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 
@@ -437,6 +437,7 @@ export default class MapMarkerInfoForm extends Mixins<ComponentVue>(
 .simple-tab-component {
   grid-row: 1 / 3;
   grid-column: 2 / 3;
+  overflow: hidden;
 
   > *:not(:first-child) {
     width: 100%;
@@ -456,7 +457,7 @@ export default class MapMarkerInfoForm extends Mixins<ComponentVue>(
     }
   }
 
-  > div:not(.image-picker-container) {
+  > div:not(.image-picker-component) {
     border: solid 1px gray;
     box-sizing: border-box;
     padding: 0.2rem;

@@ -603,29 +603,35 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 18
+    heightRem: 3
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 10
     widthScrollBar: 1
     widthEm: 28
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 4
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 18
+    heightRem: 3
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
     widthScrollBar: 1
-    widthEm: 52
-    # 6em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
+    widthEm: 60
+    widthRem: 12
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
     heightEm: 30
+    heightRem: 6
   minimizable: true
   paneContainable: true
   closable: true
@@ -641,32 +647,34 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 20
-    heightRem: 0.5
+    heightRem: 3.5
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 10
     widthScrollBar: 1
     widthEm: 28
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 4
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 20
-    heightRem: 0.5
+    heightRem: 3.5
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
     widthScrollBar: 1
-    widthEm: 52
-    # 8em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
+    widthEm: 60
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
     heightEm: 32
-    heightRem: 0.5
+    heightRem: 6.5
   minimizable: true
   paneContainable: true
   closable: true
@@ -818,7 +826,7 @@
   resizable: true
   tableInfoList: []
 
-"bgm-add-window":
+"cut-in-add-window":
   icon: plus
   parentTypeList: []
   isInputWindow: true
@@ -853,7 +861,7 @@
   resizable: true
   tableInfoList: []
 
-"bgm-edit-window":
+"cut-in-edit-window":
   icon: pencil
   parentTypeList: []
   isInputWindow: true
@@ -1310,29 +1318,35 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 7個
-    widthPx: 2
-    widthScrollBar: 1
-    widthEm: 40
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
-    heightEm: 18
-  minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 18
-  maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 15個
-    widthPx: 2
+    heightRem: 3
+  minSize:
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 10
     widthScrollBar: 1
-    widthEm: 72
-    # 6em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
+    widthEm: 28
+    widthRem: 4
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
+    heightEm: 18
+    heightRem: 3
+  maxSize:
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
+    widthScrollBar: 1
+    widthEm: 60
+    widthRem: 12
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
     heightEm: 30
+    heightRem: 6
   minimizable: true
   paneContainable: true
   closable: true
@@ -1348,32 +1362,35 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 7個
-    widthPx: 2
-    widthScrollBar: 1
-    widthEm: 40
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
-    heightEm: 20
-    heightRem: 0.5
-  minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 20
-    heightRem: 0.5
-  maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 15個
-    widthPx: 2
+    heightRem: 3.5
+  minSize:
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 10
     widthScrollBar: 1
-    widthEm: 72
-    # 8em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
+    widthEm: 26
+    widthRem: 4
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
+    heightEm: 20
+    heightRem: 3.5
+  maxSize:
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
+    widthScrollBar: 1
+    widthEm: 60
+    widthRem: 12
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
     heightEm: 32
-    heightRem: 0.5
+    heightRem: 6.5
   minimizable: true
   paneContainable: true
   closable: true
@@ -1797,29 +1814,35 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 18
+    heightRem: 3
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 10
     widthScrollBar: 1
     widthEm: 28
-    # 6em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 4
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 18
+    heightRem: 3
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
     widthScrollBar: 1
-    widthEm: 52
-    # 6em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
-    heightEm: 50
+    widthEm: 60
+    widthRem: 12
+    # 6em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
+    heightEm: 30
+    heightRem: 6
   minimizable: true
   paneContainable: true
   closable: true
@@ -1835,32 +1858,35 @@
   message: ""
   position: center
   size:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 6個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    widthPx: 14
     widthScrollBar: 1
     widthEm: 36
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 6
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 20
-    heightRem: 0.5
+    heightRem: 3.5
   minSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 4個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 4個
+    widthPx: 6
     widthScrollBar: 1
     widthEm: 28
-    # 8em(行数) + 4em(選択画像サイズ) * 3個
-    heightPx: 4
+    widthRem: 4
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 3個
+    heightPx: 10
     heightEm: 20
-    heightRem: 0.5
+    heightRem: 3.5
   maxSize:
-    # 12em(ドラッグ部分) + 4em(選択画像サイズ) * 10個
-    widthPx: 2
+    # 12em(ドラッグ部分) + 2px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 12個
+    widthPx: 26
     widthScrollBar: 1
-    widthEm: 52
-    # 8em(行数) + 4em(選択画像サイズ) * 6個
-    heightPx: 4
-    heightEm: 52
-    heightRem: 0.5
+    widthEm: 60
+    widthRem: 12
+    # 8em(行数) + 4px(罫線) + (4em + 1rem + 2px)(選択画像サイズ) * 6個
+    heightPx: 16
+    heightEm: 32
+    heightRem: 6.5
   minimizable: true
   paneContainable: true
   closable: true

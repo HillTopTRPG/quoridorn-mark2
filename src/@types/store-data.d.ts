@@ -173,6 +173,8 @@ type CutInStore = {
   direction: Direction;
   bgmKey: string | null;
   bgmTag: string | null;
+  isUseImage: boolean;
+  isUseBgm: boolean;
 };
 
 type DiceTypeStore = {

@@ -101,7 +101,9 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
   private dragModeProcessed: boolean = false;
   private orderChangingKeyList: string[] = [];
 
-  private tabList: TabInfo[] = [{ key: "1", target: "tab-list", text: "" }];
+  private tabList: TabInfo[] = [
+    { key: "1", target: "tab-list", text: "", isDisabled: false }
+  ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
   @Watch("chatPaletteList", { immediate: true, deep: true })

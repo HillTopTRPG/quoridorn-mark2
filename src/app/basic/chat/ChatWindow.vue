@@ -376,7 +376,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       .map(ct => ({
         key: ct.key,
         text: ct.data!.name,
-        target: ct.key
+        target: ct.key,
+        isDisabled: false
       }));
     if (!this.currentTargetTabInfo)
       this.currentTargetTabInfo = this.targetTabList[0];

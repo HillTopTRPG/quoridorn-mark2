@@ -115,6 +115,7 @@ interface WindowInfo<T> extends Point, WindowSize, WindowTaskInfo, TaskInfo {
 type TabInfo = {
   key: string;
   text: string;
+  isDisabled: boolean;
   target:
     | string
     | {

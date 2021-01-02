@@ -61,6 +61,7 @@
         :mediaTag.sync="mediaTagVolatile"
         :direction.sync="directionVolatile"
         ref="imagePicker"
+        :is-simple.sync="isSimple"
       />
 
       <!-- 追加情報タブ -->
@@ -176,6 +177,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   private isMounted: boolean = false;
   private imageSrc: string = "";
   private actorList = GameObjectManager.instance.actorList;
+  private isSimple: boolean = true;
 
   private trpgSystemHelper: TrpgSystemHelper<any> | null = null;
 
@@ -303,9 +305,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "image", text: "" },
-    { key: "2", target: "additional-info", text: "" },
-    { key: "3", target: "other-text", text: "" }
+    { key: "1", target: "image", text: "", isDisabled: false },
+    { key: "2", target: "additional-info", text: "", isDisabled: false },
+    { key: "3", target: "other-text", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
@@ -523,6 +525,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 .simple-tab-component {
   grid-row: 1 / 3;
   grid-column: 2 / 3;
+  overflow: hidden;
 
   > *:not(:first-child) {
     width: 100%;
@@ -530,7 +533,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     flex: 1;
   }
 
-  > div:not(.image-picker-container) {
+  > div:not(.image-picker-component) {
     border: solid 1px gray;
     box-sizing: border-box;
     padding: 0.2rem;

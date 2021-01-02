@@ -110,7 +110,8 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
     this.tabList = this.localValue.map(lv => ({
       key: lv.key,
       target: lv.key,
-      text: lv.data!.tab || this.$t("label.non-name").toString()
+      text: lv.data!.tab || this.$t("label.non-name").toString(),
+      isDisabled: false
     }));
     this.currentTabInfo = this.tabList[0];
   }

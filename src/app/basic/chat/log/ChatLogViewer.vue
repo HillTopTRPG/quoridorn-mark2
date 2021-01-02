@@ -161,7 +161,8 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
       .map(ct => ({
         key: ct.key,
         text: ct.data!.name,
-        target: ct.key
+        target: ct.key,
+        isDisabled: false
       }));
     if (
       !this.currentTabInfo ||
