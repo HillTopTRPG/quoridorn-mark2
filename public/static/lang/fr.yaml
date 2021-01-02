@@ -116,7 +116,7 @@ selection:
     edit: 編集権限
     chmod: 権限変更権限
   chat-linkage-type:
-    label: 連動方法
+    label: 連動基準
     last: 末尾
     regexp: 正規表現
   resource-type:
@@ -192,7 +192,7 @@ bgm-info-form:
   label:
     repeat: リピート
     stand-by: スタンバイ
-    force-continue: 多重再生時は既存再生を優先する
+    force-continue: 同じ曲を再生しようとしてもリセットしない
     force-new: 強制新規再生
     fade-in: フェードイン
     fade-out: フェードアウト
@@ -224,27 +224,27 @@ menu:
   bug-reports: 不具合報告
 
 label:
-  exist: あり # OK
-  not-exist: なし # OK
-  user-name: ユーザ名 # OK
-  password: パスワード # OK
-  password-placeholder: (空ならパスワードなし) # OK
-  require-text: 必須 # OK
+  exist: あり
+  not-exist: なし
+  user-name: ユーザ名
+  password: パスワード
+  password-placeholder: (空ならパスワードなし)
+  require-text: 必須
   permission: 権限
-  room-name: プレイルーム名 # OK
-  no-target: 指定なし # OK
-  text: テキスト # OK
-  background-color: 背景色 # OK
-  height: 高さ # OK
-  width: 幅 # OK
-  tag: タグ # OK
-  non-tag: タグ無し # OK
-  layer: レイヤー # OK
+  room-name: プレイルーム名
+  no-target: 指定なし
+  text: テキスト
+  background-color: 背景色
+  height: 高さ
+  width: 幅
+  tag: タグ
+  non-tag: タグ無し
+  layer: レイヤー
   image: 画像
   other-text: その他欄
   image-tag: 画像タグ
-  client: クライアント # OK
-  server: サーバ # OK
+  client: クライアント
+  server: サーバ
   version: バージョン
   background: 背景
   main: メイン
@@ -254,8 +254,8 @@ label:
   rows: 行
   columns: 列
   name: 名前
-  font-color: 文字色 # OK
-  chat-font-color: チャット文字色 # OK
+  font-color: 文字色
+  chat-font-color: チャット文字色
   border-style: 罫線のスタイル
   size: サイズ
   decoration: 装飾
@@ -320,8 +320,8 @@ label:
   tab-list: タブ一覧
   other: その他
   actor: アクター
-  secret: 秘匿 # OK
-  non-secret: 公開 # OK
+  secret: 秘匿
+  non-secret: 公開
   scene-object: コマ
   non-select: 選択なし
   dice-type: ダイス
@@ -394,7 +394,7 @@ cut-in-list-window:
     - 時間
     - 繰
     - 音量
-    - fade
+    - フェード
 
 login-window:
   window-title: ログイン画面
@@ -561,7 +561,6 @@ chat-window:
       本当にこのチャットを消しますか？
       この操作は取り消せません。
 
-
 chat-setting-window:
   window-title: チャット設定
   message-list:
@@ -591,7 +590,6 @@ player-box-window:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
       この操作は取り消せません。
-
 
 card-deck-builder:
   title: Quoridornカード山札ビルダー Ver.1.0.0a1
@@ -674,7 +672,6 @@ media-list-window:
       本当にメディア「$1」を削除しますか？
       この操作は取り消せません。
 
-
 card-deck-small-edit-window:
   window-title: 山札編集
   label:
@@ -717,7 +714,6 @@ resource-master-list-window:
     delete-resource: |-
       本当にこのリソースを消しますか？
       この操作は取り消せません。
-
 
 chat-palette-window:
   window-title: チャットパレット

@@ -566,12 +566,12 @@ export default class LoginWindow extends Mixins<
       if (deleteResult) {
         successDialog({
           title: this.$t("button.delete").toString(),
-          text: "部屋を削除しました。"
+          text: this.$t("login-window.message-list.deleted").toString()
         }).then();
       } else {
         errorDialog({
           title: this.$t("button.delete").toString(),
-          text: "部屋の削除に失敗しました。"
+          text: this.$t("login-window.message-list.delete-failue").toString()
         }).then();
       }
     });

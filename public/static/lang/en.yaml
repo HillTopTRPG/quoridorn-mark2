@@ -1,25 +1,25 @@
 button:
-  commit: 確認
-  reject: キャンセル
+  commit: Accept
+  reject: Cancel
   ok: OK
   cancel: Cancel
-  login: ログイン
-  create-new: 新規作成
-  delete: 削除
-  send: 送信
-  preview: プレビュー
-  add: 追加
-  modify: 変更
-  copy: コピー
-  next: 次へ
-  execution: 実行
-  close: 閉じる
+  login: Log in
+  create-new: New Room
+  delete: Delete
+  send: Send
+  preview: Preview
+  add: Add
+  modify: Edit
+  copy: Copy
+  next: Next
+  execution: Delete
+  close: Close
   logout: ログアウト
   exit-room: 退室
-  edit: 編集
-  chmod: 権限変更
-  upload: アップロード
-  download: ダウンロード
+  edit: Edit
+  chmod: Authorize
+  upload: Upload
+  download: Download
   read: 読込
   regist-cut-in: カットイン登録
   setting: 設定
@@ -28,47 +28,47 @@ button:
   create-other-text: 参照先からその他欄を生成
 
 type:
-  map-mask: マップマスク
-  map-marker: マップマーカー
-  dice-symbol: ダイスシンボル
+  map-mask: ''
+  map-marker: ''
+  dice-symbol: ''
   chit: チット
-  character: キャラクター
-  map: マップ
-  floor-tile: フロアタイル
+  character: ''
+  map: Map
+  floor-tile: ''
   stand-image: 立ち絵
   stand-image-diff: 立ち絵差分
   user: ユーザー
-  actor: アクター
+  actor: ''
   actor-group: アクターグループ
-  piece: コマ
-  card: カード
+  piece: ''
+  card: ''
   card-object: カード/山札
   card-deck-small: 山札
-  gm: GM
-  pl: PL
-  visitor: 見学者
+  gm: Game Master
+  pl: Player
+  visitor: Observer
   public-memo: 共有メモ
 
 context:
-  bgm-setting: BGM設定
-  add-map-mask: マップマスク作成
+  bgm-setting: Edit BGM
+  add-map-mask: Add a map mask
   add-map-marker: マップマーカー作成
-  add-chit: チット作成
-  add-character: キャラクター作成
+  add-chit: Add a chit
+  add-character: Add a character
   modify: 変更
-  copy: 複製
+  copy: Copy
   delete: 削除
-  fix: 固定
-  un-fix: 固定解除
-  view-border: 枠線を表示
-  hide-border: 枠線を非表示
-  view-highlight: ハイライトを表示
-  hide-highlight: ハイライトを非表示
+  fix: ''
+  un-fix: ''
+  view-border: ''
+  hide-border: ''
+  view-highlight: ''
+  hide-highlight: ''
   view-marker-deco: 装飾を表示
   hide-marker-deco: 装飾を非表示
   view-marker-back: 塗りつぶす
   hide-marker-back: 塗りつぶさない
-  view-scene-list: シーン一覧表示
+  view-scene-list: Scenes
   chmod: 権限変更
   shuffle: シャッフル
   draw: ドロー
@@ -84,8 +84,8 @@ context:
   layout-hand: 手札
   setting-change: 設定変更
   placement-reset: 配置リセット
-  ref-url: データ参照先URLを開く
-  edit-actor: コマのアクターを編集
+  ref-url: ''
+  edit-actor: ''
   add-dice-symbol: ダイスシンボル作成
   dice-pips-change: 出目変更
   dice-hide: 出目を隠す
@@ -96,31 +96,31 @@ context:
 selection:
   chat-color-type:
     label: 文字色タイプ
-    owner: オーナーと同じ
-    original: 個別の色
+    owner: ''
+    original: ''
   direction:
-    label: 向き
-    none: そのまま
-    horizontal: 左右反転
-    vertical: 上下反転
-    180deg: 180度回転
+    label: Direction
+    none: As is
+    horizontal: Invert vertical
+    vertical: Invert horizontal
+    180deg: Rotate 180 degrees
   background-location:
-    label: 配置
-    contain: 内包
-    cover-start: カバー(始)
-    cover-center: カバー(中)
-    cover-end: カバー(終)
-    100per: 100%
+    label: ''
+    contain: ''
+    cover-start: ''
+    cover-center: ''
+    cover-end: ''
+    100per: ''
   permission:
     view: 閲覧権限
     edit: 編集権限
     chmod: 権限変更権限
   chat-linkage-type:
-    label: 連動方法
-    last: 末尾
-    regexp: 正規表現
+    label: Trigger
+    last: End of message
+    regexp: Regular expression
   resource-type:
-    label: 種類
+    label: Type
     no-contents: 内容なし
     ref-normal: 情報参照
     ref-owner: 情報参照(オーナー)
@@ -130,25 +130,25 @@ selection:
     check: チェックボックス
     select: 選択肢
     combo: コンボボックス
-    color: 色
+    color: Colour
   ref-property:
     label: 参照プロパティ
-    name: 名前
+    name: Name
     type: 種類
-    tag: タグ
+    tag: Tag
     actor-name: 名前(アクター)
     actor-type: 種類(アクター)
     actor-tag: タグ(アクター)
     owner-name: 名前(オーナー)
     owner-type: 種類(オーナー)
-    object-layer: レイヤー
-    actor-status-name: ステータス
-    actor-chat-text-color: チャット文字色
-    actor-stand-image-position: 立ち絵の位置
+    object-layer: Layer
+    actor-status-name: ''
+    actor-chat-text-color: ''
+    actor-stand-image-position: ''
   selection-value:
     label: 選択肢の値
   user-type:
-    label: ユーザ種別
+    label: 'User permission:'
     gm: GM
     pl: PL
     visitor: 見学者
@@ -190,16 +190,16 @@ card-deck-create-card-component:
 
 bgm-info-form:
   label:
-    repeat: リピート
-    stand-by: スタンバイ
-    force-continue: 多重再生時は既存再生を優先する
-    force-new: 強制新規再生
-    fade-in: フェードイン
-    fade-out: フェードアウト
-    volume: 音量
-    play-start: 再生開始
-    play-end: 再生終了
-    second: 秒
+    repeat: Repeat
+    stand-by: Stand-by
+    force-continue: Never rewind while playing
+    force-new: Always rewind
+    fade-in: Fade-in
+    fade-out: Fade-out
+    volume: Volume
+    play-start: Start
+    play-end: End
+    second: s
     url-placeholder: 指定なしで「停止」の指定
 
 bcdice-manager:
@@ -224,53 +224,53 @@ menu:
   bug-reports: 不具合報告
 
 label:
-  exist: あり # OK
-  not-exist: なし # OK
-  user-name: ユーザ名 # OK
-  password: パスワード # OK
-  password-placeholder: (空ならパスワードなし) # OK
-  require-text: 必須 # OK
-  permission: 権限
-  room-name: プレイルーム名 # OK
-  no-target: 指定なし # OK
-  text: テキスト # OK
-  background-color: 背景色 # OK
-  height: 高さ # OK
-  width: 幅 # OK
-  tag: タグ # OK
-  non-tag: タグ無し # OK
-  layer: レイヤー # OK
-  image: 画像
-  other-text: その他欄
+  exist: Required
+  not-exist: None
+  user-name: 'User name:'
+  password: 'Pasword:'
+  password-placeholder: (If empty no password will be set)
+  require-text: Required
+  permission: Authority
+  room-name: 'Room name:'
+  no-target: Unselected
+  text: ''
+  background-color: 背景色
+  height: ''
+  width: Width
+  tag: タグ
+  non-tag: ''
+  layer: レイヤー
+  image: Image
+  other-text: ''
   image-tag: 画像タグ
-  client: クライアント # OK
-  server: サーバ # OK
-  version: バージョン
-  background: 背景
-  main: メイン
-  margin: 余白
+  client: Client terms
+  server: Server terms
+  version: 'Version:'
+  background: Background
+  main: Main
+  margin: Blank space
   color: 色
-  texture: テクスチャ
-  rows: 行
-  columns: 列
+  texture: Texture
+  rows: Rows
+  columns: Columns
   name: 名前
-  font-color: 文字色 # OK
-  chat-font-color: チャット文字色 # OK
+  font-color: Font colour
+  chat-font-color: チャット文字色
   border-style: 罫線のスタイル
-  size: サイズ
-  decoration: 装飾
-  style: スタイル
-  map: マップ
+  size: Size
+  decoration: Decoration
+  style: Style
+  map: Map
   none: なし
   allow: 許可
   deny: 否認
   permission-type: 権限種別
   permission-node-type: 権限対象種別
-  owner: オーナー
+  owner: ''
   user: ユーザー
   character: キャラクター
   group: グループ
-  map-object: マップオブジェクト
+  map-object: ''
   place: 場所
   field: フィールド
   graveyard: 墓地
@@ -280,26 +280,26 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
-  additional-info: 付加情報
-  chat-linkage: チャット連動
-  chat-linkage-target: チャット連動対象
+  additional-info: ''
+  chat-linkage: Associate with chat message
+  chat-linkage-target: Trigger
   javascript-regexp: Javascriptの正規表現
   last-str: 末尾の文字列
   url: URL
-  title: タイトル
+  title: Title
   editing: 編集中
   unknown: '[不明]'
-  input-bcdice-url: BCDice-APIサーバーのURLを設定します
-  target-all: 全体
-  all: すべて
+  input-bcdice-url: ''
+  target-all: All
+  all: ''
   status: ステータス
   edited: '[編集済]'
   use: 使う
-  un-use: 使わない
-  sort: 並び替え
+  un-use: ''
+  sort: ''
   stand-image-position: 立ち絵の位置
-  view-type: 表示モード
-  search-name-box: 名前検索欄
+  view-type: ''
+  search-name-box: ''
   search: 検索
   operation: 操作
   local: ローカル
@@ -311,17 +311,17 @@ label:
   import-failure: インポートに失敗しました。
   resist: 登録
   layout: レイアウト
-  ref-url: データ参照先URL
+  ref-url: ''
   basic: 基本
   icon: アイコン
   resource: リソース
-  read-aloud: 読み上げ
-  read-aloud-volume: 読み上げ音量
-  tab-list: タブ一覧
-  other: その他
+  read-aloud: ''
+  read-aloud-volume: ''
+  tab-list: ''
+  other: ''
   actor: アクター
-  secret: 秘匿 # OK
-  non-secret: 公開 # OK
+  secret: ''
+  non-secret: ''
   scene-object: コマ
   non-select: 選択なし
   dice-type: ダイス
@@ -339,13 +339,13 @@ label:
   fill: 塗りつぶす
 
 message:
-  copy-to-clipboard: クリップボードにコピーしました。
-  setting-up-quoridorn: Quoridornをセットアップ中です！
-  processing: 処理中です！
-  creating-room: お部屋を作成しています！
-  entering-room: お部屋に入ります！
-  add-preset-room: プリセットデータを登録しています！
-  last-process-room: お部屋を表示するために頑張ってます！
+  copy-to-clipboard: Copied to clipboard
+  setting-up-quoridorn: Loading up Quoridorn!
+  processing: Processing...
+  creating-room: Generating Room...
+  entering-room: Entering the room...
+  add-preset-room: Writting presets!
+  last-process-room: Now displaying!
   delete-deck: 山札を削除しますか？
   change-pips-dice-symbol: ダイスシンボルの目を変更（{0}：{1} -> {2}）
   change-pips-dice-symbol-hide: ダイスシンボル（秘匿）の目を変更
@@ -361,8 +361,8 @@ message:
     どうぞそのまま
     ドロップインしてください。
   really-delete: 本当に削除しますか？
-  choose-image: 画像を選択してください。
-  drag-piece: マップにドラッグすると作成できます。
+  choose-image: ''
+  drag-piece: ''
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
     この操作は取り消せません。
@@ -385,47 +385,47 @@ play-youtube-window:
   window-title: Youtube再生画面
 
 cut-in-list-window:
-  window-title: カットイン一覧
+  window-title: ''
   table-columns:
-  - - 連動
+  - - Trigger
     - タグ
-    - 種別
+    - Category
     - タイトル
-    - 時間
-    - 繰
-    - 音量
-    - fade
+    - Time
+    - Repeat
+    - Volume
+    - Fade
 
 login-window:
-  window-title: ログイン画面
+  window-title: Log in
   label:
-    terms-of-use: 利用規約
-    empty-room: （空部屋）
-    possible: 可
+    terms-of-use: Terms of use
+    empty-room: (Empty room)
+    possible: OK
     creating: 作成中
-    version-info: バージョン情報
+    version-info: version info
   table-columns:
   - - No.
-    - プレイルーム名
-    - ゲームシステム
-    - 入室人数
-    - パスワード
-    - 見学
-    - 最終更新時刻
+    - Room name
+    - Game System
+    - Players
+    - Password
+    - Observable
+    - Last edit
     - 削除
 
 create-new-room-window:
-  window-title: 新規プレイルーム作成
-  message: 新規プレイルームを作成します。
+  window-title: New room creation
+  message: Please provide the following information to create a new room.
   label:
-    room-name-placeholder: 部屋名(必須項目)
-    game-system-input: ゲームシステム(入力指定も可)
+    room-name-placeholder: Room name (required)
+    game-system-input: Game system (you can specify at will)
     room-password: 入室パスワード
     room-create-password: 部屋作成パスワード
 
 user-login-window:
-  window-title: ユーザログイン
-  message: ユーザ情報を入力してください。
+  window-title: User login
+  message: Please input the required user information to proceed.
 
 bcdice-api-server-setting-window:
   window-title: BCDice-APIサーバ設定
@@ -436,8 +436,8 @@ bcdice-api-server-setting-window:
     connect-error: 接続に失敗しました。
 
 app-server-setting-window:
-  window-title: アプリケーションサーバ設定
-  message: アプリケーションサーバに関する設定
+  window-title: Application Server settings
+  message: Please specify your application server.
   testing: テスト中
   not-quoridorn: Quoridornサーバではありません
   no-such-server: 接続できませんでした
@@ -446,18 +446,19 @@ app-server-setting-window:
   success: 接続成功
 
 terms-of-use-window:
-  window-title: 利用規約確認
-  message: 下記はプログラム設置者が定めた利用規約です。利用者はこの両方を守ってご利用ください。
+  window-title: Terms of use
+  message: The server owner has defined the following terms of use. Each user must
+    abide by these terms.
 
 delete-room-window:
-  window-title: 部屋削除
-  message: 部屋を削除します。
+  window-title: Deleting Room
+  message: Are you sure you want to delete this room?
 
 confirm-window:
   window-title: 確認画面
   delete-room:
     title: 部屋削除
-    message: 部屋を削除しますか？
+    message: Please input the password to complete deletion
 
 login-room-window:
   window-title: ログインチェック
@@ -466,27 +467,27 @@ login-room-window:
 version-info-window:
   window-title: バージョン情報
   label:
-    adequate-client: 適正のクライアント
-    adequate-server: 適正のサーバ
-    version-compatible: バージョン互換性
-    adequate: 適正
-    inadequate: 不適正
+    adequate-client: 'Compatible client version:'
+    adequate-server: 'Compatible server version:'
+    version-compatible: 'Version compatibility:'
+    adequate: Stable
+    inadequate: Requires updating
 
 room-info-window:
-  window-title: プレイルーム情報表示
+  window-title: Room information
   label:
-    bcdice-api-url: BCDice-APIのURL
-    game-system-view: ゲームシステム
-    comeback-url: 復帰URL
-    invite-url: 招待URL
-    room-member-num: 入室数
-    room-no: 部屋番号
+    bcdice-api-url: BCDice-API link
+    game-system-view: Game system
+    comeback-url: Returning Room URL
+    invite-url: Invitation room URL
+    room-member-num: Current player
+    room-no: Room number
 
 map-mask-add-window:
-  window-title: マップマスク作成
+  window-title: ''
 
 map-mask-edit-window:
-  window-title: マップマスク編集
+  window-title: ''
 
 map-marker-add-window:
   window-title: マップマーカー作成
@@ -495,31 +496,31 @@ map-marker-edit-window:
   window-title: マップマーカー編集
 
 chit-add-window:
-  window-title: チット作成
+  window-title: ''
 
 chit-edit-window:
-  window-title: チット編集
+  window-title: ''
 
 scene-list-window:
-  window-title: シーン一覧
+  window-title: Scenes
 
 edit-scene-window:
-  window-title: シーン編集
+  window-title: Scene settings
   label:
-    sub: サブ
-    grid-size: マス(px)
-    grid-line: 方眼線
-    grid-line-color: 方眼線色
-    blur: ぼかし
-    mask: マスク
-    frame-border: 枠線
+    sub: Subordinate
+    grid-size: Size (pixel)
+    grid-line: Grid
+    grid-line-color: Grid colour
+    blur: Blur
+    mask: Mask
+    frame-border: Frame
   message-select:
-    layer-view: レイヤーの表示・非表示を切り替えます。
-    layer-order-mode-on: レイヤーの順番を入れ替えるモードにします。
+    layer-view: ''
+    layer-order-mode-on: ''
     layer-order-mode-off: 通常のモードに戻します。
     layer-order: ドラッグでレイヤーの順番を入れ替えます。
     original-address: 他のシーンと異なる座標を持つかの設定です。
-    object-order-mode-on: オブジェクトの順番を入れ替えるモードにします。
+    object-order-mode-on: Cut-in settings
     object-order-mode-off: 通常のモードに戻します。
     object-order: ドラッグでオブジェクトの順番を入れ替えます。
 
@@ -530,27 +531,25 @@ chmod-input-window:
   window-title: 権限変更
 
 bgm-add-window:
-  window-title: BGM作成
+  window-title: Add BGM
 
 bgm-edit-window:
-  window-title: BGM編集
+  window-title: Edit BGM
 
 chat-window:
-  window-title: チャット
-  placeholder: |-
-    メッセージ（改行はShift + Enter）
-    部分フォント変更は "&" を入力
+  window-title: Chat
+  placeholder: ''
   options:
-    select-sender: 送信者の選択
-    select-output-tab: 送信先タブの選択
-    select-target: 送信相手の選択
-    select-chat-format: 部分フォーマット選択
-    select-is-secret: 秘匿チャットかどうか
-    selected-item: '[選択中]'
-    goto-head: '[先頭へ]'
-    goto-next: '[次へ]'
-    goto-last: '[前へ]'
-    goto-tail: '[末尾へ]'
+    select-sender: ''
+    select-output-tab: ''
+    select-target: ''
+    select-chat-format: ''
+    select-is-secret: ''
+    selected-item: ''
+    goto-head: ''
+    goto-next: ''
+    goto-last: ''
+    goto-tail: ''
   input-info:
     message-sender: 現在の送信者を表示しています
     message-target: チャットの送信先を表示しています
@@ -561,28 +560,27 @@ chat-window:
       本当にこのチャットを消しますか？
       この操作は取り消せません。
 
-
 chat-setting-window:
-  window-title: チャット設定
+  window-title: ''
   message-list:
     edit: 編集
     chmod: 権限編集
     delete: 削除
 
 chat-tab-add-window:
-  window-title: チャットタブ作成
+  window-title: ''
 
 chat-tab-edit-window:
-  window-title: チャットタブ編集
+  window-title: ''
 
 actor-add-window:
-  window-title: アクター作成
+  window-title: ''
 
 actor-edit-window:
-  window-title: アクター編集
+  window-title: ''
 
 player-box-window:
-  window-title: プレイヤーボックス
+  window-title: ''
   message-list:
     edit: 編集
     chmod: 権限編集
@@ -591,7 +589,6 @@ player-box-window:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
       この操作は取り消せません。
-
 
 card-deck-builder:
   title: Quoridornカード山札ビルダー Ver.1.0.0a1
@@ -650,7 +647,7 @@ card-deck-builder:
     count-more: 5枚以上
 
 card-deck-list-window:
-  window-title: 山札一覧
+  window-title: ''
 
 media-upload-window:
   window-title: メディアアップロード
@@ -662,7 +659,7 @@ media-upload-window:
     delete-together: まとめて削除
 
 media-list-window:
-  window-title: メディア一覧
+  window-title: ''
   label:
     thumbnail: サムネイル
     list: リスト
@@ -673,7 +670,6 @@ media-list-window:
     delete-media: |-
       本当にメディア「$1」を削除しますか？
       この操作は取り消せません。
-
 
 card-deck-small-edit-window:
   window-title: 山札編集
@@ -691,10 +687,10 @@ play-bgm-file-window:
   window-title: 音楽ファイル再生
 
 character-add-window:
-  window-title: キャラクター作成
+  window-title: ''
 
 character-edit-window:
-  window-title: キャラクター編集
+  window-title: ''
 
 initiative-window:
   window-title: イニシアティブ(INI)表
@@ -706,18 +702,17 @@ resource-master-edit-window:
   window-title: リソース編集
 
 resource-master-list-window:
-  window-title: リソース一覧
+  window-title: Resources
   header:
-    name: リソース名
+    name: Resource name
     type: 種類
-    initiative: 自動付与
+    initiative: Generate
     initiative-actor: アクター
     initiative-map-object: コマ
   dialog:
     delete-resource: |-
       本当にこのリソースを消しますか？
       この操作は取り消せません。
-
 
 chat-palette-window:
   window-title: チャットパレット

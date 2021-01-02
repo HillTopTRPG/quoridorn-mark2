@@ -23,7 +23,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -52,7 +52,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -81,7 +81,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -110,7 +110,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -139,7 +139,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -168,7 +168,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -197,7 +197,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -226,7 +226,7 @@
   isRepeat: true
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
@@ -255,7 +255,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
@@ -284,7 +284,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
@@ -313,7 +313,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
@@ -342,7 +342,7 @@
   isRepeat: false
   # スタンバイ状態にして、再生タイミングで初期読み込み時間によるラグを軽減するかどうか
   isStandBy: false
-  # 多重再生時は既存再生を優先する（BGM向け）
+  # 同じ曲を再生しようとしてもリセットしない（BGM向け）
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true

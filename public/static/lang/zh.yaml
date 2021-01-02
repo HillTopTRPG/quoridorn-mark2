@@ -92,6 +92,7 @@ context:
   dice-view: 骰子結果顯示
   dice-roll: 擲骰
   create-chat-palette: チャットパレットを生成
+
 selection:
   chat-color-type:
     label: 文字顏色類型
@@ -115,7 +116,7 @@ selection:
     edit: 編輯權限
     chmod: 權限變更
   chat-linkage-type:
-    label: 連動方法
+    label: 連動基準
     last: 最後
     regexp: 正規表示
   resource-type:
@@ -223,27 +224,27 @@ menu:
   bug-reports: 回報錯誤
 
 label:
-  exist: 已存在 # OK
-  not-exist: 沒有 # OK
-  user-name: 使用者名稱 # OK
-  password: 密碼 # OK
-  password-placeholder: (留空則沒有密碼) # OK
-  require-text: 必須 # OK
+  exist: 已存在
+  not-exist: 沒有
+  user-name: 使用者名稱
+  password: 密碼
+  password-placeholder: (留空則沒有密碼)
+  require-text: 必須
   permission: 權限
-  room-name: 房間名稱 # OK
-  no-target: 沒有指定目標 # OK
-  text: 文字 # OK
-  background-color: 背景色 # OK
-  height: 高度 # OK
-  width: 闊度 # OK
-  tag: 標籤 # OK
-  non-tag: 沒有標籤 # OK
-  layer: 圖層 # OK
+  room-name: 房間名稱
+  no-target: 沒有指定目標
+  text: 文字
+  background-color: 背景色
+  height: 高度
+  width: 闊度
+  tag: 標籤
+  non-tag: 沒有標籤
+  layer: 圖層
   image: 圖像
   other-text: 其他欄
   image-tag: 圖像標籤
-  client: 客戶端 # OK
-  server: Server # OK
+  client: 客戶端
+  server: Server
   version: 本
   background: 背景
   main: 主要
@@ -253,8 +254,8 @@ label:
   rows: 行
   columns: 列
   name: 名字
-  font-color: 文字顏色 # OK
-  chat-font-color: 聊天文字顏色 # OK
+  font-color: 文字顏色
+  chat-font-color: 聊天文字顏色
   border-style: 格線的風格
   size: 大小
   decoration: 裝飾
@@ -319,8 +320,8 @@ label:
   tab-list: 分頁列表
   other: 其他
   actor: 演員
-  secret: 機密 # OK
-  non-secret: 公開 # OK
+  secret: 機密
+  non-secret: 公開
   scene-object: 場景
   non-select: 沒有選擇
   dice-type: 骰子
@@ -393,7 +394,7 @@ cut-in-list-window:
     - 時間
     - 重覆
     - 音量
-    - fade
+    - フェード
 
 login-window:
   window-title: 登入畫面
@@ -560,7 +561,6 @@ chat-window:
       真的要把該聊天室刪除？
       這操作不能撒回。
 
-
 chat-setting-window:
   window-title: 聊天室設定
   message-list:
@@ -590,7 +590,6 @@ player-box-window:
     delete-actor: |-
       要把演員「$1」刪除？
       這操作不能撒回。
-
 
 card-deck-builder:
   title: Quoridorn咭牌牌堆創建工具 Ver.1.0.0a1
@@ -673,7 +672,6 @@ media-list-window:
       真的要把媒體「$1」刪除？
       這操作不能撒回。
 
-
 card-deck-small-edit-window:
   window-title: 牌堆編輯
   label:
@@ -716,7 +714,6 @@ resource-master-list-window:
     delete-resource: |-
       真的要把此資源刪除？
       這操作不能撒回。
-
 
 chat-palette-window:
   window-title: 聊天組合版
