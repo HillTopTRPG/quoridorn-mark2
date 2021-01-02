@@ -216,9 +216,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   );
   /** ユーザタイプ */
   private userTypeLanguageMap: { [type in UserType]: string } = {
-    PL: LanguageManager.instance.getText("selection.user-type.PL"),
-    GM: LanguageManager.instance.getText("selection.user-type.GM"),
-    VISITOR: LanguageManager.instance.getText("selection.user-type.VISITOR")
+    PL: LanguageManager.instance.getText("selection.user-type.pl"),
+    GM: LanguageManager.instance.getText("selection.user-type.gm"),
+    VISITOR: LanguageManager.instance.getText("selection.user-type.visitor")
   };
 
   /*

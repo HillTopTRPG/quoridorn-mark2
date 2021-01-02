@@ -64,17 +64,17 @@
             <td class="left">{{ user.data.name }}</td>
             <td
               class="center"
-              v-t="'selection.user-type.GM'"
+              v-t="'selection.user-type.gm'"
               v-if="user.data.type === 'GM'"
             ></td>
             <td
               class="center"
-              v-t="'selection.user-type.PL'"
+              v-t="'selection.user-type.pl'"
               v-if="user.data.type === 'PL'"
             ></td>
             <td
               class="center"
-              v-t="'selection.user-type.VISITOR'"
+              v-t="'selection.user-type.visitor'"
               v-if="user.data.type === 'VISITOR'"
             ></td>
             <td class="center">{{ user.data.login }}</td>

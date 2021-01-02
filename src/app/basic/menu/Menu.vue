@@ -316,9 +316,9 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     const actorGroupList = GameObjectManager.instance.actorGroupList;
     const groupChatTabList = GameObjectManager.instance.groupChatTabList;
     const userTypeLanguageMap = {
-      PL: this.$t("selection.user-type.PL")!.toString(),
-      GM: this.$t("selection.user-type.GM")!.toString(),
-      VISITOR: this.$t("selection.user-type.VISITOR")!.toString()
+      PL: this.$t("selection.user-type.pl")!.toString(),
+      GM: this.$t("selection.user-type.gm")!.toString(),
+      VISITOR: this.$t("selection.user-type.visitor")!.toString()
     };
 
     const convert = (data: any) => {

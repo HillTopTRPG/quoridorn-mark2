@@ -513,7 +513,7 @@ export default class CardDeckFrameSettingComponent extends Mixins<ComponentVue>(
     if (!dataContainer) {
       await errorDialog({
         title: this.$t("message.error").toString(),
-        text: this.$t("label.importFailure").toString()
+        text: this.$t("label.import-failure").toString()
       });
       return;
     }

@@ -3,8 +3,8 @@
     <div
       class="item"
       :class="{ default: isDefaultTab }"
-      @mouseenter="onHover('outputTab', true)"
-      @mouseleave="onHover('outputTab', false)"
+      @mouseenter="onHover('output-tab', true)"
+      @mouseleave="onHover('output-tab', false)"
     >
       # {{ outputTabName }}
     </div>

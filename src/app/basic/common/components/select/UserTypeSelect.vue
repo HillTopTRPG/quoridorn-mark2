@@ -32,9 +32,9 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
 
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
-    { value: "PL", key: "", text: "", disabled: false },
-    { value: "GM", key: "", text: "", disabled: false },
-    { value: "VISITOR", key: "", text: "", disabled: false }
+    { value: "PL", key: "pl", text: "", disabled: false },
+    { value: "GM", key: "gm", text: "", disabled: false },
+    { value: "VISITOR", key: "visitor", text: "", disabled: false }
   ];
 
   @LifeCycle
@@ -52,8 +52,7 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      o.text = this.$t(`selection.user-type.${o.value || "label"}`)!.toString();
-      o.key = o.value;
+      o.text = this.$t(`selection.user-type.${o.key || "label"}`)!.toString();
       if (o.value === "VISITOR" && !this.visitable) o.disabled = true;
     });
   }

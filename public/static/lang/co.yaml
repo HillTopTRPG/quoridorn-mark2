@@ -44,9 +44,9 @@ type:
   card: カード
   card-object: カード/山札
   card-deck-small: 山札
-  GM: GM
-  PL: PL
-  VISITOR: 見学者
+  gm: GM
+  pl: PL
+  visitor: 見学者
   public-memo: 共有メモ
 
 context:
@@ -103,14 +103,14 @@ selection:
     none: そのまま
     horizontal: 左右反転
     vertical: 上下反転
-    180: 180度回転
+    180deg: 180度回転
   background-location:
     label: 配置
     contain: 内包
     cover-start: カバー(始)
     cover-center: カバー(中)
     cover-end: カバー(終)
-    100%: 100%
+    100per: 100%
   permission:
     view: 閲覧権限
     edit: 編集権限
@@ -149,9 +149,9 @@ selection:
     label: 選択肢の値
   user-type:
     label: ユーザ種別
-    GM: GM
-    PL: PL
-    VISITOR: 見学者
+    gm: GM
+    pl: PL
+    visitor: 見学者
 
 resource-master-info-form:
   label:
@@ -288,12 +288,12 @@ label:
   url: URL
   title: タイトル
   editing: 編集中
-  unknown: "[不明]"
+  unknown: '[不明]'
   input-bcdice-url: BCDice-APIサーバーのURLを設定します
   target-all: 全体
   all: すべて
   status: ステータス
-  edited: "[編集済]"
+  edited: '[編集済]'
   use: 使う
   un-use: 使わない
   sort: 並び替え
@@ -308,7 +308,7 @@ label:
   music: 音楽
   system: システム
   special-process: 特殊機能
-  importFailure: インポートに失敗しました。
+  import-failure: インポートに失敗しました。
   resist: 登録
   layout: レイアウト
   ref-url: データ参照先URL
@@ -357,21 +357,29 @@ message:
   dice-roll-secret-dice: シークレットダイスをロール
   open-secret-dice: シークレットダイスを公開
   room-create-password: 部屋を作成するにはパスワードが必要です
-  drop-area: "どうぞそのまま\nドロップインしてください。"
+  drop-area: |-
+    どうぞそのまま
+    ドロップインしてください。
   really-delete: 本当に削除しますか？
   choose-image: 画像を選択してください。
   drag-piece: マップにドラッグすると作成できます。
-  delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
-  original: "元：$1"
+  delete-tab: |-
+    本当にタブ「$1」を削除しますか？
+    この操作は取り消せません。
+  original: 元：$1
   name-duplicate: 名前が重複します。
   delete-failure: 削除に失敗しました。
   load-other-text-character-sheet: その他欄生成
-  load-other-text-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
+  load-other-text-character-sheet-text: |-
+    データ参照先URLからデータを読み込みます。
+    タブ名が重複する場合は上書きします。
   load-chat-palette-character-sheet: チャットパレット生成
-  load-chat-palette-character-sheet-text: "データ参照先URLからデータを読み込みます。\nタブ名が重複する場合は上書きします。"
+  load-chat-palette-character-sheet-text: |-
+    データ参照先URLからデータを読み込みます。
+    タブ名が重複する場合は上書きします。
   success: 成功
   error: エラー
-  login-text: "{0} が入室しました。"
+  login-text: '{0} が入室しました。'
 
 play-youtube-window:
   window-title: Youtube再生画面
@@ -379,15 +387,14 @@ play-youtube-window:
 cut-in-list-window:
   window-title: カットイン一覧
   table-columns:
-    -
-      - 連動
-      - タグ
-      - 種別
-      - タイトル
-      - 時間
-      - 繰
-      - 音量
-      - fade
+  - - 連動
+    - タグ
+    - 種別
+    - タイトル
+    - 時間
+    - 繰
+    - 音量
+    - fade
 
 login-window:
   window-title: ログイン画面
@@ -398,15 +405,14 @@ login-window:
     creating: 作成中
     version-info: バージョン情報
   table-columns:
-    -
-      - No.
-      - プレイルーム名
-      - ゲームシステム
-      - 入室人数
-      - パスワード
-      - 見学
-      - 最終更新時刻
-      - 削除
+  - - No.
+    - プレイルーム名
+    - ゲームシステム
+    - 入室人数
+    - パスワード
+    - 見学
+    - 最終更新時刻
+    - 削除
 
 create-new-room-window:
   window-title: 新規プレイルーム作成
@@ -531,25 +537,30 @@ bgm-edit-window:
 
 chat-window:
   window-title: チャット
-  placeholder: "メッセージ（改行はShift + Enter）\n部分フォント変更は \"&\" を入力"
+  placeholder: |-
+    メッセージ（改行はShift + Enter）
+    部分フォント変更は "&" を入力
   options:
     select-sender: 送信者の選択
     select-output-tab: 送信先タブの選択
     select-target: 送信相手の選択
     select-chat-format: 部分フォーマット選択
     select-is-secret: 秘匿チャットかどうか
-    selected-item: "[選択中]"
-    goto-head: "[先頭へ]"
-    goto-next: "[次へ]"
-    goto-last: "[前へ]"
-    goto-tail: "[末尾へ]"
+    selected-item: '[選択中]'
+    goto-head: '[先頭へ]'
+    goto-next: '[次へ]'
+    goto-last: '[前へ]'
+    goto-tail: '[末尾へ]'
   input-info:
     message-sender: 現在の送信者を表示しています
     message-target: チャットの送信先を表示しています
-    message-outputTab: チャットを表示するタブを表示しています
+    message-output-tab: チャットを表示するタブを表示しています
     message-secret: 秘匿チャットかどうかを表示しています
   dialog:
-    delete-chat: "本当にこのチャットを消しますか？\nこの操作は取り消せません。"
+    delete-chat: |-
+      本当にこのチャットを消しますか？
+      この操作は取り消せません。
+
 
 chat-setting-window:
   window-title: チャット設定
@@ -577,27 +588,53 @@ player-box-window:
     chmod: 権限編集
     delete: 削除
   dialog:
-    delete-actor: "本当にアクター「$1」を削除しますか？\nこの操作は取り消せません。"
+    delete-actor: |-
+      本当にアクター「$1」を削除しますか？
+      この操作は取り消せません。
+
 
 card-deck-builder:
   title: Quoridornカード山札ビルダー Ver.1.0.0a1
   description:
     tool: 部屋データに山札を1つ登録するための機能です。
-    import-text-paranoia-rebooted: "クリックすることでファイル指定ダイアログが表示します。\n専用のテキストファイルを読み込んで、山札を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用カード画像ファイルzipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下のテキストファイルを指定してください。\n「allCards.txt」だけは使用できません。\n事前に画像ファイルをQuoridorn上にアップロードしておく必要があります。"
+    import-text-paranoia-rebooted: |-
+      クリックすることでファイル指定ダイアログが表示します。
+      専用のテキストファイルを読み込んで、山札を構築することができます。
+      Paranoia Rebooted公式サイトからダウンロードできるオンラインセッション用カード画像ファイルzipを解凍し、
+      そこに含まれている「cards_free_200x300」フォルダ直下のテキストファイルを指定してください。
+      「allCards.txt」だけは使用できません。
+      事前に画像ファイルをQuoridorn上にアップロードしておく必要があります。
   card-frame-preset:
-    text-template: "テキストテンプレート\n（inSANe）"
+    text-template: |-
+      テキストテンプレート
+      （inSANe）
     template-image: 画像テンプレート
-    full-image-paranoia: "画像フル\n（Paranoia Rebooted）"
-    full-image-tnm: "画像フル\n（トーキョー・ナイトメア）"
-    full-image-tnx: "画像フル\n（トーキョーN◎VA）"
+    full-image-paranoia: |-
+      画像フル
+      （Paranoia Rebooted）
+    full-image-tnm: |-
+      画像フル
+      （トーキョー・ナイトメア）
+    full-image-tnx: |-
+      画像フル
+      （トーキョーN◎VA）
   button:
-    import-text-paranoia-rebooted: "テキストからインポート\n（Paranoia Rebooted）"
+    import-text-paranoia-rebooted: |-
+      テキストからインポート
+      （Paranoia Rebooted）
   message-list:
     choose-base-deck: ベース山札の選択
     create-card: 山札の新規作成
-    create-deck-entrance: "Quoridornにアップロードされた画像を使って、新しい山札を作成します。\n特殊処理を使わない場合は、画面下部の矢印で進んでください。"
-    setting-frame: "カードの表面のフレームを設定してください。\nここで指定したフレームが、後続の工程で流し込む画像や文字のベースとなります。"
-    choose-back-image: "山札に共通するカードの裏面を選んでください。\n新規作成の際に設定できる裏面の種類は１種類のみです。\n複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。"
+    create-deck-entrance: |-
+      Quoridornにアップロードされた画像を使って、新しい山札を作成します。
+      特殊処理を使わない場合は、画面下部の矢印で進んでください。
+    setting-frame: |-
+      カードの表面のフレームを設定してください。
+      ここで指定したフレームが、後続の工程で流し込む画像や文字のベースとなります。
+    choose-back-image: |-
+      山札に共通するカードの裏面を選んでください。
+      新規作成の際に設定できる裏面の種類は１種類のみです。
+      複数の裏面を持つ山札は、複数の山札を組み合わせることで作成してください。
     create-front: カードの表面を選びつつカードデータを入力してください。
     choose-card: カードの選択・山札登録
   header:
@@ -618,8 +655,8 @@ card-deck-list-window:
 media-upload-window:
   window-title: メディアアップロード
   dialog:
-    input-tag: "まとめて設定するタグを入力してください。"
-    delete-together: "まとめて削除しますか？"
+    input-tag: まとめて設定するタグを入力してください。
+    delete-together: まとめて削除しますか？
   message-list:
     edit-tag-together: まとめてタグ編集
     delete-together: まとめて削除
@@ -633,7 +670,10 @@ media-list-window:
     choose-view-mode: 表示形式の変更
     how-to-upload: アップロードするには画面にファイルをドロップインしてください
   dialog:
-    delete-media: "本当にメディア「$1」を削除しますか？\nこの操作は取り消せません。"
+    delete-media: |-
+      本当にメディア「$1」を削除しますか？
+      この操作は取り消せません。
+
 
 card-deck-small-edit-window:
   window-title: 山札編集
@@ -674,7 +714,10 @@ resource-master-list-window:
     initiative-actor: アクター
     initiative-map-object: コマ
   dialog:
-    delete-resource: "本当にこのリソースを消しますか？\nこの操作は取り消せません。"
+    delete-resource: |-
+      本当にこのリソースを消しますか？
+      この操作は取り消せません。
+
 
 chat-palette-window:
   window-title: チャットパレット

@@ -119,7 +119,7 @@ export default class ResourceMasterListWindow extends Mixins<
     if (!dataContainer) {
       await errorDialog({
         title: this.$t("message.error").toString(),
-        text: this.$t("label.importFailure")!.toString()
+        text: this.$t("label.import-failure")!.toString()
       });
       return;
     }

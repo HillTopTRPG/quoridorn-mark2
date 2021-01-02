@@ -29,10 +29,10 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
 ) {
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
-    { value: "none", key: "", text: "", disabled: false },
-    { value: "horizontal", key: "", text: "", disabled: false },
-    { value: "vertical", key: "", text: "", disabled: false },
-    { value: "180", key: "", text: "", disabled: false }
+    { value: "none", key: "none", text: "", disabled: false },
+    { value: "horizontal", key: "horizontal", text: "", disabled: false },
+    { value: "vertical", key: "vertical", text: "", disabled: false },
+    { value: "180", key: "180deg", text: "", disabled: false }
   ];
 
   @LifeCycle
@@ -50,9 +50,8 @@ export default class DirectionTypeSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value || "label";
+      const suffix = o.key || "label";
       o.text = this.$t(`selection.direction.${suffix}`)!.toString();
-      o.key = o.value;
     });
   }
 }

@@ -29,11 +29,11 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
 ) {
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
-    { value: "contain", key: "", text: "", disabled: false },
-    { value: "100%", key: "", text: "", disabled: false },
-    { value: "cover-start", key: "", text: "", disabled: false },
-    { value: "cover-center", key: "", text: "", disabled: false },
-    { value: "cover-end", key: "", text: "", disabled: false }
+    { value: "contain", key: "contain", text: "", disabled: false },
+    { value: "100%", key: "100per", text: "", disabled: false },
+    { value: "cover-start", key: "cover-start", text: "", disabled: false },
+    { value: "cover-center", key: "cover-center", text: "", disabled: false },
+    { value: "cover-end", key: "cover-end", text: "", disabled: false }
   ];
 
   @LifeCycle
@@ -51,9 +51,8 @@ export default class BackgroundLocationSelect extends Mixins<MultiMixin>(
 
   private createOptionInfoList() {
     this.optionInfoList.forEach(o => {
-      const suffix = o.value || "label";
+      const suffix = o.key || "label";
       o.text = this.$t(`selection.background-location.${suffix}`)!.toString();
-      o.key = o.value;
     });
   }
 }

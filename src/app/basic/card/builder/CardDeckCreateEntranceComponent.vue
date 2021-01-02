@@ -303,7 +303,7 @@ export default class CardDeckCreateEntranceComponent extends Mixins<
     const failure = (reason: string) => {
       errorDialog({
         title: LanguageManager.instance.getText("message.error"),
-        text: this.$t("lathis\\.\\$t\\([^)]+\\);bel.importFailure").toString()
+        text: this.$t("label.import-failure").toString()
       }).then();
       console.warn(`import failure. [${reason}]`);
       this.cardList.splice(0, this.cardList.length);

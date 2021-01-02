@@ -44,9 +44,9 @@ type:
   card: 咭牌
   card-object: 咭牌/牌堆
   card-deck-small: 牌堆
-  GM: GM
-  PL: PL
-  VISITOR: 訪客
+  gm: GM
+  pl: PL
+  visitor: 訪客
   public-memo: 共用筆記
 
 context:
@@ -102,14 +102,14 @@ selection:
     none: 按照原來
     horizontal: 左右反轉
     vertical: 上下反轉
-    180: 180度旋轉
+    180deg: 180度旋轉
   background-location:
     label: 配置
     contain: 內容
     cover-start: 封面(始)
     cover-center: 封面(中)
     cover-end: 封面(後)
-    100%: 100%
+    100per: 100%
   permission:
     view: 閲覧權限
     edit: 編輯權限
@@ -148,9 +148,9 @@ selection:
     label: 選擇框的數値
   user-type:
     label: 使用者類型
-    GM: GM
-    PL: PL
-    VISITOR: 訪客
+    gm: GM
+    pl: PL
+    visitor: 訪客
 
 resource-master-info-form:
   label:
@@ -287,12 +287,12 @@ label:
   url: URL
   title: 標題
   editing: 編輯中
-  unknown: "[不明]"
+  unknown: '[不明]'
   input-bcdice-url: 設置BCDice-API伺服器的URL
   target-all: 所有
   all: 所有
   status: 狀態
-  edited: "[已編輯]"
+  edited: '[已編輯]'
   use: 使用
   un-use: 沒有使用
   sort: 排序
@@ -307,7 +307,7 @@ label:
   music: 音樂
   system: 系統
   special-process: 特殊功能
-  importFailure: 匯入失敗。
+  import-failure: 匯入失敗。
   resist: 登録
   layout: 配置
   ref-url: 參考URL
@@ -356,21 +356,29 @@ message:
   dice-roll-secret-dice: 秘密擲骰
   open-secret-dice: 公開秘密擲骰
   room-create-password: 新增房間必需要密碼
-  drop-area: "請拖放\n可以直接插入。"
+  drop-area: |-
+    請拖放
+    可以直接插入。
   really-delete: 真的要刪除？
   choose-image: 選擇圖像。
   drag-piece: 您可以通過拖動去新增地圖。
-  delete-tab: "您確定要刪除分頁「$1」？\n此操作無法取消。"
-  original: "本來：$1"
-  name-duplicate: "重複名字。"
+  delete-tab: |-
+    您確定要刪除分頁「$1」？
+    此操作無法取消。
+  original: 本來：$1
+  name-duplicate: 重複名字。
   delete-failure: 刪除失敗。
   load-other-text-character-sheet: 其他欄建立
-  load-other-text-character-sheet-text: "從目標URL讀取數據。 \ n如果頁面名稱重複，它將被覆蓋。"
+  load-other-text-character-sheet-text: |-
+    從目標URL讀取數據。
+    如果頁面名稱重複，它將被覆蓋。
   load-chat-palette-character-sheet: 聊天組合板生成
-  load-chat-palette-character-sheet-text: "從REF URL讀取數據。 \ n如果Tab的名稱重複，它將被覆蓋。 ”
+  load-chat-palette-character-sheet-text: |-
+    從REF URL讀取數據。
+    如果Tab的名稱重複，它將被覆蓋。
   success: 成功
   error: 錯誤
-  login-text: "{0} 的房間。"
+  login-text: '{0} 的房間。'
 
 play-youtube-window:
   window-title: Youtube播放畫面
@@ -378,15 +386,14 @@ play-youtube-window:
 cut-in-list-window:
   window-title: Cut-in列表
   table-columns:
-    -
-      - 連動
-      - 標籤
-      - 類型
-      - 標題
-      - 時間
-      - 重覆
-      - 音量
-      - fade
+  - - 連動
+    - 標籤
+    - 類型
+    - 標題
+    - 時間
+    - 重覆
+    - 音量
+    - fade
 
 login-window:
   window-title: 登入畫面
@@ -397,15 +404,14 @@ login-window:
     creating: 新增中
     version-info: 版本資訊
   table-columns:
-    -
-      - No.
-      - 房間名
-      - 遊戲系統
-      - 房間人數
-      - 密碼
-      - 訪客
-      - 最後更新時間
-      - 刪除
+  - - No.
+    - 房間名
+    - 遊戲系統
+    - 房間人數
+    - 密碼
+    - 訪客
+    - 最後更新時間
+    - 刪除
 
 create-new-room-window:
   window-title: 新增新房間
@@ -530,25 +536,30 @@ bgm-edit-window:
 
 chat-window:
   window-title: 聊天室
-  placeholder: "輸入（改行按Shift + Enter）\n部分字型變更 \"&\" 輸入"
+  placeholder: |-
+    輸入（改行按Shift + Enter）
+    部分字型變更 "&" 輸入
   options:
     select-sender: 選擇發送者
     select-output-tab: 選擇分頁
     select-target: 選擇發送對像
     select-chat-format: 選擇格式
     select-is-secret: 是否秘密聊天室
-    selected-item: "[選擇中]"
-    goto-head: "[最初]"
-    goto-next: "[下一次]"
-    goto-last: "[上一次]"
-    goto-tail: "[最後]"
+    selected-item: '[選擇中]'
+    goto-head: '[最初]'
+    goto-next: '[下一次]'
+    goto-last: '[上一次]'
+    goto-tail: '[最後]'
   input-info:
     message-sender: 顯示當前發送人
     message-target: 顯示聊天室的發送對像
-    message-outputTab: 顯示聊天室的發送分頁
+    message-output-tab: 顯示聊天室的發送分頁
     message-secret: 顯示是否秘密聊天室
   dialog:
-    delete-chat: "真的要把該聊天室刪除？\n這操作不能撒回。"
+    delete-chat: |-
+      真的要把該聊天室刪除？
+      這操作不能撒回。
+
 
 chat-setting-window:
   window-title: 聊天室設定
@@ -576,27 +587,53 @@ player-box-window:
     chmod: 編輯權限
     delete: 刪除
   dialog:
-    delete-actor: "要把演員「$1」刪除？\n這操作不能撒回。"
+    delete-actor: |-
+      要把演員「$1」刪除？
+      這操作不能撒回。
+
 
 card-deck-builder:
   title: Quoridorn咭牌牌堆創建工具 Ver.1.0.0a1
   description:
     tool: 這是一個有用的功能，可以在房間註冊一個牌堆。
-    import-text-paranoia-rebooted: "クリックすることで檔案指定ダイアログが顯示します。\n専用的文字檔案を読み込んで、牌堆を構築することができます。\nParanoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌圖像檔案zipを解凍し、\nそこに含まれている「cards_free_200x300」フォルダ直下的文字檔案を指定してください。\n「allCards.txt」だけは使用できません。\n事前に圖像檔案をQuoridorn上にアップロードしておく必要が已存在ます。"
+    import-text-paranoia-rebooted: |-
+      クリックすることで檔案指定ダイアログが顯示します。
+      専用的文字檔案を読み込んで、牌堆を構築することができます。
+      Paranoia Rebooted公式サイトからダウンロードできるオンラインセッション用咭牌圖像檔案zipを解凍し、
+      そこに含まれている「cards_free_200x300」フォルダ直下的文字檔案を指定してください。
+      「allCards.txt」だけは使用できません。
+      事前に圖像檔案をQuoridorn上にアップロードしておく必要が已存在ます。
   card-frame-preset:
-    text-template: "文字模板\n（inSANe）"
+    text-template: |-
+      文字模板
+      （inSANe）
     template-image: 圖像模板
-    full-image-paranoia: "圖像\n（Paranoia Rebooted）"
-    full-image-tnm: "圖像\n（トーキョー・ナイトメア）"
-    full-image-tnx: "圖像\n（トーキョーN◎VA）"
+    full-image-paranoia: |-
+      圖像
+      （Paranoia Rebooted）
+    full-image-tnm: |-
+      圖像
+      （トーキョー・ナイトメア）
+    full-image-tnx: |-
+      圖像
+      （トーキョーN◎VA）
   button:
-    import-text-paranoia-rebooted: "匯入文字\n（Paranoia Rebooted）"
+    import-text-paranoia-rebooted: |-
+      匯入文字
+      （Paranoia Rebooted）
   message-list:
     choose-base-deck: 選擇牌堆底部
     create-card: 新增牌堆
-    create-deck-entrance: "使用上傳到Quoridorn的圖片新增新的牌堆。\n如果您不使用特殊處理，請遵循圖像底部的方向。"
-    setting-frame: "請設定一個咭牌的表面。\n此處圖像將是將在後續過程中指定的圖像或文字。"
-    choose-back-image: "請選擇所有牌堆共用的背面。\n新增時，只能設置一種背面。\n複數背面的牌堆、請另外新增。"
+    create-deck-entrance: |-
+      使用上傳到Quoridorn的圖片新增新的牌堆。
+      如果您不使用特殊處理，請遵循圖像底部的方向。
+    setting-frame: |-
+      請設定一個咭牌的表面。
+      此處圖像將是將在後續過程中指定的圖像或文字。
+    choose-back-image: |-
+      請選擇所有牌堆共用的背面。
+      新增時，只能設置一種背面。
+      複數背面的牌堆、請另外新增。
     create-front: 請輸入咭牌表面數據。
     choose-card: 選擇咭牌・登録牌堆
   header:
@@ -617,8 +654,8 @@ card-deck-list-window:
 media-upload-window:
   window-title: 上傳媒體
   dialog:
-    input-tag: "請輸入要一起設置的標籤。"
-    delete-together: "是否要一次將其全部刪除？？"
+    input-tag: 請輸入要一起設置的標籤。
+    delete-together: 是否要一次將其全部刪除？？
   message-list:
     edit-tag-together: 一次性編輯標籤
     delete-together: 一次性刪除
@@ -632,7 +669,10 @@ media-list-window:
     choose-view-mode: 變更顯示形式
     how-to-upload: 請放入版面中進行上傳
   dialog:
-    delete-media: "真的要把媒體「$1」刪除？\n這操作不能撒回。"
+    delete-media: |-
+      真的要把媒體「$1」刪除？
+      這操作不能撒回。
+
 
 card-deck-small-edit-window:
   window-title: 牌堆編輯
@@ -673,7 +713,10 @@ resource-master-list-window:
     initiative-actor: 演員
     initiative-map-object: 場景
   dialog:
-    delete-resource: "真的要把此資源刪除？\n這操作不能撒回。"
+    delete-resource: |-
+      真的要把此資源刪除？
+      這操作不能撒回。
+
 
 chat-palette-window:
   window-title: 聊天組合版
