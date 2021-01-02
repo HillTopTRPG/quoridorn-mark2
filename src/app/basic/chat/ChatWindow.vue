@@ -741,10 +741,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       "chat-window.options.selected-item"
     )!.toString();
     this.editedMessage = this.$t("label.edited")!.toString();
-    this.userTypeLanguageMap.PL = this.$t("selection.user-type.PL")!.toString();
-    this.userTypeLanguageMap.GM = this.$t("selection.user-type.GM")!.toString();
+    this.userTypeLanguageMap.PL = this.$t("selection.user-type.pl")!.toString();
+    this.userTypeLanguageMap.GM = this.$t("selection.user-type.gm")!.toString();
     this.userTypeLanguageMap.VISITOR = this.$t(
-      "selection.user-type.VISITOR"
+      "selection.user-type.visitor"
     )!.toString();
     this.updateOutputTabList();
     task.resolve();

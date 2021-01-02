@@ -60,7 +60,9 @@ export default class SelfActorSelect extends Mixins<MultiMixin>(
           const user = findRequireByKey(this.userList, a.owner);
           additionalText +=
             "(" +
-            this.$t(`selection.user-type.${user.data!.type}`)!.toString() +
+            this.$t(
+              `selection.user-type.${user.data!.type}`.toLowerCase()
+            )!.toString() +
             ")";
         }
         return {

@@ -50,7 +50,7 @@ export default class UserSelect extends Mixins<MultiMixin>(
     let userList = GameObjectManager.instance.userList;
     this.optionInfoList = userList.map(u => {
       const userTypeStr = this.$t(
-        `selection.user-type.${u.data!.type}`
+        `selection.user-type.${u.data!.type}`.toLowerCase()
       )!.toString();
       const text = `${u.data!.name}(${userTypeStr})`;
       return {

@@ -233,7 +233,7 @@ export default class GameObjectManager {
     const user = findByKey(this.userList, userKey);
     if (!user) return LanguageManager.instance.getText("label.system");
     const type = LanguageManager.instance.getText(
-      `selection.user-type.${user.data!.type}`
+      `selection.user-type.${user.data!.type}`.toLowerCase()
     );
     return `${user.data!.name}(${type})`;
   }

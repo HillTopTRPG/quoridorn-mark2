@@ -258,7 +258,9 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
   @VueEvent
   private getOwnerType(userKey: string): string {
     const user = findRequireByKey(this.userList, userKey);
-    return this.$t(`selection.user-type.${user.data!.type}`)!.toString();
+    return this.$t(
+      `selection.user-type.${user.data!.type}`.toLowerCase()
+    )!.toString();
   }
 
   @VueEvent
