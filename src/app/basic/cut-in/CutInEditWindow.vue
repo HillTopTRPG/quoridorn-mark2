@@ -3,7 +3,6 @@
     <cut-in-info-form
       :window-key="windowKey"
       v-if="isMounted"
-      :url.sync="url"
       :title.sync="title"
       :tag.sync="tag"
       :isRepeat.sync="isRepeat"
@@ -17,13 +16,17 @@
       :isStandBy.sync="isStandBy"
       :isForceContinue.sync="isForceContinue"
       :isForceNew.sync="isForceNew"
-      :image-key="imageKey"
-      :image-tag="imageTag"
-      :direction="direction"
-      :bgm-key="bgmKey"
-      :bgm-tag="bgmTag"
-      :is-use-image="isUseImage"
-      :is-use-bgm="isUseBgm"
+      :image-key.sync="imageKey"
+      :image-tag.sync="imageTag"
+      :direction.sync="direction"
+      :bgm-key.sync="bgmKey"
+      :bgm-tag.sync="bgmTag"
+      :is-use-image.sync="isUseImage"
+      :is-use-bgm.sync="isUseBgm"
+      :fit-edge.sync="fitEdge"
+      :image-width.sync="imageWidth"
+      :image-height.sync="imageHeight"
+      @change-message="onChangeMessage"
     />
 
     <div class="button-area">
@@ -74,7 +77,6 @@ export default class CutInEditWindow extends Mixins<
     CutInStore
   > = SocketFacade.instance.cutInDataCC();
 
-  private url: string = "";
   private title: string = "";
   private tag: string = "";
   private isRepeat: boolean = false;
@@ -95,6 +97,9 @@ export default class CutInEditWindow extends Mixins<
   private bgmTag: string | null = null;
   private isUseImage: boolean = true;
   private isUseBgm: boolean = true;
+  private fitEdge: "none" | "width" | "height" = "none";
+  private imageWidth: number = 300;
+  private imageHeight: number = 200;
 
   @LifeCycle
   public async mounted() {
@@ -103,7 +108,6 @@ export default class CutInEditWindow extends Mixins<
     const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
 
     const info = data.data!;
-    this.url = info.url;
     this.title = info.title;
     this.tag = info.tag;
     this.isRepeat = info.isRepeat;
@@ -124,6 +128,9 @@ export default class CutInEditWindow extends Mixins<
     this.bgmTag = info.bgmTag;
     this.isUseImage = info.isUseImage;
     this.isUseBgm = info.isUseBgm;
+    this.fitEdge = info.fitEdge;
+    this.imageWidth = info.imageWidth;
+    this.imageHeight = info.imageHeight;
 
     if (this.windowInfo.status === "window") {
       // 排他チェック
@@ -153,9 +160,13 @@ export default class CutInEditWindow extends Mixins<
     this.isMounted = true;
   }
 
+  @VueEvent
+  private onChangeMessage(message: string) {
+    this.windowInfo.message = message;
+  }
+
   private get cutInData(): CutInStore {
     return {
-      url: this.url,
       title: this.title,
       tag: this.tag,
       isRepeat: this.isRepeat,
@@ -175,7 +186,10 @@ export default class CutInEditWindow extends Mixins<
       bgmKey: this.bgmKey,
       bgmTag: this.bgmTag,
       isUseImage: this.isUseImage,
-      isUseBgm: this.isUseBgm
+      isUseBgm: this.isUseBgm,
+      fitEdge: this.fitEdge,
+      imageWidth: this.imageWidth,
+      imageHeight: this.imageHeight
     };
   }
 

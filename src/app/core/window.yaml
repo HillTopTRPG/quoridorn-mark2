@@ -18,6 +18,26 @@
   resizable: true
   tableInfoList: []
 
+"image-view-window":
+  icon: image
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 426
+    heightPx: 256
+  minSize:
+    widthPx: 160
+    heightPx: 106
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
+
 "cut-in-list-window":
   icon: tv
   parentTypeList: []
@@ -26,17 +46,17 @@
   message: ""
   position: center
   size:
-    widthPx: 271
+    widthPx: 295
     heightPx: 5
     heightEm: 28
     heightRem: 1
   minSize:
-    widthPx: 271
+    widthPx: 295
     heightPx: 5
     heightEm: 28
     heightRem: 1
   maxSize:
-    widthPx: 271
+    widthPx: 295
     heightPx: 5
     heightEm: 48
     heightRem: 1
@@ -67,7 +87,7 @@
           type: text
           align: left
           target: title
-        - width: 28
+        - width: 40
           type: text
           align: center
           target: time
@@ -79,10 +99,14 @@
           type: text
           align: center
           target: volume
-        - width: 28
+        - width: 40
           type: text
           align: center
           target: fade
+        - width: 40
+          type: text
+          align: center
+          target: isUseImage
 
 "login-window":
   icon: home3

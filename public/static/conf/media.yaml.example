@@ -1,12 +1,12 @@
 #############################################################
 # １つめ：部屋作成時のマップ画像として使用されます。
-# ２つめ：共有メモのデフォルトの画像として使います。
 #
 # TODO 立ち絵の仕様については一旦保留
 #
 #=========#=========#=========#=========#=========#=========#
 - tag: マップ
   url: static/img/map/background-default.jpg
+  preKey: map-image
 #=========#=========#=========#=========#=========#=========#
 - tag: 共有メモ
   url: static/img/public-memo/memo.png
@@ -142,4 +142,54 @@
 #=========#=========#=========#=========#=========#=========#
 - tag: 立ち絵差分
   url: https://quoridorn.com/img/mascot/teach/mascot_teach_mouth.png
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: 馬車道
+  url: static/bgm/o12.mp3
+  preKey: bgm-1
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: 華志の舞 (Kashi no Mai)
+  url: https://www.youtube.com/watch?v=nq3YnT0km2o&t=15s
+  preKey: bgm-2
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: ECHO【Gumi English】
+  url: https://www.youtube.com/watch?v=cQKGUgOfD8U
+  preKey: bgm-3
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: "DJ Sona's Ultimate Skin Music: Kinetic"
+  url: https://www.youtube.com/watch?v=uHJyAZtRrOY
+  preKey: bgm-4
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: "[サビ]気まぐれメルシィ feat. 初音ミク"
+  url: https://www.youtube.com/watch?v=o1iz4L-5zkQ
+  preKey: bgm-5
+#=========#=========#=========#=========#=========#=========#
+- tag: BGM
+  name: "[サビ]Bad Apple!!"
+  url: https://www.youtube.com/watch?v=9lNZ_Rnr7Jc
+  preKey: bgm-6
+#=========#=========#=========#=========#=========#=========#
+- tag: SE
+  name: ダイス音
+  url: https://www.youtube.com/watch?v=MJMCFDNRJnc
+  preKey: se-1
+#=========#=========#=========#=========#=========#=========#
+- tag: SE
+  name: チーン1
+  url: static/bgm/tin1.mp3
+  preKey: se-2
+#=========#=========#=========#=========#=========#=========#
+- tag: SE
+  name: 正解1
+  url: static/bgm/correct1.mp3
+  preKey: se-3
+#=========#=========#=========#=========#=========#=========#
+- tag: SE
+  name: 不正解1
+  url: static/bgm/incorrect1.mp3
+  preKey: se-4
 #=========#=========#=========#=========#=========#=========#

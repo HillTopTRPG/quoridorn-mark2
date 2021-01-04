@@ -164,6 +164,10 @@ resource-master-info-form:
     value-selection: 選択肢(カンマ区切り)
     value-selection-value: 選択肢の初期値
 
+cut-in-info-form:
+  message-list:
+    require-image-key: 画像を選択してください
+
 card-deck-frame-setting-component:
   label:
     card-width: カードの幅(px)
@@ -341,6 +345,7 @@ label:
   image-setting: 画像設定
   simple: シンプル
   detail: 詳細
+  size-target-edge: サイズ指定する辺
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -363,7 +368,9 @@ message:
   room-create-password: 部屋を作成するにはパスワードが必要です
   drop-area: "どうぞそのまま\nドロップインしてください。"
   really-delete: 本当に削除しますか？
+  choose-image-bgm: 画像と音楽を選択してください。
   choose-image: 画像を選択してください。
+  choose-bgm: 音楽を選択してください。
   drag-piece: マップにドラッグすると作成できます。
   delete-tab: "本当にタブ「$1」を削除しますか？\nこの操作は取り消せません。"
   original: "元：$1"
@@ -392,6 +399,7 @@ cut-in-list-window:
       - 繰
       - 音量
       - fade
+      - 画像
 
 login-window:
   window-title: ログイン画面
@@ -720,3 +728,6 @@ like-add-window:
 
 like-edit-window:
   window-title: いいね編集
+
+image-view-window:
+  window-title: 画像表示

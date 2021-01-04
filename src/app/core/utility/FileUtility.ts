@@ -10,8 +10,9 @@ import {
 import SocketFacade from "../api/app-server/SocketFacade";
 import { getSrc } from "@/app/core/utility/Utility";
 import LanguageManager from "@/LanguageManager";
-import { IconClass, UrlType } from "@/@types/store-data-optional";
+import { IconClass, Size, UrlType } from "@/@types/store-data-optional";
 import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
+import { createSize } from "@/app/core/utility/CoordinateUtility";
 
 export type ExportDataFormat<T> = {
   type: string;
@@ -62,13 +63,18 @@ export async function loadYaml<T>(
   path: string,
   isErrorIgnore: boolean = false
 ): Promise<T> {
+  let text: string = "";
   try {
-    const text = await loadText(path, isErrorIgnore);
-    return yaml.safeLoad(text) as T;
+    text = await loadText(path, isErrorIgnore);
   } catch (err) {
     throw new ApplicationError(
-      `yamlファイルの読み込みに失敗しました path:${path}`
+      `yamlファイルが存在しませんでした。 path:${path}`
     );
+  }
+  try {
+    return yaml.safeLoad(text) as T;
+  } catch (err) {
+    throw new ApplicationError(`yaml形式が壊れています。 path:${path}`);
   }
 }
 
@@ -85,6 +91,23 @@ export async function loadJson<T>(path: string): Promise<T> {
     throw new ApplicationError(
       `jsonファイルの読み込みに失敗しました path:${path}`
     );
+  }
+}
+
+export async function getImageSize(path: string): Promise<Size | null> {
+  const loadImage = async () => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = e => reject(e);
+      img.src = path;
+    });
+  };
+  try {
+    const res: any = await loadImage();
+    return createSize(res.width, res.height);
+  } catch (e) {
+    return null;
   }
 }
 

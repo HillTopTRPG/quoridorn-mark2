@@ -91,7 +91,7 @@ import { getDropFileList } from "@/app/core/utility/DropFileUtility";
 import WindowManager from "../app/core/window/WindowManager";
 import CssManager from "../app/core/css/CssManager";
 import GameObjectManager from "../app/basic/GameObjectManager";
-import { MediaUploadInfo } from "@/@types/room";
+import { MediaUploadInfo, PlayBgmInfo } from "@/@types/room";
 import SocketFacade from "../app/core/api/app-server/SocketFacade";
 import VueEvent from "../app/core/decorator/VueEvent";
 import {
@@ -115,7 +115,7 @@ import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimul
 import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
 import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
-import { findByKey } from "@/app/core/utility/Utility";
+import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
 import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
 
@@ -228,10 +228,30 @@ export default class App extends Vue {
         } else if (dataType === "bgm-play") {
           // BGM再生通知
           const info = data.data as BgmPlayInfo;
-          await BgmManager.instance.callBgm({
-            targetKey: info.key,
-            data: null
-          });
+          const cutInKey = info.key;
+          const cutIn = findRequireByKey(this.cutInList, cutInKey);
+          if (cutIn.data!.isUseBgm) {
+            await BgmManager.instance.callBgm({
+              targetKey: info.key,
+              data: null
+            });
+          }
+          if (cutIn.data!.isUseImage) {
+            await TaskManager.instance.ignition<
+              WindowOpenInfo<PlayBgmInfo>,
+              never
+            >({
+              type: "window-open",
+              owner: "Quoridorn",
+              value: {
+                type: "image-view-window",
+                args: {
+                  targetKey: cutInKey,
+                  data: null
+                }
+              }
+            });
+          }
         }
       }
     );

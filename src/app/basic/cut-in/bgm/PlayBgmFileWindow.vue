@@ -47,7 +47,7 @@ import {
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
-import { CutInStore } from "@/@types/store-data";
+import { CutInStore, MediaStore } from "@/@types/store-data";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -59,6 +59,7 @@ export default class PlayBgmFileWindow
   private isIpadTesting!: boolean;
 
   private bgmInfo: CutInStore | null = null;
+  private mediaInfo: MediaStore | null = null;
   private targetKey: string | null = null;
   private volume: number = 0;
   private isWindowMoving = false;
@@ -116,6 +117,13 @@ export default class PlayBgmFileWindow
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
       data = (await cutInDataCC.findSingle("key", targetKey!))!.data!.data!;
     }
+    const mediaCC = SocketFacade.instance.mediaCC();
+    const mediaInfo = await mediaCC.findSingle("key", data.bgmKey);
+    if (!mediaInfo) {
+      await this.close();
+      return;
+    }
+    this.mediaInfo = mediaInfo.data!.data!;
     this.bgmInfo = data;
 
     if (this.isStandByBgm) {
@@ -149,7 +157,7 @@ export default class PlayBgmFileWindow
       this.jukeboxAudio.addEventListener("loadedmetadata", async () => {
         await this.onPlaying(this.jukeboxAudio.duration);
       });
-      this.jukeboxAudio.src = this.bgmInfo.url;
+      this.jukeboxAudio.src = this.mediaInfo.url;
     } else {
       this.volume = this.bgmInfo.volume;
     }
@@ -163,8 +171,8 @@ export default class PlayBgmFileWindow
       this
     );
     this.maxVolume = this.bgmInfo.volume;
-    this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.bgmInfo.url}`;
-    this.thumbnailData = getYoutubeThunbnail(this.bgmInfo.url);
+    this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.mediaInfo.url}`;
+    this.thumbnailData = getYoutubeThunbnail(this.mediaInfo.url);
   }
 
   private get isStandByBgm(): boolean {
@@ -227,7 +235,7 @@ export default class PlayBgmFileWindow
 
   @VueEvent
   private thumbnailClick(): void {
-    window.open(this.bgmInfo!.url, "_blank");
+    window.open(this.mediaInfo!.url, "_blank");
   }
 
   private isMounted: boolean = false;

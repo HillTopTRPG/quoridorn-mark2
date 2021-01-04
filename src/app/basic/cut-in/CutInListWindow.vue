@@ -34,11 +34,18 @@
         </template>
         <template v-else-if="index === 4">{{ data | time }}</template>
         <template v-else-if="index === 5">
-          <i class="icon-loop" v-if="data.data.url && data.data.isRepeat"></i>
-          {{ data | isRepeat }}
+          <i
+            class="icon-loop"
+            v-if="!isEmptyUrl(data.data) && data.data.isRepeat"
+          ></i>
+          <template v-else>-</template>
         </template>
         <template v-else-if="index === 6">{{ data | volume }}</template>
         <template v-else-if="index === 7">{{ data | fade }}</template>
+        <template v-else-if="index === 8">
+          <i class="icon-image" v-if="data.data.isUseImage"></i>
+          <template v-else>-</template>
+        </template>
         <template v-else>
           {{ data.data[colDec.target] }}
         </template>
@@ -87,30 +94,29 @@ import GameObjectManager from "../GameObjectManager";
 import BgmManager from "./bgm/BgmManager";
 import { findByKey } from "../../core/utility/Utility";
 import App from "../../../views/App.vue";
+import { PlayBgmInfo } from "@/@types/room";
 
 @Component({
   components: { TableComponent, CtrlButton },
   filters: {
     icon: (data: StoreData<CutInStore>) => {
-      if (!data.data!.url) return "icon-stop2";
+      if (BgmManager.isEmpty(data.data!)) return "icon-stop2";
       if (BgmManager.isYoutube(data.data!)) return "icon-youtube2";
       if (BgmManager.isDropbox(data.data!)) return "icon-dropbox";
       return "icon-file-music";
     },
     time: (data: StoreData<CutInStore>) => {
-      if (!data.data!.url) return "-";
+      if (BgmManager.isEmpty(data.data!)) return "-";
       if (data.data!.start && data.data!.end)
         return `${data.data!.start}〜${data.data!.end}`;
       if (data.data!.start) return `${data.data!.start}〜`;
       if (data.data!.end) return `〜${data.data!.end}`;
       return "All";
     },
-    isRepeat: (data: StoreData<CutInStore>) =>
-      data.data!.url && data.data!.isRepeat ? "" : "-",
     volume: (data: StoreData<CutInStore>) =>
-      data.data!.url ? data.data!.volume : "-",
+      !BgmManager.isEmpty(data.data!) ? data.data!.volume : "-",
     fade: (data: StoreData<CutInStore>) => {
-      if (!data.data!.url) return "-";
+      if (BgmManager.isEmpty(data.data!)) return "-";
       if (data.data!.fadeIn > 0 && data.data!.fadeOut > 0) return "in/out";
       if (data.data!.fadeIn > 0 && data.data!.fadeOut === 0) return "in";
       if (data.data!.fadeIn === 0 && data.data!.fadeOut > 0) return "out";
@@ -133,6 +139,11 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     await this.init();
   }
 
+  @VueEvent
+  private isEmptyUrl(cutInInfo: CutInStore): boolean {
+    return BgmManager.isEmpty(cutInInfo);
+  }
+
   // @TaskProcessor("global-enter-finished")
   // private async globalEnterFinished(
   //   task: Task<never, never>
@@ -145,7 +156,6 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
   private async send(cutInKey?: string) {
     const useKey = cutInKey || this.selectedCutInKey;
     if (!useKey) return;
-    console.log("CutInListWindow#send", useKey);
 
     await SocketFacade.instance.sendData<BgmPlayInfo>({
       dataType: "bgm-play",
@@ -153,6 +163,30 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
         key: useKey
       }
     });
+  }
+
+  @VueEvent
+  private async preview() {
+    console.log("preview");
+    if (this.cutInInfo && this.cutInInfo.data!.isUseBgm) {
+      await BgmManager.instance.callBgm({
+        targetKey: this.selectedCutInKey!,
+        data: null
+      });
+    }
+    if (this.cutInInfo && this.cutInInfo.data!.isUseImage) {
+      await TaskManager.instance.ignition<WindowOpenInfo<PlayBgmInfo>, never>({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "image-view-window",
+          args: {
+            targetKey: this.selectedCutInKey!,
+            data: null
+          }
+        }
+      });
+    }
   }
 
   private get cutInInfo(): StoreData<CutInStore> | null {
@@ -222,15 +256,6 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
     let rowNum = (heightPx + heightDiffPx - initHeightPx) / (fontSize * 2);
     rowNum = Math.floor(rowNum) + 10;
     this.windowInfo.declare.tableInfoList[0].height = rowNum;
-  }
-
-  @VueEvent
-  private async preview() {
-    console.log("preview");
-    await BgmManager.instance.callBgm({
-      targetKey: this.selectedCutInKey!,
-      data: null
-    });
   }
 
   @VueEvent

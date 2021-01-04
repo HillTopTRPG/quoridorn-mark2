@@ -50,21 +50,10 @@
         />
       </tr>
       <tr v-if="!isDisabledDirection">
-        <th>
-          <label
-            :for="`${windowKey}-image-pick-direction`"
-            v-t="'selection.direction.label'"
-            class="label-input"
-          ></label>
-        </th>
-        <td>
-          <div class="flex-space-between">
-            <direction-type-select
-              :elmId="`${windowKey}-image-pick-direction`"
-              v-model="direction"
-            />
-          </div>
-        </td>
+        <tr-direction-type-select-component
+          label-name="selection.direction.label"
+          v-model="directionVolatile"
+        />
       </tr>
     </table>
   </div>
@@ -84,9 +73,11 @@ import { Direction } from "@/@types/store-data-optional";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import TrMediaTagSelectComponent from "@/app/basic/common/components/TrMediaTagSelectComponent.vue";
 import ImageItemComponent from "@/app/core/component/ImageItemComponent.vue";
+import TrDirectionTypeSelectComponent from "@/app/basic/common/components/TrDirectionTypeSelectComponent.vue";
 
 @Component({
   components: {
+    TrDirectionTypeSelectComponent,
     ImageItemComponent,
     TrMediaTagSelectComponent,
     SCheck,
@@ -106,8 +97,18 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @Prop({ type: String, default: null })
   private mediaTag!: string | null;
 
+  // direction
   @Prop({ type: String, default: "none" })
   private direction!: Direction;
+  private directionVolatile: Direction = "none";
+  @Watch("direction", { immediate: true })
+  private onChangeDirection(value: Direction) {
+    this.directionVolatile = value;
+  }
+  @Watch("directionVolatile")
+  private onChangeDirectionVolatile(value: Direction) {
+    this.$emit("update:direction", value);
+  }
 
   @Prop({ type: Boolean, default: false })
   private viewName!: boolean;
@@ -189,11 +190,6 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @Watch("selectMediaTag")
   private onChangeSelectImageTag() {
     this.$emit("update:mediaTag", this.selectMediaTag);
-  }
-
-  @Watch("direction")
-  private onChangeReverse() {
-    this.$emit("update:direction", this.direction);
   }
 
   private get elm(): HTMLDivElement {

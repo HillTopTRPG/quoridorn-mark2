@@ -97,10 +97,21 @@
       <div class="layer-block" v-if="currentTabInfo.target === 'image-setting'">
         <table>
           <tr>
-            <tr-string-input-component
-              labelName="label.tag"
-              width="100%"
-              v-model="tagVolatile"
+            <tr-edge-type-select-component
+              labelName="label.size-target-edge"
+              v-model="fitEdgeVolatile"
+            />
+          </tr>
+          <tr v-if="fitEdgeVolatile === 'width'">
+            <tr-number-input-component
+              labelName="label.width"
+              v-model="imageWidthVolatile"
+            />
+          </tr>
+          <tr v-if="fitEdgeVolatile === 'height'">
+            <tr-number-input-component
+              labelName="label.height"
+              v-model="imageHeightVolatile"
             />
           </tr>
         </table>
@@ -251,9 +262,11 @@ import { Task, TaskResult } from "task";
 import { Direction } from "@/@types/store-data-optional";
 import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
 import BgmPickerComponent from "@/app/core/component/BgmPickerComponent.vue";
+import TrEdgeTypeSelectComponent from "@/app/basic/common/components/TrEdgeTypeSelectComponent.vue";
 
 @Component({
   components: {
+    TrEdgeTypeSelectComponent,
     BgmPickerComponent,
     TrCheckboxComponent,
     SimpleTabComponent,
@@ -281,6 +294,38 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   private isViewImageThumbnail: boolean = true;
   private isViewBgmThumbnail: boolean = true;
+
+  @Watch("isUseImage")
+  @Watch("isUseBgm")
+  private onChangeFlag() {
+    if (!this.isUseImage) {
+      this.imageKeyVolatile = null;
+      this.imageTag = null;
+    }
+    if (!this.isUseBgm) {
+      this.bgmKeyVolatile = null;
+      this.bgmTag = null;
+    }
+  }
+
+  @Watch("isMounted")
+  @Watch("isUseImage")
+  @Watch("isUseBgm")
+  @Watch("imageKey")
+  @Watch("bgmKey")
+  private onChangeMessage() {
+    let message: string = "";
+    const requireImage = this.isUseImage && this.imageKey === null;
+    const requireBgm = this.isUseBgm && this.bgmKey === null;
+    if (requireImage && requireBgm) {
+      message = this.$t("message.choose-image-bgm").toString();
+    } else if (requireImage) {
+      message = this.$t("message.choose-image").toString();
+    } else if (requireBgm) {
+      message = this.$t("message.choose-bgm").toString();
+    }
+    this.$emit("change-message", message);
+  }
 
   @TaskProcessor("language-change-finished")
   private async languageChangeFinished(
@@ -317,7 +362,6 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   private isMounted: boolean = false;
 
-  private isYoutube: boolean = false;
   private cutInList = GameObjectManager.instance.cutInList;
 
   @VueEvent
@@ -353,19 +397,6 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("isUseBgmVolatile")
   private onChangeIsUseBgmVolatile(value: boolean) {
     this.$emit("update:isUseBgm", value);
-  }
-
-  // url
-  @Prop({ type: String, required: true })
-  private url!: string;
-  private urlVolatile: string = "";
-  @Watch("url", { immediate: true })
-  private onChangeUrl(value: string) {
-    this.urlVolatile = value;
-  }
-  @Watch("urlVolatile")
-  private onChangeUrlVolatile(value: string) {
-    this.$emit("update:url", value);
   }
 
   // title
@@ -537,6 +568,7 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:isForceNew", value);
   }
 
+  // imageKey
   @Prop({ type: String, default: null })
   private imageKey!: string | null;
   private imageKeyVolatile: string | null = null;
@@ -549,9 +581,9 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:imageKey", value);
   }
 
+  // imageTag
   @Prop({ type: String, default: null })
   private imageTag!: string | null;
-
   private imageTagVolatile: string | null = null;
   @Watch("imageTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
@@ -562,9 +594,9 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:imageTag", value);
   }
 
+  // direction
   @Prop({ type: String, required: true })
   private direction!: Direction;
-
   private directionVolatile: Direction = "none";
   @Watch("direction", { immediate: true })
   private onChangeDirection(value: Direction) {
@@ -575,6 +607,7 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:direction", value);
   }
 
+  // bgmKey
   @Prop({ type: String, default: null })
   private bgmKey!: string | null;
   private bgmKeyVolatile: string | null = null;
@@ -587,9 +620,9 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
     this.$emit("update:bgmKey", value);
   }
 
+  // bgmTag
   @Prop({ type: String, default: null })
   private bgmTag!: string | null;
-
   private bgmTagVolatile: string | null = null;
   @Watch("bgmTag", { immediate: true })
   private onChangeBgmTag(value: string | null) {
@@ -598,6 +631,45 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   @Watch("bgmTagVolatile")
   private onChangeBgmTagVolatile(value: string | null) {
     this.$emit("update:bgmTag", value);
+  }
+
+  // imageWidth
+  @Prop({ type: Number, required: true })
+  private imageWidth!: number;
+  private imageWidthVolatile: number = 0;
+  @Watch("imageWidth", { immediate: true })
+  private onChangeImageWidth(value: number) {
+    this.imageWidthVolatile = value;
+  }
+  @Watch("imageWidthVolatile")
+  private onChangeImageWidthVolatile(value: number) {
+    this.$emit("update:imageWidth", value);
+  }
+
+  // imageHeight
+  @Prop({ type: Number, required: true })
+  private imageHeight!: number;
+  private imageHeightVolatile: number = 0;
+  @Watch("imageHeight", { immediate: true })
+  private onChangeImageHeight(value: number) {
+    this.imageHeightVolatile = value;
+  }
+  @Watch("imageHeightVolatile")
+  private onChangeImageHeightVolatile(value: number) {
+    this.$emit("update:imageHeight", value);
+  }
+
+  // fitEdge
+  @Prop({ type: String, required: true })
+  private fitEdge!: "width" | "height";
+  private fitEdgeVolatile: "width" | "height" = "width";
+  @Watch("fitEdge", { immediate: true })
+  private onChangeFitEdge(value: "width" | "height") {
+    this.fitEdgeVolatile = value;
+  }
+  @Watch("fitEdgeVolatile")
+  private onChangeFitEdgeVolatile(value: "width" | "height") {
+    this.$emit("update:fitEdge", value);
   }
 
   private get tags(): string[] {

@@ -61,6 +61,7 @@ import PublicMemoAddWindow from "@/app/basic/public-memo/PublicMemoAddWindow.vue
 import PublicMemoEditWindow from "@/app/basic/public-memo/PublicMemoEditWindow.vue";
 import LikeAddWindow from "@/app/basic/chat/like/LikeAddWindow.vue";
 import LikeEditWindow from "@/app/basic/chat/like/LikeEditWindow.vue";
+import ImageViewWindow from "@/app/basic/cut-in/ImageViewWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -134,6 +135,7 @@ async function main(): Promise<void> {
   Vue.component("public-memo-edit-window", PublicMemoEditWindow);
   Vue.component("like-add-window", LikeAddWindow);
   Vue.component("like-edit-window", LikeEditWindow);
+  Vue.component("image-view-window", ImageViewWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

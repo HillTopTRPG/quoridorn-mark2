@@ -2,7 +2,6 @@
   <div class="container" ref="window-container">
     <cut-in-info-form
       :window-key="windowKey"
-      :url.sync="url"
       :title.sync="title"
       :tag.sync="tag"
       :isRepeat.sync="isRepeat"
@@ -16,13 +15,17 @@
       :isStandBy.sync="isStandBy"
       :isForceContinue.sync="isForceContinue"
       :isForceNew.sync="isForceNew"
-      :image-key="imageKey"
-      :image-tag="imageTag"
-      :direction="direction"
-      :bgm-key="bgmKey"
-      :bgm-tag="bgmTag"
-      :is-use-image="isUseImage"
-      :is-use-bgm="isUseBgm"
+      :image-key.sync="imageKey"
+      :image-tag.sync="imageTag"
+      :direction.sync="direction"
+      :bgm-key.sync="bgmKey"
+      :bgm-tag.sync="bgmTag"
+      :is-use-image.sync="isUseImage"
+      :is-use-bgm.sync="isUseBgm"
+      :fit-edge.sync="fitEdge"
+      :image-width.sync="imageWidth"
+      :image-height.sync="imageHeight"
+      @change-message="onChangeMessage"
     />
 
     <div class="button-area">
@@ -66,7 +69,6 @@ export default class CutInAddWindow extends Mixins<
     CutInStore
   > = SocketFacade.instance.cutInDataCC();
 
-  private url: string = "";
   private title: string = "";
   private tag: string = "";
   private isRepeat: boolean = false;
@@ -87,6 +89,9 @@ export default class CutInAddWindow extends Mixins<
   private bgmTag: string | null = null;
   private isUseImage: boolean = false;
   private isUseBgm: boolean = false;
+  private fitEdge: "width" | "height" = "width";
+  private imageWidth: number = 300;
+  private imageHeight: number = 300;
 
   @LifeCycle
   public async mounted() {
@@ -94,10 +99,14 @@ export default class CutInAddWindow extends Mixins<
 
     const mediaInfo = this.windowInfo.args;
     if (mediaInfo) {
-      this.url = mediaInfo.url;
       this.tag = mediaInfo.tag;
       this.title = mediaInfo.name;
     }
+  }
+
+  @VueEvent
+  private onChangeMessage(message: string) {
+    this.windowInfo.message = message;
   }
 
   @VueEvent
@@ -110,7 +119,6 @@ export default class CutInAddWindow extends Mixins<
 
   private get cutInData(): CutInStore {
     return {
-      url: this.url,
       title: this.title,
       tag: this.tag,
       isRepeat: this.isRepeat,
@@ -130,7 +138,10 @@ export default class CutInAddWindow extends Mixins<
       bgmKey: this.bgmKey,
       bgmTag: this.bgmTag,
       isUseImage: this.isUseImage,
-      isUseBgm: this.isUseBgm
+      isUseBgm: this.isUseBgm,
+      fitEdge: this.fitEdge,
+      imageWidth: this.imageWidth,
+      imageHeight: this.imageHeight
     };
   }
 
