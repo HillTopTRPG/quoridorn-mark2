@@ -164,6 +164,10 @@ resource-master-info-form:
     value-selection: 선택지 (쉼표로 구분)
     value-selection-value: 선택지의 기본값
 
+cut-in-info-form:
+  message-list:
+    require-image-key: 画像を選択してください
+
 card-deck-frame-setting-component:
   label:
     card-width: 카드의 너비(px)
@@ -337,6 +341,12 @@ label:
   linkage-resource: 連動リソース
   export: エクスポート
   fill: 塗りつぶす
+  bgm: BGM
+  bgm-setting: BGM設定
+  image-setting: 画像設定
+  simple: シンプル
+  detail: 詳細
+  size-target-edge: サイズ指定する辺
 
 message:
   copy-to-clipboard: 클립보드로 복사했습니다.
@@ -361,7 +371,9 @@ message:
     どうぞそのまま
     ドロップインしてください。
   really-delete: 本当に削除しますか？
+  choose-image-bgm: 画像と音楽を選択してください。
   choose-image: 이미지를 선택해 주세요.
+  choose-bgm: 音楽を選択してください。
   drag-piece: 맵에 드래그하면 추가 가능합니다.
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
@@ -395,6 +407,7 @@ cut-in-list-window:
     - 루프
     - 볼륨
     - 페이드
+    - 画像
 
 login-window:
   window-title: 로그인 화면
@@ -529,11 +542,11 @@ chmod-window:
 chmod-input-window:
   window-title: 権限変更
 
-bgm-add-window:
-  window-title: BGM 추가
+cut-in-add-window:
+  window-title: カットイン추가
 
-bgm-edit-window:
-  window-title: BGM 편집
+cut-in-edit-window:
+  window-title: カットイン편집
 
 chat-window:
   window-title: 채팅
@@ -752,3 +765,6 @@ like-add-window:
 
 like-edit-window:
   window-title: いいね編集
+
+image-view-window:
+  window-title: 画像表示

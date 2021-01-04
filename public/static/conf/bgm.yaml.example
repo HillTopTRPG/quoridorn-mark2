@@ -3,8 +3,10 @@
   title: "BGM停止"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: ""
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: ""
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -27,13 +29,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "SE停止"
   # タグ
   tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: ""
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: ""
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -56,13 +68,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "馬車道"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/o12.mp3"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-1"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -85,13 +107,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "華志の舞 (Kashi no Mai)"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=nq3YnT0km2o&t=15s"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-2"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -114,13 +146,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "ECHO【Gumi English】"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=cQKGUgOfD8U"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -143,13 +185,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "DJ Sona's Ultimate Skin Music: Kinetic"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=uHJyAZtRrOY"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-4"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -172,13 +224,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "[サビ]気まぐれメルシィ feat. 初音ミク"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=o1iz4L-5zkQ"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-5"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -201,13 +263,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "[サビ]Bad Apple!!"
   # タグ
   tag: "BGM"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=9lNZ_Rnr7Jc"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "bgm-6"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -230,13 +302,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: false
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "ダイス音"
   # タグ
   tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: "https://www.youtube.com/watch?v=MJMCFDNRJnc"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "se-1"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -259,13 +341,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "チーン1"
   # タグ
   tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/tin1.mp3"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "se-2"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -288,13 +380,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "正解1"
   # タグ
   tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/correct1.mp3"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "se-3"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -317,13 +419,23 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0
 #=========#=========#=========#=========#=========#=========#
 - # タイトル
   title: "不正解1"
   # タグ
   tag: "SE"
-  # URL(空文字にすると停止命令扱い)
-  url: "static/bgm/incorrect1.mp3"
+  # 画像(空文字にすると停止命令扱い)
+  imageKey: ""
+  # BGM(空文字にすると停止命令扱い)
+  bgmKey: "se-4"
   # 音量(0~100)
   volume: 80
   # 再生開始位置(秒単位)
@@ -346,3 +458,11 @@
   isForceContinue: false
   # 強制新規再生（効果音向け）
   isForceNew: true
+  # 画像の向き(none: 変更なし, horizontal: 左右反転, vertical: 上下反転, 180: 180度回転)
+  direction: none
+  # 画像の大きさの指定(none: 画像サイズそのまま, width: 幅を指定 & 縦横比を維持, height: 高さを指定 & 縦横比を維持)
+  fitEdge: none
+  # 指定された幅(fitEdgeがwidthでない場合は無視)
+  imageWidth: 0
+  # 指定された幅(fitEdgeがheightでない場合は無視)
+  imageHeight: 0

@@ -164,6 +164,10 @@ resource-master-info-form:
     value-selection: 選擇框(使用逗號隔開)
     value-selection-value: 選擇框的初期値
 
+cut-in-info-form:
+  message-list:
+    require-image-key: 画像を選択してください
+
 card-deck-frame-setting-component:
   label:
     card-width: 咭牌的闊度(px)
@@ -337,6 +341,12 @@ label:
   linkage-resource: 連動資源
   export: 匯出
   fill: 填充
+  bgm: BGM
+  bgm-setting: BGM設定
+  image-setting: 画像設定
+  simple: シンプル
+  detail: 詳細
+  size-target-edge: サイズ指定する辺
 
 message:
   copy-to-clipboard: 將其複製到剪貼板。
@@ -361,7 +371,9 @@ message:
     請拖放
     可以直接插入。
   really-delete: 真的要刪除？
+  choose-image-bgm: 画像と音楽を選択してください。
   choose-image: 選擇圖像。
+  choose-bgm: 音楽を選択してください。
   drag-piece: 您可以通過拖動去新增地圖。
   delete-tab: |-
     您確定要刪除分頁「$1」？
@@ -395,6 +407,7 @@ cut-in-list-window:
     - 重覆
     - 音量
     - フェード
+    - 画像
 
 login-window:
   window-title: 登入畫面
@@ -529,11 +542,11 @@ chmod-window:
 chmod-input-window:
   window-title: 權限變更
 
-bgm-add-window:
-  window-title: 新增BGM
+cut-in-add-window:
+  window-title: 新增カットイン
 
-bgm-edit-window:
-  window-title: 編輯BGM
+cut-in-edit-window:
+  window-title: 編輯カットイン
 
 chat-window:
   window-title: 聊天室
@@ -755,3 +768,6 @@ like-add-window:
 
 like-edit-window:
   window-title: 編輯Like
+
+image-view-window:
+  window-title: 画像表示

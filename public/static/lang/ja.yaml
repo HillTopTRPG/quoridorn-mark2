@@ -164,6 +164,10 @@ resource-master-info-form:
     value-selection: 選択肢(カンマ区切り)
     value-selection-value: 選択肢の初期値
 
+cut-in-info-form:
+  message-list:
+    require-image-key: 画像を選択してください
+
 card-deck-frame-setting-component:
   label:
     card-width: カードの幅(px)
@@ -337,6 +341,12 @@ label:
   linkage-resource: 連動リソース
   export: エクスポート
   fill: 塗りつぶす
+  bgm: BGM
+  bgm-setting: BGM設定
+  image-setting: 画像設定
+  simple: シンプル
+  detail: 詳細
+  size-target-edge: サイズ指定する辺
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -361,7 +371,9 @@ message:
     どうぞそのまま
     ドロップインしてください。
   really-delete: 本当に削除しますか？
+  choose-image-bgm: 画像と音楽を選択してください。
   choose-image: 画像を選択してください。
+  choose-bgm: 音楽を選択してください。
   drag-piece: マップにドラッグすると作成できます。
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
@@ -395,6 +407,7 @@ cut-in-list-window:
     - 繰
     - 音量
     - フェード
+    - 画像
 
 login-window:
   window-title: ログイン画面
@@ -529,11 +542,11 @@ chmod-window:
 chmod-input-window:
   window-title: 権限変更
 
-bgm-add-window:
-  window-title: BGM作成
+cut-in-add-window:
+  window-title: カットイン作成
 
-bgm-edit-window:
-  window-title: BGM編集
+cut-in-edit-window:
+  window-title: カットイン編集
 
 chat-window:
   window-title: チャット
@@ -755,3 +768,6 @@ like-add-window:
 
 like-edit-window:
   window-title: いいね編集
+
+image-view-window:
+  window-title: 画像表示
