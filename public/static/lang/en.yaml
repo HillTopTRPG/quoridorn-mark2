@@ -367,7 +367,7 @@ message:
     ドロップインしてください。
   really-delete: 本当に削除しますか？
   choose-image-bgm: 画像と音楽を選択してください。
-  choose-image: 画像を選択してください。
+  choose-image: ''
   choose-bgm: 音楽を選択してください。
   drag-piece: ''
   delete-tab: |-
@@ -413,7 +413,7 @@ login-window:
     creating: 作成中
     version-info: version info
   message-list:
-    deleted: 部屋を削除しました。
+    deleted: Room deleted successfully.
     delete-failue: 部屋の削除に失敗しました。
   table-columns:
   - - No.

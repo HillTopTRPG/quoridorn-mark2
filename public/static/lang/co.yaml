@@ -413,7 +413,7 @@ login-window:
     creating: 作成中
     version-info: 버전 정보
   message-list:
-    deleted: 部屋を削除しました。
+    deleted: 방을 삭제했습니다.
     delete-failue: 部屋の削除に失敗しました。
   table-columns:
   - - No.
@@ -541,10 +541,10 @@ chmod-input-window:
   window-title: 権限変更
 
 cut-in-add-window:
-  window-title: カットイン추가
+  window-title: CutIn 추가
 
 cut-in-edit-window:
-  window-title: カットイン편집
+  window-title: CutIn 편집
 
 chat-window:
   window-title: 채팅
