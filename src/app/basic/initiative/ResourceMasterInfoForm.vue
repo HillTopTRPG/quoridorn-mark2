@@ -147,6 +147,7 @@
         :mediaTag.sync="iconImageTagVolatile"
         :direction.sync="iconImageDirectionVolatile"
         ref="imagePicker"
+        :is-simple.sync="isSimple"
       />
     </simple-tab-component>
   </div>
@@ -200,6 +201,7 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
   private isAdd!: boolean;
 
   private isMounted: boolean = false;
+  private isSimple: boolean = true;
 
   // name
   @Prop({ type: String, required: true })
@@ -410,8 +412,8 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "basic", text: "" },
-    { key: "2", target: "icon", text: "" }
+    { key: "1", target: "basic", text: "", isDisabled: false },
+    { key: "2", target: "icon", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
@@ -461,7 +463,7 @@ export default class ResourceMasterInfoForm extends Mixins<ComponentVue>(
     flex: 1;
   }
 
-  > div:not(.image-picker-container) {
+  > div:not(.image-picker-component) {
     border: solid 1px gray;
     box-sizing: border-box;
     padding: 0.2rem;

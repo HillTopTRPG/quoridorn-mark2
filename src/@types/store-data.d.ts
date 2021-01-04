@@ -153,7 +153,6 @@ type ChatTabStore = {
  * cutInDataCCのデータ定義
  */
 type CutInStore = {
-  url: string;
   title: string;
   tag: string;
   isRepeat: boolean;
@@ -168,6 +167,16 @@ type CutInStore = {
   isForceNew: boolean;
   isForceContinue: boolean;
   duration?: number; // 長さ（再生することで得られる）
+  imageKey: string | null;
+  imageTag: string | null;
+  direction: Direction;
+  bgmKey: string | null;
+  bgmTag: string | null;
+  isUseImage: boolean;
+  isUseBgm: boolean;
+  fitEdge: "none" | "width" | "height";
+  imageWidth: number;
+  imageHeight: number;
 };
 
 type DiceTypeStore = {

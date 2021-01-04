@@ -39,16 +39,16 @@
       <card-deck-chooser-component
         class="deck-set-choose-preset"
         title="card-deck-builder.header.deck-set-preset"
-        :deckList="presetDeckList"
-        :selectedDeckIdList="selectedDeckIdList"
+        :deck-list="presetDeckList"
+        :selected-deck-key-list="selectedDeckKeyList"
       />
 
       <!-- ベース山札の選択 -->
       <card-deck-chooser-component
         class="deck-set-choose-room"
         title="card-deck-builder.header.deck-set-room"
-        :deckList="dbDeckList"
-        :selectedDeckIdList="selectedDeckIdList"
+        :deck-list="dbDeckList"
+        :selected-deck-key-list="selectedDeckKeyList"
       />
     </div>
 

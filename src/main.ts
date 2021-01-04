@@ -27,9 +27,9 @@ import ChatWindow from "./app/basic/chat/ChatWindow.vue";
 import InitiativeWindow from "./app/basic/initiative/InitiativeWindow.vue";
 import TermsOfUseWindow from "./app/basic/login/TermsOfUseWindow.vue";
 import LoginRoomWindow from "./app/basic/login/LoginRoomWindow.vue";
-import BgmAddWindow from "./app/basic/cut-in/bgm/BgmAddWindow.vue";
+import CutInAddWindow from "./app/basic/cut-in/CutInAddWindow.vue";
 import CardDeckListWindow from "./app/basic/card/CardDeckListWindow.vue";
-import BgmEditWindow from "./app/basic/cut-in/bgm/BgmEditWindow.vue";
+import CutInEditWindow from "./app/basic/cut-in/CutInEditWindow.vue";
 import LoginWindow from "./app/basic/login/LoginWindow.vue";
 import CutInListWindow from "./app/basic/cut-in/CutInListWindow.vue";
 import CharacterAddWindow from "./app/basic/object/character/CharacterAddWindow.vue";
@@ -61,6 +61,7 @@ import PublicMemoAddWindow from "@/app/basic/public-memo/PublicMemoAddWindow.vue
 import PublicMemoEditWindow from "@/app/basic/public-memo/PublicMemoEditWindow.vue";
 import LikeAddWindow from "@/app/basic/chat/like/LikeAddWindow.vue";
 import LikeEditWindow from "@/app/basic/chat/like/LikeEditWindow.vue";
+import ImageViewWindow from "@/app/basic/cut-in/ImageViewWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -96,8 +97,8 @@ async function main(): Promise<void> {
   Vue.component("scene-list-window", SceneListWindow);
   Vue.component("edit-scene-window", EditSceneWindow);
   Vue.component("chmod-window", ChmodWindow);
-  Vue.component("bgm-add-window", BgmAddWindow);
-  Vue.component("bgm-edit-window", BgmEditWindow);
+  Vue.component("cut-in-add-window", CutInAddWindow);
+  Vue.component("cut-in-edit-window", CutInEditWindow);
   Vue.component("chat-window", ChatWindow);
   Vue.component("chat-setting-window", ChatSettingWindow);
   Vue.component("chat-tab-add-window", ChatTabAddWindow);
@@ -134,6 +135,7 @@ async function main(): Promise<void> {
   Vue.component("public-memo-edit-window", PublicMemoEditWindow);
   Vue.component("like-add-window", LikeAddWindow);
   Vue.component("like-edit-window", LikeEditWindow);
+  Vue.component("image-view-window", ImageViewWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

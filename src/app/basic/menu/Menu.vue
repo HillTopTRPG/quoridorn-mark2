@@ -147,7 +147,7 @@
       <div
         class="item"
         @click="onClickCreateBgm"
-        v-t="'bgm-add-window.window-title'"
+        v-t="'cut-in-add-window.window-title'"
       ></div>
     </div>
     <!--------------------------------------------------
@@ -321,10 +321,6 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
       VISITOR: this.$t("selection.user-type.visitor")!.toString()
     };
 
-    const convert = (data: any) => {
-      return JSON.stringify(data);
-    };
-
     if (!GameObjectManager.instance.isGm) {
       const someActor = (key: string | null): boolean => {
         const actor = findByKey(actorList, key);
@@ -353,6 +349,10 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
         }
       });
     }
+
+    const convert = (data: any) => {
+      return JSON.stringify(data).replaceAll(/\\n/g, "\\\\n");
+    };
 
     const data = {
       owner: SocketFacade.instance.userKey,
@@ -394,7 +394,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   @VueEvent
   private async onClickCreateBgm(event: MouseEvent): Promise<void> {
     this.menuClick(event);
-    if (!(await App.openSimpleWindow("bgm-add-window"))) return;
+    if (!(await App.openSimpleWindow("cut-in-add-window"))) return;
     await WindowManager.instance.activeWindowForce("cut-in-list-window");
   }
 

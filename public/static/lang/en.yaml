@@ -766,3 +766,6 @@ like-add-window:
 
 like-edit-window:
   window-title: いいね編集
+
+image-view-window:
+  window-title: 画像表示

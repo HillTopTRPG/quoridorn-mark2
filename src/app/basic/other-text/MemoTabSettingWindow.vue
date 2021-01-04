@@ -101,7 +101,9 @@ export default class MemoTabSettingWindow extends Mixins<
   private dragMode = false;
   private changeOrderKey: string = "";
 
-  private tabList: TabInfo[] = [{ key: "1", target: "tab-list", text: "" }];
+  private tabList: TabInfo[] = [
+    { key: "1", target: "tab-list", text: "", isDisabled: false }
+  ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
   @TaskProcessor("language-change-finished")

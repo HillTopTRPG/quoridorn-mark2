@@ -724,15 +724,18 @@ th {
 
   &.align-left {
     @include flex-box(row, flex-start, center);
+    text-align: left;
     padding-left: var(--cell-padding);
   }
 
   &.align-center {
     @include flex-box(row, center, center);
+    text-align: center;
   }
 
   &.align-right {
     @include flex-box(row, flex-end, center);
+    text-align: right;
     padding-right: var(--cell-padding);
   }
 

@@ -383,7 +383,8 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
       .map(lv => ({
         key: lv.key,
         target: lv.key,
-        text: lv.data!.tab || this.$t("label.non-name").toString()
+        text: lv.data!.tab || this.$t("label.non-name").toString(),
+        isDisabled: false
       }));
     this.currentTabInfo = this.tabList[0] || null;
   }

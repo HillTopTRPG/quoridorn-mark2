@@ -171,6 +171,7 @@ import {
 } from "@/@types/store-data";
 import { DiceMaterial } from "@/@types/store-data-optional";
 import { errorDialog, successDialog } from "@/app/core/utility/Utility";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
 
 @Component({
   components: {
@@ -800,7 +801,14 @@ export default class LoginWindow extends Mixins<
 
     await LoginWindow.viewProcessView("add-preset-room");
 
-    await this.addPresetData(createRoomInput);
+    try {
+      await this.addPresetData(createRoomInput);
+    } catch (err) {
+      await errorDialog({
+        title: "Error",
+        text: err.message
+      });
+    }
 
     await LoginWindow.viewProcessView("last-process-room");
 
@@ -1044,11 +1052,11 @@ export default class LoginWindow extends Mixins<
      * メディアデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const mediaDataList = await loadYaml<Partial<MediaStore>[]>(
-      "static/conf/media.yaml"
-    );
+    const mediaDataList = await loadYaml<
+      (Partial<MediaStore> & { preKey?: string })[]
+    >("static/conf/media.yaml");
 
-    mediaDataList.forEach((media: Partial<MediaStore>) => {
+    mediaDataList.forEach(media => {
       if (!media.tag) media.tag = "";
     });
 
@@ -1056,26 +1064,9 @@ export default class LoginWindow extends Mixins<
      * カットインデータを用意する
      */
     // 読み込み必須のためthrowは伝搬させる
-    const cutInDataList = await loadYaml<CutInStore[]>("static/conf/bgm.yaml");
-    cutInDataList.forEach(cutIn => {
-      cutIn.duration = 0;
-
-      const mediaInfo = mediaDataList.find(m => m.url === cutIn.url);
-      if (mediaInfo) {
-        // 上書き
-        if (cutIn.title !== undefined) mediaInfo.name = cutIn.title;
-        if (cutIn.tag !== undefined) mediaInfo.name = cutIn.tag;
-      } else {
-        // 追加
-        if (cutIn.url) {
-          mediaDataList.push({
-            name: cutIn.title,
-            tag: cutIn.tag,
-            url: cutIn.url
-          });
-        }
-      }
-    });
+    const cutInDataList = await loadYaml<CutInStore[]>(
+      "static/conf/cut-in.yaml"
+    );
 
     // ダイスデータを用意する
     const diceMaterial = await loadYaml<DiceMaterial>("static/conf/dice.yaml");
@@ -1122,7 +1113,32 @@ export default class LoginWindow extends Mixins<
       }
     });
 
-    const imageInfo = uploadMediaResponse.find(umr => umr.urlType === "image")!;
+    const getMediaKey = (preKey: string | null): string | null => {
+      if (!preKey) return null;
+      const media = mediaDataList.find(m => m.preKey === preKey);
+      if (media) {
+        const rawUrl = media.url;
+        const uploadMedia = uploadMediaResponse.find(
+          umr => umr.rawPath === rawUrl
+        );
+        if (uploadMedia) {
+          return uploadMedia.key;
+        }
+      }
+      return null;
+    };
+
+    cutInDataList.forEach(cutIn => {
+      cutIn.duration = 0;
+      cutIn.imageKey = getMediaKey(cutIn.imageKey);
+      cutIn.isUseImage = !!cutIn.imageKey;
+      cutIn.bgmKey = getMediaKey(cutIn.bgmKey);
+      cutIn.isUseBgm = !!cutIn.bgmKey;
+    });
+
+    const firstImageInfo = uploadMediaResponse.find(
+      umr => umr.urlType === "image"
+    )!;
 
     /* --------------------------------------------------
      * マップデータのプリセットデータを用意する
@@ -1146,16 +1162,16 @@ export default class LoginWindow extends Mixins<
       shapeType: "square",
       texture: {
         type: "image",
-        mediaTag: imageInfo.tag,
-        mediaKey: imageInfo.key,
+        mediaTag: firstImageInfo.tag,
+        mediaKey: firstImageInfo.key,
         direction: "none",
         backgroundSize: "100%"
       },
       background: {
         texture: {
           type: "image",
-          mediaTag: imageInfo.tag,
-          mediaKey: imageInfo.key,
+          mediaTag: firstImageInfo.tag,
+          mediaKey: firstImageInfo.key,
           direction: "none",
           backgroundSize: "100%"
         },
@@ -1165,8 +1181,8 @@ export default class LoginWindow extends Mixins<
         useTexture: "original",
         texture: {
           type: "image",
-          mediaTag: imageInfo.tag,
-          mediaKey: imageInfo.key,
+          mediaTag: firstImageInfo.tag,
+          mediaKey: firstImageInfo.key,
           direction: "none",
           backgroundSize: "100%"
         },

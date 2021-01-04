@@ -4,7 +4,7 @@ import TaskManager from "../../../core/task/TaskManager";
 import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { PlayBgmInfo } from "@/@types/room";
-import { CutInStore } from "@/@types/store-data";
+import { CutInStore, MediaStore } from "@/@types/store-data";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 
 export default class BgmManager {
@@ -46,12 +46,13 @@ export default class BgmManager {
   public async callBgm(playBgmInfo: PlayBgmInfo) {
     const targetKey = playBgmInfo.targetKey;
     const cutInInfo = BgmManager.getCutInInfo(playBgmInfo);
+    const mediaInfo = BgmManager.getMediaInfo(cutInInfo);
     const tag = cutInInfo.tag;
 
     let matchAndContinue = false;
 
     // URLが空だったら同じタブを全て閉じる
-    if (!cutInInfo.url) {
+    if (!mediaInfo || !mediaInfo.url) {
       GameObjectManager.instance.playingBgmList
         .filter(b => b.tag === tag)
         .forEach(b => {
@@ -66,7 +67,6 @@ export default class BgmManager {
       return;
     }
 
-    console.log(1, !cutInInfo.isForceNew);
     console.log(JSON.stringify(cutInInfo, null, ""));
 
     // 再生中の画面を閉じる
@@ -188,18 +188,35 @@ export default class BgmManager {
     return findRequireByKey(cutInList, playBgmInfo.targetKey).data!;
   }
 
-  private static getInfo(id: string | null) {
-    return findByKey(GameObjectManager.instance.cutInList, id);
+  private static getMediaInfo(cutIn: CutInStore): MediaStore | null {
+    const bgmKey = cutIn.bgmKey;
+    if (!bgmKey) return null;
+    const mediaList = GameObjectManager.instance.mediaList;
+    return findRequireByKey(mediaList, bgmKey).data!;
+  }
+
+  private static getInfo(key: string | null): StoreUseData<CutInStore> | null {
+    return findByKey(GameObjectManager.instance.cutInList, key);
   }
 
   private static getUrl(target: string | CutInStore): string | null {
+    let mediaInfo: CutInStore | null = null;
     if (typeof target === "string") {
-      const info: StoreData<CutInStore> | null = BgmManager.getInfo(target);
+      const info = BgmManager.getInfo(target);
       if (!info) return null;
-      return info.data!.url;
+      mediaInfo = info.data!;
     } else {
-      return target.url;
+      mediaInfo = target;
     }
+    if (!mediaInfo) return null;
+    const media: MediaStore | null = BgmManager.getMediaInfo(mediaInfo);
+    if (!media) return null;
+    return media.url;
+  }
+
+  public static isEmpty(target: string | CutInStore) {
+    const url = BgmManager.getUrl(target);
+    return !url;
   }
 
   public static isYoutube(target: string | CutInStore) {

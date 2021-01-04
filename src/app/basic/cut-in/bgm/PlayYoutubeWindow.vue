@@ -18,11 +18,11 @@
       />
     </div>
     <seek-bar-component
-      :bgmInfo="bgmInfo"
-      :duration="bgmInfo.duration || 0"
+      :bgmInfo="cutInInfo"
+      :duration="cutInInfo.duration || 0"
       :seek="seek"
       @seekTo="seekTo"
-      v-if="bgmInfo"
+      v-if="cutInInfo"
     />
     <label class="volume" ref="volumeContainer">
       <input type="range" class="input" v-model="volume" min="0" max="100" />
@@ -62,7 +62,7 @@ import {
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
-import { CutInStore } from "@/@types/store-data";
+import { CutInStore, MediaStore } from "@/@types/store-data";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }
@@ -73,7 +73,8 @@ export default class PlayYoutubeWindow
   @Prop({ type: Boolean, default: false })
   private isIpadTesting!: boolean;
 
-  private bgmInfo: CutInStore | null = null;
+  private cutInInfo: CutInStore | null = null;
+  private mediaInfo: MediaStore | null = null;
   private targetKey: string | null = null;
   private volume: number = 0;
   private isWindowMoving = false;
@@ -128,7 +129,14 @@ export default class PlayYoutubeWindow
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
       data = (await cutInDataCC.findSingle("key", targetKey!))!.data!.data!;
     }
-    this.bgmInfo = data;
+    const mediaCC = SocketFacade.instance.mediaCC();
+    const mediaInfo = await mediaCC.findSingle("key", data.bgmKey);
+    if (!mediaInfo) {
+      await this.close();
+      return;
+    }
+    this.mediaInfo = mediaInfo.data!.data!;
+    this.cutInInfo = data;
 
     if (this.isStandByBgm) {
       this.windowInfo.x = -300;
@@ -140,19 +148,19 @@ export default class PlayYoutubeWindow
 
     await BgmManager.playBgm(
       targetKey || null,
-      this.bgmInfo,
+      this.cutInInfo,
       this.windowKey,
       this.windowInfo.status,
       this.youtubeElementKey,
       this
     );
-    this.maxVolume = this.bgmInfo.volume;
-    this.thumbnailText = `【タイトル】\n${this.bgmInfo.title}\n\n【URL】\n${this.bgmInfo.url}`;
-    this.thumbnailData = getYoutubeThunbnail(this.bgmInfo.url);
+    this.maxVolume = this.cutInInfo.volume;
+    this.thumbnailText = `【タイトル】\n${this.cutInInfo.title}\n\n【URL】\n${this.mediaInfo.url}`;
+    this.thumbnailData = getYoutubeThunbnail(this.mediaInfo.url);
   }
 
   private get isStandByBgm(): boolean {
-    return (this.targetKey && this.bgmInfo!.isStandBy) as boolean;
+    return (this.targetKey && this.cutInInfo!.isStandBy) as boolean;
   }
 
   public setVolume(volume: number) {
@@ -166,7 +174,7 @@ export default class PlayYoutubeWindow
   @Watch("windowInfo.args", { immediate: true })
   async onChangeCutInDeclareInfo() {
     if (!this.windowInfo.args) {
-      if (this.bgmInfo)
+      if (this.cutInInfo)
         YoutubeManager.instance.destroyed(this.youtubeElementKey);
       return;
     }
@@ -194,7 +202,7 @@ export default class PlayYoutubeWindow
     WindowManager.instance.arrangePoint(this.windowKey, true);
     GameObjectManager.instance.playingBgmList.push({
       targetKey: this.targetKey,
-      tag: this.bgmInfo!.tag,
+      tag: this.cutInInfo!.tag,
       windowKey: this.windowKey
     });
     setTimeout(() => {
@@ -208,7 +216,7 @@ export default class PlayYoutubeWindow
 
   @VueEvent
   private thumbnailClick(): void {
-    window.open(this.bgmInfo!.url, "_blank");
+    window.open(this.mediaInfo!.url, "_blank");
   }
 
   private isMounted: boolean = false;
@@ -229,9 +237,9 @@ export default class PlayYoutubeWindow
       `${this.windowInfo.type}.window-title`
     )!.toString();
     setTimeout(() => {
-      this.windowInfo.title = `${windowTitle}(${this.bgmInfo!.tag})`;
-      this.windowInfo.message = this.bgmInfo!.title;
-      if (this.bgmInfo!.fadeIn > 1)
+      this.windowInfo.title = `${windowTitle}(${this.cutInInfo!.tag})`;
+      this.windowInfo.message = this.cutInInfo!.title;
+      if (this.cutInInfo!.fadeIn > 1)
         YoutubeManager.instance.setVolume(this.youtubeElementKey, 0);
 
       this.playStart();
@@ -248,7 +256,7 @@ export default class PlayYoutubeWindow
         setTimeout(() => {
           YoutubeManager.instance.seekTo(
             this.youtubeElementKey,
-            this.bgmInfo!.start,
+            this.cutInInfo!.start,
             true
           );
           YoutubeManager.instance.pause(this.youtubeElementKey);
@@ -265,7 +273,7 @@ export default class PlayYoutubeWindow
     // YoutubeManager.instance.mute(this.youtubeElementKey);
     YoutubeManager.instance.loadVideoById(
       this.youtubeElementKey,
-      this.bgmInfo!
+      this.cutInInfo!
     );
     YoutubeManager.instance.play(this.youtubeElementKey);
   }
@@ -294,34 +302,34 @@ export default class PlayYoutubeWindow
     this.isFirstOnReady = false;
 
     this.isPlay = true;
-    const updateDB = !this.bgmInfo!.duration;
-    this.bgmInfo!.duration = duration;
+    const updateDB = !this.cutInInfo!.duration;
+    this.cutInInfo!.duration = duration;
     if (updateDB && this.targetKey) {
       const cutInDataCC = SocketFacade.instance.cutInDataCC();
       await cutInDataCC.updatePackage([
-        { key: this.targetKey!, data: this.bgmInfo! }
+        { key: this.targetKey!, data: this.cutInInfo! }
       ]);
     }
     // this.isPlay = true;
 
     this.fadeInTable = [];
-    for (let i = 0; i <= this.bgmInfo!.fadeIn; i++) {
+    for (let i = 0; i <= this.cutInInfo!.fadeIn; i++) {
       this.fadeInTable.push(this.bgmStart + i / 10);
     }
 
     this.fadeOutTable = [];
-    for (let i = 0; i <= this.bgmInfo!.fadeOut; i++) {
-      this.fadeOutTable.push(this.bgmEnd - (this.bgmInfo!.fadeOut - i) / 10);
+    for (let i = 0; i <= this.cutInInfo!.fadeOut; i++) {
+      this.fadeOutTable.push(this.bgmEnd - (this.cutInInfo!.fadeOut - i) / 10);
     }
   }
 
   private get bgmStart(): number {
     let start = 0;
-    const duration = this.bgmInfo!.duration || 0;
-    if (this.bgmInfo!.start > 0) {
-      start = this.bgmInfo!.start;
-    } else if (this.bgmInfo!.start < 0) {
-      start = duration + this.bgmInfo!.start;
+    const duration = this.cutInInfo!.duration || 0;
+    if (this.cutInInfo!.start > 0) {
+      start = this.cutInInfo!.start;
+    } else if (this.cutInInfo!.start < 0) {
+      start = duration + this.cutInInfo!.start;
     }
     if (start > duration) start = duration;
     if (start < 0) start = 0;
@@ -329,12 +337,12 @@ export default class PlayYoutubeWindow
   }
 
   private get bgmEnd(): number {
-    const duration = this.bgmInfo!.duration || 0;
+    const duration = this.cutInInfo!.duration || 0;
     let end = duration;
-    if (this.bgmInfo!.end > 0) {
-      end = this.bgmInfo!.end;
-    } else if (this.bgmInfo!.end < 0) {
-      end = duration + this.bgmInfo!.end;
+    if (this.cutInInfo!.end > 0) {
+      end = this.cutInInfo!.end;
+    } else if (this.cutInInfo!.end < 0) {
+      end = duration + this.cutInInfo!.end;
     }
     if (end > duration) end = duration;
     if (end < 0) end = 0;
@@ -343,11 +351,11 @@ export default class PlayYoutubeWindow
 
   public async timeUpdate(time: number): Promise<void> {
     if (time === undefined) return;
-    if (!this.bgmInfo) return;
+    if (!this.cutInInfo) return;
     let isReturn = false;
     if (!this.isSeekToAfter) {
       if (this.seek > this.bgmEnd) {
-        if (this.bgmInfo!.isRepeat) {
+        if (this.cutInInfo!.isRepeat) {
           this.seek = this.bgmStart;
           YoutubeManager.instance.seekTo(
             this.youtubeElementKey,
@@ -392,14 +400,14 @@ export default class PlayYoutubeWindow
   public onEnded(): void {
     if (this.status !== "window") return;
     if (this.isIpadTesting) console.log("onEnded");
-    if (this.bgmInfo!.isRepeat) {
+    if (this.cutInInfo!.isRepeat) {
       this.seek = this.bgmStart;
       YoutubeManager.instance.seekTo(
         this.youtubeElementKey,
         this.bgmStart,
         true
       );
-      if (this.bgmInfo!.fadeIn > 1) this.volume = 0;
+      if (this.cutInInfo!.fadeIn > 1) this.volume = 0;
       this.isSeekToAfter = false;
       this.isSeekToBefore = false;
     } else {
@@ -456,7 +464,7 @@ export default class PlayYoutubeWindow
     if (!this.isMounted) return;
     if (this.isIpadTesting) console.log("onChangeVolume");
 
-    if (this.bgmInfo) {
+    if (this.cutInInfo) {
       if (this.status === "window") {
         YoutubeManager.instance.setVolume(this.youtubeElementKey, this.volume);
       } else {
@@ -464,7 +472,7 @@ export default class PlayYoutubeWindow
           type: "bgm-volume-change",
           owner: "Quoridorn",
           value: {
-            tag: this.bgmInfo.tag,
+            tag: this.cutInInfo.tag,
             windowStatus: this.status,
             volume: this.volume
           }
@@ -483,7 +491,7 @@ export default class PlayYoutubeWindow
   private async bgmVolumeChangeFinished(
     task: Task<YoutubeVolumeChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (!this.bgmInfo || this.bgmInfo.tag !== task.value!.tag) return;
+    if (!this.cutInInfo || this.cutInInfo.tag !== task.value!.tag) return;
     if (this.status === task.value!.windowStatus) return;
     if (this.volume !== task.value!.volume) this.volume = task.value!.volume;
     task.resolve();
@@ -495,7 +503,7 @@ export default class PlayYoutubeWindow
     if (!this.isMounted) return;
     if (this.isIpadTesting) console.log("onChangeIsMute");
 
-    if (this.bgmInfo) {
+    if (this.cutInInfo) {
       if (this.status === "window") {
         if (this.isMute) YoutubeManager.instance.mute(this.youtubeElementKey);
         else YoutubeManager.instance.unMute(this.youtubeElementKey);
@@ -504,7 +512,7 @@ export default class PlayYoutubeWindow
           type: "bgm-mute-change",
           owner: "Quoridorn",
           value: {
-            tag: this.bgmInfo.tag,
+            tag: this.cutInInfo.tag,
             windowStatus: this.status,
             isMute: this.isMute
           }
@@ -523,7 +531,7 @@ export default class PlayYoutubeWindow
   private async bgmMuteChangeFinished(
     task: Task<YoutubeMuteChangeInfo, never>
   ): Promise<TaskResult<never> | void> {
-    if (!this.bgmInfo || this.bgmInfo.tag !== task.value!.tag) return;
+    if (!this.cutInInfo || this.cutInInfo.tag !== task.value!.tag) return;
     if (this.status === task.value!.windowStatus) return;
     this.isMute = task.value!.isMute;
     task.resolve();

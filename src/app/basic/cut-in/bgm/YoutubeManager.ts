@@ -2,6 +2,9 @@ import { createSize } from "@/app/core/utility/CoordinateUtility";
 import { CutInStore } from "@/@types/store-data";
 import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 import { Size } from "@/@types/store-data-optional";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { findByKey } from "@/app/core/utility/Utility";
 
 type PlayerInfo = {
   player: any;
@@ -41,7 +44,7 @@ export default class YoutubeManager {
 
   public static init() {
     const script = document.createElement("script");
-    script.src = "https://www.youtube.com/player_api";
+    script.src = "https://www.youtube.com/iframe_api";
     const firstScript: HTMLScriptElement = document.getElementsByTagName(
       "script"
     )[0] as HTMLScriptElement;
@@ -72,9 +75,13 @@ export default class YoutubeManager {
 
   public open(
     elementId: string,
-    { url, start, end }: CutInStore,
+    { start, end, bgmKey }: CutInStore,
     eventHandler: YoutubeEventHandler
   ) {
+    const mediaList = GameObjectManager.instance.mediaList;
+    const mediaInfo = findByKey(mediaList, bgmKey);
+    if (!mediaInfo) return;
+    const url = mediaInfo.data!.url;
     let playerObj = this.playerMapping[elementId];
     if (playerObj && playerObj.elementId === elementId) {
       // 全く同じプレイヤー要素
@@ -139,7 +146,7 @@ export default class YoutubeManager {
           playsinline: 1,
           fs: 0,
           list: "search", // 検索クエリ使用
-          listType: "search", // 検索クエリ使用
+          // listType: "search", // 検索クエリ使用
           loop: 0, // 0:ループしない or 1:ループする 後で再設定する
           rel: 0, // 関連動画出さない
           start,
@@ -196,11 +203,16 @@ export default class YoutubeManager {
   /** IDを指定して読み込ませる */
   public loadVideoById(
     elementId: string,
-    { url, start, end }: CutInStore,
+    { start, end, bgmKey }: CutInStore,
     suggestedQuality: string = "small"
   ) {
     let playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
+
+    const mediaList = GameObjectManager.instance.mediaList;
+    const mediaInfo = findByKey(mediaList, bgmKey);
+    if (!mediaInfo) return;
+    const url = mediaInfo.data!.url;
 
     const videoId = YoutubeManager.getUrlParam("v", url);
     try {

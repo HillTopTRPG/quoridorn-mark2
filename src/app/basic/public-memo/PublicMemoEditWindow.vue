@@ -92,7 +92,7 @@ export default class PublicMemoEditWindow extends Mixins<
 
     this.otherTextList = clone(
       GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "public-memo" && m.owner === this.docKey
+        m => m.ownerType === "public-memo-list" && m.owner === this.docKey
       )
     )!;
 
@@ -124,7 +124,7 @@ export default class PublicMemoEditWindow extends Mixins<
 
     await GameObjectManager.instance.updateMemoList(
       this.otherTextList,
-      "public-memo",
+      "public-memo-list",
       this.docKey
     );
 

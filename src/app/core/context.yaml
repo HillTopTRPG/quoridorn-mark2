@@ -1,4 +1,9 @@
 map:
+  - text: scene-list-window.window-title
+    taskName: window-open
+    taskArg:
+      type: scene-list-window
+  - ~
   - text: context.add-map-mask
     taskName: window-open
     taskArg:

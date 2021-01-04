@@ -3,7 +3,7 @@
     <div class="tab-area">
       <div
         class="tab"
-        v-for="(tab, index) in tabList"
+        v-for="(tab, index) in useTabList"
         :class="{ isActive: tab.key === localValue.key }"
         :key="index"
         @click="onClickTab(tab)"
@@ -36,6 +36,10 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
 ) {
   @Prop({ type: Array, required: true })
   private tabList!: TabInfo[];
+
+  private get useTabList() {
+    return this.tabList.filter(tab => !tab.isDisabled);
+  }
 
   @Prop({ type: Boolean, required: false, default: false })
   private selectLock!: boolean;
@@ -94,13 +98,13 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
   }
 
   private tabMove(addIndex: number) {
-    let index = this.tabList.findIndex(
+    let index = this.useTabList.findIndex(
       t => JSON.stringify(t) === JSON.stringify(this.localValue)
     );
     index += addIndex;
-    if (index < 0) index = this.tabList.length - 1;
-    if (index >= this.tabList.length) index = 0;
-    this.localValue = this.tabList[index];
+    if (index < 0) index = this.useTabList.length - 1;
+    if (index >= this.useTabList.length) index = 0;
+    this.localValue = this.useTabList[index];
   }
 }
 </script>

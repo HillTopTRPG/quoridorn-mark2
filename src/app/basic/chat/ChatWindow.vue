@@ -60,6 +60,7 @@
               @keyup.enter.prevent="event => sendMessage(event, false)"
               @keydown.229.stop
               @keyup.229.stop
+              ref="textareaElm"
             ></textarea>
             <!--
               @blur="resetChatOption"
@@ -266,6 +267,16 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     return this.$refs["window-container"] as HTMLDivElement;
   }
 
+  @TaskProcessor("global-enter-finished")
+  private async globalEnterFinished(
+    task: Task<never, never>
+  ): Promise<TaskResult<never> | void> {
+    const textareaElm: HTMLTextAreaElement = this.$refs
+      .textareaElm as HTMLTextAreaElement;
+    textareaElm.focus();
+    task.resolve();
+  }
+
   @VueEvent
   private get sender(): string {
     return this.getName(this.actorKey, "actor", true);
@@ -365,7 +376,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       .map(ct => ({
         key: ct.key,
         text: ct.data!.name,
-        target: ct.key
+        target: ct.key,
+        isDisabled: false
       }));
     if (!this.currentTargetTabInfo)
       this.currentTargetTabInfo = this.targetTabList[0];

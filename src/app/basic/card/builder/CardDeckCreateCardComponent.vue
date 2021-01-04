@@ -10,9 +10,9 @@
         v-model="currentImageKey"
         :windowKey="key"
         :mediaTag.sync="currentTag"
-        :isSimple="true"
-        :viewName="true"
+        :isDisabledDirection="true"
         imageSize="20em"
+        :is-simple.sync="isSimple"
       />
       <div class="setting-container">
         <table>
@@ -218,6 +218,8 @@ export default class CardDeckCreateCardComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private backImage!: string;
+
+  private isSimple: boolean = true;
 
   @Prop({ required: true })
   private mediaTag!: string | null;

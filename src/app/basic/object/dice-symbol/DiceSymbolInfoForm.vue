@@ -228,7 +228,7 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "additional-info", text: "" }
+    { key: "1", target: "additional-info", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo | null = this.tabList[0];
 
@@ -344,6 +344,7 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
 .simple-tab-component {
   grid-row: 1 / 3;
   grid-column: 2 / 3;
+  overflow: hidden;
 
   > *:not(:first-child) {
     width: 100%;
@@ -363,7 +364,7 @@ export default class DiceSymbolInfoForm extends Mixins<ComponentVue>(
     }
   }
 
-  > div:not(.image-picker-container) {
+  > div:not(.image-picker-component) {
     border: solid 1px gray;
     box-sizing: border-box;
     padding: 0.2rem;

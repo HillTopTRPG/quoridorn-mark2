@@ -87,7 +87,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
       type: "other-text-view",
       owner: "Quoridorn",
       value: {
-        type: "public-memo-list",
+        type: "public-memo",
         title: this.publicMemo.data!.name,
         key,
         dataList: this.memoList.filter(m => m.owner === key),

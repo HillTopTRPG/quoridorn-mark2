@@ -119,8 +119,8 @@ export default class ChatTabInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "basic", text: "" },
-    { key: "2", target: "read-aloud", text: "" }
+    { key: "1", target: "basic", text: "", isDisabled: false },
+    { key: "2", target: "read-aloud", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 

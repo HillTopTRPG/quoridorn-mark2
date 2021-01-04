@@ -7,6 +7,7 @@
       :windowKey="windowKey"
       :mediaTag.sync="mediaTag"
       :direction.sync="direction"
+      :is-simple.sync="isSimple"
     />
     <div v-else>
       <table>
@@ -78,6 +79,7 @@ export default class InputTextureComponent extends Mixins<ComponentVue>(
   private value!: Texture;
 
   private isMounted: boolean = false;
+  private isSimple: boolean = true;
 
   private type: "image" | "color" | null = null;
   private imageKey: string = "";
@@ -201,7 +203,7 @@ td {
   text-align: left;
 }
 
-.image-picker-container {
+.image-picker-component {
   flex: 1;
 }
 </style>

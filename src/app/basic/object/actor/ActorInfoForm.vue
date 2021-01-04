@@ -20,6 +20,7 @@
       <tr>
         <tr-chat-color-input-component
           labelName="label.chat-font-color"
+          :actorType="actorType"
           :type.sync="chatFontColorTypeVolatile"
           :color.sync="chatFontColorVolatile"
         />
@@ -55,6 +56,9 @@ import LifeCycle from "../../../core/decorator/LifeCycle";
 })
 export default class ActorInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   private isMounted: boolean = false;
+
+  @Prop({ type: String, required: true })
+  private actorType!: "user" | "character";
 
   // name
   @Prop({ type: String, required: true })

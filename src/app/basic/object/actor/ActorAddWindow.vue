@@ -3,6 +3,7 @@
     <actor-info-form
       :name.sync="name"
       :tag.sync="tag"
+      :actorType="'character'"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :standImagePosition.sync="standImagePosition"

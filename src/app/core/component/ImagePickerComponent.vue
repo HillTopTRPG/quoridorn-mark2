@@ -1,69 +1,59 @@
 <template>
-  <div class="image-picker-container" @contextmenu.prevent ref="elm">
-    <input
-      type="text"
-      class="search-name"
-      :value="searchText"
-      @input="searchText = $event.target.value"
-      :placeholder="$t('label.search-name-box')"
-      @keydown.enter.prevent.stop
-      @keyup.enter.prevent.stop
-      @keydown.229.prevent.stop
-      @keyup.229.prevent.stop
-      v-if="viewName"
-    />
+  <div class="image-picker-component" @contextmenu.prevent ref="elm">
+    <div class="operate-box">
+      <s-check
+        class="view-check"
+        v-model="isSimpleVolatile"
+        colorStyle="skyblue"
+        c-icon=""
+        :c-label="$t('label.simple')"
+        n-icon=""
+        :n-label="$t('label.detail')"
+        @hover="onHoverThumbnailView"
+      />
+      <input
+        type="text"
+        class="search-name"
+        :value="searchText"
+        @input="searchText = $event.target.value"
+        :placeholder="$t('label.search-name-box')"
+        @keydown.enter.prevent.stop
+        @keyup.enter.prevent.stop
+        @keydown.229.prevent.stop
+        @keyup.229.prevent.stop
+      />
+    </div>
     <!-- 画像選択エリア -->
-    <div class="choseImage" :style="{ '--size': imageSize }">
-      <div
-        class="image"
-        v-for="image in useImageList"
-        :key="image.key"
-        :class="{ active: value === image.key }"
-        @click="localValue = image.key"
-      >
-        <span v-if="viewName">{{ image.data.name }}</span>
-        <img :src="image.data.url" alt="" draggable="false" />
-      </div>
+    <div
+      class="chose-media"
+      :class="isSimpleVolatile ? 'simple-mode' : 'detail-mode'"
+      :style="{ '--size': imageSize }"
+    >
+      <image-item-component
+        v-for="media in useMediaList"
+        :key="media.key"
+        :is-selected="value === media.key"
+        :media="media"
+        :is-simple="isSimpleVolatile"
+        @select="localValue = media.key"
+      />
     </div>
 
     <!-- 絞り込み情報 -->
     <table>
       <tr>
-        <th>
-          <label
-            :for="`${windowKey}-image-pick-tag`"
-            v-t="'label.tag'"
-            class="label-input"
-          ></label>
-        </th>
-        <td>
-          <div class="flex-space-between">
-            <image-tag-select
-              :elmId="`${windowKey}-image-pick-tag`"
-              class="tagSelect"
-              v-model="selectImageTag"
-              ref="input"
-            />
-            <span>{{ selectedTagIndexText }}</span>
-          </div>
-        </td>
+        <tr-media-tag-select-component
+          label-name="label.tag"
+          v-model="selectMediaTag"
+          :filter-list="['image']"
+          :selected-info-text="selectedTagIndexText"
+        />
       </tr>
-      <tr v-if="!isSimple">
-        <th>
-          <label
-            :for="`${windowKey}-image-pick-direction`"
-            v-t="'selection.direction.label'"
-            class="label-input"
-          ></label>
-        </th>
-        <td>
-          <div class="flex-space-between">
-            <direction-type-select
-              :elmId="`${windowKey}-image-pick-direction`"
-              v-model="direction"
-            />
-          </div>
-        </td>
+      <tr v-if="!isDisabledDirection">
+        <tr-direction-type-select-component
+          label-name="selection.direction.label"
+          v-model="directionVolatile"
+        />
       </tr>
     </table>
   </div>
@@ -77,15 +67,21 @@ import ComponentVue from "../window/ComponentVue";
 import { MediaStore } from "@/@types/store-data";
 import CtrlButton from "./CtrlButton.vue";
 import GameObjectManager from "../../basic/GameObjectManager";
-import ImageTagSelect from "../../basic/common/components/select/ImageTagSelect.vue";
 import DirectionTypeSelect from "../../basic/common/components/select/DirectionTypeSelect.vue";
 import VueEvent from "../decorator/VueEvent";
 import { Direction } from "@/@types/store-data-optional";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import TrMediaTagSelectComponent from "@/app/basic/common/components/TrMediaTagSelectComponent.vue";
+import ImageItemComponent from "@/app/core/component/ImageItemComponent.vue";
+import TrDirectionTypeSelectComponent from "@/app/basic/common/components/TrDirectionTypeSelectComponent.vue";
 
 @Component({
   components: {
+    TrDirectionTypeSelectComponent,
+    ImageItemComponent,
+    TrMediaTagSelectComponent,
+    SCheck,
     CtrlButton,
-    ImageTagSelect,
     DirectionTypeSelect
   }
 })
@@ -101,51 +97,74 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   @Prop({ type: String, default: null })
   private mediaTag!: string | null;
 
+  // direction
   @Prop({ type: String, default: "none" })
   private direction!: Direction;
-
-  @Prop({ type: Boolean, default: false })
-  private isSimple!: boolean;
+  private directionVolatile: Direction = "none";
+  @Watch("direction", { immediate: true })
+  private onChangeDirection(value: Direction) {
+    this.directionVolatile = value;
+  }
+  @Watch("directionVolatile")
+  private onChangeDirectionVolatile(value: Direction) {
+    this.$emit("update:direction", value);
+  }
 
   @Prop({ type: Boolean, default: false })
   private viewName!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private isDisabledDirection!: boolean;
 
   @Prop({ type: String, default: "4em" })
   private imageSize!: string;
 
   private isMounted: boolean = false;
-  private selectImageTag: string | null = null;
+  private selectMediaTag: string | null = null;
 
-  private rawImageList: StoreData<MediaStore>[] = [];
-  private useImageList: StoreData<MediaStore>[] = [];
+  private rawMediaList: StoreData<MediaStore>[] = [];
+  private useMediaList: StoreData<MediaStore>[] = [];
   private searchText: string = "";
 
+  // isSimple
+  @Prop({ type: Boolean, required: true })
+  private isSimple!: boolean;
+  private isSimpleVolatile: boolean = false;
+  @Watch("isSimple", { immediate: true })
+  private onChangeIsViewThumbnail(value: boolean) {
+    this.isSimpleVolatile = value;
+  }
+  @Watch("isSimpleVolatile")
+  private onChangeIsViewThumbnailVolatile(value: boolean) {
+    this.$emit("update:isSimple", value);
+  }
+
   @Watch("isMounted")
-  @Watch("selectImageTag")
+  @Watch("selectMediaTag")
   @Watch("searchText")
-  @Watch("rawImageList", { deep: true })
+  @Watch("rawMediaList", { deep: true })
   private async onChangeImageList() {
     if (!this.isMounted) return;
     const regExp = this.searchText ? new RegExp(this.searchText) : null;
-    this.useImageList = this.rawImageList.filter(d => {
+    this.useMediaList = this.rawMediaList.filter(d => {
       if (!d || !d.data) return false;
       if (regExp && !d.data.name.match(regExp)) return false;
-      if (this.selectImageTag === null) return d.data.tag === "";
-      return d.data.tag === this.selectImageTag;
+      if (this.selectMediaTag === null) return d.data.tag === "";
+      return d.data.tag === this.selectMediaTag;
     });
   }
 
   @VueEvent
   private get selectedTagIndexText() {
-    const index = this.useImageList.findIndex(
+    const index = this.useMediaList.findIndex(
       image => image.key === this.localValue
     );
-    return `${index + 1}/${this.useImageList.length}`;
+    return `${index + 1}/${this.useMediaList.length}`;
   }
 
   @LifeCycle
   private mounted() {
-    this.rawImageList = GameObjectManager.instance.mediaList.filter(
+    this.rawMediaList = GameObjectManager.instance.mediaList.filter(
       media => media.data!.urlType === "image"
     );
     this.isMounted = true;
@@ -165,17 +184,12 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string) {
-    this.selectImageTag = value;
+    this.selectMediaTag = value;
   }
 
-  @Watch("selectImageTag")
+  @Watch("selectMediaTag")
   private onChangeSelectImageTag() {
-    this.$emit("update:mediaTag", this.selectImageTag);
-  }
-
-  @Watch("direction")
-  private onChangeReverse() {
-    this.$emit("update:direction", this.direction);
+    this.$emit("update:mediaTag", this.selectMediaTag);
   }
 
   private get elm(): HTMLDivElement {
@@ -184,6 +198,11 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
 
   public focus() {
     this.elm.focus();
+  }
+
+  @VueEvent
+  private onHoverThumbnailView(isHover: boolean) {
+    this.$emit("hoverThumbnail", isHover);
   }
 }
 </script>
@@ -203,8 +222,15 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
   min-height: 2em;
 }
 
-.image-picker-container {
-  @include flex-box(column, flex-start, flex-start);
+.operate-box {
+  @include flex-box(row, space-between, center);
+  border: solid gray 1px;
+  border-bottom: none;
+  padding: 0.2rem 0.5rem;
+}
+
+.image-picker-component {
+  @include flex-box(column, stretch, flex-start);
 
   table {
     width: 100%;
@@ -221,51 +247,19 @@ export default class ImagePickerComponent extends Mixins<ComponentVue>(
     }
   }
 
-  .choseImage {
-    @include flex-box(row, flex-start, flex-start, wrap);
+  .chose-media {
     overflow-y: scroll;
     flex: 1;
     border: solid gray 1px;
     box-sizing: border-box;
     width: 100%;
 
-    .image {
-      @include flex-box(column, flex-start, flex-start);
-      border: solid rgba(0, 0, 0, 0) 1px;
-      box-sizing: border-box;
-
-      &.active {
-        border: solid blue 1px;
-        background-color: var(--uni-color-cream);
-      }
-
-      img {
-        width: var(--size);
-        height: var(--size);
-      }
-    }
-  }
-
-  .imageInfo {
-    display: flex;
-
-    .selectedImage {
-      flex: 1;
-      display: flex;
-
-      > * {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      select {
-        flex: 1;
-      }
+    &.simple-mode {
+      @include flex-box(row, flex-start, flex-start, wrap);
     }
 
-    button {
-      margin-left: 10px;
+    &.detail-mode {
+      @include flex-box(column, stretch, flex-start);
     }
   }
 }

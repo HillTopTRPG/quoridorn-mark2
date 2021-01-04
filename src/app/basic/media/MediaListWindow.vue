@@ -150,7 +150,8 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       .map((tag, index) => ({
         key: index.toString(),
         target: tag,
-        text: tag || this.$t("label.non-tag")!.toString()
+        text: tag || this.$t("label.non-tag")!.toString(),
+        isDisabled: false
       }));
     if (!this.currentTabInfo) {
       this.currentTabInfo = this.tabList[0];
@@ -224,7 +225,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "bgm-add-window",
+        type: "cut-in-add-window",
         args: media.data!
       }
     });

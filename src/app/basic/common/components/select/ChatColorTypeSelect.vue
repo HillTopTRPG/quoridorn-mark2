@@ -3,7 +3,7 @@
     :elmId="elmId"
     :optionInfoList="optionInfoList"
     :disabled="disabled"
-    :readonly="readonly"
+    :readonly="readonly || actorType === 'user'"
     :name="`chat-color-type-select-${key}`"
     v-model="localValue"
     ref="component"
@@ -28,6 +28,9 @@ export default class ChatColorTypeSelect extends Mixins<MultiMixin>(
   SelectMixin,
   ComponentVue
 ) {
+  @Prop({ type: String, required: true })
+  private actorType!: "user" | "character";
+
   @Prop({ type: String, default: "owner" })
   public value!: string;
 
@@ -39,6 +42,7 @@ export default class ChatColorTypeSelect extends Mixins<MultiMixin>(
 
   @LifeCycle
   private created() {
+    this.optionInfoList[1].disabled = this.actorType === "user";
     this.createOptionInfoList();
   }
 

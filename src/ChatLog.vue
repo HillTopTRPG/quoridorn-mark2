@@ -132,8 +132,14 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     /*
      * 注入データのセットアップ
      */
-    const getListData = (param: string) =>
-      JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
+    const getListData = (param: string) => {
+      const text = (window as any)[param].replace(/&quot;/g, '"');
+      try {
+        return JSON.parse(text);
+      } catch (err) {
+        console.log(text);
+      }
+    };
     const getData = (param: string) =>
       JSON.parse((window as any)[param].replace(/&quot;/g, '"'));
     this.chatTabList = getListData("chatTabList") as StoreData<ChatTabStore>[];
