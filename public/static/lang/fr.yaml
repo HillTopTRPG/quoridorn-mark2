@@ -164,10 +164,6 @@ resource-master-info-form:
     value-selection: 選択肢(カンマ区切り)
     value-selection-value: 選択肢の初期値
 
-cut-in-info-form:
-  message-list:
-    require-image-key: 画像を選択してください
-
 card-deck-frame-setting-component:
   label:
     card-width: カードの幅(px)
@@ -416,6 +412,9 @@ login-window:
     possible: 可
     creating: 作成中
     version-info: バージョン情報
+  message-list:
+    deleted: 部屋を削除しました。
+    delete-failue: 部屋の削除に失敗しました。
   table-columns:
     - - No.
       - プレイルーム名

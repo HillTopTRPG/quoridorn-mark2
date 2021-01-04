@@ -164,10 +164,6 @@ resource-master-info-form:
     value-selection: 선택지 (쉼표로 구분)
     value-selection-value: 선택지의 기본값
 
-cut-in-info-form:
-  message-list:
-    require-image-key: 画像を選択してください
-
 card-deck-frame-setting-component:
   label:
     card-width: 카드의 너비(px)
@@ -416,6 +412,9 @@ login-window:
     possible: 가능
     creating: 作成中
     version-info: 버전 정보
+  message-list:
+    deleted: 部屋を削除しました。
+    delete-failue: 部屋の削除に失敗しました。
   table-columns:
   - - No.
     - 플레이 룸 명

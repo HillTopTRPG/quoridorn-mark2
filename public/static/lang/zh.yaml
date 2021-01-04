@@ -164,10 +164,6 @@ resource-master-info-form:
     value-selection: 選擇框(使用逗號隔開)
     value-selection-value: 選擇框的初期値
 
-cut-in-info-form:
-  message-list:
-    require-image-key: 画像を選択してください
-
 card-deck-frame-setting-component:
   label:
     card-width: 咭牌的闊度(px)
@@ -416,6 +412,9 @@ login-window:
     possible: 可
     creating: 新增中
     version-info: 版本資訊
+  message-list:
+    deleted: 部屋を削除しました。
+    delete-failue: 部屋の削除に失敗しました。
   table-columns:
   - - No.
     - 房間名
