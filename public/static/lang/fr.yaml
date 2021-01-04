@@ -246,7 +246,6 @@ label:
   layer: レイヤー
   image: 画像
   other-text: その他欄
-  image-tag: 画像タグ
   client: クライアント
   server: サーバ
   version: バージョン

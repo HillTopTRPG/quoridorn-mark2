@@ -246,7 +246,6 @@ label:
   layer: 圖層
   image: 圖像
   other-text: 其他欄
-  image-tag: 圖像標籤
   client: 客戶端
   server: Server
   version: 本
