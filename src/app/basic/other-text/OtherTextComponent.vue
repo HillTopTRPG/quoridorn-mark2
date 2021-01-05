@@ -35,6 +35,7 @@
                 :data-index="line.index"
                 @input.stop.prevent="onChangeInput(line.index)"
                 @change.stop.prevent
+                @keydown.enter.stop
                 ref="textareas"
               >
               </textarea>
