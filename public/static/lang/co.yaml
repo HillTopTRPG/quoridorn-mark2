@@ -110,7 +110,7 @@ selection:
     cover-start: 커버 (위쪽)
     cover-center: 커버 (중간)
     cover-end: 커버 (아래쪽)
-    100per: '1'
+    100per: 100%
   permission:
     view: 열람 권한
     edit: 편집 권한
@@ -396,13 +396,13 @@ cut-in-list-window:
   table-columns:
   - - 연동
     - タグ
-    - 종류
-    - タイトル
+    - 타이틀
+    - 이미지
+    - BGM
     - 시간
     - 루프
     - 볼륨
     - 페이드
-    - 画像
 
 login-window:
   window-title: 로그인 화면

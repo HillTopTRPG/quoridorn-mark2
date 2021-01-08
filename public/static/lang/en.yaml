@@ -28,20 +28,20 @@ button:
   create-other-text: 参照先からその他欄を生成
 
 type:
-  map-mask: ''
-  map-marker: ''
-  dice-symbol: ''
+  map-mask: マップマスク
+  map-marker: マップマーカー
+  dice-symbol: ダイスシンボル
   chit: チット
-  character: ''
+  character: キャラクター
   map: Map
-  floor-tile: ''
+  floor-tile: フロアタイル
   stand-image: 立ち絵
   stand-image-diff: 立ち絵差分
   user: ユーザー
-  actor: ''
+  actor: アクター
   actor-group: アクターグループ
-  piece: ''
-  card: ''
+  piece: コマ
+  card: カード
   card-object: カード/山札
   card-deck-small: 山札
   gm: Game Master
@@ -58,12 +58,12 @@ context:
   modify: 変更
   copy: Copy
   delete: 削除
-  fix: ''
-  un-fix: ''
-  view-border: ''
-  hide-border: ''
-  view-highlight: ''
-  hide-highlight: ''
+  fix: 固定
+  un-fix: 固定解除
+  view-border: 枠線を表示
+  hide-border: 枠線を非表示
+  view-highlight: ハイライトを表示
+  hide-highlight: ハイライトを非表示
   view-marker-deco: 装飾を表示
   hide-marker-deco: 装飾を非表示
   view-marker-back: 塗りつぶす
@@ -84,8 +84,8 @@ context:
   layout-hand: 手札
   setting-change: 設定変更
   placement-reset: 配置リセット
-  ref-url: ''
-  edit-actor: ''
+  ref-url: データ参照先URLを開く
+  edit-actor: コマのアクターを編集
   add-dice-symbol: ダイスシンボル作成
   dice-pips-change: 出目変更
   dice-hide: 出目を隠す
@@ -96,8 +96,8 @@ context:
 selection:
   chat-color-type:
     label: 文字色タイプ
-    owner: ''
-    original: ''
+    owner: オーナーと同じ
+    original: 個別の色
   direction:
     label: Direction
     none: As is
@@ -105,12 +105,12 @@ selection:
     vertical: Invert horizontal
     180deg: Rotate 180 degrees
   background-location:
-    label: ''
-    contain: ''
-    cover-start: ''
-    cover-center: ''
-    cover-end: ''
-    100per: ''
+    label: 配置
+    contain: 内包
+    cover-start: カバー(始)
+    cover-center: カバー(中)
+    cover-end: カバー(終)
+    100per: 100%
   permission:
     view: 閲覧権限
     edit: 編集権限
@@ -142,9 +142,9 @@ selection:
     owner-name: 名前(オーナー)
     owner-type: 種類(オーナー)
     object-layer: Layer
-    actor-status-name: ''
-    actor-chat-text-color: ''
-    actor-stand-image-position: ''
+    actor-status-name: ステータス
+    actor-chat-text-color: チャット文字色
+    actor-stand-image-position: 立ち絵の位置
   selection-value:
     label: 選択肢の値
   user-type:
@@ -233,15 +233,15 @@ label:
   permission: Authority
   room-name: 'Room name:'
   no-target: Unselected
-  text: ''
+  text: テキスト
   background-color: 背景色
-  height: ''
+  height: 高さ
   width: Width
   tag: タグ
-  non-tag: ''
+  non-tag: タグ無し
   layer: レイヤー
   image: Image
-  other-text: ''
+  other-text: その他欄
   client: Client terms
   server: Server terms
   version: 'Version:'
@@ -265,11 +265,11 @@ label:
   deny: 否認
   permission-type: 権限種別
   permission-node-type: 権限対象種別
-  owner: ''
+  owner: オーナー
   user: ユーザー
   character: キャラクター
   group: グループ
-  map-object: ''
+  map-object: マップオブジェクト
   place: 場所
   field: フィールド
   graveyard: 墓地
@@ -279,7 +279,7 @@ label:
   y: Y
   original-address: 独自座標
   char: 文字
-  additional-info: ''
+  additional-info: 付加情報
   chat-linkage: Associate with chat message
   chat-linkage-target: Trigger
   javascript-regexp: Javascriptの正規表現
@@ -288,17 +288,17 @@ label:
   title: Title
   editing: 編集中
   unknown: '[不明]'
-  input-bcdice-url: ''
+  input-bcdice-url: BCDice-APIサーバーのURLを設定します
   target-all: All
-  all: ''
+  all: すべて
   status: ステータス
   edited: '[編集済]'
   use: 使う
-  un-use: ''
-  sort: ''
+  un-use: 使わない
+  sort: 並び替え
   stand-image-position: 立ち絵の位置
-  view-type: ''
-  search-name-box: ''
+  view-type: 表示モード
+  search-name-box: 名前検索欄
   search: 検索
   operation: 操作
   local: ローカル
@@ -310,17 +310,17 @@ label:
   import-failure: インポートに失敗しました。
   resist: 登録
   layout: レイアウト
-  ref-url: ''
+  ref-url: データ参照先URL
   basic: 基本
   icon: アイコン
   resource: リソース
-  read-aloud: ''
-  read-aloud-volume: ''
-  tab-list: ''
-  other: ''
+  read-aloud: 読み上げ
+  read-aloud-volume: 読み上げ音量
+  tab-list: タブ一覧
+  other: その他
   actor: アクター
-  secret: ''
-  non-secret: ''
+  secret: 秘匿
+  non-secret: 公開
   scene-object: コマ
   non-select: 選択なし
   dice-type: ダイス
@@ -367,9 +367,9 @@ message:
     ドロップインしてください。
   really-delete: 本当に削除しますか？
   choose-image-bgm: 画像と音楽を選択してください。
-  choose-image: ''
+  choose-image: 画像を選択してください。
   choose-bgm: 音楽を選択してください。
-  drag-piece: ''
+  drag-piece: マップにドラッグすると作成できます。
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
     この操作は取り消せません。
@@ -392,17 +392,17 @@ play-youtube-window:
   window-title: Youtube再生画面
 
 cut-in-list-window:
-  window-title: ''
+  window-title: カットイン一覧
   table-columns:
   - - Trigger
     - タグ
+    - Title
+    - Image
     - Category
-    - タイトル
     - Time
     - Repeat
     - Volume
     - Fade
-    - 画像
 
 login-window:
   window-title: Log in
@@ -495,10 +495,10 @@ room-info-window:
     room-no: Room number
 
 map-mask-add-window:
-  window-title: ''
+  window-title: マップマスク作成
 
 map-mask-edit-window:
-  window-title: ''
+  window-title: マップマスク編集
 
 map-marker-add-window:
   window-title: マップマーカー作成
@@ -507,10 +507,10 @@ map-marker-edit-window:
   window-title: マップマーカー編集
 
 chit-add-window:
-  window-title: ''
+  window-title: チット作成
 
 chit-edit-window:
-  window-title: ''
+  window-title: チット編集
 
 scene-list-window:
   window-title: Scenes
@@ -526,8 +526,8 @@ edit-scene-window:
     mask: Mask
     frame-border: Frame
   message-select:
-    layer-view: ''
-    layer-order-mode-on: ''
+    layer-view: レイヤーの表示・非表示を切り替えます。
+    layer-order-mode-on: レイヤーの順番を入れ替えるモードにします。
     layer-order-mode-off: 通常のモードに戻します。
     layer-order: ドラッグでレイヤーの順番を入れ替えます。
     original-address: 他のシーンと異なる座標を持つかの設定です。
@@ -549,18 +549,20 @@ cut-in-edit-window:
 
 chat-window:
   window-title: Chat
-  placeholder: ''
+  placeholder: |-
+    メッセージ（改行はShift + Enter）
+    部分フォント変更は "&" を入力
   options:
-    select-sender: ''
-    select-output-tab: ''
-    select-target: ''
-    select-chat-format: ''
-    select-is-secret: ''
-    selected-item: ''
-    goto-head: ''
-    goto-next: ''
-    goto-last: ''
-    goto-tail: ''
+    select-sender: 送信者の選択
+    select-output-tab: 送信先タブの選択
+    select-target: 送信相手の選択
+    select-chat-format: 部分フォーマット選択
+    select-is-secret: 秘匿チャットかどうか
+    selected-item: '[選択中]'
+    goto-head: '[先頭へ]'
+    goto-next: '[次へ]'
+    goto-last: '[前へ]'
+    goto-tail: '[末尾へ]'
   input-info:
     message-sender: 現在の送信者を表示しています
     message-target: チャットの送信先を表示しています
@@ -572,26 +574,26 @@ chat-window:
       この操作は取り消せません。
 
 chat-setting-window:
-  window-title: ''
+  window-title: チャット設定
   message-list:
     edit: 編集
     chmod: 権限編集
     delete: 削除
 
 chat-tab-add-window:
-  window-title: ''
+  window-title: チャットタブ作成
 
 chat-tab-edit-window:
-  window-title: ''
+  window-title: チャットタブ編集
 
 actor-add-window:
-  window-title: ''
+  window-title: アクター作成
 
 actor-edit-window:
-  window-title: ''
+  window-title: アクター編集
 
 player-box-window:
-  window-title: ''
+  window-title: プレイヤーボックス
   message-list:
     edit: 編集
     chmod: 権限編集
@@ -658,7 +660,7 @@ card-deck-builder:
     count-more: 5枚以上
 
 card-deck-list-window:
-  window-title: ''
+  window-title: 山札一覧
 
 media-upload-window:
   window-title: メディアアップロード
@@ -670,7 +672,7 @@ media-upload-window:
     delete-together: まとめて削除
 
 media-list-window:
-  window-title: ''
+  window-title: メディア一覧
   label:
     thumbnail: サムネイル
     list: リスト
@@ -698,10 +700,10 @@ play-bgm-file-window:
   window-title: 音楽ファイル再生
 
 character-add-window:
-  window-title: ''
+  window-title: キャラクター作成
 
 character-edit-window:
-  window-title: ''
+  window-title: キャラクター編集
 
 initiative-window:
   window-title: イニシアティブ(INI)表

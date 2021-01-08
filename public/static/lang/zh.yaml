@@ -396,13 +396,13 @@ cut-in-list-window:
   table-columns:
   - - 連動
     - 標籤
-    - 類型
     - 標題
+    - 圖像
+    - BGM
     - 時間
     - 重覆
     - 音量
     - フェード
-    - 画像
 
 login-window:
   window-title: 登入畫面
@@ -413,7 +413,7 @@ login-window:
     creating: 新增中
     version-info: 版本資訊
   message-list:
-    deleted: ''
+    deleted: 部屋を削除しました。
     delete-failue: 部屋の削除に失敗しました。
   table-columns:
   - - No.
