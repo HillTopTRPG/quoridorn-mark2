@@ -1,7 +1,8 @@
 .DS_Store
 node_modules
 /dist
-/scripts/quoridorn-translation-713e5256da7a.json
+/scripts/translate/quoridorn-translation-713e5256da7a.json
+/scripts/translate/ibm-credentials.env
 
 # local env files
 .env

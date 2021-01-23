@@ -56,8 +56,9 @@ export default class CssManager {
     document.documentElement.style.overflow = "hidden";
 
     // スクロールバーの有無によって変化するwindowの幅の違いがスクロールバーの幅
-    console.log(vw - pc);
-    return vw - pc;
+    const scrollbarWidth = vw - pc;
+    console.log(`スクロールバーの幅: ${scrollbarWidth}px`);
+    return scrollbarWidth;
   }
 
   public static getCss(name: string, elm?: HTMLElement) {

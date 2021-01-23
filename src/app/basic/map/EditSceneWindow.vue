@@ -244,38 +244,38 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import {
   SceneObjectStore,
   SceneStore,
   SceneAndLayerStore,
   SceneLayerStore
 } from "@/@types/store-data";
-import AddressInput from "../common/components/AddressInput.vue";
-import EditSceneObjectChooserComponent from "./EditSceneObjectChooserComponent.vue";
-import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
-import BorderStyleSelect from "../common/components/select/BorderStyleSelect.vue";
-import WindowVue from "../../core/window/WindowVue";
-import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import GameObjectManager from "../GameObjectManager";
-import EditSceneLayerChooserComponent from "./EditSceneLayerChooserComponent.vue";
 import { TabInfo } from "@/@types/window";
-import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
-import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import AddressInput from "@/app/basic/common/components/AddressInput.vue";
+import EditSceneObjectChooserComponent from "@/app/basic/map/EditSceneObjectChooserComponent.vue";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import SocketFacade, {
   permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import InputTextureComponent from "./InputTextureComponent.vue";
-import TaskManager from "../../core/task/TaskManager";
-import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import BackgroundTypeRadio from "../common/components/radio/BackgroundTypeRadio.vue";
-import LanguageManager from "../../../LanguageManager";
-import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+} from "@/app/core/api/app-server/SocketFacade";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/table-item/TrColorPickerComponent.vue";
+import BorderStyleSelect from "@/app/basic/common/components/select/BorderStyleSelect.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import InputTextureComponent from "@/app/basic/map/InputTextureComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import EditSceneLayerChooserComponent from "@/app/basic/map/EditSceneLayerChooserComponent.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

@@ -115,21 +115,21 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import ComponentVue from "../../../core/window/ComponentVue";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
-import GameObjectManager from "../../GameObjectManager";
 import { TabInfo } from "@/@types/window";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
-import BackgroundLocationSelect from "../../common/components/select/BackgroundLocationSelect.vue";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 import { MemoStore } from "@/@types/store-data";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -159,7 +159,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, required: true })
   private name!: string;
-
   private nameVolatile: string = "";
   @Watch("name", { immediate: true })
   private onChangeName(value: string) {
@@ -172,7 +171,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, required: true })
   private tag!: string;
-
   private tagVolatile: string = "";
   @Watch("tag", { immediate: true })
   private onChangeTag(value: string) {
@@ -197,7 +195,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: Number, required: true })
   private width!: number;
-
   private widthVolatile: number = 0;
   @Watch("width", { immediate: true })
   private onChangeWidth(value: number) {
@@ -210,7 +207,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: Number, required: true })
   private height!: number;
-
   private heightVolatile: number = 0;
   @Watch("height", { immediate: true })
   private onChangeHeight(value: number) {
@@ -235,7 +231,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, default: null })
   private mediaTag!: string | null;
-
   private mediaTagVolatile: string | null = null;
   @Watch("mediaTag", { immediate: true })
   private onChangeImageTag(value: string | null) {
@@ -248,7 +243,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, required: true })
   private direction!: Direction;
-
   private directionVolatile: Direction = "none";
   @Watch("direction", { immediate: true })
   private onChangeDirection(value: Direction) {
@@ -261,7 +255,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, required: true })
   private backgroundSize!: BackgroundSize;
-
   private backgroundSizeVolatile: BackgroundSize = "contain";
   @Watch("backgroundSize", { immediate: true })
   private onChangeBackgroundSize(value: BackgroundSize) {
@@ -274,7 +267,6 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: String, required: true })
   private layerKey!: string;
-
   private layerKeyVolatile: string = "";
   @Watch("layerKey", { immediate: true })
   private onChangeLayerKey(value: string) {

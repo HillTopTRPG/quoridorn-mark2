@@ -103,35 +103,35 @@
 import { Component, Emit, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import InitiativeInputComponent from "./InitiativeInputComponent.vue";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import {
-  convertNumberNull,
-  listToEmpty
-} from "../../core/utility/PrimaryDataUtility";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import TableComponent from "../../core/component/table/TableComponent.vue";
 import { WindowResizeInfo, WindowTableColumn } from "@/@types/window";
-import VueEvent from "../../core/decorator/VueEvent";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
 import {
   ActorStore,
   SceneObjectStore,
   CutInStore,
   UserStore
 } from "@/@types/store-data";
+import { RefProperty } from "@/@types/store-data-optional";
+import InitiativeInputComponent from "@/app/basic/initiative/InitiativeInputComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import App from "@/views/App.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
 import {
   findByKey,
   findRequireByKey,
   findRequireByOwner
-} from "../../core/utility/Utility";
-import { parseColor } from "../../core/utility/ColorUtility";
-import App from "../../../views/App.vue";
-import SelectionValueSelect from "../common/components/select/SelectionValueSelect.vue";
-import { RefProperty } from "@/@types/store-data-optional";
+} from "@/app/core/utility/Utility";
+import {
+  convertNumberNull,
+  listToEmpty
+} from "@/app/core/utility/PrimaryDataUtility";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { parseColor } from "@/app/core/utility/ColorUtility";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SelectionValueSelect from "@/app/basic/common/components/select/SelectionValueSelect.vue";
 
 const uuid = require("uuid");
 

@@ -698,7 +698,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       value: {
         type: "actor-edit-window",
         args: {
-          type: "actor",
+          type: "actor-list",
           key: actorKey
         }
       }

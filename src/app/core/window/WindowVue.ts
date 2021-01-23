@@ -1,12 +1,10 @@
-import Vue from "vue";
-import { Prop } from "vue-property-decorator";
+import { Prop, Vue } from "vue-property-decorator";
 import { Mixin } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import TaskProcessor from "../task/TaskProcessor";
 import TaskManager from "../task/TaskManager";
 import { WindowInfo } from "@/@types/window";
 
-// @ts-ignore
 @Mixin
 export default class WindowVue<T, U> extends Vue {
   @Prop({ type: Object, required: true })

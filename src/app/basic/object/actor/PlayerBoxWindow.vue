@@ -165,9 +165,9 @@ import UserSelect from "../../common/components/select/UserSelect.vue";
 import PlayerBoxViewTypeRadio from "../../common/components/radio/PlayerBoxViewTypeRadio.vue";
 import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
 import SButton from "../../common/components/SButton.vue";
-import TrChatColorInputComponent from "../../common/components/TrChatColorInputComponent.vue";
-import TrRangeComponent from "../../common/components/TrRangeComponent.vue";
-import TrActorStatusSelectComponent from "../../common/components/TrActorStatusSelectComponent.vue";
+import TrChatColorInputComponent from "../../common/components/table-item/TrChatColorInputComponent.vue";
+import TrRangeComponent from "../../common/components/table-item/TrRangeComponent.vue";
+import TrActorStatusSelectComponent from "../../common/components/table-item/TrActorStatusSelectComponent.vue";
 import MapMaskPieceComponent from "../map-mask/MapMaskPieceComponent.vue";
 import ChitPieceComponent from "../chit/ChitPieceComponent.vue";
 import CharacterPieceComponent from "../character/CharacterPieceComponent.vue";
@@ -334,7 +334,7 @@ export default class PlayerBoxWindow extends Mixins<WindowVue<string, never>>(
       value: {
         type: "actor-edit-window",
         args: {
-          type: "actor",
+          type: "actor-list",
           key: actor.key
         }
       }

@@ -38,11 +38,11 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
-import SCheck from "../common/components/SCheck.vue";
-import GameObjectManager from "../GameObjectManager";
-import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SCheck } })
 export default class EditSceneLayerComponent extends Mixins<ComponentVue>(

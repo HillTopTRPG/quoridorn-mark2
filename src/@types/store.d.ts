@@ -32,6 +32,11 @@ type StoreUseData<T> = StoreData<T> & {
   id: string;
 };
 
+type DelegateStoreData<T> = Partial<StoreData<T>> & {
+  data: T;
+  collection: string;
+};
+
 /**
  * 権限対象の種別
  */

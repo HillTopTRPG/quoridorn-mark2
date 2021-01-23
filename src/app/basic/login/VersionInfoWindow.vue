@@ -14,13 +14,13 @@
 
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
 import { ServerTestResult } from "@/@types/socket";
-import VersionInfoComponent from "./VersionInfoComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

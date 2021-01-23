@@ -1,5 +1,5 @@
 <template>
-  <div id="gameTableContainer">
+  <div id="gameTableContainer" @contextmenu.prevent>
     <div
       id="gameTable"
       @keydown.enter.stop="globalEnter"
@@ -32,24 +32,24 @@ import { Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import { DropPieceInfo } from "task-info";
-import { findByKey, getTextureStyle } from "../../core/utility/Utility";
+import { SceneStore } from "@/@types/store-data";
+import { AddObjectInfo } from "@/@types/data";
+import { Matrix, Point, Texture } from "@/@types/store-data-optional";
+import { findByKey, getTextureStyle } from "@/app/core/utility/Utility";
 import TaskProcessor, {
   TaskProcessorSimple
-} from "../../core/task/TaskProcessor";
-import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
+} from "@/app/core/task/TaskProcessor";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
 import {
   arrangeAngle,
   createPoint,
   getEventPoint
-} from "../../core/utility/CoordinateUtility";
-import { SceneStore } from "@/@types/store-data";
-import { AddObjectInfo } from "@/@types/data";
-import VueEvent from "../../core/decorator/VueEvent";
-import CssManager from "../../core/css/CssManager";
-import SceneLayerComponent from "./SceneLayerComponent.vue";
-import GameObjectManager from "../GameObjectManager";
-import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
-import { Matrix, Point, Texture } from "@/@types/store-data-optional";
+} from "@/app/core/utility/CoordinateUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import CssManager from "@/app/core/css/CssManager";
+import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
 
 @Component({ components: { SceneLayerComponent, MapBoard } })
 export default class GameTable extends AddressCalcMixin {
@@ -430,7 +430,7 @@ export default class GameTable extends AddressCalcMixin {
     }
 
     if (
-      ["map-mask", "chit", "character", "map-marker"].findIndex(
+      ["map-mask", "dice-symbol", "chit", "character", "map-marker"].findIndex(
         t => t === type
       ) > -1
     ) {

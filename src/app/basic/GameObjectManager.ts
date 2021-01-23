@@ -405,9 +405,9 @@ export default class GameObjectManager {
       : userInfo.data!.name;
   }
 
-  public static async deleteSceneObject(id: string) {
+  public static async deleteSceneObject(key: string) {
     try {
-      await SocketFacade.instance.sceneObjectCC()!.deletePackage([id]);
+      await SocketFacade.instance.sceneObjectCC()!.deletePackage([key]);
     } catch (err) {
       await errorDialog({
         title: LanguageManager.instance.getText("message.error"),
@@ -482,27 +482,35 @@ export default class GameObjectManager {
     const owner = data.owner;
     if (!ownerType) return null;
     return findRequireByKey(
-      GameObjectManager.instance.getList(ownerType!)!,
+      GameObjectManager.instance.getList<T>(ownerType!)!,
       owner
     );
   }
 
-  public getList(type: string): StoreData<any>[] | null {
+  public getList<T>(type: string): StoreData<T>[] | null {
+    let list: StoreData<unknown>[] | null = null;
     switch (type) {
       case "chat-list":
-        return this.chatList;
+        list = this.chatList;
+        break;
       case "chat-tab-list":
-        return this.chatTabList;
+        list = this.chatTabList;
+        break;
       case "group-chat-tab-list":
-        return this.groupChatTabList;
+        list = this.groupChatTabList;
+        break;
       case "scene-list":
-        return this.sceneList;
+        list = this.sceneList;
+        break;
       case "media-list":
-        return this.mediaList;
+        list = this.mediaList;
+        break;
       case "user-list":
-        return this.userList;
+        list = this.userList;
+        break;
       case "socket-user-list":
-        return this.socketUserList;
+        list = this.socketUserList;
+        break;
       case "scene-object-list":
       case "map-mask":
       case "map-marker":
@@ -510,51 +518,76 @@ export default class GameObjectManager {
       case "floor-tile":
       case "dice-symbol":
       case "character":
-        return this.sceneObjectList;
+        list = this.sceneObjectList;
+        break;
       case "actor-status-list":
-        return this.actorStatusList;
+        list = this.actorStatusList;
+        break;
       case "actor-list":
-        return this.actorList;
+        list = this.actorList;
+        break;
       case "scene-layer-list":
-        return this.sceneLayerList;
+        list = this.sceneLayerList;
+        break;
       case "scene-and-layer-list":
-        return this.sceneAndLayerList;
+        list = this.sceneAndLayerList;
+        break;
       case "scene-and-object-list":
-        return this.sceneAndObjectList;
+        list = this.sceneAndObjectList;
+        break;
       case "resource-master-list":
-        return this.resourceMasterList;
+        list = this.resourceMasterList;
+        break;
       case "resource-list":
-        return this.resourceList;
+        list = this.resourceList;
+        break;
       case "initiative-column-list":
-        return this.initiativeColumnList;
+        list = this.initiativeColumnList;
+        break;
       case "actor-group-list":
-        return this.actorGroupList;
+        list = this.actorGroupList;
+        break;
       case "card-meta-list":
-        return this.cardMetaList;
+        list = this.cardMetaList;
+        break;
+      case "card-object":
       case "card-object-list":
-        return this.cardObjectList;
+        list = this.cardObjectList;
+        break;
       case "card-deck-big-list":
-        return this.cardDeckBigList;
+        list = this.cardDeckBigList;
+        break;
+      case "card-deck-small":
       case "card-deck-small-list":
-        return this.cardDeckSmallList;
+        list = this.cardDeckSmallList;
+        break;
       case "cut-in-list":
-        return this.cutInList;
+        list = this.cutInList;
+        break;
       case "chat-palette-list":
-        return this.chatPaletteList;
+        list = this.chatPaletteList;
+        break;
       case "dice-type-list":
-        return this.diceTypeList;
+        list = this.diceTypeList;
+        break;
       case "dice-and-pips-list":
-        return this.diceAndPipsList;
+        list = this.diceAndPipsList;
+        break;
       case "chat-bcdice-dice-roll-result-list":
-        return this.keepBcdiceDiceRollResultList;
+        list = this.keepBcdiceDiceRollResultList;
+        break;
       case "memo-list":
-        return this.memoList;
+        list = this.memoList;
+        break;
       case "public-memo-list":
       case "public-memo":
-        return this.publicMemoList;
+        list = this.publicMemoList;
+        break;
       case "like-list":
-        return this.likeList;
+        list = this.likeList;
+        break;
+      default:
     }
-    return null;
+    return list ? (list as StoreData<T>[]) : null;
   }
 }

@@ -1,11 +1,13 @@
-import YoutubeManager, { YoutubeEventHandler } from "./YoutubeManager";
 import { StandByReturnInfo } from "task-info";
-import TaskManager from "../../../core/task/TaskManager";
-import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { PlayBgmInfo } from "@/@types/room";
 import { CutInStore, MediaStore } from "@/@types/store-data";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
+import YoutubeManager, {
+  YoutubeEventHandler
+} from "@/app/basic/cut-in/bgm/YoutubeManager";
+import TaskManager from "@/app/core/task/TaskManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 export default class BgmManager {
   // シングルトン

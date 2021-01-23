@@ -58,25 +58,25 @@ import draggable from "vuedraggable";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
 import { ChatPaletteStore } from "@/@types/store-data";
-import WindowVue from "../../core/window/WindowVue";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import TaskManager from "../../core/task/TaskManager";
-import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import LanguageManager from "../../../LanguageManager";
-import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import SCheck from "../common/components/SCheck.vue";
-import ChatTabComponent from "../chat/tab/ChatTabComponent.vue";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ChatPaletteTabComponent from "@/app/basic/chat-palette/ChatPaletteTabComponent.vue";
 import App from "@/views/App.vue";
 import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import TaskManager from "@/app/core/task/TaskManager";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {
@@ -145,7 +145,7 @@ export default class ChatPaletteTabSettingWindow extends Mixins<
       value: {
         type: "chat-palette-edit-window",
         args: {
-          type: "chat-palette",
+          type: "chat-palette-list",
           key: tabInfo.key
         }
       }

@@ -61,28 +61,24 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../window/ComponentVue";
 import { MediaStore } from "@/@types/store-data";
-import CtrlButton from "./CtrlButton.vue";
-import GameObjectManager from "../../basic/GameObjectManager";
-import DirectionTypeSelect from "../../basic/common/components/select/DirectionTypeSelect.vue";
-import VueEvent from "../decorator/VueEvent";
 import { Direction } from "@/@types/store-data-optional";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
-import TrMediaTagSelectComponent from "@/app/basic/common/components/TrMediaTagSelectComponent.vue";
+import TrMediaTagSelectComponent from "@/app/basic/common/components/table-item/TrMediaTagSelectComponent.vue";
 import ImageItemComponent from "@/app/core/component/ImageItemComponent.vue";
-import TrDirectionTypeSelectComponent from "@/app/basic/common/components/TrDirectionTypeSelectComponent.vue";
+import TrDirectionTypeSelectComponent from "@/app/basic/common/components/table-item/TrDirectionTypeSelectComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
     TrDirectionTypeSelectComponent,
     ImageItemComponent,
     TrMediaTagSelectComponent,
-    SCheck,
-    CtrlButton,
-    DirectionTypeSelect
+    SCheck
   }
 })
 export default class ImagePickerComponent extends Mixins<ComponentVue>(

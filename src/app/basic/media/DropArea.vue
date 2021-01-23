@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../core/window/ComponentVue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component
 export default class DropArea extends Mixins<ComponentVue>(ComponentVue) {

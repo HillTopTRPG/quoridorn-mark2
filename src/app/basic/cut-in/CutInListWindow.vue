@@ -77,24 +77,24 @@ import { Component, Emit } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { BgmPlayInfo } from "task-info";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
+import { WindowOpenInfo, WindowResizeInfo } from "@/@types/window";
+import { CutInStore } from "@/@types/store-data";
+import { PlayBgmInfo } from "@/@types/room";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import App from "@/views/App.vue";
+import { findByKey } from "@/app/core/utility/Utility";
 import SocketFacade, {
   permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
-import TableComponent from "../../core/component/table/TableComponent.vue";
-import { WindowOpenInfo, WindowResizeInfo } from "@/@types/window";
-import VueEvent from "../../core/decorator/VueEvent";
-import TaskManager from "../../core/task/TaskManager";
-import { CutInStore } from "@/@types/store-data";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
-import BgmManager from "./bgm/BgmManager";
-import { findByKey } from "../../core/utility/Utility";
-import App from "../../../views/App.vue";
-import { PlayBgmInfo } from "@/@types/room";
+} from "@/app/core/api/app-server/SocketFacade";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 
 @Component({
   components: { TableComponent, CtrlButton },
@@ -272,7 +272,7 @@ export default class CutInListWindow extends Mixins<WindowVue<number, never>>(
       value: {
         type: "cut-in-edit-window",
         args: {
-          type: "bgm",
+          type: "cut-in-list",
           key: this.selectedCutInKey
         }
       }

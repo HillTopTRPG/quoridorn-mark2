@@ -221,7 +221,7 @@ dice-symbol:
   - ref: object-hide-highlight
   - ref: object-view-highlight
 
-public-memo:
+public-memo-list:
   - text: context.modify
     taskName: window-open
     isViewCompare:

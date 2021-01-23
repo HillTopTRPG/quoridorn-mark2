@@ -47,14 +47,14 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import ComponentVue from "../../../core/window/ComponentVue";
-import TrCheckboxComponent from "../../common/components/TrCheckboxComponent.vue";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
 import { TabInfo } from "@/@types/window";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import TrActorNumberResourceSelectComponent from "@/app/basic/common/components/TrActorNumberResourceSelectComponent.vue";
+import TrActorNumberResourceSelectComponent from "@/app/basic/common/components/table-item/TrActorNumberResourceSelectComponent.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

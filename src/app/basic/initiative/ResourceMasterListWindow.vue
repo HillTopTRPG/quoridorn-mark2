@@ -61,19 +61,19 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskManager from "../../core/task/TaskManager";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
 import { WindowOpenInfo } from "@/@types/window";
-import VueEvent from "../../core/decorator/VueEvent";
-import { importJson, saveJson } from "../../core/utility/FileUtility";
 import { ResourceMasterStore } from "@/@types/store-data";
 import * as moment from "moment";
-import App from "../../../views/App.vue";
 import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import App from "@/views/App.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import { importJson, saveJson } from "@/app/core/utility/FileUtility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -138,7 +138,7 @@ export default class ResourceMasterListWindow extends Mixins<
       value: {
         type: "resource-master-edit-window",
         args: {
-          type: "resource-master",
+          type: "resource-master-list",
           key: key
         }
       }

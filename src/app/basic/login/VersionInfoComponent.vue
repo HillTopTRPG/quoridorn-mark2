@@ -57,10 +57,10 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { TargetVersion } from "../../core/api/Github";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { ServerTestResult } from "@/@types/socket";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import { TargetVersion } from "@/app/core/api/Github";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component({ components: {} })
 export default class VersionInfoComponent extends Mixins<ComponentVue>(

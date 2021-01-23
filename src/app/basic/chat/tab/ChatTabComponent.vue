@@ -80,12 +80,15 @@ export default class ChatTabComponent extends Mixins<ComponentVue>(
   private async editTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isEditable(tabInfo)) return;
 
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "chat-tab-edit-window",
-        args: tabInfo.key
+        args: {
+          type: "chat-tab-list",
+          key: tabInfo.key
+        }
       }
     });
   }

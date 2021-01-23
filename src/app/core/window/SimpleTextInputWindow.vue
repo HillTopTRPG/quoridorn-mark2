@@ -12,14 +12,13 @@
         </label>
       </div>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()">
-        <span v-t="'button.commit'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="commit"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -28,11 +27,11 @@ import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
-import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
-@Component({ components: { CtrlButton, BaseInput } })
+@Component({ components: { ButtonArea, BaseInput } })
 export default class SimpleTextInputWindow extends Mixins<
   WindowVue<{ title: string; label: string; text: string }, string>
 >(WindowVue) {

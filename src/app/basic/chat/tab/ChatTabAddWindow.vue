@@ -9,39 +9,40 @@
       :readAloudVolume.sync="readAloudVolume"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !tabName">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import GameObjectManager from "../../GameObjectManager";
-import WindowVue from "../../../core/window/WindowVue";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import LanguageManager from "../../../../LanguageManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import ChatTabInfoForm from "./ChatTabInfoForm.vue";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { ChatTabStore } from "@/@types/store-data";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({ components: { ChatTabInfoForm, CtrlButton } })
-export default class ChatTabAddWindow extends Mixins<
-  WindowVue<string, boolean>
->(WindowVue) {
+@Component({ components: { ButtonArea, ChatTabInfoForm } })
+export default class ChatTabAddWindow
+  extends Mixins<WindowVue<ChatTabStore, boolean>>(WindowVue)
+  implements AddWindow<ChatTabStore> {
+  private addWindowDelegator = new AddWindowDelegator<ChatTabStore>(this);
+
   private chatTabList = GameObjectManager.instance.chatTabList;
   private actorGroupList = GameObjectManager.instance.actorGroupList;
-  private isProcessed: boolean = false;
-  private cc = SocketFacade.instance.chatTabListCC();
 
   private tabName: string = "";
   private useReadAloud: boolean = false;
@@ -49,29 +50,38 @@ export default class ChatTabAddWindow extends Mixins<
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.addWindowDelegator.init();
     this.inputEnter("input:not([type='button'])", this.commit);
   }
 
-  private get isDuplicate(): boolean {
-    return this.chatTabList.some(ct => ct.data!.name === this.tabName);
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-add-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.tabName;
   }
 
   @VueEvent
   private async commit() {
-    if (this.isDuplicate) return;
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: ChatTabStore): void {
+    this.tabName = data.name;
+    this.useReadAloud = data.useReadAloud;
+    this.readAloudVolume = data.readAloudVolume;
+  }
+
+  public async getStoreDataList(): Promise<DelegateStoreData<ChatTabStore>[]> {
     const gameMastersActorGroup = this.actorGroupList.find(
       ag => ag.data!.isSystem && ag.data!.name === "GameMasters"
     )!;
@@ -79,8 +89,9 @@ export default class ChatTabAddWindow extends Mixins<
       type: "group",
       key: gameMastersActorGroup.key
     };
-    await this.cc!.addDirect([
+    return [
       {
+        collection: SocketFacade.instance.chatTabListCC().collectionNameSuffix,
         permission: {
           view: { type: "none", list: [] },
           edit: { type: "allow", list: [gameMastersPermission] },
@@ -93,28 +104,18 @@ export default class ChatTabAddWindow extends Mixins<
           readAloudVolume: this.readAloudVolume
         }
       }
-    ]);
-    this.isProcessed = true;
-    await this.finally(true);
+    ];
   }
 
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+  private get isDuplicate(): boolean {
+    return this.chatTabList.some(ct => ct.data!.name === this.tabName);
   }
 
-  @VueEvent
-  private async rollback() {
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.finally();
-    }
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
   }
 }
 </script>

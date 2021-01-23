@@ -47,7 +47,7 @@ type:
   gm: GM
   pl: PL
   visitor: 見学者
-  public-memo: 共有メモ
+  public-memo-list: 共有メモ
 
 context:
   bgm-setting: BGM設定
@@ -396,13 +396,13 @@ cut-in-list-window:
   table-columns:
   - - 連動
     - タグ
-    - 種別
     - タイトル
+    - 画像
+    - BGM
     - 時間
     - 繰
     - 音量
     - フェード
-    - 画像
 
 login-window:
   window-title: ログイン画面
@@ -769,3 +769,9 @@ like-edit-window:
 
 image-view-window:
   window-title: 画像表示
+
+media-url-add-window:
+  window-title: メディアURL登録
+
+media-url-edit-window:
+  window-title: メディアURL編集

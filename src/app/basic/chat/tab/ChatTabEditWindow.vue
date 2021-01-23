@@ -9,44 +9,37 @@
       :readAloudVolume.sync="readAloudVolume"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !tabName">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import GameObjectManager from "../../GameObjectManager";
-import WindowVue from "../../../core/window/WindowVue";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import LanguageManager from "../../../../LanguageManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
 import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
 import { findRequireByKey } from "@/app/core/utility/Utility";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { ChatTabStore } from "@/@types/store-data";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
 
-@Component({
-  components: { ChatTabInfoForm, CtrlButton }
-})
-export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
-  WindowVue
-) {
-  private docKey: string | null = null;
-  private chatTabList = GameObjectManager.instance.chatTabList;
-  private isProcessed: boolean = false;
-  private cc = SocketFacade.instance.chatTabListCC();
+@Component({ components: { ButtonArea, ChatTabInfoForm } })
+export default class ChatTabEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<ChatTabStore> {
+  private editWindowDelegator = new EditWindowDelegator<ChatTabStore>(this);
 
   private tabName: string = "";
   private useReadAloud: boolean = false;
@@ -54,106 +47,63 @@ export default class ChatTabEditWindow extends Mixins<WindowVue<string, never>>(
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.editWindowDelegator.init();
     this.inputEnter("input:not([type='button'])", this.commit);
-
-    this.docKey = this.windowInfo.args!;
-    const data = findRequireByKey(this.chatTabList, this.docKey);
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    this.tabName = data.data!.name;
-    this.useReadAloud = data.data!.useReadAloud;
-    this.readAloudVolume = data.data!.readAloudVolume;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
   }
 
-  private get isDuplicate(): boolean {
-    if (this.tabName === null) return false;
-    return this.chatTabList.some(
-      ct => ct.data!.name === this.tabName && ct.key !== this.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (this.docKey === null) return;
-    const tab = findRequireByKey(this.chatTabList, this.docKey);
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", tab.data!.name);
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-edit-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.tabName;
   }
 
   @VueEvent
   private async commit() {
-    if (!this.isDuplicate) {
-      const data = findRequireByKey(this.chatTabList, this.docKey);
-      data.data!.name = this.tabName!;
-      data.data!.useReadAloud = this.useReadAloud!;
-      data.data!.readAloudVolume = this.readAloudVolume!;
-      await this.cc!.update([
-        {
-          key: this.docKey!,
-          data: data.data!
-        }
-      ]);
-    }
-    this.isProcessed = true;
-    await this.close();
+    await this.editWindowDelegator.commit();
   }
 
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing2(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+    return await this.editWindowDelegator.windowCloseClosing(task);
   }
 
   @VueEvent
   private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey!]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<ChatTabStore>): void {
+    this.tabName = data.data!.name;
+    this.useReadAloud = data.data!.useReadAloud;
+    this.readAloudVolume = data.data!.readAloudVolume;
+  }
+
+  public async pushStoreData(data: StoreData<ChatTabStore>): Promise<void> {
+    data.data!.name = this.tabName;
+    data.data!.useReadAloud = this.useReadAloud;
+    data.data!.readAloudVolume = this.readAloudVolume;
+  }
+
+  private get isDuplicate(): boolean {
+    return GameObjectManager.instance.chatTabList.some(
+      ct =>
+        ct.data!.name === this.tabName &&
+        ct.key !== this.editWindowDelegator.docKey
+    );
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    if (!this.editWindowDelegator.docKey) return;
+    const tab = findRequireByKey(
+      GameObjectManager.instance.chatTabList,
+      this.editWindowDelegator.docKey
+    );
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", tab.data!.name);
   }
 }
 </script>

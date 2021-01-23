@@ -1,6 +1,9 @@
 <template>
   <div class="container" ref="window-container">
     <div class="operate-box">
+      <ctrl-button @click="registerUrl()" classes="register-button">
+        <span v-t="'media-url-add-window.window-title'"></span>
+      </ctrl-button>
       <s-check
         class="view-check"
         v-model="isViewThumbnail"
@@ -36,6 +39,7 @@
           :media="media"
           :isViewThumbnail="isViewThumbnail"
           @preview="preview(media)"
+          @edit="editMedia(media)"
           @chmod="chmodMedia(media)"
           @delete="deleteMedia(media)"
           @addCutIn="addCutIn(media)"
@@ -48,28 +52,32 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "../../core/window/WindowVue";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import MediaItemComponent from "./MediaItemComponent.vue";
-import MediaUploadItemComponent from "./MediaUploadItemComponent.vue";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import VueEvent from "../../core/decorator/VueEvent";
-import { MediaStore } from "@/@types/store-data";
-import TaskManager from "../../core/task/TaskManager";
-import SCheck from "../common/components/SCheck.vue";
-import GameObjectManager from "../GameObjectManager";
-import LanguageManager from "../../../LanguageManager";
+import { CutInStore, MediaStore } from "@/@types/store-data";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { DeleteFileRequest } from "@/@types/socket";
 import { questionDialog } from "@/app/core/utility/Utility";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import App from "@/views/App.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import MediaItemComponent from "@/app/basic/media/MediaItemComponent.vue";
+import MediaUploadItemComponent from "@/app/basic/media/MediaUploadItemComponent.vue";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import { Direction } from "@/@types/store-data-optional";
 
 @Component({
   components: {
+    CtrlButton,
     SCheck,
     MediaItemComponent,
     MediaUploadItemComponent,
@@ -97,6 +105,11 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   @LifeCycle
   private created() {
     this.createTabInfoList();
+  }
+
+  @VueEvent
+  private registerUrl() {
+    App.openSimpleWindow("media-url-add-window");
   }
 
   @Watch("mediaList", { deep: true })
@@ -170,6 +183,26 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
+  private async editMedia(media: StoreData<MediaStore>) {
+    console.log("editMedia", media.data!.dataLocation);
+    if (media.data!.dataLocation === "direct") {
+      await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>(
+        {
+          type: "window-open",
+          owner: "Quoridorn",
+          value: {
+            type: "media-url-edit-window",
+            args: {
+              type: media.collection,
+              key: media.key
+            }
+          }
+        }
+      );
+    }
+  }
+
+  @VueEvent
   private async chmodMedia(media: StoreData<MediaStore>) {
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
@@ -221,12 +254,48 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async addCutIn(media: StoreData<MediaStore>) {
-    await TaskManager.instance.ignition<WindowOpenInfo<MediaStore>, never>({
+    const cutInData: CutInStore = {
+      title: media.data!.name,
+      tag: media.data!.tag,
+      isRepeat: false,
+      fadeIn: 0,
+      fadeOut: 0,
+      start: 0,
+      end: 0,
+      volume: 80,
+      chatLinkageType: "none",
+      chatLinkageTarget: "",
+      isStandBy: false,
+      isForceNew: false,
+      isForceContinue: false,
+      imageKey: null,
+      imageTag: null,
+      direction: "none",
+      bgmKey: null,
+      bgmTag: null,
+      isUseImage: false,
+      isUseBgm: false,
+      fitEdge: "width",
+      imageWidth: 300,
+      imageHeight: 300
+    };
+    const urlType = media.data!.urlType;
+    if (urlType === "youtube" || urlType === "music") {
+      cutInData.isUseBgm = true;
+      cutInData.bgmKey = media.key;
+      cutInData.bgmTag = media.data!.tag;
+    }
+    if (urlType === "image") {
+      cutInData.isUseImage = true;
+      cutInData.imageKey = media.key;
+      cutInData.imageTag = media.data!.tag;
+    }
+    await TaskManager.instance.ignition<WindowOpenInfo<CutInStore>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "cut-in-add-window",
-        args: media.data!
+        args: cutInData
       }
     });
   }
@@ -248,9 +317,13 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
 }
 
 .operate-box {
-  @include inline-flex-box(row, flex-end, center);
+  @include inline-flex-box(row, space-between, center);
   height: 2em;
   margin-bottom: 0.5rem;
+
+  .register-button {
+    margin-right: auto;
+  }
 }
 
 .search-name {

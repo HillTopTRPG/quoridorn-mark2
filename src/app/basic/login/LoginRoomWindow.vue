@@ -14,30 +14,29 @@
         />
       </label>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()">
-        <span v-t="'button.next'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="next"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { LoginRoomInput } from "@/@types/socket";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
 @Component({
   components: {
-    CtrlButton,
+    ButtonArea,
     InputPasswordComponent
   }
 })

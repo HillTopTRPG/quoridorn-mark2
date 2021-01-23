@@ -130,6 +130,7 @@
             :key="cardMeta.key"
             @mouseenter="onHoverCard(cardMeta, true, $event.target)"
             @mouseleave="onHoverCard(cardMeta, false, $event.target)"
+            @contextmenu.prevent
             :style="{ width: `${width}px` }"
           >
             <span class="name">
@@ -158,25 +159,25 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
 import {
   createRectangle,
   createSize
 } from "@/app/core/utility/CoordinateUtility";
-import ComponentVue from "../../../core/window/ComponentVue";
-import GameObjectManager from "../../GameObjectManager";
 import { createEmptyStoreUseData, findByKey } from "@/app/core/utility/Utility";
 import { CardMetaStore } from "@/@types/store-data";
-import VueEvent from "../../../core/decorator/VueEvent";
-import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
-import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
-import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
-import CardSimulatorComponent from "./CardSimulatorComponent.vue";
-import SButton from "../../common/components/SButton.vue";
-import SCheck from "../../common/components/SCheck.vue";
-import CardComponent from "../CardComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/table-item/TrColorPickerComponent.vue";
+import CardSimulatorComponent from "@/app/basic/card/builder/CardSimulatorComponent.vue";
+import CardComponent from "@/app/basic/card/CardComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
 const uuid = require("uuid");
 
 @Component({

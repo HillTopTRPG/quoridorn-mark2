@@ -13,6 +13,7 @@ import LanguageManager from "@/LanguageManager";
 import { IconClass, Size, UrlType } from "@/@types/store-data-optional";
 import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
 import { createSize } from "@/app/core/utility/CoordinateUtility";
+import { MediaStore } from "@/@types/store-data";
 
 export type ExportDataFormat<T> = {
   type: string;
@@ -328,6 +329,25 @@ async function raw2UploadMediaInfo(
     };
   }
   return { uploadMediaInfo: result!, raw };
+}
+
+export async function exchangeMediaInfo(
+  url: string,
+  tag: string,
+  name: string
+): Promise<UploadMediaInfo[]> {
+  const mediaDataList: Partial<MediaStore>[] = [{ name, tag, url }];
+
+  const uploadMediaInfoList = await raw2UploadMediaInfoList(
+    mediaDataList.map(md => md.url!)
+  );
+  uploadMediaInfoList.forEach((umi: UploadMediaInfo, index: number) => {
+    const mediaData = mediaDataList[index];
+    umi.name = mediaData.name!;
+    umi.tag = mediaData.tag!;
+  });
+
+  return uploadMediaInfoList;
 }
 
 export async function raw2UploadMediaInfoList(

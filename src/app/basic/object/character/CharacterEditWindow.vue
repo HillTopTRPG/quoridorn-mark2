@@ -18,181 +18,31 @@
       :layerKey.sync="layerKey"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import { Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import CharacterInfoForm from "./CharacterInfoForm.vue";
-import { MemoStore, SceneObjectStore } from "@/@types/store-data";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
-import VueEvent from "../../../core/decorator/VueEvent";
-import WindowVue from "../../../core/window/WindowVue";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import GameObjectManager from "../../GameObjectManager";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import { BackgroundSize, Direction } from "@/@types/store-data-optional";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import CharacterInfoForm from "@/app/basic/object/character/CharacterInfoForm.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import MapObjectEditWindowVue from "@/app/core/window/MapObjectEditWindowVue";
 
-@Component({
-  components: {
-    CharacterInfoForm,
-    CtrlButton
-  }
-})
-export default class CharacterEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private actorList = GameObjectManager.instance.actorList;
+@Component({ components: { ButtonArea, CharacterInfoForm } })
+export default class CharacterEditWindow extends MapObjectEditWindowVue {
+  protected hasOtherText: boolean = true;
+  protected sizeType: "size" | "wh" = "wh";
+
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
-  private cc: NekostoreCollectionController<
-    SceneObjectStore
-  > = SocketFacade.instance.sceneObjectCC();
-  private tag: string = "";
-  private url: string = "";
-  private name: string = "";
-  private isProcessed: boolean = false;
-  private otherTextList: StoreData<MemoStore>[] = [];
-  private size: number = 1;
-  private mediaKey: string | null = null;
-  private mediaTag: string | null = null;
-  private direction: Direction = "none";
-  private isMounted: boolean = false;
-  private backgroundSize: BackgroundSize = "contain";
-  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
-    ml => ml.data!.type === "character"
-  )!.key;
 
-  @LifeCycle
-  public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
-    if (backgroundInfo.type === "image") {
-      this.mediaKey = backgroundInfo.mediaKey;
-      this.mediaTag = backgroundInfo.mediaTag;
-      this.backgroundSize = backgroundInfo.backgroundSize;
-      this.direction = backgroundInfo.direction;
-    }
-    this.tag = data.data!.tag;
-    this.url = data.data!.url;
-    this.name = data.data!.name;
-    this.size = data.data!.columns;
-    this.layerKey = data.data!.layerKey;
-
-    this.otherTextList = clone(
-      GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object-list" && m.owner === this.docKey
-      )
-    )!;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
-  }
-
-  @VueEvent
-  private async commit() {
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
-    const backgroundInfo = data.data!.textures[data.data!.textureIndex];
-    if (backgroundInfo.type === "image") {
-      backgroundInfo.mediaKey = this.mediaKey!;
-      backgroundInfo.mediaTag = this.mediaTag!;
-      backgroundInfo.backgroundSize = this.backgroundSize;
-      backgroundInfo.direction = this.direction;
-    }
-    data.data!.tag = this.tag;
-    data.data!.url = this.url;
-    data.data!.name = this.name;
-    data.data!.rows = this.size;
-    data.data!.columns = this.size;
-    data.data!.layerKey = this.layerKey;
-    await this.cc!.update([
-      {
-        key: this.docKey,
-        data: data.data!
-      }
-    ]);
-
-    await GameObjectManager.instance.updateMemoList(
-      this.otherTextList,
-      "scene-object-list",
-      this.docKey
-    );
-
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
-  }
-
-  @VueEvent
-  private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
+  private get isCommitAble() {
+    return !this.isDuplicate && !!this.name;
   }
 
   private get isDuplicate(): boolean {
@@ -200,6 +50,13 @@ export default class CharacterEditWindow extends Mixins<
     return this.actorList.some(
       ct => ct.data!.name === this.name && ct.key !== data!.data!.actorKey
     );
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
   }
 }
 </script>

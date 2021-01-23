@@ -11,29 +11,28 @@
         />
       </label>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()">
-        <span v-t="'button.delete'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="delete"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import BaseInput from "../../core/component/BaseInput.vue";
 import { DeleteRoomInput } from "@/@types/socket";
-import VueEvent from "../../core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
 @Component({
-  components: { BaseInput, CtrlButton }
+  components: { ButtonArea, BaseInput }
 })
 export default class DeleteRoomWindow extends Mixins<
   WindowVue<never, DeleteRoomInput>

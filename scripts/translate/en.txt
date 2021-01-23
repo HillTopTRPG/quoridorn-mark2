@@ -1,0 +1,545 @@
+Setting Up Quoridorn!
+login screen
+Terms of Use
+Version information
+No.
+Playroom name
+game system
+Number of rooms
+Passwords
+Manabu
+Last Update Time
+Deletion
+(Empty Room)
+Yes.
+Yes
+The New
+login
+Terms of Use Confirmation
+The following are the Terms of Use by the Program Installation.The user must be used to protect both of these.
+Client
+Server
+Confirmation
+Version compatibility
+Proper
+the
+version
+an erun server
+Appropriate clients
+Application server settings
+setting preferences for application servers
+canceling
+Room's.
+Delete a room.
+Are you sure you want to delete the room?
+Passwords
+execution
+I've deleted my room.
+Create New Playroom
+Create a new Playroom.
+Playroom name
+can be input
+Room name (required item)
+(No password if empty)
+Next.
+User Login
+Enter user information.
+A user name
+User classifications
+Is Mandatory
+PL
+GM
+a study of study
+Creating Your Room!
+Processing!
+I'll be in the room!
+The Registering preset data!
+I'm working hard to show you my room!
+Copied to clipboard.
+Map
+Display Scene List
+BGM settings
+Map Mask Creation
+Chit Creation
+character creation
+Scene List
+Submit
+Preview
+editing
+Authority change
+Scene editing
+Map
+Padding
+Background
+Layer
+Name.
+Size
+Row
+Columns
+Mass (px)
+Decoration
+Character Color
+Hogen line color
+Texture
+Image
+Color
+Tag
+Orientation
+Hold it.
+left and right
+Flip
+180 ° rotation
+Hobgen Line
+None
+Main
+Sub
+Mask
+Bonkashi
+border
+Width
+Style
+Furo Atail
+Map Mask
+Map Marker
+Daissymbols
+card
+Characters
+Map object
+Enter the mode in which you want the order of the envialto be.
+Toggles the hidden view of nit.
+Put the order of the objects into the replacement mode.
+interlocking
+Tag
+Title
+Title
+Image
+BGM
+Time
+Gin
+volume
+Fade
+additions
+changes
+Copy.
+Cut-in creation
+volume
+Playback Start
+Replay End
+Fate in
+Fade Out
+Chat interlocking
+Chat interlinked
+lipito
+I'm trying to play the same song but I don't reset it.
+Force New Replay
+Standby
+seconds
+Linked criteria
+Trailing
+regular expression
+cut in edit
+Map Mask Creation
+You can drag to a map to create it.
+Height
+Append Information
+Other columns
+Textual
+Map Mask Edit
+Chit Creation
+Please select an image.
+placement of
+parcel
+100 %
+Cover
+Cover (medium)
+Cover
+Chit editing
+character creation
+Data Reference to URL
+Character editing
+chat
+Entire
+No Specified
+Message (line feed + Enter)\npartial font change entered " &
+Select a To Tab
+[selected]
+Select Sender
+Select a person to send
+It's a secret, it's a secret chat or something.
+alimment
+publication
+Partial format selection
+[to end]
+[Next]
+[Previous]
+[first]
+Create Actor
+Player Box
+Set the URL for the BCDice-API server
+List of cut-in
+List of trump
+Media list
+Chat Settings
+Tab List
+Others
+all of
+I do n' t
+transference
+reading
+Chat Tab Creation
+Reading volume
+Chat Tab Editing
+Owner
+display mode
+Actor
+Koma
+Name search column
+No Tags
+Chat character color
+The position of a picture
+Status
+Same as owner
+Individual Colors
+Edit Actor
+Display Playroom Information
+Room Number
+URL for BCDice-API
+game system
+Invite URL
+authority
+Number of rooms
+Revert URL
+Close
+replicating
+Open Data Referenced URL
+Edit Coma Actor
+fixed
+Hide border
+Hide Highlights
+unfix
+Show border
+Show Highlights
+resource summary
+Resource name
+Types
+Auto Grant
+download
+Upload
+Resource creation
+Basis
+Icons
+Columns in the Initiative Table (Actor)
+The Columns in the Initiative Table
+Reference property
+No Contents
+Information Reference
+Information Reference (Owner)
+Fixed text
+Input Text
+numeric value
+Checkbox
+Choices
+Combo box
+Actor
+Kind (Actor)
+AActor
+Name
+(owner)
+Letters
+default value
+minimum value
+Max Value
+Change value
+Choices (comma-separated)
+Initial Values for Choices
+Resource editing
+Quoridorn Card Yamafuda builder Ver.1.0.0a1
+This function is used to register a single trump card in the room data.
+Select Base Yambais
+New Yamin
+Select a card and register the card.
+Preset
+Room data
+by a new trump: using an image to Quoridorn.If you do not want to use\nSpecial Handling.
+Specialized function
+Import\n(Paranoia Rebooted) from Text
+Click to display the file specification dialog.\nYou can load a trump card. \\nParanoia Decompress the card image zip for online sessions that can be downloaded from the Rebooted official site and specify a text file under the "cards_free_200x300" folder that is in it.\n"allCards.txt " is not only available.\nAn image file must be run on Quoridorn.
+
+Set the frame on the front of the card.\nThe base of the base of the image or character that will be in the process.
+Text Template\n(inSANe)
+Image Full\n(Paranoia Rebooted)
+Image Full\n(Tokyo-Nightmare)
+Picture Full\n(Tokyo N-VA)
+Card Width (px)
+Card Height (px)
+Radius of angle (px)
+Horizontal margin (px)
+Top margin (px)
+Bottom margin (px)
+Name length Height (px)
+Name part font size (px)
+Name part background color
+Text: Height (px)
+Font Size of Text Part (px)
+Inner margin (px) in text
+Text: background color
+Yomikomi
+Please select the back side of the card common to the trump card.\nOnly one kind of back side can set when you create a new one.\nCreate a multiple trump card by combining multiple trafes with multiple trudes.
+Card List
+searching for
+Zero.
+One.
+Two.
+Three.
+Four.
+5 or more
+Manipulating
+registration
+Please enter card data while in the face of the the card.
+Card/trump card
+make into a table
+Position reset
+Shuffle
+Table All
+Behind all.
+Layout
+Settings Change
+overlap
+Backout
+Tile
+1 Column
+Yamafuda Edit
+Width of the hand tag area
+The number of mass
+Height (number of trs)
+Card Width (Percentage)
+Card Height (Percentage)
+Card Placement Column Count
+Card Placing Rows
+Mouse Cursor ON View
+Authority change
+Xan authority
+Edit permission
+Authority change authority
+Permission classification
+Actor Group
+Permit
+denial
+OK
+Cancel
+Logging out
+degenerate
+Cut-in registration
+setting
+Clear.
+Results Published
+Generate another column from the point of reference
+Chit
+standing pictures
+Stand-up
+User
+Yamafuda
+Shared Notes
+Create Map Marker
+changes
+Deletion
+Show Decorations
+Hide decorations
+Fill
+Not Filled
+Authority change
+Draw
+make a back
+te-fuda
+DaisSymbol Creation
+Changes to eye change
+Hide the Demon
+View Disorder
+DySrole
+Generate Chat Palette
+Character Color Type
+Types
+Choices Values
+GM
+PL
+a study of study
+Name part font size (px)
+Name part background color
+Font Size of Text Part (px)
+Text: background color
+Inner margin (px) in text
+The "Stop" without the "Stop"
+Di-bot (not specified)
+Linked resources can be selected from numeric type and auto-grant (actor) resources
+screen
+Administration
+staging
+Room Data Export
+Room Data Import
+Chat Log Retrieval
+Screen Layout Reset
+Creation
+Help
+to official website
+discrepancy report
+Background color
+Tag
+Layer
+Color
+Name.
+Chat character color
+Borders Styles
+None
+Types of Authorities
+User
+Characters
+A group
+Location
+Field
+cnc
+Awaiting room
+state
+X
+Y
+unique coordinates
+Javascript Regex
+Trailing String
+URL
+In Edit
+[Unknown]
+Status
+[Edited]
+use
+The position of a picture
+Local
+Dropbox
+Youtube
+Music
+The system
+Import failed.
+Layout
+RESOURCE
+Actor
+Koma
+No selection
+Dice
+Demon
+tab
+No tabs.
+Enter a character for the tab
+Contents
+anonymous
+That's nice.
+skip
+Don't fly.
+Linked resource
+export
+Fill
+Are you sure you want to delete the mountain card?
+Change the eye symbol for the dice ({0}: {1}-> {2})
+Change the eye symbol (Change the eye symbol)
+Change the eye symbol (hidden) eye symbol (diisroll)
+Change the eye symbol's eye symbol (diisroll)
+Protective diisform
+Publish diissymbols ({0}: {1})
+Publish diissymbols ({0}: {1}) diisroll results: {2}
+Roll the Siegle Dice
+Expose Siegret Dice
+A-password is required to create a room
+Please\ndrop in as is.
+Are you sure you want to delete it?
+Are you sure you want to delete the tab '$1'?\nThis operation cannot be undone.
+From: $1
+The name is a duplicate.
+Deletion failed.
+Other column generation
+Read data from the data-reference URL.\nOverwrite if the tab name is a duplicate.
+Chat Palette Generation
+Read data from the data-reference URL.\nOverwrite if the tab name is a duplicate.
+successes
+ERROR
+{0} has entered into room.
+Youtube Playback Screen
+In creation
+Deletion
+Admission Password
+Room Creation Password
+BCDice-API server settings
+setting for the BCDice-API server
+Connection Success
+Connection Failure
+The connection is already failed.
+In test
+Not a Quoridorn server
+Connection not be made
+An error has occurred in the server
+This is an ad version of the server.
+Connection Success
+Confirmation screen
+Room's.
+Login check
+Log in the room.
+Version information
+Create Map Marker
+Edit Map Marker
+Reverts to normal mode.
+Drag to change the order of the.
+Set if it has a different coordinate than the other.
+Reverts to normal mode.
+Drag to swap the order of the objects.
+Authority change
+Shall present the current sender
+Shall send chat to
+Shall tab to show chat
+To chat or to not.
+Are you sure you want to remove this chat?\nThis operation will not be canceled.
+editing
+Permissions Edit
+Deletion
+editing
+Permissions Edit
+Deletion
+Are you sure you want to delete the actor '$1'?\nThis operation cannot be undone.
+Image templates
+Media Upload
+Enter the tags you want to set together.
+Are you sure you want to delete?
+Tags editing together
+deleting together
+Thumbnail
+for a list
+changing the display format
+Drop-in file on screen to upload
+Are you sure you want to delete the media '$1'?\nThis operation cannot be undone.
+Music file regeneration
+Initiative (INI) table
+Types
+Actor
+Koma
+Are you sure you want to remove this resource?\nThis operation will not be canceled.
+Chat Palette
+Chat Palette Creation
+Chat Palette
+DaisSymbol Creation
+Edit Diosymbol
+Hidden diisrole result
+Text input (this wording does not have a set)
+Notes Tab Settings
+Chat Palette preferences
+Shared Note Creation
+Please select an icon.
+Shared Note Edit
+It's good.
+Good. Edit.
+Failed to delete room.
+BGM
+BGM settings
+Image Settings
+Simple
+Details
+Size to specify
+Please enter a title.
+Please select an image and a music.
+Please select music.
+Cut-in creation
+image display

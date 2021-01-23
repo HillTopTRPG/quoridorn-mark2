@@ -2,7 +2,10 @@
   <div
     class="card-deck-small"
     :style="cardDeckStyle"
-    @mousedown.right.stop="openCardDeckSmallContext"
+    @contextmenu.prevent
+    @mousedown.stop
+    @mouseup.stop
+    @mouseup.right.stop="openCardDeckSmallContext"
     ref="elm"
   >
     <!-- タイトルバー -->
@@ -22,7 +25,7 @@
         @click="deleteDeck()"
       />
     </div>
-    <div class="card-container" v-if="isMounted">
+    <div class="card-container" v-if="isMounted" @contextmenu.prevent>
       <card-component
         class="card hover-view"
         :class="deck.data.layout"
@@ -79,8 +82,17 @@ import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop } from "vue-property-decorator";
 import { ContextTaskInfo } from "context";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
+import { CardDeckSmallStore, CardObjectStore } from "@/@types/store-data";
+import { WindowOpenInfo } from "@/@types/window";
+import {
+  CardDeckLayout,
+  ObjectMoveInfo,
+  Point,
+  Rectangle,
+  Size
+} from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
 import {
   copyAddress,
   createAddress,
@@ -89,32 +101,23 @@ import {
   createSize,
   getEventPoint,
   isContain
-} from "../../core/utility/CoordinateUtility";
-import { CardDeckSmallStore, CardObjectStore } from "@/@types/store-data";
-import TaskManager, { MouseMoveParam } from "../../core/task/TaskManager";
-import SButton from "../common/components/SButton.vue";
-import CardComponent from "./CardComponent.vue";
-import CssManager from "../../core/css/CssManager";
-import ResizeKnob from "../../core/window/ResizeKnob.vue";
-import GameObjectManager from "../GameObjectManager";
+} from "@/app/core/utility/CoordinateUtility";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SButton from "@/app/basic/common/components/SButton.vue";
 import {
   findRequireByKey,
   questionDialog,
   shuffleOrder
-} from "../../core/utility/Utility";
-import ComponentVue from "../../core/window/ComponentVue";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import VueEvent from "../../core/decorator/VueEvent";
-import { clone } from "../../core/utility/PrimaryDataUtility";
-import { WindowOpenInfo } from "@/@types/window";
-import AddressCalcMixin from "../common/mixin/AddressCalcMixin.vue";
-import {
-  CardDeckLayout,
-  ObjectMoveInfo,
-  Point,
-  Rectangle,
-  Size
-} from "@/@types/store-data-optional";
+} from "@/app/core/utility/Utility";
+import CardComponent from "@/app/basic/card/CardComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import CssManager from "@/app/core/css/CssManager";
+import ResizeKnob from "@/app/core/window/ResizeKnob.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 interface MultiMixin extends AddressCalcMixin, ComponentVue {}
 
@@ -733,10 +736,12 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
       this.useCardObjectList.map(co => {
         const cardObject = findRequireByKey(this.cardObjectList, co.key);
         const data = cardObject.data!;
-        Object.assign(data, info);
         return {
           key: co.key,
-          data
+          data: {
+            ...data,
+            ...info
+          }
         };
       })
     );
@@ -745,7 +750,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   private getTaskCardObject(
     task: Task<any, never>
   ): StoreData<CardObjectStore> | null {
-    const cardKey = task.value.args.docKey;
+    const cardKey = task.value.args.key;
     const cardObject = this.cardObjectList.find(co => co.key === cardKey);
     if (!cardObject) return null;
     if (cardObject.owner !== this.docKey) return null;
@@ -754,10 +759,10 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
 
   private checkTaskDeckObject(
     task: Task<any, never>,
-    isFromDeck: boolean
+    isFromCard: boolean
   ): boolean {
-    if (isFromDeck) return !!this.getTaskCardObject(task);
-    const deckKey = task.value.args.docKey;
+    if (isFromCard) return !!this.getTaskCardObject(task);
+    const deckKey = task.value.args.key;
     return deckKey === this.docKey;
   }
 
@@ -861,7 +866,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
     const cardObjList = clone(this.useCardObjectList)!;
     shuffleOrder(cardObjList);
     await this.cardObjectCC.updatePackage(
-      this.useCardObjectList.map(co => ({
+      cardObjList.map(co => ({
         key: co.key,
         data: co.data!,
         order: co.order

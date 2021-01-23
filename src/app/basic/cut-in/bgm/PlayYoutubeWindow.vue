@@ -39,30 +39,30 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { StandByReturnInfo } from "task-info";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import LifeCycle from "../../../core/decorator/LifeCycle";
 import { WindowMoveInfo } from "@/@types/window";
 import { getCssPxNum } from "@/app/core/css/Css";
-import SeekBarComponent from "./SeekBarComponent.vue";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import WindowManager from "../../../core/window/WindowManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskManager from "../../../core/task/TaskManager";
-import WindowVue from "../../../core/window/WindowVue";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import CssManager from "../../../core/css/CssManager";
-import GameObjectManager from "../../GameObjectManager";
-import BgmManager from "./BgmManager";
-import YoutubeManager, {
-  getYoutubeThunbnail,
-  YoutubeEventHandler
-} from "./YoutubeManager";
 import {
   PlayBgmInfo,
   YoutubeMuteChangeInfo,
   YoutubeVolumeChangeInfo
 } from "@/@types/room";
 import { CutInStore, MediaStore } from "@/@types/store-data";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import YoutubeManager, {
+  getYoutubeThunbnail,
+  YoutubeEventHandler
+} from "@/app/basic/cut-in/bgm/YoutubeManager";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import WindowManager from "@/app/core/window/WindowManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import CssManager from "@/app/core/css/CssManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
 
 @Component({
   components: { SeekBarComponent, CtrlButton }

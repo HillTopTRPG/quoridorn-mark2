@@ -32,30 +32,31 @@
         </template>
       </div>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()">
-        <span v-t="'button.commit'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="commit"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import BcdiceManager from "../../core/api/bcdice/BcdiceManager";
-import BaseInput from "../../core/component/BaseInput.vue";
-import VueEvent from "../../core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
 @Component({
   components: {
     CtrlButton,
+    ButtonArea,
     BaseInput
   }
 })

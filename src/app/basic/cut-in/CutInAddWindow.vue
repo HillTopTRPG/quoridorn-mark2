@@ -28,46 +28,40 @@
       @change-message="onChangeMessage"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-      <ctrl-button @click="preview()">
-        <span v-t="'button.preview'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+      :use-preview="true"
+      @preview="preview()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import { CutInStore, MediaStore } from "@/@types/store-data";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
-import BgmManager from "./bgm/BgmManager";
-import VueEvent from "../../core/decorator/VueEvent";
+import { CutInStore } from "@/@types/store-data";
 import { Direction } from "@/@types/store-data-optional";
 import CutInInfoForm from "@/app/basic/cut-in/CutInInfoForm.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({
-  components: {
-    CutInInfoForm,
-    CtrlButton
-  }
-})
-export default class CutInAddWindow extends Mixins<
-  WindowVue<MediaStore, boolean>
->(WindowVue) {
-  private cc: NekostoreCollectionController<
-    CutInStore
-  > = SocketFacade.instance.cutInDataCC();
+@Component({ components: { ButtonArea, CutInInfoForm } })
+export default class CutInAddWindow
+  extends Mixins<WindowVue<CutInStore, boolean>>(WindowVue)
+  implements AddWindow<CutInStore> {
+  private addWindowDelegator = new AddWindowDelegator<CutInStore>(this);
 
   private title: string = "";
   private tag: string = "";
@@ -89,19 +83,96 @@ export default class CutInAddWindow extends Mixins<
   private bgmTag: string | null = null;
   private isUseImage: boolean = false;
   private isUseBgm: boolean = false;
-  private fitEdge: "width" | "height" = "width";
+  private fitEdge: "none" | "width" | "height" = "width";
   private imageWidth: number = 300;
   private imageHeight: number = 300;
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.addWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
+  }
 
-    const mediaInfo = this.windowInfo.args;
-    if (mediaInfo) {
-      this.tag = mediaInfo.tag;
-      this.title = mediaInfo.name;
-    }
+  public isCommitAble(): boolean {
+    if (!this.title) return false;
+    if (this.isUseImage && !this.imageKey) return false;
+    return !(this.isUseBgm && !this.bgmKey);
+  }
+
+  @VueEvent
+  private async commit() {
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: CutInStore): void {
+    this.title = data.title;
+    this.tag = data.tag;
+    this.isRepeat = data.isRepeat;
+    this.fadeIn = data.fadeIn;
+    this.fadeOut = data.fadeOut;
+    this.start = data.start;
+    this.end = data.end;
+    this.volume = data.volume;
+    this.chatLinkageType = data.chatLinkageType;
+    this.chatLinkageTarget = data.chatLinkageTarget;
+    this.isStandBy = data.isStandBy;
+    this.isForceContinue = data.isForceContinue;
+    this.isForceNew = data.isForceNew;
+    this.imageKey = data.imageKey;
+    this.imageTag = data.imageTag;
+    this.direction = data.direction;
+    this.bgmKey = data.bgmKey;
+    this.bgmTag = data.bgmTag;
+    this.isUseImage = data.isUseImage;
+    this.isUseBgm = data.isUseBgm;
+    this.fitEdge = data.fitEdge;
+    this.imageWidth = data.imageWidth;
+    this.imageHeight = data.imageHeight;
+  }
+
+  public async getStoreDataList(): Promise<DelegateStoreData<CutInStore>[]> {
+    return [
+      {
+        collection: SocketFacade.instance.cutInDataCC().collectionNameSuffix,
+        data: {
+          title: this.title,
+          tag: this.tag,
+          isRepeat: this.isRepeat,
+          fadeIn: this.fadeIn,
+          fadeOut: this.fadeOut,
+          start: this.start,
+          end: this.end,
+          volume: this.volume,
+          chatLinkageType: this.chatLinkageType,
+          chatLinkageTarget: this.chatLinkageTarget,
+          isStandBy: this.isStandBy,
+          isForceContinue: this.isForceContinue,
+          isForceNew: this.isForceNew,
+          imageKey: this.imageKey,
+          imageTag: this.imageTag,
+          direction: this.direction,
+          bgmKey: this.bgmKey,
+          bgmTag: this.bgmTag,
+          isUseImage: this.isUseImage,
+          isUseBgm: this.isUseBgm,
+          fitEdge: this.fitEdge,
+          imageWidth: this.imageWidth,
+          imageHeight: this.imageHeight
+        }
+      }
+    ];
   }
 
   @VueEvent
@@ -113,47 +184,8 @@ export default class CutInAddWindow extends Mixins<
   private async preview() {
     await BgmManager.instance.callBgm({
       targetKey: null,
-      data: this.cutInData
+      data: (await this.getStoreDataList())[0]!.data
     });
-  }
-
-  private get cutInData(): CutInStore {
-    return {
-      title: this.title,
-      tag: this.tag,
-      isRepeat: this.isRepeat,
-      fadeIn: this.fadeIn,
-      fadeOut: this.fadeOut,
-      start: this.start,
-      end: this.end,
-      volume: this.volume,
-      chatLinkageType: this.chatLinkageType,
-      chatLinkageTarget: this.chatLinkageTarget,
-      isStandBy: this.isStandBy,
-      isForceContinue: this.isForceContinue,
-      isForceNew: this.isForceNew,
-      imageKey: this.imageKey,
-      imageTag: this.imageTag,
-      direction: this.direction,
-      bgmKey: this.bgmKey,
-      bgmTag: this.bgmTag,
-      isUseImage: this.isUseImage,
-      isUseBgm: this.isUseBgm,
-      fitEdge: this.fitEdge,
-      imageWidth: this.imageWidth,
-      imageHeight: this.imageHeight
-    };
-  }
-
-  @VueEvent
-  private async commit() {
-    await this.cc!.addDirect([{ data: this.cutInData }]);
-    await this.finally(true);
-  }
-
-  @VueEvent
-  private async rollback() {
-    await this.finally();
   }
 }
 </script>

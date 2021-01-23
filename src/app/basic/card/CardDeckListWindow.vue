@@ -19,9 +19,11 @@
       </div>
     </div>
     <div class="button-area">
+      <!--
       <ctrl-button @click="editCardDeck()" :disabled="!selectedCardDeckBigKey">
         <span v-t="'button.edit'"></span>
       </ctrl-button>
+      -->
       <ctrl-button @click="chmodCardDeck()" :disabled="!selectedCardDeckBigKey">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
@@ -39,25 +41,22 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { ModeInfo } from "mode";
-import LifeCycle from "../../core/decorator/LifeCycle";
+import { WindowOpenInfo } from "@/@types/window";
+import { questionDialog } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import TaskManager from "../../core/task/TaskManager";
-import WindowVue from "../../core/window/WindowVue";
-import GameObjectManager from "../GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
-import CardDeckSetComponent, { DeckInfo } from "./CardDeckSetComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import { questionDialog } from "@/app/core/utility/Utility";
+} from "@/app/core/api/app-server/SocketFacade";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import CardDeckSetComponent, {
+  DeckInfo
+} from "@/app/basic/card/CardDeckSetComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
-@Component({
-  components: {
-    CardDeckSetComponent,
-    CtrlButton
-  }
-})
+@Component({ components: { CardDeckSetComponent, CtrlButton } })
 export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   WindowVue
 ) {
@@ -121,12 +120,15 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   private async editCardDeck() {
     if (!this.selectedCardDeckBigKey) return;
     await this.close();
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "card-deck-edit-window",
-        args: this.selectedCardDeckBigKey
+        type: "card-deck-small-edit-window",
+        args: {
+          type: "card-deck-big-list",
+          key: this.selectedCardDeckBigKey
+        }
       }
     });
   }

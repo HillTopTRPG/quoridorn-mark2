@@ -124,18 +124,7 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import ComponentVue from "../../../core/window/ComponentVue";
-import GameObjectManager from "../../GameObjectManager";
 import { TabInfo } from "@/@types/window";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
-import BackgroundLocationSelect from "../../common/components/select/BackgroundLocationSelect.vue";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import ImagePickerComponent from "../../../core/component/ImagePickerComponent.vue";
-import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { MemoStore } from "@/@types/store-data";
@@ -146,6 +135,17 @@ import {
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import BackgroundLocationSelect from "@/app/basic/common/components/select/BackgroundLocationSelect.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 const uuid = require("uuid");
 

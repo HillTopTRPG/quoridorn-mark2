@@ -43,16 +43,16 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import draggable from "vuedraggable";
 import { ModeInfo } from "mode";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import EditSceneLayerComponent from "./EditSceneLayerComponent.vue";
-import TaskManager from "../../core/task/TaskManager";
 import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
-import GameObjectManager from "../GameObjectManager";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import { errorDialog, findRequireByKey } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import EditSceneLayerComponent from "@/app/basic/map/EditSceneLayerComponent.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { EditSceneLayerComponent, draggable } })
 export default class EditSceneLayerChooserComponent extends Mixins<

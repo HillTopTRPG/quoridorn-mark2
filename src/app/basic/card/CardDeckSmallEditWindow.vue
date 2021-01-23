@@ -88,14 +88,12 @@
       </tr>
     </table>
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -103,38 +101,38 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import VueEvent from "../../core/decorator/VueEvent";
 import { CardDeckLayout } from "@/@types/store-data-optional";
-import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import TrSceneLayerSelectComponent from "../common/components/TrSceneLayerSelectComponent.vue";
-import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
-import TrCardDeckLayoutSelectComponent from "../common/components/TrCardDeckLayoutSelectComponent.vue";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import TrSceneLayerSelectComponent from "@/app/basic/common/components/table-item/TrSceneLayerSelectComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import TrCardDeckLayoutSelectComponent from "@/app/basic/common/components/table-item/TrCardDeckLayoutSelectComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { CardDeckSmallStore } from "@/@types/store-data";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
 
 @Component({
   components: {
+    ButtonArea,
     TrCheckboxComponent,
     TrCardDeckLayoutSelectComponent,
     TrSceneLayerSelectComponent,
     TrStringInputComponent,
-    TrNumberInputComponent,
-    CtrlButton
+    TrNumberInputComponent
   }
 })
-export default class CardDeckSmallEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private cardDeckSmallCC = SocketFacade.instance.cardDeckSmallCC();
-  private isMounted: boolean = false;
-  private isProcessed: boolean = false;
+export default class CardDeckSmallEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<CardDeckSmallStore> {
+  private editWindowDelegator = new EditWindowDelegator<CardDeckSmallStore>(
+    this
+  );
 
   private name: string = "";
   private layout: CardDeckLayout = "pile-up";
@@ -151,27 +149,32 @@ export default class CardDeckSmallEditWindow extends Mixins<
 
   @LifeCycle
   public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cardDeckSmallCC!.findSingle("key", this.docKey))!
-      .data!;
+    await this.editWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
+  }
 
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
+  public isCommitAble(): boolean {
+    return true;
+  }
 
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
+  @VueEvent
+  private async commit() {
+    await this.editWindowDelegator.commit();
+  }
 
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.editWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<CardDeckSmallStore>): void {
     this.name = data.data!.name;
     this.layout = data.data!.layout;
     this.width = data.data!.width;
@@ -184,67 +187,23 @@ export default class CardDeckSmallEditWindow extends Mixins<
     this.layoutColumns = data.data!.layoutColumns;
     this.layerKey = data.data!.layerKey;
     this.isUseHoverView = data.data!.isUseHoverView;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cardDeckSmallCC.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
   }
 
-  @VueEvent
-  private async commit() {
-    const data = (await this.cardDeckSmallCC!.findSingle("key", this.docKey))!
-      .data!.data!;
-    data.name = this.name;
-    data.layout = this.layout;
-    data.width = this.width;
-    data.rows = this.rows;
-    data.columns = this.columns;
-    data.tileReorderingMode = this.tileReorderingMode;
-    data.cardWidthRatio = this.cardWidthRatio;
-    data.cardHeightRatio = this.cardHeightRatio;
-    data.layoutRows = this.layoutRows;
-    data.layoutColumns = this.layoutColumns;
-    data.layerKey = this.layerKey;
-    data.isUseHoverView = this.isUseHoverView;
-    await this.cardDeckSmallCC!.update([
-      {
-        key: this.docKey,
-        data: data
-      }
-    ]);
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
-  }
-
-  @VueEvent
-  private async rollback() {
-    try {
-      await this.cardDeckSmallCC!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
+  public async pushStoreData(
+    data: StoreData<CardDeckSmallStore>
+  ): Promise<void> {
+    data.data!.name = this.name;
+    data.data!.layout = this.layout;
+    data.data!.width = this.width;
+    data.data!.rows = this.rows;
+    data.data!.columns = this.columns;
+    data.data!.tileReorderingMode = this.tileReorderingMode;
+    data.data!.cardWidthRatio = this.cardWidthRatio;
+    data.data!.cardHeightRatio = this.cardHeightRatio;
+    data.data!.layoutRows = this.layoutRows;
+    data.data!.layoutColumns = this.layoutColumns;
+    data.data!.layerKey = this.layerKey;
+    data.data!.isUseHoverView = this.isUseHoverView;
   }
 }
 </script>

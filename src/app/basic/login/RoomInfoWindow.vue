@@ -96,35 +96,37 @@
         </tbody>
       </table>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="close()">
-        <span v-t="'button.close'"></span>
-      </ctrl-button>
-      <ctrl-button class="modify" @click.stop="modify()">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="modify"
+      @commit="modify()"
+      rollback-text="close"
+      @rollback="close()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { UserStore } from "@/@types/store-data";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import { execCopy } from "../../core/utility/Utility";
-import BaseInput from "../../core/component/BaseInput.vue";
 import { ClientRoomInfo } from "@/@types/socket";
-import VueEvent from "../../core/decorator/VueEvent";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
-import BcdiceManager from "../../core/api/bcdice/BcdiceManager";
 import { UserType } from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { execCopy } from "@/app/core/utility/Utility";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
 @Component({
   components: {
+    ButtonArea,
     CtrlButton,
     BaseInput
   }
@@ -245,7 +247,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     }
   }
 
-  label:not(.ctrl-button-wrapper) {
+  label:not(.ctrl-button) {
     @include flex-box(row, flex-start, center);
     height: 2em;
 

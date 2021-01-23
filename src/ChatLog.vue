@@ -76,16 +76,6 @@
 <script lang="ts">
 import Component from "vue-class-component";
 import moment from "moment";
-import LifeCycle from "./app/core/decorator/LifeCycle";
-import CtrlButton from "./app/core/component/CtrlButton.vue";
-import { saveHTML, saveJson, saveText } from "./app/core/utility/FileUtility";
-import ChatLogViewer from "./app/basic/chat/log/ChatLogViewer.vue";
-import VueEvent from "./app/core/decorator/VueEvent";
-import {
-  findByKey,
-  findRequireByKey,
-  findRequireByOwner
-} from "./app/core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import {
@@ -98,6 +88,16 @@ import {
 } from "@/@types/store-data";
 import { Watch } from "vue-property-decorator";
 import { DiceResult, UserType } from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import {
+  findByKey,
+  findRequireByKey,
+  findRequireByOwner
+} from "@/app/core/utility/Utility";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import { saveHTML, saveJson, saveText } from "@/app/core/utility/FileUtility";
+import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewer.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { CtrlButton, ChatLogViewer } })
 export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {

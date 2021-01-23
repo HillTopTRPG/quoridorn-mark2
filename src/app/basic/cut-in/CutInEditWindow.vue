@@ -2,7 +2,6 @@
   <div class="container" ref="window-container">
     <cut-in-info-form
       :window-key="windowKey"
-      v-if="isMounted"
       :title.sync="title"
       :tag.sync="tag"
       :isRepeat.sync="isRepeat"
@@ -29,17 +28,14 @@
       @change-message="onChangeMessage"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-      <ctrl-button @click="preview()">
-        <span v-t="'button.preview'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+      :use-preview="true"
+      @preview="preview()"
+    />
   </div>
 </template>
 
@@ -47,35 +43,25 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
 import { CutInStore } from "@/@types/store-data";
-import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
-import BgmManager from "./bgm/BgmManager";
-import VueEvent from "../../core/decorator/VueEvent";
 import { Direction } from "@/@types/store-data-optional";
 import CutInInfoForm from "@/app/basic/cut-in/CutInInfoForm.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
+import { findRequireByKey } from "@/app/core/utility/Utility";
 
-@Component({
-  components: {
-    CutInInfoForm,
-    CtrlButton
-  }
-})
-export default class CutInEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private isMounted: boolean = false;
-  private isProcessed: boolean = false;
-  private cc: NekostoreCollectionController<
-    CutInStore
-  > = SocketFacade.instance.cutInDataCC();
+@Component({ components: { ButtonArea, CutInInfoForm } })
+export default class CutInEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<CutInStore> {
+  private editWindowDelegator = new EditWindowDelegator<CutInStore>(this);
 
   private title: string = "";
   private tag: string = "";
@@ -103,10 +89,34 @@ export default class CutInEditWindow extends Mixins<
 
   @LifeCycle
   public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
+    await this.editWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
+  }
 
+  public isCommitAble(): boolean {
+    if (!this.title) return false;
+    if (this.isUseImage && !this.imageKey) return false;
+    return !(this.isUseBgm && !this.bgmKey);
+  }
+
+  @VueEvent
+  private async commit() {
+    await this.editWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.editWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<CutInStore>): void {
     const info = data.data!;
     this.title = info.title;
     this.tag = info.tag;
@@ -131,33 +141,32 @@ export default class CutInEditWindow extends Mixins<
     this.fitEdge = info.fitEdge;
     this.imageWidth = info.imageWidth;
     this.imageHeight = info.imageHeight;
+  }
 
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
+  public async pushStoreData(data: StoreData<CutInStore>): Promise<void> {
+    data.data!.title = this.title;
+    data.data!.tag = this.tag;
+    data.data!.isRepeat = this.isRepeat;
+    data.data!.fadeIn = this.fadeIn;
+    data.data!.fadeOut = this.fadeOut;
+    data.data!.start = this.start;
+    data.data!.end = this.end;
+    data.data!.volume = this.volume;
+    data.data!.chatLinkageType = this.chatLinkageType;
+    data.data!.chatLinkageTarget = this.chatLinkageTarget;
+    data.data!.isStandBy = this.isStandBy;
+    data.data!.isForceContinue = this.isForceContinue;
+    data.data!.isForceNew = this.isForceNew;
+    data.data!.imageKey = this.imageKey;
+    data.data!.imageTag = this.imageTag;
+    data.data!.direction = this.direction;
+    data.data!.bgmKey = this.bgmKey;
+    data.data!.bgmTag = this.bgmTag;
+    data.data!.isUseImage = this.isUseImage;
+    data.data!.isUseBgm = this.isUseBgm;
+    data.data!.fitEdge = this.fitEdge;
+    data.data!.imageWidth = this.imageWidth;
+    data.data!.imageHeight = this.imageHeight;
   }
 
   @VueEvent
@@ -165,80 +174,17 @@ export default class CutInEditWindow extends Mixins<
     this.windowInfo.message = message;
   }
 
-  private get cutInData(): CutInStore {
-    return {
-      title: this.title,
-      tag: this.tag,
-      isRepeat: this.isRepeat,
-      fadeIn: this.fadeIn,
-      fadeOut: this.fadeOut,
-      start: this.start,
-      end: this.end,
-      volume: this.volume,
-      chatLinkageType: this.chatLinkageType,
-      chatLinkageTarget: this.chatLinkageTarget,
-      isStandBy: this.isStandBy,
-      isForceContinue: this.isForceContinue,
-      isForceNew: this.isForceNew,
-      imageKey: this.imageKey,
-      imageTag: this.imageTag,
-      direction: this.direction,
-      bgmKey: this.bgmKey,
-      bgmTag: this.bgmTag,
-      isUseImage: this.isUseImage,
-      isUseBgm: this.isUseBgm,
-      fitEdge: this.fitEdge,
-      imageWidth: this.imageWidth,
-      imageHeight: this.imageHeight
-    };
-  }
-
   @VueEvent
   private async preview() {
+    const data = findRequireByKey(
+      this.editWindowDelegator.list,
+      this.editWindowDelegator.docKey
+    );
+    await this.pushStoreData(data);
     await BgmManager.instance.callBgm({
       targetKey: null,
-      data: this.cutInData
+      data: data.data!
     });
-  }
-
-  @VueEvent
-  private async commit() {
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!.data!;
-
-    Object.assign(data, this.cutInData);
-
-    await this.cc!.update([
-      {
-        key: this.docKey,
-        data: data
-      }
-    ]);
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
-  }
-
-  @VueEvent
-  private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
   }
 }
 </script>

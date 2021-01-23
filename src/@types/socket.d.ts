@@ -67,7 +67,7 @@ type Message = {
   termsOfUse: string;
 };
 type GetRoomListResponse = {
-  roomList: (StoreData<ClientRoomInfo> & { id: string })[] | null;
+  roomList: StoreUseData<ClientRoomInfo>[] | null;
   message: Message;
   isNeedRoomCreatePassword: boolean;
 };

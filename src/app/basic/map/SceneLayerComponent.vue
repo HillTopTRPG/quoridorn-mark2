@@ -49,19 +49,19 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import ComponentVue from "../../core/window/ComponentVue";
 import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
-import GameObjectManager from "../GameObjectManager";
-import CardDeckSmallComponent from "../card/CardDeckSmallComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import MapMaskPieceComponent from "../object/map-mask/MapMaskPieceComponent.vue";
-import ChitPieceComponent from "../object/chit/ChitPieceComponent.vue";
-import CharacterPieceComponent from "../object/character/CharacterPieceComponent.vue";
-import { findRequireByKey } from "../../core/utility/Utility";
 import DiceSymbolPieceComponent from "@/app/basic/object/dice-symbol/DiceSymbolPieceComponent.vue";
 import MapMarkerPieceComponent from "@/app/basic/object/map-marker/MapMarkerPieceComponent.vue";
+import CharacterPieceComponent from "@/app/basic/object/character/CharacterPieceComponent.vue";
+import ChitPieceComponent from "@/app/basic/object/chit/ChitPieceComponent.vue";
+import MapMaskPieceComponent from "@/app/basic/object/map-mask/MapMaskPieceComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import { findRequireByKey } from "@/app/core/utility/Utility";
+import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

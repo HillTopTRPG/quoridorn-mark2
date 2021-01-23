@@ -32,18 +32,6 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
-import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
-import TrColorPickerComponent from "../common/components/TrColorPickerComponent.vue";
-import BaseInput from "../../core/component/BaseInput.vue";
-import { parseColor } from "../../core/utility/ColorUtility";
-import ImagePickerComponent from "../../core/component/ImagePickerComponent.vue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import BackgroundTypeRadio from "../common/components/radio/BackgroundTypeRadio.vue";
-import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import {
@@ -51,6 +39,18 @@ import {
   Direction,
   Texture
 } from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import BackgroundTypeRadio from "@/app/basic/common/components/radio/BackgroundTypeRadio.vue";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/table-item/TrColorPickerComponent.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import { parseColor } from "@/app/core/utility/ColorUtility";
 
 @Component({
   components: {

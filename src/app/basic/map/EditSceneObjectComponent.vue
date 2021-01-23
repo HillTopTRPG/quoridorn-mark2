@@ -36,11 +36,11 @@
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
-import ComponentVue from "../../core/window/ComponentVue";
 import { SceneObjectStore, SceneAndObjectStore } from "@/@types/store-data";
-import SCheck from "../common/components/SCheck.vue";
-import BaseInput from "../../core/component/BaseInput.vue";
-import VueEvent from "../../core/decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SCheck, BaseInput, draggable } })
 export default class EditSceneObjectComponent extends Mixins<ComponentVue>(

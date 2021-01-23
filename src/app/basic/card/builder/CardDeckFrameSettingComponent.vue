@@ -166,18 +166,18 @@
 <script lang="ts">
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import ComponentVue from "../../../core/window/ComponentVue";
 import { importJson, saveJson } from "@/app/core/utility/FileUtility";
 import { CardMetaStore } from "@/@types/store-data";
-import CardDeckBuilder from "./CardDeckBuilder.vue";
-import VueEvent from "../../../core/decorator/VueEvent";
-import CardDeckSubContainerComponent from "./CardDeckSubContainerComponent.vue";
-import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
-import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
-import CardSimulatorComponent from "./CardSimulatorComponent.vue";
-import SButton from "../../common/components/SButton.vue";
 import { errorDialog } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CardDeckSubContainerComponent from "@/app/basic/card/builder/CardDeckSubContainerComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/table-item/TrColorPickerComponent.vue";
+import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
+import CardSimulatorComponent from "@/app/basic/card/builder/CardSimulatorComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

@@ -65,16 +65,15 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import TrActorSelectComponent from "../common/components/TrActorSelectComponent.vue";
-import TrGeneralTypeSelectComponent from "../common/components/TrGeneralTypeSelectComponent.vue";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TrActorStatusSelectComponent from "../common/components/TrActorStatusSelectComponent.vue";
-import ComponentVue from "../../core/window/ComponentVue";
-import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
-import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import TrChatColorInputComponent from "../common/components/TrChatColorInputComponent.vue";
-import TrSceneObjectSelectComponent from "../common/components/TrSceneObjectSelectComponent.vue";
-import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
+import TrActorSelectComponent from "@/app/basic/common/components/table-item/TrActorSelectComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TrActorStatusSelectComponent from "@/app/basic/common/components/table-item/TrActorStatusSelectComponent.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import TrChatColorInputComponent from "@/app/basic/common/components/table-item/TrChatColorInputComponent.vue";
+import TrSceneObjectSelectComponent from "@/app/basic/common/components/table-item/TrSceneObjectSelectComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
 
 @Component({
   components: {
@@ -82,7 +81,6 @@ import TrNumberInputComponent from "../common/components/TrNumberInputComponent.
     TrSceneObjectSelectComponent,
     TrActorSelectComponent,
     TrActorStatusSelectComponent,
-    TrGeneralTypeSelectComponent,
     TrChatColorInputComponent,
     TrNumberInputComponent,
     TrStringInputComponent

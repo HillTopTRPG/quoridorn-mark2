@@ -114,15 +114,6 @@ import moment from "moment/moment";
 import { Task, TaskResult } from "task";
 import * as Cookies from "es-cookie";
 import { ModeInfo } from "mode";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import {
-  convertNumberNull,
-  getExt,
-  getUrlParam,
-  listToEmpty
-} from "../../core/utility/PrimaryDataUtility";
-import { ConfirmInfo } from "../../core/window/ConfirmWindow.vue";
 import {
   AppServerSettingInput,
   ClientRoomInfo,
@@ -145,22 +136,7 @@ import {
   UserLoginResponse,
   UserLoginWindowInput
 } from "@/@types/socket";
-import TableComponent from "../../core/component/table/TableComponent.vue";
 import { AddRoomPresetDataRequest } from "@/@types/room";
-import WindowVue from "../../core/window/WindowVue";
-import GameObjectManager from "../GameObjectManager";
-import VersionInfoComponent from "./VersionInfoComponent.vue";
-import {
-  loadYaml,
-  mediaUpload,
-  raw2UploadMediaInfoList
-} from "../../core/utility/FileUtility";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import VueEvent from "../../core/decorator/VueEvent";
-import LanguageSelect from "../common/components/select/LanguageSelect.vue";
-import TaskManager from "../../core/task/TaskManager";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import LanguageManager from "../../../LanguageManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import {
@@ -171,7 +147,30 @@ import {
 } from "@/@types/store-data";
 import { DiceMaterial } from "@/@types/store-data-optional";
 import { errorDialog, successDialog } from "@/app/core/utility/Utility";
-import { ApplicationError } from "@/app/core/error/ApplicationError";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import {
+  convertNumberNull,
+  getExt,
+  getUrlParam,
+  listToEmpty
+} from "@/app/core/utility/PrimaryDataUtility";
+import { ConfirmInfo } from "@/app/core/window/ConfirmWindow.vue";
+import {
+  loadYaml,
+  mediaUpload,
+  raw2UploadMediaInfoList
+} from "@/app/core/utility/FileUtility";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import LanguageSelect from "@/app/basic/common/components/select/LanguageSelect.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
 
 @Component({
   components: {
@@ -202,9 +201,7 @@ import { ApplicationError } from "@/app/core/error/ApplicationError";
 export default class LoginWindow extends Mixins<
   WindowVue<LoginWindowInput, never>
 >(WindowVue) {
-  private roomList:
-    | (StoreData<ClientRoomInfo> & { id: string })[]
-    | null = null;
+  private roomList: StoreUseData<ClientRoomInfo>[] | null = null;
   private selectedRoomNo: number | null = null;
   private isInputtingServerSetting: boolean = false;
   private roomStatus: "normal" | "processing" | "processingNoneRelease" =

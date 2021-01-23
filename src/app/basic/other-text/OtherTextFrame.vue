@@ -118,11 +118,11 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
       totalLeftY + marginBorderWidth
     );
 
-    const translateZ = this.otherTextViewInfo.isFix ? 0 : this.wheel;
+    const translateZ = info.isFix ? 0 : this.wheel;
 
     this.translateX = x + info.rect.width - 3;
     this.translateY = y;
-    if (!this.otherTextViewInfo.isFix) {
+    if (!info.isFix) {
       this.translateX += marginColumns * gridSize + mapPoint.x;
       this.translateY += marginRows * gridSize + mapPoint.y;
     }
@@ -144,10 +144,8 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
       }
       if (rect.x + rect.width > ws.width) {
         const useSpace = Math.max(
-          this.otherTextViewInfo.rect.x,
-          ws.width -
-            this.otherTextViewInfo.rect.x -
-            this.otherTextViewInfo.rect.width
+          info.rect.x,
+          ws.width - info.rect.x - info.rect.width
         );
         this.maxSize.width = useSpace;
         this.elm.style.maxWidth = `${this.maxSize.width}px`;
@@ -162,8 +160,8 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
       setTimeout(() => {
         const rect = this.getRectangle();
         if (rect.x + rect.width > ws.width) {
-          if (rect.x - this.otherTextViewInfo.rect.width - rect.width > 0) {
-            rect.x = rect.x - this.otherTextViewInfo.rect.width - rect.width;
+          if (rect.x - info.rect.width - rect.width > 0) {
+            rect.x = rect.x - info.rect.width - rect.width;
           }
         }
         if (rect.y + rect.height > ws.height)

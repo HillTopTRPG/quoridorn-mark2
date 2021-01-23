@@ -25,14 +25,12 @@
       />
     </simple-tab-component>
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="true"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -40,26 +38,26 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import ChmodRuleEditComponent from "./ChmodRuleEditComponent.vue";
+import { TabInfo } from "@/@types/window";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SocketFacade, {
   permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../core/api/app-server/NekostoreCollectionController";
-import VueEvent from "../../core/decorator/VueEvent";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
-import { TabInfo } from "@/@types/window";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
+} from "@/app/core/api/app-server/SocketFacade";
+import ChmodRuleEditComponent from "@/app/basic/chmod/ChmodRuleEditComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
+    ButtonArea,
     ChmodRuleEditComponent,
     PermissionTypeSelect,
-    SimpleTabComponent,
-    CtrlButton
+    SimpleTabComponent
   }
 })
 export default class ChmodWindow extends Mixins<

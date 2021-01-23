@@ -119,23 +119,8 @@ import { Mixins } from "vue-mixin-decorator";
 import draggable from "vuedraggable";
 import { Task, TaskResult } from "task";
 import { ModeInfo } from "mode";
-import App from "../../../views/App.vue";
-import WindowVue from "../../core/window/WindowVue";
 import { Getter, Mutation } from "vuex-class";
-import GameObjectManager from "../GameObjectManager";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import TaskManager from "../../core/task/TaskManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import VueEvent from "../../core/decorator/VueEvent";
-import TrCheckboxComponent from "../common/components/TrCheckboxComponent.vue";
-import ChatTabComponent from "./tab/ChatTabComponent.vue";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import SCheck from "../common/components/SCheck.vue";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
 import { LikeStore, ChatTabStore } from "@/@types/store-data";
@@ -145,6 +130,21 @@ import {
   questionDialog
 } from "@/app/core/utility/Utility";
 import LanguageManager from "@/LanguageManager";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import App from "@/views/App.vue";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {
@@ -260,12 +260,15 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   private async editTab(tabInfo: StoreData<ChatTabStore>) {
     if (!this.isEditable(tabInfo)) return;
 
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "chat-tab-edit-window",
-        args: tabInfo.key
+        args: {
+          type: "chat-tab-list",
+          key: tabInfo.key
+        }
       }
     });
   }
