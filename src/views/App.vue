@@ -9,7 +9,7 @@
     dropzone="move"
   >
     <!-- 最も後ろの背景 (z-index: 0) -->
-    <div id="back-scene"></div>
+    <div id="back-scene" @contextmenu.prevent></div>
 
     <!-- 最も手前でドロップを受ける領域 (z-index: 100) -->
     <drop-area @drop.prevent.stop="dropFile" :isDropping="isDropping" />
@@ -23,7 +23,7 @@
       <!-- 著しいレイアウト崩れが発生する環境があるようなので、一旦OFF
       <right-pane />
       -->
-      <!-- 右クリックメニュー (z-index: 4) -->
+      <!-- 右クリックメニュー (z-index: 6) -->
       <Context />
     </template>
     <!-- 共有メモエリア (z-index: 3) -->
@@ -902,7 +902,7 @@ label {
 }
 
 #context {
-  z-index: 4;
+  z-index: 6;
 }
 
 #public-memo-area {

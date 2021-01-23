@@ -9,38 +9,37 @@
       :linkageResourceKey.sync="linkageResourceKey"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !char">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import GameObjectManager from "../../GameObjectManager";
-import WindowVue from "../../../core/window/WindowVue";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import LanguageManager from "../../../../LanguageManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import { Task, TaskResult } from "task";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
 import LikeInfoForm from "@/app/basic/chat/like/LikeInfoForm.vue";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { LikeStore } from "@/@types/store-data";
+import WindowVue from "@/app/core/window/WindowVue";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({ components: { LikeInfoForm, CtrlButton } })
-export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
-  WindowVue
-) {
-  private likeList = GameObjectManager.instance.likeList;
-  private isProcessed: boolean = false;
-  private cc = SocketFacade.instance.likeListCC();
+@Component({ components: { ButtonArea, LikeInfoForm } })
+export default class LikeAddWindow
+  extends Mixins<WindowVue<LikeStore, boolean>>(WindowVue)
+  implements AddWindow<LikeStore> {
+  private addWindowDelegator = new AddWindowDelegator<LikeStore>(this);
 
   private char: string = "";
   private isThrowLinkage: boolean = true;
@@ -48,32 +47,41 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.addWindowDelegator.init();
     this.inputEnter("input:not([type='button'])", this.commit);
   }
 
-  private get isDuplicate(): boolean {
-    if (this.char === null) return false;
-    return !!this.likeList.find(ct => ct.data!.char === this.char);
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-add-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.char;
   }
 
   @VueEvent
   private async commit() {
-    if (this.isDuplicate) return;
-    await this.cc!.addDirect([
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: LikeStore): void {
+    this.char = data.char;
+    this.isThrowLinkage = data.isThrowLinkage;
+    this.linkageResourceKey = data.linkageResourceKey;
+  }
+
+  public async getStoreDataList(): Promise<DelegateStoreData<LikeStore>[]> {
+    return [
       {
+        collection: SocketFacade.instance.likeListCC().collectionNameSuffix,
         ownerType: null,
         owner: null,
         data: {
@@ -82,28 +90,20 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
           linkageResourceKey: this.linkageResourceKey
         }
       }
-    ]);
-    this.isProcessed = true;
-    await this.finally(true);
+    ];
   }
 
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+  public get isDuplicate(): boolean {
+    return GameObjectManager.instance.likeList.some(
+      ct => ct.data!.char === this.char
+    );
   }
 
-  @VueEvent
-  private async rollback() {
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.finally();
-    }
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
   }
 }
 </script>
@@ -115,9 +115,5 @@ export default class LikeAddWindow extends Mixins<WindowVue<string, boolean>>(
   @include flex-box(column, flex-start, center);
   width: 100%;
   height: 100%;
-}
-
-.button-area {
-  align-self: center;
 }
 </style>

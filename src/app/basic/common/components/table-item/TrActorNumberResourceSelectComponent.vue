@@ -1,13 +1,11 @@
 <template>
-  <tr class="tr-actor-status-select-component">
+  <tr class="tr-actor-number-resource-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <actor-status-select
-        :actorKey="actorKey"
+      <actor-number-resource-select
         v-model="localValue"
-        :nullable="nullable"
         :readonly="readonly"
         :elmId="key"
       />
@@ -18,27 +16,22 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ActorStatusSelect from "./select/ActorStatusSelect.vue";
-import ComponentVue from "../../../core/window/ComponentVue";
+import { ResourceType } from "@/@types/store-data-optional";
+import ActorNumberResourceSelect from "@/app/basic/common/components/select/ActorNumberResourceSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { ActorStatusSelect } })
-export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { ActorNumberResourceSelect } })
+export default class TrActorNumberResourceSelectComponent extends Mixins<
   ComponentVue
-) {
+>(ComponentVue) {
   @Prop({ type: String, required: true })
-  private labelName!: string;
-
-  @Prop({ type: String, default: null })
-  private actorKey!: string | null;
+  private labelName!: ResourceType;
 
   @Prop({ type: String, default: null })
   private value!: string;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private nullable!: boolean;
 
   private input(value: string | null) {
     this.$emit("input", value);
@@ -54,9 +47,10 @@ export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-actor-status-select-component {
+.tr-actor-number-resource-select-component {
   display: contents;
 }
+
 th,
 td {
   padding: 0;

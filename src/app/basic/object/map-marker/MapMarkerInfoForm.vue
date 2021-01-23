@@ -123,20 +123,20 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import ComponentVue from "../../../core/window/ComponentVue";
 import { TabInfo } from "@/@types/window";
-import VueEvent from "../../../core/decorator/VueEvent";
 import { parseColor } from "@/app/core/utility/ColorUtility";
-import TrNumberInputComponent from "../../common/components/TrNumberInputComponent.vue";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import TrColorPickerComponent from "../../common/components/TrColorPickerComponent.vue";
-import SceneLayerSelect from "../../common/components/select/SceneLayerSelect.vue";
 import { MemoStore } from "@/@types/store-data";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import TrColorPickerComponent from "@/app/basic/common/components/table-item/TrColorPickerComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {

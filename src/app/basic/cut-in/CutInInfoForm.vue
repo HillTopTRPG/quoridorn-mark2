@@ -32,6 +32,7 @@
             <tr-string-input-component
               class="title"
               labelName="label.title"
+              :placeholder="$t('label.require-text')"
               v-model="titleVolatile"
               inputWidth="100%"
             />
@@ -244,25 +245,25 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import ComponentVue from "../../core/window/ComponentVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import ChatLinkageTypeSelect from "../common/components/select/ChatLinkageTypeSelect.vue";
-import TrStringInputComponent from "../common/components/TrStringInputComponent.vue";
-import GameObjectManager from "../GameObjectManager";
-import BaseInput from "../../core/component/BaseInput.vue";
-import TrRangeInputComponent from "../common/components/TrRangeInputComponent.vue";
-import TrNumberInputComponent from "../common/components/TrNumberInputComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { TabInfo } from "@/@types/window";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
 import { Direction } from "@/@types/store-data-optional";
-import TrCheckboxComponent from "@/app/basic/common/components/TrCheckboxComponent.vue";
+import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
 import BgmPickerComponent from "@/app/core/component/BgmPickerComponent.vue";
-import TrEdgeTypeSelectComponent from "@/app/basic/common/components/TrEdgeTypeSelectComponent.vue";
+import TrEdgeTypeSelectComponent from "@/app/basic/common/components/table-item/TrEdgeTypeSelectComponent.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import ChatLinkageTypeSelect from "@/app/basic/common/components/select/ChatLinkageTypeSelect.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import TrRangeInputComponent from "@/app/basic/common/components/table-item/TrRangeInputComponent.vue";
+import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: {
@@ -300,11 +301,11 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   private onChangeFlag() {
     if (!this.isUseImage) {
       this.imageKeyVolatile = null;
-      this.imageTag = null;
+      this.imageTagVolatile = null;
     }
     if (!this.isUseBgm) {
       this.bgmKeyVolatile = null;
-      this.bgmTag = null;
+      this.bgmTagVolatile = null;
     }
   }
 
@@ -661,14 +662,14 @@ export default class CutInInfoForm extends Mixins<ComponentVue>(ComponentVue) {
 
   // fitEdge
   @Prop({ type: String, required: true })
-  private fitEdge!: "width" | "height";
-  private fitEdgeVolatile: "width" | "height" = "width";
+  private fitEdge!: "none" | "width" | "height";
+  private fitEdgeVolatile: "none" | "width" | "height" = "width";
   @Watch("fitEdge", { immediate: true })
-  private onChangeFitEdge(value: "width" | "height") {
+  private onChangeFitEdge(value: "none" | "width" | "height") {
     this.fitEdgeVolatile = value;
   }
   @Watch("fitEdgeVolatile")
-  private onChangeFitEdgeVolatile(value: "width" | "height") {
+  private onChangeFitEdgeVolatile(value: "none" | "width" | "height") {
     this.$emit("update:fitEdge", value);
   }
 

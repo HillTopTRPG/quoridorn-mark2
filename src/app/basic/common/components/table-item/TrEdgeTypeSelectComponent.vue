@@ -1,10 +1,10 @@
 <template>
-  <tr class="tr-scene-layer-select-component">
+  <tr class="tr-edge-type-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <scene-layer-select :key="key" v-model="localValue" :elmId="key" />
+      <edge-type-select :key="key" v-model="localValue" :elmId="key" />
     </td>
   </tr>
 </template>
@@ -12,34 +12,34 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import SceneLayerSelect from "./select/SceneLayerSelect.vue";
+import EdgeTypeSelect from "@/app/basic/common/components/select/EdgeTypeSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { SceneLayerSelect } })
-export default class TrSceneLayerSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { EdgeTypeSelect } })
+export default class TrDirectionTypeSelectComponent extends Mixins<
   ComponentVue
-) {
+>(ComponentVue) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, required: true })
-  private value!: string;
+  private value!: "none" | "width" | "height";
 
-  private input(value: string) {
+  private input(value: "none" | "width" | "height") {
     this.$emit("input", value);
   }
 
-  public get localValue(): string {
+  public get localValue(): "none" | "width" | "height" {
     return this.value;
   }
-  public set localValue(value: string) {
+  public set localValue(value: "none" | "width" | "height") {
     this.input(value);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.tr-scene-layer-select-component {
+.tr-direction-type-select-component {
   display: contents;
 }
 

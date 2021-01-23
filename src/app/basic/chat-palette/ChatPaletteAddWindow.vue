@@ -13,33 +13,36 @@
       :paletteText.sync="paletteText"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="!name">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import ChatPaletteInfoForm from "./ChatPaletteInfoForm.vue";
-import VueEvent from "../../core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import ChatPaletteInfoForm from "@/app/basic/chat-palette/ChatPaletteInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { ChatPaletteStore } from "@/@types/store-data";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({ components: { CtrlButton, ChatPaletteInfoForm } })
-export default class ChatPaletteAddWindow extends Mixins<
-  WindowVue<string, never>
->(WindowVue) {
-  private isMounted: boolean = false;
-  private chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
+@Component({ components: { ButtonArea, ChatPaletteInfoForm } })
+export default class ChatPaletteAddWindow
+  extends Mixins<WindowVue<ChatPaletteStore, boolean>>(WindowVue)
+  implements AddWindow<ChatPaletteStore> {
+  private addWindowDelegator = new AddWindowDelegator<ChatPaletteStore>(this);
 
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
@@ -52,16 +55,52 @@ export default class ChatPaletteAddWindow extends Mixins<
 
   @LifeCycle
   public async mounted() {
-    await this.init();
-    this.isMounted = true;
+    await this.addWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
+  }
+
+  public isCommitAble(): boolean {
+    return !!this.name;
   }
 
   @VueEvent
   private async commit() {
-    await this.chatPaletteListCC!.addDirect([
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: ChatPaletteStore): void {
+    this.name = data.name;
+    this.chatFontColorType = data.chatFontColorType;
+    this.chatFontColor = data.chatFontColor;
+    this.actorKey = data.actorKey;
+    this.sceneObjectKey = data.sceneObjectKey;
+    this.statusKey = data.statusKey;
+    this.isSecret = data.isSecret;
+    this.paletteText = data.paletteText;
+  }
+
+  public async getStoreDataList(): Promise<
+    DelegateStoreData<ChatPaletteStore>[]
+  > {
+    return [
       {
+        collection: SocketFacade.instance.chatPaletteListCC()
+          .collectionNameSuffix,
         data: {
           name: this.name,
+          source: "normal",
           chatFontColorType: this.chatFontColorType,
           chatFontColor: this.chatFontColor,
           actorKey: this.actorKey,
@@ -74,13 +113,7 @@ export default class ChatPaletteAddWindow extends Mixins<
           paletteText: this.paletteText
         }
       }
-    ]);
-    await this.close();
-  }
-
-  @VueEvent
-  private async rollback() {
-    await this.close();
+    ];
   }
 }
 </script>

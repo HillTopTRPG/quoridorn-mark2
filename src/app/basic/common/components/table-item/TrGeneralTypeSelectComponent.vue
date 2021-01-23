@@ -1,13 +1,14 @@
 <template>
-  <tr class="tr-selection-value-select-component">
+  <tr class="tr-general-type-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <selection-value-select
+      <general-type-select
+        :type="type"
+        :value-list="valueList"
         v-model="localValue"
         :readonly="readonly"
-        :selection="selection"
         :elmId="key"
       />
     </td>
@@ -17,14 +18,14 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
 import { ResourceType } from "@/@types/store-data-optional";
-import SelectionValueSelect from "./select/SelectionValueSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GeneralTypeSelect from "@/app/basic/common/components/select/GeneralTypeSelect.vue";
 
-@Component({ components: { SelectionValueSelect } })
-export default class TrSelectionValueSelectComponent extends Mixins<
+@Component({ components: { GeneralTypeSelect } })
+export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
->(ComponentVue) {
+) {
   @Prop({ type: String, required: true })
   private labelName!: ResourceType;
 
@@ -35,7 +36,10 @@ export default class TrSelectionValueSelectComponent extends Mixins<
   private readonly!: boolean;
 
   @Prop({ type: String, required: true })
-  private selection!: string;
+  private type!: string;
+
+  @Prop({ type: Array, required: true })
+  private valueList!: string[];
 
   private input(value: string) {
     this.$emit("input", value);
@@ -51,7 +55,7 @@ export default class TrSelectionValueSelectComponent extends Mixins<
 </script>
 
 <style scoped lang="scss">
-.tr-selection-value-select-component {
+.tr-general-type-select-component {
   display: contents;
 }
 

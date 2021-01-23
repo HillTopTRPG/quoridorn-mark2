@@ -1,7 +1,6 @@
 <template>
   <div class="container" ref="window-container">
     <actor-info-form
-      v-if="isMounted"
       :name.sync="name"
       :tag.sync="tag"
       :actorType="actorType"
@@ -10,14 +9,12 @@
       :standImagePosition.sync="standImagePosition"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="!isCommitAble">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -25,150 +22,95 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { ActorStore } from "@/@types/store-data";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
-import VueEvent from "../../../core/decorator/VueEvent";
-import WindowVue from "../../../core/window/WindowVue";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
-import ActorInfoForm from "./ActorInfoForm.vue";
 import { findRequireByKey } from "@/app/core/utility/Utility";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import ActorInfoForm from "@/app/basic/object/actor/ActorInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
 
-@Component({
-  components: { ActorInfoForm, CtrlButton }
-})
-export default class ActorEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private cc: NekostoreCollectionController<
-    ActorStore
-  > = SocketFacade.instance.actorCC();
-
-  private actorList = GameObjectManager.instance.actorList;
-  private isProcessed: boolean = false;
-  private isMounted: boolean = false;
-  private actorType: "user" | "character" = "user";
+@Component({ components: { ButtonArea, ActorInfoForm } })
+export default class ActorEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<ActorStore> {
+  private editWindowDelegator = new EditWindowDelegator<ActorStore>(this);
 
   private name: string = "";
   private tag: string = "";
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
   private standImagePosition: number = 1;
+  private actorType: "user" | "character" = "user";
 
   @LifeCycle
   public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    this.name = data.data!.name;
-    this.tag = data.data!.tag;
-    this.chatFontColorType = data.data!.chatFontColorType;
-    this.chatFontColor = data.data!.chatFontColor;
-    this.standImagePosition = data.data!.standImagePosition;
-    this.actorType = data.data!.type;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
+    await this.editWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
   }
 
-  private get isDuplicate(): boolean {
-    return this.actorList.some(
-      ct => ct.data!.name === this.name && ct.key !== this.docKey
-    );
-  }
-
-  @VueEvent
-  private get isCommitAble(): boolean {
-    return !!this.name && !this.isDuplicate;
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    const actor = findRequireByKey(this.actorList, this.docKey);
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", actor ? actor.data!.name : "");
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-add-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.name;
   }
 
   @VueEvent
   private async commit() {
-    const data = findRequireByKey(this.actorList, this.docKey).data!;
-    data.name = this.name;
-    data.tag = this.tag;
-    data.chatFontColorType = this.chatFontColorType;
-    data.chatFontColor = this.chatFontColor;
-    data.standImagePosition = this.standImagePosition;
-    await this.cc!.update([
-      {
-        key: this.docKey,
-        data: data
-      }
-    ]);
-    this.isProcessed = true;
-    await this.close();
+    await this.editWindowDelegator.commit();
   }
 
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing2(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+    return await this.editWindowDelegator.windowCloseClosing(task);
   }
 
   @VueEvent
   private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<ActorStore>): void {
+    this.name = data.data!.name;
+    this.tag = data.data!.tag;
+    this.chatFontColorType = data.data!.chatFontColorType;
+    this.chatFontColor = data.data!.chatFontColor;
+    this.standImagePosition = data.data!.standImagePosition;
+    this.actorType = data.data!.type;
+  }
+
+  public async pushStoreData(data: StoreData<ActorStore>): Promise<void> {
+    data.data!.name = this.name;
+    data.data!.tag = this.tag;
+    data.data!.chatFontColorType = this.chatFontColorType;
+    data.data!.chatFontColor = this.chatFontColor;
+    data.data!.standImagePosition = this.standImagePosition;
+  }
+
+  private get isDuplicate(): boolean {
+    return GameObjectManager.instance.actorList.some(
+      ct =>
+        ct.data!.name === this.name &&
+        ct.key !== this.editWindowDelegator.docKey
+    );
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    const actor = findRequireByKey(
+      GameObjectManager.instance.actorList,
+      this.editWindowDelegator.docKey
+    );
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", actor ? actor.data!.name : "");
   }
 }
 </script>

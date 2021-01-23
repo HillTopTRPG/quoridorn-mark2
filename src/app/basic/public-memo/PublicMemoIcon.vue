@@ -5,7 +5,7 @@
     :id="publicMemo.key"
     @mouseover="mouseover"
     @mouseout="mouseout"
-    @mousedown.right.stop="rightDown"
+    @mouseup.right.stop="rightDown"
     @contextmenu.prevent
   >
     <span>{{ publicMemo.data.name }}</span>
@@ -115,7 +115,7 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
       type: "context-open",
       owner: "Quoridorn",
       value: {
-        type: "public-memo",
+        type: "public-memo-list",
         target: this.publicMemo.key,
         pieceKey: this.pieceKey,
         x: point.x,

@@ -23,7 +23,7 @@
     </div>
     <div class="operation-box">
       <s-button
-        v-if="isBgm"
+        v-if="isCutInMedia"
         class="s-button regist"
         :label="$t('button.regist-cut-in')"
         icon="plus"
@@ -63,13 +63,13 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { permissionCheck } from "../../core/api/app-server/SocketFacade";
-import ComponentVue from "../../core/window/ComponentVue";
 import { MediaStore } from "@/@types/store-data";
-import GameObjectManager from "../GameObjectManager";
-import SButton from "../common/components/SButton.vue";
-import { getYoutubeThunbnail } from "../cut-in/bgm/YoutubeManager";
-import VueEvent from "../../core/decorator/VueEvent";
+import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SButton } })
 export default class MediaItemComponent extends Mixins<ComponentVue>(
@@ -118,10 +118,11 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get isBgm(): boolean {
+  private get isCutInMedia(): boolean {
     switch (this.media.data!.urlType) {
       case "youtube":
       case "music":
+      case "image":
         return true;
       default:
         return false;
@@ -148,7 +149,10 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get isEditable() {
-    return permissionCheck(this.media, "edit");
+    return (
+      permissionCheck(this.media, "edit") &&
+      this.media.data!.dataLocation === "direct"
+    );
   }
 
   @VueEvent

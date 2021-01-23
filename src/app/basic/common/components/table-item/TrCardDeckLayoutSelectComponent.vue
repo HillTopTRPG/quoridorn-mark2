@@ -1,14 +1,10 @@
 <template>
-  <tr class="tr-general-type-select-component">
+  <tr class="tr-card-deck-layout-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <general-type-select
-        v-model="localValue"
-        :readonly="readonly"
-        :elmId="key"
-      />
+      <card-deck-layout-select :key="key" v-model="localValue" :elmId="key" />
     </td>
   </tr>
 </template>
@@ -16,28 +12,18 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import { ResourceType } from "@/@types/store-data-optional";
-import GeneralTypeSelect from "./select/GeneralTypeSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import CardDeckLayoutSelect from "@/app/basic/common/components/select/CardDeckLayoutSelect.vue";
 
-@Component({ components: { GeneralTypeSelect } })
-export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { CardDeckLayoutSelect } })
+export default class TrCardDeckLayoutSelectComponent extends Mixins<
   ComponentVue
-) {
+>(ComponentVue) {
   @Prop({ type: String, required: true })
-  private labelName!: ResourceType;
+  private labelName!: string;
 
   @Prop({ type: String, required: true })
   private value!: string;
-
-  @Prop({ type: Boolean, default: false })
-  private readonly!: boolean;
-
-  @Prop({ type: String, required: true })
-  private type!: string;
-
-  @Prop({ type: Array, required: true })
-  private valueList!: string[];
 
   private input(value: string) {
     this.$emit("input", value);
@@ -53,7 +39,7 @@ export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-general-type-select-component {
+.tr-card-deck-layout-select-component {
   display: contents;
 }
 

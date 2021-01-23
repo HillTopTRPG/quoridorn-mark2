@@ -27,11 +27,10 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import BaseInput from "../../../core/component/BaseInput.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { BaseInput } })
+@Component
 export default class TrNumberInputComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {

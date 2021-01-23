@@ -1,5 +1,10 @@
 <template>
-  <label class="ctrl-button-wrapper" :disabled="disabled" @contextmenu.prevent>
+  <label
+    class="ctrl-button"
+    :class="classes"
+    :disabled="disabled"
+    @contextmenu.prevent
+  >
     <input
       type="button"
       :class="{ input: focusable }"
@@ -24,8 +29,8 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../window/ComponentVue";
-import VueEvent from "../decorator/VueEvent";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
@@ -34,6 +39,9 @@ export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: Boolean, default: true })
   private focusable!: boolean;
+
+  @Prop({ type: String, default: "" })
+  private classes!: string;
 
   @VueEvent
   private buttonOnClickLeft(event: any) {
@@ -56,7 +64,7 @@ export default class CtrlButton extends Mixins<ComponentVue>(ComponentVue) {
 <style scoped lang="scss">
 @import "Ctrl";
 
-.ctrl-button-wrapper {
+.ctrl-button {
   @include ctrl-button();
 }
 </style>

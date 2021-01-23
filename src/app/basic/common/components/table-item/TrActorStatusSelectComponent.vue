@@ -1,14 +1,13 @@
 <template>
-  <tr class="tr-scene-object-select-component">
+  <tr class="tr-actor-status-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <scene-object-select
-        :actorId="actorId"
+      <actor-status-select
+        :actorKey="actorKey"
         v-model="localValue"
         :nullable="nullable"
-        :multiple="false"
         :readonly="readonly"
         :elmId="key"
       />
@@ -19,24 +18,24 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import SceneObjectSelect from "./select/SceneObjectSelect.vue";
+import ActorStatusSelect from "@/app/basic/common/components/select/ActorStatusSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { SceneObjectSelect } })
-export default class TrSceneObjectSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { ActorStatusSelect } })
+export default class TrActorStatusSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, default: null })
+  private actorKey!: string | null;
+
+  @Prop({ type: String, default: null })
   private value!: string;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
-
-  @Prop({ type: String, default: null })
-  private actorId!: string;
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
@@ -55,7 +54,7 @@ export default class TrSceneObjectSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-scene-object-select-component {
+.tr-actor-status-select-component {
   display: contents;
 }
 th,

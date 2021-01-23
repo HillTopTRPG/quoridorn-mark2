@@ -155,7 +155,7 @@ export default class Context extends Vue {
 
     this.hoverIndexList = [0];
 
-    const list = GameObjectManager.instance.getList(this.type)!;
+    const list = GameObjectManager.instance.getList<any>(this.type)!;
     const obj: any = list ? findByKey(list, this.target) : null;
     const name =
       obj && obj.data && "name" in obj.data
@@ -249,7 +249,9 @@ export default class Context extends Vue {
       }
 
       if (contextItem.argRef === "dice-pips-select") {
-        const list = GameObjectManager.instance.getList(this.type!)!;
+        const list = GameObjectManager.instance.getList<SceneObjectStore>(
+          this.type!
+        )!;
         const obj: StoreData<SceneObjectStore> | null = findByKey(list, target);
         const diceTypeKey = obj!.data!.subTypeKey;
         const diceAndPipsList = GameObjectManager.instance.diceAndPipsList;

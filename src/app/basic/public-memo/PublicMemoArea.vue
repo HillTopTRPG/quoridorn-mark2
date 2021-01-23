@@ -1,5 +1,5 @@
 <template>
-  <div id="public-memo-area">
+  <div id="public-memo-area" @contextmenu.prevent>
     <public-memo-icon
       v-for="(publicMemo, index) in usePublicMemoList"
       :key="publicMemo.key"

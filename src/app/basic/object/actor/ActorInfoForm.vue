@@ -42,9 +42,9 @@
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../../../core/window/ComponentVue";
-import TrStringInputComponent from "../../common/components/TrStringInputComponent.vue";
-import TrChatColorInputComponent from "../../common/components/TrChatColorInputComponent.vue";
-import TrRangeComponent from "../../common/components/TrRangeComponent.vue";
+import TrStringInputComponent from "../../common/components/table-item/TrStringInputComponent.vue";
+import TrChatColorInputComponent from "../../common/components/table-item/TrChatColorInputComponent.vue";
+import TrRangeComponent from "../../common/components/table-item/TrRangeComponent.vue";
 import LifeCycle from "../../../core/decorator/LifeCycle";
 
 @Component({

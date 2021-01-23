@@ -47,7 +47,7 @@ type:
   gm: Game Master
   pl: Player
   visitor: Observer
-  public-memo: 共有メモ
+  public-memo-list: 共有メモ
 
 context:
   bgm-setting: Edit BGM
@@ -770,3 +770,9 @@ like-edit-window:
 
 image-view-window:
   window-title: 画像表示
+
+media-url-add-window:
+  window-title: メディアURL追加
+
+media-url-edit-window:
+  window-title: メディアURL編集

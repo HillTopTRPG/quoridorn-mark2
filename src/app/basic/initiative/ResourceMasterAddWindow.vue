@@ -23,46 +23,50 @@
       :defaultValueColor.sync="defaultValueColor"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !name">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import {
-  convertBooleanFalse,
-  convertNumberZero
-} from "../../core/utility/PrimaryDataUtility";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
 import { ResourceMasterStore } from "@/@types/store-data";
-import VueEvent from "../../core/decorator/VueEvent";
-import { parseColor } from "../../core/utility/ColorUtility";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import LanguageManager from "../../../LanguageManager";
-import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
 import {
   Direction,
   RefProperty,
   ResourceType
 } from "@/@types/store-data-optional";
 import GameObjectManager from "@/app/basic/GameObjectManager";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import {
+  convertBooleanFalse,
+  convertNumberZero
+} from "@/app/core/utility/PrimaryDataUtility";
+import WindowVue from "@/app/core/window/WindowVue";
+import LanguageManager from "@/LanguageManager";
+import ResourceMasterInfoForm from "@/app/basic/initiative/ResourceMasterInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { parseColor } from "@/app/core/utility/ColorUtility";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({ components: { CtrlButton, ResourceMasterInfoForm } })
-export default class ResourceMasterAddWindow extends Mixins<
-  WindowVue<string, boolean>
->(WindowVue) {
-  private isMounted: boolean = false;
-  private cc = SocketFacade.instance.resourceMasterCC();
+@Component({ components: { ButtonArea, ResourceMasterInfoForm } })
+export default class ResourceMasterAddWindow
+  extends Mixins<WindowVue<ResourceMasterStore, boolean>>(WindowVue)
+  implements AddWindow<ResourceMasterStore> {
+  private addWindowDelegator = new AddWindowDelegator<ResourceMasterStore>(
+    this
+  );
 
   private name: string = LanguageManager.instance.getText("label.resource");
   private resourceType: ResourceType = "no-contents";
@@ -81,17 +85,93 @@ export default class ResourceMasterAddWindow extends Mixins<
   private defaultValueBoolean: boolean = false;
   private defaultValueColor: string = "#000000";
 
-  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
-
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.isMounted = true;
+  }
+
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.name;
+  }
+
+  @VueEvent
+  private async commit() {
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: ResourceMasterStore): void {
+    this.name = data.label;
+    this.resourceType = data.type;
+    this.isAutoAddActor = data.isAutoAddActor;
+    this.isAutoAddMapObject = data.isAutoAddMapObject;
+    this.iconImageKey = data.icon.mediaKey;
+    this.iconImageTag = data.icon.mediaTag;
+    this.iconImageDirection = data.icon.imageDirection!;
+    this.refProperty = data.refProperty;
+    this.min = data.min;
+    this.max = data.max;
+    this.interval = data.interval;
+    this.selectionStr = data.selectionStr;
+    this.setDefaultValueFromType(data.type, data.defaultValue);
+  }
+
+  public async getStoreDataList(): Promise<
+    DelegateStoreData<ResourceMasterStore>[]
+  > {
+    const isNumber = this.resourceType === "number";
+    const isRef =
+      this.resourceType === "ref-normal" || this.resourceType === "ref-owner";
+    const isSelection =
+      this.resourceType === "select" || this.resourceType === "combo";
+    return [
+      {
+        collection: SocketFacade.instance.resourceMasterCC()
+          .collectionNameSuffix,
+        data: {
+          label: this.name,
+          type: this.resourceType,
+          systemColumnType: null,
+          isAutoAddActor: this.isAutoAddActor,
+          isAutoAddMapObject: this.isAutoAddMapObject,
+          icon: {
+            mediaKey: this.iconImageKey,
+            mediaTag: this.iconImageTag,
+            imageDirection: this.iconImageDirection
+          },
+          refProperty: isRef ? this.refProperty : null,
+          min: isNumber ? this.min : null,
+          max: isNumber ? this.max : null,
+          interval: isNumber ? this.interval : null,
+          selectionStr: isSelection ? this.selectionStr : null,
+          defaultValue: ResourceMasterAddWindow.getDefaultValueFromType(
+            this.resourceType,
+            this.defaultValueStr,
+            this.defaultValueNumber,
+            this.defaultValueBoolean,
+            this.defaultValueColor
+          )
+        }
+      }
+    ];
   }
 
   @VueEvent
   private get isDuplicate(): boolean {
-    return this.resourceMasterList.some(rm => rm.data!.label === this.name);
+    return GameObjectManager.instance.resourceMasterList.some(
+      rm => rm.data!.label === this.name
+    );
   }
 
   @Watch("isDuplicate")
@@ -125,50 +205,6 @@ export default class ResourceMasterAddWindow extends Mixins<
     }
   }
 
-  @VueEvent
-  private async commit() {
-    // TODO 同名プロパティチェック
-    await this.cc!.addDirect([{ data: this.resourceMasterData }]);
-    await this.finally(true);
-  }
-
-  private get resourceMasterData(): ResourceMasterStore {
-    const isNumber = this.resourceType === "number";
-    const isRef =
-      this.resourceType === "ref-normal" || this.resourceType === "ref-owner";
-    const isSelection =
-      this.resourceType === "select" || this.resourceType === "combo";
-    return {
-      label: this.name,
-      type: this.resourceType,
-      systemColumnType: null,
-      isAutoAddActor: this.isAutoAddActor,
-      isAutoAddMapObject: this.isAutoAddMapObject,
-      icon: {
-        mediaKey: this.iconImageKey,
-        mediaTag: this.iconImageTag,
-        imageDirection: this.iconImageDirection
-      },
-      refProperty: isRef ? this.refProperty : null,
-      min: isNumber ? this.min : null,
-      max: isNumber ? this.max : null,
-      interval: isNumber ? this.interval : null,
-      selectionStr: isSelection ? this.selectionStr : null,
-      defaultValue: ResourceMasterAddWindow.getDefaultValueFromType(
-        this.resourceType,
-        this.defaultValueStr,
-        this.defaultValueNumber,
-        this.defaultValueBoolean,
-        this.defaultValueColor
-      )
-    };
-  }
-
-  @VueEvent
-  private async rollback() {
-    await this.finally();
-  }
-
   public static getDefaultValueFromType(
     type: ResourceType,
     str: string,
@@ -191,6 +227,28 @@ export default class ResourceMasterAddWindow extends Mixins<
       default:
     }
     return "";
+  }
+
+  public setDefaultValueFromType(type: ResourceType, value: string): void {
+    switch (type) {
+      case "text":
+      case "input-text":
+      case "select":
+      case "combo":
+        this.defaultValueStr = value;
+        return;
+      case "number":
+        this.defaultValueNumber = convertNumberZero(value);
+        return;
+      case "check":
+        this.defaultValueBoolean = convertBooleanFalse(value);
+        return;
+      case "color":
+        this.defaultValueColor = value;
+        return;
+      default:
+    }
+    return;
   }
 
   public static getDefaultValueFromValue(

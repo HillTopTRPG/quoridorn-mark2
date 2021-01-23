@@ -53,34 +53,33 @@
         />
       </label>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()" :disabled="!name">
-        <span v-t="'button.next'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="isCommitAble"
+      commit-text="next"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import BcdiceSystemInput from "../common/components/BcdiceSystemInput.vue";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import WindowVue from "../../core/window/WindowVue";
 import { CreateRoomInput } from "@/@types/socket";
-import SocketFacade from "../../core/api/app-server/SocketFacade";
-import BaseInput from "../../core/component/BaseInput.vue";
-import InputPasswordComponent from "../../core/component/InputPasswordComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
 import { RoomInfoExtend } from "@/@types/store-data-optional";
+import BcdiceSystemInput from "@/app/basic/common/components/BcdiceSystemInput.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import InputPasswordComponent from "@/app/core/component/InputPasswordComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
 @Component({
   components: {
-    CtrlButton,
+    ButtonArea,
     BcdiceSystemInput,
     InputPasswordComponent,
     BaseInput
@@ -132,6 +131,10 @@ export default class CreateNewRoomWindow extends Mixins<
   @Watch("url")
   private onChangeUrl() {
     this.system = "DiceBot";
+  }
+
+  private get isCommitAble() {
+    return !!this.name;
   }
 
   @VueEvent

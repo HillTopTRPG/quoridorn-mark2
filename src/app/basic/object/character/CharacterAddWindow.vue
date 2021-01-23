@@ -15,63 +15,32 @@
       :backgroundSize.sync="backgroundSize"
       :layerKey.sync="layerKey"
       @drag-start="dragStart"
-      @drag-end="dragEnd"
+      @drag-end="dragEndExtend"
     />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import { Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
-import { ModeInfo } from "mode";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import CharacterInfoForm from "./CharacterInfoForm.vue";
-import TaskManager from "../../../core/task/TaskManager";
-import WindowVue from "../../../core/window/WindowVue";
-import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
-import { AddObjectInfo } from "@/@types/data";
-import VueEvent from "../../../core/decorator/VueEvent";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import { MemoStore } from "@/@types/store-data";
-import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import { BackgroundSize, Direction } from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import MapObjectAddWindowVue from "@/app/core/window/MapObjectAddWindowVue";
+import CharacterInfoForm from "@/app/basic/object/character/CharacterInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
-const uuid = require("uuid");
+import { SceneObjectType } from "@/@types/store-data-optional";
 
 @Component({ components: { CharacterInfoForm } })
-export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
-  WindowVue
-) {
-  private name: string = LanguageManager.instance.getText("type.character");
-  private tag: string = "";
-  private actorList = GameObjectManager.instance.actorList;
-  private otherTextList: StoreData<MemoStore>[] = [
-    createEmptyStoreUseData(uuid.v4(), {
-      tab: "",
-      type: "normal",
-      text: ""
-    })
-  ];
-  private url: string = "";
-  private size: number = 1;
-  private mediaKey: string | null = null;
-  private mediaTag: string | null = null;
-  private direction: Direction = "none";
-  private isMounted: boolean = false;
-  private backgroundSize: BackgroundSize = "contain";
-  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
-    ml => ml.data!.type === "character"
-  )!.key;
+export default class CharacterAddWindow extends MapObjectAddWindowVue {
+  protected type: SceneObjectType = "character";
+  protected textureType: "color" | "image" = "image";
+  protected hasOtherText: boolean = true;
+  protected sizeType: "size" | "wh" = "wh";
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.initExtend();
     this.mediaTag = this.$t("type.character")!.toString();
     this.name = this.getUnDuplicateName();
-    this.isMounted = true;
   }
 
   private setNextName() {
@@ -111,88 +80,9 @@ export default class CharacterAddWindow extends Mixins<WindowVue<string, void>>(
   }
 
   @VueEvent
-  private async dragStart(event: DragEvent) {
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "drop-piece",
-        value: "on" as "on"
-      }
-    });
-    event.dataTransfer!.setData("dropType", "character");
-    event.dataTransfer!.setData("dropWindow", this.key);
-  }
-
-  @VueEvent
-  private async dragEnd() {
-    await TaskManager.instance.ignition<ModeInfo, never>({
-      type: "mode-change",
-      owner: "Quoridorn",
-      value: {
-        type: "drop-piece",
-        value: "off" as "off"
-      }
-    });
+  protected async dragEndExtend() {
+    await this.dragEnd();
     this.setNextName();
-  }
-
-  @TaskProcessor("added-object-finished")
-  private async addedObjectFinished(
-    task: Task<AddObjectInfo, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value!.dropWindow !== this.key) return;
-    const point = task.value!.point;
-    const matrix = task.value!.matrix;
-
-    const sceneObjectKey: string = (
-      await SocketFacade.instance.sceneObjectCC().addDirect([
-        {
-          data: {
-            type: "character",
-            tag: this.tag,
-            name: this.name,
-            x: point.x,
-            y: point.y,
-            row: matrix.row,
-            column: matrix.column,
-            actorKey: null,
-            columns: this.size,
-            rows: this.size,
-            place: "field",
-            isHideBorder: false,
-            isHideHighlight: false,
-            isLock: false,
-            layerKey: this.layerKey,
-            textures: [
-              {
-                type: "image",
-                mediaTag: this.mediaTag!,
-                mediaKey: this.mediaKey!,
-                direction: this.direction,
-                backgroundSize: this.backgroundSize!
-              }
-            ],
-            textureIndex: 0,
-            angle: 0,
-            url: this.url,
-            subTypeKey: "",
-            subTypeValue: "",
-            isHideSubType: false
-          }
-        }
-      ])
-    )[0];
-
-    await SocketFacade.instance.memoCC().addDirect(
-      this.otherTextList.map(data => ({
-        ownerType: "scene-object-list",
-        owner: sceneObjectKey,
-        data: data.data!
-      }))
-    );
-
-    task.resolve();
   }
 }
 </script>

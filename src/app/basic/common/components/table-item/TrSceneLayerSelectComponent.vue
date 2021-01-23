@@ -1,10 +1,10 @@
 <template>
-  <tr class="tr-direction-type-select-component">
+  <tr class="tr-scene-layer-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <direction-type-select :key="key" v-model="localValue" :elmId="key" />
+      <scene-layer-select :key="key" v-model="localValue" :elmId="key" />
     </td>
   </tr>
 </template>
@@ -12,35 +12,34 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
-import { Direction } from "@/@types/store-data-optional";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
 
-@Component({ components: { DirectionTypeSelect } })
-export default class TrDirectionTypeSelectComponent extends Mixins<
+@Component({ components: { SceneLayerSelect } })
+export default class TrSceneLayerSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
->(ComponentVue) {
+) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, required: true })
-  private value!: Direction;
+  private value!: string;
 
-  private input(value: Direction) {
+  private input(value: string) {
     this.$emit("input", value);
   }
 
-  public get localValue(): Direction {
+  public get localValue(): string {
     return this.value;
   }
-  public set localValue(value: Direction) {
+  public set localValue(value: string) {
     this.input(value);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.tr-direction-type-select-component {
+.tr-scene-layer-select-component {
   display: contents;
 }
 

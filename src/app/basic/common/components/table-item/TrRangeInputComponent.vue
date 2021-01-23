@@ -1,24 +1,26 @@
 <template>
-  <tr class="tr-string-input-component">
+  <tr class="tr-range-input-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
       <input
         :id="key"
-        class="text"
-        type="text"
+        type="range"
+        class="input"
         :value="localValue"
         :disabled="disabled"
-        @input="localValue = $event.target.value"
-        :placeholder="placeholder"
-        :list="list"
+        @input="localValue = $event.target.valueAsNumber"
+        :min="min"
+        :max="max"
+        :step="step"
         ref="inputElm"
         @keydown.enter.stop
         @keyup.enter.stop
         @keydown.229.stop
         @keyup.229.stop
       />
+      <span>({{ localValue }})</span>
     </td>
   </tr>
 </template>
@@ -26,30 +28,33 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 
 @Component
-export default class TrStringInputComponent extends Mixins<ComponentVue>(
+export default class TrRangeInputComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
-  @Prop({ type: String, required: true })
-  private value!: string;
+  @Prop({ type: Number })
+  private step: number | undefined;
+
+  @Prop({ type: Number })
+  private min: number | undefined;
+
+  @Prop({ type: Number })
+  private max: number | undefined;
+
+  @Prop({ type: Number, required: true })
+  private value!: number;
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
   @Prop({ type: String, default: "" })
   private inputWidth!: string;
-
-  @Prop({ type: String, default: "" })
-  private placeholder!: string;
-
-  @Prop({ type: String, default: undefined })
-  private list!: string | undefined;
 
   @LifeCycle
   private mounted() {
@@ -59,14 +64,14 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
     }
   }
 
-  private input(value: string) {
+  private input(value: number) {
     this.$emit("input", value);
   }
 
-  public get localValue(): string {
+  public get localValue(): number {
     return this.value;
   }
-  public set localValue(value: string) {
+  public set localValue(value: number) {
     this.input(value);
   }
 }
@@ -76,14 +81,10 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
 .tr-color-picker-component {
   display: contents;
 }
-
-.text {
-  width: 100%;
-}
-
 th,
 td {
   padding: 0;
+  height: 2em;
 }
 
 th {
@@ -97,14 +98,18 @@ th {
   }
 }
 
+td {
+  > * {
+    display: inline;
+    vertical-align: middle;
+  }
+}
+
 tr {
   display: contents;
 }
 
 input {
-  font-size: inherit;
-  height: 2em;
-  box-sizing: border-box;
   margin: 0;
 
   &:read-only {

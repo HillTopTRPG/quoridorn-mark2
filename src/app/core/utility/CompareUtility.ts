@@ -21,7 +21,7 @@ async function getOperandValue(
     return SocketFacade.instance.userKey;
   }
   if (o.refType === "db-id-exist") {
-    const list = GameObjectManager.instance.getList(type!);
+    const list = GameObjectManager.instance.getList<any>(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     return list.some(d => d.key === key);
   }
@@ -48,7 +48,7 @@ async function getOperandValue(
     return dataList ? dataList.length : 0;
   }
   const getObject = (type: string, key: string): StoreData<any> => {
-    const list = GameObjectManager.instance.getList(type);
+    const list = GameObjectManager.instance.getList<any>(type);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     return findRequireByKey(list, key);
   };
@@ -88,13 +88,13 @@ async function getOperandValue(
       : null;
   }
   if (o.refType === "permission-check") {
-    const list = GameObjectManager.instance.getList(type!);
+    const list = GameObjectManager.instance.getList<any>(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     const useData = findRequireByKey(list, key);
     return permissionCheck(useData, o.type);
   }
   if (o.refType === "exclusion-check") {
-    const list = GameObjectManager.instance.getList(type!);
+    const list = GameObjectManager.instance.getList<any>(type!);
     if (!list) throw new ApplicationError(`Un supported type='${type}'`);
     const useData = findRequireByKey(list, key);
     return !useData.exclusionOwner;

@@ -23,14 +23,12 @@
       :defaultValueColor.sync="defaultValueColor"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !name">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -38,18 +36,7 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import ResourceMasterAddWindow from "./ResourceMasterAddWindow.vue";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
 import { ResourceMasterStore } from "@/@types/store-data";
-import VueEvent from "../../core/decorator/VueEvent";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import LanguageManager from "../../../LanguageManager";
-import ResourceMasterInfoForm from "./ResourceMasterInfoForm.vue";
 import {
   Direction,
   RefProperty,
@@ -57,20 +44,25 @@ import {
 } from "@/@types/store-data-optional";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { findRequireByKey } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWindow.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import LanguageManager from "@/LanguageManager";
+import ResourceMasterInfoForm from "@/app/basic/initiative/ResourceMasterInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
 
-@Component({
-  components: {
-    ResourceMasterInfoForm,
-    CtrlButton
-  }
-})
-export default class ResourceMasterEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private cc = SocketFacade.instance.resourceMasterCC();
-  private isMounted: boolean = false;
-  private isProcessed: boolean = false;
+@Component({ components: { ButtonArea, ResourceMasterInfoForm } })
+export default class ResourceMasterEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<ResourceMasterStore> {
+  private editWindowDelegator = new EditWindowDelegator<ResourceMasterStore>(
+    this
+  );
 
   private name: string = LanguageManager.instance.getText("label.resource");
   private resourceType: ResourceType = "no-contents";
@@ -90,30 +82,34 @@ export default class ResourceMasterEditWindow extends Mixins<
   private defaultValueBoolean: boolean = false;
   private defaultValueColor: string = "#000000";
 
-  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
-
   @LifeCycle
   public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
+    await this.editWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
+  }
 
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.name;
+  }
 
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
+  @VueEvent
+  private async commit() {
+    await this.editWindowDelegator.commit();
+  }
 
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.editWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<ResourceMasterStore>): void {
     this.name = data.data!.label;
     this.resourceType = data.data!.type;
     this.isAutoAddActor = data.data!.isAutoAddActor;
@@ -127,7 +123,6 @@ export default class ResourceMasterEditWindow extends Mixins<
     this.max = data.data!.max;
     this.interval = data.data!.interval;
     this.selectionStr = data.data!.selectionStr;
-
     const defaultInfo = ResourceMasterAddWindow.getDefaultValueFromValue(
       this.resourceType,
       data.data!.defaultValue
@@ -136,32 +131,52 @@ export default class ResourceMasterEditWindow extends Mixins<
     this.defaultValueNumber = defaultInfo.num;
     this.defaultValueBoolean = defaultInfo.bool;
     this.defaultValueColor = defaultInfo.color;
+  }
 
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
+  public async pushStoreData(
+    data: StoreData<ResourceMasterStore>
+  ): Promise<void> {
+    const type = this.resourceType;
+    const isNumber = type === "number";
+    const isRef = type === "ref-normal" || type === "ref-owner";
+    const isSelection = type === "select" || type === "combo";
+    data.data!.label = this.name;
+    data.data!.type = type;
+    data.data!.systemColumnType = this.systemColumnType;
+    data.data!.isAutoAddActor = this.isAutoAddActor;
+    data.data!.isAutoAddMapObject = this.isAutoAddMapObject;
+    data.data!.icon.mediaKey = this.iconImageKey;
+    data.data!.icon.mediaTag = this.iconImageTag;
+    data.data!.icon.imageDirection = this.iconImageDirection;
+    data.data!.refProperty = isRef ? this.refProperty : null;
+    data.data!.min = isNumber ? this.min : null;
+    data.data!.max = isNumber ? this.max : null;
+    data.data!.interval = isNumber ? this.interval : null;
+    data.data!.selectionStr = isSelection ? this.selectionStr : null;
+    data.data!.defaultValue = ResourceMasterAddWindow.getDefaultValueFromType(
+      this.resourceType,
+      this.defaultValueStr,
+      this.defaultValueNumber,
+      this.defaultValueBoolean,
+      this.defaultValueColor
+    );
   }
 
   @VueEvent
   private get isDuplicate(): boolean {
-    return this.resourceMasterList.some(
-      rm => rm.data!.label === this.name && rm.key !== this.docKey
+    return GameObjectManager.instance.resourceMasterList.some(
+      rm =>
+        rm.data!.label === this.name &&
+        rm.key !== this.editWindowDelegator.docKey
     );
   }
 
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
-    if (this.docKey === null) return;
+    if (!this.editWindowDelegator.docKey) return;
     const resourceMaster = findRequireByKey(
-      this.resourceMasterList,
-      this.docKey
+      GameObjectManager.instance.resourceMasterList,
+      this.editWindowDelegator.docKey
     );
     this.windowInfo.message = this.isDuplicate
       ? this.$t("message.name-duplicate")!.toString()
@@ -191,75 +206,6 @@ export default class ResourceMasterEditWindow extends Mixins<
       if (this.refProperty === null) {
         this.refProperty = "name";
       }
-    }
-  }
-
-  @VueEvent
-  private async commit() {
-    // TODO 同名プロパティチェック
-    await this.cc!.update([
-      {
-        key: this.docKey,
-        data: this.resourceMasterData
-      }
-    ]);
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  private get resourceMasterData(): ResourceMasterStore {
-    const isNumber = this.resourceType === "number";
-    const isRef =
-      this.resourceType === "ref-normal" || this.resourceType === "ref-owner";
-    const isSelection =
-      this.resourceType === "select" || this.resourceType === "combo";
-    return {
-      label: this.name,
-      type: this.resourceType,
-      systemColumnType: this.systemColumnType,
-      isAutoAddActor: this.isAutoAddActor,
-      isAutoAddMapObject: this.isAutoAddMapObject,
-      icon: {
-        mediaKey: this.iconImageKey,
-        mediaTag: this.iconImageTag,
-        imageDirection: this.iconImageDirection
-      },
-      refProperty: isRef ? this.refProperty : null,
-      min: isNumber ? this.min : null,
-      max: isNumber ? this.max : null,
-      interval: isNumber ? this.interval : null,
-      selectionStr: isSelection ? this.selectionStr : null,
-      defaultValue: ResourceMasterAddWindow.getDefaultValueFromType(
-        this.resourceType,
-        this.defaultValueStr,
-        this.defaultValueNumber,
-        this.defaultValueBoolean,
-        this.defaultValueColor
-      )
-    };
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
-  }
-
-  @VueEvent
-  private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
     }
   }
 }

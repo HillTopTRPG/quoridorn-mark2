@@ -9,43 +9,36 @@
       :linkageResourceKey.sync="linkageResourceKey"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="isDuplicate || !char">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import GameObjectManager from "../../GameObjectManager";
-import WindowVue from "../../../core/window/WindowVue";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import LanguageManager from "../../../../LanguageManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
 import LikeInfoForm from "@/app/basic/chat/like/LikeInfoForm.vue";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import EditWindowDelegator, {
+  EditWindow
+} from "@/app/core/window/EditWindowDelegator";
+import { LikeStore } from "@/@types/store-data";
 
-@Component({
-  components: { LikeInfoForm, CtrlButton }
-})
-export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
-  WindowVue
-) {
-  private docKey: string | null = null;
-  private likeList = GameObjectManager.instance.likeList;
-  private isProcessed: boolean = false;
-  private cc = SocketFacade.instance.likeListCC();
+@Component({ components: { ButtonArea, LikeInfoForm } })
+export default class LikeEditWindow
+  extends Mixins<WindowVue<DataReference, never>>(WindowVue)
+  implements EditWindow<LikeStore> {
+  private editWindowDelegator = new EditWindowDelegator<LikeStore>(this);
 
   private char: string = "";
   private isThrowLinkage: boolean = false;
@@ -53,106 +46,65 @@ export default class LikeEditWindow extends Mixins<WindowVue<string, never>>(
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.editWindowDelegator.init();
     this.inputEnter("input:not([type='button'])", this.commit);
-
-    this.docKey = this.windowInfo.args!;
-    const data = this.likeList.filter(ct => ct.key === this.docKey)[0];
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    this.char = data.data!.char;
-    this.isThrowLinkage = data.data!.isThrowLinkage;
-    this.linkageResourceKey = data.data!.linkageResourceKey;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
   }
 
-  private get isDuplicate(): boolean {
-    if (this.char === null) return false;
-    return !!this.likeList.find(
-      ct => ct.data!.char === this.char && ct.key !== this.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (this.docKey === null) return;
-    const tab = this.likeList.filter(ct => ct.key === this.docKey)[0];
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", tab.data!.char);
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-edit-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.char;
   }
 
   @VueEvent
   private async commit() {
-    if (!this.isDuplicate) {
-      const data = this.likeList.filter(ct => ct.key === this.docKey)[0];
-      data.data!.char = this.char;
-      data.data!.isThrowLinkage = this.isThrowLinkage;
-      data.data!.linkageResourceKey = this.linkageResourceKey;
-      await this.cc!.update([
-        {
-          key: this.docKey!,
-          data: data.data!
-        }
-      ]);
-    }
-    this.isProcessed = true;
-    await this.close();
+    await this.editWindowDelegator.commit();
   }
 
   @TaskProcessor("window-close-closing")
   private async windowCloseClosing2(
     task: Task<string, never>
   ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+    return await this.editWindowDelegator.windowCloseClosing(task);
   }
 
   @VueEvent
   private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey!]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
+    await this.editWindowDelegator.rollback();
+  }
+
+  public pullStoreData(data: StoreData<LikeStore>): void {
+    this.char = data.data!.char;
+    this.isThrowLinkage = data.data!.isThrowLinkage;
+    this.linkageResourceKey = data.data!.linkageResourceKey;
+  }
+
+  public async pushStoreData(data: StoreData<LikeStore>): Promise<void> {
+    data.data!.char = this.char;
+    data.data!.isThrowLinkage = this.isThrowLinkage;
+    data.data!.linkageResourceKey = this.linkageResourceKey;
+  }
+
+  private get isDuplicate(): boolean {
+    return (
+      !!this.char &&
+      GameObjectManager.instance.likeList.some(
+        ct =>
+          ct.data!.char === this.char &&
+          ct.key !== this.editWindowDelegator.docKey
+      )
+    );
+  }
+
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    if (!this.editWindowDelegator.docKey) return;
+    const tab = GameObjectManager.instance.likeList.find(
+      ct => ct.key === this.editWindowDelegator.docKey
+    )!;
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : this.$t("message.original")!
+          .toString()
+          .replace("$1", tab.data!.char);
   }
 }
 </script>

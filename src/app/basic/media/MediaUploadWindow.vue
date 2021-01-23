@@ -47,49 +47,47 @@
       </div>
     </simple-tab-component>
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.upload'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="true"
+      commit-text="upload"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "../../core/window/WindowVue";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { Task, TaskResult } from "task";
-import MediaUploadItemComponent from "./MediaUploadItemComponent.vue";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import SButton from "../common/components/SButton.vue";
-import BaseInput from "../../core/component/BaseInput.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import DropBoxManager from "../../core/api/drop-box/DropBoxManager";
 import { MediaUploadInfo } from "@/@types/room";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import SCheck from "../common/components/SCheck.vue";
-import {
-  raw2UploadMediaInfoList,
-  mediaUpload
-} from "../../core/utility/FileUtility";
 import { TabInfo } from "@/@types/window";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { UploadMediaInfo } from "@/@types/socket";
 import { questionDialog } from "@/app/core/utility/Utility";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import MediaUploadItemComponent from "@/app/basic/media/MediaUploadItemComponent.vue";
+import {
+  mediaUpload,
+  raw2UploadMediaInfoList
+} from "@/app/core/utility/FileUtility";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import DropBoxManager from "@/app/core/api/drop-box/DropBoxManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 
 @Component({
   components: {
+    ButtonArea,
     SButton,
     SCheck,
     MediaUploadItemComponent,
     BaseInput,
-    CtrlButton,
     SimpleTabComponent
   }
 })

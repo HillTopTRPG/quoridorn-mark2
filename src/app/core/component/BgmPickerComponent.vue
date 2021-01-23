@@ -56,10 +56,9 @@ import LifeCycle from "../decorator/LifeCycle";
 import { Mixins } from "vue-mixin-decorator";
 import ComponentVue from "../window/ComponentVue";
 import { MediaStore } from "@/@types/store-data";
-import CtrlButton from "./CtrlButton.vue";
 import GameObjectManager from "../../basic/GameObjectManager";
 import VueEvent from "../decorator/VueEvent";
-import TrMediaTagSelectComponent from "@/app/basic/common/components/TrMediaTagSelectComponent.vue";
+import TrMediaTagSelectComponent from "@/app/basic/common/components/table-item/TrMediaTagSelectComponent.vue";
 import BgmItemComponent from "@/app/core/component/BgmItemComponent.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 
@@ -67,8 +66,7 @@ import SCheck from "@/app/basic/common/components/SCheck.vue";
   components: {
     SCheck,
     BgmItemComponent,
-    TrMediaTagSelectComponent,
-    CtrlButton
+    TrMediaTagSelectComponent
   }
 })
 export default class BgmPickerComponent extends Mixins<ComponentVue>(

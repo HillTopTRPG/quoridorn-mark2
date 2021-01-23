@@ -1,6 +1,6 @@
 <template>
   <ctrl-select
-    :elmId="elmId"
+    :elmId="key"
     :optionInfoList="optionInfoList"
     :disabled="disabled"
     :readonly="readonly"

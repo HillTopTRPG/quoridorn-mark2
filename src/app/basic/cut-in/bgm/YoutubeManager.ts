@@ -2,7 +2,6 @@ import { createSize } from "@/app/core/utility/CoordinateUtility";
 import { CutInStore } from "@/@types/store-data";
 import { getUrlParam } from "@/app/core/utility/PrimaryDataUtility";
 import { Size } from "@/@types/store-data-optional";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { findByKey } from "@/app/core/utility/Utility";
 

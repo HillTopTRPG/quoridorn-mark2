@@ -50,7 +50,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { MemoStore } from "@/@types/store-data";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import ImagePickerComponent from "@/app/core/component/ImagePickerComponent.vue";
-import TrStringInputComponent from "@/app/basic/common/components/TrStringInputComponent.vue";
+import TrStringInputComponent from "@/app/basic/common/components/table-item/TrStringInputComponent.vue";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import { Direction } from "@/@types/store-data-optional";

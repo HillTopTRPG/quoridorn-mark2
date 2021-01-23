@@ -24,18 +24,18 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { ModeInfo } from "mode";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import { createSize } from "../../core/utility/CoordinateUtility";
-import TaskManager from "../../core/task/TaskManager";
-import { drawLine, drawLine2 } from "../../core/utility/CanvasDrawUtility";
-import SceneLayerComponent from "./SceneLayerComponent.vue";
-import GameObjectManager from "../GameObjectManager";
 import { RoomDataStore, SceneStore } from "@/@types/store-data";
-import { findRequireByKey } from "../../core/utility/Utility";
-import VueEvent from "../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import { Size } from "@/@types/store-data-optional";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { createSize } from "@/app/core/utility/CoordinateUtility";
+import TaskManager from "@/app/core/task/TaskManager";
+import { drawLine, drawLine2 } from "@/app/core/utility/CanvasDrawUtility";
+import SceneLayerComponent from "@/app/basic/map/SceneLayerComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { findRequireByKey } from "@/app/core/utility/Utility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SceneLayerComponent } })
 export default class MapBoard extends Mixins<ComponentVue>(ComponentVue) {

@@ -55,7 +55,7 @@
     <!-- 共有メモ -->
     <div class="menu-button" @click="onClickCreatePublicMemo">
       <span class="icon-file-text"></span>
-      <span v-t="'type.public-memo'"></span>
+      <span v-t="'type.public-memo-list'"></span>
     </div>
     <!-- ログアウト -->
     <div class="menu-button" @click="clickLogOut">
@@ -68,6 +68,7 @@
     <div class="hover-menu" v-show="isShow('管理')" :style="hoverMenuStyle">
       <menu-window-item type="player-box-window" @click="menuClick" />
       <menu-window-item type="media-list-window" @click="menuClick" />
+      <menu-window-item type="media-url-add-window" @click="menuClick" />
       <hr />
       <div
         class="item disabled"
@@ -131,6 +132,11 @@
         class="item"
         @click="onClickCreateChatTab"
         v-t="'chat-tab-add-window.window-title'"
+      ></div>
+      <div
+        class="item"
+        @click="onClickCreateLike"
+        v-t="'like-add-window.window-title'"
       ></div>
       <div
         class="item"
@@ -402,6 +408,14 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private async onClickCreateChatTab(event: MouseEvent): Promise<void> {
     this.menuClick(event);
     if (!(await App.openSimpleWindow("chat-tab-add-window"))) return;
+    await WindowManager.instance.activeWindowForce("chat-window");
+    await WindowManager.instance.activeWindowForce("chat-setting-window");
+  }
+
+  @VueEvent
+  private async onClickCreateLike(event: MouseEvent): Promise<void> {
+    this.menuClick(event);
+    if (!(await App.openSimpleWindow("like-add-window"))) return;
     await WindowManager.instance.activeWindowForce("chat-window");
     await WindowManager.instance.activeWindowForce("chat-setting-window");
   }

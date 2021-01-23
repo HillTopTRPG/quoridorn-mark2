@@ -47,7 +47,7 @@ type:
   gm: GM
   pl: PL
   visitor: 訪客
-  public-memo: 共用筆記
+  public-memo-list: 共用筆記
 
 context:
   bgm-setting: BGM設定
@@ -769,3 +769,9 @@ like-edit-window:
 
 image-view-window:
   window-title: 画像表示
+
+media-url-add-window:
+  window-title: メディアURL追加
+
+media-url-edit-window:
+  window-title: メディアURL編集

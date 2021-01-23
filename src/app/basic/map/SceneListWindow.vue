@@ -47,23 +47,23 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import SeekBarComponent from "../cut-in/bgm/SeekBarComponent.vue";
+import { SceneStore } from "@/@types/store-data";
+import { WindowOpenInfo } from "@/@types/window";
+import { questionDialog } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import SeekBarComponent from "@/app/basic/cut-in/bgm/SeekBarComponent.vue";
 import SocketFacade, {
   permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import ColorPickerComponent from "../../core/component/ColorPickerComponent.vue";
-import BaseInput from "../../core/component/BaseInput.vue";
-import { SceneStore } from "@/@types/store-data";
-import VueEvent from "../../core/decorator/VueEvent";
-import TaskManager from "../../core/task/TaskManager";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
-import { WindowOpenInfo } from "@/@types/window";
-import SceneLayerSelect from "../common/components/select/SceneLayerSelect.vue";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import { questionDialog } from "@/app/core/utility/Utility";
+} from "@/app/core/api/app-server/SocketFacade";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SceneLayerSelect from "@/app/basic/common/components/select/SceneLayerSelect.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {

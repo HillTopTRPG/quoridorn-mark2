@@ -35,15 +35,15 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import SButton from "@/app/basic/common/components/SButton.vue";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import TaskManager from "../../../core/task/TaskManager";
-import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
-import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import { LikeStore } from "@/@types/store-data";
 import { questionDialog } from "@/app/core/utility/Utility";
+import TaskManager from "@/app/core/task/TaskManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({ components: { SButton } })
 export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
@@ -60,12 +60,15 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
 
   @VueEvent
   private async editTab(tabInfo: StoreData<LikeStore>) {
-    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+    await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "like-edit-window",
-        args: tabInfo.key
+        args: {
+          type: "like-list",
+          key: tabInfo.key
+        }
       }
     });
   }

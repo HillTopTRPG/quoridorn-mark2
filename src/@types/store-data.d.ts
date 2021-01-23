@@ -36,7 +36,7 @@ type ActorStatusStore = {
   // actorKey: string; actorKeyはownerで管理
   name: string; // ステータス名
   isSystem: boolean;
-  standImageKey: string | null; // id
+  standImageKey: string | null; // key
 };
 
 type ActorStore = {
@@ -325,7 +325,7 @@ type SceneObjectStore = Address & {
   type: SceneObjectType;
   tag: string;
   name: string;
-  actorKey: string | null; // id
+  actorKey: string | null; // key
   rows: number;
   columns: number;
   isHideBorder: boolean;

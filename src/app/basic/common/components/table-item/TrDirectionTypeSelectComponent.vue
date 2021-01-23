@@ -1,10 +1,10 @@
 <template>
-  <tr class="tr-edge-type-select-component">
+  <tr class="tr-direction-type-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <edge-type-select :key="key" v-model="localValue" :elmId="key" />
+      <direction-type-select :key="key" v-model="localValue" :elmId="key" />
     </td>
   </tr>
 </template>
@@ -12,10 +12,11 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import EdgeTypeSelect from "@/app/basic/common/components/select/EdgeTypeSelect.vue";
+import DirectionTypeSelect from "@/app/basic/common/components/select/DirectionTypeSelect.vue";
+import { Direction } from "@/@types/store-data-optional";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { EdgeTypeSelect } })
+@Component({ components: { DirectionTypeSelect } })
 export default class TrDirectionTypeSelectComponent extends Mixins<
   ComponentVue
 >(ComponentVue) {
@@ -23,16 +24,16 @@ export default class TrDirectionTypeSelectComponent extends Mixins<
   private labelName!: string;
 
   @Prop({ type: String, required: true })
-  private value!: "none" | "width" | "height";
+  private value!: Direction;
 
-  private input(value: "none" | "width" | "height") {
+  private input(value: Direction) {
     this.$emit("input", value);
   }
 
-  public get localValue(): "none" | "width" | "height" {
+  public get localValue(): Direction {
     return this.value;
   }
-  public set localValue(value: "none" | "width" | "height") {
+  public set localValue(value: Direction) {
     this.input(value);
   }
 }

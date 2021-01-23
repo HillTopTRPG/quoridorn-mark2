@@ -259,7 +259,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
       value: {
         type: "chat-palette-edit-window",
         args: {
-          type: "chat-palette",
+          type: "chat-palette-list",
           key: this.currentTargetTabInfo!.target!.toString()
         }
       }

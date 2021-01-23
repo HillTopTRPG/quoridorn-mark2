@@ -354,7 +354,9 @@ export default class SocketFacade {
     return new Promise<ServerTestResult>((resolve, reject) => {
       const socket = Socket.connect(url);
       socket.on("connect", async () => {
-        socket.emit("get-version");
+        setTimeout(() => {
+          socket.emit("get-version");
+        }, 100);
       });
       const timeoutId = window.setTimeout(() => {
         socket.off("result-get-version");

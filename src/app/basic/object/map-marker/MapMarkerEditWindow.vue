@@ -16,169 +16,27 @@
       :layerKey.sync="layerKey"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()">
-        <span v-t="'button.modify'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="true"
+      commit-text="modify"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { Mixins } from "vue-mixin-decorator";
-import { Task, TaskResult } from "task";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import MapMarkerInfoForm from "./MapMarkerInfoForm.vue";
-import { MemoStore, SceneObjectStore } from "@/@types/store-data";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import NekostoreCollectionController from "../../../core/api/app-server/NekostoreCollectionController";
-import VueEvent from "../../../core/decorator/VueEvent";
-import { parseColor } from "@/app/core/utility/ColorUtility";
-import WindowVue from "../../../core/window/WindowVue";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import GameObjectManager from "../../GameObjectManager";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import MapMarkerInfoForm from "@/app/basic/object/map-marker/MapMarkerInfoForm.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 
-@Component({ components: { MapMarkerInfoForm, CtrlButton } })
-export default class MapMarkerEditWindow extends Mixins<
-  WindowVue<DataReference, never>
->(WindowVue) {
-  private docKey: string = "";
-  private cc: NekostoreCollectionController<
-    SceneObjectStore
-  > = SocketFacade.instance.sceneObjectCC();
+import MapObjectEditWindowVue from "@/app/core/window/MapObjectEditWindowVue";
 
-  private name: string = "";
-  private tag: string = "";
-  private text: string = "";
-  private color: string = "";
-  private height: number = 1;
-  private width: number = 1;
-  private isHideSubType: boolean = false;
-  private isMounted: boolean = false;
-
-  private isProcessed: boolean = false;
-  private layerKey: string = GameObjectManager.instance.sceneLayerList.find(
-    ml => ml.data!.type === "map-marker"
-  )!.key;
-  private otherTextList: StoreData<MemoStore>[] = [];
-
-  @LifeCycle
-  public async mounted() {
-    await this.init();
-    this.docKey = this.windowInfo.args!.key;
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!;
-
-    if (this.windowInfo.status === "window") {
-      // 排他チェック
-      if (data.exclusionOwner) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-
-      // パーミッションチェック
-      if (!permissionCheck(data, "edit")) {
-        this.isProcessed = true;
-        await this.close();
-        return;
-      }
-    }
-
-    const texture = data.data!.textures[data.data!.textureIndex];
-    if (texture.type === "color") {
-      this.text = texture.text;
-      this.color = texture.backgroundColor;
-    }
-    this.name = data.data!.name;
-    this.tag = data.data!.tag;
-    this.width = data.data!.columns;
-    this.height = data.data!.rows;
-    this.isHideSubType = data.data!.isHideSubType;
-
-    this.otherTextList = clone(
-      GameObjectManager.instance.memoList.filter(
-        m => m.ownerType === "scene-object-list" && m.owner === this.docKey
-      )
-    )!;
-
-    this.layerKey = data.data!.layerKey;
-
-    if (this.windowInfo.status === "window") {
-      try {
-        await this.cc.touchModify([this.docKey]);
-      } catch (err) {
-        console.warn(err);
-        this.isProcessed = true;
-        await this.close();
-      }
-    }
-    this.isMounted = true;
-  }
-
-  @VueEvent
-  private async commit() {
-    const data = (await this.cc!.findSingle("key", this.docKey))!.data!.data!;
-    const texture = data.textures[data.textureIndex];
-    if (texture.type === "color") {
-      texture.text = this.text;
-      const colorObj = parseColor(this.color);
-      texture.backgroundColor = colorObj.getRGBA();
-      texture.fontColor = colorObj.getRGBReverse();
-    }
-    data.name = this.name;
-    data.tag = this.tag;
-    data.rows = this.height;
-    data.columns = this.width;
-    data.layerKey = this.layerKey;
-    data.isHideSubType = this.isHideSubType;
-    await this.cc!.update([
-      {
-        key: this.docKey,
-        data: data
-      }
-    ]);
-
-    await GameObjectManager.instance.updateMemoList(
-      this.otherTextList,
-      "scene-object",
-      this.docKey
-    );
-
-    this.isProcessed = true;
-    await this.close();
-  }
-
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
-  }
-
-  @VueEvent
-  private async rollback() {
-    try {
-      await this.cc!.releaseTouch([this.docKey]);
-    } catch (err) {
-      // nothing
-    }
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.close();
-    }
-  }
+@Component({ components: { ButtonArea, MapMarkerInfoForm, CtrlButton } })
+export default class MapMarkerEditWindow extends MapObjectEditWindowVue {
+  protected hasOtherText: boolean = true;
+  protected sizeType: "size" | "wh" = "wh";
 }
 </script>
 

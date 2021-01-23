@@ -18,9 +18,9 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
 import MediaTagSelect from "@/app/basic/common/components/select/MediaTagSelect.vue";
 import { UrlType } from "@/@types/store-data-optional";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
 @Component({ components: { MediaTagSelect } })
 export default class TrMediaTagSelectComponent extends Mixins<ComponentVue>(

@@ -1987,3 +1987,73 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"media-url-add-window":
+  icon: sphere
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 350
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  maxSize:
+    widthPx: 500
+    widthEm: 0
+    widthRem: 0
+    heightPx: 26
+    heightEm: 8.5
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: false
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"media-url-edit-window":
+  icon: sphere
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 350
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  minSize:
+    widthPx: 300
+    widthEm: 0
+    widthRem: 0
+    heightPx: 2
+    heightEm: 8.5
+    heightRem: 0.5
+  maxSize:
+    widthPx: 500
+    widthEm: 0
+    widthRem: 0
+    heightPx: 26
+    heightEm: 8.5
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: false
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

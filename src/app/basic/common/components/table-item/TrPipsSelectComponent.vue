@@ -1,16 +1,14 @@
 <template>
-  <tr class="tr-color-picker-component">
+  <tr class="tr-pips-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <color-picker-component
-        :key="key"
-        :id="key"
-        :disabled="disabled"
-        :readonly="readonly"
+      <pips-select
         v-model="localValue"
-        :use-alpha="useAlpha"
+        :diceTypeKey="diceTypeKey"
+        :multiple="false"
+        :readonly="readonly"
         :elmId="key"
       />
     </td>
@@ -20,46 +18,42 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import ColorPickerComponent from "../../../core/component/ColorPickerComponent.vue";
+import PipsSelect from "@/app/basic/common/components/select/PipsSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 
-@Component({ components: { ColorPickerComponent } })
-export default class TrColorPickerComponent extends Mixins<ComponentVue>(
+@Component({ components: { PipsSelect } })
+export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
 
   @Prop({ type: String, required: true })
-  private value!: string;
+  private diceTypeKey!: string;
 
-  @Prop({ type: Boolean, default: true })
-  private useAlpha!: boolean;
-
-  @Prop({ type: Boolean, default: false })
-  private disabled!: boolean;
+  @Prop({ type: String, default: null })
+  private value!: string | null;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
 
-  private input(value: string) {
+  private input(value: string | null) {
     this.$emit("input", value);
   }
 
-  public get localValue(): string {
+  public get localValue(): string | null {
     return this.value;
   }
-  public set localValue(value: string) {
+  public set localValue(value: string | null) {
     this.input(value);
   }
 }
 </script>
 
 <style scoped lang="scss">
-.tr-color-picker-component {
+.tr-pips-component {
   display: contents;
 }
-
 th,
 td {
   padding: 0;

@@ -22,14 +22,14 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
 import { zeroPadding } from "@/app/core/utility/PrimaryDataUtility";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import CssManager from "../../../core/css/CssManager";
 import { CutInStore } from "@/@types/store-data";
-import VueEvent from "../../../core/decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import CssManager from "@/app/core/css/CssManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component({
   components: { CtrlButton }

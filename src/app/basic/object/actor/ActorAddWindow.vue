@@ -9,14 +9,12 @@
       :standImagePosition.sync="standImagePosition"
     />
 
-    <div class="button-area">
-      <ctrl-button @click="commit()" :disabled="!isCommitAble">
-        <span v-t="'button.add'"></span>
-      </ctrl-button>
-      <ctrl-button @click="rollback()">
-        <span v-t="'button.reject'"></span>
-      </ctrl-button>
-    </div>
+    <button-area
+      :is-commit-able="isCommitAble()"
+      commit-text="add"
+      @commit="commit()"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -24,24 +22,24 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import WindowVue from "../../../core/window/WindowVue";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
-import GameObjectManager from "../../GameObjectManager";
-import LanguageManager from "../../../../LanguageManager";
-import ActorInfoForm from "./ActorInfoForm.vue";
-import VueEvent from "../../../core/decorator/VueEvent";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import ActorInfoForm from "@/app/basic/object/actor/ActorInfoForm.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import { ActorStore } from "@/@types/store-data";
+import AddWindowDelegator, {
+  AddWindow
+} from "@/app/core/window/AddWindowDelegator";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
-@Component({
-  components: { ActorInfoForm, CtrlButton }
-})
-export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
-  WindowVue
-) {
-  private actorList = GameObjectManager.instance.actorList;
-  private isProcessed: boolean = false;
+@Component({ components: { ButtonArea, ActorInfoForm } })
+export default class ActorAddWindow
+  extends Mixins<WindowVue<ActorStore, boolean>>(WindowVue)
+  implements AddWindow<ActorStore> {
+  private addWindowDelegator = new AddWindowDelegator<ActorStore>(this);
 
   private name: string = "";
   private tag: string = "";
@@ -51,39 +49,47 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.addWindowDelegator.init();
   }
 
-  private get isDuplicate(): boolean {
-    return this.actorList.some(ct => ct.data!.name === this.name);
-  }
-
-  private get isCommitAble(): boolean {
-    return !!this.name && !this.isDuplicate;
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
-  }
-
-  private static getDialogMessage(target: string) {
-    const msgTarget = "chat-tab-add-window.message-list." + target;
-    return LanguageManager.instance.getText(msgTarget);
+  public isCommitAble(): boolean {
+    return !this.isDuplicate && !!this.name;
   }
 
   @VueEvent
   private async commit() {
-    if (!this.isCommitAble) return;
-    await SocketFacade.instance.actorCC().addDirect([
+    await this.addWindowDelegator.commit();
+  }
+
+  @TaskProcessor("window-close-closing")
+  private async windowCloseClosing2(
+    task: Task<string, never>
+  ): Promise<TaskResult<never> | void> {
+    return await this.addWindowDelegator.windowCloseClosing(task);
+  }
+
+  @VueEvent
+  private async rollback() {
+    await this.addWindowDelegator.rollback();
+  }
+
+  public setStoreData(data: ActorStore): void {
+    this.name = data.name;
+    this.tag = data.tag;
+    this.chatFontColorType = data.chatFontColorType;
+    this.chatFontColor = data.chatFontColor;
+    this.standImagePosition = data.standImagePosition;
+  }
+
+  public async getStoreDataList(): Promise<DelegateStoreData<ActorStore>[]> {
+    return [
       {
+        collection: SocketFacade.instance.actorCC().collectionNameSuffix,
         permission: GameObjectManager.PERMISSION_OWNER_CHANGE,
         data: {
           name: this.name,
           tag: this.tag,
-          type: "character",
+          type: "character" as "character",
           chatFontColorType: this.chatFontColorType,
           chatFontColor: this.chatFontColor,
           standImagePosition: this.standImagePosition,
@@ -91,28 +97,20 @@ export default class ActorAddWindow extends Mixins<WindowVue<void, boolean>>(
           statusKey: "" // 自動的に付与される
         }
       }
-    ]);
-    this.isProcessed = true;
-    await this.finally(true);
+    ];
   }
 
-  @TaskProcessor("window-close-closing")
-  private async windowCloseClosing2(
-    task: Task<string, never>
-  ): Promise<TaskResult<never> | void> {
-    if (task.value !== this.windowInfo.key) return;
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.rollback();
-    }
+  private get isDuplicate(): boolean {
+    return GameObjectManager.instance.actorList.some(
+      ct => ct.data!.name === this.name
+    );
   }
 
-  @VueEvent
-  private async rollback() {
-    if (!this.isProcessed) {
-      this.isProcessed = true;
-      await this.finally();
-    }
+  @Watch("isDuplicate")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.isDuplicate
+      ? this.$t("message.name-duplicate")!.toString()
+      : "";
   }
 }
 </script>

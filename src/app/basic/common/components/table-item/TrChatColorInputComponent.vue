@@ -26,9 +26,9 @@
 <script lang="ts">
 import { Prop, Watch } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import ColorPickerComponent from "../../../core/component/ColorPickerComponent.vue";
-import ChatColorTypeSelect from "./select/ChatColorTypeSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import ColorPickerComponent from "@/app/core/component/ColorPickerComponent.vue";
+import ChatColorTypeSelect from "@/app/basic/common/components/select/ChatColorTypeSelect.vue";
 
 @Component({ components: { ColorPickerComponent, ChatColorTypeSelect } })
 export default class TrChatColorInputComponent extends Mixins<ComponentVue>(
@@ -75,7 +75,7 @@ export default class TrChatColorInputComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-@import "../../../../assets/common";
+@import "../../../../../assets/common";
 
 .tr-chat-color-input-component {
   display: contents;

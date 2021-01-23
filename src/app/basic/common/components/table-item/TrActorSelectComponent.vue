@@ -1,12 +1,12 @@
 <template>
-  <tr class="tr-pips-select-component">
+  <tr class="tr-actor-select-component">
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <pips-select
+      <actor-select
         v-model="localValue"
-        :diceTypeKey="diceTypeKey"
+        :nullable="nullable"
         :multiple="false"
         :readonly="readonly"
         :elmId="key"
@@ -18,24 +18,24 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import ComponentVue from "../../../core/window/ComponentVue";
-import PipsSelect from "@/app/basic/common/components/select/PipsSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
 
-@Component({ components: { PipsSelect } })
-export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
+@Component({ components: { ActorSelect } })
+export default class TrActorSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private labelName!: string;
-
-  @Prop({ type: String, required: true })
-  private diceTypeKey!: string;
 
   @Prop({ type: String, default: null })
   private value!: string | null;
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private nullable!: boolean;
 
   private input(value: string | null) {
     this.$emit("input", value);
@@ -51,7 +51,7 @@ export default class TrPipsSelectComponent extends Mixins<ComponentVue>(
 </script>
 
 <style scoped lang="scss">
-.tr-pips-component {
+.tr-actor-select-component {
   display: contents;
 }
 th,

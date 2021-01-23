@@ -14,10 +14,10 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { WindowTableColumn } from "@/@types/window";
-import VueEvent from "../../core/decorator/VueEvent";
-import { convertBooleanFalse } from "../../core/utility/PrimaryDataUtility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import { convertBooleanFalse } from "@/app/core/utility/PrimaryDataUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 @Component
 export default class InitiativeInputComponent extends Mixins<ComponentVue>(
@@ -31,12 +31,6 @@ export default class InitiativeInputComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private inputType!: string;
-
-  // @Watch("dataObj", { immediate: true })
-  // private onChangeDataObj() {
-  //   console.log("#########################################");
-  //   console.log(this.dataObj);
-  // }
 
   private get elmId(): string {
     return `prop-${this.dataObj.owner}-${this.colDec.target}`;

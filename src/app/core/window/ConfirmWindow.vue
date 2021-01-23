@@ -11,14 +11,14 @@
         <span class="text selectable">{{ message }}</span>
       </div>
     </div>
-    <div class="button-area">
-      <ctrl-button @click.stop="commit()">
-        <span v-t="'button.ok'"></span>
-      </ctrl-button>
-      <ctrl-button @click.stop="rollback()">
-        <span v-t="'button.cancel'"></span>
-      </ctrl-button>
-    </div>
+
+    <button-area
+      :is-commit-able="true"
+      commit-text="ok"
+      @commit="commit()"
+      rollback-text="cancel"
+      @rollback="rollback()"
+    />
   </div>
 </template>
 
@@ -26,12 +26,12 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import TaskProcessor from "../task/TaskProcessor";
-import LifeCycle from "../decorator/LifeCycle";
-import WindowVue from "./WindowVue";
-import CtrlButton from "../component/CtrlButton.vue";
-import BaseInput from "../component/BaseInput.vue";
-import VueEvent from "../decorator/VueEvent";
+import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 export type ConfirmInfo = {
   target: string;
@@ -39,7 +39,7 @@ export type ConfirmInfo = {
 };
 
 @Component({
-  components: { BaseInput, CtrlButton }
+  components: { ButtonArea, BaseInput }
 })
 export default class ConfirmWindow extends Mixins<
   WindowVue<ConfirmInfo, boolean>
