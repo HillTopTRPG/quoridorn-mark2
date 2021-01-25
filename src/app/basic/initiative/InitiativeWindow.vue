@@ -227,12 +227,15 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         dataType === "scene-object-list" ? sceneObject!.owner : actor.owner
       );
 
-      actor =
+      const actorVolatile: StoreData<ActorStore> | undefined =
         resourceType === "ref-normal"
           ? actor
           : this.actorList.find(
               a => a.owner === owner.key && a.data!.type === "user"
-            )!;
+            );
+
+      if (!actorVolatile) return "";
+      actor = actorVolatile;
 
       const status = findByKey(this.actorStatusList, actor.data!.statusKey);
 
@@ -306,6 +309,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     let actorKey: string = data.owner;
     if (data.ownerType === "scene-object-list") {
       sceneObject = this.sceneObjectList.filter(so => so.key === data.owner)[0];
+      if (!sceneObject) return "";
       actorKey = sceneObject.data!.actorKey!;
     }
     const actor = this.actorList.filter(a => a.key === actorKey)[0];
@@ -326,139 +330,134 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
    * イニシアティブ表で表示する行（データ持ちコマorアクターのリスト）
    */
   private get dataOwnerList(): DataReference[] {
-    try {
-      type SortableTargetInfo = {
-        type: "scene-object-list" | "actor-list";
-        userKey: string;
-        userOrder: number;
-        actorKey: string;
-        actorOrder: number;
-        sceneObjectKey: string | null;
-        sceneObjectOrder: number | null;
-        actorName: string;
-        initiative: number | null;
-      };
-      const sortableTargetInfoList: SortableTargetInfo[] = [];
+    type SortableTargetInfo = {
+      type: "scene-object-list" | "actor-list";
+      userKey: string;
+      userOrder: number;
+      actorKey: string;
+      actorOrder: number;
+      sceneObjectKey: string | null;
+      sceneObjectOrder: number | null;
+      actorName: string;
+      initiative: number | null;
+    };
+    const sortableTargetInfoList: SortableTargetInfo[] = [];
 
-      this.resourceList.forEach(r => {
-        const resourceMaster = findRequireByKey(
-          this.resourceMasterList,
-          r.data!.resourceMasterKey
-        );
+    this.resourceList.forEach(r => {
+      const resourceMaster = findByKey(
+        this.resourceMasterList,
+        r.data!.resourceMasterKey
+      );
 
-        if (
-          !resourceMaster.data!.isAutoAddActor &&
-          !resourceMaster.data!.isAutoAddMapObject
-        )
+      if (
+        !resourceMaster ||
+        (!resourceMaster.data!.isAutoAddActor &&
+          !resourceMaster.data!.isAutoAddMapObject)
+      )
+        return;
+
+      // actorの時の値で初期化
+      let sceneObjectKey: string | null = null;
+      let sceneObjectOrder: number | null = null;
+
+      let actorKey: string = r.owner!;
+
+      let userKey: string = "";
+
+      const initiative: number | null =
+        resourceMaster.data!.systemColumnType === "initiative"
+          ? convertNumberNull(r.data!.value)
+          : null;
+
+      if (r.ownerType === "actor-list") {
+        actorKey = r.owner!;
+      } else {
+        sceneObjectKey = r.owner;
+        const sceneObject = findByKey(this.sceneObjectList, sceneObjectKey);
+        if (!sceneObject) {
           return;
-
-        // actorの時の値で初期化
-        let sceneObjectKey: string | null = null;
-        let sceneObjectOrder: number | null = null;
-
-        let actorKey: string = r.owner!;
-
-        let userKey: string = "";
-
-        const initiative: number | null =
-          resourceMaster.data!.systemColumnType === "initiative"
-            ? convertNumberNull(r.data!.value)
-            : null;
-
-        if (r.ownerType === "actor-list") {
-          actorKey = r.owner!;
-        } else {
-          sceneObjectKey = r.owner;
-          const sceneObject = findRequireByKey(
-            this.sceneObjectList,
-            sceneObjectKey
-          );
-          sceneObjectOrder = sceneObject.order;
-          actorKey = sceneObject.data!.actorKey!;
-          userKey = sceneObject.owner!;
         }
-        const actor = findRequireByKey(this.actorList, actorKey);
-        const actorOrder = actor.order;
-        const actorName = actor.data!.name;
-        if (r.ownerType === "actor-list") {
-          userKey = actor.owner!;
-        }
+        sceneObjectOrder = sceneObject.order;
+        actorKey = sceneObject.data!.actorKey!;
+        userKey = sceneObject.owner!;
+      }
+      const actor = findByKey(this.actorList, actorKey);
+      if (!actor) return;
+      const actorOrder = actor.order;
+      const actorName = actor.data!.name;
+      if (r.ownerType === "actor-list") {
+        userKey = actor.owner!;
+      }
 
-        const user = findRequireByKey(this.userList, userKey);
-        const userOrder = user.order;
+      const user = findByKey(this.userList, userKey);
+      if (!user) return;
+      const userOrder = user.order;
 
-        let sortableTargetInfo = sortableTargetInfoList.find(
-          sti =>
-            sti.sceneObjectKey === sceneObjectKey && sti.actorKey === actorKey
-        );
-        if (!sortableTargetInfo) {
-          sortableTargetInfo = {
-            type:
-              r.ownerType === "actor-list" ? "actor-list" : "scene-object-list",
-            userKey,
-            userOrder,
-            actorKey,
-            actorOrder,
-            sceneObjectKey,
-            sceneObjectOrder,
-            initiative,
-            actorName
-          };
-          sortableTargetInfoList.push(sortableTargetInfo);
-        } else {
-          if (initiative !== null) {
-            if (
-              sortableTargetInfo.initiative === null ||
-              sortableTargetInfo.initiative > initiative
-            ) {
-              sortableTargetInfo.initiative = initiative;
-            }
-          }
-        }
-      });
-
-      // console.log(JSON.stringify(sortableTargetInfoList, null, "  "));
-
-      return sortableTargetInfoList
-        .sort((sti1, sti2) => {
-          if (sti1.initiative !== null && sti2.initiative !== null) {
-            // イニシアティブ値が null でないのが2つ
-            if (sti1.initiative > sti2.initiative) return -1;
-            if (sti1.initiative < sti2.initiative) return 1;
-          } else if (sti1.initiative !== null || sti2.initiative !== null) {
-            // イニシアティブ値が null でないのが1つ
-            // nullは下の方へ
-            if (sti1.initiative === null) return 1;
-            if (sti2.initiative === null) return -1;
-          }
-          // イニシアティブ値が同値
-          if (sti1.userOrder < sti2.userOrder) return -1;
-          if (sti1.userOrder > sti2.userOrder) return 1;
-          if (sti1.actorOrder < sti2.actorOrder) return -1;
-          if (sti1.actorOrder > sti2.actorOrder) return 1;
+      let sortableTargetInfo = sortableTargetInfoList.find(
+        sti =>
+          sti.sceneObjectKey === sceneObjectKey && sti.actorKey === actorKey
+      );
+      if (!sortableTargetInfo) {
+        sortableTargetInfo = {
+          type:
+            r.ownerType === "actor-list" ? "actor-list" : "scene-object-list",
+          userKey,
+          userOrder,
+          actorKey,
+          actorOrder,
+          sceneObjectKey,
+          sceneObjectOrder,
+          initiative,
+          actorName
+        };
+        sortableTargetInfoList.push(sortableTargetInfo);
+      } else {
+        if (initiative !== null) {
           if (
-            sti1.sceneObjectOrder !== null &&
-            sti2.sceneObjectOrder !== null
+            sortableTargetInfo.initiative === null ||
+            sortableTargetInfo.initiative > initiative
           ) {
-            if (sti1.sceneObjectOrder < sti2.sceneObjectOrder) return -1;
-            if (sti1.sceneObjectOrder > sti2.sceneObjectOrder) return 1;
-          } else if (
-            sti1.sceneObjectOrder !== null ||
-            sti2.sceneObjectOrder !== null
-          ) {
-            if (sti1.sceneObjectOrder === null) return 1;
-            if (sti2.sceneObjectOrder === null) return -1;
+            sortableTargetInfo.initiative = initiative;
           }
-          return 0;
-        })
-        .map(sti => ({
-          type: sti.type,
-          key: sti.type === "actor-list" ? sti.actorKey : sti.sceneObjectKey!
-        }));
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
+        }
+      }
+    });
+
+    // console.log(JSON.stringify(sortableTargetInfoList, null, "  "));
+
+    return sortableTargetInfoList
+      .sort((sti1, sti2) => {
+        if (sti1.initiative !== null && sti2.initiative !== null) {
+          // イニシアティブ値が null でないのが2つ
+          if (sti1.initiative > sti2.initiative) return -1;
+          if (sti1.initiative < sti2.initiative) return 1;
+        } else if (sti1.initiative !== null || sti2.initiative !== null) {
+          // イニシアティブ値が null でないのが1つ
+          // nullは下の方へ
+          if (sti1.initiative === null) return 1;
+          if (sti2.initiative === null) return -1;
+        }
+        // イニシアティブ値が同値
+        if (sti1.userOrder < sti2.userOrder) return -1;
+        if (sti1.userOrder > sti2.userOrder) return 1;
+        if (sti1.actorOrder < sti2.actorOrder) return -1;
+        if (sti1.actorOrder > sti2.actorOrder) return 1;
+        if (sti1.sceneObjectOrder !== null && sti2.sceneObjectOrder !== null) {
+          if (sti1.sceneObjectOrder < sti2.sceneObjectOrder) return -1;
+          if (sti1.sceneObjectOrder > sti2.sceneObjectOrder) return 1;
+        } else if (
+          sti1.sceneObjectOrder !== null ||
+          sti2.sceneObjectOrder !== null
+        ) {
+          if (sti1.sceneObjectOrder === null) return 1;
+          if (sti2.sceneObjectOrder === null) return -1;
+        }
+        return 0;
+      })
+      .map(sti => ({
+        type: sti.type,
+        key: sti.type === "actor-list" ? sti.actorKey : sti.sceneObjectKey!
+      }));
   }
 
   @VueEvent
