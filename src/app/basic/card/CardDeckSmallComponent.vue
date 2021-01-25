@@ -692,7 +692,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
   @VueEvent
   private async deleteDeck() {
     if (this.useCardObjectList.length) return;
-    const result = questionDialog({
+    const result = await questionDialog({
       title: this.$t("button.delete").toString(),
       text: this.$t("message.delete-deck")!.toString(),
       confirmButtonText: this.$t("button.delete").toString(),

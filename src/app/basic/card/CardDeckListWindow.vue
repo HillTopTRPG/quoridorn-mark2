@@ -152,7 +152,7 @@ export default class CardDeckListWindow extends Mixins<WindowVue<void, void>>(
   @VueEvent
   private async deleteCardDeck() {
     if (!this.selectedCardDeckBigKey) return;
-    const result = questionDialog({
+    const result = await questionDialog({
       title: this.$t("button.delete").toString(),
       text: this.$t("message.really-delete")!.toString(),
       confirmButtonText: this.$t("button.delete").toString(),

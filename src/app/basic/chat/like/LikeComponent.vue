@@ -78,7 +78,7 @@ export default class LikeComponent extends Mixins<ComponentVue>(ComponentVue) {
     const text = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.char);
-    const result = questionDialog({
+    const result = await questionDialog({
       title: this.$t("button.delete").toString(),
       text,
       confirmButtonText: this.$t("button.delete").toString(),

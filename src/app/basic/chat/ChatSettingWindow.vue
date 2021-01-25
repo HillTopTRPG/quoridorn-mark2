@@ -306,7 +306,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     const text = this.$t("message.delete-tab")!
       .toString()
       .replace("$1", tabInfo.data!.name);
-    const result = questionDialog({
+    const result = await questionDialog({
       title: this.$t("button.delete").toString(),
       text,
       confirmButtonText: this.$t("button.delete").toString(),
