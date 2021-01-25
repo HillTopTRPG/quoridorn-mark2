@@ -52,13 +52,13 @@ export default class GeneralTypeSelect extends Mixins<MultiMixin>(
     this.optionInfoList = this.valueList.map(v => ({
       value: v,
       key: v,
-      text: this.$t(`label.${this.type}-${v}`)!.toString(),
+      text: this.$t(`selection.${this.type}.${v}`)!.toString(),
       disabled: false
     }));
     this.optionInfoList.unshift({
       value: "",
       key: "",
-      text: this.$t(`label.${this.type}`)!.toString(),
+      text: this.$t(`selection.${this.type}.label`)!.toString(),
       disabled: true
     });
   }

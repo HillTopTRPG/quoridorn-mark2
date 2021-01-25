@@ -254,37 +254,6 @@ export default class ChatPaletteInfoForm extends Mixins<ComponentVue>(
   display: contents;
 }
 
-> table {
-  table-layout: fixed;
-
-  th,
-  td {
-    label {
-      @include inline-flex-box(row, flex-start, center);
-    }
-  }
-
-  th {
-    text-align: right;
-    padding: 0;
-    white-space: nowrap;
-    width: 1px;
-  }
-
-  td {
-    text-align: left;
-    padding: 0;
-
-    input {
-      margin: 0;
-    }
-  }
-}
-
-label {
-  flex: 1;
-}
-
 textarea {
   resize: none;
   width: 100%;

@@ -56,6 +56,26 @@ card-deck-small:
   - ref: card-deck-layout-select-from-deck
   - ref: card-deck-setting-change-from-deck
 
+counter-remocon-list:
+  - text: context.modify
+    taskName: window-open
+    isViewCompare:
+      lhs:
+        refType: permission-check
+        type: edit
+      rhs:
+        true
+    isDisabledCompare:
+      lhs:
+        refType: exclusion-check
+      rhs:
+        true
+    taskArg:
+      type: counter-remocon-edit-window
+  - ref: object-copy
+  - ref: object-delete
+  - ref: object-chmod
+
 map-mask:
   - text: context.modify
     taskName: window-open

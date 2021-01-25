@@ -64,6 +64,9 @@ import LikeEditWindow from "@/app/basic/chat/like/LikeEditWindow.vue";
 import ImageViewWindow from "@/app/basic/cut-in/ImageViewWindow.vue";
 import MediaUrlAddWindow from "@/app/basic/media/url/MediaUrlAddWindow.vue";
 import MediaUrlEditWindow from "@/app/basic/media/url/MediaUrlEditWindow.vue";
+import CounterRemoconAddWindow from "@/app/basic/counter-remocon/CounterRemoconAddWindow.vue";
+import CounterRemoconEditWindow from "@/app/basic/counter-remocon/CounterRemoconEditWindow.vue";
+import CounterRemoconWindow from "@/app/basic/counter-remocon/CounterRemoconWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -140,6 +143,9 @@ async function main(): Promise<void> {
   Vue.component("image-view-window", ImageViewWindow);
   Vue.component("media-url-add-window", MediaUrlAddWindow);
   Vue.component("media-url-edit-window", MediaUrlEditWindow);
+  Vue.component("counter-remocon-add-window", CounterRemoconAddWindow);
+  Vue.component("counter-remocon-edit-window", CounterRemoconEditWindow);
+  Vue.component("counter-remocon-window", CounterRemoconWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

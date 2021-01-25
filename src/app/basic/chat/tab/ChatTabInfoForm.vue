@@ -172,31 +172,4 @@ export default class ChatTabInfoForm extends Mixins<ComponentVue>(
     padding: 0.2rem;
   }
 }
-
-> table {
-  table-layout: fixed;
-
-  th,
-  td {
-    label {
-      @include inline-flex-box(row, flex-start, center);
-    }
-  }
-
-  th {
-    text-align: right;
-    padding: 0;
-    white-space: nowrap;
-    width: 1px;
-  }
-
-  td {
-    text-align: left;
-    padding: 0;
-
-    input {
-      margin: 0;
-    }
-  }
-}
 </style>

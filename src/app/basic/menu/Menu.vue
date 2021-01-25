@@ -93,6 +93,7 @@
     <div class="hover-menu" v-show="isShow('画面')" :style="hoverMenuStyle">
       <menu-window-item type="chat-window" @click="menuClick" />
       <menu-window-item type="chat-palette-window" @click="menuClick" />
+      <menu-window-item type="counter-remocon-window" @click="menuClick" />
       <hr />
       <menu-window-item type="initiative-window" @click="menuClick" />
       <hr />
@@ -142,6 +143,11 @@
         class="item"
         @click="onClickCreateResourceMaster"
         v-t="'resource-master-add-window.window-title'"
+      ></div>
+      <div
+        class="item"
+        @click="onClickCreateCounterRemocon"
+        v-t="'counter-remocon-add-window.window-title'"
       ></div>
       <hr />
       <menu-window-item type="map-mask-add-window" @click="menuClick" />
@@ -435,6 +441,13 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     await WindowManager.instance.activeWindowForce(
       "resource-master-list-window"
     );
+  }
+
+  @VueEvent
+  private async onClickCreateCounterRemocon(event: MouseEvent): Promise<void> {
+    this.menuClick(event);
+    if (!(await App.openSimpleWindow("counter-remocon-add-window"))) return;
+    await WindowManager.instance.activeWindowForce("counter-remocon-window");
   }
 
   /* --------------------

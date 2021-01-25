@@ -88,6 +88,8 @@
     - other-text-update
     - create-chat-palette
     - change-marker-back-view
+    - counter-remocon-click
+    - counter-remocon-execute
 
 - taskAttribute:
     isIgniteWithParam: false

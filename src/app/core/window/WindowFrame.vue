@@ -5,6 +5,7 @@
     :class="[windowInfo.isMinimized ? 'minimized' : undefined, windowInfo.type]"
     @mousedown.left.stop="activeWindow()"
     @touchstart.stop="activeWindow()"
+    @contextmenu.prevent
     ref="window-frame"
   >
     <!-- タイトルバー -->

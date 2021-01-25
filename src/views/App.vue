@@ -67,7 +67,7 @@ import { ModeInfo } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
 import LifeCycle from "../app/core/decorator/LifeCycle";
 import TaskProcessor from "../app/core/task/TaskProcessor";
-import { CutInStore } from "@/@types/store-data";
+import { CounterRemoconModifyType, CutInStore } from "@/@types/store-data";
 import {
   createPoint,
   createSize,
@@ -730,6 +730,78 @@ export default class App extends Vue {
     task: Task<WindowOpenInfo<unknown>, never>
   ): Promise<TaskResult<never> | void> {
     task.value!.key = WindowManager.instance.open(task.value!, task.key);
+  }
+
+  @TaskProcessor("counter-remocon-execute-finished")
+  private async counterRemoconExecuteFinished(
+    task: Task<any, never>
+  ): Promise<TaskResult<never> | void> {
+    const cc = SocketFacade.instance.resourceCC();
+    const counterRemocon = findRequireByKey(
+      GameObjectManager.instance.counterRemoconList,
+      task.value.counterRemoconKey
+    );
+    const resourceMaster = findRequireByKey(
+      GameObjectManager.instance.resourceMasterList,
+      task.value.resourceMasterKey
+    );
+    const targetKey = task.value.targetKey;
+    const targetType = task.value.targetType;
+    const value = task.value.value as number;
+
+    const resource = GameObjectManager.instance.resourceList.find(
+      r =>
+        r.ownerType === targetType &&
+        r.owner === targetKey &&
+        r.data!.resourceMasterKey === resourceMaster.key
+    )!;
+
+    const before = convertNumberZero(resource.data!.value);
+    if (counterRemocon.data!.modifyType === "substitute") {
+      resource.data!.value = value.toString();
+    } else {
+      resource.data!.value = (
+        convertNumberZero(resource.data!.value) + value
+      ).toString();
+    }
+    await cc.updatePackage([
+      {
+        key: resource.key,
+        data: resource.data!
+      }
+    ]);
+
+    const target = findRequireByKey(
+      GameObjectManager.instance.getList(targetType)!,
+      targetKey
+    );
+    const message = App.createCounterRemoconMessage(
+      counterRemocon.data!.messageFormat,
+      (target.data! as any).name,
+      resourceMaster.data!.label,
+      counterRemocon.data!.modifyType,
+      value,
+      before
+    );
+    console.log(message);
+  }
+
+  public static createCounterRemoconMessage(
+    format: string,
+    who: string,
+    what: string,
+    type: CounterRemoconModifyType,
+    value: number,
+    before: number
+  ) {
+    format = format.replace("{0}", who);
+    format = format.replace("{1}", what);
+    let prefix = "=";
+    if (type !== "substitute" && value > 0) prefix = "+";
+    format = format.replace("{2}", `${prefix}${value}`);
+    let after = type === "substitute" ? value : before + value;
+    format = format.replace("{3}", `${before} -> ${after}`);
+    return format;
   }
 
   @TaskProcessor("resource-update-finished")
