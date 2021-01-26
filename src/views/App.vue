@@ -118,6 +118,7 @@ import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
 import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
+import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 
 @Component({
   components: {
@@ -783,7 +784,7 @@ export default class App extends Vue {
       value,
       before
     );
-    console.log(message);
+    await sendSystemChatLog(message);
   }
 
   public static createCounterRemoconMessage(
