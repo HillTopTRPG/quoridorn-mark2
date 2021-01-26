@@ -28,7 +28,7 @@
         <tr-general-type-select-component
           type="counter-remocon-modify-type"
           v-model="modifyTypeVolatile"
-          :value-list="['plus', 'minus', 'substitute', 'plus-minus']"
+          :value-list="['substitute', 'plus-minus']"
         />
       </tr>
       <tr>
