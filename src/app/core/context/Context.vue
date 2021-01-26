@@ -174,14 +174,15 @@ export default class Context extends Vue {
   private get levelList(): number[] {
     let level = this.hoverLevel;
     const hoverItem = this.itemList.find(
-      item => item.level === level && item.index === this.hoverIndex
+      item =>
+        item.level === level &&
+        item.index === this.hoverIndex &&
+        item.parentIndex === this.getParentIndex(level)
     );
     if (!hoverItem) level = 1;
     else {
       level++;
-      if (hoverItem.hasChild) {
-        level++;
-      }
+      if (hoverItem.hasChild) level++;
     }
     return Array(level)
       .fill(null)
