@@ -34,7 +34,8 @@ import {
   SocketUserStore,
   UserStore,
   DiceTypeStore,
-  DiceAndPipsStore
+  DiceAndPipsStore,
+  CounterRemoconStore
 } from "@/@types/store-data";
 import GameObjectManager from "../../../basic/GameObjectManager";
 import { ApplicationError } from "../../error/ApplicationError";
@@ -592,6 +593,12 @@ export default class SocketFacade {
     return this.roomCollectionController<LikeStore>("like-list");
   }
 
+  public counterRemoconCC() {
+    return this.roomCollectionController<CounterRemoconStore>(
+      "counter-remocon-list"
+    );
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     let cc = <NekostoreCollectionController<any>>(
       [
@@ -625,12 +632,15 @@ export default class SocketFacade {
         this.memoCC(),
         this.keepBcdiceDiceRollResultListCC(),
         this.publicMemoListCC(),
-        this.likeListCC()
+        this.likeListCC(),
+        this.counterRemoconCC()
       ].find(cc => cc.collectionNameSuffix === type)
     );
     if (!cc) {
       if (
-        ["character", "map-mask", "chit", "dice-symbol"].some(t => t === type)
+        ["character", "map-mask", "chit", "dice-symbol", "map-marker"].some(
+          t => t === type
+        )
       ) {
         cc = this.sceneObjectCC();
       }

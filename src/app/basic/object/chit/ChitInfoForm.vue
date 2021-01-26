@@ -470,33 +470,4 @@ export default class ChitInfoForm extends Mixins<ComponentVue>(ComponentVue) {
   grid-column: 1 / 2;
   @include flex-box(row, center, center);
 }
-
-> table {
-  grid-row: 2 / 3;
-  grid-column: 1 / 2;
-  table-layout: fixed;
-
-  th,
-  td {
-    label {
-      @include inline-flex-box(row, flex-start, center);
-    }
-  }
-
-  th {
-    text-align: right;
-    padding: 0;
-    white-space: nowrap;
-    width: 1px;
-  }
-
-  td {
-    text-align: left;
-    padding: 0;
-
-    input {
-      margin: 0;
-    }
-  }
-}
 </style>

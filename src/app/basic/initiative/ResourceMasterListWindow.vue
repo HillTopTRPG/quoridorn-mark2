@@ -147,7 +147,7 @@ export default class ResourceMasterListWindow extends Mixins<
 
   @VueEvent
   private async deleteResource(key: string) {
-    const result = questionDialog({
+    const result = await questionDialog({
       title: this.$t("button.delete").toString(),
       text: this.$t(
         `${this.windowInfo.type}.dialog.delete-resource`

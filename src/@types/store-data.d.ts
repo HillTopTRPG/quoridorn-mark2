@@ -406,3 +406,15 @@ type UserStore = {
   isExported: string;
   token: string;
 };
+
+type CounterRemoconTargetType = "every-one" | "own";
+type CounterRemoconModifyType = "plus" | "minus" | "substitute" | "plus-minus";
+
+type CounterRemoconStore = {
+  name: string;
+  targetType: CounterRemoconTargetType;
+  resourceMasterKey: string | null;
+  modifyType: CounterRemoconModifyType;
+  value: string; // 空文字で範囲選択
+  messageFormat: string;
+};

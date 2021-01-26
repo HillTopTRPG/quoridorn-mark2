@@ -1,7 +1,7 @@
 <template>
   <tr class="tr-general-type-select-component">
     <th class="label-input">
-      <label :for="key" v-t="labelName"></label>
+      <label :for="key" v-t="`selection.${type}.label`"></label>
     </th>
     <td>
       <general-type-select
@@ -18,7 +18,6 @@
 <script lang="ts">
 import { Prop } from "vue-property-decorator";
 import { Component, Mixins } from "vue-mixin-decorator";
-import { ResourceType } from "@/@types/store-data-optional";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import GeneralTypeSelect from "@/app/basic/common/components/select/GeneralTypeSelect.vue";
 
@@ -26,9 +25,6 @@ import GeneralTypeSelect from "@/app/basic/common/components/select/GeneralTypeS
 export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
-  @Prop({ type: String, required: true })
-  private labelName!: ResourceType;
-
   @Prop({ type: String, required: true })
   private value!: string;
 

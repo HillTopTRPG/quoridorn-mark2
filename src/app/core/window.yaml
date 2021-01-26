@@ -2057,3 +2057,105 @@
   fontSizePickable: true
   resizable: true
   tableInfoList: []
+
+"counter-remocon-add-window":
+  icon: calculator
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  minSize:
+    widthPx: 2
+    widthEm: 25
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"counter-remocon-edit-window":
+  icon: calculator
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  minSize:
+    widthPx: 2
+    widthEm: 25
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 2
+    heightRem: 0.5
+    heightEm: 16
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"counter-remocon-window":
+  icon: calculator
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 20
+    widthRem: 0
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 8
+    heightRem: 1.5
+  minSize:
+    widthPx: 2
+    widthEm: 10
+    widthRem: 0
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 5
+    heightRem: 1
+  maxSize:
+    widthPx: 2
+    widthEm: 30
+    widthRem: 0
+    widthScrollBar: 1
+    heightPx: 2
+    heightEm: 14
+    heightRem: 2.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []

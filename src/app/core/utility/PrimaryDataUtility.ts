@@ -57,6 +57,10 @@ export function convertBooleanFalse(str: string | null): boolean {
   return str.toLowerCase() === "true";
 }
 
+export function isArray(obj: any): boolean {
+  return Object.prototype.toString.call(obj) === "[object Array]";
+}
+
 /**
  * 配列を空にする
  * @param list

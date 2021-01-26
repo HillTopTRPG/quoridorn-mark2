@@ -48,6 +48,7 @@ type:
   pl: Player
   visitor: Observer
   public-memo-list: 共有メモ
+  counter-remocon-list: カウンターリモコン
 
 context:
   bgm-setting: Edit BGM
@@ -152,6 +153,16 @@ selection:
     gm: GM
     pl: PL
     visitor: 見学者
+  counter-remocon-target-type:
+    label: 対象タイプ
+    every-one: すべて
+    own: 自分のもの
+  counter-remocon-modify-type:
+    label: 編集タイプ
+    plus: +
+    minus: '-'
+    substitute: '='
+    plus-minus: ±
 
 resource-master-info-form:
   label:
@@ -209,6 +220,12 @@ bcdice-manager:
 like-info-form:
   label:
     resource-restriction: 連動リソースは数値タイプかつ自動付与（アクター）のリソースから選択可能
+
+counter-remocon-info-form:
+  label:
+    value: 値(空文字:選択形式)
+    interval: 選択形式の値の間隔
+    message-format: メッセージ
 
 menu:
   window: 画面
@@ -772,7 +789,16 @@ image-view-window:
   window-title: 画像表示
 
 media-url-add-window:
-  window-title: メディアURL追加
+  window-title: メディアURL登録
 
 media-url-edit-window:
   window-title: メディアURL編集
+
+counter-remocon-add-window:
+  window-title: カウンターリモコン作成
+
+counter-remocon-edit-window:
+  window-title: カウンターリモコン編集
+
+counter-remocon-window:
+  window-title: カウンターリモコン
