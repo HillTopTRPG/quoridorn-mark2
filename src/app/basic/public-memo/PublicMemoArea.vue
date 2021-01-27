@@ -33,9 +33,9 @@ export default class PublicMemoArea extends Mixins<ComponentVue>(ComponentVue) {
     // 全く見える権限の無いものはリストに含めない
     this.usePublicMemoList = this.publicMemoList.filter(pm => {
       if (!permissionCheck(pm, "view")) return false;
-      return !!this.memoList.some(m => {
+      return this.memoList.some(m => {
         if (pm.key !== m.owner) return false;
-        return permissionCheck(m, "view", 1);
+        return permissionCheck(m, "view");
       });
     });
   }

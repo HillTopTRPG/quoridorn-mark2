@@ -65,7 +65,7 @@ export default class MemoTabComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private isEditable(tabInfo: StoreData<MemoStore>) {
-    return permissionCheck(tabInfo, "edit", 1);
+    return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
@@ -76,7 +76,7 @@ export default class MemoTabComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private isChmodAble(tabInfo: StoreData<MemoStore>) {
-    return permissionCheck(tabInfo, "chmod", 1);
+    return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
@@ -87,7 +87,7 @@ export default class MemoTabComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private isDeletable(tabInfo: StoreData<MemoStore>) {
-    return permissionCheck(tabInfo, "edit", 1);
+    return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent

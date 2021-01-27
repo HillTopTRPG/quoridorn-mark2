@@ -408,7 +408,7 @@ type UserStore = {
 };
 
 type CounterRemoconTargetType = "every-one" | "own";
-type CounterRemoconModifyType = "plus" | "minus" | "substitute" | "plus-minus";
+type CounterRemoconModifyType = "substitute" | "plus-minus";
 
 type CounterRemoconStore = {
   name: string;

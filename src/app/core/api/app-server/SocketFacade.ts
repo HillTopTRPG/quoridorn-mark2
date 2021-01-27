@@ -68,13 +68,11 @@ export type Interoperability = {
  * パーミッションチェックを行う。
  * @param data
  * @param type
- * @param ownerLevel
  * @return 許可されているならtrue
  */
 export function permissionCheck(
   data: StoreData<any>,
-  type: "view" | "edit" | "chmod",
-  ownerLevel: number = 0
+  type: "view" | "edit" | "chmod"
 ): boolean {
   if (!data!.permission) return true;
 
@@ -112,11 +110,7 @@ export function permissionCheck(
         if (pn.key === GameObjectManager.instance.mySelfActorKey) return true;
       }
       if (pn.type === "owner") {
-        let obj = data;
-        for (let i = 0; i < ownerLevel; i++) {
-          obj = GameObjectManager.instance.getOwner(obj)!;
-        }
-        if (obj.owner === SocketFacade.instance.userKey) return true;
+        return GameObjectManager.isOwn(data);
       }
       return false;
     };

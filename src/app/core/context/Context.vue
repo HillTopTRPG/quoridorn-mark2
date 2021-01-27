@@ -48,24 +48,25 @@ import {
   ContextTaskInfo
 } from "context";
 import { Task, TaskResult } from "task";
-import { judgeCompare } from "../utility/CompareUtility";
-import TaskProcessor from "../task/TaskProcessor";
-import TaskManager from "../task/TaskManager";
-import VueEvent from "../decorator/VueEvent";
-import { createPoint } from "../utility/CoordinateUtility";
-import GameObjectManager from "../../basic/GameObjectManager";
+import {
+  CounterRemoconModifyType,
+  ResourceStore,
+  SceneObjectStore
+} from "@/@types/store-data";
+import { UpdateResourceInfo } from "task-info";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   clone,
   convertNumberZero,
   listToEmpty
-} from "../utility/PrimaryDataUtility";
-import LifeCycle from "../decorator/LifeCycle";
-import { findByKey, findRequireByKey } from "../utility/Utility";
-import {
-  CounterRemoconModifyType,
-  SceneObjectStore
-} from "@/@types/store-data";
-import { UpdateResourceInfo } from "task-info";
+} from "@/app/core/utility/PrimaryDataUtility";
+import TaskManager from "@/app/core/task/TaskManager";
+import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { createPoint } from "@/app/core/utility/CoordinateUtility";
+import { judgeCompare } from "@/app/core/utility/CompareUtility";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
 const contextInfo: ContextDeclare = require("../context.yaml");
 const contextItemInfo: ContextItemDeclareBlock = require("../context-item.yaml");
@@ -173,12 +174,7 @@ export default class Context extends Vue {
   @VueEvent
   private get levelList(): number[] {
     let level = this.hoverLevel;
-    const hoverItem = this.itemList.find(
-      item =>
-        item.level === level &&
-        item.index === this.hoverIndex &&
-        item.parentIndex === this.getParentIndex(level)
-    );
+    const hoverItem = this.getLevelItem(level, this.hoverIndex);
     if (!hoverItem) level = 1;
     else {
       level++;
@@ -203,13 +199,27 @@ export default class Context extends Vue {
         )[0];
         const parentItemElm = parentLevelElm.children[hoverIndex];
         const currentItemNum = this.getLevelItemList(level).length;
+
+        let itemHeight = 28;
         if (parentItemElm) {
           const parentRect: any = parentItemElm.getBoundingClientRect();
+          itemHeight = parentRect.height;
           point.x = parentRect.x + parentRect.width - 7 - cRect.x;
           point.y =
-            parentRect.y -
-            cRect.y -
-            ((currentItemNum - 1) * parentRect.height) / 2;
+            parentRect.y - cRect.y - ((currentItemNum - 1) * itemHeight) / 2;
+        }
+        const levelHeight = currentItemNum * itemHeight;
+        const windowHeight = document.documentElement.clientHeight;
+        const absoluteY = point.y + cRect.y;
+
+        // 上に突き抜けないように
+        if (absoluteY < 0) {
+          point.y -= absoluteY;
+        }
+
+        // 下に突き抜けないように
+        if (point.y + levelHeight + cRect.y > windowHeight) {
+          point.y = windowHeight - levelHeight - cRect.y;
         }
       }
     }
@@ -230,9 +240,20 @@ export default class Context extends Vue {
 
   @VueEvent
   private getLevelItemList(level: number): Item[] {
-    const parentIndex = this.getParentIndex(level);
     return this.itemList.filter(
-      item => item.level === level && item.parentIndex === parentIndex
+      item =>
+        item.level === level && item.parentIndex === this.getParentIndex(level)
+    );
+  }
+
+  private getLevelItem(level: number, index: number): Item | null {
+    return (
+      this.itemList.find(
+        item =>
+          item.level === level &&
+          item.parentIndex === this.getParentIndex(level) &&
+          item.index === index
+      ) || null
     );
   }
 
@@ -274,7 +295,6 @@ export default class Context extends Vue {
         max = resourceMax - currentValue;
         max = Math.floor(max / interval) * interval;
         max += currentValue;
-        if (modifyType === "minus") max = 0;
       }
 
       let min: number;
@@ -285,7 +305,6 @@ export default class Context extends Vue {
         min = resourceMin - currentValue;
         min = Math.ceil(min / interval) * interval;
         min += currentValue;
-        if (modifyType === "plus") min = 0;
       }
 
       const plusMin =
@@ -341,14 +360,47 @@ export default class Context extends Vue {
         });
       };
 
-      let slicePlusList = sliceByNumber(plusList, 10, true);
-      if (slicePlusList.length > 10) {
-        slicePlusList = sliceByNumber(slicePlusList, 10, true);
-      }
-      let sliceMinusList = sliceByNumber(minusList, 10, false);
-      if (sliceMinusList.length > 10) {
-        sliceMinusList = sliceByNumber(sliceMinusList, 10, true);
-      }
+      const arrangeList = (list: any[], isPlus: boolean): any[] => {
+        // 1階層
+        if (list.length <= 10) return list;
+
+        // 2階層(11~50 -> 5*(n~10))
+        if (list.length <= 50) return sliceByNumber(list, 5, isPlus);
+
+        // 2階層(51~75 -> 10*(n~10))
+        if (list.length <= 75) return sliceByNumber(list, 10, isPlus);
+
+        // 3階層(75~250 -> 5*5*(n~10))
+        if (list.length <= 250) {
+          list = sliceByNumber(list, 5, isPlus);
+          return sliceByNumber(list, 5, isPlus);
+        }
+
+        // 3階層(251~500 -> 5*10*(n~10))
+        if (list.length <= 500) {
+          list = sliceByNumber(list, 5, isPlus);
+          return sliceByNumber(list, 10, isPlus);
+        }
+
+        // 3階層(501~1000 -> 10*10*(n~10))
+        if (list.length <= 1000) {
+          list = sliceByNumber(list, 10, isPlus);
+          return sliceByNumber(list, 10, isPlus);
+        }
+
+        // 3階層(1001~1500 -> 10*15*(n~10))
+        if (list.length <= 1500) {
+          list = sliceByNumber(list, 10, isPlus);
+          return sliceByNumber(list, 15, isPlus);
+        }
+
+        // 3階層(1501~ -> 15*15*n) …選択肢の数が2250個を超えたら最初の選択肢が10個を超えていく……
+        list = sliceByNumber(list, 15, isPlus);
+        return sliceByNumber(list, 15, isPlus);
+      };
+
+      let slicePlusList = arrangeList(plusList, true);
+      let sliceMinusList = arrangeList(minusList, false);
 
       const createSimpleNumberList = (list: number[]): ContextItemDeclare => {
         const sign = list[0] > 0 && modifyType !== "substitute" ? "+" : "";
@@ -428,20 +480,30 @@ export default class Context extends Vue {
 
     const createValuePlusMinusItem = (
       value: number,
-      currentValue: number
+      currentValue: number,
+      min: number,
+      max: number
     ): ContextItemDeclare[] => {
       const result: ContextItemDeclare[] = [];
       result.push({
         text: `+${value} => ${currentValue + value}`,
         isRawText: true,
         taskName: "counter-remocon-click",
-        taskArg: { value: value }
+        taskArg: { value: value },
+        isDisabledCompare: {
+          lhs: true,
+          rhs: max >= currentValue + value
+        }
       });
       result.push({
         text: `-${value} => ${currentValue - value}`,
         isRawText: true,
         taskName: "counter-remocon-click",
-        taskArg: { value: -value }
+        taskArg: { value: -value },
+        isDisabledCompare: {
+          lhs: true,
+          rhs: min <= currentValue - value
+        }
       });
       return result;
     };
@@ -457,11 +519,26 @@ export default class Context extends Vue {
         r => r.data!.resourceMasterKey === resourceMasterKey
       );
 
-      return resourceList.map(resource => {
+      const targetType = counterRemocon.data!.targetType;
+
+      const targetInfoList: {
+        resource: StoreData<ResourceStore>;
+        target: StoreData<any>;
+      }[] = [];
+
+      resourceList.forEach(resource => {
         const target = findRequireByKey<any>(
           GameObjectManager.instance.getList(resource.ownerType!)!,
           resource.owner
         );
+        if (targetType === "own" && !GameObjectManager.isOwn(target)) return;
+        targetInfoList.push({ resource, target });
+      });
+
+      return targetInfoList.map(info => {
+        const resource: StoreData<ResourceStore> = info.resource;
+        const target: StoreData<any> = info.target;
+
         const result: ContextItemDeclare = {
           text: (target.data! as any).name,
           isRawText: true,
@@ -479,7 +556,9 @@ export default class Context extends Vue {
           } else {
             result.children = createValuePlusMinusItem(
               convertNumberZero(counterRemocon.data!.value),
-              convertNumberZero(resource.data!.value)
+              convertNumberZero(resource.data!.value),
+              resourceMaster.data!.min!,
+              resourceMaster.data!.max!
             );
           }
         } else {
@@ -536,13 +615,7 @@ export default class Context extends Vue {
     let targetType: string = "";
 
     for (let i = 0; i <= this.hoverLevel; i++) {
-      const parentIndex = this.getParentIndex(i);
-      const item = this.itemList.find(
-        item =>
-          item.level === i &&
-          item.parentIndex === parentIndex &&
-          item.index === this.hoverIndexList[i]
-      );
+      const item = this.getLevelItem(i, this.hoverIndexList[i]);
       const taskArg = item!.arg;
       if ("resourceMasterKey" in taskArg) {
         resourceMasterKey = taskArg.resourceMasterKey;

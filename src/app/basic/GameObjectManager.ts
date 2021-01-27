@@ -480,7 +480,26 @@ export default class GameObjectManager {
     }
   }
 
-  public getOwner<T>(data: StoreData<T>): StoreData<T> | null {
+  public static isOwn(data: StoreData<any>): boolean {
+    const rootOwner = GameObjectManager.getRootOwner(data);
+    return !!rootOwner && rootOwner.owner === SocketFacade.instance.userKey;
+  }
+
+  public static getRootOwner(
+    data: StoreData<any>
+  ): StoreData<UserStore> | null {
+    let currentData: StoreData<any> | null = data;
+    while (
+      currentData &&
+      currentData.ownerType &&
+      currentData.ownerType !== "user-list"
+    ) {
+      currentData = GameObjectManager.getOwner(currentData);
+    }
+    return currentData;
+  }
+
+  public static getOwner<T>(data: StoreData<T>): StoreData<T> | null {
     const ownerType = data.ownerType;
     const owner = data.owner;
     if (!ownerType) return null;

@@ -5,7 +5,8 @@
     :title="title"
     @click.left.stop="onLeftClickButton"
     @click.right.stop="onRightClickButton"
-    @mouseenter="onHoverButton"
+    @mouseenter="onHoverButton(true)"
+    @mouseleave="onHoverButton(false)"
     @contextmenu.prevent
   >
     {{ counterRemocon.data.name }}
@@ -83,7 +84,7 @@ export default class CounterRemoconButtonComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private onHoverButton() {
+  private onHoverButton(flg: boolean) {
     const counterRemocon = this.counterRemocon;
 
     const resourceMaster = findByKey(
@@ -97,7 +98,7 @@ export default class CounterRemoconButtonComponent extends Mixins<ComponentVue>(
       "selection.counter-remocon-modify-type." +
         counterRemocon.data!.modifyType.toString()
     )}${counterRemocon.data!.value || "?"}`;
-    this.$emit("changeMessage", message);
+    this.$emit("changeMessage", flg ? message : "");
   }
 
   @VueEvent

@@ -285,7 +285,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
           const currentValue = this.value.find(
             lv => lv.key === this.currentTabInfo!.target
           )!;
-          if (!permissionCheck(currentValue, "edit", 1)) return;
+          if (!permissionCheck(currentValue, "edit")) return;
 
           let { width, height } = contentRect;
           const scrollBarWidth = getCssPxNum("--scroll-bar-width");
@@ -360,7 +360,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     const currentValue = this.value.find(
       lv => lv.key === this.currentTabInfo!.target
     )!;
-    if (!permissionCheck(currentValue, "edit", 1)) return;
+    if (!permissionCheck(currentValue, "edit")) return;
     currentValue.data!.text = currentValue.data!.text.replace(
       this.textareaRegExp,
       (m, p1, p2) => (index-- ? m : `:::${p1}:${p2}\n${value}:::END;;;`)
@@ -380,7 +380,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
 
   private createTabInfoList() {
     this.tabList = this.value
-      .filter(lv => permissionCheck(lv, "view", 1))
+      .filter(lv => permissionCheck(lv, "view"))
       .map(lv => ({
         key: lv.key,
         target: lv.key,
@@ -409,7 +409,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     const currentValue = this.value.find(
       lv => lv.key === this.currentTabInfo!.target
     )!;
-    if (!permissionCheck(currentValue, "edit", 1)) return;
+    if (!permissionCheck(currentValue, "edit")) return;
     currentValue.data!.text = currentValue.data!.text.replace(
       this.checkRegExp,
       (m, p1) => {
@@ -424,7 +424,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     const currentValue = this.value.find(
       lv => lv.key === this.currentTabInfo!.target
     )!;
-    if (!permissionCheck(currentValue, "edit", 1)) return;
+    if (!permissionCheck(currentValue, "edit")) return;
     currentValue.data!.text = currentValue.data!.text.replace(
       this.selectRegExp,
       (m, p1) => {
@@ -438,7 +438,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     const otherText = this.value.find(
       v => v.key === this.currentTabInfo!.target
     )!;
-    return permissionCheck(otherText, "edit", 1);
+    return permissionCheck(otherText, "edit");
   }
 }
 </script>

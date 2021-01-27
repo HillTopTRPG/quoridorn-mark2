@@ -211,7 +211,7 @@ export default class MemoTabSettingWindow extends Mixins<
 
   @VueEvent
   private localPermissionCheck(data: StoreData<MemoStore>) {
-    return permissionCheck(data, "view", 1);
+    return permissionCheck(data, "view");
   }
 
   @Watch("dragMode")
