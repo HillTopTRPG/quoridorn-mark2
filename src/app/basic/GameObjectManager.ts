@@ -542,7 +542,7 @@ export default class GameObjectManager {
       case "character":
         list = this.sceneObjectList;
         break;
-      case "actor-status-list":
+      case "status-list":
         list = this.actorStatusList;
         break;
       case "actor-list":

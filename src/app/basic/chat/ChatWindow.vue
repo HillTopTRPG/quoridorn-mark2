@@ -126,6 +126,7 @@ import { Getter } from "vuex-class";
 import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
 import TaskManager from "@/app/core/task/TaskManager";
 import { UserType } from "@/@types/store-data-optional";
+import App from "@/views/App.vue";
 
 @Component({
   components: {
@@ -852,6 +853,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     if (this.enterPressing === flg) return;
     this.enterPressing = flg;
     if (!flg) return;
+
+    // XXX デバッグ用コマンド
+    if (this.inputtingChatText === "open db-viewer-window") {
+      await App.openSimpleWindow("db-viewer-window");
+      return;
+    }
+
     if (event && event.shiftKey) {
       const textArea: HTMLTextAreaElement = event.target as HTMLTextAreaElement;
       const sentence = textArea.value;

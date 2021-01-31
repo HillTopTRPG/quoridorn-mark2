@@ -67,6 +67,7 @@ import MediaUrlEditWindow from "@/app/basic/media/url/MediaUrlEditWindow.vue";
 import CounterRemoconAddWindow from "@/app/basic/counter-remocon/CounterRemoconAddWindow.vue";
 import CounterRemoconEditWindow from "@/app/basic/counter-remocon/CounterRemoconEditWindow.vue";
 import CounterRemoconWindow from "@/app/basic/counter-remocon/CounterRemoconWindow.vue";
+import DbViewerWindow from "@/app/core/window/db-viewer/DbViewerWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -146,6 +147,7 @@ async function main(): Promise<void> {
   Vue.component("counter-remocon-add-window", CounterRemoconAddWindow);
   Vue.component("counter-remocon-edit-window", CounterRemoconEditWindow);
   Vue.component("counter-remocon-window", CounterRemoconWindow);
+  Vue.component("db-viewer-window", DbViewerWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 
