@@ -290,6 +290,18 @@ export default class SocketFacade {
     this.socket!.disconnect();
   }
 
+  public getAllCC(): NekostoreCollectionController<any>[] {
+    return Object.keys(this.collectionControllerMap).map(
+      key => this.collectionControllerMap[key]
+    );
+  }
+
+  public getAllSuffix(): string[] {
+    return Object.keys(this.collectionControllerMap).map(key =>
+      key.replace(`${this.__roomCollectionPrefix}-DATA-`, "")
+    );
+  }
+
   public set roomCollectionPrefix(val: string | null) {
     this.__roomCollectionPrefix = val;
   }

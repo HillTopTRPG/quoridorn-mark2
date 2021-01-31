@@ -2159,3 +2159,26 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
+
+"db-viewer-window":
+  icon: calculator
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: left-top
+  size:
+    widthPx: 400
+    heightPx: 300
+  minSize:
+    widthPx: 300
+    heightPx: 200
+  maxSize:
+    widthPx: 920
+    heightPx: 700
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: false
+  resizable: true
+  tableInfoList: []
