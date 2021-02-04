@@ -1,6 +1,6 @@
 {
   "name": "quoridorn-mark2",
-  "version": "2.0.0a94",
+  "version": "2.0.0a95",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
