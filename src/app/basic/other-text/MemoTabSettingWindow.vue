@@ -78,7 +78,6 @@ import SCheck from "@/app/basic/common/components/SCheck.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
-import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 const uuid = require("uuid");
 
@@ -86,7 +85,6 @@ const uuid = require("uuid");
   components: {
     MemoTabComponent,
     SimpleTabComponent,
-    ChatTabComponent,
     TrCheckboxComponent,
     SCheck,
     CtrlButton,

@@ -68,6 +68,9 @@ import CounterRemoconAddWindow from "@/app/basic/counter-remocon/CounterRemoconA
 import CounterRemoconEditWindow from "@/app/basic/counter-remocon/CounterRemoconEditWindow.vue";
 import CounterRemoconWindow from "@/app/basic/counter-remocon/CounterRemoconWindow.vue";
 import DbViewerWindow from "@/app/core/window/db-viewer/DbViewerWindow.vue";
+import GroupChatAddWindow from "@/app/basic/chat/group/GroupChatAddWindow.vue";
+import GroupChatEditWindow from "@/app/basic/chat/group/GroupChatEditWindow.vue";
+import GroupChatSettingWindow from "@/app/basic/chat/GroupChatSettingWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -148,6 +151,9 @@ async function main(): Promise<void> {
   Vue.component("counter-remocon-edit-window", CounterRemoconEditWindow);
   Vue.component("counter-remocon-window", CounterRemoconWindow);
   Vue.component("db-viewer-window", DbViewerWindow);
+  Vue.component("group-chat-tab-add-window", GroupChatAddWindow);
+  Vue.component("group-chat-tab-edit-window", GroupChatEditWindow);
+  Vue.component("group-chat-setting-window", GroupChatSettingWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

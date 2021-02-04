@@ -2182,3 +2182,93 @@
   fontSizePickable: false
   resizable: true
   tableInfoList: []
+
+"group-chat-setting-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthEm: 22
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 14
+    heightRem: 0.5
+  minSize:
+    widthEm: 18
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 10
+    heightRem: 0.5
+  maxSize:
+    widthEm: 30
+    widthScrollBar: 1
+    heightPx: 4
+    heightEm: 26
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"group-chat-tab-add-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 200
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  minSize:
+    widthPx: 200
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  maxSize:
+    widthPx: 400
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"group-chat-tab-edit-window":
+  icon: keyboard
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 200
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  minSize:
+    widthPx: 200
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  maxSize:
+    widthPx: 400
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []

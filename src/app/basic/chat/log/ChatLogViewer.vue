@@ -35,8 +35,6 @@
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import ChatLogLineComponent from "./ChatLogLineComponent.vue";
-import ComponentVue from "../../../core/window/ComponentVue";
 import {
   ActorStore,
   LikeStore,
@@ -47,23 +45,20 @@ import {
   UserStore
 } from "@/@types/store-data";
 import { TabInfo } from "@/@types/window";
-import VueEvent from "../../../core/decorator/VueEvent";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import SimpleTabComponent from "../../../core/component/SimpleTabComponent.vue";
-import App from "../../../../views/App.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { UserType } from "@/@types/store-data-optional";
+import App from "@/views/App.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import ChatLogLineComponent from "@/app/basic/chat/log/ChatLogLineComponent.vue";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
 
-@Component({
-  components: {
-    ChatLogLineComponent,
-    SimpleTabComponent
-  }
-})
+@Component({ components: { ChatLogLineComponent, SimpleTabComponent } })
 export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
@@ -151,7 +146,21 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
 
   @Watch("currentTabInfo")
   private onChangeCurrentTabInfo() {
-    this.$emit("changeTab", this.currentTabInfo!.target);
+    this.tabKeyVolatile = this.currentTabInfo!.target as string;
+  }
+
+  // tabKey
+  @Prop({ type: String, required: true })
+  private tabKey!: string;
+  private tabKeyVolatile: string = "";
+  @Watch("tabKey", { immediate: true })
+  private onChangeTabKey(value: string) {
+    this.tabKeyVolatile = value;
+    this.currentTabInfo = this.tabList.find(t => t.key === value) || null;
+  }
+  @Watch("tabKeyVolatile")
+  private onChangeTabKeyVolatile(value: string) {
+    this.$emit("update:tabKey", value);
   }
 
   @Watch("chatTabList", { immediate: true, deep: true })

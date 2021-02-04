@@ -39,15 +39,15 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import { listToEmpty } from "../../core/utility/PrimaryDataUtility";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import ActorGroupSelect from "../common/components/select/ActorGroupSelect.vue";
-import SCheck from "../common/components/SCheck.vue";
-import ActorSelect from "../common/components/select/ActorSelect.vue";
-import PermissionTypeSelect from "../common/components/select/PermissionTypeSelect.vue";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
+import SCheck from "@/app/basic/common/components/SCheck.vue";
+import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
+import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
 
 @Component({
   components: {

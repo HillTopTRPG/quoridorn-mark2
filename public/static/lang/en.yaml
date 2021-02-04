@@ -49,6 +49,8 @@ type:
   visitor: Observer
   public-memo-list: 共有メモ
   counter-remocon-list: カウンターリモコン
+  chat-tab-list: チャットタブ
+  actor-group-list: アクターグループ
 
 context:
   bgm-setting: Edit BGM
@@ -802,3 +804,16 @@ counter-remocon-edit-window:
 
 counter-remocon-window:
   window-title: カウンターリモコン
+
+group-chat-setting-window:
+  window-title: グループチャット設定
+  message-list:
+    edit: 編集
+    chmod: 権限編集
+    delete: 削除
+
+group-chat-tab-add-window:
+  window-title: グループチャットタブ作成
+
+group-chat-tab-edit-window:
+  window-title: グループチャットタブ編集

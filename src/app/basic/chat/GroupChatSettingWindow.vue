@@ -7,32 +7,19 @@
     >
       <!-- タブリストタブ -->
       <div class="tab-container" v-if="currentTabInfo.target === 'tab-list'">
-        <div
-          class="tab-info tab-all"
-          :class="{ 'not-use': !isUseAllTab }"
-          @click="isUseAllTab = !isUseAllTab"
-        >
-          <span class="icon-menu"></span>
-          <span v-t="'label.all'"></span>
-
-          <div class="check-box">
-            <span v-t="`label.${isUseAllTab ? '' : 'un-'}use`"></span>
-            <span :class="`icon-eye${isUseAllTab ? '' : '-blocked'}`"></span>
-          </div>
-        </div>
         <draggable
           :options="{
             animation: 10,
             handle: dragModeTab ? '' : '.anonymous'
           }"
           class="draggable-box"
-          v-model="filteredChatTabList"
+          v-model="filteredGropuChatTabList"
           @start="onSortStart()"
           @end="onSortEnd()"
           @sort="onSortOrderChangeTab()"
         >
-          <chat-tab-component
-            v-for="tab in filteredChatTabList"
+          <group-chat-component
+            v-for="tab in filteredGropuChatTabList"
             :key="tab.key"
             :tab="tab"
             :dragMode="dragModeTab"
@@ -56,59 +43,6 @@
           :n-label="$t('label.sort')"
         />
       </div>
-
-      <!-- いいねタブ -->
-      <div class="like-container" v-if="currentTabInfo.target === 'like-list'">
-        <draggable
-          :options="{
-            animation: 10,
-            handle: dragModeLike ? '' : '.anonymous'
-          }"
-          class="draggable-box"
-          v-model="filteredLikeList"
-          @start="onSortStart()"
-          @end="onSortEnd()"
-          @sort="onSortOrderChangeLike()"
-        >
-          <like-component
-            v-for="like in filteredLikeList"
-            :key="like.key"
-            :like="like"
-            :dragMode="dragModeLike"
-            :changeOrderKey="changeOrderKey"
-            @hover="onHover"
-          />
-        </draggable>
-      </div>
-
-      <div class="button-area" v-if="currentTabInfo.target === 'like-list'">
-        <ctrl-button @click="addLike()">
-          <span v-t="'button.add'"></span>
-        </ctrl-button>
-        <s-check
-          class="sort-check"
-          v-model="dragModeLike"
-          colorStyle="skyblue"
-          c-icon="checkmark"
-          :c-label="$t('label.sort')"
-          n-icon=""
-          :n-label="$t('label.sort')"
-        />
-      </div>
-
-      <!-- その他タブ -->
-      <div class="other-block" v-if="currentTabInfo.target === 'other'">
-        <table>
-          <tr>
-            <tr-checkbox-component
-              labelName="label.read-aloud"
-              cLabel=""
-              nLabel=""
-              v-model="useReadAloudLocal"
-            />
-          </tr>
-        </table>
-      </div>
     </simple-tab-component>
   </div>
 </template>
@@ -122,8 +56,7 @@ import { ModeInfo } from "mode";
 import { Getter, Mutation } from "vuex-class";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
-import LikeComponent from "@/app/basic/chat/like/LikeComponent.vue";
-import { LikeStore, ChatTabStore } from "@/@types/store-data";
+import { GroupChatTabStore } from "@/@types/store-data";
 import {
   errorDialog,
   findRequireByKey,
@@ -136,7 +69,6 @@ import App from "@/views/App.vue";
 import SocketFacade, {
   permissionCheck
 } from "@/app/core/api/app-server/SocketFacade";
-import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import TaskManager from "@/app/core/task/TaskManager";
 import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
@@ -145,49 +77,38 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import GroupChatComponent from "@/app/basic/chat/group/GroupChatComponent.vue";
 
 @Component({
   components: {
-    LikeComponent,
+    GroupChatComponent,
     SimpleTabComponent,
-    ChatTabComponent,
     TrCheckboxComponent,
     SCheck,
     CtrlButton,
     draggable
   }
 })
-export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
-  WindowVue
-) {
+export default class GroupChatSettingWindow extends Mixins<
+  WindowVue<void, never>
+>(WindowVue) {
   @Mutation("setUseReadAloud")
   private setUseReadAloud!: (useReadAloud: boolean) => void;
 
   @Getter("useReadAloud")
   private useReadAloud!: boolean;
 
-  private chatTabList = GameObjectManager.instance.chatTabList;
-  private likeList = GameObjectManager.instance.likeList;
-  private filteredChatTabList: StoreData<ChatTabStore>[] = [];
-  private filteredLikeList: StoreData<LikeStore>[] = [];
-  private chatTabListCC = SocketFacade.instance.chatTabListCC();
-  private likeListCC = SocketFacade.instance.likeListCC();
-  private chatPublicInfo = GameObjectManager.instance.chatPublicInfo;
+  private groupChatTabList = GameObjectManager.instance.groupChatTabList;
+  private filteredGropuChatTabList: StoreData<GroupChatTabStore>[] = [];
+  private groupChatTabListCC = SocketFacade.instance.groupChatTabListCC();
 
   private dragModeTab = false;
   private dragModeTabProcessed: boolean = false;
-  private dragModeLike = false;
-  private dragModeLikeProcessed: boolean = false;
   private changeOrderKey: string = "";
   private orderChangingKeyList: string[] = [];
-  private useReadAloudLocal: boolean = false;
-
-  private isUseAllTab: boolean = false;
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "tab-list", text: "", isDisabled: false },
-    { key: "2", target: "like-list", text: "", isDisabled: false },
-    { key: "3", target: "other", text: "", isDisabled: false }
+    { key: "1", target: "tab-list", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
 
@@ -199,28 +120,20 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     task.resolve();
   }
 
-  @Watch("useReadAloudLocal")
-  private onChangeUseReadAloudLocal() {
-    this.setUseReadAloud(this.useReadAloudLocal);
-  }
-
   @LifeCycle
   private async created() {
     this.createTabInfoList();
-    this.useReadAloudLocal = this.useReadAloud;
   }
 
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
     this.currentTabInfo = this.tabList.find(t => t.target === "tab-list")!;
   }
 
   @Watch("currentTabInfo")
   private onChangeCurrentTabInfo() {
     this.dragModeTab = false;
-    this.dragModeLike = false;
   }
 
   private createTabInfoList() {
@@ -229,42 +142,27 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     });
   }
 
-  @Watch("isUseAllTab")
-  private onChangeIsUseAllTab() {
-    this.chatPublicInfo.isUseAllTab = this.isUseAllTab;
-  }
-
-  @Watch("chatPublicInfo.isUseAllTab")
-  private onChangePublicIsUseAllTab() {
-    this.isUseAllTab = this.chatPublicInfo.isUseAllTab;
-  }
-
-  @Watch("chatTabList", { immediate: true, deep: true })
+  @Watch("groupChatTabList", { immediate: true, deep: true })
   private onChangeTabListImmediateDeep() {
-    this.filteredChatTabList = this.chatTabList.filter(ct =>
+    this.filteredGropuChatTabList = this.groupChatTabList.filter(ct =>
       permissionCheck(ct, "view")
     );
   }
 
-  @Watch("likeList", { immediate: true, deep: true })
-  private onChangeLikeListImmediateDeep() {
-    this.filteredLikeList = this.likeList.concat();
-  }
-
   @VueEvent
-  private isEditable(tabInfo: StoreData<ChatTabStore>) {
+  private isEditable(tabInfo: StoreData<GroupChatTabStore>) {
     return permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async editTab(tabInfo: StoreData<ChatTabStore>) {
+  private async editTab(tabInfo: StoreData<GroupChatTabStore>) {
     if (!this.isEditable(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
       type: "window-open",
       owner: "Quoridorn",
       value: {
-        type: "chat-tab-edit-window",
+        type: "group-chat-tab-edit-window",
         args: {
           type: tabInfo.collection,
           key: tabInfo.key
@@ -274,12 +172,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isChmodAble(tabInfo: StoreData<ChatTabStore>) {
+  private isChmodAble(tabInfo: StoreData<GroupChatTabStore>) {
     return permissionCheck(tabInfo, "chmod");
   }
 
   @VueEvent
-  private async chmodTab(tabInfo: StoreData<ChatTabStore>) {
+  private async chmodTab(tabInfo: StoreData<GroupChatTabStore>) {
     if (!this.isChmodAble(tabInfo)) return;
 
     await TaskManager.instance.ignition<WindowOpenInfo<DataReference>, never>({
@@ -296,12 +194,12 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   }
 
   @VueEvent
-  private isDeletable(tabInfo: StoreData<ChatTabStore>) {
+  private isDeletable(tabInfo: StoreData<GroupChatTabStore>) {
     return !tabInfo.data!.isSystem && permissionCheck(tabInfo, "edit");
   }
 
   @VueEvent
-  private async deleteTab(tabInfo: StoreData<ChatTabStore>) {
+  private async deleteTab(tabInfo: StoreData<GroupChatTabStore>) {
     if (!this.isDeletable(tabInfo)) return;
     const text = this.$t("message.delete-tab")!
       .toString()
@@ -315,7 +213,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     if (!result) return;
 
     try {
-      await this.chatTabListCC.deletePackage([tabInfo.key]);
+      await this.groupChatTabListCC.deletePackage([tabInfo.key]);
     } catch (err) {
       // TODO error message.
       return;
@@ -324,12 +222,7 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async addTab() {
-    await App.openSimpleWindow("chat-tab-add-window");
-  }
-
-  @VueEvent
-  private async addLike() {
-    await App.openSimpleWindow("like-add-window");
+    await App.openSimpleWindow("group-chat-tab-add-window");
   }
 
   @VueEvent
@@ -340,18 +233,20 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   @VueEvent
   private onHover(messageType: string, isHover: boolean) {
     this.windowInfo.message = isHover
-      ? this.$t(`chat-setting-window.message-list.${messageType}`)!.toString()
+      ? this.$t(
+          `group-chat-setting-window.message-list.${messageType}`
+        )!.toString()
       : "";
   }
 
   @Watch("dragModeTab")
   private async onChangeDragModeTab() {
-    const keyList: string[] = this.filteredChatTabList.map(ct => ct.key);
+    const keyList: string[] = this.filteredGropuChatTabList.map(ct => ct.key);
     if (this.dragModeTab) {
       let error: boolean = false;
 
       try {
-        await this.chatTabListCC.touchModify(keyList);
+        await this.groupChatTabListCC.touchModify(keyList);
       } catch (err) {
         error = true;
         await errorDialog({
@@ -370,40 +265,8 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
     } else {
       this.orderChangingKeyList = [];
       if (!this.dragModeTabProcessed) {
-        await this.chatTabListCC.releaseTouch(keyList);
+        await this.groupChatTabListCC.releaseTouch(keyList);
         this.dragModeTabProcessed = false;
-      }
-    }
-  }
-
-  @Watch("dragModeLike")
-  private async onChangeDragModeLike() {
-    const keyList: string[] = this.filteredLikeList.map(ct => ct.key);
-    if (this.dragModeLike) {
-      let error: boolean = false;
-
-      try {
-        await this.likeListCC.touchModify(keyList);
-      } catch (err) {
-        error = true;
-        await errorDialog({
-          title: this.$t("message.error").toString(),
-          text: "Failure to get likeList's lock.\nPlease try again."
-        });
-      }
-
-      if (error) {
-        this.dragModeLikeProcessed = true;
-        this.dragModeLike = false;
-        this.orderChangingKeyList = [];
-      } else {
-        this.orderChangingKeyList = keyList;
-      }
-    } else {
-      this.orderChangingKeyList = [];
-      if (!this.dragModeLikeProcessed) {
-        await this.likeListCC.releaseTouch(keyList);
-        this.dragModeLikeProcessed = false;
       }
     }
   }
@@ -414,14 +277,9 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
   ): Promise<TaskResult<never> | void> {
     if (task.value !== this.windowInfo.key) return;
     if (this.dragModeTab && !this.dragModeTabProcessed) {
-      const keyList: string[] = this.filteredChatTabList.map(ct => ct.key);
-      await this.chatTabListCC.releaseTouch(keyList);
+      const keyList: string[] = this.filteredGropuChatTabList.map(ct => ct.key);
+      await this.groupChatTabListCC.releaseTouch(keyList);
       this.dragModeTabProcessed = false;
-    }
-    if (this.dragModeLike && !this.dragModeLikeProcessed) {
-      const keyList: string[] = this.likeList.map(ct => ct.key);
-      await this.likeListCC.releaseTouch(keyList);
-      this.dragModeLikeProcessed = false;
     }
   }
 
@@ -446,15 +304,10 @@ export default class ChatSettingWindow extends Mixins<WindowVue<void, never>>(
 
   @VueEvent
   private async onSortOrderChangeTab() {
-    await ChatSettingWindow.sortUpdate(
-      this.filteredChatTabList,
-      this.chatTabListCC
+    await GroupChatSettingWindow.sortUpdate(
+      this.filteredGropuChatTabList,
+      this.groupChatTabListCC
     );
-  }
-
-  @VueEvent
-  private async onSortOrderChangeLike() {
-    await ChatSettingWindow.sortUpdate(this.filteredLikeList, this.likeListCC);
   }
 
   private static async sortUpdate<T>(

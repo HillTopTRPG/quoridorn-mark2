@@ -75,14 +75,12 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
-import ChatTabComponent from "@/app/basic/chat/tab/ChatTabComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {
     ChatPaletteTabComponent,
     SimpleTabComponent,
-    ChatTabComponent,
     TrCheckboxComponent,
     SCheck,
     CtrlButton,

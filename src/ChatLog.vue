@@ -68,7 +68,7 @@
       :groupChatTabList="groupChatTabList"
       :editedMessage="editedMessage"
       :userTypeLanguageMap="userTypeLanguageMap"
-      @changeTab="value => (selectedTabKey = value)"
+      :tab-key.sync="selectedTabKey"
     />
   </div>
 </template>
