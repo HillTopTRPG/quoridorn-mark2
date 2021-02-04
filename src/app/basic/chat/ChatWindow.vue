@@ -90,29 +90,24 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import LifeCycle from "../../core/decorator/LifeCycle";
-import TaskProcessor from "../../core/task/TaskProcessor";
-import UnitTableComponent from "./UnitTableComponent.vue";
 import {
   ActorStore,
-  LikeStore,
   ChatStore,
   ChatTabStore,
-  GroupChatTabStore
+  GroupChatTabStore,
+  LikeStore
 } from "@/@types/store-data";
 import { CustomDiceBotInfo } from "@/@types/room";
-import ChatOperationLine from "./ChatOperationLine.vue";
-import WindowVue from "../../core/window/WindowVue";
-import GameObjectManager from "../GameObjectManager";
 import { TabInfo } from "@/@types/window";
-import ChatOptionSelector from "./ChatOptionSelector.vue";
-import ChatInputInfoComponent from "./ChatInputInfoComponent.vue";
-import { conversion, sendChatLog } from "../../core/utility/ChatUtility";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import ChatLogViewer from "./log/ChatLogViewer.vue";
-import VueEvent from "../../core/decorator/VueEvent";
+import { Getter } from "vuex-class";
+import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
+import TaskManager from "@/app/core/task/TaskManager";
+import { UserType } from "@/@types/store-data-optional";
+import App from "@/views/App.vue";
+import CssManager from "@/app/core/css/CssManager";
+import { changeColorAlpha } from "@/app/core/utility/ColorUtility";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   createEmptyStoreUseData,
   errorDialog,
@@ -120,17 +115,22 @@ import {
   findRequireByKey,
   findRequireByOwner,
   questionDialog
-} from "../../core/utility/Utility";
-import LanguageManager from "../../../LanguageManager";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
-import ReadAloudManager from "../../../ReadAloudManager";
-import { Getter } from "vuex-class";
-import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
-import TaskManager from "@/app/core/task/TaskManager";
-import { UserType } from "@/@types/store-data-optional";
-import App from "@/views/App.vue";
-import CssManager from "@/app/core/css/CssManager";
-import { changeColorAlpha, parseColor } from "@/app/core/utility/ColorUtility";
+} from "@/app/core/utility/Utility";
+import UnitTableComponent from "@/app/basic/chat/UnitTableComponent.vue";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import ChatLogViewer from "@/app/basic/chat/log/ChatLogViewer.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import ChatOperationLine from "@/app/basic/chat/ChatOperationLine.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
+import ChatOptionSelector from "@/app/basic/chat/ChatOptionSelector.vue";
+import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
+import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue";
+import ReadAloudManager from "@/ReadAloudManager";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 @Component({
   components: {
@@ -381,7 +381,21 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       0.5
     );
     this.targetTabList = this.groupChatTabList
-      .filter(gct => permissionCheck(gct, "view"))
+      .filter(gct => {
+        if (!permissionCheck(gct, "view")) return false;
+        const actorGroup = findRequireByKey(
+          this.actorGroupList,
+          gct.data!.actorGroupKey
+        );
+        return actorGroup.data!.list.some(d => {
+          if (d.type === "user")
+            return d.userKey === SocketFacade.instance.userKey;
+          else {
+            const actor = findRequireByKey(this.actorList, d.actorKey);
+            return GameObjectManager.isOwn(actor);
+          }
+        });
+      })
       .map(ct => ({
         key: ct.key,
         text: ct.data!.name,
@@ -619,7 +633,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       // 単位
       const unit: string = matchResult[2];
 
-      console.log(num, unit, matchResult);
+      // console.log(num, unit, matchResult);
 
       this.unitList = conversion(num, unit) || this.unitList;
     }
