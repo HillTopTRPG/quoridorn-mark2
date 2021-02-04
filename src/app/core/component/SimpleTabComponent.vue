@@ -5,12 +5,13 @@
         class="tab"
         v-for="(tab, index) in useTabList"
         :class="{ isActive: tab.key === localValue.key }"
+        :style="{ '--over-color': tab.color }"
         :key="index"
         @click="onClickTab(tab)"
         tabindex="0"
         @keydown.space.prevent="localValue = tab"
       >
-        {{ tab.text }}
+        <span>{{ tab.text }}</span>
       </div>
       <div class="tab setting" v-if="hasSetting" @click="$emit('settingOpen')">
         <span class="icon-cog"></span>
@@ -127,6 +128,7 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
 
 .tab {
   @include flex-box(row, center, center);
+  position: relative;
   background: linear-gradient(
     to bottom,
     rgba(240, 240, 240, 1),
@@ -142,9 +144,34 @@ export default class SimpleTabComponent extends Mixins<ComponentVue>(
   min-width: var(--table-row-height);
   font-weight: bold;
 
+  &:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px 5px 0 0;
+    z-index: 0;
+    background-color: var(--over-color);
+  }
+
+  span {
+    z-index: 1;
+  }
+
   &.isActive {
     background: white;
-    border-color: #0092ed;
+    border-color: var(--uni-color-blue);
+
+    &:after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      border-top: 3px solid var(--uni-color-blue);
+    }
   }
 
   &.setting {

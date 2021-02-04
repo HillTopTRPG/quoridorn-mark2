@@ -116,6 +116,7 @@ type TabInfo = {
   key: string;
   text: string;
   isDisabled: boolean;
+  color?: string;
   target:
     | string
     | {

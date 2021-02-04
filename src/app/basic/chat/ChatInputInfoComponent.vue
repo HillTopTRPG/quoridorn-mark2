@@ -85,6 +85,7 @@ export default class ChatInputInfoComponent extends Mixins<ComponentVue>(
 .info-box {
   @include inline-flex-box(column, stretch, flex-start);
   border-right: 1px dashed gray;
+  z-index: 1;
 }
 
 .item {

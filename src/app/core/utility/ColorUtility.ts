@@ -143,6 +143,7 @@ const colorMap: { [name: string]: string } = {
   purple: "#800080",
   indigo: "#4b0082"
 };
+
 export function parseColor(colorText: string) {
   let _c: any = null;
   colorText = colorText.trim().toLowerCase();
@@ -206,4 +207,10 @@ export function parseColor(colorText: string) {
   _c.getRGBA = () => `rgba(${_c.r}, ${_c.g}, ${_c.b}, ${_c.a})`;
   _c.getRGBReverse = () => `rgb(${255 - _c.r}, ${255 - _c.g}, ${255 - _c.b})`;
   return _c;
+}
+
+export function changeColorAlpha(color: string, alpha: number): string {
+  const colorObj = parseColor(color);
+  colorObj.a = alpha;
+  return colorObj.getRGBA();
 }

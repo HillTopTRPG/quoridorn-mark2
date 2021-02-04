@@ -13,9 +13,9 @@
       :actorGroupList="actorGroupList"
       :chatTabList="chatTabList"
       :groupChatTabList="groupChatTabList"
+      :tab-key.sync="tabKey"
       @edit="editChat"
       @delete="deleteChat"
-      @changeTab="value => (tabKey = value)"
       @like="onLike"
     />
 
@@ -36,9 +36,10 @@
         :windowKey="windowKey"
         :tabList="targetTabList"
         v-model="currentTargetTabInfo"
-        :hasSetting="false"
+        @settingOpen="editGroupChat"
+        :hasSetting="true"
       >
-        <div class="chat-input-box">
+        <div class="chat-input-box" :class="{ secret: isSecret }">
           <chat-input-info-component
             :windowInfo="windowInfo"
             :sender="sender"
@@ -51,6 +52,7 @@
           <label class="chat-input-container">
             <textarea
               v-model="inputtingChatText"
+              :class="{ secret: isSecret }"
               :placeholder="$t('chat-window.placeholder')"
               @input="onInputChat($event.target.value)"
               @keydown.up.self.stop="event => changeChatOption('up', event)"
@@ -127,6 +129,8 @@ import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
 import TaskManager from "@/app/core/task/TaskManager";
 import { UserType } from "@/@types/store-data-optional";
 import App from "@/views/App.vue";
+import CssManager from "@/app/core/css/CssManager";
+import { changeColorAlpha, parseColor } from "@/app/core/utility/ColorUtility";
 
 @Component({
   components: {
@@ -372,14 +376,20 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   @Watch("groupChatTabList", { immediate: true, deep: true })
   private onChangeGroupChatTabList() {
+    const secretColor = changeColorAlpha(
+      CssManager.getCss("--uni-color-light-purple"),
+      0.5
+    );
     this.targetTabList = this.groupChatTabList
       .filter(gct => permissionCheck(gct, "view"))
       .map(ct => ({
         key: ct.key,
         text: ct.data!.name,
         target: ct.key,
-        isDisabled: false
+        isDisabled: false,
+        color: ct.data!.isSecret ? secretColor : ""
       }));
+    console.log(this.targetTabList);
     if (!this.currentTargetTabInfo)
       this.currentTargetTabInfo = this.targetTabList[0];
   }
@@ -440,16 +450,25 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.chatPublicInfo.tabKey = this.tabKey;
   }
 
+  @Watch("currentTargetTabInfo", { deep: true })
+  private onChangeCurrentTargetTabInfo() {
+    this.targetKey = this.currentTargetTabInfo?.target as string;
+  }
+
   @Watch("targetKey")
   private onChangeTargetKey() {
     this.chatPublicInfo.targetKey = this.targetKey;
 
     const groupChatTabInfo = findByKey(this.groupChatTabList, this.targetKey);
     if (groupChatTabInfo) {
+      this.currentTargetTabInfo =
+        this.targetTabList.find(tt => tt.key === this.targetKey) || null;
       const outputChatTabKey = groupChatTabInfo.data!.outputChatTabKey;
+      this.outputTabKey = outputChatTabKey;
       if (outputChatTabKey) {
         this.tabKey = outputChatTabKey;
       }
+      this.isSecret = groupChatTabInfo.data!.isSecret;
 
       const actorGroupKey = groupChatTabInfo.data!.actorGroupKey;
       const actorGroupInfo = findRequireByKey(
@@ -566,8 +585,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.chatOptionSelectMode = "select-target";
     } else if (outputTabKey !== undefined) {
       this.chatOptionList = this.outputTabList;
-      this.chatOptionValue = outputTabKey;
+      this.chatOptionValue = outputTabKey || "";
       this.outputTabKey = outputTabKey;
+      if (outputTabKey) {
+        this.tabKey = outputTabKey;
+      }
       this.chatOptionSelectMode = "select-output-tab";
     } else if (partsFormat) {
       this.chatOptionList = this.chatFormatWrapList;
@@ -642,8 +664,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.targetKey = getNextKey();
 
     // タブの選択の場合
-    if (this.chatOptionSelectMode === "select-output-tab")
-      this.outputTabKey = getNextKey();
+    if (this.chatOptionSelectMode === "select-output-tab") {
+      const key = getNextKey();
+      this.outputTabKey = key;
+      if (key) {
+        this.tabKey = key;
+      }
+    }
 
     // 秘匿チャットかどうかの選択の場合
     if (this.chatOptionSelectMode === "select-is-secret")
@@ -824,6 +851,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   }
 
   @VueEvent
+  private async editGroupChat() {
+    await App.openSimpleWindow("group-chat-setting-window");
+  }
+
+  @VueEvent
   private async deleteChat(key: string) {
     const confirm = await questionDialog({
       title: this.$t("button.delete").toString(),
@@ -973,10 +1005,24 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
 .chat-input-box {
   @include flex-box(row, flex-start, stretch);
+  position: relative;
   border: 1px solid gray;
   margin-top: -1px;
-  background-color: white;
   flex: 1;
+
+  &.secret {
+    &:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      z-index: 0;
+      background-color: var(--uni-color-light-purple);
+      opacity: 0.3;
+    }
+  }
 }
 
 .chat-input-container {
@@ -993,5 +1039,7 @@ textarea {
   outline: none;
   line-height: 1.5em;
   resize: none;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 1;
 }
 </style>
