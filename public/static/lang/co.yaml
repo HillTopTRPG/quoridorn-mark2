@@ -817,6 +817,10 @@ group-chat-tab-edit-window:
 
 authority-group-list-window:
   window-title: 権限グループ一覧
+  dialog:
+    delete-group: |-
+      本当に権限グループ「$1」を削除しますか？
+      この操作は取り消せません。
 
 authority-group-add-window:
   window-title: 権限グループ作成

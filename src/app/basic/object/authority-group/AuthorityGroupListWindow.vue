@@ -9,7 +9,7 @@
       <div class="tab-container" v-if="currentTabInfo.target === 'basic'">
         <div class="list">
           <authority-group-component
-            v-for="authorityGroup in authorityGroupList"
+            v-for="authorityGroup in useAuthorityGroupList"
             :key="authorityGroup.key"
             :authority-group="authorityGroup"
             @edit="edit(authorityGroup.key)"
@@ -29,7 +29,7 @@
                 <label></label>
               </td>
               <th
-                v-for="authorityGroup in authorityGroupList"
+                v-for="authorityGroup in useAuthorityGroupList"
                 :key="authorityGroup.key"
               >
                 <label>
@@ -44,7 +44,7 @@
               <tr class="user" :key="user.key">
                 <th class="name" colspan="2">{{ getUserName(user.key) }}</th>
                 <td
-                  v-for="authorityGroup in authorityGroupList"
+                  v-for="authorityGroup in useAuthorityGroupList"
                   :key="authorityGroup.key"
                   :title="authorityGroup.data.name"
                   class="selectable"
@@ -61,7 +61,7 @@
                 <th class="empty"></th>
                 <th class="name">{{ getActorName(actor.key) }}</th>
                 <td
-                  v-for="authorityGroup in authorityGroupList"
+                  v-for="authorityGroup in useAuthorityGroupList"
                   :key="authorityGroup.key"
                   :title="authorityGroup.data.name"
                   class="selectable"
@@ -87,14 +87,20 @@
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { errorDialog, questionDialog } from "@/app/core/utility/Utility";
+import {
+  errorDialog,
+  findRequireByKey,
+  questionDialog
+} from "@/app/core/utility/Utility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import App from "@/views/App.vue";
 import TaskManager from "@/app/core/task/TaskManager";
 import WindowVue from "@/app/core/window/WindowVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import AuthorityGroupComponent from "@/app/basic/object/authority-group/AuthorityGroupComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
@@ -119,6 +125,10 @@ export default class AuthorityGroupListWindow extends Mixins<
   private authorityGroupList = GameObjectManager.instance.authorityGroupList;
   private userList = GameObjectManager.instance.userList;
   private actorList = GameObjectManager.instance.actorList;
+
+  private get useAuthorityGroupList() {
+    return this.authorityGroupList.filter(ag => permissionCheck(ag, "view"));
+  }
 
   @VueEvent
   private getActorList(userKey: string) {
@@ -232,11 +242,12 @@ export default class AuthorityGroupListWindow extends Mixins<
 
   @VueEvent
   private async deleteAuthorityGroup(key: string) {
+    const authorityGroup = findRequireByKey(this.authorityGroupList, key);
     const result = await questionDialog({
       title: this.$t("button.delete").toString(),
-      text: this.$t(
-        `${this.windowInfo.type}.dialog.delete-resource`
-      )!.toString(),
+      text: this.$t(`${this.windowInfo.type}.dialog.delete-group`)!
+        .toString()
+        .replace("$1", authorityGroup.data!.name),
       confirmButtonText: this.$t("button.delete").toString(),
       cancelButtonText: this.$t("button.reject").toString()
     });
