@@ -6,7 +6,7 @@
       initTabTarget="basic"
       :name.sync="name"
       :isSystem.sync="isSystem"
-      :actorGroupKey.sync="actorGroupKey"
+      :authorityGroupKey.sync="authorityGroupKey"
       :isSecret.sync="isSecret"
       :outputChatTabKey.sync="outputChatTabKey"
     />
@@ -45,7 +45,7 @@ export default class GroupChatAddWindow
 
   private name: string = "";
   private isSystem: boolean = false;
-  private actorGroupKey: string = "";
+  private authorityGroupKey: string = "";
   private isSecret: boolean = false;
   private outputChatTabKey: string | null = null;
 
@@ -79,7 +79,7 @@ export default class GroupChatAddWindow
   public setStoreData(data: GroupChatTabStore): void {
     this.name = data.name;
     this.isSystem = data.isSystem;
-    this.actorGroupKey = data.actorGroupKey;
+    this.authorityGroupKey = data.authorityGroupKey;
     this.isSecret = data.isSecret;
     this.outputChatTabKey = data.outputChatTabKey;
   }
@@ -94,7 +94,7 @@ export default class GroupChatAddWindow
         data: {
           name: this.name,
           isSystem: this.isSystem,
-          actorGroupKey: this.actorGroupKey,
+          authorityGroupKey: this.authorityGroupKey,
           isSecret: this.isSecret,
           outputChatTabKey: this.outputChatTabKey
         }

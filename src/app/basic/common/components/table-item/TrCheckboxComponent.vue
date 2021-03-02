@@ -9,7 +9,7 @@
       ></label>
       <label v-else :for="key" @click="localValue = !localValue">&nbsp;</label>
     </th>
-    <td>
+    <td :colspan="colspan">
       <s-check
         :readonly="readonly"
         v-model="localValue"
@@ -48,6 +48,9 @@ export default class TrCheckboxComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
+
+  @Prop({ type: Number, default: 1 })
+  private colspan!: number;
 
   private input(value: boolean) {
     this.$emit("input", value);

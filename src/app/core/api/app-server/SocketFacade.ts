@@ -20,7 +20,7 @@ import {
   MemoStore,
   PublicMemoStore,
   LikeStore,
-  ActorGroupStore,
+  AuthorityGroupStore,
   ChatStore,
   ChatTabStore,
   CutInStore,
@@ -89,7 +89,7 @@ export function permissionCheck(
     const check = (pn: PermissionNode) => {
       if (pn.type === "group") {
         const roleGroup = findByKey(
-          GameObjectManager.instance.actorGroupList,
+          GameObjectManager.instance.authorityGroupList,
           pn.key || null
         );
         if (!roleGroup) return false;
@@ -543,8 +543,10 @@ export default class SocketFacade {
     return this.roomCollectionController<ActorStore>("actor-list");
   }
 
-  public actorGroupCC() {
-    return this.roomCollectionController<ActorGroupStore>("actor-group-list");
+  public authorityGroupCC() {
+    return this.roomCollectionController<AuthorityGroupStore>(
+      "authority-group-list"
+    );
   }
 
   public cardMetaCC() {
@@ -627,7 +629,7 @@ export default class SocketFacade {
         this.initiativeColumnCC(),
         this.propertySelectionCC(),
         this.actorCC(),
-        this.actorGroupCC(),
+        this.authorityGroupCC(),
         this.cardMetaCC(),
         this.cardObjectCC(),
         this.cardDeckBigCC(),

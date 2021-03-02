@@ -39,7 +39,7 @@ type:
   stand-image-diff: 不同的立繪
   user: 使用者
   actor: 演員
-  actor-group: 演員組別
+  authority-group: 権限グループ
   piece: 塊
   card: 咭牌
   card-object: 咭牌/牌堆
@@ -50,7 +50,7 @@ type:
   public-memo-list: 共用筆記
   counter-remocon-list: カウンターリモコン
   chat-tab-list: チャットタブ
-  actor-group-list: アクターグループ
+  authority-group-list: 権限グループ
 
 context:
   bgm-setting: BGM設定
@@ -361,6 +361,7 @@ label:
   simple: シンプル
   detail: 詳細
   size-target-edge: サイズ指定する辺
+  legend: 凡例
 
 message:
   copy-to-clipboard: 將其複製到剪貼板。
@@ -816,3 +817,12 @@ group-chat-tab-add-window:
 
 group-chat-tab-edit-window:
   window-title: グループチャットタブ編集
+
+authority-group-list-window:
+  window-title: 権限グループ一覧
+
+authority-group-add-window:
+  window-title: 権限グループ作成
+
+authority-group-edit-window:
+  window-title: 権限グループ編集

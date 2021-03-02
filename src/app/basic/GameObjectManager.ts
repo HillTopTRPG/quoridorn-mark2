@@ -17,7 +17,7 @@ import {
   MemoStore,
   PublicMemoStore,
   LikeStore,
-  ActorGroupStore,
+  AuthorityGroupStore,
   ChatStore,
   ChatTabStore,
   CutInStore,
@@ -118,7 +118,7 @@ export default class GameObjectManager {
     await Promise.all([
       sf.sceneAndObjectCC().getList(true, this.sceneAndObjectList),
       sf.resourceMasterCC().getList(true, this.resourceMasterList),
-      sf.actorGroupCC().getList(true, this.actorGroupList),
+      sf.authorityGroupCC().getList(true, this.authorityGroupList),
       sf.cutInDataCC().getList(true, this.cutInList),
       sf.diceTypeListCC().getList(true, this.diceTypeList)
     ]);
@@ -238,6 +238,25 @@ export default class GameObjectManager {
       `selection.user-type.${user.data!.type}`.toLowerCase()
     );
     return `${user.data!.name}(${type})`;
+  }
+
+  /**
+   * アクター名を取得する
+   * @param actorKey
+   */
+  public getActorName(actorKey: string | null) {
+    const actor = findByKey(this.actorList, actorKey);
+    if (!actor) return LanguageManager.instance.getText("label.system");
+
+    let userSuffix: string = "";
+    if (actor.data!.type === "user") {
+      const user = findByKey(this.userList, actor.owner)!;
+      const type = LanguageManager.instance.getText(
+        `selection.user-type.${user.data!.type}`.toLowerCase()
+      );
+      userSuffix = `(${type})`;
+    }
+    return `${actor.data!.name}${userSuffix}`;
   }
 
   /**
@@ -366,7 +385,7 @@ export default class GameObjectManager {
   public readonly initiativeColumnList: StoreUseData<
     InitiativeColumnStore
   >[] = [];
-  public readonly actorGroupList: StoreUseData<ActorGroupStore>[] = [];
+  public readonly authorityGroupList: StoreUseData<AuthorityGroupStore>[] = [];
   public readonly cardMetaList: StoreUseData<CardMetaStore>[] = [];
   public readonly cardObjectList: StoreUseData<CardObjectStore>[] = [];
   public readonly cardDeckBigList: StoreUseData<CardDeckBigStore>[] = [];
@@ -566,8 +585,8 @@ export default class GameObjectManager {
       case "initiative-column-list":
         list = this.initiativeColumnList;
         break;
-      case "actor-group-list":
-        list = this.actorGroupList;
+      case "authority-group-list":
+        list = this.authorityGroupList;
         break;
       case "card-meta-list":
         list = this.cardMetaList;

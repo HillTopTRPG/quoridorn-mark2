@@ -63,7 +63,7 @@
       :chatList="filteredChatList"
       :userList="userList"
       :actorList="actorList"
-      :actorGroupList="actorGroupList"
+      :authorityGroupList="authorityGroupList"
       :chatTabList="chatTabList"
       :groupChatTabList="groupChatTabList"
       :editedMessage="editedMessage"
@@ -80,7 +80,7 @@ import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import {
   ActorStore,
-  ActorGroupStore,
+  AuthorityGroupStore,
   ChatStore,
   ChatTabStore,
   GroupChatTabStore,
@@ -120,7 +120,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     VISITOR: "VISITOR"
   };
   private actorList: StoreData<ActorStore>[] = [];
-  private actorGroupList: StoreData<ActorGroupStore>[] = [];
+  private authorityGroupList: StoreData<AuthorityGroupStore>[] = [];
   private chatTabList: StoreData<ChatTabStore>[] = [];
   private groupChatTabList: StoreData<GroupChatTabStore>[] = [];
   private editedMessage: string = "";
@@ -146,8 +146,8 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     this.chatList = getListData("chatList") as StoreData<ChatStore>[];
     this.userList = getListData("userList") as StoreData<UserStore>[];
     this.actorList = getListData("actorList") as StoreData<ActorStore>[];
-    this.actorGroupList = getListData("actorGroupList") as StoreData<
-      ActorGroupStore
+    this.authorityGroupList = getListData("authorityGroupList") as StoreData<
+      AuthorityGroupStore
     >[];
     this.groupChatTabList = getListData("groupChatTabList") as StoreData<
       GroupChatTabStore
@@ -203,12 +203,12 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
             this.groupChatTabList,
             targetKey
           );
-          const actorGroupKey = groupChatTab.data!.actorGroupKey;
-          const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
-            this.actorGroupList,
-            actorGroupKey
+          const authorityGroupKey = groupChatTab.data!.authorityGroupKey;
+          const authorityGroup: StoreData<AuthorityGroupStore> = findRequireByKey(
+            this.authorityGroupList,
+            authorityGroupKey
           );
-          return actorGroup.data!.list.some(a =>
+          return authorityGroup.data!.list.some(a =>
             this.targetUserKeyList.some(key => key === a.userKey)
           );
         case "actor":

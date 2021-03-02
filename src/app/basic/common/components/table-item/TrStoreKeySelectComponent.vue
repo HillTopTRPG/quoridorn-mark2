@@ -3,7 +3,7 @@
     <th class="label-input">
       <label :for="key" v-t="`type.${type}`"></label>
     </th>
-    <td>
+    <td :colspan="colspan">
       <store-key-select
         :elmId="key"
         v-model="localValue"
@@ -11,6 +11,7 @@
         :label-property="labelProperty"
         :multiple="multiple"
         :nullable="nullable"
+        :disabled="disabled"
       />
     </td>
   </tr>
@@ -40,6 +41,12 @@ export default class TrStoreKeySelectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  private disabled!: boolean;
+
+  @Prop({ type: Number, default: 1 })
+  private colspan!: number;
 
   private input(value: string | null) {
     this.$emit("input", value);

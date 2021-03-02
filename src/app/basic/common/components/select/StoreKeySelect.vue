@@ -13,7 +13,7 @@
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { HtmlOptionInfo } from "@/@types/window";
-import { Prop } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
@@ -52,6 +52,11 @@ export default class StoreKeySelect extends Mixins<MultiMixin>(
   ): Promise<TaskResult<never> | void> {
     this.createOptionInfoList();
     task.resolve();
+  }
+
+  @Watch("list", { deep: true })
+  private onChangeList() {
+    this.createOptionInfoList();
   }
 
   private createOptionInfoList() {

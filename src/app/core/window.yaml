@@ -2223,19 +2223,19 @@
   message: ""
   position: center
   size:
-    widthPx: 200
+    widthPx: 300
     heightPx: 4
     heightEm: 12
     heightRem: 0.5
   minSize:
     widthPx: 200
     heightPx: 4
-    heightEm: 12
+    heightEm: 8
     heightRem: 0.5
   maxSize:
-    widthPx: 400
+    widthPx: 600
     heightPx: 4
-    heightEm: 12
+    heightEm: 20
     heightRem: 0.5
   minimizable: true
   paneContainable: true
@@ -2252,19 +2252,106 @@
   message: ""
   position: center
   size:
-    widthPx: 200
+    widthPx: 300
     heightPx: 4
     heightEm: 12
     heightRem: 0.5
   minSize:
     widthPx: 200
     heightPx: 4
+    heightEm: 8
+    heightRem: 0.5
+  maxSize:
+    widthPx: 600
+    heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"authority-group-list-window":
+  icon: user-tie
+  parentTypeList: []
+  isInputWindow: false
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 400
+    heightPx: 4
+    heightEm: 18
+    heightRem: 0.5
+  minSize:
+    widthPx: 300
+    heightPx: 4
     heightEm: 12
+    heightRem: 0.5
+  maxSize:
+    widthPx: 700
+    heightPx: 4
+    heightEm: 30
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"authority-group-add-window":
+  icon: user-tie
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 200
+    heightPx: 4
+    heightEm: 12
+    heightRem: 0.5
+  minSize:
+    widthPx: 150
+    heightPx: 4
+    heightEm: 10
     heightRem: 0.5
   maxSize:
     widthPx: 400
     heightPx: 4
+    heightEm: 20
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
+"authority-group-edit-window":
+  icon: user-tie
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 200
+    heightPx: 4
     heightEm: 12
+    heightRem: 0.5
+  minSize:
+    widthPx: 150
+    heightPx: 4
+    heightEm: 10
+    heightRem: 0.5
+  maxSize:
+    widthPx: 400
+    heightPx: 4
+    heightEm: 20
     heightRem: 0.5
   minimizable: true
   paneContainable: true

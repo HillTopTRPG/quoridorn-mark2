@@ -42,7 +42,7 @@ export default class ChatTabAddWindow
   private addWindowDelegator = new AddWindowDelegator<ChatTabStore>(this);
 
   private chatTabList = GameObjectManager.instance.chatTabList;
-  private actorGroupList = GameObjectManager.instance.actorGroupList;
+  private authorityGroupList = GameObjectManager.instance.authorityGroupList;
 
   private tabName: string = "";
   private useReadAloud: boolean = false;
@@ -82,12 +82,12 @@ export default class ChatTabAddWindow
   }
 
   public async getStoreDataList(): Promise<DelegateStoreData<ChatTabStore>[]> {
-    const gameMastersActorGroup = this.actorGroupList.find(
+    const gameMastersAuthorityGroup = this.authorityGroupList.find(
       ag => ag.data!.isSystem && ag.data!.name === "GameMasters"
     )!;
     const gameMastersPermission: PermissionNode = {
       type: "group",
-      key: gameMastersActorGroup.key
+      key: gameMastersAuthorityGroup.key
     };
     return [
       {

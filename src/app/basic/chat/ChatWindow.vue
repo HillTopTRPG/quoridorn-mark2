@@ -10,7 +10,7 @@
       :userList="userList"
       :likeList="likeList"
       :actorList="actorList"
-      :actorGroupList="actorGroupList"
+      :authorityGroupList="authorityGroupList"
       :chatTabList="chatTabList"
       :groupChatTabList="groupChatTabList"
       :tab-key.sync="tabKey"
@@ -167,7 +167,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       name: LanguageManager.instance.getText("label.secret")
     })
   ];
-  private actorGroupList = GameObjectManager.instance.actorGroupList;
+  private authorityGroupList = GameObjectManager.instance.authorityGroupList;
   private chatFormatList = GameObjectManager.instance.chatFormatList;
   private actorStatusList = GameObjectManager.instance.actorStatusList;
   private chatFormatWrapList: StoreUseData<{ name: string }>[] = [];
@@ -383,11 +383,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.targetTabList = this.groupChatTabList
       .filter(gct => {
         if (!permissionCheck(gct, "view")) return false;
-        const actorGroup = findRequireByKey(
-          this.actorGroupList,
-          gct.data!.actorGroupKey
+        const authorityGroup = findRequireByKey(
+          this.authorityGroupList,
+          gct.data!.authorityGroupKey
         );
-        return actorGroup.data!.list.some(d => {
+        return authorityGroup.data!.list.some(d => {
           if (d.type === "user")
             return d.userKey === SocketFacade.instance.userKey;
           else {
@@ -484,15 +484,15 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       }
       this.isSecret = groupChatTabInfo.data!.isSecret;
 
-      const actorGroupKey = groupChatTabInfo.data!.actorGroupKey;
-      const actorGroupInfo = findRequireByKey(
-        this.actorGroupList,
-        actorGroupKey
+      const authorityGroupKey = groupChatTabInfo.data!.authorityGroupKey;
+      const authorityGroupInfo = findRequireByKey(
+        this.authorityGroupList,
+        authorityGroupKey
       );
 
       let isMatchCurrentActor = false;
       let otherMatchActorKey: string | null = null;
-      actorGroupInfo.data!.list.forEach(actorRef => {
+      authorityGroupInfo.data!.list.forEach(actorRef => {
         if (isMatchCurrentActor) return;
         if (
           actorRef.actorKey ===

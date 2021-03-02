@@ -7,8 +7,8 @@
 
     <div class="chmod-container" v-if="permissionRule.type !== 'none'">
       <label class="select-label">
-        <span v-t="'type.actor-group'"></span>
-        <actor-group-select
+        <span v-t="'type.authority-group'"></span>
+        <authority-group-select
           v-model="groupListInput"
           :multiple="true"
           :disabled="permissionRule.type === 'none'"
@@ -44,16 +44,16 @@ import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
-import ActorGroupSelect from "@/app/basic/common/components/select/ActorGroupSelect.vue";
 import SCheck from "@/app/basic/common/components/SCheck.vue";
 import ActorSelect from "@/app/basic/common/components/select/ActorSelect.vue";
 import PermissionTypeSelect from "@/app/basic/common/components/select/PermissionTypeSelect.vue";
+import AuthorityGroupSelect from "@/app/basic/common/components/select/AuthorityGroupSelect.vue";
 
 @Component({
   components: {
+    AuthorityGroupSelect,
     SCheck,
     CtrlButton,
-    ActorGroupSelect,
     ActorSelect,
     PermissionTypeSelect
   }

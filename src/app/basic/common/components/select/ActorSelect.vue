@@ -14,13 +14,14 @@ import SelectMixin from "./base/SelectMixin";
 import { Component, Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { Prop } from "vue-property-decorator";
-import ComponentVue from "../../../../core/window/ComponentVue";
-import LifeCycle from "../../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../../core/task/TaskProcessor";
 import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
-import CtrlSelect from "../../../../core/component/CtrlSelect.vue";
 import { HtmlOptionInfo } from "@/@types/window";
-import GameObjectManager from "../../../GameObjectManager";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 interface MultiMixin extends SelectMixin, ComponentVue {}
 
@@ -37,11 +38,19 @@ export default class ActorSelect extends Mixins<MultiMixin>(
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  private viewUser!: boolean;
+
   private optionInfoList: HtmlOptionInfo[] = [];
 
   @LifeCycle
   private async created() {
     this.createOptionInfoList();
+  }
+
+  @VueEvent
+  private getOwnerName(userKey: string): string {
+    return GameObjectManager.instance.getUserName(userKey);
   }
 
   @TaskProcessor("language-change-finished")
@@ -58,10 +67,16 @@ export default class ActorSelect extends Mixins<MultiMixin>(
         if (this.userKey && a.owner !== this.userKey) return false;
         return permissionCheck(a, "view");
       })
-      .map(c => ({
-        key: c.key,
-        value: c.key,
-        text: c.data!.name,
+      .map(a => ({
+        key: a.key,
+        value: a.key,
+        text:
+          GameObjectManager.instance.getActorName(a.key) +
+          (this.viewUser
+            ? ` [user: ${GameObjectManager.instance.getUserName(
+                a.owner || ""
+              )}]`
+            : ""),
         disabled: false
       }));
     if (this.nullable) {

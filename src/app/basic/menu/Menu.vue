@@ -69,6 +69,7 @@
       <menu-window-item type="player-box-window" @click="menuClick" />
       <menu-window-item type="media-list-window" @click="menuClick" />
       <menu-window-item type="media-url-add-window" @click="menuClick" />
+      <menu-window-item type="authority-group-list-window" @click="menuClick" />
       <hr />
       <div
         class="item disabled"
@@ -127,6 +128,11 @@
         class="item"
         @click="onClickCreateActor"
         v-t="'actor-add-window.window-title'"
+      ></div>
+      <div
+        class="item"
+        @click="onClickCreateAuthorityGroup"
+        v-t="'authority-group-add-window.window-title'"
       ></div>
       <hr />
       <div
@@ -203,7 +209,7 @@
 <script lang="ts">
 import MenuBooleanItem from "./MenuBooleanItem.vue";
 import { Component } from "vue-property-decorator";
-import { ActorGroupStore, UserStore } from "@/@types/store-data";
+import { AuthorityGroupStore, UserStore } from "@/@types/store-data";
 import GameObjectManager from "../GameObjectManager";
 import VueEvent from "../../core/decorator/VueEvent";
 import App from "../../../views/App.vue";
@@ -325,7 +331,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     let chatList = GameObjectManager.instance.chatList;
     const userList = GameObjectManager.instance.userList;
     const actorList = GameObjectManager.instance.actorList;
-    const actorGroupList = GameObjectManager.instance.actorGroupList;
+    const authorityGroupList = GameObjectManager.instance.authorityGroupList;
     const groupChatTabList = GameObjectManager.instance.groupChatTabList;
     const userTypeLanguageMap = {
       PL: this.$t("selection.user-type.pl")!.toString(),
@@ -346,12 +352,12 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
         switch (c.data!.targetType) {
           case "group":
             const groupChatTab = findRequireByKey(groupChatTabList, targetKey);
-            const actorGroupKey = groupChatTab.data!.actorGroupKey;
-            const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
-              actorGroupList,
-              actorGroupKey
+            const authorityGroupKey = groupChatTab.data!.authorityGroupKey;
+            const authorityGroup: StoreData<AuthorityGroupStore> = findRequireByKey(
+              authorityGroupList,
+              authorityGroupKey
             );
-            return actorGroup.data!.list.some(
+            return authorityGroup.data!.list.some(
               a => a.userKey === SocketFacade.instance.userKey
             );
           case "actor":
@@ -372,7 +378,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
       chatList: convert(chatList),
       userList: convert(userList),
       actorList: convert(actorList),
-      actorGroupList: convert(actorGroupList),
+      authorityGroupList: convert(authorityGroupList),
       groupChatTabList: convert(groupChatTabList),
       userTypeLanguageMap: convert(userTypeLanguageMap),
       editedMessage: this.$t("label.edited")!.toString(),
@@ -431,6 +437,15 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     this.menuClick(event);
     if (!(await App.openSimpleWindow("actor-add-window"))) return;
     await WindowManager.instance.activeWindowForce("player-box-window");
+  }
+
+  @VueEvent
+  private async onClickCreateAuthorityGroup(event: MouseEvent): Promise<void> {
+    this.menuClick(event);
+    if (!(await App.openSimpleWindow("authority-group-add-window"))) return;
+    await WindowManager.instance.activeWindowForce(
+      "authority-group-list-window"
+    );
   }
 
   @VueEvent

@@ -3,7 +3,7 @@
     <th class="label-input">
       <label :for="key" v-t="labelName"></label>
     </th>
-    <td>
+    <td :colspan="colspan">
       <input
         :id="key"
         class="text"
@@ -50,6 +50,9 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, default: undefined })
   private list!: string | undefined;
+
+  @Prop({ type: Number, default: 1 })
+  private colspan!: number;
 
   @LifeCycle
   private mounted() {

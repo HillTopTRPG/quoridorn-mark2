@@ -71,6 +71,9 @@ import DbViewerWindow from "@/app/core/window/db-viewer/DbViewerWindow.vue";
 import GroupChatAddWindow from "@/app/basic/chat/group/GroupChatAddWindow.vue";
 import GroupChatEditWindow from "@/app/basic/chat/group/GroupChatEditWindow.vue";
 import GroupChatSettingWindow from "@/app/basic/chat/GroupChatSettingWindow.vue";
+import AuthorityGroupListWindow from "@/app/basic/object/authority-group/AuthorityGroupListWindow.vue";
+import AuthorityGroupAddWindow from "@/app/basic/object/authority-group/AuthorityGroupAddWindow.vue";
+import AuthorityGroupEditWindow from "@/app/basic/object/authority-group/AuthorityGroupEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -154,6 +157,9 @@ async function main(): Promise<void> {
   Vue.component("group-chat-tab-add-window", GroupChatAddWindow);
   Vue.component("group-chat-tab-edit-window", GroupChatEditWindow);
   Vue.component("group-chat-setting-window", GroupChatSettingWindow);
+  Vue.component("authority-group-list-window", AuthorityGroupListWindow);
+  Vue.component("authority-group-add-window", AuthorityGroupAddWindow);
+  Vue.component("authority-group-edit-window", AuthorityGroupEditWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

@@ -12,16 +12,22 @@
             <tr-string-input-component
               label-name="label.name"
               v-model="nameVolatile"
+              :placeholder="$t('label.require-text')"
+              :colspan="2"
             />
           </tr>
           <tr>
             <tr-store-key-select-component
-              label-name="label.actor-group"
+              label-name="label.authority-group"
               label-property="name"
-              type="actor-group-list"
+              type="authority-group-list"
               :nullable="false"
-              v-model="actorGroupKeyVolatile"
+              v-model="authorityGroupKeyVolatile"
+              :disabled="!isAdd && isSystem"
             />
+            <td>
+              <s-button icon="pencil" @click="viewAuthorityGroupList()" />
+            </td>
           </tr>
           <tr>
             <tr-checkbox-component
@@ -29,6 +35,8 @@
               cLabel=""
               nLabel=""
               v-model="isSecretVolatile"
+              :colspan="2"
+              :readonly="!isAdd && isSystem"
             />
           </tr>
           <tr>
@@ -38,6 +46,8 @@
               type="chat-tab-list"
               :nullable="true"
               v-model="outputChatTabKeyVolatile"
+              :colspan="2"
+              :disabled="!isAdd && isSystem"
             />
           </tr>
         </table>
@@ -76,10 +86,13 @@ import TrStringInputComponent from "@/app/basic/common/components/table-item/TrS
 import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import TrStoreKeySelectComponent from "@/app/basic/common/components/table-item/TrStoreKeySelectComponent.vue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import App from "@/views/App.vue";
 
 @Component({
   components: {
+    SButton,
     TrStoreKeySelectComponent,
     TrCheckboxComponent,
     TrNumberInputComponent,
@@ -104,6 +117,11 @@ export default class GroupChatInfoForm extends Mixins<ComponentVue>(
 
   private isMounted: boolean = false;
 
+  @VueEvent
+  private viewAuthorityGroupList() {
+    App.openSimpleWindow("authority-group-list-window");
+  }
+
   // name
   @Prop({ type: String, required: true })
   private name!: string;
@@ -117,17 +135,17 @@ export default class GroupChatInfoForm extends Mixins<ComponentVue>(
     this.$emit("update:name", value);
   }
 
-  // actorGroupKey
+  // authorityGroupKey
   @Prop({ type: String, required: true })
-  private actorGroupKey!: string;
-  private actorGroupKeyVolatile: string = "";
-  @Watch("actorGroupKey", { immediate: true })
-  private onChangeActorGroupKey(value: string) {
-    this.actorGroupKeyVolatile = value;
+  private authorityGroupKey!: string;
+  private authorityGroupKeyVolatile: string = "";
+  @Watch("authorityGroupKey", { immediate: true })
+  private onChangeAuthorityGroupKey(value: string) {
+    this.authorityGroupKeyVolatile = value;
   }
-  @Watch("actorGroupKeyVolatile")
-  private onChangeActorGroupKeyVolatile(value: string) {
-    this.$emit("update:actorGroupKey", value);
+  @Watch("authorityGroupKeyVolatile")
+  private onChangeAuthorityGroupKeyVolatile(value: string) {
+    this.$emit("update:authorityGroupKey", value);
   }
 
   // isSecret

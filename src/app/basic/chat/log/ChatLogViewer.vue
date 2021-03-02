@@ -38,7 +38,7 @@ import { Mixins } from "vue-mixin-decorator";
 import {
   ActorStore,
   LikeStore,
-  ActorGroupStore,
+  AuthorityGroupStore,
   ChatStore,
   ChatTabStore,
   GroupChatTabStore,
@@ -82,7 +82,7 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
   private actorList!: StoreData<ActorStore>[];
 
   @Prop({ type: Array, required: true })
-  private actorGroupList!: StoreData<ActorGroupStore>[];
+  private authorityGroupList!: StoreData<AuthorityGroupStore>[];
 
   @Prop({ type: Array, required: true })
   private groupChatTabList!: StoreData<GroupChatTabStore>[];
@@ -201,12 +201,12 @@ export default class ChatLogViewer extends Mixins<ComponentVue>(ComponentVue) {
             this.groupChatTabList,
             targetKey
           );
-          const actorGroupKey = groupChatTab.data!.actorGroupKey;
-          const actorGroup: StoreData<ActorGroupStore> = findRequireByKey(
-            this.actorGroupList,
-            actorGroupKey
+          const authorityGroupKey = groupChatTab.data!.authorityGroupKey;
+          const authorityGroup: StoreData<AuthorityGroupStore> = findRequireByKey(
+            this.authorityGroupList,
+            authorityGroupKey
           );
-          return actorGroup.data!.list.some(a =>
+          return authorityGroup.data!.list.some(a =>
             this.targetUserKeyList.some(key => key === a.userKey)
           );
         case "actor":

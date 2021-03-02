@@ -39,7 +39,7 @@ type:
   stand-image-diff: 立ち絵差分
   user: ユーザー
   actor: アクター
-  actor-group: アクターグループ
+  authority-group: 権限グループ
   piece: コマ
   card: カード
   card-object: カード/山札
@@ -50,7 +50,7 @@ type:
   public-memo-list: 共有メモ
   counter-remocon-list: カウンターリモコン
   chat-tab-list: チャットタブ
-  actor-group-list: アクターグループ
+  authority-group-list: 権限グループ
 
 context:
   bgm-setting: BGM設定
@@ -361,6 +361,7 @@ label:
   simple: シンプル
   detail: 詳細
   size-target-edge: サイズ指定する辺
+  legend: 凡例
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -816,3 +817,12 @@ group-chat-tab-add-window:
 
 group-chat-tab-edit-window:
   window-title: グループチャットタブ編集
+
+authority-group-list-window:
+  window-title: 権限グループ一覧
+
+authority-group-add-window:
+  window-title: 権限グループ作成
+
+authority-group-edit-window:
+  window-title: 権限グループ編集

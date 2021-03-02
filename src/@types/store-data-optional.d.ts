@@ -98,7 +98,7 @@ type Direction = "none" | "horizontal" | "vertical" | "180";
 type GroupRef = {
   type: "user" | "actor";
   actorKey: string;
-  userKey: string | null;
+  userKey: string;
 };
 
 type IconClass =
