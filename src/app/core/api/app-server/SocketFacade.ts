@@ -92,7 +92,8 @@ export function permissionCheck(
           GameObjectManager.instance.authorityGroupList,
           pn.key || null
         );
-        if (!roleGroup) return false;
+        // すでに削除されているなら、無視して他の権限チェックへ
+        if (!roleGroup) return true;
         return (
           roleGroup.data!.list.findIndex(actorRef => {
             if (actorRef.type === "user")
@@ -114,7 +115,7 @@ export function permissionCheck(
       }
       return false;
     };
-    if (permissionRule.list.findIndex(check) > -1) result = !result;
+    if (permissionRule.list.some(check)) result = !result;
   }
   return result;
 }

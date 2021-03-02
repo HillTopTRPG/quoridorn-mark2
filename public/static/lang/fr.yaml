@@ -620,6 +620,7 @@ player-box-window:
   dialog:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
+      このアクターに紐づくコマがあれば、一緒に削除されます。
       この操作は取り消せません。
 
 card-deck-builder:
@@ -820,6 +821,11 @@ group-chat-tab-edit-window:
 
 authority-group-list-window:
   window-title: 権限グループ一覧
+  dialog:
+    delete-group: |-
+      本当に権限グループ「$1」を削除しますか？
+      この権限グループが使われているグループチャットタブも一緒に削除されます。
+      この操作は取り消せません。
 
 authority-group-add-window:
   window-title: 権限グループ作成
