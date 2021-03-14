@@ -90,6 +90,7 @@
     - change-marker-back-view
     - counter-remocon-click
     - counter-remocon-execute
+    - select-map-draw
 
 - taskAttribute:
     isIgniteWithParam: false

@@ -122,7 +122,6 @@ export default class GameTable extends AddressCalcMixin {
       CssManager.instance.propMap.totalColumn = this.sceneInfo.columns;
       CssManager.instance.propMap.totalRow = this.sceneInfo.rows;
       CssManager.instance.propMap.gridSize = this.sceneInfo.gridSize!;
-      console.log("## setGridSize ##");
       CssManager.instance.propMap.marginColumn = this.sceneInfo.margin.columns;
       CssManager.instance.propMap.marginRow = this.sceneInfo.margin.rows;
       CssManager.instance.propMap.marginBorderWidth = this.sceneInfo.margin.border.width;

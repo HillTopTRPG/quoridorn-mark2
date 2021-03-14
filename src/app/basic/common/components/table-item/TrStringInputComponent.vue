@@ -5,6 +5,7 @@
     </th>
     <td :colspan="colspan">
       <input
+        v-if="!multiline"
         :id="key"
         class="text"
         type="text"
@@ -13,6 +14,21 @@
         @input="localValue = $event.target.value"
         :placeholder="placeholder"
         :list="list"
+        ref="inputElm"
+        @keydown.enter.stop
+        @keyup.enter.stop
+        @keydown.229.stop
+        @keyup.229.stop
+      />
+      <textarea
+        v-else
+        :id="key"
+        class="text"
+        :value="localValue"
+        :disabled="disabled"
+        @input="localValue = $event.target.value"
+        :placeholder="placeholder"
+        :style="{ minHeight: minHeight }"
         ref="inputElm"
         @keydown.enter.stop
         @keyup.enter.stop
@@ -53,6 +69,12 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Number, default: 1 })
   private colspan!: number;
+
+  @Prop({ type: Boolean, default: false })
+  private multiline!: boolean;
+
+  @Prop({ type: String, default: "2em" })
+  private minHeight!: string;
 
   @LifeCycle
   private mounted() {
@@ -117,5 +139,9 @@ input {
   &:disabled {
     background-color: lightgray;
   }
+}
+
+textarea {
+  resize: vertical;
 }
 </style>

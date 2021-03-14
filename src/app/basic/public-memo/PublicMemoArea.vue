@@ -5,12 +5,13 @@
       :key="publicMemo.key"
       :publicMemo="publicMemo"
       :index="index"
+      :offset-x="offsetX"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Watch } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
@@ -22,6 +23,9 @@ import { permissionCheck } from "@/app/core/api/app-server/SocketFacade";
   components: { PublicMemoIcon }
 })
 export default class PublicMemoArea extends Mixins<ComponentVue>(ComponentVue) {
+  @Prop({ type: String, required: true })
+  private offsetX!: string;
+
   private publicMemoList = GameObjectManager.instance.publicMemoList;
   private memoList = GameObjectManager.instance.memoList;
 

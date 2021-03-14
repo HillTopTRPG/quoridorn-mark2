@@ -3,6 +3,9 @@
     class="public-memo-icon"
     :class="classList"
     :id="publicMemo.key"
+    :style="{
+      transform: `translateX(${offsetX})`
+    }"
     @mouseover="mouseover"
     @mouseout="mouseout"
     @mouseup.right.stop="rightDown"
@@ -40,6 +43,9 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
 
   @Prop({ type: Number, required: true })
   private index!: number;
+
+  @Prop({ type: String, required: true })
+  private offsetX!: string;
 
   private publicMemoListCC = SocketFacade.instance.publicMemoListCC();
   private memoListCC = SocketFacade.instance.memoCC();

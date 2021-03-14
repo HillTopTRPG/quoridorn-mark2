@@ -1,5 +1,11 @@
 <template>
   <div class="scene-layer" :class="[className]" ref="elm">
+    <map-draw-canvas
+      :scene-key="sceneKey"
+      :scene-layer-key="layer.key"
+      :grid-cross-list="gridCrossList"
+      :grid-line-list="gridLineList"
+    />
     <template v-for="cardDeckSmall in useCardDeckSmallList">
       <card-deck-small-component
         :deck="cardDeckSmall"
@@ -62,9 +68,12 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { findRequireByKey } from "@/app/core/utility/Utility";
 import CardDeckSmallComponent from "@/app/basic/card/CardDeckSmallComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import MapDrawCanvas from "@/app/basic/map/MapDrawCanvas.vue";
+import { Point } from "@/@types/store-data-optional";
 
 @Component({
   components: {
+    MapDrawCanvas,
     MapMarkerPieceComponent,
     DiceSymbolPieceComponent,
     CharacterPieceComponent,
@@ -81,6 +90,12 @@ export default class SceneLayerComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Object, required: true })
   private layer!: StoreData<SceneLayerStore>;
+
+  @Prop({ type: Array, required: true })
+  private gridCrossList!: Point[];
+
+  @Prop({ type: Array, required: true })
+  private gridLineList!: Point[];
 
   private sceneAndLayerCC = SocketFacade.instance.sceneAndLayerCC();
 

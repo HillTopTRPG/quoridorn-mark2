@@ -403,7 +403,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         isDisabled: false,
         color: ct.data!.isSecret ? secretColor : ""
       }));
-    console.log(this.targetTabList);
     if (!this.currentTargetTabInfo)
       this.currentTargetTabInfo = this.targetTabList[0];
   }

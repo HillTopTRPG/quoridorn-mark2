@@ -26,6 +26,7 @@ button:
   clear: クリア
   open-dice-roll-result: 結果公開
   create-other-text: 参照先からその他欄を生成
+  add-continuous-line: 連続線を追加
 
 type:
   map-mask: 맵 마스크
@@ -165,6 +166,31 @@ selection:
     minus: '-'
     substitute: '='
     plus-minus: ±
+  screen-mode:
+    label: モード
+    normal: 通常
+    draw-map: マップ直書き
+  map-draw-type:
+    label: 描画タイプ
+    text: テキスト
+    polygon: 多角形
+    line: 線
+  text-style:
+    label: 文字スタイル
+    normal: 通常
+    italic: イタリック
+    bold: 太字
+  anchor:
+    label: 基点
+    left-top: 左上
+    left-center: 左
+    left-bottom: 左下
+    center-top: 上
+    center: 中央
+    center-bottom: 下
+    right-top: 右上
+    right-center: 右
+    right-bottom: 右下
 
 resource-master-info-form:
   label:
@@ -214,6 +240,11 @@ bgm-info-form:
     play-end: 재생 종료
     second: 초
     url-placeholder: 指定なしで「停止」の指定
+
+map-draw-info-form:
+  label:
+    correct-x: 補正座標X
+    correct-y: 補正座標y
 
 bcdice-manager:
   label:
@@ -362,6 +393,10 @@ label:
   detail: 詳細
   size-target-edge: サイズ指定する辺
   legend: 凡例
+  line-color: 線の色
+  line-width: 線の幅
+  vertex-num: 頂点の数
+  font-size: 文字サイズ
 
 message:
   copy-to-clipboard: 클립보드로 복사했습니다.
@@ -620,7 +655,6 @@ player-box-window:
   dialog:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
-      このアクターに紐づくコマがあれば、一緒に削除されます。
       この操作は取り消せません。
 
 card-deck-builder:

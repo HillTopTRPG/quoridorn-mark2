@@ -81,7 +81,8 @@ declare module "mode" {
     | ViewCardDeckInfo
     | DropPieceModeInfo
     | ProcessInfo
-    | SpecialDragMode;
+    | SpecialDragMode
+    | ScreenModeInfo;
 
   type ModalModeInfo = {
     type: "modal";
@@ -113,6 +114,12 @@ declare module "mode" {
       all: number;
       current: number;
     };
+  };
+
+  type ScreenModeType = "normal" | "draw-map";
+  type ScreenModeInfo = {
+    type: "screen-mode";
+    value: ScreenModeType;
   };
 
   type SpecialDragMode = {
@@ -172,6 +179,11 @@ declare module "task-info" {
     docType: string;
     docKey: string;
     target: string | null;
+  };
+
+  type SelectMapDrawInfo = {
+    sceneLayerKey: string;
+    mapDrawKey: string | null;
   };
 }
 

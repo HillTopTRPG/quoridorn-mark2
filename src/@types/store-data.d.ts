@@ -21,6 +21,7 @@ import {
   UrlType,
   UserType
 } from "@/@types/store-data-optional";
+import { Anchor } from "address";
 
 /**
  * authorityGroupCCのデータ定義
@@ -417,4 +418,19 @@ type CounterRemoconStore = {
   modifyType: CounterRemoconModifyType;
   value: string; // 空文字で範囲選択
   messageFormat: string;
+};
+
+type MapDrawType = "text" | "polygon" | "line";
+type MapDrawStore = {
+  sceneLayerKey: string;
+  pointList: Point[];
+  type: MapDrawType;
+  lineWidth: number;
+  fillStyle: string;
+  strokeStyle: string;
+  value: string;
+  fontSize: number;
+  textAnchor: Anchor;
+  correctionText: Point;
+  style: string;
 };

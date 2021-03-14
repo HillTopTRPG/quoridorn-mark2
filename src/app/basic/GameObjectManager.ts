@@ -32,7 +32,8 @@ import {
   UserStore,
   DiceTypeStore,
   DiceAndPipsStore,
-  CounterRemoconStore
+  CounterRemoconStore,
+  MapDrawStore
 } from "@/@types/store-data";
 import { ApplicationError } from "../core/error/ApplicationError";
 import {
@@ -138,7 +139,8 @@ export default class GameObjectManager {
       sf.counterRemoconCC().getList(true, this.counterRemoconList),
       sf
         .keepBcdiceDiceRollResultListCC()
-        .getList(true, this.keepBcdiceDiceRollResultList)
+        .getList(true, this.keepBcdiceDiceRollResultList),
+      sf.mapDrawListCC().getList(true, this.mapDrawList)
     ]);
     // Block 5
     await Promise.all([
@@ -400,6 +402,7 @@ export default class GameObjectManager {
   public readonly publicMemoList: StoreUseData<PublicMemoStore>[] = [];
   public readonly likeList: StoreUseData<LikeStore>[] = [];
   public readonly counterRemoconList: StoreUseData<CounterRemoconStore>[] = [];
+  public readonly mapDrawList: StoreUseData<MapDrawStore>[] = [];
 
   public get clientRoomInfo(): ClientRoomInfo {
     if (!this.__clientRoomInfo) {
@@ -629,6 +632,9 @@ export default class GameObjectManager {
         break;
       case "counter-remocon-list":
         list = this.counterRemoconList;
+        break;
+      case "map-draw-list":
+        list = this.mapDrawList;
         break;
       default:
     }

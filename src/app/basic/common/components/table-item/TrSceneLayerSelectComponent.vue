@@ -4,7 +4,12 @@
       <label :for="key" v-t="labelName"></label>
     </th>
     <td>
-      <scene-layer-select :key="key" v-model="localValue" :elmId="key" />
+      <scene-layer-select
+        :key="key"
+        v-model="localValue"
+        :elmId="key"
+        :disabled="disabled"
+      />
     </td>
   </tr>
 </template>
@@ -24,6 +29,9 @@ export default class TrSceneLayerSelectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private value!: string;
+
+  @Prop({ type: Boolean, default: false })
+  private disabled!: boolean;
 
   private input(value: string) {
     this.$emit("input", value);

@@ -162,6 +162,11 @@ type Point = {
   y: number;
 };
 
+type Line = {
+  p1: Point;
+  p2: Point;
+};
+
 type Rectangle = Point & Size;
 
 type RefProperty =

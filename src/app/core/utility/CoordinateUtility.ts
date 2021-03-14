@@ -4,6 +4,7 @@ import { WindowSize } from "@/@types/window";
 import WindowManager from "../window/WindowManager";
 import {
   Address,
+  Line,
   Matrix,
   Point,
   Rectangle,
@@ -258,4 +259,63 @@ export function getRightPaneRectangle(): Rectangle {
     width + scrollBarWidth + windowPadding * 2,
     windowSize.height - top - bottom
   );
+}
+
+export function getCrossLines(
+  lineList1: Line[],
+  lineList2: Line[] | null = null
+): Point[] {
+  return (lineList1
+    .flatMap(l1 => (lineList2 || lineList1).map(l2 => getCrossPoint(l1, l2)))
+    .filter(
+      (p, idx, self) =>
+        p && self.findIndex(s => s && s.x === p.x && s.y === p.y) === idx
+    ) as Point[]).sort((p1, p2) => {
+    if (p1.y < p2.y) return -1;
+    if (p1.y > p2.y) return 1;
+    if (p1.x < p2.x) return -1;
+    if (p1.x > p2.x) return 1;
+    return 0;
+  });
+}
+
+export function getCrossPoint(l1: Line, l2: Line): Point | null {
+  const a0 =
+    ((l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y) -
+      (l2.p2.y - l2.p1.y) * (l1.p1.x - l2.p1.x)) *
+    0.5;
+  const a1 =
+    ((l2.p2.x - l2.p1.x) * (l2.p1.y - l1.p2.y) -
+      (l2.p2.y - l2.p1.y) * (l2.p1.x - l1.p2.x)) *
+    0.5;
+
+  const x = l1.p1.x + (l1.p2.x - l1.p1.x) * (a0 / (a0 + a1));
+  const y = l1.p1.y + (l1.p2.y - l1.p1.y) * (a0 / (a0 + a1));
+  const result: Point = { x, y };
+
+  const maxJudge = (line: Line, prop: keyof Point) =>
+    result[prop] <= Math.max(line.p1[prop], line.p2[prop]);
+  const minJudge = (line: Line, prop: keyof Point) =>
+    result[prop] >= Math.min(line.p1[prop], line.p2[prop]);
+  const flag =
+    Number.isFinite(result.x) &&
+    Number.isFinite(result.y) &&
+    !Number.isNaN(result.x) &&
+    !Number.isNaN(result.y) &&
+    maxJudge(l1, "x") &&
+    minJudge(l1, "x") &&
+    maxJudge(l2, "x") &&
+    minJudge(l2, "x") &&
+    maxJudge(l1, "y") &&
+    minJudge(l1, "y") &&
+    maxJudge(l2, "y") &&
+    minJudge(l2, "y");
+
+  // console.log(JSON.stringify(l1), JSON.stringify(l2), flag, x, y);
+
+  return flag ? result : null;
+}
+
+export function getHalfPoint(p1: Point, p2: Point): Point {
+  return createPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);
 }

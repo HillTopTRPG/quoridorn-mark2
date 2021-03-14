@@ -320,3 +320,22 @@ export async function questionDialog(obj: {
   });
   return confirm.isConfirmed;
 }
+
+export function replaceArrayElements(
+  list: any[],
+  targetIdx: number,
+  sourceIdx: number
+) {
+  const cloneArray = [...list];
+  [cloneArray[targetIdx], cloneArray[sourceIdx]] = [
+    list[sourceIdx],
+    list[targetIdx]
+  ];
+  return cloneArray;
+}
+
+export function setOrderByListOrder(dataList: StoreData<any>[]) {
+  const orderList: number[] = dataList.map(data => data.order);
+  orderList.sort();
+  dataList.forEach((data, idx) => (data.order = orderList[idx]));
+}

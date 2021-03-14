@@ -35,7 +35,8 @@ import {
   UserStore,
   DiceTypeStore,
   DiceAndPipsStore,
-  CounterRemoconStore
+  CounterRemoconStore,
+  MapDrawStore
 } from "@/@types/store-data";
 import GameObjectManager from "../../../basic/GameObjectManager";
 import { ApplicationError } from "../../error/ApplicationError";
@@ -608,6 +609,10 @@ export default class SocketFacade {
     );
   }
 
+  public mapDrawListCC() {
+    return this.roomCollectionController<MapDrawStore>("map-draw-list");
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     let cc = <NekostoreCollectionController<any>>(
       [
@@ -642,7 +647,8 @@ export default class SocketFacade {
         this.keepBcdiceDiceRollResultListCC(),
         this.publicMemoListCC(),
         this.likeListCC(),
-        this.counterRemoconCC()
+        this.counterRemoconCC(),
+        this.mapDrawListCC()
       ].find(cc => cc.collectionNameSuffix === type)
     );
     if (!cc) {

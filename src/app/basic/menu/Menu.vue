@@ -109,6 +109,7 @@
      !-------------------------------------------------->
     <div class="hover-menu" v-show="isShow('マップ')" :style="hoverMenuStyle">
       <menu-window-item type="scene-list-window" @click="menuClick" />
+      <menu-screen-mode-item label-mode="draw-map" v-model="screenMode" />
       <hr />
       <menu-window-item type="map-mask-add-window" @click="menuClick" />
       <menu-window-item type="map-marker-add-window" @click="menuClick" />
@@ -207,17 +208,8 @@
 </template>
 
 <script lang="ts">
-import MenuBooleanItem from "./MenuBooleanItem.vue";
 import { Component } from "vue-property-decorator";
 import { AuthorityGroupStore, UserStore } from "@/@types/store-data";
-import GameObjectManager from "../GameObjectManager";
-import VueEvent from "../../core/decorator/VueEvent";
-import App from "../../../views/App.vue";
-import {
-  findByKey,
-  findRequireByKey,
-  someByStr
-} from "../../core/utility/Utility";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import MenuWindowItem from "@/app/basic/menu/MenuWindowItem.vue";
@@ -231,12 +223,24 @@ import { saveHTML } from "@/app/core/utility/FileUtility";
 import urljoin from "url-join";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { Point } from "@/@types/store-data-optional";
+import { ModeInfo, ScreenModeType } from "mode";
+import App from "@/views/App.vue";
+import {
+  findByKey,
+  findRequireByKey,
+  someByStr
+} from "@/app/core/utility/Utility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import MenuScreenModeItem from "@/app/basic/menu/MenuScreenModeItem.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { TaskResult, Task } from "task";
 
 @Component({
   components: {
+    MenuScreenModeItem,
     MenuDownItem,
-    MenuWindowItem,
-    MenuBooleanItem
+    MenuWindowItem
   },
   filters: {
     loginNum: (userList: StoreData<UserStore>[]) =>
@@ -251,11 +255,23 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private currentMenuPoint: Point = createPoint(0, 0);
   private userList: StoreData<UserStore>[] =
     GameObjectManager.instance.userList;
+  private screenMode: ScreenModeType = "normal";
 
   public key: string = "menu";
 
   // @LifeCycle
   // public async mounted() {}
+
+  @TaskProcessor("mode-change-finished")
+  private async modeChangeFinished(
+    task: Task<ModeInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    const taskValue = task.value!;
+    if (taskValue.type === "screen-mode") {
+      this.screenMode = taskValue.value;
+      task.resolve();
+    }
+  }
 
   isShow(...props: any[]): any {
     return this.isSelecting && someByStr(props, this.currentMenu);

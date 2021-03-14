@@ -23,27 +23,29 @@
       <!-- 著しいレイアウト崩れが発生する環境があるようなので、一旦OFF
       <right-pane />
       -->
-      <!-- 右クリックメニュー (z-index: 6) -->
+      <!-- 右クリックメニュー (z-index: 7) -->
       <Context />
+      <!-- マップ描画コントロール (z-index: 3) -->
+      <map-draw-controller v-if="screenMode === 'draw-map'" />
     </template>
     <!-- 共有メモエリア (z-index: 3) -->
-    <public-memo-area />
+    <public-memo-area :offset-x="screenMode === 'draw-map' ? '20em' : '0em'" />
     <!-- 小画面エリア (z-index: 4) -->
     <window-area />
-    <!-- その他欄 (z-index: 7) -->
+    <!-- その他欄 (z-index: 8) -->
     <other-text-frame
       :windowKey="key"
       :otherTextViewInfo="otherTextViewInfo"
       @hide="otherTextHide"
       v-if="otherTextViewInfo"
     />
-    <!-- 放物線シミュレータ (z-index: 8) -->
-    <throw-parabola-simulator v-if="throwParabola" />
     <!-- 放物線シミュレータ (z-index: 9) -->
+    <throw-parabola-simulator v-if="throwParabola" />
+    <!-- 放物線シミュレータ (z-index: 10) -->
     <throw-parabola-container />
-    <!-- カードデッキビルダー (z-index: 10) -->
+    <!-- カードデッキビルダー (z-index: 11) -->
     <card-deck-builder v-if="cardView" :cardDeckKey="cardDeckKey" />
-    <!-- お部屋作成中 (z-index: 11) -->
+    <!-- お部屋作成中 (z-index: 12) -->
     <div id="progress-message-area" v-if="progressMessage">
       <div class="message">{{ progressMessage }}</div>
       <img
@@ -63,7 +65,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
-import { ModeInfo } from "mode";
+import { ModeInfo, ScreenModeType } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
 import LifeCycle from "../app/core/decorator/LifeCycle";
 import TaskProcessor from "../app/core/task/TaskProcessor";
@@ -119,9 +121,11 @@ import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
 import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
+import MapDrawController from "@/app/basic/map/MapDrawController.vue";
 
 @Component({
   components: {
+    MapDrawController,
     PublicMemoArea,
     CardDeckBuilder,
     ThrowParabolaContainer,
@@ -151,6 +155,7 @@ export default class App extends Vue {
   private cutInList = GameObjectManager.instance.cutInList;
   private isDropPiece: boolean = false;
   private isDropping: boolean = false;
+  private screenMode: ScreenModeType = "normal";
   private progressAll: number = 0;
   private progressCurrent: number = 0;
 
@@ -699,6 +704,10 @@ export default class App extends Vue {
       this.isDropPiece = value === "on";
       task.resolve();
     }
+    if (taskValue.type === "screen-mode") {
+      this.screenMode = taskValue.value;
+      task.resolve();
+    }
     if (taskValue.type === "view-progress") {
       const all: number = taskValue.value.all;
       const current: number = taskValue.value.current;
@@ -974,8 +983,13 @@ label {
   z-index: 2;
 }
 
+#map-draw-controller {
+  z-index: 3;
+  width: 20em;
+}
+
 #context {
-  z-index: 6;
+  z-index: 7;
 }
 
 #public-memo-area {
@@ -991,19 +1005,19 @@ label {
 }
 
 #other-text-frame {
-  z-index: 7;
-}
-
-#throw-parabola-simulator {
   z-index: 8;
 }
 
-#throw-parabola-container {
+#throw-parabola-simulator {
   z-index: 9;
 }
 
-#card-deck-builder {
+#throw-parabola-container {
   z-index: 10;
+}
+
+#card-deck-builder {
+  z-index: 11;
 }
 
 #progress-message-area {
@@ -1013,7 +1027,7 @@ label {
   top: 0;
   right: 0;
   bottom: 0;
-  z-index: 11;
+  z-index: 12;
 
   img {
     width: 200px;

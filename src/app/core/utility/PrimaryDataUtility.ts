@@ -8,6 +8,16 @@ export function sum(list: number[]): number {
 }
 
 /**
+ * 平均を算出する
+ *
+ * @param list
+ */
+export function average(list: number[]): number | null {
+  if (!list.length) return null;
+  return sum(list) / list.length;
+}
+
+/**
  * クローンを生成する
  * @param obj
  */

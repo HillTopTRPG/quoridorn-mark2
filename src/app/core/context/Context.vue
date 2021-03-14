@@ -99,6 +99,8 @@ export default class Context extends Vue {
   private hoverLevel: number = -1;
   private hoverIndex: number = -1;
 
+  private key = "context";
+
   /**
    * 表示イベント
    * @param task
