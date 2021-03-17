@@ -37,7 +37,7 @@ import MapObjectEditWindowVue from "@/app/core/window/MapObjectEditWindowVue";
 @Component({ components: { ButtonArea, CharacterInfoForm } })
 export default class CharacterEditWindow extends MapObjectEditWindowVue {
   protected hasOtherText: boolean = true;
-  protected sizeType: "size" | "wh" = "wh";
+  protected sizeType: "size" | "wh" = "size";
 
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
 

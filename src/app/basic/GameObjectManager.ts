@@ -1,6 +1,5 @@
 import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { ClientRoomInfo } from "@/@types/socket";
 import {
   ActorStatusStore,
   ActorStore,
@@ -43,11 +42,7 @@ import {
 } from "../core/utility/Utility";
 import { loadYaml } from "../core/utility/FileUtility";
 import LanguageManager from "../../LanguageManager";
-import {
-  PartialRoomData,
-  RoomInfoExtend,
-  WindowSettings
-} from "@/@types/store-data-optional";
+import { PartialRoomData } from "@/@types/store-data-optional";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -56,6 +51,7 @@ export type ChatPublicInfo = {
   targetKey: string;
   system: string;
   bcdiceUrl: string;
+  bcdiceVersion: string;
 };
 
 export type ChatFormatInfo = {
@@ -97,15 +93,10 @@ export default class GameObjectManager {
   // コンストラクタの隠蔽
   private constructor() {}
 
-  public async setClientRoomInfo(info: ClientRoomInfo) {
-    this.__clientRoomInfo = info;
-    await this.initialize();
-  }
-
   /**
    * GameObjectManagerのイニシャライズ
    */
-  private async initialize() {
+  public async initialize() {
     const sf = SocketFacade.instance;
     // Block 1
     await Promise.all([
@@ -163,36 +154,14 @@ export default class GameObjectManager {
     const roomData = (await roomDataCC.getList(false))[0];
     this.roomDataKey = roomData.key;
 
-    // Object.assign()
-    const writeSettings = (from: RoomInfoExtend, to: RoomInfoExtend) => {
-      to.visitable = from.visitable;
-      to.isFitGrid = from.isFitGrid;
-      to.isViewDice = from.isViewDice;
-      to.isViewCutIn = from.isViewCutIn;
-      to.isDrawGridId = from.isDrawGridId;
-      to.mapRotatable = from.mapRotatable;
-      to.isDrawGridLine = from.isDrawGridLine;
-      to.isShowStandImage = from.isShowStandImage;
-      to.isShowRotateMarker = from.isShowRotateMarker;
-      to.windowSettings.chat = from.windowSettings.chat;
-      to.windowSettings.resource = from.windowSettings.resource;
-      to.windowSettings.initiative = from.windowSettings.initiative;
-      to.windowSettings.chatPalette = from.windowSettings.chatPalette;
-      to.windowSettings.counterRemocon = from.windowSettings.counterRemocon;
-    };
-    this.roomData.name = roomData.data!.name;
-    this.roomData.sceneKey = roomData.data!.sceneKey;
-    writeSettings(roomData.data!.settings, this.roomData.settings);
+    this.roomData = { ...roomData.data! };
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
       this.roomDataKey!,
       (snapshot: DocumentSnapshot<StoreData<RoomDataStore>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
-          const d = snapshot.data.data!;
-          // Object.assign()
-          this.roomData.sceneKey = d.sceneKey;
-          writeSettings(d.settings, this.roomData.settings);
+          this.roomData = { ...snapshot.data.data! };
         }
       }
     );
@@ -225,8 +194,9 @@ export default class GameObjectManager {
     this.chatPublicInfo.targetKey = this.groupChatTabList.find(
       gct => gct.data!.isSystem
     )!.key;
-    this.chatPublicInfo.system = this.clientRoomInfo.system;
-    this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
+    this.chatPublicInfo.system = this.roomData.system;
+    this.chatPublicInfo.bcdiceUrl = this.roomData.bcdiceServer;
+    this.chatPublicInfo.bcdiceVersion = this.roomData.bcdiceVersion;
   }
 
   /**
@@ -268,50 +238,20 @@ export default class GameObjectManager {
   public async updateRoomData(data: PartialRoomData): Promise<void> {
     if (!this.roomDataKey)
       throw new ApplicationError("Illegal timing error(roomDataKey is null).");
-    const cc = SocketFacade.instance.roomDataCC();
-
-    try {
-      await cc.touchModify([this.roomDataKey]);
-    } catch (err) {
-      // nothing.
-      console.error(err);
-      return;
-    }
 
     // Object.assign()
-    if (data.name !== undefined) this.roomData.name = data.name;
-    if (data.sceneKey !== undefined) this.roomData.sceneKey = data.sceneKey;
-    const settings = data.settings;
-    if (settings) {
-      const copyParam = <T extends keyof RoomInfoExtend>(param: T) => {
-        if (settings[param] !== undefined)
-          this.roomData.settings[param] = settings[param];
-      };
-      copyParam("visitable");
-      copyParam("isFitGrid");
-      copyParam("isViewDice");
-      copyParam("isViewCutIn");
-      copyParam("isDrawGridId");
-      copyParam("mapRotatable");
-      copyParam("isDrawGridLine");
-      copyParam("isShowStandImage");
-      copyParam("isShowRotateMarker");
-
-      const windowSettings = settings.windowSettings;
-      if (windowSettings) {
-        const copyWindow = <T extends keyof WindowSettings>(param: T) => {
-          if (windowSettings[param] !== undefined)
-            this.roomData.settings.windowSettings[param] =
-              windowSettings[param];
+    if (data.settings) {
+      if (data.settings.windowSettings) {
+        data.settings.windowSettings = {
+          ...this.roomData.settings.windowSettings,
+          ...data.settings.windowSettings
         };
-        copyWindow("chat");
-        copyWindow("resource");
-        copyWindow("initiative");
-        copyWindow("chatPalette");
-        copyWindow("counterRemocon");
       }
+      data.settings = { ...this.roomData.settings, ...data.settings };
     }
-    await cc.update([
+    this.roomData = { ...this.roomData, ...data };
+
+    await SocketFacade.instance.roomDataCC().updatePackage([
       {
         key: this.roomDataKey,
         data: this.roomData
@@ -319,15 +259,14 @@ export default class GameObjectManager {
     ]);
   }
 
-  private __clientRoomInfo: ClientRoomInfo | null = null;
-
   public readonly chatPublicInfo: ChatPublicInfo = {
     isUseAllTab: false,
     actorKey: "",
     tabKey: "",
     targetKey: "",
     system: "",
-    bcdiceUrl: ""
+    bcdiceUrl: "",
+    bcdiceVersion: ""
   };
 
   // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
@@ -336,9 +275,13 @@ export default class GameObjectManager {
 
   // 部屋の設定情報
   private roomDataKey: string | null = null;
-  public readonly roomData: RoomDataStore = {
+  public roomData: RoomDataStore = {
     name: "",
+    roomNo: -1,
     sceneKey: "",
+    bcdiceServer: "",
+    bcdiceVersion: "v2",
+    system: "DiceBot",
     settings: {
       visitable: true,
       isFitGrid: true,
@@ -346,15 +289,14 @@ export default class GameObjectManager {
       isViewCutIn: true,
       isDrawGridId: true,
       mapRotatable: true,
-      isDrawGridLine: true,
       isShowStandImage: true,
+      standImageGridNum: 12,
       isShowRotateMarker: true,
       windowSettings: {
         chat: "free",
-        resource: "free",
         initiative: "free",
-        chatPalette: "free",
-        counterRemocon: "free"
+        "chat-palette": "free",
+        "counter-remocon": "free"
       }
     }
   };
@@ -403,15 +345,6 @@ export default class GameObjectManager {
   public readonly likeList: StoreUseData<LikeStore>[] = [];
   public readonly counterRemoconList: StoreUseData<CounterRemoconStore>[] = [];
   public readonly mapDrawList: StoreUseData<MapDrawStore>[] = [];
-
-  public get clientRoomInfo(): ClientRoomInfo {
-    if (!this.__clientRoomInfo) {
-      throw new ApplicationError(
-        `Unsupported operation. clientRoomInfo is null.`
-      );
-    }
-    return this.__clientRoomInfo;
-  }
 
   public getExclusionOwnerKey(socketId: string | null): string | null {
     const socketUserInfo = this.socketUserList.find(

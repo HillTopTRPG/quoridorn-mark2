@@ -137,6 +137,11 @@ type ChatStore = {
   actorKey: string | null;
   statusKey: string | null;
   system: string;
+  bcdiceApiVersion: string; // v1 or v2
+  success?: boolean;
+  failure?: boolean;
+  critical?: boolean;
+  fumble?: boolean;
   targetType: "group" | "actor" | null;
   targetKey: string;
   isSecret: boolean; // 秘匿チャット
@@ -283,6 +288,10 @@ type ResourceStore = {
  */
 type RoomDataStore = {
   name: string;
+  roomNo: number;
+  bcdiceServer: string; // BCDiceサーバー
+  bcdiceVersion: string; // BCDiceAPIバージョン
+  system: string; // BCDiceSystem
   sceneKey: string;
   settings: RoomInfoExtend;
 };

@@ -15,9 +15,20 @@ type BackgroundSize =
 
 type BcdiceDiceRollResult = {
   ok: string;
+  version: string;
   result?: string;
   secret?: boolean;
+  success?: boolean;
+  failure?: boolean;
+  critical?: boolean;
+  fumble?: boolean;
   dices?: DiceResult[];
+};
+
+type DiceResult = {
+  kind: "nomal" | "tens_d10" | "d9";
+  faces: number;
+  value: number;
 };
 
 /**
@@ -83,11 +94,6 @@ type DiceInfo = {
 };
 
 type DiceMaterial = { [P: string]: DiceInfo[] };
-
-type DiceResult = {
-  faces: number;
-  value: number;
-};
 
 /**
  * 画像の付与情報の定義の1つ
@@ -206,10 +212,23 @@ type RoomInfoExtend = {
   isViewCutIn: boolean; // カットインを表示するか
   isDrawGridId: boolean; // マップ座標を表示するか
   mapRotatable: boolean; // マップを回転させるか
-  isDrawGridLine: boolean; // マップ罫線を表示するか
   isShowStandImage: boolean; // 立ち絵を表示するか,
+  standImageGridNum: number; // 立ち絵を表示する位置の数
   isShowRotateMarker: boolean; // マップオブジェクトの回転マーカーを表示するか
   windowSettings: WindowSettings;
+};
+
+type WindowSetting =
+  | "not-use" // 使えなくします
+  | "free" // 特に指定はありません
+  | "init-view" // 入室時に表示します
+  | "always-open"; // 常に開いています。閉じることはできません。
+
+type WindowSettings = {
+  chat: WindowSetting;
+  initiative: WindowSetting;
+  "chat-palette": WindowSetting;
+  "counter-remocon": WindowSetting;
 };
 
 /**
@@ -245,21 +264,6 @@ type Size = {
   height: number;
 };
 
-// import { StandImageInfo } from "@/app/basic/stand-image/StandImage";
-type StandImageDiffInfo = Point & {
-  texture: Texture;
-  stackType: number; // 重ね方
-  time: [number, number];
-};
-
-type StandImageInfo = {
-  statusKey: string;
-  texture: Texture;
-  autoResize: boolean;
-  animationLength: number;
-  diffList: StandImageDiffInfo[];
-};
-
 /**
  * マップの背景の定義の集合体
  */
@@ -292,16 +296,19 @@ type UrlType = "youtube" | "image" | "music" | "setting" | "unknown";
 
 type UserType = "GM" | "PL" | "VISITOR";
 
-type WindowSetting =
-  | "not-use" // 使えなくします
-  | "free" // 特に指定はありません
-  | "init-view" // 入室時に表示します
-  | "always-open"; // 常に開いています。閉じることはできません。
+type StandImageDiffInfo = Point & {
+  texture: Texture;
+  stackType: "pile" | "replace"; // 重ね方
+  time: [number, number]; // 0~1
+};
 
-type WindowSettings = {
-  chat: WindowSetting;
-  resource: WindowSetting;
-  initiative: WindowSetting;
-  chatPalette: WindowSetting;
-  counterRemocon: WindowSetting;
+type StandImageSizeType = "default" | "original" | "fit-width" | "fit-height";
+type StandImageInfo = {
+  // ownerはアクターステータス
+  // 権限機能は使わない
+  texture: Texture;
+  sizeType: StandImageSizeType;
+  sizeValue: number; // fit-width, fit-heightの場合は1~でそれ以外は0
+  animationLength: number;
+  diffList: StandImageDiffInfo[];
 };

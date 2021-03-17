@@ -27,6 +27,7 @@
       :statusKey.sync="statusKey"
       :system.sync="system"
       :bcdiceUrl.sync="bcdiceUrl"
+      :bcdice-version.sync="bcdiceVersion"
     />
 
     <!-- 入力盤 -->
@@ -195,6 +196,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private system: string = "DiceBot";
   /** BCDice-APIのURL */
   private bcdiceUrl: string = "";
+  /** BCDice-APIのバージョン */
+  private bcdiceVersion: string = "";
 
   private lastChatNum: number = -1;
 
@@ -436,6 +439,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("chatPublicInfo.bcdiceUrl", { immediate: true })
   private onChangeChatPublicBcdiceUrl() {
     this.bcdiceUrl = this.chatPublicInfo.bcdiceUrl;
+  }
+
+  @Watch("chatPublicInfo.bcdiceVersion", { immediate: true })
+  private onChangeChatPublicBcdiceVersion() {
+    this.bcdiceVersion = this.chatPublicInfo.bcdiceVersion;
   }
 
   /*

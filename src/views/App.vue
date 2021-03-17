@@ -191,7 +191,9 @@ export default class App extends Vue {
     performance.mark("app-init-start");
     await SocketFacade.instance.init();
     const bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
-    await BcdiceManager.instance.init(bcdiceServer);
+    const bcdiceVersion =
+      SocketFacade.instance.connectInfo.bcdiceVersion || "v2";
+    await BcdiceManager.instance.init(bcdiceServer, bcdiceVersion);
     YoutubeManager.init();
     performance.mark("app-init-end");
     performance.measure("app-init-time", "app-init-start", "app-init-end");

@@ -34,7 +34,7 @@ export default class CharacterAddWindow extends MapObjectAddWindowVue {
   protected type: SceneObjectType = "character";
   protected textureType: "color" | "image" = "image";
   protected hasOtherText: boolean = true;
-  protected sizeType: "size" | "wh" = "wh";
+  protected sizeType: "size" | "wh" = "size";
 
   @LifeCycle
   public async mounted() {

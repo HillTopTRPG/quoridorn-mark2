@@ -29,15 +29,15 @@ export default class EditWindowDelegator<T> {
     const type = this.parent.windowInfo.args!.type;
     this.list = GameObjectManager.instance.getList<T>(type)!;
     this.cc = SocketFacade.instance.getCC(type);
-    if (this.list && this.cc) {
-      console.log(type, "正常に起動");
-    } else {
-      console.log(
-        type,
-        `list: ${this.list ? "OK" : "null"}`,
-        `cc: ${this.cc ? "OK" : "null"}`
-      );
-    }
+    // if (this.list && this.cc) {
+    //   console.log(type, "正常に起動");
+    // } else {
+    //   console.log(
+    //     type,
+    //     `list: ${this.list ? "OK" : "null"}`,
+    //     `cc: ${this.cc ? "OK" : "null"}`
+    //   );
+    // }
     const data = findRequireByKey(this.list, this.docKey);
 
     if (this.parent.windowInfo.status === "window") {

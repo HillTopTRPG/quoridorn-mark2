@@ -61,9 +61,10 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
   }
 })
 export default class BcdiceApiServerSettingWindow extends Mixins<
-  WindowVue<string, string>
+  WindowVue<{ url: string; version: string }, string>
 >(WindowVue) {
   private url: string = "";
+  private version: string = "";
   private testMessage: string = "";
   private testStatus: string = "";
   private apiVersion: string = "";
@@ -72,7 +73,8 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.url = this.windowInfo.args!.toString();
+    this.url = this.windowInfo.args!.url.toString();
+    this.version = this.windowInfo.args!.version.toString();
   }
 
   @Watch("currentDiceBotSystem")
@@ -86,7 +88,8 @@ export default class BcdiceApiServerSettingWindow extends Mixins<
     this.testStatus = "testing";
     try {
       const info: BcdiceVersionInfo = await BcdiceManager.getBcdiceVersionInfo(
-        this.url
+        this.url,
+        this.version
       );
       this.apiVersion = info.api;
       this.bcdiceVersion = info.bcdice;

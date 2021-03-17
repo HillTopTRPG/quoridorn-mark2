@@ -809,19 +809,10 @@ export default class LoginWindow extends Mixins<
 
     await LoginWindow.viewProcessView("last-process-room");
 
-    const loginResult: ClientRoomInfo = {
-      name: createRoomInput.name,
-      bcdiceServer: SocketFacade.instance.connectInfo.bcdiceServer,
-      system: createRoomInput.system,
-      extend: createRoomInput.extend,
-      memberNum: 0,
-      hasPassword: !!createRoomInput.roomPassword,
-      roomNo: this.selectedRoomNo
-    };
-    await GameObjectManager.instance.setClientRoomInfo(loginResult);
+    await GameObjectManager.instance.initialize();
 
     const params = new URLSearchParams();
-    params.append("no", loginResult.roomNo.toString(10));
+    params.append("no", this.selectedRoomNo.toString(10));
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
@@ -830,10 +821,10 @@ export default class LoginWindow extends Mixins<
       .replace("{0}", `${userLoginInput.name}`);
     await sendSystemChatLog(msg);
 
-    await TaskManager.instance.ignition<ClientRoomInfo, void>({
+    await TaskManager.instance.ignition<void, void>({
       type: "room-initialize",
       owner: "Quoridorn",
-      value: loginResult
+      value: null
     });
   }
 
@@ -1017,13 +1008,10 @@ export default class LoginWindow extends Mixins<
     performance.mark("room-init-start");
     await LoginWindow.viewProcessView("entering-room");
 
-    const loginResult: ClientRoomInfo = this.roomList![this.selectedRoomNo]
-      .data!;
-    loginResult.roomNo = this.selectedRoomNo;
-    await GameObjectManager.instance.setClientRoomInfo(loginResult);
+    await GameObjectManager.instance.initialize();
 
     const params = new URLSearchParams();
-    params.append("no", loginResult.roomNo.toString(10));
+    params.append("no", this.selectedRoomNo.toString(10));
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
@@ -1032,10 +1020,10 @@ export default class LoginWindow extends Mixins<
       .replace("{0}", `${userLoginInput.name}`);
     await sendSystemChatLog(msg);
 
-    await TaskManager.instance.ignition<ClientRoomInfo, void>({
+    await TaskManager.instance.ignition<void, void>({
       type: "room-initialize",
       owner: "Quoridorn",
-      value: loginResult
+      value: null
     });
   }
 
@@ -1200,22 +1188,15 @@ export default class LoginWindow extends Mixins<
       chatLinkageSearch: ""
     };
 
+    const createLike = (char: string, isThrowLinkage: boolean): LikeStore => ({
+      char,
+      isThrowLinkage,
+      linkageResourceKey: null
+    });
     const likeList: LikeStore[] = [
-      {
-        char: "💗",
-        isThrowLinkage: true,
-        linkageResourceKey: null
-      },
-      {
-        char: "💐",
-        isThrowLinkage: true,
-        linkageResourceKey: null
-      },
-      {
-        char: "✨",
-        isThrowLinkage: false,
-        linkageResourceKey: null
-      }
+      createLike("💗", true),
+      createLike("💐", true),
+      createLike("✨", false)
     ];
 
     /* --------------------------------------------------
@@ -1226,6 +1207,9 @@ export default class LoginWindow extends Mixins<
       void
     >("add-room-preset-data", {
       roomName: createRoomInput.name,
+      bcdiceServer: createRoomInput.bcdiceServer, // BCDiceサーバー
+      bcdiceVersion: createRoomInput.bcdiceVersion, // BCDiceAPIバージョン
+      system: createRoomInput.system, // BCDiceSystem
       roomExtendInfo: createRoomInput.extend,
       sceneData: scene,
       cutInDataList,

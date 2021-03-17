@@ -7,15 +7,11 @@
             class="label-input"
             v-t="'room-info-window.label.room-no'"
           ></span>
-          <span class="selectable" v-if="clientRoomInfo">{{
-            clientRoomInfo.roomNo
-          }}</span>
+          <span class="selectable">{{ roomData.roomNo }}</span>
         </label>
         <label>
           <span class="label-input" v-t="'label.room-name'"></span>
-          <span class="selectable" v-if="clientRoomInfo">{{
-            clientRoomInfo.name
-          }}</span>
+          <span class="selectable">{{ roomData.name }}</span>
         </label>
       </div>
       <label>
@@ -23,14 +19,21 @@
           class="label-input"
           v-t="'room-info-window.label.bcdice-api-url'"
         ></span>
-        <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
+        <span class="selectable">{{ roomData.bcdiceServer }}</span>
+      </label>
+      <label>
+        <span
+          class="label-input"
+          v-t="'room-info-window.label.bcdice-api-version'"
+        ></span>
+        <span class="selectable">{{ roomData.bcdiceVersion }}</span>
       </label>
       <label>
         <span
           class="label-input"
           v-t="'room-info-window.label.game-system-view'"
         ></span>
-        <span class="selectable" v-if="clientRoomInfo">{{ systemName }}</span>
+        <span class="selectable">{{ systemName }}</span>
       </label>
       <div class="invite">
         <label>
@@ -40,7 +43,6 @@
           ></span>
           <base-input
             type="text"
-            v-if="clientRoomInfo"
             :value="getInviteUrl()"
             tabindex="-1"
             readonly="readonly"
@@ -81,7 +83,6 @@
             <td class="url">
               <base-input
                 type="text"
-                v-if="clientRoomInfo"
                 :value="getInviteUrl(user)"
                 tabindex="-1"
                 readonly="readonly"
@@ -110,8 +111,7 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { UserStore } from "@/@types/store-data";
-import { ClientRoomInfo } from "@/@types/socket";
+import { RoomDataStore, UserStore } from "@/@types/store-data";
 import { UserType } from "@/@types/store-data-optional";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
@@ -134,22 +134,20 @@ import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   WindowVue
 ) {
-  private clientRoomInfo: ClientRoomInfo | null = null;
   private userList: StoreData<UserStore>[] =
     GameObjectManager.instance.userList;
-  private systemKey: string | null = null;
   private systemName: string | null = null;
 
-  @Watch("clientRoomInfo", { deep: true })
-  private async onChangeClientRoomInfo() {
-    this.systemKey = this.clientRoomInfo ? this.clientRoomInfo.system : null;
+  private get roomData(): RoomDataStore {
+    return GameObjectManager.instance.roomData;
   }
 
-  @Watch("systemKey")
-  private async onChangeSystemKey() {
+  @Watch("roomData", { deep: true, immediate: true })
+  private async onChangeRoomData() {
     this.systemName = await BcdiceManager.getBcdiceSystemName(
-      SocketFacade.instance.connectInfo.bcdiceServer,
-      this.systemKey
+      this.roomData.bcdiceServer,
+      this.roomData.bcdiceVersion,
+      this.roomData.system
     );
   }
 
@@ -167,8 +165,8 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   }
 
   public getInviteUrl(user?: StoreData<UserStore>) {
-    if (!this.clientRoomInfo) return "";
-    const roomNo = this.clientRoomInfo.roomNo;
+    console.log(JSON.stringify(this.roomData, null, "  "));
+    const roomNo = this.roomData.roomNo;
     const name = user ? user.data!.name : "";
 
     const baseUrl = location.href.replace(/\?.+$/, "");
@@ -186,12 +184,11 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-    this.clientRoomInfo = GameObjectManager.instance.clientRoomInfo;
     SocketFacade.instance.connectInfo.bcdiceServer;
 
     const declareObj = this.windowInfo.declare;
 
-    const heightEm = this.userList.length * 2 + 12;
+    const heightEm = this.userList.length * 2 + 14;
     this.windowInfo.heightEm = heightEm;
     declareObj.size.heightEm = heightEm;
     declareObj.minSize!.heightEm = heightEm;

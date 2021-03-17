@@ -34,7 +34,8 @@
         ></span>
         <bcdice-system-input
           v-model="system"
-          :url.sync="url"
+          :url.sync="bcdiceServer"
+          :version.sync="bcdiceVersion"
           :isPending="!name"
           :windowInfo="windowInfo"
           @onMouseEnterUrl="onMouseEnterUrl"
@@ -92,9 +93,9 @@ export default class CreateNewRoomWindow extends Mixins<
   private password: string = "";
   private roomCreatePassword: string = "";
   private isNeedRoomCreatePassword: boolean = false;
-  /** 選択されているシステム */
-  private system: string = "DiceBot";
-  private url: string = SocketFacade.instance.connectInfo.bcdiceServer;
+  private bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
+  private bcdiceVersion = "v2";
+  private system = "DiceBot";
   private extendInfo: RoomInfoExtend = {
     visitable: true,
     isFitGrid: true,
@@ -102,15 +103,14 @@ export default class CreateNewRoomWindow extends Mixins<
     isViewCutIn: true,
     isDrawGridId: true,
     mapRotatable: true,
-    isDrawGridLine: true,
     isShowStandImage: true,
+    standImageGridNum: 12,
     isShowRotateMarker: true,
     windowSettings: {
       chat: "free",
-      resource: "free",
       initiative: "free",
-      chatPalette: "free",
-      counterRemocon: "free"
+      "chat-palette": "free",
+      "counter-remocon": "free"
     }
   };
 
@@ -128,7 +128,7 @@ export default class CreateNewRoomWindow extends Mixins<
     }
   }
 
-  @Watch("url")
+  @Watch("bcdiceServer")
   private onChangeUrl() {
     this.system = "DiceBot";
   }
@@ -139,16 +139,18 @@ export default class CreateNewRoomWindow extends Mixins<
 
   @VueEvent
   private async commit() {
-    await this.finally({
+    const resultInfo: CreateRoomInput = {
       name: this.name || "",
-      bcdiceServer: this.url,
+      bcdiceServer: this.bcdiceServer,
+      bcdiceVersion: this.bcdiceVersion,
       system: this.system,
-      roomPassword: this.password,
       extend: this.extendInfo,
+      roomPassword: this.password,
       roomCreatePassword: this.isNeedRoomCreatePassword
         ? this.roomCreatePassword
         : undefined
-    });
+    };
+    await this.finally(resultInfo);
   }
 
   @VueEvent

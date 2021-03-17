@@ -39,6 +39,9 @@ type CustomDiceBotInfo = {
 
 type AddRoomPresetDataRequest = {
   roomName: string;
+  bcdiceServer: string; // BCDiceサーバー
+  bcdiceVersion: string; // BCDiceAPIバージョン
+  system: string; // BCDiceSystem
   roomExtendInfo: RoomInfoExtend;
   sceneData: SceneStore;
   cutInDataList: CutInStore[];

@@ -236,6 +236,7 @@ export async function sendChatLog(
     actorKey,
     statusKey: statusKey!,
     system: payload.system || GameObjectManager.instance.chatPublicInfo.system,
+    bcdiceApiVersion: "", // 空文字 or v1 or v2
     targetKey,
     targetType: groupChatTabInfo ? "group" : "actor",
     isSecret: payload.isSecret,
@@ -250,6 +251,8 @@ export async function sendChatLog(
       return null;
     }
     const resultJson = await BcdiceManager.sendBcdiceServer({
+      baseUrl: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+      version: GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
       system: chatInfo.system,
       command
     });
@@ -259,6 +262,12 @@ export async function sendChatLog(
       chatInfo.diceRollResult = resultJson.result!;
       chatInfo.isSecretDice = resultJson.secret!;
       chatInfo.dices = resultJson.dices!;
+      chatInfo.bcdiceApiVersion =
+        GameObjectManager.instance.chatPublicInfo.bcdiceVersion;
+      chatInfo.success = resultJson.success;
+      chatInfo.failure = resultJson.failure;
+      chatInfo.critical = resultJson.critical;
+      chatInfo.fumble = resultJson.fumble;
     } else {
       // bcdiceとして結果は取れなかった
     }
@@ -324,6 +333,8 @@ export async function sendChatLog(
     const tableContents = useCustomDiceBotObj.tableContents;
 
     const resultJson = await BcdiceManager.sendBcdiceServer({
+      baseUrl: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+      version: GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
       system: diceBotSystem,
       command: diceRoll
     });

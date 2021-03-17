@@ -542,6 +542,7 @@ room-info-window:
   window-title: プレイルーム情報表示
   label:
     bcdice-api-url: BCDice-APIのURL
+    bcdice-api-version: BCDice-APIのバージョン
     game-system-view: ゲームシステム
     comeback-url: 復帰URL
     invite-url: 招待URL

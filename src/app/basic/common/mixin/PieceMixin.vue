@@ -722,6 +722,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       // ダイスを隠しているなら
       const command = `1D${pipsLength}`;
       const resultJson = await BcdiceManager.sendBcdiceServer({
+        baseUrl: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+        version: GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
         system: "DiceBot",
         command
       });

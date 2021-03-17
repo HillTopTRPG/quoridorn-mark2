@@ -117,6 +117,9 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   @Prop({ type: String, required: true })
   private url!: string;
 
+  @Prop({ type: String, required: true })
+  private version!: string;
+
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
@@ -350,7 +353,8 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
 
     try {
       const info: BcdiceSystemInfo = await BcdiceManager.getBcdiceSystemInfo(
-        SocketFacade.instance.connectInfo.bcdiceServer,
+        this.url,
+        this.version,
         system
       );
       this.helpMessage =
@@ -488,14 +492,14 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   @VueEvent
   private async onClickUrlSetting() {
     const resultList = await TaskManager.instance.ignition<
-      WindowOpenInfo<string>,
+      WindowOpenInfo<{ url: string; version: string }>,
       string
     >({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "bcdice-api-server-setting-window",
-        args: this.url
+        args: { url: this.url, version: this.version }
       }
     });
     if (resultList.length) this.localUrl = resultList[0];

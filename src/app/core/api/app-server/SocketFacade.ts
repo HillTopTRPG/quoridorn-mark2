@@ -55,6 +55,7 @@ import { errorDialog, findByKey } from "@/app/core/utility/Utility";
 export type ConnectInfo = {
   quoridornServer: string | string[];
   bcdiceServer: string;
+  bcdiceVersion: string;
   skywayApiKey: string;
   skywayConnectType: string;
   socketTimeout: number;
