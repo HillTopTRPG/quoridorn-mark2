@@ -272,20 +272,22 @@ export async function sendChatLog(
       version,
       system
     );
-    let doCommand: boolean;
-    const defaultRegExp = /^[@><+-/*=0-9a-zA-Z()"?^$]+/;
+    let doCommand: boolean | null = null;
+    let matchCommand: string | null = null;
+    const update = (regExp: RegExp) => {
+      const matchResult = command.match(regExp);
+      doCommand = !!matchResult;
+      matchCommand = matchResult ? matchResult[0] : "";
+    };
     if (systemInfo.commandPattern) {
       try {
-        const regExp = new RegExp(systemInfo.commandPattern, "i");
-        doCommand = regExp.test(command);
+        update(new RegExp(systemInfo.commandPattern, "i"));
       } catch (err) {
         // BCDice-APIが返却してくるcommandPatternにも間違いはある
         console.error(`ErrorPattern: '${systemInfo.commandPattern}'`);
-        doCommand = defaultRegExp.test(command);
       }
-    } else {
-      doCommand = defaultRegExp.test(command);
     }
+    if (doCommand === null) update(/^[@><+-/*=0-9a-zA-Z()"?^$]+/);
     if (!doCommand) {
       await addChatLog(chatInfo);
       return null;
@@ -299,81 +301,78 @@ export async function sendChatLog(
         command
       );
 
-      if (resultJson.ok) {
-        // bcdiceとして結果が取れた
-        chatInfo.diceRollResult = resultJson.result!;
-        chatInfo.isSecretDice = resultJson.secret!;
-        chatInfo.dices = resultJson.dices!;
-        chatInfo.success = resultJson.success;
-        chatInfo.failure = resultJson.failure;
-        chatInfo.critical = resultJson.critical;
-        chatInfo.fumble = resultJson.fumble;
-        chatInfo.bcdiceApiVersion = bcdiceVersion;
-        chatInfo.bcdiceServer = bcdiceServer;
+      // bcdiceとして結果が取れた
+      chatInfo.diceRollResult = resultJson.result!;
+      chatInfo.isSecretDice = resultJson.secret!;
+      chatInfo.dices = resultJson.dices!;
+      chatInfo.success = resultJson.success;
+      chatInfo.failure = resultJson.failure;
+      chatInfo.critical = resultJson.critical;
+      chatInfo.fumble = resultJson.fumble;
+      chatInfo.bcdiceApiVersion = bcdiceVersion;
+      chatInfo.bcdiceServer = bcdiceServer;
 
-        if (originalTable) {
-          const diceRollResult = resultJson.result!.replace(/^.*→ */, "");
-          const diceResultStr = `(${diceRollResult})`;
+      if (originalTable) {
+        const diceRollResult = resultJson.result!.replace(/^.*→ */, "");
+        const diceResultStr = `(${diceRollResult})`;
 
-          if (isSecretDiceForce) {
-            chatInfo.isSecretDice = true;
-          }
+        if (isSecretDiceForce) {
+          chatInfo.isSecretDice = true;
+        }
 
-          const originalTableResult = originalTable.data!.tableContents[
-            diceRollResult
-          ];
+        const originalTableResult = originalTable.data!.tableContents[
+          diceRollResult
+        ];
 
-          chatInfo.originalTableResult = [
-            originalTable.data!.tableTitle,
-            diceResultStr,
-            " → ",
-            originalTableResult || `Un match result '${diceRollResult}'`
-          ].join("");
+        chatInfo.originalTableResult = [
+          originalTable.data!.tableTitle,
+          diceResultStr,
+          " → ",
+          originalTableResult || `Un match result '${diceRollResult}'`
+        ].join("");
+      }
 
-          // シークレットダイス処理
-          const oldText = chatInfo.text;
-          if (chatInfo.isSecretDice) {
-            chatInfo.chatType = "system-message";
-            chatInfo.text = LanguageManager.instance.getText(
-              "message.dice-roll-secret-dice"
-            );
-          }
+      // シークレットダイス処理
+      const oldText = chatInfo.text;
+      if (chatInfo.isSecretDice) {
+        chatInfo.chatType = "system-message";
+        chatInfo.text = LanguageManager.instance.getText(
+          "message.dice-roll-secret-dice"
+        );
+      }
 
-          const chatKey = await addChatLog(chatInfo);
+      const chatKey = await addChatLog(chatInfo);
 
-          if (chatInfo.isSecretDice) {
-            const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
-            await keepBcdiceDiceRollResultListCC.addDirect([
-              {
-                data: {
-                  type: "secret-dice-roll" as "secret-dice-roll",
-                  text: oldText,
-                  targetKey: chatKey,
-                  bcdiceServer: baseUrl,
-                  bcdiceVersion: version,
-                  system: system,
-                  bcdiceDiceRollResult: resultJson!,
-                  originalTableResult: chatInfo.originalTableResult
-                }
-              }
-            ]);
-            if (
-              !WindowManager.instance.getOpenedWindowInfo("secret-dice-roll")
-            ) {
-              // 開いてなかったら開く
-              // @ts-ignore
-              await App.openSimpleWindow("secret-dice-roll-window");
+      if (chatInfo.isSecretDice) {
+        const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
+        await keepBcdiceDiceRollResultListCC.addDirect([
+          {
+            data: {
+              type: "secret-dice-roll" as "secret-dice-roll",
+              text: oldText,
+              targetKey: chatKey,
+              bcdiceServer: baseUrl,
+              bcdiceVersion: version,
+              system: system,
+              bcdiceDiceRollResult: resultJson!,
+              originalTableResult: chatInfo.originalTableResult
             }
           }
+        ]);
+        if (!WindowManager.instance.getOpenedWindowInfo("secret-dice-roll")) {
+          // 開いてなかったら開く
+          // @ts-ignore
+          await App.openSimpleWindow("secret-dice-roll-window");
         }
-        return resultJson;
-      } else {
-        // bcdiceとして結果は取れなかった
-        console.error(JSON.stringify(resultJson, null, "  "));
       }
+      return resultJson;
     } catch (err) {
       // bcdiceとして結果は取れなかった
-      console.error(err);
+      console.warn(err);
+      console.warn(
+        `'${matchCommand}'がコマンドだと思ってBCDice-APIに投げていた`
+      );
+      // console.warn(`commandPattern: '${systemInfo.commandPattern}'`);
     }
     return null;
   };
@@ -408,7 +407,7 @@ export async function sendChatLog(
   // -------------------
   // プレーンテキスト処理
   // -------------------
-  return await processBcdiceApi(
+  const result = await processBcdiceApi(
     bcdiceServer,
     bcdiceVersion,
     system,
@@ -416,6 +415,8 @@ export async function sendChatLog(
     null,
     false
   );
+  if (!result) await addChatLog(chatInfo);
+  return result;
 }
 
 export function conversion(

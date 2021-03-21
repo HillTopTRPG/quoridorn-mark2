@@ -731,53 +731,49 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           command
         );
 
-        if (resultJson.ok) {
-          // bcdiceとして結果が取れた
-          const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
-          const keepBcdiceDiceRollResult = await this.getKeepBcdiceDiceRollResult();
-          if (!keepBcdiceDiceRollResult) {
-            // 新規追加
-            await keepBcdiceDiceRollResultListCC.addDirect([
-              {
-                data: {
-                  type: "hide-dice-symbol-roll" as "hide-dice-symbol-roll",
-                  text: command,
-                  targetKey: data.key,
-                  bcdiceDiceRollResult: resultJson,
-                  bcdiceServer:
-                    GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
-                  bcdiceVersion:
-                    GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
-                  system: "DiceBot",
-                  originalTableResult: null
-                }
+        // bcdiceとして結果が取れた
+        const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
+        const keepBcdiceDiceRollResult = await this.getKeepBcdiceDiceRollResult();
+        if (!keepBcdiceDiceRollResult) {
+          // 新規追加
+          await keepBcdiceDiceRollResultListCC.addDirect([
+            {
+              data: {
+                type: "hide-dice-symbol-roll" as "hide-dice-symbol-roll",
+                text: command,
+                targetKey: data.key,
+                bcdiceDiceRollResult: resultJson,
+                bcdiceServer:
+                  GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+                bcdiceVersion:
+                  GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
+                system: "DiceBot",
+                originalTableResult: null
               }
-            ]);
-          } else {
-            // 更新
-            keepBcdiceDiceRollResult.data!.bcdiceDiceRollResult = resultJson;
-            await keepBcdiceDiceRollResultListCC.updatePackage([
-              {
-                key: keepBcdiceDiceRollResult.key,
-                data: keepBcdiceDiceRollResult.data!
-              }
-            ]);
-          }
-          pips = resultJson.dices![0]!.value.toString();
-          await sendChatLog({
-            chatType: "system-message",
-            text: this.$t("message.dice-roll-dice-symbol-hide").toString(),
-            tabKey: null,
-            targetKey: null,
-            statusKey: null,
-            system: null,
-            isSecret: false,
-            bcdiceServer: null,
-            bcdiceVersion: null
-          });
+            }
+          ]);
         } else {
-          // 無視していい。
+          // 更新
+          keepBcdiceDiceRollResult.data!.bcdiceDiceRollResult = resultJson;
+          await keepBcdiceDiceRollResultListCC.updatePackage([
+            {
+              key: keepBcdiceDiceRollResult.key,
+              data: keepBcdiceDiceRollResult.data!
+            }
+          ]);
         }
+        pips = resultJson.dices![0]!.value.toString();
+        await sendChatLog({
+          chatType: "system-message",
+          text: this.$t("message.dice-roll-dice-symbol-hide").toString(),
+          tabKey: null,
+          targetKey: null,
+          statusKey: null,
+          system: null,
+          isSecret: false,
+          bcdiceServer: null,
+          bcdiceVersion: null
+        });
       } catch (err) {
         // 無視していい。
       }
