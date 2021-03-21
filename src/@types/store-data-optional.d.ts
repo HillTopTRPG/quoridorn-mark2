@@ -151,6 +151,7 @@ type OtherTextViewInfo = {
   dataList: StoreUseData<MemoStore>[];
   rect: Rectangle;
   isFix: boolean;
+  isRawText: boolean;
 };
 
 type PartialRoomData = Partial<RoomDataStore> & {

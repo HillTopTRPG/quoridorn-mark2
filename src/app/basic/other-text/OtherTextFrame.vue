@@ -16,6 +16,7 @@
       :docKey="docKey"
       :windowKey="windowKey"
       @inputTextArea="inputTextArea"
+      :is-raw-text="otherTextViewInfo.isRawText"
     />
   </div>
 </template>

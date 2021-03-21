@@ -98,7 +98,6 @@ import {
   GroupChatTabStore,
   LikeStore
 } from "@/@types/store-data";
-import { CustomDiceBotInfo } from "@/@types/room";
 import { TabInfo } from "@/@types/window";
 import { Getter } from "vuex-class";
 import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
@@ -173,7 +172,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private actorStatusList = GameObjectManager.instance.actorStatusList;
   private chatFormatWrapList: StoreUseData<{ name: string }>[] = [];
   private groupChatTabList = GameObjectManager.instance.groupChatTabList;
-  private customDiceBotList: CustomDiceBotInfo[] = [];
 
   // NekostoreCollectionController
   private actorCC = SocketFacade.instance.actorCC();
@@ -530,6 +528,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("bcdiceUrl")
   private onChangeBcdiceUrl() {
     this.chatPublicInfo.bcdiceUrl = this.bcdiceUrl;
+  }
+
+  @Watch("bcdiceVersion")
+  private onChangeBcdiceVersion() {
+    this.chatPublicInfo.bcdiceVersion = this.bcdiceVersion;
   }
 
   @VueEvent
@@ -976,18 +979,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.edittingChat = null;
       return;
     }
-    await sendChatLog(
-      {
-        actorKey: this.actorKey,
-        text,
-        tabKey: this.outputTabKey || this.tabKey,
-        statusKey: null, // Actorに設定されているものを使う
-        targetKey: this.targetKey,
-        system: this.system,
-        isSecret: this.isSecret
-      },
-      this.customDiceBotList
-    );
+    await sendChatLog({
+      actorKey: this.actorKey,
+      text,
+      tabKey: this.outputTabKey || this.tabKey,
+      statusKey: null, // Actorに設定されているものを使う
+      targetKey: this.targetKey,
+      system: this.system,
+      isSecret: this.isSecret,
+      bcdiceServer: this.bcdiceUrl,
+      bcdiceVersion: this.bcdiceVersion
+    });
   }
 }
 </script>

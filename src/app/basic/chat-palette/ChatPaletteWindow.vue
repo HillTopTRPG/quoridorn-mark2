@@ -43,26 +43,25 @@
 
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
-import LifeCycle from "../../core/decorator/LifeCycle";
 import { ChatPaletteStore, ResourceStore } from "@/@types/store-data";
-import { CustomDiceBotInfo } from "@/@types/room";
-import SocketFacade, {
-  permissionCheck
-} from "../../core/api/app-server/SocketFacade";
-import BaseInput from "../../core/component/BaseInput.vue";
-import TableComponent from "../../core/component/table/TableComponent.vue";
-import VueEvent from "../../core/decorator/VueEvent";
-import TaskManager from "../../core/task/TaskManager";
-import ChatPaletteListComponent from "./ChatPaletteListComponent.vue";
-import WindowVue from "../../core/window/WindowVue";
-import CtrlButton from "../../core/component/CtrlButton.vue";
-import GameObjectManager from "../GameObjectManager";
 import { TabInfo, WindowOpenInfo } from "@/@types/window";
-import { sendChatLog } from "../../core/utility/ChatUtility";
-import SimpleTabComponent from "../../core/component/SimpleTabComponent.vue";
 import { Mixins } from "vue-mixin-decorator";
 import { findRequireByKey } from "@/app/core/utility/Utility";
 import App from "@/views/App.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import BaseInput from "@/app/core/component/BaseInput.vue";
+import TableComponent from "@/app/core/component/table/TableComponent.vue";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskManager from "@/app/core/task/TaskManager";
+import ChatPaletteListComponent from "@/app/basic/chat-palette/ChatPaletteListComponent.vue";
+import WindowVue from "@/app/core/window/WindowVue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { sendChatLog } from "@/app/core/utility/ChatUtility";
+import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 
 const uuid = require("uuid");
 
@@ -88,9 +87,6 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
   // 画面入力を受ける変数
   private sendText: string = "";
-
-  // クラス内向け
-  private customDiceBotList: CustomDiceBotInfo[] = [];
 
   // DB項目
   private chatFontColorType: "owner" | "original" = "owner";
@@ -268,19 +264,18 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
   @VueEvent
   private async sendLine() {
-    await sendChatLog(
-      {
-        actorKey:
-          this.actorKey || GameObjectManager.instance.chatPublicInfo.actorKey,
-        text: this.sendText.replace(/\\n/g, "\n"),
-        tabKey: this.outputTabKey,
-        statusKey: this.statusKey, // Actorに設定されているものを使う
-        targetKey: this.targetKey,
-        system: this.system,
-        isSecret: this.isSecret
-      },
-      this.customDiceBotList
-    );
+    await sendChatLog({
+      actorKey:
+        this.actorKey || GameObjectManager.instance.chatPublicInfo.actorKey,
+      text: this.sendText.replace(/\\n/g, "\n"),
+      tabKey: this.outputTabKey,
+      statusKey: this.statusKey, // Actorに設定されているものを使う
+      targetKey: this.targetKey,
+      system: this.system,
+      isSecret: this.isSecret,
+      bcdiceServer: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+      bcdiceVersion: GameObjectManager.instance.chatPublicInfo.bcdiceVersion
+    });
     this.sendText = "";
   }
 

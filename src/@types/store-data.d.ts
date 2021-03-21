@@ -133,11 +133,12 @@ type ChatStore = {
   diceRollResult: string | null;
   dices: DiceResult[];
   isSecretDice: boolean; // BCDiceのシークレットダイス
-  customDiceBotResult: string | null;
+  originalTableResult: string | null;
   actorKey: string | null;
   statusKey: string | null;
   system: string;
   bcdiceApiVersion: string; // v1 or v2
+  bcdiceServer: string;
   success?: boolean;
   failure?: boolean;
   critical?: boolean;
@@ -214,7 +215,11 @@ type KeepBcdiceDiceRollResultStore = {
   type: "secret-dice-roll" | "hide-dice-symbol-roll";
   text: string;
   targetKey: string;
+  bcdiceServer: string;
+  bcdiceVersion: string;
+  system: string;
   bcdiceDiceRollResult: BcdiceDiceRollResult;
+  originalTableResult: string | null;
 };
 
 type LikeStore = {

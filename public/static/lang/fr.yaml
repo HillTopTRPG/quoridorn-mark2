@@ -397,6 +397,8 @@ label:
   line-width: 線の幅
   vertex-num: 頂点の数
   font-size: 文字サイズ
+  ref-latest: 最新($1)
+  ref-old: 旧($1)
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。
@@ -496,10 +498,12 @@ user-login-window:
 bcdice-api-server-setting-window:
   window-title: BCDice-APIサーバ設定
   message: BCDice-APIサーバに関する設定
+  testing: テスト中
   success: 接続成功
   error: 接続失敗
   error-messages:
     connect-error: 接続に失敗しました。
+    un-supported-version-error: 対応できないBCDice-APIバージョン
 
 app-server-setting-window:
   window-title: アプリケーションサーバ設定
@@ -542,6 +546,7 @@ room-info-window:
   window-title: プレイルーム情報表示
   label:
     bcdice-api-url: BCDice-APIのURL
+    bcdice-api-version: BCDice-APIのバージョン
     game-system-view: ゲームシステム
     comeback-url: 復帰URL
     invite-url: 招待URL
@@ -655,6 +660,7 @@ player-box-window:
   dialog:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
+      このアクターに紐づくコマがあれば、一緒に削除されます。
       この操作は取り消せません。
 
 card-deck-builder:

@@ -136,7 +136,7 @@ import {
   UserLoginResponse,
   UserLoginWindowInput
 } from "@/@types/socket";
-import { AddRoomPresetDataRequest } from "@/@types/room";
+import { AddRoomPresetDataRequest, OriginalTableStore } from "@/@types/room";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import {
@@ -171,6 +171,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 
 @Component({
   components: {
@@ -1199,6 +1200,38 @@ export default class LoginWindow extends Mixins<
       createLike("✨", false)
     ];
 
+    const bcdiceServer = createRoomInput.bcdiceServer;
+    const bcdiceVersion = createRoomInput.bcdiceVersion;
+
+    const diceSystemMap = await BcdiceManager.instance.getDiceSystemMap(
+      bcdiceServer,
+      bcdiceVersion
+    );
+    const systemList = Array.from(diceSystemMap.values()).map(ds => ds.system);
+    const originalTableList: OriginalTableStore[] = [];
+    const loadCustomDiceBotYaml = async (system: string): Promise<void> => {
+      const path = `static/conf/system/${system}/customDiceBot.yaml`;
+      try {
+        // トライアンドエラー方式読み込みのため、throwは握りつぶす
+        const list = await loadYaml<OriginalTableStore[]>(path, true);
+        list.forEach(cdb => {
+          cdb.system = system;
+        });
+        originalTableList.push(...list);
+      } catch (err) {
+        // Nothing.
+      }
+    };
+    const modInfoList = await loadYaml<
+      { system: string; customDiceBot: boolean }[]
+    >("static/conf/system/mod-list.yaml");
+    await systemList
+      .filter(system =>
+        modInfoList.some(mi => mi.system === system && mi.customDiceBot)
+      )
+      .map(system => () => loadCustomDiceBotYaml(system))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
+
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
      */
@@ -1207,14 +1240,15 @@ export default class LoginWindow extends Mixins<
       void
     >("add-room-preset-data", {
       roomName: createRoomInput.name,
-      bcdiceServer: createRoomInput.bcdiceServer, // BCDiceサーバー
-      bcdiceVersion: createRoomInput.bcdiceVersion, // BCDiceAPIバージョン
+      bcdiceServer: bcdiceServer, // BCDiceサーバー
+      bcdiceVersion: bcdiceVersion, // BCDiceAPIバージョン
       system: createRoomInput.system, // BCDiceSystem
       roomExtendInfo: createRoomInput.extend,
       sceneData: scene,
       cutInDataList,
       diceMaterial,
       likeList,
+      originalTableList,
       language: {
         mainChatTabName: LanguageManager.instance.getText("label.main"),
         allGroupChatTabName: LanguageManager.instance.getText(
@@ -1229,6 +1263,7 @@ export default class LoginWindow extends Mixins<
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
 .root {
   @include flex-box(column, stretch, flex-start);
   position: relative;

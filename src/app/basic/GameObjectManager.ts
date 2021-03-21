@@ -1,4 +1,3 @@
-import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import {
   ActorStatusStore,
@@ -34,15 +33,17 @@ import {
   CounterRemoconStore,
   MapDrawStore
 } from "@/@types/store-data";
-import { ApplicationError } from "../core/error/ApplicationError";
+import { PartialRoomData } from "@/@types/store-data-optional";
+import { OriginalTableStore } from "@/@types/room";
 import {
   errorDialog,
   findByKey,
   findRequireByKey
-} from "../core/utility/Utility";
-import { loadYaml } from "../core/utility/FileUtility";
-import LanguageManager from "../../LanguageManager";
-import { PartialRoomData } from "@/@types/store-data-optional";
+} from "@/app/core/utility/Utility";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import LanguageManager from "@/LanguageManager";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -139,7 +140,8 @@ export default class GameObjectManager {
       sf.cardObjectCC().getList(true, this.cardObjectList),
       sf.actorCC().getList(true, this.actorList),
       sf.chatTabListCC().getList(true, this.chatTabList),
-      sf.memoCC().getList(true, this.memoList)
+      sf.memoCC().getList(true, this.memoList),
+      sf.originalTableListCC().getList(true, this.originalTableList)
     ]);
     // Block 6
     await Promise.all([
@@ -280,7 +282,7 @@ export default class GameObjectManager {
     roomNo: -1,
     sceneKey: "",
     bcdiceServer: "",
-    bcdiceVersion: "v2",
+    bcdiceVersion: "",
     system: "DiceBot",
     settings: {
       visitable: true,
@@ -345,6 +347,7 @@ export default class GameObjectManager {
   public readonly likeList: StoreUseData<LikeStore>[] = [];
   public readonly counterRemoconList: StoreUseData<CounterRemoconStore>[] = [];
   public readonly mapDrawList: StoreUseData<MapDrawStore>[] = [];
+  public readonly originalTableList: StoreUseData<OriginalTableStore>[] = [];
 
   public getExclusionOwnerKey(socketId: string | null): string | null {
     const socketUserInfo = this.socketUserList.find(
@@ -568,6 +571,9 @@ export default class GameObjectManager {
         break;
       case "map-draw-list":
         list = this.mapDrawList;
+        break;
+      case "original-table-list":
+        list = this.originalTableList;
         break;
       default:
     }

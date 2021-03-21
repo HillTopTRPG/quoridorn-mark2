@@ -18,11 +18,7 @@
         @keyup.229.stop
         ref="input"
       />
-      <span
-        class="select-button"
-        @click="openSelection()"
-        v-if="!isSelectMode"
-      ></span>
+      <span class="select-button" @click="openSelection()"></span>
     </label>
     <div class="item-container" v-if="isSelectMode">
       <div
@@ -72,30 +68,30 @@
 import { Prop, Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { Component, Mixins } from "vue-mixin-decorator";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
-import CtrlSelect from "../../../core/component/CtrlSelect.vue";
 import {
   OtherTextViewInfo,
   Point,
   Rectangle,
   Size
 } from "@/@types/store-data-optional";
-import ComponentVue from "../../../core/window/ComponentVue";
 import { WindowInfo, WindowMoveInfo, WindowOpenInfo } from "@/@types/window";
 import { getCssPxNum } from "@/app/core/css/Css";
-import SocketFacade from "../../../core/api/app-server/SocketFacade";
-import SButton from "./SButton.vue";
 import {
   createPoint,
   createRectangle
 } from "@/app/core/utility/CoordinateUtility";
-import VueEvent from "../../../core/decorator/VueEvent";
-import TaskManager from "../../../core/task/TaskManager";
-import LanguageManager from "../../../../LanguageManager";
-import { clone } from "@/app/core/utility/PrimaryDataUtility";
-import BcdiceManager from "../../../core/api/bcdice/BcdiceManager";
+import { clone, listToEmpty } from "@/app/core/utility/PrimaryDataUtility";
 import { createEmptyStoreUseData } from "@/app/core/utility/Utility";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import CtrlSelect from "@/app/core/component/CtrlSelect.vue";
+import ComponentVue from "@/app/core/window/ComponentVue";
+import TaskManager from "@/app/core/task/TaskManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import LanguageManager from "@/LanguageManager";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 const uuid = require("uuid");
 
 type FilterInfo = {
@@ -116,9 +112,6 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
 
   @Prop({ type: String, required: true })
   private url!: string;
-
-  @Prop({ type: String, required: true })
-  private version!: string;
 
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
@@ -156,6 +149,25 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
     }
   }
 
+  // bcdiceVersion
+  @Prop({ type: String, required: true })
+  private bcdiceVersion!: string;
+  private bcdiceVersionVolatile: string = "";
+  @Watch("bcdiceVersion", { immediate: true })
+  private onChangeBcdiceVersion(value: string) {
+    this.bcdiceVersionVolatile = value;
+  }
+  @Watch("bcdiceVersionVolatile")
+  private async onChangeBcdiceVersionVolatile(value: string) {
+    if (!value) {
+      const versionList = await BcdiceManager.instance.getVersionList(
+        SocketFacade.instance.connectInfo.bcdiceServer
+      );
+      value = versionList[0] || "error";
+    }
+    this.$emit("update:bcdiceVersion", value);
+  }
+
   private get selectElm(): CtrlSelect {
     return this.$refs.selectElm as CtrlSelect;
   }
@@ -180,7 +192,8 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
               })
             ],
             rect: createRectangle(rect.x, rect.y, rect.width + 1, rect.height),
-            isFix: true
+            isFix: true,
+            isRawText: true
           }
         });
         this.timeoutId = null;
@@ -211,14 +224,16 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
 
   @VueEvent
   private openSelection() {
-    this.isSelectMode = true;
-    setTimeout(() => {
-      const index = this.filteredSystemList.findIndex(
-        info => info.system === this.localValue
-      );
-      const itemElmList: HTMLElement[] = this.$refs.items as HTMLElement[];
-      itemElmList[index].focus();
-    });
+    if (!this.isSelectMode) {
+      setTimeout(() => {
+        const index = this.filteredSystemList.findIndex(
+          info => info.system === this.localValue
+        );
+        const itemElmList: HTMLElement[] = this.$refs.items as HTMLElement[];
+        itemElmList[index].focus();
+      });
+    }
+    this.isSelectMode = !this.isSelectMode;
   }
 
   input(system: string) {
@@ -231,18 +246,40 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   );
   private inputText: string = "";
 
+  @Watch("url")
+  private async updateSystemList(): Promise<DiceSystem | null> {
+    let result: DiceSystem | null = null;
+    const diceSystemMap = await BcdiceManager.instance.getDiceSystemMap(
+      this.url,
+      this.bcdiceVersionVolatile
+    );
+    listToEmpty(this.systemList);
+    Array.from(diceSystemMap.values()).forEach(info => {
+      info = clone(info)!;
+      if (info.system === "DiceBot") info.name = this.noTarget;
+      this.systemList.push(info);
+      if (info.system === this.localValue) {
+        this.inputText = info.name;
+        result = info;
+      }
+    });
+    if (!result) {
+      this.localValue = "DiceBot";
+    }
+    return result;
+  }
+
   @LifeCycle
-  private mounted() {
+  private async mounted() {
     this.isMounted = true;
-    if (BcdiceManager.instance.isReady()) {
-      BcdiceManager.instance.diceSystemList.forEach(info => {
-        info = clone(info)!;
-        if (info.system === "DiceBot") info.name = this.noTarget;
-        this.systemList.push(info);
-        if (info.system === this.localValue) {
-          this.inputText = info.name;
-        }
-      });
+    if (BcdiceManager.instance.isReady() && !this.systemList.length) {
+      if (!this.bcdiceVersionVolatile) {
+        const versionList = await BcdiceManager.instance.getVersionList(
+          SocketFacade.instance.connectInfo.bcdiceServer
+        );
+        this.bcdiceVersionVolatile = versionList[0] || "error";
+      }
+      await this.updateSystemList();
     }
     const rect = BcdiceSystemInput.getRect(this.inputElm);
     this.selectionPoint = createPoint(rect.x, rect.y + rect.height);
@@ -352,9 +389,9 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
     if (!system) return;
 
     try {
-      const info: BcdiceSystemInfo = await BcdiceManager.getBcdiceSystemInfo(
+      const info: BcdiceSystemInfo = await BcdiceManager.instance.getSystemInfo(
         this.url,
-        this.version,
+        this.bcdiceVersion,
         system
       );
       this.helpMessage =
@@ -485,7 +522,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   private async bcdiceReadyFinished(
     task: Task<never, never>
   ): Promise<TaskResult<never> | void> {
-    this.mounted();
+    await this.mounted();
     task.resolve();
   }
 
@@ -493,16 +530,19 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
   private async onClickUrlSetting() {
     const resultList = await TaskManager.instance.ignition<
       WindowOpenInfo<{ url: string; version: string }>,
-      string
+      { url: string; version: string }
     >({
       type: "window-open",
       owner: "Quoridorn",
       value: {
         type: "bcdice-api-server-setting-window",
-        args: { url: this.url, version: this.version }
+        args: { url: this.url, version: this.bcdiceVersion }
       }
     });
-    if (resultList.length) this.localUrl = resultList[0];
+    if (resultList.length) {
+      this.localUrl = resultList[0].url;
+      this.bcdiceVersionVolatile = resultList[0].version;
+    }
   }
 
   /*

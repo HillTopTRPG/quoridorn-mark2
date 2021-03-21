@@ -2,7 +2,6 @@ import * as Socket from "socket.io-client";
 import SocketDriver from "nekostore/lib/driver/socket";
 import Nekostore from "nekostore/lib/Nekostore";
 import yaml from "js-yaml";
-import { compareVersion, getFileRow, TargetVersion } from "../Github";
 import {
   ActorStatusStore,
   ActorStore,
@@ -38,24 +37,29 @@ import {
   CounterRemoconStore,
   MapDrawStore
 } from "@/@types/store-data";
-import GameObjectManager from "../../../basic/GameObjectManager";
-import { ApplicationError } from "../../error/ApplicationError";
 import {
   DefaultServerInfo,
   GetVersionResponse,
   SendDataRequest,
   ServerTestResult
 } from "@/@types/socket";
-import NekostoreCollectionController from "./NekostoreCollectionController";
-import { loadYaml } from "../../utility/FileUtility";
-import TaskManager from "../../task/TaskManager";
 import { ModeInfo } from "mode";
 import { errorDialog, findByKey } from "@/app/core/utility/Utility";
+import { OriginalTableStore } from "@/@types/room";
+import {
+  compareVersion,
+  getFileRow,
+  TargetVersion
+} from "@/app/core/api/Github";
+import TaskManager from "@/app/core/task/TaskManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
+import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
+import { loadYaml } from "@/app/core/utility/FileUtility";
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
   bcdiceServer: string;
-  bcdiceVersion: string;
   skywayApiKey: string;
   skywayConnectType: string;
   socketTimeout: number;
@@ -614,6 +618,12 @@ export default class SocketFacade {
     return this.roomCollectionController<MapDrawStore>("map-draw-list");
   }
 
+  public originalTableListCC() {
+    return this.roomCollectionController<OriginalTableStore>(
+      "original-table-list"
+    );
+  }
+
   public getCC(type: string): NekostoreCollectionController<any> {
     let cc = <NekostoreCollectionController<any>>(
       [
@@ -649,7 +659,8 @@ export default class SocketFacade {
         this.publicMemoListCC(),
         this.likeListCC(),
         this.counterRemoconCC(),
-        this.mapDrawListCC()
+        this.mapDrawListCC(),
+        this.originalTableListCC()
       ].find(cc => cc.collectionNameSuffix === type)
     );
     if (!cc) {

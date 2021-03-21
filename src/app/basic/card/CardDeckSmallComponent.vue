@@ -616,7 +616,7 @@ export default class CardDeckSmallComponent extends Mixins<MultiMixin>(
             {
               data: {
                 address,
-                layout: "pile-up",
+                layout: "pile-up" as "pile-up",
                 cardHeightRatio: 1,
                 cardWidthRatio: 1,
                 columns: 2,

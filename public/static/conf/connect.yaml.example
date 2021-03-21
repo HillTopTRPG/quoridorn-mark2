@@ -14,8 +14,6 @@ socketTimeout: 50000
 ##[ BCDice-API ]################################################################
 # 向き先（末尾のスラッシュはなし）
 bcdiceServer: "https://bcdice.onlinesession.app"
-# APIバージョン
-bcdiceVersion: "v2"
 
 ##[ SkyWay ]####################################################################
 # SkyWayのAPIキー

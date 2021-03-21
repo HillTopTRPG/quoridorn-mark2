@@ -35,7 +35,7 @@
         <bcdice-system-input
           v-model="system"
           :url.sync="bcdiceServer"
-          :version.sync="bcdiceVersion"
+          :bcdice-version.sync="bcdiceVersion"
           :isPending="!name"
           :windowInfo="windowInfo"
           @onMouseEnterUrl="onMouseEnterUrl"
@@ -94,7 +94,7 @@ export default class CreateNewRoomWindow extends Mixins<
   private roomCreatePassword: string = "";
   private isNeedRoomCreatePassword: boolean = false;
   private bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
-  private bcdiceVersion = "v2";
+  private bcdiceVersion = "";
   private system = "DiceBot";
   private extendInfo: RoomInfoExtend = {
     visitable: true,

@@ -67,8 +67,6 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { ModeInfo, ScreenModeType } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
-import LifeCycle from "../app/core/decorator/LifeCycle";
-import TaskProcessor from "../app/core/task/TaskProcessor";
 import { CounterRemoconModifyType, CutInStore } from "@/@types/store-data";
 import {
   createPoint,
@@ -90,38 +88,40 @@ import {
   UpdateResourceInfo
 } from "task-info";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
-import WindowManager from "../app/core/window/WindowManager";
-import CssManager from "../app/core/css/CssManager";
-import GameObjectManager from "../app/basic/GameObjectManager";
 import { MediaUploadInfo, PlayBgmInfo } from "@/@types/room";
-import SocketFacade from "../app/core/api/app-server/SocketFacade";
-import VueEvent from "../app/core/decorator/VueEvent";
 import {
   convertNumberNull,
   convertNumberZero
 } from "@/app/core/utility/PrimaryDataUtility";
-import YoutubeManager from "../app/basic/cut-in/bgm/YoutubeManager";
-import TaskManager from "../app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
-import EventProcessor from "../app/core/event/EventProcessor";
-import BcdiceManager from "../app/core/api/bcdice/BcdiceManager";
-import BgmManager from "../app/basic/cut-in/bgm/BgmManager";
-import DropArea from "../app/basic/media/DropArea.vue";
-import GameTable from "../app/basic/map/GameTable.vue";
-import Menu from "../app/basic/menu/Menu.vue";
-import RightPane from "../app/core/pane/RightPane.vue";
-import Context from "../app/core/context/Context.vue";
-import WindowArea from "../app/core/window/WindowArea.vue";
-import OtherTextFrame from "../app/basic/other-text/OtherTextFrame.vue";
-import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimulator.vue";
-import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
-import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
 import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import MapDrawController from "@/app/basic/map/MapDrawController.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import GameTable from "@/app/basic/map/GameTable.vue";
+import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
+import RightPane from "@/app/core/pane/RightPane.vue";
+import WindowManager from "@/app/core/window/WindowManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import WindowArea from "@/app/core/window/WindowArea.vue";
+import YoutubeManager from "@/app/basic/cut-in/bgm/YoutubeManager";
+import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import DropArea from "@/app/basic/media/DropArea.vue";
+import CssManager from "@/app/core/css/CssManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import EventProcessor from "@/app/core/event/EventProcessor";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import Menu from "@/app/basic/menu/Menu.vue";
+import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import Context from "@/app/core/context/Context.vue";
 
 @Component({
   components: {
@@ -191,9 +191,7 @@ export default class App extends Vue {
     performance.mark("app-init-start");
     await SocketFacade.instance.init();
     const bcdiceServer = SocketFacade.instance.connectInfo.bcdiceServer;
-    const bcdiceVersion =
-      SocketFacade.instance.connectInfo.bcdiceVersion || "v2";
-    await BcdiceManager.instance.init(bcdiceServer, bcdiceVersion);
+    await BcdiceManager.instance.init(bcdiceServer);
     YoutubeManager.init();
     performance.mark("app-init-end");
     performance.measure("app-init-time", "app-init-start", "app-init-end");

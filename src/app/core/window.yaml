@@ -1705,21 +1705,21 @@
   position: center
   size:
     widthPx: 4
-    widthEm: 22
+    widthEm: 27
     widthScrollBar: 1
     heightPx: 2
     heightEm: 8
     heightRem: 0.5
   minSize:
     widthPx: 4
-    widthEm: 12
+    widthEm: 20
     widthScrollBar: 1
     heightPx: 2
     heightEm: 4
     heightRem: 0
   maxSize:
     widthPx: 4
-    widthEm: 42
+    widthEm: 50
     widthScrollBar: 1
     heightPx: 2
     heightEm: 20

@@ -337,7 +337,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
           owner: null,
           data: {
             address: createAddress(0, 0, 0, 0),
-            layout: "pile-up",
+            layout: "pile-up" as "pile-up",
             cardHeightRatio: 1,
             cardWidthRatio: 1,
             columns: 2,
@@ -346,7 +346,7 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
             layoutRows: 1,
             name: "",
             isUseHoverView: true,
-            tileReorderingMode: "insert",
+            tileReorderingMode: "insert" as "insert",
             width: 200,
             layerKey: cardSceneLayer.key,
             total: cardObjectList.length
@@ -385,7 +385,8 @@ export default class CardDeckBuilder extends Mixins<ComponentVue>(
           })
         ],
         rect,
-        isFix: true
+        isFix: true,
+        isRawText: false
       };
     } else {
       this.otherTextViewInfo = null;

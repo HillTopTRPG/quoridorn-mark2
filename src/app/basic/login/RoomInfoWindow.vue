@@ -117,7 +117,6 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
-import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { execCopy } from "@/app/core/utility/Utility";
 import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import BaseInput from "@/app/core/component/BaseInput.vue";
@@ -144,7 +143,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @Watch("roomData", { deep: true, immediate: true })
   private async onChangeRoomData() {
-    this.systemName = await BcdiceManager.getBcdiceSystemName(
+    this.systemName = await BcdiceManager.instance.getSystemName(
       this.roomData.bcdiceServer,
       this.roomData.bcdiceVersion,
       this.roomData.system
@@ -184,7 +183,6 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   @LifeCycle
   public async mounted() {
     await this.init();
-    SocketFacade.instance.connectInfo.bcdiceServer;
 
     const declareObj = this.windowInfo.declare;
 

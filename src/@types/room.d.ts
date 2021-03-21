@@ -27,13 +27,15 @@ type YoutubeMuteChangeInfo = {
   isMute: boolean;
 };
 
-type CustomDiceBotInfo = {
+type OriginalTableStore = {
   commandName: string;
   diceRoll: string;
   tableTitle: string;
   tableContents: {
     [key in string]: string;
   };
+  bcdiceServer: string | null;
+  bcdiceVersion: string | null;
   system: string; // yamlファイルには未記載。プログラムで設定する変数。
 };
 
@@ -47,6 +49,7 @@ type AddRoomPresetDataRequest = {
   cutInDataList: CutInStore[];
   diceMaterial: DiceMaterial;
   likeList: LikeStore[];
+  originalTableList: OriginalTableStore[];
   language: {
     mainChatTabName: string;
     allGroupChatTabName: string;

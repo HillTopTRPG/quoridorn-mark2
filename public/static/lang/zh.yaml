@@ -397,6 +397,8 @@ label:
   line-width: 線の幅
   vertex-num: 頂点の数
   font-size: 文字サイズ
+  ref-latest: 最新($1)
+  ref-old: 旧($1)
 
 message:
   copy-to-clipboard: 將其複製到剪貼板。
@@ -496,10 +498,12 @@ user-login-window:
 bcdice-api-server-setting-window:
   window-title: BCDice-API設定
   message: BCDice-API伺服器設定
+  testing: テスト中
   success: 連接成功
   error: 連接失敗
   error-messages:
     connect-error: 連接失敗。
+    un-supported-version-error: 対応できないBCDice-APIバージョン
 
 app-server-setting-window:
   window-title: 應用程序伺服器設置
@@ -542,6 +546,7 @@ room-info-window:
   window-title: 房間資訊顯示
   label:
     bcdice-api-url: BCDice-API的URL
+    bcdice-api-version: BCDice-APIのバージョン
     game-system-view: 遊戲系統
     comeback-url: 再連接URL
     invite-url: 招待URL
@@ -654,8 +659,9 @@ player-box-window:
     delete: 刪除
   dialog:
     delete-actor: |-
-      要把演員「$1」刪除？
-      這操作不能撒回。
+      本当にアクター「$1」を削除しますか？
+      このアクターに紐づくコマがあれば、一緒に削除されます。
+      この操作は取り消せません。
 
 card-deck-builder:
   title: Quoridorn咭牌牌堆創建工具 Ver.1.0.0a1

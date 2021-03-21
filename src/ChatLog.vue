@@ -266,7 +266,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
           .map(j => {
             const tabName = `[${j.tabName}]`;
             const targetText = j.isTargetAll ? "" : `＞＞${j.targetName}`;
-            const botResult = j.customDiceBotResult || j.diceRollResult;
+            const botResult = j.originalTableResult || j.diceRollResult;
             const botResultFormatted = botResult ? ` → ${botResult}` : "";
             const likeText = Object.keys(j.like)
               .map(c => `${c}: ${j.like[c]}`)
@@ -306,7 +306,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
         .map(j => {
           const tabName = `[${j.tabName}]`;
           const targetText = j.isTargetAll ? "" : `＞＞${j.targetName}`;
-          const botResult = j.customDiceBotResult || j.diceRollResult;
+          const botResult = j.originalTableResult || j.diceRollResult;
           const botResultFormatted = botResult ? ` → ${botResult}` : "";
           const likeText = Object.keys(j.like)
             .map(c => `${c}: ${j.like[c]}`)
@@ -341,7 +341,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
     text: string;
     diceRollResult: string | null;
     dices: DiceResult[];
-    customDiceBotResult: string | null;
+    originalTableResult: string | null;
     color: string | null;
     like: { [char: string]: number };
     createTime: Date;
@@ -380,7 +380,7 @@ export default class ChatLog extends Mixins<ComponentVue>(ComponentVue) {
         text: this.formatRuby(c.data!.text),
         diceRollResult: c.data!.diceRollResult,
         dices: c.data!.dices,
-        customDiceBotResult: c.data!.customDiceBotResult,
+        originalTableResult: c.data!.originalTableResult,
         color: this.getColor(c.data!.actorKey),
         like,
         createTime: c.createTime,

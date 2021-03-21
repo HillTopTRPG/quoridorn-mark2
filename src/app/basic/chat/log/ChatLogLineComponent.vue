@@ -50,7 +50,9 @@
     >
       <span class="sender">{{ chat.data.system }}</span>
       <span>：</span>
-      <span>{{ chat.data.diceRollResult }}</span>
+      <span>{{
+        chat.data.originalTableResult || chat.data.diceRollResult
+      }}</span>
     </div>
   </div>
 </template>
@@ -68,8 +70,8 @@ import {
   GroupChatTabStore,
   UserStore
 } from "@/@types/store-data";
-import VueEvent from "../../../core/decorator/VueEvent";
-import LifeCycle from "../../../core/decorator/LifeCycle";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   createEmptyStoreUseData,
   findByKey,

@@ -1,15 +1,18 @@
 import { all, create } from "mathjs";
-import { CustomDiceBotInfo } from "@/@types/room";
 import { ChatStore } from "@/@types/store-data";
-import GameObjectManager from "../../basic/GameObjectManager";
-import BcdiceManager from "../api/bcdice/BcdiceManager";
-import { sum } from "./PrimaryDataUtility";
-import SocketFacade from "../api/app-server/SocketFacade";
-import { findByKey, findRequireByKey, someByStr } from "./Utility";
 import LanguageManager from "@/LanguageManager";
 import App from "@/views/App.vue";
 import WindowManager from "@/app/core/window/WindowManager";
 import { BcdiceDiceRollResult, DiceResult } from "@/@types/store-data-optional";
+import {
+  findByKey,
+  findRequireByKey,
+  someByStr
+} from "@/app/core/utility/Utility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import { OriginalTableStore } from "@/@types/room";
 
 const config = {};
 const math = create(all, config);
@@ -137,9 +140,11 @@ export type SendChatInfo = {
   statusKey: string | null;
   targetKey: string | null;
   system: string | null;
+  bcdiceServer: string | null;
+  bcdiceVersion: string | null;
   isSecret: boolean;
   diceRollResult?: string;
-  isSecretDice?: boolean;
+  originalTableResult?: string | null;
   dices?: DiceResult[];
 };
 
@@ -173,24 +178,22 @@ async function addChatLog(chatInfo: ChatStore): Promise<string> {
 }
 
 export async function sendSystemChatLog(text: string) {
-  await sendChatLog(
-    {
-      chatType: "system-message",
-      actorKey: null,
-      text,
-      tabKey: null,
-      statusKey: null,
-      targetKey: null,
-      system: null,
-      isSecret: false
-    },
-    []
-  );
+  await sendChatLog({
+    chatType: "system-message",
+    actorKey: null,
+    text,
+    tabKey: null,
+    statusKey: null,
+    targetKey: null,
+    system: null,
+    isSecret: false,
+    bcdiceServer: null,
+    bcdiceVersion: null
+  });
 }
 
 export async function sendChatLog(
-  payload: SendChatInfo,
-  subCustomDiceBotList: CustomDiceBotInfo[]
+  payload: SendChatInfo
 ): Promise<BcdiceDiceRollResult | null> {
   const actorList = GameObjectManager.instance.actorList;
   const actorStatusList = GameObjectManager.instance.actorStatusList;
@@ -225,151 +228,194 @@ export async function sendChatLog(
     statusKey = actorStatus.key;
   }
 
+  const bcdiceServer =
+    payload.bcdiceServer || GameObjectManager.instance.chatPublicInfo.bcdiceUrl;
+  const bcdiceVersion =
+    payload.bcdiceVersion ||
+    GameObjectManager.instance.chatPublicInfo.bcdiceVersion;
+  const system =
+    payload.system || GameObjectManager.instance.chatPublicInfo.system;
+
   const chatInfo: ChatStore = {
     chatType: payload.chatType || "chat",
     tabKey: tabKey!,
     text: payload.text,
     diceRollResult: payload.diceRollResult || null,
     dices: payload.dices || [],
-    isSecretDice: payload.isSecretDice || false,
-    customDiceBotResult: null,
+    isSecretDice: false,
+    originalTableResult: payload.originalTableResult || null,
     actorKey,
     statusKey: statusKey!,
-    system: payload.system || GameObjectManager.instance.chatPublicInfo.system,
+    system: system,
     bcdiceApiVersion: "", // 空文字 or v1 or v2
+    bcdiceServer: "",
     targetKey,
     targetType: groupChatTabInfo ? "group" : "actor",
     isSecret: payload.isSecret,
     like: []
   };
 
-  const outputNormalChat = async (
-    command: string
+  const commandStr = chatInfo.text.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
+    String.fromCharCode(s.charCodeAt(0) - 65248)
+  );
+
+  const processBcdiceApi = async (
+    baseUrl: string,
+    version: string,
+    system: string,
+    command: string,
+    originalTable: StoreData<OriginalTableStore> | null,
+    isSecretDiceForce: boolean
   ): Promise<BcdiceDiceRollResult | null> => {
-    if (!/^[@><+-/*=0-9a-zA-Z()"?^$]+/.test(command)) {
+    const systemInfo = await BcdiceManager.instance.getSystemInfo(
+      baseUrl,
+      version,
+      system
+    );
+    let doCommand: boolean;
+    const defaultRegExp = /^[@><+-/*=0-9a-zA-Z()"?^$]+/;
+    if (systemInfo.commandPattern) {
+      try {
+        const regExp = new RegExp(systemInfo.commandPattern, "i");
+        doCommand = regExp.test(command);
+      } catch (err) {
+        // BCDice-APIが返却してくるcommandPatternにも間違いはある
+        console.error(`ErrorPattern: '${systemInfo.commandPattern}'`);
+        doCommand = defaultRegExp.test(command);
+      }
+    } else {
+      doCommand = defaultRegExp.test(command);
+    }
+    if (!doCommand) {
       await addChatLog(chatInfo);
       return null;
     }
-    const resultJson = await BcdiceManager.sendBcdiceServer({
-      baseUrl: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
-      version: GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
-      system: chatInfo.system,
-      command
-    });
 
-    if (resultJson.ok) {
-      // bcdiceとして結果が取れた
-      chatInfo.diceRollResult = resultJson.result!;
-      chatInfo.isSecretDice = resultJson.secret!;
-      chatInfo.dices = resultJson.dices!;
-      chatInfo.bcdiceApiVersion =
-        GameObjectManager.instance.chatPublicInfo.bcdiceVersion;
-      chatInfo.success = resultJson.success;
-      chatInfo.failure = resultJson.failure;
-      chatInfo.critical = resultJson.critical;
-      chatInfo.fumble = resultJson.fumble;
-    } else {
-      // bcdiceとして結果は取れなかった
-    }
-
-    const oldText = chatInfo.text;
-    if (chatInfo.isSecretDice) {
-      chatInfo.chatType = "system-message";
-      chatInfo.text = LanguageManager.instance.getText(
-        "message.dice-roll-secret-dice"
+    try {
+      const resultJson = await BcdiceManager.instance.sendCommand(
+        baseUrl,
+        version,
+        system,
+        command
       );
-    }
 
-    const chatKey = await addChatLog(chatInfo);
+      if (resultJson.ok) {
+        // bcdiceとして結果が取れた
+        chatInfo.diceRollResult = resultJson.result!;
+        chatInfo.isSecretDice = resultJson.secret!;
+        chatInfo.dices = resultJson.dices!;
+        chatInfo.success = resultJson.success;
+        chatInfo.failure = resultJson.failure;
+        chatInfo.critical = resultJson.critical;
+        chatInfo.fumble = resultJson.fumble;
+        chatInfo.bcdiceApiVersion = bcdiceVersion;
+        chatInfo.bcdiceServer = bcdiceServer;
 
-    if (chatInfo.isSecretDice) {
-      const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
-      await keepBcdiceDiceRollResultListCC.addDirect([
-        {
-          data: {
-            type: "secret-dice-roll",
-            text: oldText,
-            targetKey: chatKey!,
-            bcdiceDiceRollResult: resultJson
+        if (originalTable) {
+          const diceRollResult = resultJson.result!.replace(/^.*→ */, "");
+          const diceResultStr = `(${diceRollResult})`;
+
+          if (isSecretDiceForce) {
+            chatInfo.isSecretDice = true;
+          }
+
+          const originalTableResult = originalTable.data!.tableContents[
+            diceRollResult
+          ];
+
+          chatInfo.originalTableResult = [
+            originalTable.data!.tableTitle,
+            diceResultStr,
+            " → ",
+            originalTableResult || `Un match result '${diceRollResult}'`
+          ].join("");
+
+          // シークレットダイス処理
+          const oldText = chatInfo.text;
+          if (chatInfo.isSecretDice) {
+            chatInfo.chatType = "system-message";
+            chatInfo.text = LanguageManager.instance.getText(
+              "message.dice-roll-secret-dice"
+            );
+          }
+
+          const chatKey = await addChatLog(chatInfo);
+
+          if (chatInfo.isSecretDice) {
+            const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
+            await keepBcdiceDiceRollResultListCC.addDirect([
+              {
+                data: {
+                  type: "secret-dice-roll" as "secret-dice-roll",
+                  text: oldText,
+                  targetKey: chatKey,
+                  bcdiceServer: baseUrl,
+                  bcdiceVersion: version,
+                  system: system,
+                  bcdiceDiceRollResult: resultJson!,
+                  originalTableResult: chatInfo.originalTableResult
+                }
+              }
+            ]);
+            if (
+              !WindowManager.instance.getOpenedWindowInfo("secret-dice-roll")
+            ) {
+              // 開いてなかったら開く
+              // @ts-ignore
+              await App.openSimpleWindow("secret-dice-roll-window");
+            }
           }
         }
-      ]);
-      if (!WindowManager.instance.getOpenedWindowInfo("secret-dice-roll")) {
-        // 開いてなかったら開く
-        // @ts-ignore
-        await App.openSimpleWindow("secret-dice-roll-window");
+        return resultJson;
+      } else {
+        // bcdiceとして結果は取れなかった
+        console.error(JSON.stringify(resultJson, null, "  "));
       }
+    } catch (err) {
+      // bcdiceとして結果は取れなかった
+      console.error(err);
     }
-
-    return resultJson.ok ? resultJson : null;
+    return null;
   };
 
   // -------------------
-  // 独自ダイスBot処理
+  // オリジナル表処理
   // -------------------
-  const commandStr = chatInfo.text
-    // 空白で分割した1行目
-    .split(new RegExp("\\s+"))[0]
-    // 全角を半角へ
-    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
-      String.fromCharCode(s.charCodeAt(0) - 65248)
-    )
-    .toLowerCase();
-  const customDiceBotObj = BcdiceManager.instance.customDiceBotList.find(
-    cdb => cdb.commandName.toLowerCase() === commandStr
+  const originalTable = GameObjectManager.instance.originalTableList.find(
+    cdb =>
+      cdb.data!.system === system &&
+      new RegExp(`^S?${cdb.data!.commandName}`, "i").test(commandStr)
   );
-  const customDiceBotRoomSysObj = subCustomDiceBotList.find(
-    cdb => cdb.commandName.toLowerCase() === commandStr
-  );
-  const useCustomDiceBotObj = customDiceBotObj || customDiceBotRoomSysObj;
-  if (!useCustomDiceBotObj) {
-    // 独自ダイスボットが見つからなかったので通常のチャット処理
-    return await outputNormalChat(commandStr);
-  } else {
-    // 独自ダイスボットが見つかった
-    const diceRoll = useCustomDiceBotObj.diceRoll;
-    const tableTitle = useCustomDiceBotObj.tableTitle;
-    const diceBotSystem = useCustomDiceBotObj.system;
-    const tableContents = useCustomDiceBotObj.tableContents;
+  if (originalTable) {
+    // オリジナル表が見つかった
+    const secretMatchResult = commandStr.match(
+      new RegExp(`^(S?)${originalTable.data!.commandName}`, "i")
+    );
 
-    const resultJson = await BcdiceManager.sendBcdiceServer({
-      baseUrl: GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
-      version: GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
-      system: diceBotSystem,
-      command: diceRoll
-    });
-
-    if (resultJson.ok) {
-      // bcdiceとして結果が取れた
-      chatInfo.diceRollResult = resultJson.result!;
-      chatInfo.isSecretDice = resultJson.secret!;
-      chatInfo.dices = resultJson.dices!;
-
-      const diceRollResult = resultJson.result!.replace(/^.*→ */, "");
-      const pips = chatInfo.dices.map(d => d.value);
-      const diceResultStr = `(${sum(pips)}[${pips.join(",")}])`;
-
-      const customDiceBotResult = tableContents[diceRollResult];
-
-      chatInfo.customDiceBotResult = [
-        tableTitle,
-        diceResultStr,
-        " → ",
-        customDiceBotResult || "該当値なし"
-      ].join("");
-
-      // TODO メッセージに結果表示
-      const viewMessage =
-        customDiceBotResult || `該当値なし\n${diceRollResult}`;
-
-      await addChatLog(chatInfo);
-
-      return resultJson;
-    } else {
-      // bcdiceとして結果は取れなかった
-      return null;
-    }
+    const resultJson = await processBcdiceApi(
+      originalTable.data!.bcdiceServer ||
+        GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+      originalTable.data!.bcdiceVersion ||
+        GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
+      system,
+      originalTable.data!.diceRoll,
+      originalTable,
+      !!secretMatchResult && !!secretMatchResult[1]
+    );
+    if (resultJson) return resultJson;
   }
+
+  // -------------------
+  // プレーンテキスト処理
+  // -------------------
+  return await processBcdiceApi(
+    bcdiceServer,
+    bcdiceVersion,
+    system,
+    commandStr,
+    null,
+    false
+  );
 }
 
 export function conversion(

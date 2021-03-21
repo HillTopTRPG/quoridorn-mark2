@@ -29,7 +29,7 @@
     <bcdice-system-input
       v-model="systemVolatile"
       :url.sync="bcdiceUrlVolatile"
-      :version.sync="bcdiceVersionVolatile"
+      :bcdice-version.sync="bcdiceVersionVolatile"
       :windowInfo="windowInfo"
       @onMouseEnterUrl="onMouseEnterUrl"
     />

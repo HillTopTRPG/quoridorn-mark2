@@ -15,8 +15,8 @@
 <script lang="ts">
 import { Component } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import WindowVue from "../../../core/window/WindowVue";
-import LifeCycle from "../../../core/decorator/LifeCycle";
+import WindowVue from "@/app/core/window/WindowVue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
 import SecretDiceRollComponent from "@/app/basic/chat/secret-dice/SecretDiceRollComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import GameObjectManager from "@/app/basic/GameObjectManager";
@@ -56,21 +56,20 @@ export default class SecretDiceRollWindow extends Mixins<
     const text = `${this.$t("message.open-secret-dice").toString()} ${
       keepBcdiceDiceRollResult.data!.text
     }`;
-    await sendChatLog(
-      {
-        chatType: "system-message",
-        text,
-        tabKey: null,
-        targetKey: null,
-        statusKey: null,
-        system: null,
-        isSecret: false,
-        diceRollResult: bcdiceDiceRollResult.result,
-        dices: bcdiceDiceRollResult.dices,
-        isSecretDice: false
-      },
-      []
-    );
+    await sendChatLog({
+      chatType: "system-message",
+      text,
+      tabKey: null,
+      targetKey: null,
+      statusKey: null,
+      system: keepBcdiceDiceRollResult.data!.system,
+      isSecret: false,
+      diceRollResult: bcdiceDiceRollResult.result,
+      originalTableResult: keepBcdiceDiceRollResult.data!.originalTableResult,
+      dices: bcdiceDiceRollResult.dices,
+      bcdiceServer: keepBcdiceDiceRollResult.data!.bcdiceServer,
+      bcdiceVersion: keepBcdiceDiceRollResult.data!.bcdiceVersion
+    });
     await this.deleteSecretDice(key);
   }
 
