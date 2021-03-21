@@ -627,6 +627,10 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
     &:not(:first-child) {
       border-top: none;
     }
+
+    &:focus {
+      background-color: var(--uni-color-skyblue);
+    }
   }
 }
 </style>
