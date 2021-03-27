@@ -191,6 +191,13 @@ selection:
     right-top: 右上
     right-center: 右
     right-bottom: 右下
+  view-type:
+    view: 表示
+    hide: 非表示
+  is-fit-grid:
+    label: コマをセルに
+    fit: 合わせる
+    non-fit: 合わせない
 
 resource-master-info-form:
   label:
@@ -373,7 +380,8 @@ label:
   non-secret: 公開
   scene-object: コマ
   non-select: 選択なし
-  dice-type: ダイス
+  dice: ダイス
+  dice-type: ダイス種類
   pips: 出目
   tab: タブ
   non-tab: タブ無し
@@ -399,6 +407,9 @@ label:
   font-size: 文字サイズ
   ref-latest: 最新($1)
   ref-old: 旧($1)
+  grid-address: マス座標
+  map-rotate: マップ回転
+  map-object-rotate-marker: コマの回転マーカー
 
 message:
   copy-to-clipboard: Copied to clipboard
