@@ -211,6 +211,7 @@ type RoomInfoExtend = {
   isFitGrid: boolean; // マップオブジェクトをセルに自動調整するか
   isViewDice: boolean; // ダイスを表示するか
   isViewCutIn: boolean; // カットインを表示するか
+  isDrawGridLine: boolean; // マップの罫線を表示するか
   isDrawGridId: boolean; // マップ座標を表示するか
   mapRotatable: boolean; // マップを回転させるか
   isShowStandImage: boolean; // 立ち絵を表示するか,

@@ -34,7 +34,7 @@ export class StellarKnightsHelper extends TrpgSystemHelper<StellarKnights> {
     if (!data) return null;
 
     // メモ
-    addMemo(data, list);
+    this.addMemo(list);
     // スキル
     addSkills(data, list);
     // 基本情報
@@ -44,7 +44,7 @@ export class StellarKnightsHelper extends TrpgSystemHelper<StellarKnights> {
     const sheathUrl = json["partner"]["sheath"]["url"];
     console.log(sheathUrl);
     if (sheathUrl && this.urlRegExp.test(sheathUrl)) {
-      const sheath = await this.createResultList(sheathUrl);
+      const sheath = await this.createResultList("jsonp", sheathUrl);
       console.log("####");
       console.log(JSON.stringify(sheath.json, null, "  "));
       if (sheath.data) {
@@ -219,14 +219,6 @@ type StellarKnights = BasicInfo & {
     resonance: string; // 歪みの共鳴
   };
 };
-
-function addMemo(data: StellarKnights, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "メモ",
-    type: "normal",
-    text: ["### メモ", ":::200px:100px", ":::END;;;"].join("\r\n")
-  });
-}
 
 function addSkills(data: StellarKnights, resultList: MemoStore[]) {
   resultList.push({

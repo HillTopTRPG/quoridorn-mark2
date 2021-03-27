@@ -246,7 +246,60 @@ export function findRequireByOwner<T extends { owner: string | null }>(
   return result;
 }
 
-export async function getJson(url: string): Promise<any> {
+export async function getJsonByGet(
+  url: string,
+  authorization?: string
+): Promise<any> {
+  const headers: any = {};
+  if (authorization !== undefined) {
+    headers.Authorization = authorization;
+  }
+
+  const result = await window
+    .fetch(url, {
+      method: "GET",
+      headers
+    })
+    .catch(() => null);
+
+  if (!result) {
+    await errorDialog({
+      title: "Please specify a valid server URL.",
+      text: `URL: ${url}`
+    });
+    return;
+  }
+
+  const status = result.status;
+
+  if (status !== 200) {
+    const errMsg = await result.text();
+    console.log(`${status}: ${errMsg} [GET] ${url}`);
+    if (
+      status !== 401 ||
+      (errMsg !== "Expired token." &&
+        !errMsg.startsWith("Invalid token.") &&
+        !errMsg.startsWith("Need token."))
+    ) {
+      await errorDialog({
+        title: status.toString(),
+        text: errMsg
+      });
+    }
+    throw `${status}: ${errMsg} [GET] ${url}`;
+  }
+
+  try {
+    return await result.json();
+  } catch (err) {
+    await errorDialog({
+      title: "Please specify a valid server URL.",
+      text: `URL: ${url}`
+    });
+  }
+}
+
+export async function getJsonByJsonp(url: string): Promise<any> {
   return new Promise((resolve, reject) => {
     jsonp(url, { name: "getJson" }, (err: any, result: any) => {
       if (err) reject(err);

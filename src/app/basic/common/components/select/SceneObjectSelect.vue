@@ -4,7 +4,7 @@
     v-model="localValue"
     :optionInfoList="optionInfoList"
     :multiple="multiple"
-    :disabled="disabled"
+    :disabled="disabled || readonly"
     ref="component"
   />
 </template>

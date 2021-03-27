@@ -91,7 +91,7 @@ function fixSpans(spans, isRow) {
 <INITIAL>' '*[0-9]+'.'' '  return lex.call(this, 'ol', 'SPAN');
 <INITIAL>' '*('***'|'---'|'+++'|'___')' '*\r?\n
                            return lex.call(this, 'hr');
-<INITIAL,SPAN>' '*':'?'-'+':'?' '*
+<INITIAL,SPAN>' '*':'?'-'+':'?([0-9]+'px')?' '*
                            return lex.call(this, '<->', 'SPAN');
 <INITIAL>' '*'>'           return lex.call(this, '>', 'SPAN');
 <INITIAL>'#'{1,6}.+?\r?\n  return lex.call(this, '#');
@@ -181,7 +181,7 @@ expressions
             block.value[1].value.forEach(span => {
               if (span.type === '|') {
                 if (isLastDev) dec.push(null);
-              } else dec.push(span.align);
+              } else dec.push(span);
               isLastDev = span.type === '|';
             });
             block.value.splice(1, 1);
@@ -189,12 +189,17 @@ expressions
             block.value.forEach((line, index) => {
               const decCopy = dec.concat();
               const decItem = decCopy.shift();
-              table.push({ type: 'tr', value: [{ type: index ? 'td' : 'th', value: [], align: decItem }] });
+              const trObj = { type: index ? 'td' : 'th', value: [] };
+              if (decItem) {
+                trObj.align = decItem.align;
+                trObj.width = decItem.width;
+              }
+              table.push({ type: 'tr', value: [trObj] });
               const list = line.value;
               list.forEach((span) => {
                 if (span.type === '|') {
                   const decItem = decCopy.shift();
-                  table[table.length - 1].value.push({ type: index ? 'td' : 'th', value: [], align: decItem });
+                  table[table.length - 1].value.push({ type: index ? 'td' : 'th', value: [], align: decItem.align, width: decItem.width });
                 } else {
                   const lastCellList = table[table.length - 1].value;
                   lastCellList[lastCellList.length - 1].value.push(span);
@@ -390,9 +395,14 @@ span
     : text-span
     | '<->'
       { $$ = { type: '<->', raw: $1, isTableSpan: true };
-        if ($$.raw.trim().startsWith(':') && $$.raw.trim().endsWith(':')) $$.align = 'center';
-        else if ($$.raw.trim().startsWith(':')) $$.align = 'left';
-        else if ($$.raw.trim().endsWith(':')) $$.align = 'right';
+        if (/:\-+:/.test($$.raw)) $$.align = 'center';
+        else if (/:\-+/.test($$.raw)) $$.align = 'left';
+        else if (/\-+:/.test($$.raw)) $$.align = 'right';
+        const result = $$.raw.match(/([0-9]+)px/);
+        if (result) {
+          const val = parseInt(result[1], 10);
+          $$.width = val;
+        }
       }
     | '|'   { $$ = { type: '|', raw: $1, isTableSpan: true }; }
     ;

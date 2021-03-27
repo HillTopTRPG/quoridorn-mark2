@@ -634,7 +634,8 @@ export default class Context extends Vue {
       type: "counter-remocon-execute",
       owner: "Quoridorn",
       value: {
-        counterRemoconKey: this.target,
+        modifyType: counterRemocon.data!.modifyType,
+        messageFormat: counterRemocon.data!.messageFormat,
         resourceMasterKey,
         targetKey,
         targetType,

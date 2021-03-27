@@ -145,7 +145,7 @@ export default abstract class MapObjectEditWindowVue extends Mixins<
     if (this.hasOtherText) {
       await GameObjectManager.instance.updateMemoList(
         this.otherTextList,
-        "scene-object",
+        "scene-object-list",
         this.docKey
       );
     }

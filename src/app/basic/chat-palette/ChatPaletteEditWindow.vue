@@ -1,13 +1,14 @@
 <template>
   <div class="container" ref="window-container">
     <chat-palette-info-form
+      v-if="isMounted"
       :windowKey="windowKey"
       :isAdd="false"
       :name.sync="name"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :actorKey.sync="actorKey"
-      :sceneObjectKey.sync="sceneObjectKey"
+      :scene-object-key.sync="sceneObjectKey"
       :statusKey.sync="statusKey"
       :isSecret.sync="isSecret"
       :paletteText.sync="paletteText"
@@ -42,6 +43,7 @@ export default class ChatPaletteEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ChatPaletteStore> {
   private editWindowDelegator = new EditWindowDelegator<ChatPaletteStore>(this);
+  private isMounted = false;
 
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
@@ -88,6 +90,7 @@ export default class ChatPaletteEditWindow
     this.statusKey = data.data!.statusKey;
     this.isSecret = data.data!.isSecret;
     this.paletteText = data.data!.paletteText;
+    this.isMounted = true;
   }
 
   public async pushStoreData(data: StoreData<ChatPaletteStore>): Promise<void> {

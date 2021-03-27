@@ -2,7 +2,7 @@
   <div class="palette-container">
     <div
       class="palette-line"
-      :class="{ odd: !(index % 2), even: index % 2 }"
+      :class="[index % 2 ? 'even' : 'odd']"
       v-for="(line, index) in paletteList"
       :key="index"
       @click="$emit('selectLine', line)"
@@ -12,10 +12,7 @@
     </div>
     <div
       class="palette-line-margin"
-      :class="{
-        odd: !(paletteList.length % 2),
-        even: paletteList.length % 2
-      }"
+      :class="[paletteList.length % 2 ? 'even' : 'odd']"
     ></div>
   </div>
 </template>
@@ -66,6 +63,7 @@ export default class ChatPaletteListComponent extends Mixins<ComponentVue>(
   word-wrap: break-word;
   white-space: pre-wrap;
   flex-shrink: 0;
+  cursor: pointer;
 
   &.even {
     background-color: white;

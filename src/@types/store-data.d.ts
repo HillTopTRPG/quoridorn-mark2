@@ -430,8 +430,8 @@ type CounterRemoconStore = {
   targetType: CounterRemoconTargetType;
   resourceMasterKey: string | null;
   modifyType: CounterRemoconModifyType;
-  value: string; // 空文字で範囲選択
   messageFormat: string;
+  value: string; // 空文字で範囲選択
 };
 
 type MapDrawType = "text" | "polygon" | "line";

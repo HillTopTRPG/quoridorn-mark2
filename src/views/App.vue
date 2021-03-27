@@ -82,6 +82,7 @@ import {
 } from "@/@types/socket";
 import {
   BgmPlayInfo,
+  ChatInputtingInfo,
   DropPieceInfo,
   TabMoveInfo,
   ThrowParabolaInfo,
@@ -258,6 +259,12 @@ export default class App extends Vue {
               }
             });
           }
+        } else if (dataType === "chat-inputting") {
+          await TaskManager.instance.ignition<ChatInputtingInfo, never>({
+            type: "chat-inputting-notify",
+            owner: "Quoridorn",
+            value: data.data as ChatInputtingInfo
+          });
         }
       }
     );
@@ -648,7 +655,7 @@ export default class App extends Vue {
       owner: "Quoridorn",
       value: { type }
     });
-    return result ? !!result[0] : false;
+    return result ? result[0] : false;
   }
 
   @TaskProcessor("room-initialize-finished")
@@ -747,17 +754,13 @@ export default class App extends Vue {
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const cc = SocketFacade.instance.resourceCC();
-    const counterRemocon = findRequireByKey(
-      GameObjectManager.instance.counterRemoconList,
-      task.value.counterRemoconKey
-    );
     const resourceMaster = findRequireByKey(
       GameObjectManager.instance.resourceMasterList,
       task.value.resourceMasterKey
     );
     const targetKey = task.value.targetKey;
     const targetType = task.value.targetType;
-    const value = task.value.value as number;
+    const value = task.value.value as string;
 
     const resource = GameObjectManager.instance.resourceList.find(
       r =>
@@ -766,12 +769,13 @@ export default class App extends Vue {
         r.data!.resourceMasterKey === resourceMaster.key
     )!;
 
-    const before = convertNumberZero(resource.data!.value);
-    if (counterRemocon.data!.modifyType === "substitute") {
-      resource.data!.value = value.toString();
+    const before = resource.data!.value;
+    if (task.value.modifyType === "substitute") {
+      resource.data!.value = value;
     } else {
       resource.data!.value = (
-        convertNumberZero(resource.data!.value) + value
+        convertNumberZero(resource.data!.value) +
+        convertNumberZero(value.toString())
       ).toString();
     }
     await cc.updatePackage([
@@ -786,10 +790,10 @@ export default class App extends Vue {
       targetKey
     );
     const message = App.createCounterRemoconMessage(
-      counterRemocon.data!.messageFormat,
+      task.value.messageFormat,
       (target.data! as any).name,
       resourceMaster.data!.label,
-      counterRemocon.data!.modifyType,
+      task.value.modifyType,
       value,
       before
     );
@@ -801,15 +805,18 @@ export default class App extends Vue {
     who: string,
     what: string,
     type: CounterRemoconModifyType,
-    value: number,
-    before: number
+    value: string,
+    before: string
   ) {
     format = format.replace("{0}", who);
     format = format.replace("{1}", what);
-    let prefix = "=";
-    if (type !== "substitute" && value > 0) prefix = "+";
+    let prefix = type === "substitute" ? "=" : "";
+    if (type !== "substitute" && convertNumberZero(value) > 0) prefix = "+";
     format = format.replace("{2}", `${prefix}${value}`);
-    let after = type === "substitute" ? value : before + value;
+    let after =
+      type === "substitute"
+        ? value
+        : convertNumberZero(before) + convertNumberZero(value);
     format = format.replace("{3}", `${before} -> ${after}`);
     return format;
   }

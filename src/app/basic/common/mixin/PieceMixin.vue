@@ -631,9 +631,10 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const sceneObject = GameObjectManager.instance.sceneObjectList.find(
       so => so.key === this.docKey
     )!;
-    const actor = GameObjectManager.instance.actorList.find(
-      a => a.key === sceneObject.data!.actorKey
-    )!;
+    const actor = findRequireByKey(
+      GameObjectManager.instance.actorList,
+      sceneObject.data!.actorKey
+    );
     const chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
     const userKey = SocketFacade.instance.userKey;
     const helperName = trpgSystemHelper.constructor.name;

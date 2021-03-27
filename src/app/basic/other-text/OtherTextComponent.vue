@@ -7,7 +7,7 @@
       :v-if="currentTabInfo"
     >
       <div class="html" :class="{ useScroll }">
-        <template v-if="isRawText">
+        <template v-if="isJsonError || isRawText">
           <div class="raw-text">
             {{ rawText }}
           </div>
@@ -22,6 +22,7 @@
                     :key="`${blockIndex}-${lineIndex}`"
                     tag="div"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
@@ -69,6 +70,7 @@
                   <other-text-span-component
                     tag="div"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
@@ -83,6 +85,7 @@
                       tag="div"
                       v-if="typeof line.value !== 'string'"
                       :spans="line.value"
+                      :cell="line"
                       :disabled="!isEditable"
                       @check="onChangeCheck"
                       @select="onChangeSelect"
@@ -99,6 +102,7 @@
                     tag="div"
                     v-if="typeof line.value !== 'string'"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
@@ -121,6 +125,7 @@
                     :key="lineIndex"
                     tag="li"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
@@ -142,6 +147,7 @@
                     :key="lineIndex"
                     tag="li"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
@@ -165,6 +171,7 @@
                       :key="cellIndex"
                       tag="th"
                       :spans="cell.value"
+                      :cell="cell"
                       :disabled="!isEditable"
                       :class="[cell.align]"
                       @check="onChangeCheck"
@@ -180,6 +187,7 @@
                         :key="cellIndex"
                         tag="td"
                         :spans="cell.value"
+                        :cell="cell"
                         :disabled="!isEditable"
                         :class="[cell.align]"
                         @check="onChangeCheck"
@@ -414,10 +422,18 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     return currentValue.data!.text;
   }
 
+  private isJsonError: boolean = false;
+
   @VueEvent
   private get json(): any[] {
+    this.isJsonError = false;
     if (!this.rawText) return [];
-    return markdown(this.rawText);
+    try {
+      return markdown(this.rawText);
+    } catch (err) {
+      this.isJsonError = true;
+      return [];
+    }
   }
 
   @VueEvent
@@ -475,6 +491,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   .html {
+    position: relative;
     border-top: 1px solid gray;
     padding: 0.2rem;
     box-sizing: border-box;
@@ -503,10 +520,16 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   table {
+    table-layout: fixed;
     border: 1px solid gray;
 
     th {
+      white-space: nowrap !important;
       background-color: var(--uni-color-light-green);
+
+      span {
+        white-space: nowrap !important;
+      }
     }
 
     th,

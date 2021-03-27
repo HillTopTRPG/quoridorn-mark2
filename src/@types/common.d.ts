@@ -185,6 +185,11 @@ declare module "task-info" {
     sceneLayerKey: string;
     mapDrawKey: string | null;
   };
+
+  type ChatInputtingInfo = {
+    actorKey: string;
+    flag: boolean;
+  };
 }
 
 declare module "task" {

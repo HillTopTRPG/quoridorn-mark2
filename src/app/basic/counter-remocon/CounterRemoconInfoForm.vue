@@ -98,8 +98,8 @@ export default class CounterRemoconInfoForm extends Mixins<ComponentVue>(
       "[who]",
       "[resource]",
       this.modifyTypeVolatile,
-      1,
-      0
+      "1",
+      "0"
     );
   }
 

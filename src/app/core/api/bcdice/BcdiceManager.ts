@@ -233,7 +233,9 @@ class BcdiceV2Commander extends BcdiceApiCommander {
     command: string
   ): Promise<BcdiceDiceRollResult> {
     const json: any = await BcdiceApiCommander.fetch(
-      `${this.baseUrl}/${this.version}/game_system/${system}/roll?command=${command}`
+      `${this.baseUrl}/${
+        this.version
+      }/game_system/${system}/roll?command=${encodeURIComponent(command)}`
     );
     json.verson = this.version;
     if (!json.ok) throw json;

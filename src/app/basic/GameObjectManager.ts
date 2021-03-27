@@ -289,6 +289,7 @@ export default class GameObjectManager {
       isFitGrid: true,
       isViewDice: true,
       isViewCutIn: true,
+      isDrawGridLine: true,
       isDrawGridId: true,
       mapRotatable: true,
       isShowStandImage: true,

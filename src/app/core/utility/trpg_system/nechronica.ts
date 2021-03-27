@@ -33,7 +33,7 @@ export class NechronicaHelper extends TrpgSystemHelper<Nechornica> {
     if (!data) return null;
 
     // メモ
-    addMemo(data, list);
+    this.addMemo(list);
     // パーソナルデータ
     addPersonal(data, list);
     // 管理
@@ -376,14 +376,6 @@ type Nechornica = {
   memo: string;
   memoRows: number;
 };
-
-function addMemo(data: Nechornica, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "メモ",
-    type: "normal",
-    text: ["### メモ", ":::200px:100px", ":::END;;;"].join("\r\n")
-  });
-}
 
 function addPersonal(data: Nechornica, resultList: MemoStore[]) {
   const strList: string[] = [];

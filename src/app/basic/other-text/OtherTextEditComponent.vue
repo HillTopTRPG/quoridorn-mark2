@@ -48,6 +48,10 @@
     >
       <label>
         <textarea
+          @keydown.enter.stop
+          @keyup.enter.stop
+          @keydown.229.stop
+          @keyup.229.stop
           v-model="
             localValue.find(lv => lv.key === currentTabInfo.target).data.text
           "

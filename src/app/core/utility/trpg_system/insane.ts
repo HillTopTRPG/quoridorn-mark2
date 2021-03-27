@@ -44,7 +44,7 @@ export class InSaneHelper extends TrpgSystemHelper<Insane> {
     if (!data) return null;
 
     // メモ
-    addMemo(data, list);
+    this.addMemo(list);
     // アビリティ
     addAbility(data, list);
     // 基本情報
@@ -238,14 +238,6 @@ type Insane = {
   tokugi: SaikoroFictionTokugi; // 特技
   personalityList: Personality[]; // 人物欄
 };
-
-function addMemo(data: Insane, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "メモ",
-    type: "normal",
-    text: ["### メモ", ":::200px:100px", ":::END;;;"].join("\r\n")
-  });
-}
 
 function addAbility(data: Insane, resultList: MemoStore[]) {
   resultList.push({

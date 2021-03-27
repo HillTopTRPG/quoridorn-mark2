@@ -2,8 +2,8 @@
   <input
     :id="elmId"
     :type="inputType"
-    :value="dataObj.data[colDec.target]"
-    :checked="parseBoolean(dataObj.data[colDec.target])"
+    :value="dataObj.data.get(colDec.target)"
+    :checked="parseBoolean(dataObj.data.get(colDec.target))"
     @input="inputCell(dataObj, colDec.target, $event.target)"
     @click.stop
     @mousedown.stop
@@ -40,7 +40,7 @@ export default class InitiativeInputComponent extends Mixins<ComponentVue>(
   private inputCell(data: StoreData<any>, target: string) {
     const param = this.inputType === "checkbox" ? "checked" : "value";
     const value = (this.$el as HTMLInputElement)[param]!.toString();
-    if (value === this.dataObj.data![this.colDec.target]) return;
+    if (value === this.dataObj.data!.get(this.colDec.target)) return;
     this.$emit("inputCell", data, target, this.elmId);
   }
 

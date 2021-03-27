@@ -289,7 +289,6 @@ export async function sendChatLog(
     }
     if (doCommand === null) update(/^[@><+-/*=0-9a-zA-Z()"?^$]+/);
     if (!doCommand) {
-      await addChatLog(chatInfo);
       return null;
     }
 

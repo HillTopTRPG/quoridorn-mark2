@@ -1596,20 +1596,23 @@
     widthPx: 2
     widthScrollBar: 1
     widthEm: 36
-    heightPx: 4
-    heightEm: 18
+    heightPx: 2
+    heightEm: 30
+    heightRem: 0.5
   minSize:
     widthPx: 2
     widthScrollBar: 1
     widthEm: 28
-    heightPx: 4
-    heightEm: 18
+    heightPx: 2
+    heightEm: 20
+    heightRem: 0.5
   maxSize:
     widthPx: 2
     widthScrollBar: 1
     widthEm: 52
-    heightPx: 4
-    heightEm: 30
+    heightPx: 2
+    heightEm: 52
+    heightRem: 0.5
   minimizable: true
   paneContainable: true
   closable: true
@@ -1629,21 +1632,21 @@
     widthScrollBar: 1
     widthEm: 36
     heightPx: 2
-    heightEm: 22
+    heightEm: 30
     heightRem: 0.5
   minSize:
     widthPx: 2
     widthScrollBar: 1
     widthEm: 28
     heightPx: 2
-    heightEm: 18
+    heightEm: 20
     heightRem: 0.5
   maxSize:
     widthPx: 2
     widthScrollBar: 1
     widthEm: 52
     heightPx: 2
-    heightEm: 50
+    heightEm: 52
     heightRem: 0.5
   minimizable: true
   paneContainable: true

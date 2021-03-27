@@ -420,11 +420,13 @@ export default class MapBoard extends Mixins<MultiMixin>(
     const gridSize = this.scene.gridSize;
 
     // マス目の描画
-    ctx.strokeStyle = this.scene.gridColor;
-    ctx.globalAlpha = 1;
-    this.gridLineList.forEach(l =>
-      drawLine2(ctx, l.p1.x, l.p1.y, l.p2.x, l.p2.y)
-    );
+    if (this.roomData.settings.isDrawGridLine) {
+      ctx.strokeStyle = this.scene.gridColor;
+      ctx.globalAlpha = 1;
+      this.gridLineList.forEach(l =>
+        drawLine2(ctx, l.p1.x, l.p1.y, l.p2.x, l.p2.y)
+      );
+    }
 
     // マス座標の描画
     if (this.roomData.settings.isDrawGridId) {
