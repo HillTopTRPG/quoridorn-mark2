@@ -27,7 +27,6 @@ import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import EditWindowDelegator, {
   EditWindow
@@ -38,7 +37,10 @@ import { LikeStore } from "@/@types/store-data";
 export default class LikeEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<LikeStore> {
-  private editWindowDelegator = new EditWindowDelegator<LikeStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<LikeStore, "char">(
+    this,
+    "char"
+  );
 
   private char: string = "";
   private isThrowLinkage: boolean = false;
@@ -51,7 +53,16 @@ export default class LikeEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.char;
+    return !!this.char && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.char);
+  }
+
+  @Watch("char")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -81,30 +92,6 @@ export default class LikeEditWindow
     data.data!.char = this.char;
     data.data!.isThrowLinkage = this.isThrowLinkage;
     data.data!.linkageResourceKey = this.linkageResourceKey;
-  }
-
-  private get isDuplicate(): boolean {
-    return (
-      !!this.char &&
-      GameObjectManager.instance.likeList.some(
-        ct =>
-          ct.data!.char === this.char &&
-          ct.key !== this.editWindowDelegator.docKey
-      )
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (!this.editWindowDelegator.docKey) return;
-    const tab = GameObjectManager.instance.likeList.find(
-      ct => ct.key === this.editWindowDelegator.docKey
-    )!;
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", tab.data!.char);
   }
 }
 </script>

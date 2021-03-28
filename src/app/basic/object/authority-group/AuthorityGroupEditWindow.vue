@@ -20,12 +20,10 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { AuthorityGroupStore } from "@/@types/store-data";
-import { findRequireByKey } from "@/app/core/utility/Utility";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import EditWindowDelegator, {
   EditWindow
@@ -37,18 +35,14 @@ import { GroupRef } from "@/@types/store-data-optional";
 export default class AuthorityGroupEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<AuthorityGroupStore> {
-  private editWindowDelegator = new EditWindowDelegator<AuthorityGroupStore>(
-    this
-  );
+  private editWindowDelegator = new EditWindowDelegator<
+    AuthorityGroupStore,
+    "name"
+  >(this, "name");
 
   private name: string = "";
   private isSystem: boolean = false;
   private list: GroupRef[] = [];
-
-  @Watch("list", { deep: true })
-  private onChangeList() {
-    console.log(JSON.stringify(this.list, null, "  "));
-  }
 
   @LifeCycle
   public async mounted() {
@@ -57,7 +51,16 @@ export default class AuthorityGroupEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name && this.list.length > 0;
+    return !!this.name && this.list.length > 0 && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -89,27 +92,6 @@ export default class AuthorityGroupEditWindow
     data.data!.name = this.name;
     data.data!.isSystem = this.isSystem;
     data.data!.list = this.list;
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.authorityGroupList.some(
-      ct =>
-        ct.data!.name === this.name &&
-        ct.key !== this.editWindowDelegator.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    const authorityGroup = findRequireByKey(
-      GameObjectManager.instance.authorityGroupList,
-      this.editWindowDelegator.docKey
-    );
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", authorityGroup ? authorityGroup.data!.name : "");
   }
 }
 </script>

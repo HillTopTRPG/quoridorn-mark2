@@ -46,7 +46,11 @@ const uuid = require("uuid");
 export default class PublicMemoAddWindow
   extends Mixins<WindowVue<PublicMemoStore, boolean>>(WindowVue)
   implements AddWindow<PublicMemoStore> {
-  private addWindowDelegator = new AddWindowDelegator<PublicMemoStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<PublicMemoStore, "name">(
+    this,
+    SocketFacade.instance.publicMemoListCC().collectionNameSuffix,
+    "name"
+  );
 
   private name: string = LanguageManager.instance.getText(
     "type.public-memo-list"
@@ -81,7 +85,11 @@ export default class PublicMemoAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.mediaKey;
+    return !!this.mediaKey && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return false;
   }
 
   @VueEvent

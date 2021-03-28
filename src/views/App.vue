@@ -792,7 +792,7 @@ export default class App extends Vue {
     const message = App.createCounterRemoconMessage(
       task.value.messageFormat,
       (target.data! as any).name,
-      resourceMaster.data!.label,
+      resourceMaster.data!.name,
       task.value.modifyType,
       value,
       before

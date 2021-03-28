@@ -23,12 +23,10 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { ActorStore } from "@/@types/store-data";
-import { findRequireByKey } from "@/app/core/utility/Utility";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import ActorInfoForm from "@/app/basic/object/actor/ActorInfoForm.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import EditWindowDelegator, {
@@ -39,7 +37,10 @@ import EditWindowDelegator, {
 export default class ActorEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ActorStore> {
-  private editWindowDelegator = new EditWindowDelegator<ActorStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<ActorStore, "name">(
+    this,
+    "name"
+  );
 
   private name: string = "";
   private tag: string = "";
@@ -55,7 +56,16 @@ export default class ActorEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -90,27 +100,6 @@ export default class ActorEditWindow
     data.data!.chatFontColorType = this.chatFontColorType;
     data.data!.chatFontColor = this.chatFontColor;
     data.data!.standImagePosition = this.standImagePosition;
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.actorList.some(
-      ct =>
-        ct.data!.name === this.name &&
-        ct.key !== this.editWindowDelegator.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    const actor = findRequireByKey(
-      GameObjectManager.instance.actorList,
-      this.editWindowDelegator.docKey
-    );
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", actor ? actor.data!.name : "");
   }
 }
 </script>

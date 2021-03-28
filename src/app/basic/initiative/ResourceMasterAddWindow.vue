@@ -41,7 +41,6 @@ import {
   RefProperty,
   ResourceType
 } from "@/@types/store-data-optional";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import {
   convertBooleanFalse,
@@ -64,8 +63,13 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class ResourceMasterAddWindow
   extends Mixins<WindowVue<ResourceMasterStore, boolean>>(WindowVue)
   implements AddWindow<ResourceMasterStore> {
-  private addWindowDelegator = new AddWindowDelegator<ResourceMasterStore>(
-    this
+  private addWindowDelegator = new AddWindowDelegator<
+    ResourceMasterStore,
+    "name"
+  >(
+    this,
+    SocketFacade.instance.resourceMasterCC().collectionNameSuffix,
+    "name"
   );
 
   private name: string = LanguageManager.instance.getText("label.resource");
@@ -87,11 +91,21 @@ export default class ResourceMasterAddWindow
 
   @LifeCycle
   public async mounted() {
-    await this.init();
+    await this.addWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -112,7 +126,7 @@ export default class ResourceMasterAddWindow
   }
 
   public setStoreData(data: ResourceMasterStore): void {
-    this.name = data.label;
+    this.name = data.name;
     this.resourceType = data.type;
     this.isAutoAddActor = data.isAutoAddActor;
     this.isAutoAddMapObject = data.isAutoAddMapObject;
@@ -140,7 +154,7 @@ export default class ResourceMasterAddWindow
         collection: SocketFacade.instance.resourceMasterCC()
           .collectionNameSuffix,
         data: {
-          label: this.name,
+          name: this.name,
           type: this.resourceType,
           systemColumnType: null,
           isAutoAddActor: this.isAutoAddActor,
@@ -165,20 +179,6 @@ export default class ResourceMasterAddWindow
         }
       }
     ];
-  }
-
-  @VueEvent
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.resourceMasterList.some(
-      rm => rm.data!.label === this.name
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 
   @Watch("resourceType")

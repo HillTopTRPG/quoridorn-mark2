@@ -12,6 +12,7 @@
             <tr-string-input-component
               labelName="label.name"
               width="100%"
+              :placeholder="$t('label.require-text')"
               v-model="nameVolatile"
             />
           </tr>

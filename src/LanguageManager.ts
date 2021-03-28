@@ -54,8 +54,8 @@ export default class LanguageManager {
       .then();
   }
 
-  public getText(target: string): string {
-    return this.i18n.t(target);
+  public getText(target: string, arg?: any): string {
+    return this.i18n.t(target, arg);
   }
 
   public static get defaultLanguage() {

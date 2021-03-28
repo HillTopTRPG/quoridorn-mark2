@@ -42,8 +42,6 @@ import {
   RefProperty,
   ResourceType
 } from "@/@types/store-data-optional";
-import GameObjectManager from "@/app/basic/GameObjectManager";
-import { findRequireByKey } from "@/app/core/utility/Utility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import ResourceMasterAddWindow from "@/app/basic/initiative/ResourceMasterAddWindow.vue";
@@ -60,9 +58,10 @@ import EditWindowDelegator, {
 export default class ResourceMasterEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ResourceMasterStore> {
-  private editWindowDelegator = new EditWindowDelegator<ResourceMasterStore>(
-    this
-  );
+  private editWindowDelegator = new EditWindowDelegator<
+    ResourceMasterStore,
+    "name"
+  >(this, "name");
 
   private name: string = LanguageManager.instance.getText("label.resource");
   private resourceType: ResourceType = "no-contents";
@@ -89,7 +88,16 @@ export default class ResourceMasterEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -110,7 +118,7 @@ export default class ResourceMasterEditWindow
   }
 
   public pullStoreData(data: StoreData<ResourceMasterStore>): void {
-    this.name = data.data!.label;
+    this.name = data.data!.name;
     this.resourceType = data.data!.type;
     this.isAutoAddActor = data.data!.isAutoAddActor;
     this.isAutoAddMapObject = data.data!.isAutoAddMapObject;
@@ -140,7 +148,7 @@ export default class ResourceMasterEditWindow
     const isNumber = type === "number";
     const isRef = type === "ref-normal" || type === "ref-owner";
     const isSelection = type === "select" || type === "combo";
-    data.data!.label = this.name;
+    data.data!.name = this.name;
     data.data!.type = type;
     data.data!.systemColumnType = this.systemColumnType;
     data.data!.isAutoAddActor = this.isAutoAddActor;
@@ -160,29 +168,6 @@ export default class ResourceMasterEditWindow
       this.defaultValueBoolean,
       this.defaultValueColor
     );
-  }
-
-  @VueEvent
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.resourceMasterList.some(
-      rm =>
-        rm.data!.label === this.name &&
-        rm.key !== this.editWindowDelegator.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (!this.editWindowDelegator.docKey) return;
-    const resourceMaster = findRequireByKey(
-      GameObjectManager.instance.resourceMasterList,
-      this.editWindowDelegator.docKey
-    );
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", resourceMaster.data!.label);
   }
 
   @Watch("resourceType")

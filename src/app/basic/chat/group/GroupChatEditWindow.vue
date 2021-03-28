@@ -24,12 +24,10 @@
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
-import { findRequireByKey } from "@/app/core/utility/Utility";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { GroupChatTabStore } from "@/@types/store-data";
 import EditWindowDelegator, {
@@ -41,9 +39,10 @@ import GroupChatInfoForm from "@/app/basic/chat/group/GroupChatInfoForm.vue";
 export default class GroupChatEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<GroupChatTabStore> {
-  private editWindowDelegator = new EditWindowDelegator<GroupChatTabStore>(
-    this
-  );
+  private editWindowDelegator = new EditWindowDelegator<
+    GroupChatTabStore,
+    "name"
+  >(this, "name");
 
   private name: string = "";
   private isSystem: boolean = false;
@@ -58,7 +57,16 @@ export default class GroupChatEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -94,28 +102,6 @@ export default class GroupChatEditWindow
     data.data!.authorityGroupKey = this.authorityGroupKey;
     data.data!.isSecret = this.isSecret;
     data.data!.outputChatTabKey = this.outputChatTabKey;
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.groupChatTabList.some(
-      ct =>
-        ct.data!.name === this.name &&
-        ct.key !== this.editWindowDelegator.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (!this.editWindowDelegator.docKey) return;
-    const tab = findRequireByKey(
-      GameObjectManager.instance.groupChatTabList,
-      this.editWindowDelegator.docKey
-    );
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", tab.data!.name);
   }
 }
 </script>

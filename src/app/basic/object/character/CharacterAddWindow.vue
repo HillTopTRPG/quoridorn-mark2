@@ -66,13 +66,15 @@ export default class CharacterAddWindow extends MapObjectAddWindowVue {
   @Watch("isDuplicate")
   @Watch("mediaKey", { immediate: true })
   private onChangeImageDocKey() {
-    this.windowInfo.message = this.$t(
-      this.isDuplicate
-        ? "message.name-duplicate"
-        : this.mediaKey
-        ? "message.drag-piece"
-        : "message.choose-image"
-    )!.toString();
+    if (this.isDuplicate) {
+      this.windowInfo.message = this.$t("message.duplicate", {
+        text: this.$t("label.name")
+      }).toString();
+    } else {
+      this.windowInfo.message = this.$t(
+        this.mediaKey ? "message.drag-piece" : "message.choose-image"
+      )!.toString();
+    }
   }
 
   private get isDuplicate(): boolean {

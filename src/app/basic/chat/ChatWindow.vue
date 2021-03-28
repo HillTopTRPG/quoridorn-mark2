@@ -104,7 +104,7 @@ import {
   ResourceStore,
   SceneObjectStore
 } from "@/@types/store-data";
-import { TabInfo, WindowMoveInfo } from "@/@types/window";
+import { TabInfo } from "@/@types/window";
 import { Getter } from "vuex-class";
 import {
   ChatInputtingInfo,
@@ -216,6 +216,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
   private lastChatNum: number = -1;
 
+  private chatInputtingOffTimeoutKey: number | null = null;
+
   /*
    * local flags
    */
@@ -281,12 +283,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private volatileActiveTab: string | null = null;
   private volatileTargetTab: string | null | undefined = undefined;
   private volatileIsSecret: boolean | null = null;
-  /** 更新リソース */
-  private resourceMasterKey: string | null = null;
   /** リソース更新対象 */
   private resourceTargetKey: string | null = null;
-  /** リソース更新演算子 */
-  private resourceOperation: "+" | "-" | "=" | null = null;
 
   private isMounted: boolean = false;
 
@@ -600,7 +598,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
     const resourceMaster =
       this.resourceMasterList.find(
-        rm => rm.data!.label === resourceMasterName
+        rm => rm.data!.name === resourceMasterName
       ) || null;
 
     const validOperationList: string[] = ["="];
@@ -638,7 +636,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     if (!targetName) targetName = actor.data!.name;
 
     const resourceMaster = this.resourceMasterList.find(
-      rm => rm.data!.label === resourceMasterName
+      rm => rm.data!.name === resourceMasterName
     );
     if (!resourceMaster) return null;
     const isAutoAddActor = resourceMaster.data!.isAutoAddActor;
@@ -786,9 +784,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
                 r => r.data!.resourceMasterKey === rm.key
               );
             })
-            .map(rm =>
-              createEmptyStoreUseData(rm.key, { name: rm.data!.label })
-            )
+            .map(rm => createEmptyStoreUseData(rm.key, { name: rm.data!.name }))
         );
       }
       if (
@@ -909,13 +905,26 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.unitList = conversion(num, unit) || this.unitList;
     }
 
-    await SocketFacade.instance.sendData<ChatInputtingInfo>({
-      dataType: "chat-inputting",
-      data: {
-        actorKey: this.actorKey,
-        flag: true
-      }
-    });
+    // 入力中を通知
+    const sendDataChatInputting = async (flag: boolean) => {
+      await SocketFacade.instance.sendData<ChatInputtingInfo>({
+        dataType: "chat-inputting",
+        data: {
+          actorKey: this.actorKey,
+          flag
+        }
+      });
+    };
+
+    if (this.chatInputtingOffTimeoutKey !== null) {
+      window.clearTimeout(this.chatInputtingOffTimeoutKey);
+    } else {
+      await sendDataChatInputting(true);
+    }
+    this.chatInputtingOffTimeoutKey = window.setTimeout(() => {
+      sendDataChatInputting(false);
+      this.chatInputtingOffTimeoutKey = null;
+    }, 700);
   }
 
   /**
@@ -1222,7 +1231,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         if (mode === "resource-change-resource-master") {
           addText =
             findByKey(this.resourceMasterList, this.resourceTargetKey)?.data!
-              .label || null;
+              .name || null;
         }
         if (mode === "resource-change-operation") {
           addText = this.resourceTargetKey;
@@ -1289,7 +1298,6 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       value,
       resourceMaster,
       validOperationList,
-      valueSelectResourceTypeList,
       targetTypeList
     } = this.parseResourceChange(text);
     if (resourceMasterName && operator && value) {

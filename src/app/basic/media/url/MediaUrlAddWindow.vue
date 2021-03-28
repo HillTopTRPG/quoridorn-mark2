@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { exchangeMediaInfo } from "@/app/core/utility/FileUtility";
@@ -38,7 +38,11 @@ const uuid = require("uuid");
 export default class MediaUrlAddWindow
   extends Mixins<WindowVue<MediaStore, boolean>>(WindowVue)
   implements AddWindow<MediaStore> {
-  private addWindowDelegator = new AddWindowDelegator<MediaStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<MediaStore, "name">(
+    this,
+    SocketFacade.instance.mediaCC().collectionNameSuffix,
+    "name"
+  );
 
   private name: string = "";
   private tag: string = "";
@@ -51,7 +55,16 @@ export default class MediaUrlAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name && !!this.url;
+    return !!this.name && !!this.url && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

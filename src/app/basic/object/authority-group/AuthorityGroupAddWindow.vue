@@ -37,25 +37,35 @@ import { GroupRef } from "@/@types/store-data-optional";
 export default class AuthorityGroupAddWindow
   extends Mixins<WindowVue<AuthorityGroupStore, boolean>>(WindowVue)
   implements AddWindow<AuthorityGroupStore> {
-  private addWindowDelegator = new AddWindowDelegator<AuthorityGroupStore>(
-    this
+  private addWindowDelegator = new AddWindowDelegator<
+    AuthorityGroupStore,
+    "name"
+  >(
+    this,
+    SocketFacade.instance.authorityGroupCC().collectionNameSuffix,
+    "name"
   );
 
   private name: string = "";
   private list: GroupRef[] = [];
 
-  @Watch("list", { deep: true })
-  private onChangeList() {
-    console.log(JSON.stringify(this.list, null, "  "));
-  }
-
   @LifeCycle
   public async mounted() {
     await this.addWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name && this.list.length > 0;
+    return !!this.name && this.list.length > 0 && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -95,19 +105,6 @@ export default class AuthorityGroupAddWindow
         }
       }
     ];
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.authorityGroupList.some(
-      ct => ct.data!.name === this.name
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 }
 </script>

@@ -206,7 +206,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const target = colDec.target;
 
     const resourceMaster = this.resourceMasterList.find(
-      rm => rm.data!.label === target
+      rm => rm.data!.name === target
     );
 
     const targetValue = data.data!.get(target);
@@ -509,7 +509,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           )
             return;
           const type = obj.resourceMaster.data!.type;
-          const label = obj.resourceMaster.data!.label;
+          const label = obj.resourceMaster.data!.name;
           if (type === "select" || type === "combo") {
             resultData.data!.set(label, {
               value: obj.resource ? obj.resource.data!.value : null,
@@ -566,7 +566,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       elm.type === "checkbox" ? elm.checked.toString() : elm.value;
 
     const resourceMaster = this.resourceMasterList.find(
-      rm => rm.data!.label === target
+      rm => rm.data!.name === target
     );
     if (!resourceMaster) {
       console.error(`Not found resource(${target}).`);
@@ -633,15 +633,15 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       )
       .forEach(rm => {
         const column: WindowTableColumn = columnList.filter(
-          c => c.target === rm.data!.label
+          c => c.target === rm.data!.name
         )[0] || {
           width: 50,
           type: rm.data!.type,
           align: "center",
-          target: rm.data!.label
+          target: rm.data!.name
         };
         const columnIndex = columnList.findIndex(
-          c => c.target === rm.data!.label
+          c => c.target === rm.data!.name
         );
         if (columnIndex >= 0) {
           column.width = this.windowInfo.tableInfoList[0].columnWidthList[

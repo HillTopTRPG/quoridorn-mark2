@@ -56,7 +56,7 @@ export default class ActorNumberResourceSelect extends Mixins<MultiMixin>(
       .map(rm => ({
         key: rm.key,
         value: rm.key,
-        text: rm.data!.label,
+        text: rm.data!.name,
         disabled: false
       }));
     this.optionInfoList.unshift({

@@ -59,7 +59,7 @@ export default class ResourceMasterSelect extends Mixins<MultiMixin>(
       .map(c => ({
         key: c.key,
         value: c.key,
-        text: c.data!.label,
+        text: c.data!.name,
         disabled: false
       }));
     if (this.nullable) {

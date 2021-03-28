@@ -441,8 +441,8 @@ message:
   delete-tab: |-
     您確定要刪除分頁「$1」？
     此操作無法取消。
-  original: 本來：$1
-  name-duplicate: 重複名字。
+  original: 本來：{text}
+  duplicate: 重複{text}。
   delete-failure: 刪除失敗。
   load-other-text-character-sheet: 其他欄建立
   load-other-text-character-sheet-text: |-

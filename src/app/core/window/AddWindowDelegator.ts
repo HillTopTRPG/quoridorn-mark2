@@ -2,21 +2,32 @@ import { Task, TaskResult } from "task";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import WindowVue from "@/app/core/window/WindowVue";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import LanguageManager from "@/LanguageManager";
 
 export interface AddWindow<T> extends WindowVue<T, boolean> {
   setStoreData(data: T): void;
   getStoreDataList(): Promise<DelegateStoreData<T>[]>;
   isCommitAble(): boolean;
+  isDuplicate(): boolean;
 }
 
-export default class AddWindowDelegator<T> {
-  public constructor(protected parent: AddWindow<T>) {}
+export default class AddWindowDelegator<T, U extends keyof T> {
+  public constructor(
+    protected parent: AddWindow<T>,
+    protected type: string,
+    protected uniqueProperty: U
+  ) {}
+  public list: StoreData<T>[] = [];
 
   protected isProcessed: boolean = false;
 
   @LifeCycle
   public async init(): Promise<void> {
     await this.parent.init();
+
+    this.list = GameObjectManager.instance.getList<T>(this.type)!;
+
     const data = this.parent.windowInfo.args;
     if (data) {
       this.parent.setStoreData(data);
@@ -51,5 +62,16 @@ export default class AddWindowDelegator<T> {
       this.isProcessed = true;
       await this.parent.finally(false);
     }
+  }
+
+  public isDuplicateBasic(value: T[U]): boolean {
+    return this.list.some(cp => cp.data![this.uniqueProperty] === value);
+  }
+
+  public onChangeIsDuplicateBasic(): string {
+    if (!this.parent.isDuplicate()) return "";
+    return LanguageManager.instance.getText(`message.duplicate`, {
+      text: LanguageManager.instance.getText(`label.${this.uniqueProperty}`)
+    });
   }
 }

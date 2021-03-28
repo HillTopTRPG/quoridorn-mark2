@@ -271,7 +271,7 @@ export default class Context extends Vue {
     );
 
     this.title = `${counterRemocon.data!.name} ${
-      resourceMaster ? resourceMaster.data!.label : "{?}"
+      resourceMaster ? resourceMaster.data!.name : "{?}"
     }${this.$t(
       "selection.counter-remocon-modify-type." +
         counterRemocon.data!.modifyType.toString()
@@ -583,7 +583,7 @@ export default class Context extends Vue {
       result.push(
         ...resourceMasterList.map(resourceMaster => {
           const result: ContextItemDeclare = {
-            text: resourceMaster.data!.label,
+            text: resourceMaster.data!.name,
             isRawText: true,
             taskArg: {
               resourceMasterKey: resourceMaster.key

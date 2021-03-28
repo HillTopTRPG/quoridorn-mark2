@@ -181,7 +181,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
         }
 
         const splitted = p1.split(".");
-        const label = splitted.length === 1 ? splitted[0] : splitted[1];
+        const name = splitted.length === 1 ? splitted[0] : splitted[1];
         const sceneObjectName = splitted.length === 1 ? null : splitted[0];
         const actorKey: string =
           this.actorKey || GameObjectManager.instance.chatPublicInfo.actorKey;
@@ -196,7 +196,7 @@ export default class ChatPaletteWindow extends Mixins<WindowVue<number, never>>(
 
         // リソース名で検索
         const resourceMaster = this.resourceMasterList.find(
-          rm => rm.data!.label === label
+          rm => rm.data!.name === name
         );
         if (resourceMaster) {
           const filteredList: StoreUseData<

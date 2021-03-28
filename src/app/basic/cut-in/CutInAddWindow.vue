@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { CutInStore } from "@/@types/store-data";
 import { Direction } from "@/@types/store-data-optional";
@@ -61,7 +61,11 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class CutInAddWindow
   extends Mixins<WindowVue<CutInStore, boolean>>(WindowVue)
   implements AddWindow<CutInStore> {
-  private addWindowDelegator = new AddWindowDelegator<CutInStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<CutInStore, "title">(
+    this,
+    SocketFacade.instance.cutInDataCC().collectionNameSuffix,
+    "title"
+  );
 
   private title: string = "";
   private tag: string = "";
@@ -96,7 +100,17 @@ export default class CutInAddWindow
   public isCommitAble(): boolean {
     if (!this.title) return false;
     if (this.isUseImage && !this.imageKey) return false;
-    return !(this.isUseBgm && !this.bgmKey);
+    if (this.isUseBgm && !this.bgmKey) return false;
+    return !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.title);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

@@ -55,7 +55,9 @@ export default class CharacterEditWindow extends MapObjectEditWindowVue {
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
+      ? this.$t("message.duplicate", {
+          text: this.$t("label.name")
+        })!.toString()
       : "";
   }
 }

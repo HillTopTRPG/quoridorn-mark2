@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
@@ -42,7 +42,10 @@ import { ChatPaletteStore } from "@/@types/store-data";
 export default class ChatPaletteEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ChatPaletteStore> {
-  private editWindowDelegator = new EditWindowDelegator<ChatPaletteStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<
+    ChatPaletteStore,
+    "name"
+  >(this, "name");
   private isMounted = false;
 
   private name: string = "new";
@@ -61,7 +64,16 @@ export default class ChatPaletteEditWindow
   }
 
   public isCommitAble(): boolean {
-    return true;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

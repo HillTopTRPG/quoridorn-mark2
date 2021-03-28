@@ -261,7 +261,7 @@ type PublicMemoStore = {
 };
 
 type ResourceMasterStore = {
-  label: string;
+  name: string;
   type: ResourceType;
   systemColumnType: "name" | "initiative" | null; // システム列の種類
   isAutoAddActor: boolean; // アクターに自動付与するかどうか

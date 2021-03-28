@@ -39,7 +39,11 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class ActorAddWindow
   extends Mixins<WindowVue<ActorStore, boolean>>(WindowVue)
   implements AddWindow<ActorStore> {
-  private addWindowDelegator = new AddWindowDelegator<ActorStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<ActorStore, "name">(
+    this,
+    SocketFacade.instance.actorCC().collectionNameSuffix,
+    "name"
+  );
 
   private name: string = "";
   private tag: string = "";
@@ -50,10 +54,20 @@ export default class ActorAddWindow
   @LifeCycle
   public async mounted() {
     await this.addWindowDelegator.init();
+    this.inputEnter("input:not([type='button'])", this.commit);
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate;
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -98,19 +112,6 @@ export default class ActorAddWindow
         }
       }
     ];
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.actorList.some(
-      ct => ct.data!.name === this.name
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 }
 </script>

@@ -441,8 +441,8 @@ message:
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
     この操作は取り消せません。
-  original: 元：$1
-  name-duplicate: 名前が重複します。
+  original: 元：{text}
+  duplicate: '{text}が重複します。'
   delete-failure: 削除に失敗しました。
   load-other-text-character-sheet: その他欄生成
   load-other-text-character-sheet-text: |-
