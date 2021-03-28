@@ -628,6 +628,10 @@ chat-window:
     select-target: 送信相手の選択
     select-chat-format: 部分フォーマット選択
     select-is-secret: 秘匿チャットかどうか
+    resource-change-resource-master: 変更するリソースの選択
+    resource-change-target-operation: 演算子または対象の選択
+    resource-change-operation: 演算子の選択
+    resource-change-value: 値の選択
     selected-item: '[選択中]'
     goto-head: '[先頭へ]'
     goto-next: '[次へ]'

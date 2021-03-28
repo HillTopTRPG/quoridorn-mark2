@@ -6,6 +6,7 @@
           labelName="label.name"
           width="100%"
           v-model="nameVolatile"
+          :placeholder="$t('label.require-text')"
         />
       </tr>
       <tr>
