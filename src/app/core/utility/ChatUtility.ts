@@ -381,7 +381,7 @@ export async function sendChatLog(
   // -------------------
   const originalTable = GameObjectManager.instance.originalTableList.find(
     cdb =>
-      cdb.data!.system === system &&
+      (cdb.data!.system === system || cdb.data!.system === "DiceBot") &&
       new RegExp(`^S?${cdb.data!.commandName}`, "i").test(commandStr)
   );
   if (originalTable) {

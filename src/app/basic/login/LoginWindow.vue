@@ -1209,27 +1209,25 @@ export default class LoginWindow extends Mixins<
     );
     const systemList = Array.from(diceSystemMap.values()).map(ds => ds.system);
     const originalTableList: OriginalTableStore[] = [];
-    const loadCustomDiceBotYaml = async (system: string): Promise<void> => {
-      const path = `static/conf/system/${system}/customDiceBot.yaml`;
+    const loadOriginalTableYaml = async (system: string): Promise<void> => {
+      const path = `static/conf/system/${system}/originalTable.yaml`;
       try {
         // トライアンドエラー方式読み込みのため、throwは握りつぶす
         const list = await loadYaml<OriginalTableStore[]>(path, true);
-        list.forEach(cdb => {
-          cdb.system = system;
-        });
+        list.forEach(cdb => (cdb.system = system));
         originalTableList.push(...list);
       } catch (err) {
         // Nothing.
       }
     };
     const modInfoList = await loadYaml<
-      { system: string; customDiceBot: boolean }[]
+      { system: string; originalTable: boolean }[]
     >("static/conf/system/mod-list.yaml");
     await systemList
       .filter(system =>
-        modInfoList.some(mi => mi.system === system && mi.customDiceBot)
+        modInfoList.some(mi => mi.system === system && mi.originalTable)
       )
-      .map(system => () => loadCustomDiceBotYaml(system))
+      .map(system => () => loadOriginalTableYaml(system))
       .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
