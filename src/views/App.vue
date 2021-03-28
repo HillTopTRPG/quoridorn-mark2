@@ -760,7 +760,8 @@ export default class App extends Vue {
     );
     const targetKey = task.value.targetKey;
     const targetType = task.value.targetType;
-    const value = task.value.value as string;
+    let orgValue = task.value.value as string;
+    let value = task.value.value as string;
 
     const resource = GameObjectManager.instance.resourceList.find(
       r =>
@@ -771,12 +772,28 @@ export default class App extends Vue {
 
     const before = resource.data!.value;
     if (task.value.modifyType === "substitute") {
+      if (resourceMaster.data!.type === "number") {
+        if (resourceMaster.data!.min! > convertNumberZero(value))
+          value = resourceMaster.data!.min!.toString();
+        if (resourceMaster.data!.max! < convertNumberZero(value))
+          value = resourceMaster.data!.max!.toString();
+      }
       resource.data!.value = value;
     } else {
-      resource.data!.value = (
-        convertNumberZero(resource.data!.value) +
-        convertNumberZero(value.toString())
-      ).toString();
+      let valueNum = convertNumberZero(value);
+      let afterValue = convertNumberZero(resource.data!.value) + valueNum;
+      const minDiff = resourceMaster.data!.min! - afterValue;
+      const maxDiff = afterValue - resourceMaster.data!.max!;
+      if (minDiff > 0) {
+        afterValue += minDiff;
+        valueNum += minDiff;
+      }
+      if (maxDiff > 0) {
+        afterValue -= maxDiff;
+        valueNum -= maxDiff;
+      }
+      resource.data!.value = afterValue.toString();
+      value = valueNum.toString();
     }
     await cc.updatePackage([
       {
@@ -795,9 +812,10 @@ export default class App extends Vue {
       resourceMaster.data!.name,
       task.value.modifyType,
       value,
-      before
+      before,
+      orgValue
     );
-    await sendSystemChatLog(message);
+    await sendSystemChatLog(message, GameObjectManager.instance.mySelfActorKey);
   }
 
   public static createCounterRemoconMessage(
@@ -806,13 +824,14 @@ export default class App extends Vue {
     what: string,
     type: CounterRemoconModifyType,
     value: string,
-    before: string
+    before: string,
+    orgValue: string = value
   ) {
     format = format.replace("{0}", who);
     format = format.replace("{1}", what);
     let prefix = type === "substitute" ? "=" : "";
     if (type !== "substitute" && convertNumberZero(value) > 0) prefix = "+";
-    format = format.replace("{2}", `${prefix}${value}`);
+    format = format.replace("{2}", `${prefix}${orgValue}`);
     let after =
       type === "substitute"
         ? value

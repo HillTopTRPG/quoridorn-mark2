@@ -781,7 +781,16 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
             .filter(rm => {
               if (!targetTypeList.some(t => t === rm.data!.type)) return false;
               return GameObjectManager.instance.resourceList.some(
-                r => r.data!.resourceMasterKey === rm.key
+                r =>
+                  r.data!.resourceMasterKey === rm.key &&
+                  ((r.ownerType === "actor-list" &&
+                    r.owner === this.actorKey) ||
+                    (r.ownerType === "scene-object-list" &&
+                      GameObjectManager.instance.sceneObjectList.some(
+                        so =>
+                          so.key === r.owner &&
+                          so.data!.actorKey === this.actorKey
+                      )))
               );
             })
             .map(rm => createEmptyStoreUseData(rm.key, { name: rm.data!.name }))
@@ -798,22 +807,26 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
         );
       }
       if (chatOptionSelectMode === "resource-change-target-operation") {
-        const sceneObjectRefList = this.resourceTargetList.map(rt =>
-          createEmptyStoreUseData(rt.key, { name: `.${rt.data!.name}` })
-        );
-        const isSameName = sceneObjectRefList.some(
+        const isSameName = this.resourceTargetList.some(
           sor => sor.data!.name === actor.data!.name
         );
         if (
           resourceMaster!.data!.isAutoAddActor &&
           resourceMaster!.data!.isAutoAddMapObject
         ) {
-          resourceTargetList.push(
-            createEmptyStoreUseData(this.actorKey, {
-              name: isSameName ? ".actor" : `.${actor.data!.name}`
-            })
-          );
-          console.log("!!!");
+          if (isSameName) {
+            resourceTargetList.push(
+              createEmptyStoreUseData(".actor", {
+                name: ".actor"
+              })
+            );
+          } else {
+            resourceTargetList.push(
+              createEmptyStoreUseData(this.actorKey, {
+                name: `.${actor.data!.name}`
+              })
+            );
+          }
           resourceTargetList.push(
             ...this.resourceTargetList
               .filter(rt => rt.data!.name !== actor.data!.name)
@@ -838,6 +851,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       }
       if (resourceTargetList.length) {
         resourceTargetKey = resourceTargetList[0].key;
+      } else {
+        chatOptionSelectMode = "none";
       }
     }
 
@@ -1246,6 +1261,8 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
             addText =
               findByKey(this.actorList, this.actorKey)?.data!.name || null;
             if (addText) addText = `.${addText}`;
+          } else if (this.resourceTargetKey === ".actor") {
+            addText = this.resourceTargetKey;
           } else {
             addText =
               findByKey(

@@ -177,10 +177,10 @@ async function addChatLog(chatInfo: ChatStore): Promise<string> {
   return keyList[0];
 }
 
-export async function sendSystemChatLog(text: string) {
+export async function sendSystemChatLog(text: string, actorKey?: string) {
   await sendChatLog({
     chatType: "system-message",
-    actorKey: null,
+    actorKey: actorKey || null,
     text,
     tabKey: null,
     statusKey: null,
