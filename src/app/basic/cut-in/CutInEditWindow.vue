@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { CutInStore } from "@/@types/store-data";
@@ -61,7 +61,10 @@ import { findRequireByKey } from "@/app/core/utility/Utility";
 export default class CutInEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<CutInStore> {
-  private editWindowDelegator = new EditWindowDelegator<CutInStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<CutInStore, "title">(
+    this,
+    "title"
+  );
 
   private title: string = "";
   private tag: string = "";
@@ -96,7 +99,17 @@ export default class CutInEditWindow
   public isCommitAble(): boolean {
     if (!this.title) return false;
     if (this.isUseImage && !this.imageKey) return false;
-    return !(this.isUseBgm && !this.bgmKey);
+    if (this.isUseBgm && !this.bgmKey) return false;
+    return !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.title);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

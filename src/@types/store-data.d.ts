@@ -133,10 +133,16 @@ type ChatStore = {
   diceRollResult: string | null;
   dices: DiceResult[];
   isSecretDice: boolean; // BCDiceのシークレットダイス
-  customDiceBotResult: string | null;
+  originalTableResult: string | null;
   actorKey: string | null;
   statusKey: string | null;
   system: string;
+  bcdiceApiVersion: string; // v1 or v2
+  bcdiceServer: string;
+  success?: boolean;
+  failure?: boolean;
+  critical?: boolean;
+  fumble?: boolean;
   targetType: "group" | "actor" | null;
   targetKey: string;
   isSecret: boolean; // 秘匿チャット
@@ -209,7 +215,11 @@ type KeepBcdiceDiceRollResultStore = {
   type: "secret-dice-roll" | "hide-dice-symbol-roll";
   text: string;
   targetKey: string;
+  bcdiceServer: string;
+  bcdiceVersion: string;
+  system: string;
   bcdiceDiceRollResult: BcdiceDiceRollResult;
+  originalTableResult: string | null;
 };
 
 type LikeStore = {
@@ -251,7 +261,7 @@ type PublicMemoStore = {
 };
 
 type ResourceMasterStore = {
-  label: string;
+  name: string;
   type: ResourceType;
   systemColumnType: "name" | "initiative" | null; // システム列の種類
   isAutoAddActor: boolean; // アクターに自動付与するかどうか
@@ -283,6 +293,10 @@ type ResourceStore = {
  */
 type RoomDataStore = {
   name: string;
+  roomNo: number;
+  bcdiceServer: string; // BCDiceサーバー
+  bcdiceVersion: string; // BCDiceAPIバージョン
+  system: string; // BCDiceSystem
   sceneKey: string;
   settings: RoomInfoExtend;
 };
@@ -416,8 +430,8 @@ type CounterRemoconStore = {
   targetType: CounterRemoconTargetType;
   resourceMasterKey: string | null;
   modifyType: CounterRemoconModifyType;
-  value: string; // 空文字で範囲選択
   messageFormat: string;
+  value: string; // 空文字で範囲選択
 };
 
 type MapDrawType = "text" | "polygon" | "line";

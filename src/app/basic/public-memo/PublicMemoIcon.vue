@@ -98,7 +98,8 @@ export default class PublicMemoIcon extends Mixins<ComponentVue>(ComponentVue) {
         key,
         dataList: this.memoList.filter(m => m.owner === key),
         rect: createRectangle(rect.x, rect.y, rect.width, rect.height),
-        isFix: true
+        isFix: true,
+        isRawText: false
       }
     });
   }

@@ -6,6 +6,7 @@
           labelName="label.name"
           width="100%"
           v-model="nameVolatile"
+          :placeholder="$t('label.require-text')"
         />
       </tr>
       <tr>
@@ -28,9 +29,10 @@
       <tr>
         <tr-scene-object-select-component
           labelName="label.scene-object"
-          :actorKey="actorKey"
+          :actor-key="actorKey"
           v-model="sceneObjectKeyVolatile"
           :nullable="true"
+          :readonly="!actorKey"
         />
       </tr>
       <!-- targetKey -->
@@ -42,6 +44,7 @@
           :actorKey="actorKey"
           v-model="statusKeyVolatile"
           :nullable="true"
+          :readonly="!actorKey"
         />
       </tr>
       <!-- 秘匿フラグ -->
@@ -56,7 +59,7 @@
     </table>
 
     <!-- テキストタブ -->
-    <label>
+    <label class="textarea-label">
       <textarea class="input" v-model="paletteTextVolatile"></textarea>
     </label>
   </div>
@@ -158,8 +161,9 @@ export default class ChatPaletteInfoForm extends Mixins<ComponentVue>(
   @Prop({ type: String, default: null })
   private actorKey!: string | null;
   private actorKeyVolatile: string | null = null;
-  @Watch("actorKey", { immediate: true })
+  @Watch("actorKey")
   private onChangeActorKey(value: string | null) {
+    console.log(value);
     this.actorKeyVolatile = value;
   }
   @Watch("actorKeyVolatile")
@@ -252,6 +256,10 @@ export default class ChatPaletteInfoForm extends Mixins<ComponentVue>(
 
 .chat-palette-info-form {
   display: contents;
+}
+
+.textarea-label {
+  flex: 1;
 }
 
 textarea {

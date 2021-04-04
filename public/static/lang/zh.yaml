@@ -191,6 +191,19 @@ selection:
     right-top: 右上
     right-center: 右
     right-bottom: 右下
+  view-type:
+    view: 表示
+    hide: 非表示
+  is-fit-grid:
+    label: コマをセルに
+    fit: 合わせる
+    non-fit: 合わせない
+  window-view-setting:
+    label: 画面表示設定
+    free: 自由
+    init-view: 入室時表示
+    always-open: 常に表示
+    not-use: 使用不可
 
 resource-master-info-form:
   label:
@@ -373,7 +386,8 @@ label:
   non-secret: 公開
   scene-object: 場景
   non-select: 沒有選擇
-  dice-type: 骰子
+  dice: ダイス
+  dice-type: ダイス種類
   pips: 骰子結果
   tab: 分頁
   non-tab: 沒有分頁
@@ -397,6 +411,18 @@ label:
   line-width: 線の幅
   vertex-num: 頂点の数
   font-size: 文字サイズ
+  ref-latest: 最新($1)
+  ref-old: 旧($1)
+  grid-address: マス座標
+  map-rotate: マップ回転
+  map-object-rotate-marker: コマの回転マーカー
+  grid-line: マス罫線
+  room-share-setting: 部屋設定
+  room-window-setting: 画面設定
+  private-setting: 個人設定
+  command: コマンド
+  dice-roll: ダイスロール
+  list: 一覧
 
 message:
   copy-to-clipboard: 將其複製到剪貼板。
@@ -428,8 +454,8 @@ message:
   delete-tab: |-
     您確定要刪除分頁「$1」？
     此操作無法取消。
-  original: 本來：$1
-  name-duplicate: 重複名字。
+  original: 本來：{text}
+  duplicate: 重複{text}。
   delete-failure: 刪除失敗。
   load-other-text-character-sheet: 其他欄建立
   load-other-text-character-sheet-text: |-
@@ -496,10 +522,12 @@ user-login-window:
 bcdice-api-server-setting-window:
   window-title: BCDice-API設定
   message: BCDice-API伺服器設定
+  testing: テスト中
   success: 連接成功
   error: 連接失敗
   error-messages:
     connect-error: 連接失敗。
+    un-supported-version-error: 対応できないBCDice-APIバージョン
 
 app-server-setting-window:
   window-title: 應用程序伺服器設置
@@ -542,6 +570,7 @@ room-info-window:
   window-title: 房間資訊顯示
   label:
     bcdice-api-url: BCDice-API的URL
+    bcdice-api-version: BCDice-APIのバージョン
     game-system-view: 遊戲系統
     comeback-url: 再連接URL
     invite-url: 招待URL
@@ -612,6 +641,10 @@ chat-window:
     select-target: 選擇發送對像
     select-chat-format: 選擇格式
     select-is-secret: 是否秘密聊天室
+    resource-change-resource-master: 変更するリソースの選択
+    resource-change-target-operation: 演算子または対象の選択
+    resource-change-operation: 演算子の選択
+    resource-change-value: 値の選択
     selected-item: '[選擇中]'
     goto-head: '[最初]'
     goto-next: '[下一次]'
@@ -654,8 +687,9 @@ player-box-window:
     delete: 刪除
   dialog:
     delete-actor: |-
-      要把演員「$1」刪除？
-      這操作不能撒回。
+      本当にアクター「$1」を削除しますか？
+      このアクターに紐づくコマがあれば、一緒に削除されます。
+      この操作は取り消せません。
 
 card-deck-builder:
   title: Quoridorn咭牌牌堆創建工具 Ver.1.0.0a1
@@ -866,3 +900,22 @@ authority-group-add-window:
 
 authority-group-edit-window:
   window-title: 権限グループ編集
+
+room-data-edit-window:
+  window-title: 部屋情報編集
+
+room-info-extend-edit-window:
+  window-title: 設定編集
+
+original-table-list-window:
+  window-title: オリジナル表一覧
+  dialog:
+    delete-table: |-
+      本当にオリジナル表「$1」を削除しますか？
+      この操作は取り消せません。
+
+original-table-add-window:
+  window-title: オリジナル表追加
+
+original-table-edit-window:
+  window-title: オリジナル表編集

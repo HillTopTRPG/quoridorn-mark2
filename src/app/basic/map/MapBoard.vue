@@ -110,6 +110,13 @@ export default class MapBoard extends Mixins<MultiMixin>(
   private selectedMapDrawKey: string | null = null;
   private mapDrawList = GameObjectManager.instance.mapDrawList;
 
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
+
   @Watch("selectedMapDrawKey")
   @Watch("mapDrawList", { deep: true })
   private onChangeSelectedMapDrawKey() {
@@ -353,6 +360,8 @@ export default class MapBoard extends Mixins<MultiMixin>(
   }
 
   @Watch("isMounted")
+  @Watch("roomData.settings.isDrawGridLine")
+  @Watch("roomData.settings.isDrawGridId")
   @Watch("scene", { deep: true })
   private onChangeScene() {
     if (!this.isMounted) return;
@@ -426,22 +435,6 @@ export default class MapBoard extends Mixins<MultiMixin>(
       this.gridLineList.forEach(l =>
         drawLine2(ctx, l.p1.x, l.p1.y, l.p2.x, l.p2.y)
       );
-
-      // マウス下のマスを強調表示
-      // ctx.strokeStyle = this.scene.gridColor;
-      // ctx.strokeStyle = "red";
-      // ctx.globalAlpha = 1;
-      // const m: Matrix = {
-      //   row: 4,
-      //   column: 6
-      // };
-      // ctx.rect(
-      //   (m.column - 1) * gridSize,
-      //   (m.row - 1) * gridSize,
-      //   gridSize,
-      //   gridSize
-      // );
-      // ctx.stroke();
     }
 
     // マス座標の描画

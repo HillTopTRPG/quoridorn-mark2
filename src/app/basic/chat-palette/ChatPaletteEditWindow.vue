@@ -1,13 +1,14 @@
 <template>
   <div class="container" ref="window-container">
     <chat-palette-info-form
+      v-if="isMounted"
       :windowKey="windowKey"
       :isAdd="false"
       :name.sync="name"
       :chatFontColorType.sync="chatFontColorType"
       :chatFontColor.sync="chatFontColor"
       :actorKey.sync="actorKey"
-      :sceneObjectKey.sync="sceneObjectKey"
+      :scene-object-key.sync="sceneObjectKey"
       :statusKey.sync="statusKey"
       :isSecret.sync="isSecret"
       :paletteText.sync="paletteText"
@@ -23,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
@@ -41,7 +42,11 @@ import { ChatPaletteStore } from "@/@types/store-data";
 export default class ChatPaletteEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ChatPaletteStore> {
-  private editWindowDelegator = new EditWindowDelegator<ChatPaletteStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<
+    ChatPaletteStore,
+    "name"
+  >(this, "name");
+  private isMounted = false;
 
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
@@ -59,7 +64,21 @@ export default class ChatPaletteEditWindow
   }
 
   public isCommitAble(): boolean {
-    return true;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.list.some(
+      cp =>
+        cp.data!.name === this.name &&
+        cp.key !== this.editWindowDelegator.docKey &&
+        cp.owner === this.editWindowDelegator.obj!.owner
+    );
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -88,6 +107,7 @@ export default class ChatPaletteEditWindow
     this.statusKey = data.data!.statusKey;
     this.isSecret = data.data!.isSecret;
     this.paletteText = data.data!.paletteText;
+    this.isMounted = true;
   }
 
   public async pushStoreData(data: StoreData<ChatPaletteStore>): Promise<void> {

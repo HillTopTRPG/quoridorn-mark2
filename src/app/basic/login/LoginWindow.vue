@@ -136,7 +136,7 @@ import {
   UserLoginResponse,
   UserLoginWindowInput
 } from "@/@types/socket";
-import { AddRoomPresetDataRequest } from "@/@types/room";
+import { AddRoomPresetDataRequest, OriginalTableStore } from "@/@types/room";
 import { WindowOpenInfo } from "@/@types/window";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import {
@@ -171,6 +171,7 @@ import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import LanguageManager from "@/LanguageManager";
 import VersionInfoComponent from "@/app/basic/login/VersionInfoComponent.vue";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 
 @Component({
   components: {
@@ -809,19 +810,10 @@ export default class LoginWindow extends Mixins<
 
     await LoginWindow.viewProcessView("last-process-room");
 
-    const loginResult: ClientRoomInfo = {
-      name: createRoomInput.name,
-      bcdiceServer: SocketFacade.instance.connectInfo.bcdiceServer,
-      system: createRoomInput.system,
-      extend: createRoomInput.extend,
-      memberNum: 0,
-      hasPassword: !!createRoomInput.roomPassword,
-      roomNo: this.selectedRoomNo
-    };
-    await GameObjectManager.instance.setClientRoomInfo(loginResult);
+    await GameObjectManager.instance.initialize();
 
     const params = new URLSearchParams();
-    params.append("no", loginResult.roomNo.toString(10));
+    params.append("no", this.selectedRoomNo.toString(10));
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
@@ -830,10 +822,10 @@ export default class LoginWindow extends Mixins<
       .replace("{0}", `${userLoginInput.name}`);
     await sendSystemChatLog(msg);
 
-    await TaskManager.instance.ignition<ClientRoomInfo, void>({
+    await TaskManager.instance.ignition<void, void>({
       type: "room-initialize",
       owner: "Quoridorn",
-      value: loginResult
+      value: null
     });
   }
 
@@ -1017,13 +1009,10 @@ export default class LoginWindow extends Mixins<
     performance.mark("room-init-start");
     await LoginWindow.viewProcessView("entering-room");
 
-    const loginResult: ClientRoomInfo = this.roomList![this.selectedRoomNo]
-      .data!;
-    loginResult.roomNo = this.selectedRoomNo;
-    await GameObjectManager.instance.setClientRoomInfo(loginResult);
+    await GameObjectManager.instance.initialize();
 
     const params = new URLSearchParams();
-    params.append("no", loginResult.roomNo.toString(10));
+    params.append("no", this.selectedRoomNo.toString(10));
     params.append("player", userLoginInput.name);
     window.history.replaceState("", "", `?${params.toString()}`);
 
@@ -1032,10 +1021,10 @@ export default class LoginWindow extends Mixins<
       .replace("{0}", `${userLoginInput.name}`);
     await sendSystemChatLog(msg);
 
-    await TaskManager.instance.ignition<ClientRoomInfo, void>({
+    await TaskManager.instance.ignition<void, void>({
       type: "room-initialize",
       owner: "Quoridorn",
-      value: loginResult
+      value: null
     });
   }
 
@@ -1200,23 +1189,53 @@ export default class LoginWindow extends Mixins<
       chatLinkageSearch: ""
     };
 
+    const createLike = (char: string, isThrowLinkage: boolean): LikeStore => ({
+      char,
+      isThrowLinkage,
+      linkageResourceKey: null
+    });
     const likeList: LikeStore[] = [
-      {
-        char: "💗",
-        isThrowLinkage: true,
-        linkageResourceKey: null
-      },
-      {
-        char: "💐",
-        isThrowLinkage: true,
-        linkageResourceKey: null
-      },
-      {
-        char: "✨",
-        isThrowLinkage: false,
-        linkageResourceKey: null
-      }
+      createLike("💗", true),
+      createLike("💐", true),
+      createLike("✨", false)
     ];
+
+    const bcdiceServer = createRoomInput.bcdiceServer;
+    const bcdiceVersion = createRoomInput.bcdiceVersion;
+
+    const diceSystemMap = await BcdiceManager.instance.getDiceSystemMap(
+      bcdiceServer,
+      bcdiceVersion
+    );
+    const systemList = Array.from(diceSystemMap.values()).map(ds => ds.system);
+    const originalTableList: OriginalTableStore[] = [];
+    const loadOriginalTableYaml = async (system: string): Promise<void> => {
+      const path = `static/conf/system/${system}/originalTable.yaml`;
+      try {
+        // トライアンドエラー方式読み込みのため、throwは握りつぶす
+        const list = await loadYaml<OriginalTableStore[]>(path, true);
+        list.forEach(cdb => {
+          cdb.system = system;
+          if (!cdb.bcdiceServer) cdb.bcdiceServer = bcdiceServer;
+          if (!cdb.bcdiceVersion) cdb.bcdiceVersion = bcdiceVersion;
+          Object.keys(cdb.tableContents).forEach(
+            key => (cdb.tableContents[key] = cdb.tableContents[key].trim())
+          );
+        });
+        originalTableList.push(...list);
+      } catch (err) {
+        // Nothing.
+      }
+    };
+    const modInfoList = await loadYaml<
+      { system: string; originalTable: boolean }[]
+    >("static/conf/system/mod-list.yaml");
+    await systemList
+      .filter(system =>
+        modInfoList.some(mi => mi.system === system && mi.originalTable)
+      )
+      .map(system => () => loadOriginalTableYaml(system))
+      .reduce((prev, curr) => prev.then(curr), Promise.resolve());
 
     /* --------------------------------------------------
      * 部屋データのプリセットデータ投入
@@ -1226,11 +1245,15 @@ export default class LoginWindow extends Mixins<
       void
     >("add-room-preset-data", {
       roomName: createRoomInput.name,
+      bcdiceServer: bcdiceServer, // BCDiceサーバー
+      bcdiceVersion: bcdiceVersion, // BCDiceAPIバージョン
+      system: createRoomInput.system, // BCDiceSystem
       roomExtendInfo: createRoomInput.extend,
       sceneData: scene,
       cutInDataList,
       diceMaterial,
       likeList,
+      originalTableList,
       language: {
         mainChatTabName: LanguageManager.instance.getText("label.main"),
         allGroupChatTabName: LanguageManager.instance.getText(
@@ -1245,6 +1268,7 @@ export default class LoginWindow extends Mixins<
 
 <style scoped lang="scss">
 @import "../../../assets/common";
+
 .root {
   @include flex-box(column, stretch, flex-start);
   position: relative;

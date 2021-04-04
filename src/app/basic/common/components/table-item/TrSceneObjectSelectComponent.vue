@@ -5,7 +5,7 @@
     </th>
     <td>
       <scene-object-select
-        :actorId="actorId"
+        :actor-key="actorKey"
         v-model="localValue"
         :nullable="nullable"
         :multiple="false"
@@ -36,7 +36,7 @@ export default class TrSceneObjectSelectComponent extends Mixins<ComponentVue>(
   private readonly!: boolean;
 
   @Prop({ type: String, default: null })
-  private actorId!: string;
+  private actorKey!: string;
 
   @Prop({ type: Boolean, default: false })
   private nullable!: boolean;

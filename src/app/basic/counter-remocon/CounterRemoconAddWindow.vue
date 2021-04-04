@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -44,8 +44,13 @@ import CounterRemoconInfoForm from "@/app/basic/counter-remocon/CounterRemoconIn
 export default class CounterRemoconAddWindow
   extends Mixins<WindowVue<CounterRemoconStore, boolean>>(WindowVue)
   implements AddWindow<CounterRemoconStore> {
-  private addWindowDelegator = new AddWindowDelegator<CounterRemoconStore>(
-    this
+  private addWindowDelegator = new AddWindowDelegator<
+    CounterRemoconStore,
+    "name"
+  >(
+    this,
+    SocketFacade.instance.counterRemoconCC().collectionNameSuffix,
+    "name"
   );
 
   private name: string = "";
@@ -62,7 +67,16 @@ export default class CounterRemoconAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

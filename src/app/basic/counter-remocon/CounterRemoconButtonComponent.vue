@@ -93,7 +93,7 @@ export default class CounterRemoconButtonComponent extends Mixins<ComponentVue>(
     );
 
     const message = `${
-      resourceMaster ? resourceMaster.data!.label : "{?}"
+      resourceMaster ? resourceMaster.data!.name : "{?}"
     }${this.$t(
       "selection.counter-remocon-modify-type." +
         counterRemocon.data!.modifyType.toString()

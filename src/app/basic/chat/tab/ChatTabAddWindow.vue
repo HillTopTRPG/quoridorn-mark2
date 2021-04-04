@@ -4,7 +4,7 @@
       :windowKey="windowKey"
       :isAdd="true"
       initTabTarget="basic"
-      :tabName.sync="tabName"
+      :tabName.sync="name"
       :useReadAloud.sync="useReadAloud"
       :readAloudVolume.sync="readAloudVolume"
     />
@@ -39,12 +39,15 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class ChatTabAddWindow
   extends Mixins<WindowVue<ChatTabStore, boolean>>(WindowVue)
   implements AddWindow<ChatTabStore> {
-  private addWindowDelegator = new AddWindowDelegator<ChatTabStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<ChatTabStore, "name">(
+    this,
+    SocketFacade.instance.chatTabListCC().collectionNameSuffix,
+    "name"
+  );
 
-  private chatTabList = GameObjectManager.instance.chatTabList;
   private authorityGroupList = GameObjectManager.instance.authorityGroupList;
 
-  private tabName: string = "";
+  private name: string = "";
   private useReadAloud: boolean = false;
   private readAloudVolume: number = 0.5;
 
@@ -55,7 +58,16 @@ export default class ChatTabAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.tabName;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -76,7 +88,7 @@ export default class ChatTabAddWindow
   }
 
   public setStoreData(data: ChatTabStore): void {
-    this.tabName = data.name;
+    this.name = data.name;
     this.useReadAloud = data.useReadAloud;
     this.readAloudVolume = data.readAloudVolume;
   }
@@ -98,24 +110,13 @@ export default class ChatTabAddWindow
           chmod: { type: "allow", list: [gameMastersPermission] }
         },
         data: {
-          name: this.tabName,
+          name: this.name,
           isSystem: false,
           useReadAloud: this.useReadAloud,
           readAloudVolume: this.readAloudVolume
         }
       }
     ];
-  }
-
-  private get isDuplicate(): boolean {
-    return this.chatTabList.some(ct => ct.data!.name === this.tabName);
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 }
 </script>

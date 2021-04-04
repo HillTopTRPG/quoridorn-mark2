@@ -13,7 +13,7 @@
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import CtrlButton from "../../../core/component/CtrlButton.vue";
+import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { KeepBcdiceDiceRollResultStore } from "@/@types/store-data";
 import ComponentVue from "@/app/core/window/ComponentVue";
@@ -27,9 +27,9 @@ export default class SecretDiceRollComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get viewText() {
-    return `${this.secretDiceRoll.data!.text}\n${
-      this.secretDiceRoll.data!.bcdiceDiceRollResult.result
-    }`;
+    return `${this.secretDiceRoll.data!.text}\n${this.secretDiceRoll.data!
+      .originalTableResult ||
+      this.secretDiceRoll.data!.bcdiceDiceRollResult.result}`;
   }
 
   @VueEvent

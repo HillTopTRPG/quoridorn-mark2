@@ -91,6 +91,8 @@
     - counter-remocon-click
     - counter-remocon-execute
     - select-map-draw
+    - chat-inputting-notify
+    - room-data-update
 
 - taskAttribute:
     isIgniteWithParam: false

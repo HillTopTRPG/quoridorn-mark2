@@ -7,187 +7,202 @@
       :v-if="currentTabInfo"
     >
       <div class="html" :class="{ useScroll }">
-        <template v-for="(block, blockIndex) in json">
-          <!-- RAW-BLOCK -->
-          <template v-if="block.type === 'RAW-BLOCK'">
-            <template v-for="(line, lineIndex) in block.value">
-              <template v-if="line.type === 'line'">
-                <other-text-span-component
+        <template v-if="isJsonError || isRawText">
+          <div class="raw-text">
+            {{ rawText }}
+          </div>
+        </template>
+        <template v-else>
+          <template v-for="(block, blockIndex) in json">
+            <!-- RAW-BLOCK -->
+            <template v-if="block.type === 'RAW-BLOCK'">
+              <template v-for="(line, lineIndex) in block.value">
+                <template v-if="line.type === 'line'">
+                  <other-text-span-component
+                    :key="`${blockIndex}-${lineIndex}`"
+                    tag="div"
+                    :spans="line.value"
+                    :cell="line"
+                    :disabled="!isEditable"
+                    @check="onChangeCheck"
+                    @select="onChangeSelect"
+                  />
+                </template>
+                <pre
                   :key="`${blockIndex}-${lineIndex}`"
-                  tag="div"
-                  :spans="line.value"
-                  :disabled="!isEditable"
-                  @check="onChangeCheck"
-                  @select="onChangeSelect"
+                  class="block"
+                  v-else-if="line.type === '```'"
+                  >{{ line.value }}</pre
+                >
+                <textarea
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="line.type === ':::'"
+                  :style="{ width: line.width, height: line.height }"
+                  :value="line.value"
+                  :data-index="line.index"
+                  @input.stop.prevent="onChangeInput(line.index)"
+                  @change.stop.prevent
+                  @keydown.enter.stop
+                  ref="textareas"
+                >
+                </textarea>
+                <button
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="line.type === '@@@'"
+                  @click="onClickButton(line.value)"
+                >
+                  {{ getButtonText(line.value) }}
+                </button>
+                <hr
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="line.type === 'hr'"
                 />
-              </template>
-              <pre
-                :key="`${blockIndex}-${lineIndex}`"
-                class="block"
-                v-else-if="line.type === '```'"
-                >{{ line.value }}</pre
-              >
-              <textarea
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="line.type === ':::'"
-                :style="{ width: line.width, height: line.height }"
-                :value="line.value"
-                :data-index="line.index"
-                @input.stop.prevent="onChangeInput(line.index)"
-                @change.stop.prevent
-                @keydown.enter.stop
-                ref="textareas"
-              >
-              </textarea>
-              <button
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="line.type === '@@@'"
-                @click="onClickButton(line.value)"
-              >
-                {{ getButtonText(line.value) }}
-              </button>
-              <hr
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="line.type === 'hr'"
-              />
-              <div
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="line.type === 'nl'"
-              >
-                <br />
-              </div>
-              <blockquote
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="line.type === '>'"
-              >
-                <other-text-span-component
-                  tag="div"
-                  :spans="line.value"
-                  :disabled="!isEditable"
-                  @check="onChangeCheck"
-                  @select="onChangeSelect"
-                />
-              </blockquote>
-              <div
-                :key="`${blockIndex}-${lineIndex}`"
-                v-else-if="/h[1-6]/.test(line.type)"
-              >
-                <component v-bind:is="line.type">
+                <div
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="line.type === 'nl'"
+                >
+                  <br />
+                </div>
+                <blockquote
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="line.type === '>'"
+                >
+                  <other-text-span-component
+                    tag="div"
+                    :spans="line.value"
+                    :cell="line"
+                    :disabled="!isEditable"
+                    @check="onChangeCheck"
+                    @select="onChangeSelect"
+                  />
+                </blockquote>
+                <div
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-else-if="/h[1-6]/.test(line.type)"
+                >
+                  <component v-bind:is="line.type">
+                    <other-text-span-component
+                      tag="div"
+                      v-if="typeof line.value !== 'string'"
+                      :spans="line.value"
+                      :cell="line"
+                      :disabled="!isEditable"
+                      @check="onChangeCheck"
+                      @select="onChangeSelect"
+                    />
+                    <template v-else>{{ line.value }}</template>
+                  </component>
+                </div>
+                <component
+                  :key="`${blockIndex}-${lineIndex}`"
+                  v-bind:is="line.type"
+                  v-else
+                >
                   <other-text-span-component
                     tag="div"
                     v-if="typeof line.value !== 'string'"
                     :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
                   />
                   <template v-else>{{ line.value }}</template>
                 </component>
-              </div>
-              <component
-                :key="`${blockIndex}-${lineIndex}`"
-                v-bind:is="line.type"
-                v-else
-              >
-                <other-text-span-component
-                  tag="div"
-                  v-if="typeof line.value !== 'string'"
-                  :spans="line.value"
-                  :disabled="!isEditable"
-                  @check="onChangeCheck"
-                  @select="onChangeSelect"
-                />
-                <template v-else>{{ line.value }}</template>
-              </component>
-              <div
-                :key="`${blockIndex}-${lineIndex}-space`"
-                v-if="line.nlCount > 1"
-                v-html="new Array(line.nlCount).fill().join('<br />')"
-              ></div>
+                <div
+                  :key="`${blockIndex}-${lineIndex}-space`"
+                  v-if="line.nlCount > 1"
+                  v-html="new Array(line.nlCount).fill().join('<br />')"
+                ></div>
+              </template>
             </template>
-          </template>
 
-          <!-- UL-BLOCK -->
-          <template v-if="block.type === 'UL-BLOCK'">
-            <ul :key="blockIndex">
-              <template v-for="(line, lineIndex) in block.value">
-                <other-text-span-component
-                  :key="lineIndex"
-                  tag="li"
-                  :spans="line.value"
-                  :disabled="!isEditable"
-                  @check="onChangeCheck"
-                  @select="onChangeSelect"
-                />
-              </template>
-            </ul>
-            <div
-              :key="`${blockIndex}-space`"
-              v-if="block.nlCount > 1"
-              v-html="new Array(block.nlCount).fill().join('<br>')"
-            ></div>
-          </template>
-
-          <!-- OL-BLOCK -->
-          <template v-if="block.type === 'OL-BLOCK'">
-            <ol :key="blockIndex">
-              <template v-for="(line, lineIndex) in block.value">
-                <other-text-span-component
-                  :key="lineIndex"
-                  tag="li"
-                  :spans="line.value"
-                  :disabled="!isEditable"
-                  @check="onChangeCheck"
-                  @select="onChangeSelect"
-                />
-              </template>
-            </ol>
-            <div
-              :key="`${blockIndex}-space`"
-              v-if="block.nlCount > 1"
-              v-html="new Array(block.nlCount).fill().join('<br>')"
-            ></div>
-          </template>
-
-          <!-- TABLE-BLOCK -->
-          <template v-if="block.type === 'TABLE-BLOCK'">
-            <table :key="blockIndex">
-              <thead v-if="isEmptyTh(block.value[0].value)">
-                <tr>
+            <!-- UL-BLOCK -->
+            <template v-if="block.type === 'UL-BLOCK'">
+              <ul :key="blockIndex">
+                <template v-for="(line, lineIndex) in block.value">
                   <other-text-span-component
-                    v-for="(cell, cellIndex) in block.value[0].value"
-                    :key="cellIndex"
-                    tag="th"
-                    :spans="cell.value"
+                    :key="lineIndex"
+                    tag="li"
+                    :spans="line.value"
+                    :cell="line"
                     :disabled="!isEditable"
-                    :class="[cell.align]"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
                   />
-                </tr>
-              </thead>
-              <tbody>
-                <template v-for="(tr, trIndex) in block.value">
-                  <tr v-if="trIndex > 0" :key="trIndex">
+                </template>
+              </ul>
+              <div
+                :key="`${blockIndex}-space`"
+                v-if="block.nlCount > 1"
+                v-html="new Array(block.nlCount).fill().join('<br>')"
+              ></div>
+            </template>
+
+            <!-- OL-BLOCK -->
+            <template v-if="block.type === 'OL-BLOCK'">
+              <ol :key="blockIndex">
+                <template v-for="(line, lineIndex) in block.value">
+                  <other-text-span-component
+                    :key="lineIndex"
+                    tag="li"
+                    :spans="line.value"
+                    :cell="line"
+                    :disabled="!isEditable"
+                    @check="onChangeCheck"
+                    @select="onChangeSelect"
+                  />
+                </template>
+              </ol>
+              <div
+                :key="`${blockIndex}-space`"
+                v-if="block.nlCount > 1"
+                v-html="new Array(block.nlCount).fill().join('<br>')"
+              ></div>
+            </template>
+
+            <!-- TABLE-BLOCK -->
+            <template v-if="block.type === 'TABLE-BLOCK'">
+              <table :key="blockIndex">
+                <thead v-if="isEmptyTh(block.value[0].value)">
+                  <tr>
                     <other-text-span-component
-                      v-for="(cell, cellIndex) in tr.value"
+                      v-for="(cell, cellIndex) in block.value[0].value"
                       :key="cellIndex"
-                      tag="td"
+                      tag="th"
                       :spans="cell.value"
+                      :cell="cell"
                       :disabled="!isEditable"
                       :class="[cell.align]"
                       @check="onChangeCheck"
                       @select="onChangeSelect"
                     />
                   </tr>
-                </template>
-              </tbody>
-            </table>
-            <div
-              :key="`${blockIndex}-space`"
-              v-if="block.nlCount > 1"
-              v-html="new Array(block.nlCount).fill().join('<br>')"
-            ></div>
+                </thead>
+                <tbody>
+                  <template v-for="(tr, trIndex) in block.value">
+                    <tr v-if="trIndex > 0" :key="trIndex">
+                      <other-text-span-component
+                        v-for="(cell, cellIndex) in tr.value"
+                        :key="cellIndex"
+                        tag="td"
+                        :spans="cell.value"
+                        :cell="cell"
+                        :disabled="!isEditable"
+                        :class="[cell.align]"
+                        @check="onChangeCheck"
+                        @select="onChangeSelect"
+                      />
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+              <div
+                :key="`${blockIndex}-space`"
+                v-if="block.nlCount > 1"
+                v-html="new Array(block.nlCount).fill().join('<br>')"
+              ></div>
+            </template>
           </template>
         </template>
       </div>
@@ -197,7 +212,7 @@
 
 <script lang="ts">
 import { Component, Prop, Watch } from "vue-property-decorator";
-import VueEvent from "../../core/decorator/VueEvent";
+import VueEvent from "@/app/core/decorator/VueEvent";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { MemoStore } from "@/@types/store-data";
 import { markdown } from "@/app/core/markdown/markdown";
@@ -230,6 +245,9 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Array, required: true })
   private value!: StoreData<MemoStore>[];
+
+  @Prop({ type: Boolean, required: true })
+  private isRawText!: boolean;
 
   @Prop({ type: Boolean, default: false })
   private useScroll!: boolean;
@@ -311,6 +329,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private async onClickButton(type: string): Promise<void> {
+    if (!this.docType || !this.docKey) return;
     switch (type) {
       case "RELOAD-CHARACTER-SHEET":
         await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
@@ -395,13 +414,26 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get json(): any[] {
+  private get rawText(): string {
     const currentValue = this.value.find(
       lv => lv.key === this.currentTabInfo!.target
     )!;
-    if (!currentValue) return [];
-    const text = currentValue.data!.text;
-    return markdown(text);
+    if (!currentValue) return "";
+    return currentValue.data!.text;
+  }
+
+  private isJsonError: boolean = false;
+
+  @VueEvent
+  private get json(): any[] {
+    this.isJsonError = false;
+    if (!this.rawText) return [];
+    try {
+      return markdown(this.rawText);
+    } catch (err) {
+      this.isJsonError = true;
+      return [];
+    }
   }
 
   @VueEvent
@@ -459,6 +491,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   .html {
+    position: relative;
     border-top: 1px solid gray;
     padding: 0.2rem;
     box-sizing: border-box;
@@ -466,6 +499,13 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
 
     &.useScroll {
       overflow-y: scroll;
+    }
+
+    .raw-text {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      white-space: pre-wrap;
     }
   }
 
@@ -480,10 +520,16 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   table {
+    table-layout: fixed;
     border: 1px solid gray;
 
     th {
+      white-space: nowrap !important;
       background-color: var(--uni-color-light-green);
+
+      span {
+        white-space: nowrap !important;
+      }
     }
 
     th,

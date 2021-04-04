@@ -10,6 +10,9 @@
       v-if="useMemoList.length"
       :value="useMemoList"
       :windowKey="windowKey"
+      :is-raw-text="false"
+      doc-key=""
+      doc-type=""
     />
   </div>
 </template>

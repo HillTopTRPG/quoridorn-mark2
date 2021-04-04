@@ -29,6 +29,7 @@
     <bcdice-system-input
       v-model="systemVolatile"
       :url.sync="bcdiceUrlVolatile"
+      :bcdice-version.sync="bcdiceVersionVolatile"
       :windowInfo="windowInfo"
       @onMouseEnterUrl="onMouseEnterUrl"
     />
@@ -134,6 +135,19 @@ export default class ChatOperationLine extends Mixins<ComponentVue>(
   @Watch("bcdiceUrlVolatile")
   private onChangeBcdiceUrlVolatile(value: string) {
     this.$emit("update:bcdiceUrl", value);
+  }
+
+  // bcdiceVersion
+  @Prop({ type: String, required: true })
+  private bcdiceVersion!: string;
+  private bcdiceVersionVolatile: string = "";
+  @Watch("bcdiceVersion", { immediate: true })
+  private onChangeBcdiceVersion(value: string) {
+    this.bcdiceVersionVolatile = value;
+  }
+  @Watch("bcdiceVersionVolatile")
+  private onChangeBcdiceVersionVolatile(value: string) {
+    this.$emit("update:bcdiceVersion", value);
   }
 
   @VueEvent

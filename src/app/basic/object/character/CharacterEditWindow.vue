@@ -37,7 +37,7 @@ import MapObjectEditWindowVue from "@/app/core/window/MapObjectEditWindowVue";
 @Component({ components: { ButtonArea, CharacterInfoForm } })
 export default class CharacterEditWindow extends MapObjectEditWindowVue {
   protected hasOtherText: boolean = true;
-  protected sizeType: "size" | "wh" = "wh";
+  protected sizeType: "size" | "wh" = "size";
 
   private sceneObjectList = GameObjectManager.instance.sceneObjectList;
 
@@ -55,7 +55,9 @@ export default class CharacterEditWindow extends MapObjectEditWindowVue {
   @Watch("isDuplicate")
   private onChangeIsDuplicate() {
     this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
+      ? this.$t("message.duplicate", {
+          text: this.$t("label.name")
+        })!.toString()
       : "";
   }
 }

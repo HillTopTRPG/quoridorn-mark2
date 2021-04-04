@@ -71,7 +71,7 @@ export default class CounterRemoconWindow extends Mixins<WindowVue<void, void>>(
     console.log(
       [
         `update: ${counterRemocon.data!.name}`,
-        `resource: ${resourceMaster.data!.label}`,
+        `resource: ${resourceMaster.data!.name}`,
         `value: ${value}`
       ].join(", ")
     );

@@ -1,5 +1,5 @@
 import { MemoStore } from "@/@types/store-data";
-import { getJson } from "@/app/core/utility/Utility";
+import { getJsonByGet, getJsonByJsonp } from "@/app/core/utility/Utility";
 
 /**
  * キャラシのデータを読み込んでQuoridorn用のデータを生成するクラス
@@ -60,15 +60,20 @@ export abstract class TrpgSystemHelper<T> {
   /**
    * JSONPで対象のURLのデータを取得する
    * @param url 省略された場合はコンストラクタに引き渡されたURLが利用される
+   * @param type jsonp or get 省略された場合は jsonp
    * @protected
    * @return JSONPの生データ
    */
-  protected async getJsonData(url: string = this.url): Promise<any | null> {
+  protected async getJsonData(
+    type: "jsonp" | "get" = "jsonp",
+    url: string = this.url
+  ): Promise<any | null> {
     try {
       const matchResult = url.match(this.urlRegExp);
       const key = matchResult ? matchResult[1] : null;
       const jsonUrl = this.jsonpUrlFormat.replace("{key}", key || "");
-      return await getJson(jsonUrl);
+      if (type === "jsonp") return await getJsonByJsonp(jsonUrl);
+      return await getJsonByGet(jsonUrl);
     } catch (err) {
       return null;
     }
@@ -77,16 +82,18 @@ export abstract class TrpgSystemHelper<T> {
   /**
    * 各種成果物を生成する処理で共通する処理
    * @param url 省略された場合はコンストラクタに引き渡されたURLが利用される
+   * @param type jsonp or get 省略された場合は jsonp
    * @protected
    */
   protected async createResultList<U>(
+    type: "jsonp" | "get" = "jsonp",
     url?: string
   ): Promise<{
     data: T | null;
     list: U[];
     json: any;
   }> {
-    const json = await this.getJsonData(url);
+    const json = await this.getJsonData(type, url);
     const data = this.createData(json, this.url);
 
     console.log(JSON.stringify(json, null, "  "));
@@ -97,5 +104,24 @@ export abstract class TrpgSystemHelper<T> {
       list: [],
       json
     };
+  }
+
+  protected addMemo(resultList: MemoStore[], textList: string[] = []) {
+    resultList.push({
+      tab: "メモ",
+      type: "normal",
+      text: [
+        ...textList,
+        "### メモ",
+        ":::200px:100px",
+        this.isSupportedChatPalette
+          ? [
+              "チャットパレット生成に対応しています。",
+              "コマを右クリックして「チャットパレットを生成」を押してみましょう"
+            ].join("\r\n")
+          : "",
+        ":::END;;;"
+      ].join("\r\n")
+    });
   }
 }

@@ -1,6 +1,4 @@
-import SocketFacade from "../core/api/app-server/SocketFacade";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
-import { ClientRoomInfo } from "@/@types/socket";
 import {
   ActorStatusStore,
   ActorStore,
@@ -35,19 +33,18 @@ import {
   CounterRemoconStore,
   MapDrawStore
 } from "@/@types/store-data";
-import { ApplicationError } from "../core/error/ApplicationError";
+import { PartialRoomData } from "@/@types/store-data-optional";
+import { OriginalTableStore } from "@/@types/room";
 import {
   errorDialog,
   findByKey,
   findRequireByKey
-} from "../core/utility/Utility";
-import { loadYaml } from "../core/utility/FileUtility";
-import LanguageManager from "../../LanguageManager";
-import {
-  PartialRoomData,
-  RoomInfoExtend,
-  WindowSettings
-} from "@/@types/store-data-optional";
+} from "@/app/core/utility/Utility";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import LanguageManager from "@/LanguageManager";
+import { ApplicationError } from "@/app/core/error/ApplicationError";
+import { loadYaml } from "@/app/core/utility/FileUtility";
+import TaskManager from "@/app/core/task/TaskManager";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -56,6 +53,7 @@ export type ChatPublicInfo = {
   targetKey: string;
   system: string;
   bcdiceUrl: string;
+  bcdiceVersion: string;
 };
 
 export type ChatFormatInfo = {
@@ -97,15 +95,10 @@ export default class GameObjectManager {
   // コンストラクタの隠蔽
   private constructor() {}
 
-  public async setClientRoomInfo(info: ClientRoomInfo) {
-    this.__clientRoomInfo = info;
-    await this.initialize();
-  }
-
   /**
    * GameObjectManagerのイニシャライズ
    */
-  private async initialize() {
+  public async initialize() {
     const sf = SocketFacade.instance;
     // Block 1
     await Promise.all([
@@ -148,7 +141,8 @@ export default class GameObjectManager {
       sf.cardObjectCC().getList(true, this.cardObjectList),
       sf.actorCC().getList(true, this.actorList),
       sf.chatTabListCC().getList(true, this.chatTabList),
-      sf.memoCC().getList(true, this.memoList)
+      sf.memoCC().getList(true, this.memoList),
+      sf.originalTableListCC().getList(true, this.originalTableList)
     ]);
     // Block 6
     await Promise.all([
@@ -163,36 +157,19 @@ export default class GameObjectManager {
     const roomData = (await roomDataCC.getList(false))[0];
     this.roomDataKey = roomData.key;
 
-    // Object.assign()
-    const writeSettings = (from: RoomInfoExtend, to: RoomInfoExtend) => {
-      to.visitable = from.visitable;
-      to.isFitGrid = from.isFitGrid;
-      to.isViewDice = from.isViewDice;
-      to.isViewCutIn = from.isViewCutIn;
-      to.isDrawGridId = from.isDrawGridId;
-      to.mapRotatable = from.mapRotatable;
-      to.isDrawGridLine = from.isDrawGridLine;
-      to.isShowStandImage = from.isShowStandImage;
-      to.isShowRotateMarker = from.isShowRotateMarker;
-      to.windowSettings.chat = from.windowSettings.chat;
-      to.windowSettings.resource = from.windowSettings.resource;
-      to.windowSettings.initiative = from.windowSettings.initiative;
-      to.windowSettings.chatPalette = from.windowSettings.chatPalette;
-      to.windowSettings.counterRemocon = from.windowSettings.counterRemocon;
-    };
-    this.roomData.name = roomData.data!.name;
-    this.roomData.sceneKey = roomData.data!.sceneKey;
-    writeSettings(roomData.data!.settings, this.roomData.settings);
+    this.roomData = { ...roomData.data! };
 
     await roomDataCC.setSnapshot(
       "GameObjectManager",
       this.roomDataKey!,
       (snapshot: DocumentSnapshot<StoreData<RoomDataStore>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
-          const d = snapshot.data.data!;
-          // Object.assign()
-          this.roomData.sceneKey = d.sceneKey;
-          writeSettings(d.settings, this.roomData.settings);
+          this.roomData = { ...snapshot.data.data! };
+          TaskManager.instance.ignition<RoomDataStore, void>({
+            type: "room-data-update",
+            owner: "Quoridorn",
+            value: snapshot.data.data!
+          });
         }
       }
     );
@@ -225,8 +202,9 @@ export default class GameObjectManager {
     this.chatPublicInfo.targetKey = this.groupChatTabList.find(
       gct => gct.data!.isSystem
     )!.key;
-    this.chatPublicInfo.system = this.clientRoomInfo.system;
-    this.chatPublicInfo.bcdiceUrl = this.clientRoomInfo.bcdiceServer;
+    this.chatPublicInfo.system = this.roomData.system;
+    this.chatPublicInfo.bcdiceUrl = this.roomData.bcdiceServer;
+    this.chatPublicInfo.bcdiceVersion = this.roomData.bcdiceVersion;
   }
 
   /**
@@ -268,58 +246,26 @@ export default class GameObjectManager {
   public async updateRoomData(data: PartialRoomData): Promise<void> {
     if (!this.roomDataKey)
       throw new ApplicationError("Illegal timing error(roomDataKey is null).");
-    const cc = SocketFacade.instance.roomDataCC();
-
-    try {
-      await cc.touchModify([this.roomDataKey]);
-    } catch (err) {
-      // nothing.
-      console.error(err);
-      return;
-    }
 
     // Object.assign()
-    if (data.name !== undefined) this.roomData.name = data.name;
-    if (data.sceneKey !== undefined) this.roomData.sceneKey = data.sceneKey;
-    const settings = data.settings;
-    if (settings) {
-      const copyParam = <T extends keyof RoomInfoExtend>(param: T) => {
-        if (settings[param] !== undefined)
-          this.roomData.settings[param] = settings[param];
-      };
-      copyParam("visitable");
-      copyParam("isFitGrid");
-      copyParam("isViewDice");
-      copyParam("isViewCutIn");
-      copyParam("isDrawGridId");
-      copyParam("mapRotatable");
-      copyParam("isDrawGridLine");
-      copyParam("isShowStandImage");
-      copyParam("isShowRotateMarker");
-
-      const windowSettings = settings.windowSettings;
-      if (windowSettings) {
-        const copyWindow = <T extends keyof WindowSettings>(param: T) => {
-          if (windowSettings[param] !== undefined)
-            this.roomData.settings.windowSettings[param] =
-              windowSettings[param];
+    if (data.settings) {
+      if (data.settings.windowSettings) {
+        data.settings.windowSettings = {
+          ...this.roomData.settings.windowSettings,
+          ...data.settings.windowSettings
         };
-        copyWindow("chat");
-        copyWindow("resource");
-        copyWindow("initiative");
-        copyWindow("chatPalette");
-        copyWindow("counterRemocon");
       }
+      data.settings = { ...this.roomData.settings, ...data.settings };
     }
-    await cc.update([
+    const roomData: RoomDataStore = { ...this.roomData, ...data };
+
+    await SocketFacade.instance.roomDataCC().updatePackage([
       {
         key: this.roomDataKey,
-        data: this.roomData
+        data: roomData
       }
     ]);
   }
-
-  private __clientRoomInfo: ClientRoomInfo | null = null;
 
   public readonly chatPublicInfo: ChatPublicInfo = {
     isUseAllTab: false,
@@ -327,7 +273,8 @@ export default class GameObjectManager {
     tabKey: "",
     targetKey: "",
     system: "",
-    bcdiceUrl: ""
+    bcdiceUrl: "",
+    bcdiceVersion: ""
   };
 
   // シーンの編集中にシーンの切り替えが行われたとき、その追従を行うための変数
@@ -336,25 +283,29 @@ export default class GameObjectManager {
 
   // 部屋の設定情報
   private roomDataKey: string | null = null;
-  public readonly roomData: RoomDataStore = {
+  public roomData: RoomDataStore = {
     name: "",
+    roomNo: -1,
     sceneKey: "",
+    bcdiceServer: "",
+    bcdiceVersion: "",
+    system: "DiceBot",
     settings: {
       visitable: true,
       isFitGrid: true,
       isViewDice: true,
       isViewCutIn: true,
+      isDrawGridLine: true,
       isDrawGridId: true,
       mapRotatable: true,
-      isDrawGridLine: true,
       isShowStandImage: true,
+      standImageGridNum: 12,
       isShowRotateMarker: true,
       windowSettings: {
         chat: "free",
-        resource: "free",
         initiative: "free",
-        chatPalette: "free",
-        counterRemocon: "free"
+        "chat-palette": "free",
+        "counter-remocon": "free"
       }
     }
   };
@@ -403,15 +354,7 @@ export default class GameObjectManager {
   public readonly likeList: StoreUseData<LikeStore>[] = [];
   public readonly counterRemoconList: StoreUseData<CounterRemoconStore>[] = [];
   public readonly mapDrawList: StoreUseData<MapDrawStore>[] = [];
-
-  public get clientRoomInfo(): ClientRoomInfo {
-    if (!this.__clientRoomInfo) {
-      throw new ApplicationError(
-        `Unsupported operation. clientRoomInfo is null.`
-      );
-    }
-    return this.__clientRoomInfo;
-  }
+  public readonly originalTableList: StoreUseData<OriginalTableStore>[] = [];
 
   public getExclusionOwnerKey(socketId: string | null): string | null {
     const socketUserInfo = this.socketUserList.find(
@@ -635,6 +578,9 @@ export default class GameObjectManager {
         break;
       case "map-draw-list":
         list = this.mapDrawList;
+        break;
+      case "original-table-list":
+        list = this.originalTableList;
         break;
       default:
     }

@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { MediaStore } from "@/@types/store-data";
@@ -34,10 +34,13 @@ import EditWindowDelegator, {
 } from "@/app/core/window/EditWindowDelegator";
 
 @Component({ components: { MediaFileInfoForm, UrlInfoForm, ButtonArea } })
-export default class MediaUrlEditWindow
+export default class MediaFileEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<MediaStore> {
-  private editWindowDelegator = new EditWindowDelegator<MediaStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<MediaStore, "name">(
+    this,
+    "name"
+  );
 
   private name: string = "";
   private tag: string = "";
@@ -50,7 +53,16 @@ export default class MediaUrlEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name && !!this.url;
+    return !!this.name && !!this.url && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

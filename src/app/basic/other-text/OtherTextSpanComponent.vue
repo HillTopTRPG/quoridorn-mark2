@@ -1,8 +1,9 @@
 <template>
   <component
     v-bind:is="useTag"
-    v-bind="$attrs"
     v-on="listeners"
+    v-bind="$attrs"
+    :style="{ width: cell.width ? `${cell.width}px` : undefined }"
     class="line"
     :class="{ 'table-reverse': isTableReverse }"
   >
@@ -71,6 +72,9 @@ export default class OtherTextSpanComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Array, required: true })
   private spans!: any[];
+
+  @Prop({ type: Object, required: true })
+  private cell!: any;
 
   private get listeners() {
     return {

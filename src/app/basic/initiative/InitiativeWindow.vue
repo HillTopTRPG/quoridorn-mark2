@@ -22,58 +22,56 @@
         {{ colDec.target }}
       </template>
       <template #contents="{ colDec, data }">
-        <keep-alive>
-          <template v-if="data.data[colDec.target] === undefined">
-            <span class="none">-</span>
-          </template>
-          <template v-else-if="getInputType(colDec.type)">
-            <initiative-input-component
-              :inputType="getInputType(colDec.type)"
-              :colDec="colDec"
-              :dataObj="data"
-              @inputCell="inputCell"
-            />
-          </template>
-          <template v-else-if="colDec.type === 'select'">
-            <selection-value-select
-              :elmId="`prop-${data.owner}-${colDec.target}`"
-              :value="data.data[colDec.target].value"
-              :selection="data.data[colDec.target].selection"
-              @input="
-                inputCell(
-                  data,
-                  colDec.target,
-                  `prop-${data.owner}-${colDec.target}`
-                )
-              "
-            />
-          </template>
-          <template v-else-if="colDec.type === 'combo'">
-            <input
-              :id="`prop-${data.owner}-${colDec.target}`"
-              type="text"
-              :value="data.data[colDec.target].value"
-              :list="data.data[colDec.target].elmId"
-              @input="
-                inputCell(
-                  data,
-                  colDec.target,
-                  `prop-${data.owner}-${colDec.target}`
-                )
-              "
-            />
-          </template>
-          <template v-else>
-            {{ (__staticValue = getStaticValue(colDec, data, "-")) && null }}
-            <input
-              v-if="isColorText(__staticValue)"
-              type="color"
-              :value="__staticValue"
-              disabled="disabled"
-            />
-            <template v-else>{{ __staticValue }}</template>
-          </template>
-        </keep-alive>
+        <template v-if="data.data.get(colDec.target) === null">
+          <span class="none">-</span>
+        </template>
+        <template v-else-if="getInputType(colDec.type)">
+          <initiative-input-component
+            :inputType="getInputType(colDec.type)"
+            :colDec="colDec"
+            :dataObj="data"
+            @inputCell="inputCell"
+          />
+        </template>
+        <template v-else-if="colDec.type === 'select'">
+          <selection-value-select
+            :elmId="`prop-${data.owner}-${colDec.target}`"
+            :value="data.data.get(colDec.target).value"
+            :selection="data.data.get(colDec.target).selection"
+            @input="
+              inputCell(
+                data,
+                colDec.target,
+                `prop-${data.owner}-${colDec.target}`
+              )
+            "
+          />
+        </template>
+        <template v-else-if="colDec.type === 'combo'">
+          <input
+            :id="`prop-${data.owner}-${colDec.target}`"
+            type="text"
+            :value="data.data.get(colDec.target).value"
+            :list="data.data.get(colDec.target).elmId"
+            @input="
+              inputCell(
+                data,
+                colDec.target,
+                `prop-${data.owner}-${colDec.target}`
+              )
+            "
+          />
+        </template>
+        <template v-else>
+          {{ (__staticValue = getStaticValue(colDec, data, "-")) && null }}
+          <input
+            v-if="isColorText(__staticValue)"
+            type="color"
+            :value="__staticValue"
+            disabled="disabled"
+          />
+          <template v-else>{{ __staticValue }}</template>
+        </template>
       </template>
     </table-component>
 
@@ -208,11 +206,12 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const target = colDec.target;
 
     const resourceMaster = this.resourceMasterList.find(
-      rm => rm.data!.label === target
+      rm => rm.data!.name === target
     );
 
-    if (!resourceMaster)
-      return data.data![target] === null ? nullText : data.data![target];
+    const targetValue = data.data!.get(target);
+
+    if (!resourceMaster) return targetValue === null ? nullText : targetValue;
     const refProperty = resourceMaster.data!.refProperty;
 
     const getPropValue = (
@@ -323,7 +322,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         actor
       );
     }
-    return data.data[target];
+    return targetValue;
   }
 
   /**
@@ -465,7 +464,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     const resultList: StoreData<any>[] = [];
 
     this.dataOwnerList.forEach((df, ind) => {
-      const resultData: StoreData<any> = {
+      const resultData: StoreData<Map<string, any>> = {
         collection: "initiative-volatile",
         key: uuid.v4(),
         order: ind,
@@ -478,7 +477,7 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         createTime: new Date(),
         updateTime: null,
         refList: [],
-        data: {}
+        data: new Map<string, any>() // リソースマスターの名前をkey、リソース値をvalueとしたMap
       };
       this.initiativeColumnList
         // 使用列一覧からリソースマスターに変換
@@ -495,7 +494,10 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
             r =>
               r.data!.resourceMasterKey === rm.key &&
               r.owner === df.key &&
-              r.ownerType === df.type
+              r.ownerType === df.type &&
+              ((r.ownerType === "actor-list" && rm.data!.isAutoAddActor) ||
+                (r.ownerType === "scene-object-list" &&
+                  rm.data!.isAutoAddMapObject))
           )
         }))
         .forEach(obj => {
@@ -507,19 +509,21 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
           )
             return;
           const type = obj.resourceMaster.data!.type;
+          const label = obj.resourceMaster.data!.name;
           if (type === "select" || type === "combo") {
-            resultData.data[obj.resourceMaster.data!.label] = {
+            resultData.data!.set(label, {
               value: obj.resource ? obj.resource.data!.value : null,
               selection: obj.resourceMaster.data!.selectionStr,
               elmId: `${this.windowInfo.key}-selection-list-${obj.resourceMaster.key}`
-            };
+            });
           } else {
-            resultData.data[obj.resourceMaster.data!.label] = obj.resource
-              ? obj.resource.data!.value
-              : null;
+            resultData.data!.set(
+              label,
+              obj.resource ? obj.resource.data!.value : null
+            );
           }
         });
-      if (!Object.keys(resultData.data).length) return;
+      if (!resultData.data!.size) return;
       resultList.push(resultData);
     });
     return resultList;
@@ -542,20 +546,27 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
     });
   }
 
+  private timeoutMap: Map<string, { id: number; func: () => void }> = new Map();
+
   @VueEvent
   private async inputCell(data: any, target: string, elmId: string) {
+    Array.from(this.timeoutMap.values()).forEach(({ id, func }) => {
+      window.clearTimeout(id);
+      func();
+    });
+    const mapKey = `${target}-${elmId}`;
+    const timeoutObj = this.timeoutMap.get(mapKey);
+    if (timeoutObj !== undefined) {
+      window.clearTimeout(timeoutObj.id);
+    }
     const elm: HTMLInputElement = document.getElementById(
       elmId
     ) as HTMLInputElement;
     const newValue =
       elm.type === "checkbox" ? elm.checked.toString() : elm.value;
 
-    console.log(target, elm.type, newValue);
-
-    this.inputtingElmId = elmId;
-
     const resourceMaster = this.resourceMasterList.find(
-      rm => rm.data!.label === target
+      rm => rm.data!.name === target
     );
     if (!resourceMaster) {
       console.error(`Not found resource(${target}).`);
@@ -568,13 +579,22 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
         r.ownerType === data.ownerType &&
         r.owner === data.owner
     )[0];
-    resource.data!.value = newValue;
-    await SocketFacade.instance.resourceCC().updatePackage([
-      {
-        key: resource.key,
-        data: resource.data!
-      }
-    ]);
+
+    const proc = () => {
+      this.inputtingElmId = elmId;
+      resource.data!.value = newValue;
+      this.timeoutMap.delete(mapKey);
+      SocketFacade.instance.resourceCC().updatePackage([
+        {
+          key: resource.key,
+          data: resource.data!
+        }
+      ]);
+    };
+    this.timeoutMap.set(mapKey, {
+      id: window.setTimeout(proc, 2000),
+      func: proc
+    });
   }
 
   @VueEvent
@@ -613,15 +633,15 @@ export default class InitiativeWindow extends Mixins<WindowVue<number, never>>(
       )
       .forEach(rm => {
         const column: WindowTableColumn = columnList.filter(
-          c => c.target === rm.data!.label
+          c => c.target === rm.data!.name
         )[0] || {
           width: 50,
           type: rm.data!.type,
           align: "center",
-          target: rm.data!.label
+          target: rm.data!.name
         };
         const columnIndex = columnList.findIndex(
-          c => c.target === rm.data!.label
+          c => c.target === rm.data!.name
         );
         if (columnIndex >= 0) {
           column.width = this.windowInfo.tableInfoList[0].columnWidthList[

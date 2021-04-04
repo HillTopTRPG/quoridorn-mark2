@@ -48,6 +48,9 @@ import CssManager from "@/app/core/css/CssManager";
 import GameObjectManager from "@/app/basic/GameObjectManager";
 import TrNumberInputComponent from "@/app/basic/common/components/table-item/TrNumberInputComponent.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
+import { RoomDataStore } from "@/@types/store-data";
 
 @Component({ components: { TrNumberInputComponent } })
 export default class AddressInput extends Mixins<ComponentVue>(ComponentVue) {
@@ -55,6 +58,13 @@ export default class AddressInput extends Mixins<ComponentVue>(ComponentVue) {
   private value!: Address;
 
   private roomData = GameObjectManager.instance.roomData;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   private input(value: Address | null) {
     this.$emit("input", value);

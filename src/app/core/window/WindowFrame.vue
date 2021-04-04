@@ -62,7 +62,7 @@
       <title-icon
         className="icon-cross"
         @emit="closeWindow"
-        v-if="windowInfo.declare.closable"
+        v-if="windowInfo.declare.closable && windowSetting !== 'always-open'"
       />
     </div>
 
@@ -179,7 +179,9 @@ import LifeCycle from "../decorator/LifeCycle";
 import { convertNumberZero } from "../utility/PrimaryDataUtility";
 import { getCssPxNum } from "../css/Css";
 import VueEvent from "../decorator/VueEvent";
-import { Point, Size } from "@/@types/store-data-optional";
+import { Point, Size, WindowSetting } from "@/@types/store-data-optional";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import { RoomDataStore } from "@/@types/store-data";
 
 @Component({
   components: { TitleIcon, ResizeKnob }
@@ -189,6 +191,21 @@ export default class WindowFrame extends Vue {
   private windowInfo!: WindowInfo<unknown>;
   @Prop({ type: String, required: true })
   private status!: string;
+
+  private roomData = GameObjectManager.instance.roomData;
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
+
+  private get windowSetting(): WindowSetting | null {
+    const type = this.windowInfo.type.replace("-window", "");
+    const windowSetting = (this.roomData.settings.windowSettings as any)[type];
+    if (!windowSetting) return null;
+    return windowSetting as WindowSetting;
+  }
 
   private dragFrom: Point = createPoint(0, 0);
 

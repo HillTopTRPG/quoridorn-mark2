@@ -191,6 +191,19 @@ selection:
     right-top: 右上
     right-center: 右
     right-bottom: 右下
+  view-type:
+    view: 表示
+    hide: 非表示
+  is-fit-grid:
+    label: コマをセルに
+    fit: 合わせる
+    non-fit: 合わせない
+  window-view-setting:
+    label: 画面表示設定
+    free: 自由
+    init-view: 入室時表示
+    always-open: 常に表示
+    not-use: 使用不可
 
 resource-master-info-form:
   label:
@@ -373,7 +386,8 @@ label:
   non-secret: 公開
   scene-object: コマ
   non-select: 選択なし
-  dice-type: ダイス
+  dice: ダイス
+  dice-type: ダイス種類
   pips: 出目
   tab: タブ
   non-tab: タブ無し
@@ -397,6 +411,18 @@ label:
   line-width: 線の幅
   vertex-num: 頂点の数
   font-size: 文字サイズ
+  ref-latest: 最新($1)
+  ref-old: 旧($1)
+  grid-address: マス座標
+  map-rotate: マップ回転
+  map-object-rotate-marker: コマの回転マーカー
+  grid-line: マス罫線
+  room-share-setting: 部屋設定
+  room-window-setting: 画面設定
+  private-setting: 個人設定
+  command: コマンド
+  dice-roll: ダイスロール
+  list: 一覧
 
 message:
   copy-to-clipboard: Copied to clipboard
@@ -428,8 +454,8 @@ message:
   delete-tab: |-
     本当にタブ「$1」を削除しますか？
     この操作は取り消せません。
-  original: 元：$1
-  name-duplicate: 名前が重複します。
+  original: 元：{text}
+  duplicate: '"The {text} is a duplicate."'
   delete-failure: 削除に失敗しました。
   load-other-text-character-sheet: その他欄生成
   load-other-text-character-sheet-text: |-
@@ -496,10 +522,12 @@ user-login-window:
 bcdice-api-server-setting-window:
   window-title: BCDice-APIサーバ設定
   message: BCDice-APIサーバに関する設定
+  testing: テスト中
   success: 接続成功
   error: 接続失敗
   error-messages:
     connect-error: 接続に失敗しました。
+    un-supported-version-error: 対応できないBCDice-APIバージョン
 
 app-server-setting-window:
   window-title: Application Server settings
@@ -543,6 +571,7 @@ room-info-window:
   window-title: Room information
   label:
     bcdice-api-url: BCDice-API link
+    bcdice-api-version: BCDice-APIのバージョン
     game-system-view: Game system
     comeback-url: Returning Room URL
     invite-url: Invitation room URL
@@ -613,6 +642,10 @@ chat-window:
     select-target: 送信相手の選択
     select-chat-format: 部分フォーマット選択
     select-is-secret: 秘匿チャットかどうか
+    resource-change-resource-master: 変更するリソースの選択
+    resource-change-target-operation: 演算子または対象の選択
+    resource-change-operation: 演算子の選択
+    resource-change-value: 値の選択
     selected-item: '[選択中]'
     goto-head: '[先頭へ]'
     goto-next: '[次へ]'
@@ -656,6 +689,7 @@ player-box-window:
   dialog:
     delete-actor: |-
       本当にアクター「$1」を削除しますか？
+      このアクターに紐づくコマがあれば、一緒に削除されます。
       この操作は取り消せません。
 
 card-deck-builder:
@@ -867,3 +901,22 @@ authority-group-add-window:
 
 authority-group-edit-window:
   window-title: 権限グループ編集
+
+room-data-edit-window:
+  window-title: 部屋情報編集
+
+room-info-extend-edit-window:
+  window-title: 設定編集
+
+original-table-list-window:
+  window-title: オリジナル表一覧
+  dialog:
+    delete-table: |-
+      本当にオリジナル表「$1」を削除しますか？
+      この操作は取り消せません。
+
+original-table-add-window:
+  window-title: オリジナル表追加
+
+original-table-edit-window:
+  window-title: オリジナル表編集

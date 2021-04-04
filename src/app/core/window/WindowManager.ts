@@ -16,7 +16,8 @@ import TaskManager from "../task/TaskManager";
 import { ApplicationError } from "../error/ApplicationError";
 import { clone } from "../utility/PrimaryDataUtility";
 import { findRequireByKey } from "../utility/Utility";
-import { Point } from "@/@types/store-data-optional";
+import { Point, WindowSetting } from "@/@types/store-data-optional";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 type WindowDeclareInfoContainer = {
   [type: string]: WindowDeclareInfo;
@@ -194,6 +195,12 @@ export default class WindowManager {
         "Illegal arguments error. WindowManager.instance#open"
       );
     const type = info.type;
+    const windowSettings =
+      GameObjectManager.instance.roomData.settings.windowSettings;
+    const windowSetting = (windowSettings as any)[type.replace("-window", "")];
+    if (windowSetting && (windowSetting as WindowSetting) === "not-use") {
+      return "";
+    }
     return this.resist<T>(
       type,
       this.windowDeclareInfoContainer[type],

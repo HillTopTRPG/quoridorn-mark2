@@ -130,9 +130,10 @@ import EditWindowDelegator, {
 export default class CardDeckSmallEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<CardDeckSmallStore> {
-  private editWindowDelegator = new EditWindowDelegator<CardDeckSmallStore>(
-    this
-  );
+  private editWindowDelegator = new EditWindowDelegator<
+    CardDeckSmallStore,
+    "name"
+  >(this, "name");
 
   private name: string = "";
   private layout: CardDeckLayout = "pile-up";
@@ -155,6 +156,10 @@ export default class CardDeckSmallEditWindow
 
   public isCommitAble(): boolean {
     return true;
+  }
+
+  public isDuplicate(): boolean {
+    return false;
   }
 
   @VueEvent

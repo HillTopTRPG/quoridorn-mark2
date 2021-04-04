@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
@@ -43,9 +43,10 @@ import CounterRemoconInfoForm from "@/app/basic/counter-remocon/CounterRemoconIn
 export default class CounterRemoconEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<CounterRemoconStore> {
-  private editWindowDelegator = new EditWindowDelegator<CounterRemoconStore>(
-    this
-  );
+  private editWindowDelegator = new EditWindowDelegator<
+    CounterRemoconStore,
+    "name"
+  >(this, "name");
 
   private name: string = "";
   private targetType: CounterRemoconTargetType = "every-one";
@@ -61,7 +62,16 @@ export default class CounterRemoconEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name;
+    return !!this.name && this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

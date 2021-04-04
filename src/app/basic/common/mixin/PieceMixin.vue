@@ -6,16 +6,12 @@ import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
 import Unsubscribe from "nekostore/lib/Unsubscribe";
-import SocketFacade, {
-  permissionCheck
-} from "../../../core/api/app-server/SocketFacade";
-import LifeCycle from "../../../core/decorator/LifeCycle";
-import TaskProcessor from "../../../core/task/TaskProcessor";
 import {
   KeepBcdiceDiceRollResultStore,
   MemoStore,
   SceneObjectStore,
-  SceneAndObjectStore
+  SceneAndObjectStore,
+  RoomDataStore
 } from "@/@types/store-data";
 import {
   copyAddress,
@@ -25,10 +21,6 @@ import {
   getEventPoint
 } from "@/app/core/utility/CoordinateUtility";
 import { findRequireByKey, questionDialog } from "@/app/core/utility/Utility";
-import TaskManager, { MouseMoveParam } from "../../../core/task/TaskManager";
-import VueEvent from "../../../core/decorator/VueEvent";
-import CssManager from "../../../core/css/CssManager";
-import GameObjectManager from "../../GameObjectManager";
 import { WindowOpenInfo } from "@/@types/window";
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import { escapeHtml, sendChatLog } from "@/app/core/utility/ChatUtility";
@@ -41,6 +33,15 @@ import {
   SceneObjectType
 } from "@/@types/store-data-optional";
 import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import SocketFacade, {
+  permissionCheck
+} from "@/app/core/api/app-server/SocketFacade";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import TaskManager, { MouseMoveParam } from "@/app/core/task/TaskManager";
+import CssManager from "@/app/core/css/CssManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
 const uuid = require("uuid");
 
 @Mixin
@@ -71,6 +72,13 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   private isTransitioning: boolean = false;
   private roomData = GameObjectManager.instance.roomData;
   private sceneAndObjectUnsubscribe: Unsubscribe | null = null;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   private get sceneKey() {
     return this.roomData.sceneKey;
@@ -631,9 +639,10 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     const sceneObject = GameObjectManager.instance.sceneObjectList.find(
       so => so.key === this.docKey
     )!;
-    const actor = GameObjectManager.instance.actorList.find(
-      a => a.key === sceneObject.data!.actorKey
-    )!;
+    const actor = findRequireByKey(
+      GameObjectManager.instance.actorList,
+      sceneObject.data!.actorKey
+    );
     const chatPaletteListCC = SocketFacade.instance.chatPaletteListCC();
     const userKey = SocketFacade.instance.userKey;
     const helperName = trpgSystemHelper.constructor.name;
@@ -668,7 +677,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           data: {
             name: cpi.name,
             source: helperName,
-            chatFontColorType: "owner",
+            chatFontColorType: "owner" as "owner",
             chatFontColor: "#000000",
             actorKey: actor.key,
             sceneObjectKey: this.docKey,
@@ -717,16 +726,20 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       .map(dap => dap.data!.pips);
     const pipsLength = pipsList.filter(p => p && p !== "0").length;
     let pips: string = "";
+    let command: string;
 
     if (data.data!.isHideSubType) {
       // ダイスを隠しているなら
-      const command = `1D${pipsLength}`;
-      const resultJson = await BcdiceManager.sendBcdiceServer({
-        system: "DiceBot",
-        command
-      });
+      command = `1D${pipsLength}`;
 
-      if (resultJson.ok) {
+      try {
+        const resultJson = await BcdiceManager.instance.sendCommand(
+          GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+          GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
+          "DiceBot",
+          command
+        );
+
         // bcdiceとして結果が取れた
         const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
         const keepBcdiceDiceRollResult = await this.getKeepBcdiceDiceRollResult();
@@ -735,10 +748,16 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           await keepBcdiceDiceRollResultListCC.addDirect([
             {
               data: {
-                type: "hide-dice-symbol-roll",
+                type: "hide-dice-symbol-roll" as "hide-dice-symbol-roll",
                 text: command,
                 targetKey: data.key,
-                bcdiceDiceRollResult: resultJson
+                bcdiceDiceRollResult: resultJson,
+                bcdiceServer:
+                  GameObjectManager.instance.chatPublicInfo.bcdiceUrl,
+                bcdiceVersion:
+                  GameObjectManager.instance.chatPublicInfo.bcdiceVersion,
+                system: "DiceBot",
+                originalTableResult: null
               }
             }
           ]);
@@ -753,76 +772,65 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
           ]);
         }
         pips = resultJson.dices![0]!.value.toString();
-        await sendChatLog(
-          {
-            chatType: "system-message",
-            text: this.$t("message.dice-roll-dice-symbol-hide").toString(),
-            tabKey: null,
-            targetKey: null,
-            statusKey: null,
-            system: null,
-            isSecret: false
-          },
-          []
-        );
-      } else {
-        // bcdiceとして結果は取れなかった
-        await sendChatLog(
-          {
-            chatType: "system-message",
-            text: `System error!!. dice roll failure. command: ${command}`,
-            tabKey: null,
-            targetKey: null,
-            statusKey: null,
-            system: null,
-            isSecret: false
-          },
-          []
-        );
-        return;
-      }
-    } else {
-      // ダイスを隠していないなら
-      const command = `1D${pipsLength} ${this.$t(
-        "type.dice-symbol"
-      )!.toString()} ${this.$t("context.dice-roll")!.toString()}`;
-      const diceRollResult = await sendChatLog(
-        {
+        await sendChatLog({
           chatType: "system-message",
-          text: command,
+          text: this.$t("message.dice-roll-dice-symbol-hide").toString(),
           tabKey: null,
           targetKey: null,
           statusKey: null,
           system: null,
-          isSecret: false
-        },
-        []
-      );
-      if (!diceRollResult) {
-        // bcdiceとして結果は取れなかった
-        await sendChatLog(
-          {
-            chatType: "system-message",
-            text: `System error!!. dice roll failure. command: ${command}`,
-            tabKey: null,
-            targetKey: null,
-            statusKey: null,
-            system: null,
-            isSecret: false
-          },
-          []
-        );
-        return;
+          isSecret: false,
+          bcdiceServer: null,
+          bcdiceVersion: null
+        });
+      } catch (err) {
+        // 無視していい。
       }
-      pips = diceRollResult!.dices![0]!.value.toString();
+    } else {
+      // ダイスを隠していないなら
+      command = `1D${pipsLength} ${this.$t(
+        "type.dice-symbol"
+      )!.toString()} ${this.$t("context.dice-roll")!.toString()}`;
+
+      const diceRollResult = await sendChatLog({
+        chatType: "system-message",
+        text: command,
+        tabKey: null,
+        targetKey: null,
+        statusKey: null,
+        system: null,
+        isSecret: false,
+        bcdiceServer: null,
+        bcdiceVersion: null
+      });
+      if (diceRollResult) {
+        pips = diceRollResult!.dices![0]!.value.toString();
+      } else {
+        // 無視していい。
+      }
     }
-    try {
-      data.data!.subTypeValue = pips;
-      await this.sceneObjectCC!.updatePackage([
-        { key: this.docKey, data: data.data! }
-      ]);
-    } catch (err) {
-      console.warn(err);
+    if (pips) {
+      try {
+        data.data!.subTypeValue = pips;
+        await this.sceneObjectCC!.updatePackage([
+          { key: this.docKey, data: data.data! }
+        ]);
+      } catch (err) {
+        console.warn(err);
+      }
+    } else {
+      // bcdiceとして結果は取れなかった
+      await sendChatLog({
+        chatType: "system-message",
+        text: `System error!!. dice roll failure. command: ${command}`,
+        tabKey: null,
+        targetKey: null,
+        statusKey: null,
+        system: null,
+        isSecret: false,
+        bcdiceServer: null,
+        bcdiceVersion: null
+      });
     }
   }
 
@@ -844,26 +852,24 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     await this.sceneObjectCC!.updatePackage([
       { key: this.docKey, data: data.data! }
     ]);
-
     const msgTarget = isHideSubType
       ? "change-pips-dice-symbol-hide"
       : "change-pips-dice-symbol";
-    await sendChatLog(
-      {
-        chatType: "system-message",
-        text: this.$t(`message.${msgTarget}`)
-          .toString()
-          .replace("{0}", `D${faceNum}`)
-          .replace("{1}", oldPips)
-          .replace("{2}", pips),
-        tabKey: null,
-        targetKey: null,
-        statusKey: null,
-        system: null,
-        isSecret: false
-      },
-      []
-    );
+    await sendChatLog({
+      chatType: "system-message",
+      text: this.$t(`message.${msgTarget}`)
+        .toString()
+        .replace("{0}", `D${faceNum}`)
+        .replace("{1}", oldPips)
+        .replace("{2}", pips),
+      tabKey: null,
+      targetKey: null,
+      statusKey: null,
+      system: null,
+      isSecret: false,
+      bcdiceServer: null,
+      bcdiceVersion: null
+    });
     const keepBcdiceDiceRollResultListCC = SocketFacade.instance.keepBcdiceDiceRollResultListCC();
     const keepBcdiceDiceRollResult = await this.getKeepBcdiceDiceRollResult();
     if (keepBcdiceDiceRollResult) {
@@ -881,7 +887,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       { property: "data.type", operand: "==", value: "hide-dice-symbol-roll" },
       { property: "data.targetKey", operand: "==", value: this.docKey }
     ]);
-    return list ? list[0].data! : null;
+    return list?.length ? list[0].data! : null;
   }
 
   @TaskProcessor("change-dice-view-finished")
@@ -919,22 +925,21 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       msgTarget = "view-dice-symbol-dice-roll";
     }
 
-    await sendChatLog(
-      {
-        chatType: "system-message",
-        text: this.$t(`message.${msgTarget}`)
-          .toString()
-          .replace("{0}", `D${faceNum}`)
-          .replace("{1}", pips)
-          .replace("{2}", diceRollResult),
-        tabKey: null,
-        targetKey: null,
-        statusKey: null,
-        system: null,
-        isSecret: false
-      },
-      []
-    );
+    await sendChatLog({
+      chatType: "system-message",
+      text: this.$t(`message.${msgTarget}`)
+        .toString()
+        .replace("{0}", `D${faceNum}`)
+        .replace("{1}", pips)
+        .replace("{2}", diceRollResult),
+      tabKey: null,
+      targetKey: null,
+      statusKey: null,
+      system: null,
+      isSecret: false,
+      bcdiceServer: null,
+      bcdiceVersion: null
+    });
   }
 
   private getPoint(point: Point) {
@@ -1165,7 +1170,8 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
         key: this.docKey,
         dataList: this.otherTextList,
         rect: createRectangle(data.x, data.y, rect.width, rect.height),
-        isFix: false
+        isFix: false,
+        isRawText: false
       }
     });
   }

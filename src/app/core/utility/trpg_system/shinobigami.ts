@@ -39,7 +39,17 @@ export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
     if (!data) return null;
 
     // メモ
-    addMemo(data, list);
+    this.addMemo(list, [
+      "### ダメージ",
+      "|器術|体術|忍術|謀術|戦術|妖術|",
+      "|:---:|:---:|:---:|:---:|:---:|:---:|",
+      `|${[...new Array(6)]
+        .map(
+          (_, ind) =>
+            `[${data.tokugi.damagedColList.some(d => d === ind) ? "x" : " "}]`
+        )
+        .join("|")}|`
+    ]);
     // 基本情報
     addBasic(data, list);
     // 特技
@@ -230,25 +240,6 @@ type Shinobigami = {
   backgroundList: Haikei[]; // 背景
   tokugi: SaikoroFictionTokugi; // 特技
 };
-
-function addMemo(data: Shinobigami, resultList: MemoStore[]) {
-  const damagedColList = data.tokugi.damagedColList;
-  resultList.push({
-    tab: "メモ",
-    type: "normal",
-    text: [
-      "### ダメージ",
-      "|器術|体術|忍術|謀術|戦術|妖術|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|",
-      `|${[...new Array(6)]
-        .map((_, ind) => `[${damagedColList.some(d => d === ind) ? "x" : " "}]`)
-        .join("|")}|`,
-      "### メモ",
-      ":::200px:100px",
-      ":::END;;;"
-    ].join("\r\n")
-  });
-}
 
 function addBasic(data: Shinobigami, resultList: MemoStore[]) {
   resultList.push({

@@ -27,6 +27,7 @@
       :statusKey.sync="statusKey"
       :system.sync="system"
       :bcdiceUrl.sync="bcdiceUrl"
+      :bcdice-version.sync="bcdiceVersion"
     />
 
     <!-- 入力盤 -->
@@ -79,6 +80,9 @@
         :max="chatOptionMax"
         v-model="chatOptionValue"
       />
+      <div class="notify-message" :class="notifyMessage ? '' : 'empty'">
+        {{ notifyMessage }}
+      </div>
 
       <!-- 単位変換テーブル -->
       <unit-table-component v-if="unitList" :unitList="unitList" />
@@ -95,14 +99,20 @@ import {
   ChatStore,
   ChatTabStore,
   GroupChatTabStore,
-  LikeStore
+  LikeStore,
+  ResourceMasterStore,
+  ResourceStore,
+  SceneObjectStore
 } from "@/@types/store-data";
-import { CustomDiceBotInfo } from "@/@types/room";
 import { TabInfo } from "@/@types/window";
 import { Getter } from "vuex-class";
-import { ThrowParabolaInfo, UpdateResourceInfo } from "task-info";
+import {
+  ChatInputtingInfo,
+  ThrowParabolaInfo,
+  UpdateResourceInfo
+} from "task-info";
 import TaskManager from "@/app/core/task/TaskManager";
-import { UserType } from "@/@types/store-data-optional";
+import { ResourceType, UserType } from "@/@types/store-data-optional";
 import App from "@/views/App.vue";
 import CssManager from "@/app/core/css/CssManager";
 import { changeColorAlpha } from "@/app/core/utility/ColorUtility";
@@ -131,6 +141,11 @@ import { conversion, sendChatLog } from "@/app/core/utility/ChatUtility";
 import ChatInputInfoComponent from "@/app/basic/chat/ChatInputInfoComponent.vue";
 import ReadAloudManager from "@/ReadAloudManager";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
+import {
+  convertBooleanNull,
+  convertNumberNull,
+  convertNumberZero
+} from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: {
@@ -167,12 +182,13 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       name: LanguageManager.instance.getText("label.secret")
     })
   ];
+  private resourceTargetList: StoreUseData<SceneObjectStore>[] = [];
+  private resourceMasterList = GameObjectManager.instance.resourceMasterList;
   private authorityGroupList = GameObjectManager.instance.authorityGroupList;
   private chatFormatList = GameObjectManager.instance.chatFormatList;
   private actorStatusList = GameObjectManager.instance.actorStatusList;
   private chatFormatWrapList: StoreUseData<{ name: string }>[] = [];
   private groupChatTabList = GameObjectManager.instance.groupChatTabList;
-  private customDiceBotList: CustomDiceBotInfo[] = [];
 
   // NekostoreCollectionController
   private actorCC = SocketFacade.instance.actorCC();
@@ -195,8 +211,12 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private system: string = "DiceBot";
   /** BCDice-APIのURL */
   private bcdiceUrl: string = "";
+  /** BCDice-APIのバージョン */
+  private bcdiceVersion: string = "";
 
   private lastChatNum: number = -1;
+
+  private chatInputtingOffTimeoutKey: number | null = null;
 
   /*
    * local flags
@@ -243,7 +263,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     | "select-output-tab" // #
     | "select-target" // @
     | "select-chat-format" // $
-    | "select-is-secret" = "none"; // ?
+    | "select-is-secret" // ?
+    | "resource-change-resource-master" // :  この次にはResourceMasterがくる
+    | "resource-change-target-operation" // :resource-master   この次には対象か演算子がくる
+    | "resource-change-operation" // :resource-master.target   この次には演算子がくる
+    | "resource-change-value" = "none"; // :resource-master.target =   この次には選択肢がくる
 
   private chatOptionMax: number = 7;
   private chatOptionList: StoreUseData<any>[] | null = null;
@@ -259,6 +283,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   private volatileActiveTab: string | null = null;
   private volatileTargetTab: string | null | undefined = undefined;
   private volatileIsSecret: boolean | null = null;
+  /** リソース更新対象 */
+  private resourceTargetKey: string | null = null;
+
   private isMounted: boolean = false;
 
   /*
@@ -415,6 +442,9 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     // これはactorKeyのWatchを発動させるのに必要
     setTimeout(() => {
       this.actorKey = this.chatPublicInfo.actorKey;
+      this.resourceTargetList = GameObjectManager.instance.sceneObjectList.filter(
+        so => so.data!.actorKey === this.actorKey
+      );
     });
   }
 
@@ -436,6 +466,11 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
   @Watch("chatPublicInfo.bcdiceUrl", { immediate: true })
   private onChangeChatPublicBcdiceUrl() {
     this.bcdiceUrl = this.chatPublicInfo.bcdiceUrl;
+  }
+
+  @Watch("chatPublicInfo.bcdiceVersion", { immediate: true })
+  private onChangeChatPublicBcdiceVersion() {
+    this.bcdiceVersion = this.chatPublicInfo.bcdiceVersion;
   }
 
   /*
@@ -524,21 +559,117 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.chatPublicInfo.bcdiceUrl = this.bcdiceUrl;
   }
 
+  @Watch("bcdiceVersion")
+  private onChangeBcdiceVersion() {
+    this.chatPublicInfo.bcdiceVersion = this.bcdiceVersion;
+  }
+
+  private parseResourceChange(
+    text: string
+  ): {
+    resourceMasterName: string | null;
+    targetName: string | null;
+    operator: string | null;
+    value: string | null;
+    resourceMaster: StoreData<ResourceMasterStore> | null;
+    validOperationList: string[];
+    valueSelectResourceTypeList: ResourceType[];
+    targetTypeList: ResourceType[];
+  } {
+    const convertStr = (str: string | null): string | null =>
+      str?.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
+        String.fromCharCode(s.charCodeAt(0) - 65248)
+      ) || null;
+
+    const matchResult = text.match(
+      /^[:：](?:(.+?)[ 　]*(?:[.。][ 　]*(.+?)[ 　]*)?(?:([+\-=＋−＝])[ 　]*(.*)?)?)?$/
+    );
+
+    let resourceMasterName: string | null = null;
+    let targetName: string | null = null;
+    let operator: string | null = null;
+    let value: string | null = null;
+    if (matchResult) {
+      resourceMasterName = matchResult[1] || null;
+      targetName = matchResult[2] || null;
+      operator = convertStr(matchResult[3]);
+      value = matchResult[4] || null;
+    }
+
+    const resourceMaster =
+      this.resourceMasterList.find(
+        rm => rm.data!.name === resourceMasterName
+      ) || null;
+
+    const validOperationList: string[] = ["="];
+    if (resourceMaster?.data!.type === "number")
+      validOperationList.push("+", "-");
+    const valueSelectResourceTypeList: ResourceType[] = [
+      "select",
+      "check",
+      "combo"
+    ];
+
+    return {
+      resourceMasterName,
+      targetName,
+      operator,
+      value,
+      resourceMaster,
+      validOperationList,
+      valueSelectResourceTypeList,
+      targetTypeList: ["number", ...valueSelectResourceTypeList]
+    };
+  }
+
+  private getResource(
+    resourceMasterName: string,
+    targetName: string | null
+  ): StoreData<ResourceStore> | null {
+    const actor = findRequireByKey(this.actorList, this.actorKey);
+    const sceneObjectList = actor
+      .data!.pieceKeyList.map(pk =>
+        findByKey(GameObjectManager.instance.sceneObjectList, pk)
+      )
+      .filter(mo => !!mo);
+
+    if (!targetName) targetName = actor.data!.name;
+
+    const resourceMaster = this.resourceMasterList.find(
+      rm => rm.data!.name === resourceMasterName
+    );
+    if (!resourceMaster) return null;
+    const isAutoAddActor = resourceMaster.data!.isAutoAddActor;
+    const isAutoAddMapObject = resourceMaster.data!.isAutoAddMapObject;
+
+    let targetKey: string | null = null;
+    if (/actor/i.test(targetName)) targetKey = actor.key;
+    if (!targetKey && isAutoAddMapObject) {
+      targetKey =
+        sceneObjectList.find(so => so!.data!.name === targetName)?.key || null;
+    }
+    if (!targetKey && isAutoAddActor) {
+      targetKey = actor.data!.name === targetName ? actor.key : null;
+    }
+    return (
+      GameObjectManager.instance.resourceList.find(
+        r =>
+          r.data!.resourceMasterKey === resourceMaster.key &&
+          r.owner === targetKey
+      ) || null
+    );
+  }
+
   @VueEvent
-  private onInputChat(text: string) {
+  private async onInputChat(text: string) {
     const getKeyByName = (
       text: string,
-      list: StoreUseData<any>[],
+      list: StoreData<any>[],
       defaultKey: string | null
-    ): string | null => {
-      if (text.length === 0) return defaultKey;
-      for (const item of list) {
-        if (item.data!.name.startsWith(text)) {
-          return item.key;
-        }
-      }
-      return null;
-    };
+    ): string | null =>
+      text
+        ? list.find(item => item.data!.name.startsWith(text))?.key || null
+        : defaultKey;
 
     // コマンド（発言者選択）
     let actorKey: string | null = null;
@@ -580,6 +711,151 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       );
     }
 
+    // コマンド（リソース修正）
+    const resourceTargetList: StoreUseData<any>[] = [];
+    let resourceTargetKey: string | null = null;
+    let chatOptionSelectMode:
+      | "resource-change-resource-master"
+      | "resource-change-target-operation"
+      | "resource-change-operation"
+      | "resource-change-value"
+      | "none"
+      | null = null;
+    if (text.startsWith(":") || text.startsWith("：")) {
+      const actor = findRequireByKey(this.actorList, this.actorKey);
+
+      const {
+        resourceMasterName,
+        targetName,
+        operator,
+        resourceMaster,
+        validOperationList,
+        valueSelectResourceTypeList,
+        targetTypeList
+      } = this.parseResourceChange(text);
+
+      // 分岐開始
+      let resource: StoreData<ResourceStore> | null = null;
+
+      // 有効でない演算子が使われていたら、問答無用で処理中止
+      if (operator && !validOperationList.some(o => o === operator))
+        chatOptionSelectMode = "none";
+
+      if (!chatOptionSelectMode && !resourceMasterName) {
+        // リソース名が指定されてなかったらリソース選択モード
+        chatOptionSelectMode = "resource-change-resource-master";
+      } else {
+        // リソース名が指定されているのにリソースオブジェクトが取れなかったら処理中止
+        chatOptionSelectMode = resourceMaster ? null : "none";
+      }
+
+      if (!chatOptionSelectMode && resourceMaster && resourceMasterName) {
+        if (operator) {
+          // 演算子が指定されていたらリソースを特定できるはず
+          resource = this.getResource(resourceMasterName, targetName);
+          // 値を選択してもらうかどうかでモードを判断する
+          chatOptionSelectMode =
+            resource &&
+            valueSelectResourceTypeList.some(
+              t => t === resourceMaster.data!.type
+            )
+              ? "resource-change-value"
+              : "none";
+        } else {
+          if (targetName) {
+            // 対象を指定されているのでリソースを特定できるはず
+            resource = this.getResource(resourceMasterName, targetName);
+            // 演算子を選んでほしいモード
+            chatOptionSelectMode = resource
+              ? "resource-change-operation"
+              : "none";
+          } else {
+            // 対象も演算子も指定されていないので、対象か演算子を選んで欲しいモード
+            chatOptionSelectMode = "resource-change-target-operation";
+          }
+        }
+      }
+      if (chatOptionSelectMode === "resource-change-resource-master") {
+        resourceTargetList.push(
+          ...this.resourceMasterList
+            .filter(rm => {
+              if (!targetTypeList.some(t => t === rm.data!.type)) return false;
+              return GameObjectManager.instance.resourceList.some(
+                r =>
+                  r.data!.resourceMasterKey === rm.key &&
+                  ((r.ownerType === "actor-list" &&
+                    r.owner === this.actorKey) ||
+                    (r.ownerType === "scene-object-list" &&
+                      GameObjectManager.instance.sceneObjectList.some(
+                        so =>
+                          so.key === r.owner &&
+                          so.data!.actorKey === this.actorKey
+                      )))
+              );
+            })
+            .map(rm => createEmptyStoreUseData(rm.key, { name: rm.data!.name }))
+        );
+      }
+      if (
+        chatOptionSelectMode === "resource-change-operation" ||
+        chatOptionSelectMode === "resource-change-target-operation"
+      ) {
+        resourceTargetList.push(
+          ...validOperationList.map(o =>
+            createEmptyStoreUseData(o, { name: o })
+          )
+        );
+      }
+      if (chatOptionSelectMode === "resource-change-target-operation") {
+        const isSameName = this.resourceTargetList.some(
+          sor => sor.data!.name === actor.data!.name
+        );
+        if (
+          resourceMaster!.data!.isAutoAddActor &&
+          resourceMaster!.data!.isAutoAddMapObject
+        ) {
+          if (isSameName) {
+            resourceTargetList.push(
+              createEmptyStoreUseData(".actor", {
+                name: ".actor"
+              })
+            );
+          } else {
+            resourceTargetList.push(
+              createEmptyStoreUseData(this.actorKey, {
+                name: `.${actor.data!.name}`
+              })
+            );
+          }
+          resourceTargetList.push(
+            ...this.resourceTargetList
+              .filter(rt => rt.data!.name !== actor.data!.name)
+              .map(rt =>
+                createEmptyStoreUseData(rt.key, { name: `.${rt.data!.name}` })
+              )
+          );
+        } else {
+          if (resourceMaster!.data!.isAutoAddActor) {
+            // 省略できる
+          }
+          if (resourceMaster!.data!.isAutoAddMapObject) {
+            resourceTargetList.push(
+              ...this.resourceTargetList
+                .filter(rt => rt.data!.name !== actor.data!.name)
+                .map(rt =>
+                  createEmptyStoreUseData(rt.key, { name: `.${rt.data!.name}` })
+                )
+            );
+          }
+        }
+      }
+      if (resourceTargetList.length) {
+        resourceTargetKey = resourceTargetList[0].key;
+      } else {
+        chatOptionSelectMode = "none";
+      }
+    }
+
     // コマンド（部分フォーマット）
     let partsFormat: string | null = null;
     if (text.endsWith("&") || text.endsWith("＆")) {
@@ -614,10 +890,17 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.chatOptionValue = isSecret;
       this.isSecret = isSecret === "true";
       this.chatOptionSelectMode = "select-is-secret";
+    } else if (chatOptionSelectMode && chatOptionSelectMode !== "none") {
+      this.chatOptionList = resourceTargetList;
+      this.chatOptionValue = resourceTargetKey;
+      this.resourceTargetKey = resourceTargetKey;
+      this.chatOptionSelectMode = chatOptionSelectMode;
     } else {
       this.chatOptionSelectMode = "none";
       // TODO 入力中であることをルームメイトに通達
     }
+
+    if (this.chatOptionSelectMode !== "none") return;
 
     // 単位変換機能
     this.unitList = null;
@@ -636,6 +919,27 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 
       this.unitList = conversion(num, unit) || this.unitList;
     }
+
+    // 入力中を通知
+    const sendDataChatInputting = async (flag: boolean) => {
+      await SocketFacade.instance.sendData<ChatInputtingInfo>({
+        dataType: "chat-inputting",
+        data: {
+          actorKey: this.actorKey,
+          flag
+        }
+      });
+    };
+
+    if (this.chatInputtingOffTimeoutKey !== null) {
+      window.clearTimeout(this.chatInputtingOffTimeoutKey);
+    } else {
+      await sendDataChatInputting(true);
+    }
+    this.chatInputtingOffTimeoutKey = window.setTimeout(() => {
+      sendDataChatInputting(false);
+      this.chatInputtingOffTimeoutKey = null;
+    }, 700);
   }
 
   /**
@@ -688,6 +992,10 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     // 秘匿チャットかどうかの選択の場合
     if (this.chatOptionSelectMode === "select-is-secret")
       this.isSecret = getNextKey() === "true";
+
+    // リソース更新の選択の場合
+    if (this.chatOptionSelectMode.startsWith("resource-change-"))
+      this.resourceTargetKey = getNextKey();
 
     // チャットフォーマットの選択の場合
     if (this.chatOptionSelectMode === "select-chat-format")
@@ -925,19 +1233,54 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
     this.unitList = null;
 
     // チャット送信オプション選択中のEnterは特別仕様
-    if (this.chatOptionSelectMode !== "none") {
-      if (this.chatOptionSelectMode === "select-chat-format") {
+    const mode = this.chatOptionSelectMode;
+    if (mode !== "none") {
+      if (mode === "select-chat-format") {
         const chatFormat: any = GameObjectManager.instance.chatFormatList.find(
           format => format.chatText === this.partsFormat
         )!;
         this.inputtingChatText =
           this.inputtingChatText.replace(/[&＆]$/, "") + chatFormat.chatText;
-        // this.partsFormat = GameObjectManager.instance.chatFormatList[0].chatText;
+      } else if (mode.startsWith("resource-change-")) {
+        let addText: string | null = null;
+        if (mode === "resource-change-resource-master") {
+          addText =
+            findByKey(this.resourceMasterList, this.resourceTargetKey)?.data!
+              .name || null;
+        }
+        if (mode === "resource-change-operation") {
+          addText = this.resourceTargetKey;
+        }
+        if (mode === "resource-change-value") {
+          addText = this.resourceTargetKey;
+        }
+        if (mode === "resource-change-target-operation") {
+          if (["+", "-", "="].some(o => o === this.resourceTargetKey)) {
+            addText = this.resourceTargetKey;
+          } else if (this.actorKey === this.resourceTargetKey) {
+            addText =
+              findByKey(this.actorList, this.actorKey)?.data!.name || null;
+            if (addText) addText = `.${addText}`;
+          } else if (this.resourceTargetKey === ".actor") {
+            addText = this.resourceTargetKey;
+          } else {
+            addText =
+              findByKey(
+                GameObjectManager.instance.sceneObjectList,
+                this.resourceTargetKey
+              )?.data!.name || null;
+            if (addText) addText = `.${addText}`;
+          }
+        }
+        if (addText) {
+          this.inputtingChatText += addText;
+          setTimeout(() => {
+            this.onInputChat(this.inputtingChatText);
+          });
+        } else {
+          this.inputtingChatText = "";
+        }
       } else {
-        // if (this.chatOptionSelectMode === "select-output-tab") {
-        //   this.tabKey = this.outputTabKey;
-        //   this.outputTabKey = null;
-        // }
         this.inputtingChatText = "";
       }
       this.chatOptionSelectMode = "none";
@@ -949,11 +1292,7 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       return;
     }
 
-    // 括弧をつけるオプション
     let text = this.inputtingChatText;
-    if (this.addBrackets) {
-      text = `「${text}」`;
-    }
     this.inputtingChatText = "";
 
     // チャット編集中の場合
@@ -968,18 +1307,117 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
       this.edittingChat = null;
       return;
     }
-    await sendChatLog(
-      {
-        actorKey: this.actorKey,
-        text,
-        tabKey: this.outputTabKey || this.tabKey,
-        statusKey: null, // Actorに設定されているものを使う
-        targetKey: this.targetKey,
-        system: this.system,
-        isSecret: this.isSecret
-      },
-      this.customDiceBotList
-    );
+
+    const {
+      resourceMasterName,
+      targetName,
+      operator,
+      value,
+      resourceMaster,
+      validOperationList,
+      targetTypeList
+    } = this.parseResourceChange(text);
+    if (resourceMasterName && operator && value) {
+      const convertStr = (str: string | null): string | null =>
+        str?.replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s: string) =>
+          String.fromCharCode(s.charCodeAt(0) - 65248)
+        ) || null;
+      const numValue = convertNumberNull(convertStr(value));
+      const boolValue = convertBooleanNull(convertStr(value));
+
+      // リソースを更新する
+      let isOk = true;
+      const resource = this.getResource(resourceMasterName, targetName);
+      if (!resource) isOk = false;
+      if (!resourceMaster) isOk = false;
+      if (!validOperationList.some(o => o === operator)) isOk = false;
+      const resourceType = resourceMaster?.data!.type;
+      if (!targetTypeList.some(t => t === resourceType)) isOk = false;
+      switch (resourceType) {
+        case "number":
+          if (numValue === null) isOk = false;
+          break;
+        case "check":
+          if (boolValue === null) isOk = false;
+          break;
+        case "select":
+          if (!value) isOk = false;
+          if (isOk)
+            isOk = (resourceMaster?.data!.selectionStr || "")
+              .split(",")
+              .map(s => s.trim())
+              .filter(s => s)
+              .some(s => s === value);
+          break;
+        case "combo":
+          break;
+        default:
+      }
+
+      if (isOk) {
+        await TaskManager.instance.ignition<any, never>({
+          type: "counter-remocon-execute",
+          owner: "Quoridorn",
+          value: {
+            modifyType: operator === "=" ? "substitute" : "plus-minus",
+            messageFormat: "{0}の{1}を{2}した({3})",
+            resourceMasterKey: resourceMaster!.key,
+            targetKey: resource!.owner,
+            targetType: resource!.ownerType,
+            value:
+              operator === "-" ? (-convertNumberZero(value)).toString() : value
+          }
+        });
+      }
+      return;
+    }
+
+    // 括弧をつけるオプション
+    if (this.addBrackets) text = `「${text}」`;
+
+    await sendChatLog({
+      actorKey: this.actorKey,
+      text,
+      tabKey: this.outputTabKey || this.tabKey,
+      statusKey: null, // Actorに設定されているものを使う
+      targetKey: this.targetKey,
+      system: this.system,
+      isSecret: this.isSecret,
+      bcdiceServer: this.bcdiceUrl,
+      bcdiceVersion: this.bcdiceVersion
+    });
+  }
+
+  private chatInputtingActorList: StoreData<ActorStore>[] = [];
+
+  @TaskProcessor("chat-inputting-notify-finished")
+  private async chatInputtingNotifyFinished(
+    task: Task<ChatInputtingInfo, never>
+  ): Promise<TaskResult<never> | void> {
+    const actorKey = task.value?.actorKey;
+    if (task.value?.flag) {
+      if (
+        actorKey &&
+        actorKey !== this.actorKey &&
+        !this.chatInputtingActorList.some(a => a.key === actorKey)
+      )
+        this.chatInputtingActorList.push(
+          findRequireByKey(this.actorList, actorKey)
+        );
+    } else {
+      const index = this.chatInputtingActorList.findIndex(
+        a => a.key === actorKey
+      );
+      if (index > -1) this.chatInputtingActorList.splice(index, 1);
+    }
+    task.resolve();
+  }
+
+  private get notifyMessage(): string {
+    if (!this.chatInputtingActorList.length) return "";
+    return `入力中: ${this.chatInputtingActorList
+      .map(a => a.data!.name)
+      .join(", ")}`;
   }
 }
 </script>
@@ -1041,6 +1479,14 @@ export default class ChatWindow extends Mixins<WindowVue<void, void>>(
 .chat-input-container {
   @include flex-box(row, flex-start, stretch);
   flex: 1;
+}
+
+.notify-message {
+  height: 2em;
+
+  &.empty {
+    color: gray;
+  }
 }
 
 textarea {

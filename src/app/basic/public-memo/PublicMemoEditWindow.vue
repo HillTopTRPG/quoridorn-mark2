@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import { MemoStore, PublicMemoStore } from "@/@types/store-data";
@@ -42,7 +42,10 @@ import EditWindowDelegator, {
 export default class PublicMemoEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<PublicMemoStore> {
-  private editWindowDelegator = new EditWindowDelegator<PublicMemoStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<
+    PublicMemoStore,
+    "name"
+  >(this, "name");
 
   private name: string = "";
   private otherTextList: StoreData<MemoStore>[] = [];
@@ -64,7 +67,16 @@ export default class PublicMemoEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

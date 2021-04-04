@@ -67,8 +67,6 @@ import { Component, Vue, Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { ModeInfo, ScreenModeType } from "mode";
 import { disableBodyScroll } from "body-scroll-lock";
-import LifeCycle from "../app/core/decorator/LifeCycle";
-import TaskProcessor from "../app/core/task/TaskProcessor";
 import { CounterRemoconModifyType, CutInStore } from "@/@types/store-data";
 import {
   createPoint,
@@ -84,44 +82,52 @@ import {
 } from "@/@types/socket";
 import {
   BgmPlayInfo,
+  ChatInputtingInfo,
   DropPieceInfo,
   TabMoveInfo,
   ThrowParabolaInfo,
   UpdateResourceInfo
 } from "task-info";
 import { getDropFileList } from "@/app/core/utility/DropFileUtility";
-import WindowManager from "../app/core/window/WindowManager";
-import CssManager from "../app/core/css/CssManager";
-import GameObjectManager from "../app/basic/GameObjectManager";
 import { MediaUploadInfo, PlayBgmInfo } from "@/@types/room";
-import SocketFacade from "../app/core/api/app-server/SocketFacade";
-import VueEvent from "../app/core/decorator/VueEvent";
 import {
   convertNumberNull,
   convertNumberZero
 } from "@/app/core/utility/PrimaryDataUtility";
-import YoutubeManager from "../app/basic/cut-in/bgm/YoutubeManager";
-import TaskManager from "../app/core/task/TaskManager";
 import { WindowOpenInfo } from "@/@types/window";
-import EventProcessor from "../app/core/event/EventProcessor";
-import BcdiceManager from "../app/core/api/bcdice/BcdiceManager";
-import BgmManager from "../app/basic/cut-in/bgm/BgmManager";
-import DropArea from "../app/basic/media/DropArea.vue";
-import GameTable from "../app/basic/map/GameTable.vue";
-import Menu from "../app/basic/menu/Menu.vue";
-import RightPane from "../app/core/pane/RightPane.vue";
-import Context from "../app/core/context/Context.vue";
-import WindowArea from "../app/core/window/WindowArea.vue";
-import OtherTextFrame from "../app/basic/other-text/OtherTextFrame.vue";
-import ThrowParabolaSimulator from "../app/core/throwParabola/ThrowParabolaSimulator.vue";
-import ThrowParabolaContainer from "../app/core/throwParabola/ThrowParabolaContainer.vue";
-import CardDeckBuilder from "../app/basic/card/builder/CardDeckBuilder.vue";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
-import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
+import {
+  OtherTextViewInfo,
+  Point,
+  Size,
+  WindowSettings
+} from "@/@types/store-data-optional";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import MapDrawController from "@/app/basic/map/MapDrawController.vue";
+import LifeCycle from "@/app/core/decorator/LifeCycle";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import GameTable from "@/app/basic/map/GameTable.vue";
+import ThrowParabolaContainer from "@/app/core/throwParabola/ThrowParabolaContainer.vue";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
+import ThrowParabolaSimulator from "@/app/core/throwParabola/ThrowParabolaSimulator.vue";
+import RightPane from "@/app/core/pane/RightPane.vue";
+import WindowManager from "@/app/core/window/WindowManager";
+import VueEvent from "@/app/core/decorator/VueEvent";
+import WindowArea from "@/app/core/window/WindowArea.vue";
+import YoutubeManager from "@/app/basic/cut-in/bgm/YoutubeManager";
+import OtherTextFrame from "@/app/basic/other-text/OtherTextFrame.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import DropArea from "@/app/basic/media/DropArea.vue";
+import CssManager from "@/app/core/css/CssManager";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import EventProcessor from "@/app/core/event/EventProcessor";
+import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
+import Menu from "@/app/basic/menu/Menu.vue";
+import CardDeckBuilder from "@/app/basic/card/builder/CardDeckBuilder.vue";
+import BgmManager from "@/app/basic/cut-in/bgm/BgmManager";
+import Context from "@/app/core/context/Context.vue";
 
 @Component({
   components: {
@@ -258,6 +264,12 @@ export default class App extends Vue {
               }
             });
           }
+        } else if (dataType === "chat-inputting") {
+          await TaskManager.instance.ignition<ChatInputtingInfo, never>({
+            type: "chat-inputting-notify",
+            owner: "Quoridorn",
+            value: data.data as ChatInputtingInfo
+          });
         }
       }
     );
@@ -574,16 +586,41 @@ export default class App extends Vue {
    * マウス移動/タッチ移動イベント
    * @param event
    */
+  private taskTimeoutId: number | null = null;
+  private waitTimeoutId: number | null = null;
   @EventProcessor("touchmove")
   @EventProcessor("mousemove")
   private async mouseTouchMove(event: MouseEvent | TouchEvent): Promise<void> {
     const point = getEventPoint(event);
     if (point.x === this.mouse.x && point.y === this.mouse.y) return;
-    await TaskManager.instance.ignition<Point, never>({
-      type: "mouse-moving",
-      owner: "Quoridorn",
-      value: point
-    });
+
+    const time = 60;
+    const func = () => {
+      TaskManager.instance.ignition<Point, never>({
+        type: "mouse-moving",
+        owner: "Quoridorn",
+        value: point
+      });
+      this.waitTimeoutId = window.setTimeout(() => {
+        this.waitTimeoutId = null;
+      }, time);
+      this.taskTimeoutId = null;
+    };
+    if (this.waitTimeoutId !== null) {
+      if (this.taskTimeoutId !== null) {
+        window.clearTimeout(this.taskTimeoutId);
+      }
+      this.taskTimeoutId = window.setTimeout(() => {
+        if (this.waitTimeoutId === null) {
+          func();
+        }
+      }, time);
+      return;
+    }
+    if (this.taskTimeoutId !== null) {
+      window.clearTimeout(this.taskTimeoutId);
+    }
+    func();
   }
 
   /**
@@ -648,7 +685,7 @@ export default class App extends Vue {
       owner: "Quoridorn",
       value: { type }
     });
-    return result ? !!result[0] : false;
+    return result ? result[0] : false;
   }
 
   @TaskProcessor("room-initialize-finished")
@@ -657,8 +694,22 @@ export default class App extends Vue {
   ): Promise<TaskResult<never> | void> {
     // 部屋に接続できた
     this.roomInitialized = true;
-    await App.openSimpleWindow("chat-window");
-    await App.openSimpleWindow("initiative-window");
+
+    const windowSettings =
+      GameObjectManager.instance.roomData.settings.windowSettings;
+
+    const openWindowFunc = async (windowType: keyof WindowSettings) => {
+      if (
+        windowSettings[windowType] === "init-view" ||
+        windowSettings[windowType] === "always-open"
+      ) {
+        await App.openSimpleWindow(`${windowType}-window`);
+      }
+    };
+    await openWindowFunc("chat");
+    await openWindowFunc("initiative");
+    await openWindowFunc("chat-palette");
+    await openWindowFunc("counter-remocon");
     if (
       GameObjectManager.instance.keepBcdiceDiceRollResultList.some(
         kbdrr =>
@@ -747,17 +798,14 @@ export default class App extends Vue {
     task: Task<any, never>
   ): Promise<TaskResult<never> | void> {
     const cc = SocketFacade.instance.resourceCC();
-    const counterRemocon = findRequireByKey(
-      GameObjectManager.instance.counterRemoconList,
-      task.value.counterRemoconKey
-    );
     const resourceMaster = findRequireByKey(
       GameObjectManager.instance.resourceMasterList,
       task.value.resourceMasterKey
     );
     const targetKey = task.value.targetKey;
     const targetType = task.value.targetType;
-    const value = task.value.value as number;
+    let orgValue = task.value.value as string;
+    let value = task.value.value as string;
 
     const resource = GameObjectManager.instance.resourceList.find(
       r =>
@@ -766,13 +814,30 @@ export default class App extends Vue {
         r.data!.resourceMasterKey === resourceMaster.key
     )!;
 
-    const before = convertNumberZero(resource.data!.value);
-    if (counterRemocon.data!.modifyType === "substitute") {
-      resource.data!.value = value.toString();
+    const before = resource.data!.value;
+    if (task.value.modifyType === "substitute") {
+      if (resourceMaster.data!.type === "number") {
+        if (resourceMaster.data!.min! > convertNumberZero(value))
+          value = resourceMaster.data!.min!.toString();
+        if (resourceMaster.data!.max! < convertNumberZero(value))
+          value = resourceMaster.data!.max!.toString();
+      }
+      resource.data!.value = value;
     } else {
-      resource.data!.value = (
-        convertNumberZero(resource.data!.value) + value
-      ).toString();
+      let valueNum = convertNumberZero(value);
+      let afterValue = convertNumberZero(resource.data!.value) + valueNum;
+      const minDiff = resourceMaster.data!.min! - afterValue;
+      const maxDiff = afterValue - resourceMaster.data!.max!;
+      if (minDiff > 0) {
+        afterValue += minDiff;
+        valueNum += minDiff;
+      }
+      if (maxDiff > 0) {
+        afterValue -= maxDiff;
+        valueNum -= maxDiff;
+      }
+      resource.data!.value = afterValue.toString();
+      value = valueNum.toString();
     }
     await cc.updatePackage([
       {
@@ -786,14 +851,15 @@ export default class App extends Vue {
       targetKey
     );
     const message = App.createCounterRemoconMessage(
-      counterRemocon.data!.messageFormat,
+      task.value.messageFormat,
       (target.data! as any).name,
-      resourceMaster.data!.label,
-      counterRemocon.data!.modifyType,
+      resourceMaster.data!.name,
+      task.value.modifyType,
       value,
-      before
+      before,
+      orgValue
     );
-    await sendSystemChatLog(message);
+    await sendSystemChatLog(message, GameObjectManager.instance.mySelfActorKey);
   }
 
   public static createCounterRemoconMessage(
@@ -801,15 +867,19 @@ export default class App extends Vue {
     who: string,
     what: string,
     type: CounterRemoconModifyType,
-    value: number,
-    before: number
+    value: string,
+    before: string,
+    orgValue: string = value
   ) {
     format = format.replace("{0}", who);
     format = format.replace("{1}", what);
-    let prefix = "=";
-    if (type !== "substitute" && value > 0) prefix = "+";
-    format = format.replace("{2}", `${prefix}${value}`);
-    let after = type === "substitute" ? value : before + value;
+    let prefix = type === "substitute" ? "=" : "";
+    if (type !== "substitute" && convertNumberZero(value) > 0) prefix = "+";
+    format = format.replace("{2}", `${prefix}${orgValue}`);
+    let after =
+      type === "substitute"
+        ? value
+        : convertNumberZero(before) + convertNumberZero(value);
     format = format.replace("{3}", `${before} -> ${after}`);
     return format;
   }

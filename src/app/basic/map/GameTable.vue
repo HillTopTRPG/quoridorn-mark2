@@ -32,7 +32,7 @@ import { Watch } from "vue-property-decorator";
 import { Task, TaskResult } from "task";
 import { ContextTaskInfo } from "context";
 import { DropPieceInfo } from "task-info";
-import { SceneStore } from "@/@types/store-data";
+import { RoomDataStore, SceneStore } from "@/@types/store-data";
 import { AddObjectInfo } from "@/@types/data";
 import { Matrix, Point, Texture } from "@/@types/store-data-optional";
 import { findByKey, getTextureStyle } from "@/app/core/utility/Utility";
@@ -54,9 +54,16 @@ import AddressCalcMixin from "@/app/basic/common/mixin/AddressCalcMixin.vue";
 @Component({ components: { SceneLayerComponent, MapBoard } })
 export default class GameTable extends AddressCalcMixin {
   private sceneList = GameObjectManager.instance.sceneList;
-  private roomData = GameObjectManager.instance.roomData;
   private sceneKey: string | null = null;
   private sceneInfo: SceneStore | null = null;
+
+  private roomData = GameObjectManager.instance.roomData;
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   @Watch("roomData", { immediate: true, deep: true })
   private onChangeRoomData() {
@@ -306,6 +313,7 @@ export default class GameTable extends AddressCalcMixin {
   private rotateFrom: number = 0;
   private rotateDiff: number = 0;
   private rotate: number = 0;
+  private isProcessingMove = false;
 
   @TaskProcessor("mouse-moving-finished")
   private async mouseMoveFinished(
@@ -313,6 +321,8 @@ export default class GameTable extends AddressCalcMixin {
     param: MouseMoveParam
   ): Promise<TaskResult<never> | void> {
     if (!param || param.key !== this.key) return;
+    if (this.isProcessingMove) return;
+    this.isProcessingMove = true;
     const calcResult = this.calcCoordinate(task.value!, this.currentAngle);
     const point = task.value!;
 
@@ -339,6 +349,7 @@ export default class GameTable extends AddressCalcMixin {
     if (button === "right" && this.roomData.settings.mapRotatable) {
       this.rotateDiff = arrangeAngle(calcResult.angle - this.rotateFrom);
     }
+    this.isProcessingMove = false;
 
     task.resolve();
   }

@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from "vue-property-decorator";
+import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -42,7 +42,11 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class ChatPaletteAddWindow
   extends Mixins<WindowVue<ChatPaletteStore, boolean>>(WindowVue)
   implements AddWindow<ChatPaletteStore> {
-  private addWindowDelegator = new AddWindowDelegator<ChatPaletteStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<ChatPaletteStore, "name">(
+    this,
+    SocketFacade.instance.chatPaletteListCC().collectionNameSuffix,
+    "name"
+  );
 
   private name: string = "new";
   private chatFontColorType: "owner" | "original" = "owner";
@@ -60,7 +64,16 @@ export default class ChatPaletteAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent

@@ -24,7 +24,6 @@ import { Mixins } from "vue-mixin-decorator";
 import LikeInfoForm from "@/app/basic/chat/like/LikeInfoForm.vue";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import { LikeStore } from "@/@types/store-data";
 import WindowVue from "@/app/core/window/WindowVue";
 import AddWindowDelegator, {
@@ -39,7 +38,11 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 export default class LikeAddWindow
   extends Mixins<WindowVue<LikeStore, boolean>>(WindowVue)
   implements AddWindow<LikeStore> {
-  private addWindowDelegator = new AddWindowDelegator<LikeStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<LikeStore, "char">(
+    this,
+    SocketFacade.instance.likeListCC().collectionNameSuffix,
+    "char"
+  );
 
   private char: string = "";
   private isThrowLinkage: boolean = true;
@@ -52,7 +55,16 @@ export default class LikeAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.char;
+    return !!this.char && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.char);
+  }
+
+  @Watch("char")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -91,19 +103,6 @@ export default class LikeAddWindow
         }
       }
     ];
-  }
-
-  public get isDuplicate(): boolean {
-    return GameObjectManager.instance.likeList.some(
-      ct => ct.data!.char === this.char
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 }
 </script>

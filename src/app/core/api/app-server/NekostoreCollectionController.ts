@@ -170,7 +170,7 @@ export default class NekostoreCollectionController<T> {
    * @param list データリスト
    */
   public async addDirect(
-    list: (Partial<StoreData<any>> & { data: any })[]
+    list: (Partial<StoreData<T>> & { data: any })[]
   ): Promise<string[]> {
     return await SocketFacade.instance.socketCommunication<
       AddDirectRequest,

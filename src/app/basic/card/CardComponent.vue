@@ -138,6 +138,7 @@ export default class CardComponent extends Mixins<ComponentVue>(ComponentVue) {
   transform-origin: center center;
   background-repeat: no-repeat;
   background-size: contain;
+  background-position: center;
 }
 .front {
   .front-face {

@@ -1,4 +1,4 @@
-- system: default
-  customDiceBot: true
+- system: DiceBot
+  originalTable: true
 - system: Nechronica
-  customDiceBot: true
+  originalTable: true

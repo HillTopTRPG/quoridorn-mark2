@@ -48,6 +48,10 @@
     >
       <label>
         <textarea
+          @keydown.enter.stop
+          @keyup.enter.stop
+          @keydown.229.stop
+          @keyup.229.stop
           v-model="
             localValue.find(lv => lv.key === currentTabInfo.target).data.text
           "
@@ -60,13 +64,16 @@
       :value="localValue"
       :windowKey="windowKey"
       :useScroll="true"
+      :is-raw-text="false"
+      doc-key=""
+      doc-type=""
     />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop } from "vue-property-decorator";
-import ComponentVue from "../../core/window/ComponentVue";
+import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import { listToEmpty } from "@/app/core/utility/PrimaryDataUtility";

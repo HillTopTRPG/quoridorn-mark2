@@ -40,7 +40,12 @@ export class MagicalogiaHelper extends TrpgSystemHelper<MagicaLogia> {
     if (!data) return null;
 
     // メモ
-    addMemo(data, list);
+    this.addMemo(list, [
+      "### 変調",
+      "|封印|綻び|虚弱|病魔|遮断|不運|",
+      "|:---:|:---:|:---:|:---:|:---:|:---:|",
+      "|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|"
+    ]);
     // 蔵書
     addLibrary(data, list);
     // 基本情報
@@ -256,22 +261,6 @@ type MagicaLogia = {
     notes: string; // 説明
   };
 };
-
-function addMemo(data: MagicaLogia, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "メモ",
-    type: "normal",
-    text: [
-      "### 変調",
-      "|封印|綻び|虚弱|病魔|遮断|不運|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|",
-      "|[ ]|[ ]|[ ]|[ ]|[ ]|[ ]|",
-      "### メモ",
-      ":::200px:100px",
-      ":::END;;;"
-    ].join("\r\n")
-  });
-}
 
 function addLibrary(data: MagicaLogia, resultList: MemoStore[]) {
   resultList.push({

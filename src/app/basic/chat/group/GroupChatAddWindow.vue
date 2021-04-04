@@ -28,7 +28,6 @@ import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { GroupChatTabStore } from "@/@types/store-data";
 import AddWindowDelegator, {
@@ -41,7 +40,14 @@ import GroupChatInfoForm from "@/app/basic/chat/group/GroupChatInfoForm.vue";
 export default class GroupChatAddWindow
   extends Mixins<WindowVue<GroupChatTabStore, boolean>>(WindowVue)
   implements AddWindow<GroupChatTabStore> {
-  private addWindowDelegator = new AddWindowDelegator<GroupChatTabStore>(this);
+  private addWindowDelegator = new AddWindowDelegator<
+    GroupChatTabStore,
+    "name"
+  >(
+    this,
+    SocketFacade.instance.groupChatTabListCC().collectionNameSuffix,
+    "name"
+  );
 
   private name: string = "";
   private isSystem: boolean = false;
@@ -56,7 +62,16 @@ export default class GroupChatAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.name;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.addWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.addWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -100,19 +115,6 @@ export default class GroupChatAddWindow
         }
       }
     ];
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.groupChatTabList.some(
-      ct => ct.data!.name === this.name
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : "";
   }
 }
 </script>

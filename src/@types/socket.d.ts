@@ -7,13 +7,6 @@ import {
   UserType
 } from "@/@types/store-data-optional";
 
-type BaseRoomInfo = {
-  name: string;
-  bcdiceServer: string;
-  system: string;
-  extend: RoomInfoExtend;
-};
-
 type RoomLoginInfo = {
   roomKey: string;
   roomNo: number;
@@ -44,16 +37,29 @@ type TouchRequest = {
 };
 type ReleaseTouchRequest = TouchRequest;
 
+type DeleteRoomInput = {
+  roomPassword: string;
+};
+
+type BaseRoomInfo = {
+  name: string;
+  bcdiceServer: string; // BCDiceサーバー
+  bcdiceVersion: string; // BCDiceAPIバージョン
+  system: string; // BCDiceSystem
+  extend: RoomInfoExtend;
+};
+
 type CreateRoomInput = BaseRoomInfo & {
   roomPassword: string;
   roomCreatePassword?: string;
 };
-type DeleteRoomInput = {
-  roomPassword: string;
-};
+
 type LoginRoomInput = DeleteRoomInput;
 type RoomLoginRequest = RoomLoginInfo;
-type CreateRoomRequest = RoomLoginInfo & BaseRoomInfo;
+type CreateRoomRequest = RoomLoginInfo &
+  BaseRoomInfo & {
+    roomCreatePassword?: string;
+  };
 type DeleteRoomRequest = RoomLoginInfo;
 
 type ClientRoomInfo = BaseRoomInfo & {

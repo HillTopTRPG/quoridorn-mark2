@@ -4,7 +4,7 @@
       :windowKey="windowKey"
       :isAdd="false"
       initTabTarget="basic"
-      :tabName.sync="tabName"
+      :tabName.sync="name"
       :useReadAloud.sync="useReadAloud"
       :readAloudVolume.sync="readAloudVolume"
     />
@@ -23,12 +23,10 @@ import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
 import { Task, TaskResult } from "task";
 import ChatTabInfoForm from "@/app/basic/chat/tab/ChatTabInfoForm.vue";
-import { findRequireByKey } from "@/app/core/utility/Utility";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import WindowVue from "@/app/core/window/WindowVue";
-import GameObjectManager from "@/app/basic/GameObjectManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import { ChatTabStore } from "@/@types/store-data";
 import EditWindowDelegator, {
@@ -39,9 +37,12 @@ import EditWindowDelegator, {
 export default class ChatTabEditWindow
   extends Mixins<WindowVue<DataReference, never>>(WindowVue)
   implements EditWindow<ChatTabStore> {
-  private editWindowDelegator = new EditWindowDelegator<ChatTabStore>(this);
+  private editWindowDelegator = new EditWindowDelegator<ChatTabStore, "name">(
+    this,
+    "name"
+  );
 
-  private tabName: string = "";
+  private name: string = "";
   private useReadAloud: boolean = false;
   private readAloudVolume: number = 1;
 
@@ -52,7 +53,16 @@ export default class ChatTabEditWindow
   }
 
   public isCommitAble(): boolean {
-    return !this.isDuplicate && !!this.tabName;
+    return !!this.name && !this.isDuplicate();
+  }
+
+  public isDuplicate(): boolean {
+    return this.editWindowDelegator.isDuplicateBasic(this.name);
+  }
+
+  @Watch("name")
+  private onChangeIsDuplicate() {
+    this.windowInfo.message = this.editWindowDelegator.onChangeIsDuplicateBasic();
   }
 
   @VueEvent
@@ -73,37 +83,15 @@ export default class ChatTabEditWindow
   }
 
   public pullStoreData(data: StoreData<ChatTabStore>): void {
-    this.tabName = data.data!.name;
+    this.name = data.data!.name;
     this.useReadAloud = data.data!.useReadAloud;
     this.readAloudVolume = data.data!.readAloudVolume;
   }
 
   public async pushStoreData(data: StoreData<ChatTabStore>): Promise<void> {
-    data.data!.name = this.tabName;
+    data.data!.name = this.name;
     data.data!.useReadAloud = this.useReadAloud;
     data.data!.readAloudVolume = this.readAloudVolume;
-  }
-
-  private get isDuplicate(): boolean {
-    return GameObjectManager.instance.chatTabList.some(
-      ct =>
-        ct.data!.name === this.tabName &&
-        ct.key !== this.editWindowDelegator.docKey
-    );
-  }
-
-  @Watch("isDuplicate")
-  private onChangeIsDuplicate() {
-    if (!this.editWindowDelegator.docKey) return;
-    const tab = findRequireByKey(
-      GameObjectManager.instance.chatTabList,
-      this.editWindowDelegator.docKey
-    );
-    this.windowInfo.message = this.isDuplicate
-      ? this.$t("message.name-duplicate")!.toString()
-      : this.$t("message.original")!
-          .toString()
-          .replace("$1", tab.data!.name);
   }
 }
 </script>

@@ -23,7 +23,7 @@
           v-for="resource in resourceMasterList"
           :key="resource.key"
         >
-          <td>{{ resource.data.label }}</td>
+          <td>{{ resource.data.name }}</td>
           <td v-t="`selection.resource-type.${resource.data.type}`"></td>
           <td class="center">{{ resource.data.isAutoAddActor ? "✔︎" : "" }}</td>
           <td class="center">

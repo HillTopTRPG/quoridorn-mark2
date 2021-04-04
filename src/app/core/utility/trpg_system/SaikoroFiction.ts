@@ -68,7 +68,7 @@ function outputTable<T>(
       const v = p.prop ? data[p.prop] : null;
       if (convertFunc) {
         const convertResult = convertFunc(p, v, data, ind);
-        if (convertResult) return nlFormat(convertResult);
+        if (convertResult !== null) return nlFormat(convertResult);
       }
       if (typeof v === "boolean") return `[${v ? "x" : " "}]`;
       return nlFormat(v);

@@ -66,6 +66,12 @@ export function convertBooleanFalse(str: string | null): boolean {
   if (str === null) return false;
   return str.toLowerCase() === "true";
 }
+export function convertBooleanNull(str: string | null): boolean | null {
+  if (str === null) return null;
+  if (str.toLowerCase() === "true") return true;
+  if (str.toLowerCase() === "false") return false;
+  return null;
+}
 
 export function isArray(obj: any): boolean {
   return Object.prototype.toString.call(obj) === "[object Array]";
