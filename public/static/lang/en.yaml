@@ -902,6 +902,9 @@ authority-group-add-window:
 authority-group-edit-window:
   window-title: 権限グループ編集
 
+room-data-edit-window:
+  window-title: 部屋情報編集
+
 room-info-extend-edit-window:
   window-title: 設定編集
 

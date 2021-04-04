@@ -2363,6 +2363,38 @@
   resizable: true
   tableInfoList: []
 
+"room-data-edit-window":
+  icon: cog
+  parentTypeList: []
+  isInputWindow: true
+  isMovingRendering: false
+  message: ""
+  position: center
+  size:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 4
+    heightEm: 6
+    heightRem: 0.5
+  minSize:
+    widthPx: 2
+    widthEm: 30
+    heightPx: 4
+    heightEm: 6
+    heightRem: 0.5
+  maxSize:
+    widthPx: 2
+    widthEm: 40
+    heightPx: 4
+    heightEm: 6
+    heightRem: 0.5
+  minimizable: true
+  paneContainable: true
+  closable: true
+  fontSizePickable: true
+  resizable: true
+  tableInfoList: []
+
 "room-info-extend-edit-window":
   icon: cog
   parentTypeList: []

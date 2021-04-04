@@ -124,6 +124,8 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { Task, TaskResult } from "task";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
 
 @Component({
   components: {
@@ -208,7 +210,22 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @VueEvent
   private async modify() {
-    // TODO
+    const roomData = (
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<RoomDataStore>,
+        RoomDataStore
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "room-data-edit-window",
+          args: this.roomData
+        }
+      })
+    )[0];
+    if (roomData) {
+      await GameObjectManager.instance.updateRoomData(roomData);
+    }
   }
 }
 </script>

@@ -78,6 +78,7 @@ import RoomInfoExtendEditWindow from "@/app/basic/login/RoomInfoExtendEditWindow
 import OriginalTableListWindow from "@/app/basic/original-table/OriginalTableListWindow.vue";
 import OriginalTableAddWindow from "@/app/basic/original-table/OriginalTableAddWindow.vue";
 import OriginalTableEditWindow from "@/app/basic/original-table/OriginalTableEditWindow.vue";
+import RoomDataEditWindow from "@/app/basic/login/RoomDataEditWindow.vue";
 
 Vue.config.productionTip = false;
 Vue.use(VueI18n);
@@ -168,6 +169,7 @@ async function main(): Promise<void> {
   Vue.component("original-table-list-window", OriginalTableListWindow);
   Vue.component("original-table-add-window", OriginalTableAddWindow);
   Vue.component("original-table-edit-window", OriginalTableEditWindow);
+  Vue.component("room-data-edit-window", RoomDataEditWindow);
 
   const i18n: VueI18n = await LanguageManager.instance.init();
 

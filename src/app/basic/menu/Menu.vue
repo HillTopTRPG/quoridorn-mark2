@@ -340,7 +340,6 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
         }
       })
     )[0];
-    console.log(JSON.stringify(roomInfoExtend, null, "  "));
     if (roomInfoExtend) {
       await GameObjectManager.instance.updateRoomData({
         settings: roomInfoExtend
