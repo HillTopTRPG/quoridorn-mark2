@@ -5,16 +5,16 @@
       :tabList="tabList"
       v-model="currentTabInfo"
     >
-      <!-- 追加情報タブ -->
+      <!-- 共有設定タブ -->
       <div
-        class="layer-block"
-        v-if="currentTabInfo.target === 'additional-info'"
+        class="block room-share-setting"
+        v-if="currentTabInfo.target === 'room-share-setting'"
       >
         <table>
           <tr>
             <tr-checkbox-component
               labelName="type.visitor"
-              :readonly="false"
+              :readonly="!isGm"
               :cLabel="$t('label.allow')"
               :nLabel="$t('label.none')"
               v-model="roomInfoExtend.visitable"
@@ -23,7 +23,7 @@
           <tr>
             <tr-checkbox-component
               labelName="selection.is-fit-grid.label"
-              :readonly="false"
+              :readonly="!isGm"
               :cLabel="$t('selection.is-fit-grid.fit')"
               :nLabel="$t('selection.is-fit-grid.non-fit')"
               v-model="roomInfoExtend.isFitGrid"
@@ -31,17 +31,8 @@
           </tr>
           <tr>
             <tr-checkbox-component
-              labelName="label.dice"
-              :readonly="false"
-              :cLabel="$t('selection.view-type.view')"
-              :nLabel="$t('selection.view-type.hide')"
-              v-model="roomInfoExtend.isViewDice"
-            />
-          </tr>
-          <tr>
-            <tr-checkbox-component
-              labelName="selection.isDrawGridLine.label"
-              :readonly="false"
+              labelName="label.grid-line"
+              :readonly="!isGm"
               :cLabel="$t('selection.view-type.view')"
               :nLabel="$t('selection.view-type.hide')"
               v-model="roomInfoExtend.isDrawGridLine"
@@ -50,6 +41,7 @@
           <tr>
             <tr-checkbox-component
               labelName="label.grid-address"
+              :readonly="!isGm"
               :cLabel="$t('selection.view-type.view')"
               :nLabel="$t('selection.view-type.hide')"
               v-model="roomInfoExtend.isDrawGridId"
@@ -58,14 +50,26 @@
           <tr>
             <tr-checkbox-component
               labelName="label.map-rotate"
+              :readonly="!isGm"
               :cLabel="$t('label.allow')"
-              :nLabel="$t('label.deny')"
+              :nLabel="$t('label.none')"
               v-model="roomInfoExtend.mapRotatable"
+            />
+          </tr>
+          <!--
+          <tr>
+            <tr-checkbox-component
+              labelName="label.dice"
+              :readonly="!isGm"
+              :cLabel="$t('selection.view-type.view')"
+              :nLabel="$t('selection.view-type.hide')"
+              v-model="roomInfoExtend.isViewDice"
             />
           </tr>
           <tr>
             <tr-checkbox-component
               labelName="type.stand-image"
+              :readonly="!isGm"
               :cLabel="$t('selection.view-type.view')"
               :nLabel="$t('selection.view-type.hide')"
               v-model="roomInfoExtend.isShowStandImage"
@@ -74,9 +78,55 @@
           <tr>
             <tr-checkbox-component
               labelName="label.map-object-rotate-marker"
+              :readonly="!isGm"
               :cLabel="$t('selection.view-type.view')"
               :nLabel="$t('selection.view-type.hide')"
               v-model="roomInfoExtend.isShowRotateMarker"
+            />
+          </tr>
+          -->
+        </table>
+      </div>
+      <!-- 画面設定タブ -->
+      <div
+        class="block room-window-setting"
+        v-if="currentTabInfo.target === 'room-window-setting'"
+      >
+        <table>
+          <tr>
+            <tr-general-type-select-component
+              :label-text="$t('chat-window.window-title')"
+              :readonly="!isGm"
+              type="window-view-setting"
+              v-model="roomInfoExtend.windowSettings['chat']"
+              :value-list="['free', 'init-view', 'always-open', 'not-use']"
+            />
+          </tr>
+          <tr>
+            <tr-general-type-select-component
+              :label-text="$t('initiative-window.window-title')"
+              :readonly="!isGm"
+              type="window-view-setting"
+              v-model="roomInfoExtend.windowSettings['initiative']"
+              :value-list="['free', 'init-view', 'always-open', 'not-use']"
+            />
+          </tr>
+          <tr>
+            <tr-general-type-select-component
+              :label-text="$t('chat-palette-window.window-title')"
+              :readonly="!isGm"
+              type="window-view-setting"
+              v-model="roomInfoExtend.windowSettings['chat-palette']"
+              :value-list="['free', 'init-view', 'always-open', 'not-use']"
+            />
+          </tr>
+          <tr>
+            <tr-general-type-select-component
+              :label-text="$t('counter-remocon-window.window-title')"
+              :readonly="!isGm"
+              type="window-view-setting"
+              v-model="roomInfoExtend.windowSettings['counter-remocon']"
+              :value-list="['free', 'init-view', 'always-open', 'not-use']"
             />
           </tr>
         </table>
@@ -96,17 +146,25 @@ import LifeCycle from "@/app/core/decorator/LifeCycle";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import SimpleTabComponent from "@/app/core/component/SimpleTabComponent.vue";
 import TrCheckboxComponent from "@/app/basic/common/components/table-item/TrCheckboxComponent.vue";
+import TrGeneralTypeSelectComponent from "@/app/basic/common/components/table-item/TrGeneralTypeSelectComponent.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 const uuid = require("uuid");
 
-@Component({ components: { TrCheckboxComponent, SimpleTabComponent } })
+@Component({
+  components: {
+    TrGeneralTypeSelectComponent,
+    TrCheckboxComponent,
+    SimpleTabComponent
+  }
+})
 export default class RoomInfoExtendInfoForm extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: String, required: true })
   private windowKey!: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: Object, required: true })
   private roomInfoExtend!: RoomInfoExtend;
 
   private isMounted: boolean = false;
@@ -120,12 +178,16 @@ export default class RoomInfoExtendInfoForm extends Mixins<ComponentVue>(
   }
 
   private tabList: TabInfo[] = [
-    { key: "1", target: "image", text: "", isDisabled: false },
-    { key: "2", target: "additional-info", text: "", isDisabled: false },
-    { key: "3", target: "other-text", text: "", isDisabled: false }
+    // { key: "1", target: "private-setting", text: "", isDisabled: false },
+    { key: "2", target: "room-share-setting", text: "", isDisabled: false },
+    { key: "3", target: "room-window-setting", text: "", isDisabled: false }
   ];
   private currentTabInfo: TabInfo = this.tabList[0];
-  private initTabTarget = "image";
+  private initTabTarget = "room-share-setting";
+
+  private get isGm() {
+    return GameObjectManager.instance.isGm;
+  }
 
   @TaskProcessor("language-change-finished")
   private async languageChangeFinished(
@@ -161,6 +223,8 @@ export default class RoomInfoExtendInfoForm extends Mixins<ComponentVue>(
 }
 
 .simple-tab-component {
+  flex: 1;
+  width: 100%;
   overflow: hidden;
 
   > *:not(:first-child) {

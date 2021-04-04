@@ -122,6 +122,8 @@ import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
 import BaseInput from "@/app/core/component/BaseInput.vue";
 import VueEvent from "@/app/core/decorator/VueEvent";
 import ButtonArea from "@/app/basic/common/components/ButtonArea.vue";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
 
 @Component({
   components: {
@@ -137,8 +139,13 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
     GameObjectManager.instance.userList;
   private systemName: string | null = null;
 
-  private get roomData(): RoomDataStore {
-    return GameObjectManager.instance.roomData;
+  private roomData: RoomDataStore = GameObjectManager.instance.roomData;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
   }
 
   @Watch("roomData", { deep: true, immediate: true })
@@ -200,8 +207,8 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
   }
 
   @VueEvent
-  private modify() {
-    alert("未実装です！ごめんなさい！");
+  private async modify() {
+    // TODO
   }
 }
 </script>

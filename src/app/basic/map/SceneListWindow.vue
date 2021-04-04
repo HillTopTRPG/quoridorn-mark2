@@ -34,6 +34,9 @@
       <ctrl-button @click="chmodMap()" :disabled="!selectedSceneKey">
         <span v-t="'button.chmod'"></span>
       </ctrl-button>
+      <ctrl-button @click="copyMap()" :disabled="!selectedSceneKey">
+        <span v-t="'button.copy'"></span>
+      </ctrl-button>
       <ctrl-button
         @click="deleteMap()"
         :disabled="!selectedSceneKey || useSceneList.length <= 1"
@@ -47,7 +50,7 @@
 <script lang="ts">
 import { Component, Watch } from "vue-property-decorator";
 import { Mixins } from "vue-mixin-decorator";
-import { SceneStore } from "@/@types/store-data";
+import { SceneObjectStore, SceneStore } from "@/@types/store-data";
 import { WindowOpenInfo } from "@/@types/window";
 import { questionDialog } from "@/app/core/utility/Utility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -169,6 +172,25 @@ export default class SceneListWindow extends Mixins<WindowVue<string, never>>(
       value: {
         type: "edit-scene-window",
         args: this.selectedSceneKey
+      }
+    });
+  }
+
+  @VueEvent
+  private async copyMap() {
+    if (!this.selectedSceneKey) return;
+
+    const data: SceneStore = (await this.cc.findSingle(
+      "key",
+      this.selectedSceneKey
+    ))!.data!.data!;
+    const sceneObjectKey: string = (await this.cc.addDirect([{ data }]))[0];
+    await TaskManager.instance.ignition<WindowOpenInfo<string>, never>({
+      type: "window-open",
+      owner: "Quoridorn",
+      value: {
+        type: "edit-scene-window",
+        args: sceneObjectKey
       }
     });
   }

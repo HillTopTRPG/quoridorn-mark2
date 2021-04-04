@@ -52,6 +52,12 @@
       <span>{{ userList | loginNum }}</span>
       名
     </div>
+    <s-button
+      class="s-button"
+      icon="cog"
+      colorStyle="skyblue"
+      @click="onClickCog()"
+    />
     <!-- 共有メモ -->
     <div class="menu-button" @click="onClickCreatePublicMemo">
       <span class="icon-file-text"></span>
@@ -95,6 +101,7 @@
       <menu-window-item type="chat-window" @click="menuClick" />
       <menu-window-item type="chat-palette-window" @click="menuClick" />
       <menu-window-item type="counter-remocon-window" @click="menuClick" />
+      <menu-window-item type="original-table-list-window" @click="menuClick" />
       <hr />
       <menu-window-item type="initiative-window" @click="menuClick" />
       <hr />
@@ -209,7 +216,11 @@
 
 <script lang="ts">
 import { Component } from "vue-property-decorator";
-import { AuthorityGroupStore, UserStore } from "@/@types/store-data";
+import {
+  AuthorityGroupStore,
+  RoomDataStore,
+  UserStore
+} from "@/@types/store-data";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
 import MenuWindowItem from "@/app/basic/menu/MenuWindowItem.vue";
@@ -222,7 +233,7 @@ import * as Mustache from "mustache";
 import { saveHTML } from "@/app/core/utility/FileUtility";
 import urljoin from "url-join";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
-import { Point } from "@/@types/store-data-optional";
+import { Point, RoomInfoExtend } from "@/@types/store-data-optional";
 import { ModeInfo, ScreenModeType } from "mode";
 import App from "@/views/App.vue";
 import {
@@ -235,9 +246,13 @@ import VueEvent from "@/app/core/decorator/VueEvent";
 import MenuScreenModeItem from "@/app/basic/menu/MenuScreenModeItem.vue";
 import TaskProcessor from "@/app/core/task/TaskProcessor";
 import { TaskResult, Task } from "task";
+import SButton from "@/app/basic/common/components/SButton.vue";
+import TaskManager from "@/app/core/task/TaskManager";
+import { WindowOpenInfo } from "@/@types/window";
 
 @Component({
   components: {
+    SButton,
     MenuScreenModeItem,
     MenuDownItem,
     MenuWindowItem
@@ -249,6 +264,13 @@ import { TaskResult, Task } from "task";
 })
 export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   private roomData = GameObjectManager.instance.roomData;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   private isSelecting: boolean = false;
   private currentMenu: string = "";
@@ -301,6 +323,29 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
     return {
       left: `${this.currentMenuPoint.x}px`
     };
+  }
+
+  @VueEvent
+  private async onClickCog(): Promise<void> {
+    const roomInfoExtend = (
+      await TaskManager.instance.ignition<
+        WindowOpenInfo<RoomInfoExtend>,
+        RoomInfoExtend
+      >({
+        type: "window-open",
+        owner: "Quoridorn",
+        value: {
+          type: "room-info-extend-edit-window",
+          args: this.roomData.settings
+        }
+      })
+    )[0];
+    console.log(JSON.stringify(roomInfoExtend, null, "  "));
+    if (roomInfoExtend) {
+      await GameObjectManager.instance.updateRoomData({
+        settings: roomInfoExtend
+      });
+    }
   }
 
   /** 部屋情報ボタン押下 */
@@ -599,6 +644,11 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
   > * {
     display: inline;
     vertical-align: middle;
+  }
+
+  &.disabled {
+    cursor: default;
+    background-color: lightgray;
   }
 }
 </style>

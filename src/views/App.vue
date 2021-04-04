@@ -98,7 +98,12 @@ import { WindowOpenInfo } from "@/@types/window";
 import PublicMemoArea from "@/app/basic/public-memo/PublicMemoArea.vue";
 import { findByKey, findRequireByKey } from "@/app/core/utility/Utility";
 import { importInjection } from "@/app/core/utility/ImportUtility";
-import { OtherTextViewInfo, Point, Size } from "@/@types/store-data-optional";
+import {
+  OtherTextViewInfo,
+  Point,
+  Size,
+  WindowSettings
+} from "@/@types/store-data-optional";
 import { sendSystemChatLog } from "@/app/core/utility/ChatUtility";
 import MapDrawController from "@/app/basic/map/MapDrawController.vue";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
@@ -581,16 +586,41 @@ export default class App extends Vue {
    * マウス移動/タッチ移動イベント
    * @param event
    */
+  private taskTimeoutId: number | null = null;
+  private waitTimeoutId: number | null = null;
   @EventProcessor("touchmove")
   @EventProcessor("mousemove")
   private async mouseTouchMove(event: MouseEvent | TouchEvent): Promise<void> {
     const point = getEventPoint(event);
     if (point.x === this.mouse.x && point.y === this.mouse.y) return;
-    await TaskManager.instance.ignition<Point, never>({
-      type: "mouse-moving",
-      owner: "Quoridorn",
-      value: point
-    });
+
+    const time = 60;
+    const func = () => {
+      TaskManager.instance.ignition<Point, never>({
+        type: "mouse-moving",
+        owner: "Quoridorn",
+        value: point
+      });
+      this.waitTimeoutId = window.setTimeout(() => {
+        this.waitTimeoutId = null;
+      }, time);
+      this.taskTimeoutId = null;
+    };
+    if (this.waitTimeoutId !== null) {
+      if (this.taskTimeoutId !== null) {
+        window.clearTimeout(this.taskTimeoutId);
+      }
+      this.taskTimeoutId = window.setTimeout(() => {
+        if (this.waitTimeoutId === null) {
+          func();
+        }
+      }, time);
+      return;
+    }
+    if (this.taskTimeoutId !== null) {
+      window.clearTimeout(this.taskTimeoutId);
+    }
+    func();
   }
 
   /**
@@ -664,8 +694,22 @@ export default class App extends Vue {
   ): Promise<TaskResult<never> | void> {
     // 部屋に接続できた
     this.roomInitialized = true;
-    await App.openSimpleWindow("chat-window");
-    await App.openSimpleWindow("initiative-window");
+
+    const windowSettings =
+      GameObjectManager.instance.roomData.settings.windowSettings;
+
+    const openWindowFunc = async (windowType: keyof WindowSettings) => {
+      if (
+        windowSettings[windowType] === "init-view" ||
+        windowSettings[windowType] === "always-open"
+      ) {
+        await App.openSimpleWindow(`${windowType}-window`);
+      }
+    };
+    await openWindowFunc("chat");
+    await openWindowFunc("initiative");
+    await openWindowFunc("chat-palette");
+    await openWindowFunc("counter-remocon");
     if (
       GameObjectManager.instance.keepBcdiceDiceRollResultList.some(
         kbdrr =>

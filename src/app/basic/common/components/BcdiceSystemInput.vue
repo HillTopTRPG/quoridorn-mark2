@@ -614,6 +614,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
       border: 1px solid rgb(169, 169, 169);
       border-left-color: rgba(0, 0, 0, 0.2);
       box-sizing: border-box;
+      cursor: pointer;
       background: linear-gradient(
         to bottom,
         rgb(255, 255, 255) 0%,

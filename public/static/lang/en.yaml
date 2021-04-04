@@ -198,6 +198,12 @@ selection:
     label: コマをセルに
     fit: 合わせる
     non-fit: 合わせない
+  window-view-setting:
+    label: 画面表示設定
+    free: 自由
+    init-view: 入室時表示
+    always-open: 常に表示
+    not-use: 使用不可
 
 resource-master-info-form:
   label:
@@ -410,6 +416,13 @@ label:
   grid-address: マス座標
   map-rotate: マップ回転
   map-object-rotate-marker: コマの回転マーカー
+  grid-line: マス罫線
+  room-share-setting: 部屋設定
+  room-window-setting: 画面設定
+  private-setting: 個人設定
+  command: コマンド
+  dice-roll: ダイスロール
+  list: 一覧
 
 message:
   copy-to-clipboard: Copied to clipboard
@@ -888,3 +901,19 @@ authority-group-add-window:
 
 authority-group-edit-window:
   window-title: 権限グループ編集
+
+room-info-extend-edit-window:
+  window-title: 設定編集
+
+original-table-list-window:
+  window-title: オリジナル表一覧
+  dialog:
+    delete-table: |-
+      本当にオリジナル表「$1」を削除しますか？
+      この操作は取り消せません。
+
+original-table-add-window:
+  window-title: オリジナル表追加
+
+original-table-edit-window:
+  window-title: オリジナル表編集

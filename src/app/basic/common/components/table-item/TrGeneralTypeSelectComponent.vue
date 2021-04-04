@@ -1,7 +1,8 @@
 <template>
   <tr class="tr-general-type-select-component">
     <th class="label-input">
-      <label :for="key" v-t="`selection.${type}.label`"></label>
+      <label v-if="labelText" :for="key">{{ labelText }}</label>
+      <label v-else :for="key" v-t="`selection.${type}.label`"></label>
     </th>
     <td>
       <general-type-select
@@ -30,6 +31,9 @@ export default class TrGeneralTypeSelectComponent extends Mixins<ComponentVue>(
 
   @Prop({ type: Boolean, default: false })
   private readonly!: boolean;
+
+  @Prop({ type: String, default: "" })
+  private labelText!: string;
 
   @Prop({ type: String, required: true })
   private type!: string;

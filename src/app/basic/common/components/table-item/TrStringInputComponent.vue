@@ -24,6 +24,7 @@
         v-else
         :id="key"
         class="text"
+        :class="{ resizable }"
         :value="localValue"
         :disabled="disabled"
         @input="localValue = $event.target.value"
@@ -58,8 +59,14 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
   @Prop({ type: Boolean, default: false })
   private disabled!: boolean;
 
+  @Prop({ type: Boolean, default: true })
+  private resizable!: boolean;
+
   @Prop({ type: String, default: "" })
   private inputWidth!: string;
+
+  @Prop({ type: String, default: "" })
+  private inputHeight!: string;
 
   @Prop({ type: String, default: "" })
   private placeholder!: string;
@@ -81,6 +88,10 @@ export default class TrStringInputComponent extends Mixins<ComponentVue>(
     if (this.inputWidth) {
       const inputElm = this.$refs.inputElm as HTMLInputElement;
       inputElm.style.width = this.inputWidth;
+    }
+    if (this.inputHeight) {
+      const inputElm = this.$refs.inputElm as HTMLInputElement;
+      inputElm.style.height = this.inputHeight;
     }
   }
 
@@ -142,6 +153,14 @@ input {
 }
 
 textarea {
-  resize: vertical;
+  box-sizing: border-box;
+
+  &.resizable {
+    resize: vertical;
+  }
+
+  &:not(.resizable) {
+    resize: none;
+  }
 }
 </style>

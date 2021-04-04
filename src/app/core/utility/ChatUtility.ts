@@ -327,7 +327,9 @@ export async function sendChatLog(
           originalTable.data!.tableTitle,
           diceResultStr,
           " → ",
-          originalTableResult || `Un match result '${diceRollResult}'`
+          originalTableResult
+            ? originalTableResult.replace(/\\n/g, "\n")
+            : `Un match result '${diceRollResult}'`
         ].join("");
       }
 

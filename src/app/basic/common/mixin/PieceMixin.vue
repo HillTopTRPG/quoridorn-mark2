@@ -10,7 +10,8 @@ import {
   KeepBcdiceDiceRollResultStore,
   MemoStore,
   SceneObjectStore,
-  SceneAndObjectStore
+  SceneAndObjectStore,
+  RoomDataStore
 } from "@/@types/store-data";
 import {
   copyAddress,
@@ -71,6 +72,13 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   private isTransitioning: boolean = false;
   private roomData = GameObjectManager.instance.roomData;
   private sceneAndObjectUnsubscribe: Unsubscribe | null = null;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   private get sceneKey() {
     return this.roomData.sceneKey;
@@ -844,7 +852,6 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
     await this.sceneObjectCC!.updatePackage([
       { key: this.docKey, data: data.data! }
     ]);
-
     const msgTarget = isHideSubType
       ? "change-pips-dice-symbol-hide"
       : "change-pips-dice-symbol";
@@ -880,7 +887,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
       { property: "data.type", operand: "==", value: "hide-dice-symbol-roll" },
       { property: "data.targetKey", operand: "==", value: this.docKey }
     ]);
-    return list ? list[0].data! : null;
+    return list?.length ? list[0].data! : null;
   }
 
   @TaskProcessor("change-dice-view-finished")

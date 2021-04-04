@@ -108,8 +108,8 @@ export default class CreateNewRoomWindow extends Mixins<
     standImageGridNum: 12,
     isShowRotateMarker: true,
     windowSettings: {
-      chat: "free",
-      initiative: "free",
+      chat: "always-open",
+      initiative: "init-view",
       "chat-palette": "free",
       "counter-remocon": "free"
     }

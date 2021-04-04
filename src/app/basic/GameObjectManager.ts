@@ -44,6 +44,7 @@ import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import { loadYaml } from "@/app/core/utility/FileUtility";
+import TaskManager from "@/app/core/task/TaskManager";
 
 export type ChatPublicInfo = {
   isUseAllTab: boolean;
@@ -164,6 +165,11 @@ export default class GameObjectManager {
       (snapshot: DocumentSnapshot<StoreData<RoomDataStore>>) => {
         if (snapshot.exists() && snapshot.data.status === "modified") {
           this.roomData = { ...snapshot.data.data! };
+          TaskManager.instance.ignition<RoomDataStore, void>({
+            type: "room-data-update",
+            owner: "Quoridorn",
+            value: snapshot.data.data!
+          });
         }
       }
     );
@@ -251,12 +257,12 @@ export default class GameObjectManager {
       }
       data.settings = { ...this.roomData.settings, ...data.settings };
     }
-    this.roomData = { ...this.roomData, ...data };
+    const roomData: RoomDataStore = { ...this.roomData, ...data };
 
     await SocketFacade.instance.roomDataCC().updatePackage([
       {
         key: this.roomDataKey,
-        data: this.roomData
+        data: roomData
       }
     ]);
   }

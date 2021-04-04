@@ -1214,7 +1214,14 @@ export default class LoginWindow extends Mixins<
       try {
         // トライアンドエラー方式読み込みのため、throwは握りつぶす
         const list = await loadYaml<OriginalTableStore[]>(path, true);
-        list.forEach(cdb => (cdb.system = system));
+        list.forEach(cdb => {
+          cdb.system = system;
+          if (!cdb.bcdiceServer) cdb.bcdiceServer = bcdiceServer;
+          if (!cdb.bcdiceVersion) cdb.bcdiceVersion = bcdiceVersion;
+          Object.keys(cdb.tableContents).forEach(
+            key => (cdb.tableContents[key] = cdb.tableContents[key].trim())
+          );
+        });
         originalTableList.push(...list);
       } catch (err) {
         // Nothing.

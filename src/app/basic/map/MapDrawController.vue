@@ -131,6 +131,8 @@ import {
 import { clone } from "@/app/core/utility/PrimaryDataUtility";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { ModeInfo } from "mode";
+import TaskProcessor from "@/app/core/task/TaskProcessor";
+import { Task, TaskResult } from "task";
 
 @Component({
   components: { SButton, MapDrawInfoForm, CtrlButton, SceneLayerSelect }
@@ -139,6 +141,13 @@ export default class MapDrawController extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   private roomData: RoomDataStore = GameObjectManager.instance.roomData;
+
+  @TaskProcessor("room-data-update-finished")
+  private async roomDataUpdateFinished(
+    task: Task<RoomDataStore, never>
+  ): Promise<TaskResult<never> | void> {
+    this.roomData = task.value!;
+  }
 
   private isEditOpen = true;
   private toggleOpen() {

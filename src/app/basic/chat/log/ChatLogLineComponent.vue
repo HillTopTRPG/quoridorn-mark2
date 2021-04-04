@@ -263,6 +263,7 @@ export default class ChatLogLineComponent extends Mixins<ComponentVue>(
   min-height: 2em;
   line-height: 1.7em;
   white-space: pre-wrap;
+  word-break: break-all;
   flex-shrink: 0;
 
   &.system {

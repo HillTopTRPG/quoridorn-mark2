@@ -68,7 +68,12 @@ export default class ChatPaletteEditWindow
   }
 
   public isDuplicate(): boolean {
-    return this.editWindowDelegator.isDuplicateBasic(this.name);
+    return this.editWindowDelegator.list.some(
+      cp =>
+        cp.data!.name === this.name &&
+        cp.key !== this.editWindowDelegator.docKey &&
+        cp.owner === this.editWindowDelegator.obj!.owner
+    );
   }
 
   @Watch("name")
