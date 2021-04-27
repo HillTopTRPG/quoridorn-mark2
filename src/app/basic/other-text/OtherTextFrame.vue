@@ -47,11 +47,7 @@ import {
 } from "@/@types/store-data-optional";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import { OtherTextUpdateInfo } from "task-info";
-import {
-  createEmptyStoreUseData,
-  warningDialog
-} from "@/app/core/utility/Utility";
-import uuid from "uuid";
+import { warningDialog } from "@/app/core/utility/Utility";
 import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
 
 @Component({ components: { OtherTextComponent } })
@@ -64,7 +60,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
 
   private static DEFAULT_FONT_SIZE = 14;
 
-  private useMemoList: StoreData<MemoStore>[] = [];
+  private useMemoList: Partial<StoreData<MemoStore>>[] = [];
   private docKey: string | null = null;
   private docType: string | null = null;
   private isMounted: boolean = false;
@@ -253,13 +249,16 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
     task: Task<OtherTextUpdateInfo, never>
   ): Promise<TaskResult<never> | void> {
     const docKey = task.value!.docKey;
-    const target = task.value!.target;
+    const targetTabKey = task.value!.target;
+    const updateInfo = task.value!.updateInfo;
 
     const sceneObjectData: StoreData<SceneObjectStore> = (await SocketFacade.instance
       .sceneObjectCC()
       .findSingle("key", docKey))!.data!;
 
     const url = sceneObjectData.data!.url;
+    if (!url) return;
+
     const helper = await getTrpgSystemHelper(url);
     if (!helper) {
       return await warningDialog({
@@ -274,19 +273,14 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
       });
     }
 
-    const memoList = await helper.createOtherText();
+    const memoList = await helper.createOtherText(this.useMemoList, updateInfo);
     if (!memoList) return;
 
-    // 生成したデータからDB用データを生成
-    const otherTextDataList = memoList.map(r =>
-      createEmptyStoreUseData(uuid.v4(), r)
-    );
-
     // 対象タブが指定されていたら、そのタブだけ更新
-    if (target) {
-      const targetData = this.useMemoList.find(d => d.key === target);
+    if (targetTabKey) {
+      const targetData = this.useMemoList.find(d => d.key === targetTabKey);
       if (targetData) {
-        const otherTextData = otherTextDataList.find(
+        const otherTextData = memoList.find(
           otd => otd.data!.tab === targetData.data!.tab
         );
         if (otherTextData) {
@@ -297,7 +291,7 @@ export default class OtherTextFrame extends Mixins<ComponentVue>(ComponentVue) {
     }
 
     // タブ名が重複するものは上書き、そうでないものは追加
-    otherTextDataList.forEach(otd => {
+    memoList.forEach(otd => {
       const duplicateList = this.useMemoList.filter(
         m => m.data!.tab === otd.data!.tab
       );

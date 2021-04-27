@@ -33,7 +33,7 @@ import {
   CounterRemoconStore,
   MapDrawStore
 } from "@/@types/store-data";
-import { PartialRoomData } from "@/@types/store-data-optional";
+import { PartialRoomData, UserType } from "@/@types/store-data-optional";
 import { OriginalTableStore } from "@/@types/room";
 import {
   errorDialog,
@@ -78,14 +78,14 @@ export default class GameObjectManager {
     chmod: { type: "none", list: [] }
   };
 
-  /** 権限のデフォルト値 */
+  /** オーナー編集権限のデフォルト値 */
   public static readonly PERMISSION_OWNER_CHANGE: Permission = {
     view: { type: "none", list: [] },
     edit: { type: "allow", list: [{ type: "owner" }] },
     chmod: { type: "allow", list: [{ type: "owner" }] }
   };
 
-  /** 権限のデフォルト値 */
+  /** オーナーのみのデフォルト値 */
   public static readonly PERMISSION_OWNER_VIEW: Permission = {
     view: { type: "allow", list: [{ type: "owner" }] },
     edit: { type: "allow", list: [{ type: "owner" }] },
@@ -297,7 +297,7 @@ export default class GameObjectManager {
       isViewCutIn: true,
       isDrawGridLine: true,
       isDrawGridId: true,
-      mapRotatable: true,
+      mapRotatable: "deg15",
       isShowStandImage: true,
       standImageGridNum: 12,
       isShowRotateMarker: true,
@@ -405,7 +405,7 @@ export default class GameObjectManager {
   }
 
   public async updateMemoList(
-    dataList: StoreData<MemoStore>[],
+    dataList: Partial<StoreData<MemoStore>>[],
     ownerType: string,
     owner: string
   ): Promise<void> {
@@ -421,12 +421,12 @@ export default class GameObjectManager {
     await memoCC.updatePackage(
       dataList
         .map((ot, index) => ({
-          key: ot.key,
+          key: ot.key || "",
           order: ot.owner ? index : -1,
-          permission: ot.permission,
+          permission: ot.permission || null,
           data: ot.data!
         }))
-        .filter(data => data.order !== undefined && data.order > -1)
+        .filter(data => data.key && data.order > -1)
     );
     if (dataList.filter(ot => ot.collection === "volatile").length) {
       const addDataList = dataList
@@ -450,26 +450,31 @@ export default class GameObjectManager {
     return !!rootOwner && rootOwner.owner === SocketFacade.instance.userKey;
   }
 
-  public static getRootOwner(
-    data: StoreData<any>
-  ): StoreData<UserStore> | null {
-    let currentData: StoreData<any> | null = data;
-    while (
-      currentData &&
-      currentData.ownerType &&
-      currentData.ownerType !== "user-list"
-    ) {
-      currentData = GameObjectManager.getOwner(currentData);
-    }
-    return currentData;
+  public static getRootOwnerType(
+    data: Partial<StoreData<any>> | null | undefined
+  ): UserType | null {
+    const user = GameObjectManager.getRootOwner(data);
+    return user?.data!.type || null;
   }
 
-  public static getOwner<T>(data: StoreData<T>): StoreData<T> | null {
-    const ownerType = data.ownerType;
-    const owner = data.owner;
+  public static getRootOwner(
+    data: Partial<StoreData<any>> | null | undefined
+  ): StoreData<UserStore> | null {
+    let currentData: Partial<StoreData<any>> | null = data || null;
+    while (currentData && currentData.ownerType && currentData.owner) {
+      currentData = GameObjectManager.getOwner(currentData);
+    }
+    return currentData as StoreData<UserStore> | null;
+  }
+
+  public static getOwner<T>(
+    data: Partial<StoreData<T>> | null | undefined
+  ): StoreData<any> | null {
+    const ownerType = data?.ownerType;
+    const owner = data?.owner || null;
     if (!ownerType) return null;
-    return findRequireByKey(
-      GameObjectManager.instance.getList<T>(ownerType!)!,
+    return findByKey(
+      GameObjectManager.instance.getList<any>(ownerType)!,
       owner
     );
   }

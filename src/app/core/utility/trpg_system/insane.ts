@@ -4,17 +4,24 @@ import {
   convertNumberZero
 } from "@/app/core/utility/PrimaryDataUtility";
 import {
+  createDiceRollStr,
   createEmotion,
-  createSelect,
   createTokugi,
+  makeSelectStr,
   outputPersonalityList,
   outputTableList,
   outputTokugiChatPalette,
   outputTokugiTable,
   Personality,
-  SaikoroFictionTokugi
+  readMultiLine,
+  readPersonalityList,
+  readTokugiTableInfo,
+  regStr,
+  SaikoroFictionTokugi,
+  tabTextProcess
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
+import moment from "moment";
 
 export class InSaneHelper extends TrpgSystemHelper<Insane> {
   public readonly isSupportedOtherText = true;
@@ -39,9 +46,13 @@ export class InSaneHelper extends TrpgSystemHelper<Insane> {
   /**
    * その他欄の情報を生成する
    */
-  public async createOtherText(): Promise<MemoStore[] | null> {
+  public async createOtherText(
+    memoList: Partial<StoreData<MemoStore>>[]
+  ): Promise<Partial<StoreData<MemoStore>>[] | null> {
     const { data, list } = await this.createResultList<MemoStore>();
     if (!data) return null;
+
+    readData(data, memoList);
 
     // メモ
     this.addMemo(list);
@@ -64,44 +75,42 @@ export class InSaneHelper extends TrpgSystemHelper<Insane> {
       paletteText: string;
     }[]
   > {
-    const { data, list } = await this.createResultList<string>();
+    const { data } = await this.createResultList<string>();
     if (!data) return [];
-
-    list.push(
-      "2D6",
-      "2D6>=",
-      ...outputTokugiChatPalette(data.tokugi),
-      "ST シーン表",
-      "FT 感情表",
-      "RTT ランダム特技決定表",
-      "TVT 指定特技(暴力)表",
-      "TET 指定特技(情動)表",
-      "TPT 指定特技(知覚)表",
-      "TST 指定特技(技術)表",
-      "TKT 指定特技(知識)表",
-      "TMT 指定特技(怪異)表",
-      "D66",
-      "choice[〇〇,△△,□□]",
-      "",
-      "鎮痛剤を１つ使用",
-      "鎮痛剤を１つ獲得",
-      "武器を１つ使用",
-      "武器を１つ獲得",
-      "お守りを１つ使用",
-      "お守りを１つ獲得",
-      ...data.abilityList
-        .flatMap(a => [
-          "",
-          `【${a.name}】《${a.targetSkill}》`,
-          `効果:${a.effect}`
-        ])
-        .map(text => text.replaceAll(/\r?\n/g, ""))
-    );
 
     return [
       {
         name: `◆${data.name}`,
-        paletteText: list.join("\n")
+        paletteText: [
+          "2D6",
+          "2D6>=",
+          ...outputTokugiChatPalette(data.tokugi),
+          "ST シーン表",
+          "FT 感情表",
+          "RTT ランダム特技決定表",
+          "TVT 指定特技(暴力)表",
+          "TET 指定特技(情動)表",
+          "TPT 指定特技(知覚)表",
+          "TST 指定特技(技術)表",
+          "TKT 指定特技(知識)表",
+          "TMT 指定特技(怪異)表",
+          "D66",
+          "choice[〇〇,△△,□□]",
+          "",
+          "鎮痛剤を１つ使用",
+          "鎮痛剤を１つ獲得",
+          "武器を１つ使用",
+          "武器を１つ獲得",
+          "お守りを１つ使用",
+          "お守りを１つ獲得",
+          ...data.abilityList
+            .flatMap(a => [
+              "",
+              `【${a.name}】《${a.targetSkill}》`,
+              `効果:${a.effect}`
+            ])
+            .map(text => text.replaceAll(/\r?\n/g, ""))
+        ].join("\n")
       }
     ];
   }
@@ -154,7 +163,15 @@ export class InSaneHelper extends TrpgSystemHelper<Insane> {
         name: textFilter(i.name)
       })),
       personalityList: createEmotion(json),
-      tokugi: createTokugi(json, tokugiTable)
+      tokugi: createTokugi(
+        json,
+        tokugiTable,
+        false,
+        false,
+        true,
+        (tokugi: SaikoroFictionTokugi, t: string, tt: string, move: number) =>
+          `@@@CHAT-CMD:[${move}]2D6>=${move} ${t}（${tt}）@@@`
+      )
     };
   }
 }
@@ -239,94 +256,161 @@ type Insane = {
   personalityList: Personality[]; // 人物欄
 };
 
-function addAbility(data: Insane, resultList: MemoStore[]) {
+function addAbility(data: Insane, resultList: Partial<StoreData<MemoStore>>[]) {
   resultList.push({
-    tab: "アビリティ",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## アビリティ",
-      ...outputTableList<Ability>(data.abilityList, [
-        { label: "アビリティ名", prop: "name", align: "left" },
-        { label: "タイプ", prop: "type", align: "left" },
-        { label: "指定特技", prop: "targetSkill", align: "left" },
-        { label: "エフェクト", prop: "effect", align: "left" },
-        { label: "参照p", prop: "page", align: "left" }
-      ])
-    ].join("\r\n")
+    data: {
+      tab: "アビリティ",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## アビリティ",
+        ...outputTableList<Ability>(
+          data.abilityList,
+          [
+            { label: "アビリティ名", prop: "name", align: "left" },
+            { label: "タイプ", prop: "type", align: "left" },
+            { label: "指定特技", prop: "targetSkill", align: "left" },
+            { label: "エフェクト", prop: "effect", align: "left" },
+            { label: "参照p", prop: "page", align: "left" }
+          ],
+          (prop, value, data1) => {
+            if (prop.prop === "targetSkill") {
+              const diceRollStr = createDiceRollStr(
+                data.tokugi,
+                gapColList,
+                data1.targetSkill
+              );
+              return `${value}${diceRollStr}`;
+            }
+            return null;
+          }
+        )
+      ].join("\r\n")
+    }
   });
 }
 
-function addBasic(data: Insane, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "基本情報",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 基本情報",
-      `PL: ${data.player}`,
-      `PC${data.scenario.pcno ? `(${data.scenario.pcno})` : ""}: ${data.name}${
-        data.nameKana ? `（${data.nameKana}）` : ""
-      }`,
-      `${
-        data.age
-          ? convertNumberNull(data.age) !== null
-            ? `${data.age}歳`
-            : data.age
-          : "年齢不詳"
-      } ${data.sex || "性別なし"} ${data.cover || "職業なし"}`,
-      `使命: ${data.scenario.mission}`,
-      "|生命力|正気度|功績点|",
-      "|:---|:---|:---:|",
-      `|${createSelect(
-        "生命力",
-        data.hitPoint.max,
-        data.hitPoint.value
-      )}|${createSelect(
-        "正気度",
-        data.sanePoint.max,
-        data.sanePoint.value
-      )}|${data.exp || "なし"}|`,
-      "## 人物欄",
-      ...outputPersonalityList(data.personalityList, [
-        { label: "キャラ", prop: "name", align: "left" },
-        { label: "居", prop: "place", align: "left" },
-        { label: "情", prop: "secret", align: "left" },
-        { label: "感情", prop: "emotion", align: "left" }
-      ]),
-      "## アイテム",
-      ...outputTableList<Item>(
-        data.itemList,
-        [
-          { label: "名前", prop: "name", align: "left" },
-          { label: "個数", prop: "count", align: "left" },
-          { label: "効果", prop: "effect", align: "left" }
-        ],
-        (prop, value) => {
-          if (prop.prop === "count") return createSelect("個数", 3, value);
-          return null;
-        }
+function readData(data: Insane, memoList: Partial<StoreData<MemoStore>>[]) {
+  tabTextProcess("基本情報", memoList, text => {
+    const matchResult = text.match(
+      new RegExp(
+        ["", regStr.select, regStr.select, regStr.text, ""].join("\\|")
       )
-    ].join("\r\n")
+    );
+    if (matchResult) {
+      data.hitPoint.value = convertNumberZero(matchResult[2]);
+      data.sanePoint.value = convertNumberZero(matchResult[4]);
+    }
+
+    readPersonalityList(data, text, [
+      { label: "キャラ", prop: "name" },
+      { label: "居", prop: "place" },
+      { label: "秘", prop: "secret" },
+      { label: "感情", prop: "emotion" }
+    ]);
+
+    // アイテムの個数
+    readMultiLine(
+      data.itemList,
+      text,
+      [regStr.text, regStr.makeSelect("個数"), regStr.text].join("\\|"),
+      "name",
+      1,
+      {
+        2: ["count", "n"]
+      }
+    );
+  });
+
+  tabTextProcess("特技", memoList, text => {
+    readTokugiTableInfo(
+      data.tokugi,
+      gapColList,
+      tokugiTable,
+      text,
+      false,
+      true,
+      regStr.button
+    );
   });
 }
 
-function addTokugi(data: Insane, resultList: MemoStore[]) {
+function addBasic(data: Insane, resultList: Partial<StoreData<MemoStore>>[]) {
   resultList.push({
-    tab: "特技",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 特技",
-      ...outputTokugiTable(
-        data.tokugi,
-        gapColList,
-        true,
-        text => `${text}　　　`
-      )
-    ].join("\r\n")
+    data: {
+      tab: "基本情報",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "リロードしてもチェック状態や選択状態は引き継がれます",
+        "## 基本情報",
+        `PL: ${data.player}`,
+        `PC${data.scenario.pcno ? `(${data.scenario.pcno})` : ""}: ${
+          data.name
+        }${data.nameKana ? `（${data.nameKana}）` : ""}`,
+        `${
+          data.age
+            ? convertNumberNull(data.age) !== null
+              ? `${data.age}歳`
+              : data.age
+            : "年齢不詳"
+        } ${data.sex || "性別なし"} ${data.cover || "職業なし"}`,
+        `使命: ${data.scenario.mission}`,
+        "|生命力|正気度|功績点|",
+        "|:---|:---|:---:|",
+        `|${makeSelectStr("生命力", data.hitPoint.value, {
+          s: 0,
+          e: data.hitPoint.max!
+        })}|${makeSelectStr("正気度", data.sanePoint.value, {
+          s: 0,
+          e: data.sanePoint.max!
+        })}|${data.exp || "なし"}|`,
+        "## 人物欄",
+        ...outputPersonalityList(data.personalityList, [
+          { label: "キャラ", prop: "name", align: "left" },
+          { label: "居", prop: "place", align: "left" },
+          { label: "秘", prop: "secret", align: "left" },
+          { label: "感情", prop: "emotion", align: "left" }
+        ]),
+        "## アイテム",
+        ...outputTableList<Item>(
+          data.itemList,
+          [
+            { label: "名前", prop: "name", align: "left" },
+            { label: "個数", prop: "count", align: "left" },
+            { label: "効果", prop: "effect", align: "left" }
+          ],
+          (prop, value, data1) => {
+            if (prop.prop === "count")
+              return makeSelectStr("個数", value, { s: 0, e: 3 });
+            if (prop.label === "") {
+              return `@@@CHAT-CMD:[宣言]【${value}】《${data1.effect}》@@@`;
+            }
+            return null;
+          }
+        )
+      ].join("\r\n")
+    }
+  });
+}
+
+function addTokugi(data: Insane, resultList: Partial<StoreData<MemoStore>>[]) {
+  resultList.push({
+    data: {
+      tab: "特技",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "リロードしてもギャップや恐怖心のチェック状態は引き継がれます",
+        "## 特技",
+        ...outputTokugiTable(data.tokugi, gapColList)
+      ].join("\r\n")
+    }
   });
 }

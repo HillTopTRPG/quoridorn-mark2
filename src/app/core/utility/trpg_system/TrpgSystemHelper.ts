@@ -37,7 +37,10 @@ export abstract class TrpgSystemHelper<T> {
   /**
    * その他欄の情報を生成する
    */
-  public abstract createOtherText(): Promise<MemoStore[] | null>;
+  public abstract createOtherText(
+    memoList: Partial<StoreData<MemoStore>>[],
+    updateInfo?: string | undefined
+  ): Promise<Partial<StoreData<MemoStore>>[] | null>;
 
   /**
    * チャットパレットの情報を生成する
@@ -81,23 +84,29 @@ export abstract class TrpgSystemHelper<T> {
 
   /**
    * 各種成果物を生成する処理で共通する処理
-   * @param url 省略された場合はコンストラクタに引き渡されたURLが利用される
-   * @param type jsonp or get 省略された場合は jsonp
+   * @param payload
+   * url 省略された場合はコンストラクタに引き渡されたURLが利用される
+   * type jsonp or get 省略された場合は jsonp
    * @protected
    */
-  protected async createResultList<U>(
-    type: "jsonp" | "get" = "jsonp",
-    url?: string
-  ): Promise<{
+  protected async createResultList<U>(payload?: {
+    type?: "jsonp" | "get";
+    url?: string;
+  }): Promise<{
     data: T | null;
-    list: U[];
+    list: Partial<StoreData<U>>[];
     json: any;
   }> {
+    const type: "jsonp" | "get" = !payload?.type ? "jsonp" : payload.type;
+    const url = payload?.url;
+
     const json = await this.getJsonData(type, url);
     const data = this.createData(json, this.url);
 
-    console.log(JSON.stringify(json, null, "  "));
-    console.log(JSON.stringify(data, null, "  "));
+    // console.log(JSON.stringify(json, null, "  "));
+    // console.log(JSON.stringify(data, null, "  "));
+    // console.log(json);
+    // console.log(data);
 
     return {
       data,
@@ -106,22 +115,27 @@ export abstract class TrpgSystemHelper<T> {
     };
   }
 
-  protected addMemo(resultList: MemoStore[], textList: string[] = []) {
+  protected addMemo(
+    resultList: Partial<StoreData<MemoStore>>[],
+    textList: string[] = []
+  ) {
     resultList.push({
-      tab: "メモ",
-      type: "normal",
-      text: [
-        ...textList,
-        "### メモ",
-        ":::200px:100px",
-        this.isSupportedChatPalette
-          ? [
-              "チャットパレット生成に対応しています。",
-              "コマを右クリックして「チャットパレットを生成」を押してみましょう"
-            ].join("\r\n")
-          : "",
-        ":::END;;;"
-      ].join("\r\n")
+      data: {
+        tab: "メモ",
+        type: "normal",
+        text: [
+          ...textList,
+          "### メモ",
+          ":::200px:100px",
+          this.isSupportedChatPalette
+            ? [
+                "チャットパレット生成に対応しています。",
+                "コマを右クリックして「チャットパレットを生成」を押してみましょう"
+              ].join("\r\n")
+            : "",
+          ":::END;;;"
+        ].join("\r\n")
+      }
     });
   }
 }

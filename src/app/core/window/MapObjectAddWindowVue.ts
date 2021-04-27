@@ -115,6 +115,7 @@ export default abstract class MapObjectAddWindowVue extends Mixins<
         this.otherTextList.map(data => ({
           ownerType: "scene-object-list",
           owner: sceneObjectKey,
+          permission: data.permission,
           data: data.data!
         }))
       );

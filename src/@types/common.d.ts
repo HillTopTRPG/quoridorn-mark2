@@ -179,6 +179,7 @@ declare module "task-info" {
     docType: string;
     docKey: string;
     target: string | null;
+    updateInfo?: string;
   };
 
   type SelectMapDrawInfo = {

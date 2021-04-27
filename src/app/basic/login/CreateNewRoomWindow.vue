@@ -103,7 +103,7 @@ export default class CreateNewRoomWindow extends Mixins<
     isViewCutIn: true,
     isDrawGridLine: true,
     isDrawGridId: true,
-    mapRotatable: true,
+    mapRotatable: "deg15",
     isShowStandImage: true,
     standImageGridNum: 12,
     isShowRotateMarker: true,

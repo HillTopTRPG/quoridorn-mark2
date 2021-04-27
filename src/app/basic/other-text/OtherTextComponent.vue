@@ -26,6 +26,7 @@
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
+                    @click-button="onClickButton"
                   />
                 </template>
                 <pre
@@ -46,13 +47,6 @@
                   ref="textareas"
                 >
                 </textarea>
-                <button
-                  :key="`${blockIndex}-${lineIndex}`"
-                  v-else-if="line.type === '@@@'"
-                  @click="onClickButton(line.value)"
-                >
-                  {{ getButtonText(line.value) }}
-                </button>
                 <hr
                   :key="`${blockIndex}-${lineIndex}`"
                   v-else-if="line.type === 'hr'"
@@ -74,6 +68,7 @@
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
+                    @click-button="onClickButton"
                   />
                 </blockquote>
                 <div
@@ -89,6 +84,7 @@
                       :disabled="!isEditable"
                       @check="onChangeCheck"
                       @select="onChangeSelect"
+                      @click-button="onClickButton"
                     />
                     <template v-else>{{ line.value }}</template>
                   </component>
@@ -106,6 +102,7 @@
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
+                    @click-button="onClickButton"
                   />
                   <template v-else>{{ line.value }}</template>
                 </component>
@@ -129,6 +126,7 @@
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
+                    @click-button="onClickButton"
                   />
                 </template>
               </ul>
@@ -151,6 +149,7 @@
                     :disabled="!isEditable"
                     @check="onChangeCheck"
                     @select="onChangeSelect"
+                    @click-button="onClickButton"
                   />
                 </template>
               </ol>
@@ -176,6 +175,7 @@
                       :class="[cell.align]"
                       @check="onChangeCheck"
                       @select="onChangeSelect"
+                      @click-button="onClickButton"
                     />
                   </tr>
                 </thead>
@@ -192,6 +192,7 @@
                         :class="[cell.align]"
                         @check="onChangeCheck"
                         @select="onChangeSelect"
+                        @click-button="onClickButton"
                       />
                     </tr>
                   </template>
@@ -227,6 +228,8 @@ import { OtherTextUpdateInfo } from "task-info";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 import ResizeObserver from "resize-observer-polyfill";
 import { getCssPxNum } from "@/app/core/css/Css";
+import { sendChatLog } from "@/app/core/utility/ChatUtility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({
   components: { SimpleTabComponent, OtherTextSpanComponent }
@@ -328,48 +331,6 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private async onClickButton(type: string): Promise<void> {
-    if (!this.docType || !this.docKey) return;
-    switch (type) {
-      case "RELOAD-CHARACTER-SHEET":
-        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
-          type: "other-text-update",
-          owner: "Quoridorn",
-          value: {
-            docType: this.docType,
-            docKey: this.docKey,
-            target: this.currentTabInfo!.target.toString()
-          }
-        });
-        break;
-      case "RELOAD-CHARACTER-SHEET-ALL":
-        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
-          type: "other-text-update",
-          owner: "Quoridorn",
-          value: {
-            docType: this.docType,
-            docKey: this.docKey,
-            target: null
-          }
-        });
-        break;
-      default:
-    }
-  }
-
-  @VueEvent
-  private getButtonText(type: string): string {
-    switch (type) {
-      case "RELOAD-CHARACTER-SHEET":
-        return "Reload";
-      case "RELOAD-CHARACTER-SHEET-ALL":
-        return "Reload(All)";
-      default:
-    }
-    return "UNKNOWN";
-  }
-
-  @VueEvent
   private onChangeInput(index: number) {
     this.$emit("inputTextArea");
     const textareaElmList: HTMLTextAreaElement[] = this.$refs
@@ -449,6 +410,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
         return index-- ? m : `[${value ? "x" : " "}]`;
       }
     );
+    this.onClickButton("RELOAD-CHARACTER-SHEET");
   }
 
   @VueEvent
@@ -463,6 +425,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
         return index-- ? m : `[${p1}](${value})`;
       }
     );
+    this.onClickButton("RELOAD-CHARACTER-SHEET");
   }
 
   @VueEvent
@@ -471,6 +434,69 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
       v => v.key === this.currentTabInfo!.target
     )!;
     return permissionCheck(otherText, "edit");
+  }
+
+  @VueEvent
+  private async onClickButton(type: string): Promise<void> {
+    if (type.startsWith("CHAT-CMD:")) {
+      const matchResult = type.match(/CHAT-CMD:(?:\[(.*?)(?:¦(.*))?])?(.*)/);
+      if (!matchResult) return;
+      const command = matchResult[3].replaceAll("<br>", "");
+      const updateInfo = matchResult[2];
+
+      if (command) {
+        await sendChatLog({
+          chatType: "chat",
+          actorKey: GameObjectManager.instance.chatPublicInfo.actorKey,
+          text: command,
+          tabKey: null,
+          statusKey: null,
+          targetKey: null,
+          system: null,
+          isSecret: false,
+          bcdiceServer: null,
+          bcdiceVersion: null
+        });
+      }
+      if (updateInfo) {
+        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
+          type: "other-text-update",
+          owner: "Quoridorn",
+          value: {
+            docType: this.docType,
+            docKey: this.docKey,
+            target: this.currentTabInfo!.target.toString(),
+            updateInfo
+          }
+        });
+      }
+      return;
+    }
+    switch (type) {
+      case "RELOAD-CHARACTER-SHEET":
+        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
+          type: "other-text-update",
+          owner: "Quoridorn",
+          value: {
+            docType: this.docType,
+            docKey: this.docKey,
+            target: this.currentTabInfo!.target.toString()
+          }
+        });
+        break;
+      case "RELOAD-CHARACTER-SHEET-ALL":
+        await TaskManager.instance.ignition<OtherTextUpdateInfo, never>({
+          type: "other-text-update",
+          owner: "Quoridorn",
+          value: {
+            docType: this.docType,
+            docKey: this.docKey,
+            target: null
+          }
+        });
+        break;
+      default:
+    }
   }
 }
 </script>
@@ -537,6 +563,7 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
       border: 1px solid gray;
       padding: 0.2rem;
       vertical-align: middle;
+      white-space: nowrap !important;
     }
 
     .left {
@@ -550,11 +577,6 @@ export default class OtherTextComponent extends Mixins<ComponentVue>(
     .center {
       text-align: center;
     }
-  }
-
-  button {
-    @include inline-flex-box(row, center, center);
-    margin-right: 0.5em;
   }
 
   h1,

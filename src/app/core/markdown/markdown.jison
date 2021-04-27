@@ -103,11 +103,11 @@ function fixSpans(spans, isRow) {
                            return lex.call(this, 'i', 'SPAN');
 <INITIAL,SPAN>'`'[^\r\n`]+?'`'
                            return lex.call(this, '`', 'SPAN');
-<INITIAL>'@@@'((?!\@\@\@).+?)'@@@'(\r?\n)?
-                           return lex.call(this, '@@@');
+<INITIAL,SPAN>'@@@'(?:(?!\@\@\@).+?)'@@@'
+                           return lex.call(this, '@@@', 'SPAN');
 <INITIAL>'```'(\s|.)+?'```'\r?\n
                            return lex.call(this, '```');
-<INITIAL>':::'[0-9]+((px)|(em))':'[0-9]+((px)|(em))\r?\n((?:(?!\:\:\:END\;\;\;).|\s)*)':::END;;;'(\r?\n)?
+<INITIAL>':::'[0-9]+(?:\.[0-9]+)?px':'[0-9]+(?:\.[0-9]+)?px\r?\n(?:(?:(?!\:\:\:END\;\;\;).|\s)*)':::END;;;'(?:\r?\n)?
                            return lex.call(this, ':::');
 <SPAN>\r?\n                return lex.call(this, 'nl', '');
 <SPAN>.                    return lex.call(this, '.');
@@ -336,10 +336,9 @@ line
     | 'hr' { $$ = { type: 'hr', raw: $1, nlCount: 1 }; }
     | '```' { $$ = { type: '```', value: $1.replace(/^```((?:.|\s)+?)```\r?\n$/, (m, p1) => p1), raw: $1, nlCount: 1 }; }
     | ':::'
-      { let res = $1.match(/^:::([0-9]+px):([0-9]+px)\r?\n((?:(?!\:\:\:END\;\;\;).|\s)*):::END;;;(\r?\n)?$/);
+      { let res = $1.match(/^:::([0-9]+(?:\.[0-9]+)?px):([0-9]+(?:\.[0-9]+)?px)\r?\n((?:(?!\:\:\:END\;\;\;).|\s)*):::END;;;(\r?\n)?$/);
         $$ = { type: ':::', width: res[1], height: res[2], value: res[3], raw: $1, nlCount: 1 };
       }
-    | '@@@' { $$ = { type: '@@@', value: $1.match(/@@@(.+)@@@(\r?\n)?/)[1], raw: $1, nlCount: 1 }; }
     | spans 'nl'
       { $$ = { type: 'line', value: fixSpans($1, 0), raw: spansRaw($1), nlCount: 1 };
         let nonCountDev = 0;
@@ -425,5 +424,8 @@ text-span
     | 'b'     { $$ = span('b', $1, true, /^(?:\*\*(.+?)\*\*)|(?:__(.+?)__)$/, (m, p1, p2) => p1 || p2); }
     | 'i'     { $$ = span('i', $1, true, /^(?:\*(.+?)\*)|(?:_(.+?)_)$/, (m, p1, p2) => p1 || p2); }
     | '`'     { $$ = span('`', $1, false, /^(?:`(.+?)`)$/, (m, p1) => p1); }
+    | '@@@'   {
+      $$ = span('@@@', $1, false, /^@@@(.+)@@@(\r?\n)?$/, (m, p1) => p1);
+    }
     | '.'     { $$ = span('.', $1, true); }
     ;

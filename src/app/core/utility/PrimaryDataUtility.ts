@@ -4,7 +4,7 @@
  * @param list
  */
 export function sum(list: number[]): number {
-  return list.reduce((accumlator, current) => accumlator + current);
+  return list.reduce((accumlator, current) => accumlator + current, 0);
 }
 
 /**
@@ -36,8 +36,8 @@ export function convertNumberNull(
   str: string | null,
   radix: number = 10
 ): number | null {
-  if (str === null) return null;
-  str = str.trim();
+  if (!str) return null;
+  str = str.trim().replace(/^\+/, "");
   if (radix === 16 && /^-?[0-9a-fA-F]+$/.test(str)) return parseInt(str, 16);
   if (radix === 10 && /^-?[0-9]+$/.test(str)) return parseInt(str, radix);
   if (radix === 10 && /^-?[0-9]*\.[0-9]+$/.test(str)) return parseFloat(str);
@@ -163,4 +163,17 @@ export function getExt(fileName: string): string {
 export function getFileName(url: string): string {
   const matchExt: string[] | null = url.match(/[^/]+$/);
   return matchExt ? matchExt[0] : "";
+}
+
+export function hoseiStr(n: number): string {
+  return n > 0 ? `+${n}` : n.toString(10);
+}
+
+export function match(
+  text: string,
+  regexp: RegExp | string,
+  callback: (matchResult: RegExpMatchArray) => void
+): void {
+  const matchResult = text.match(regexp);
+  matchResult && callback(matchResult);
 }

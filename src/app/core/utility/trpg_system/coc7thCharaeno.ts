@@ -1,6 +1,11 @@
 import { MemoStore } from "@/@types/store-data";
-import { outputTableList } from "@/app/core/utility/trpg_system/SaikoroFiction";
+import {
+  outputTableList,
+  regStr,
+  tabTextProcess
+} from "@/app/core/utility/trpg_system/SaikoroFiction";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
+import moment from "moment";
 
 export class Coc7thCharaeno extends TrpgSystemHelper<Investigator> {
   public readonly isSupportedOtherText = true;
@@ -25,9 +30,15 @@ export class Coc7thCharaeno extends TrpgSystemHelper<Investigator> {
   /**
    * その他欄の情報を生成する
    */
-  public async createOtherText(): Promise<MemoStore[] | null> {
-    const { data, list } = await this.createResultList<MemoStore>("get");
+  public async createOtherText(
+    memoList: Partial<StoreData<MemoStore>>[]
+  ): Promise<Partial<StoreData<MemoStore>>[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>({
+      type: "get"
+    });
     if (!data) return null;
+
+    readData(data, memoList);
 
     // メモ
     this.addMemo(list);
@@ -54,7 +65,7 @@ export class Coc7thCharaeno extends TrpgSystemHelper<Investigator> {
       paletteText: string;
     }[]
   > {
-    const { data } = await this.createResultList<string>("get");
+    const { data } = await this.createResultList<string>({ type: "get" });
     if (!data) return [];
     return [
       {
@@ -167,170 +178,251 @@ interface Fellow {
   url: string; // 妥当なURLとは限らないことに注意
 }
 
-function addSkills(data: Investigator, resultList: MemoStore[]) {
+function addSkills(
+  data: Investigator,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
   resultList.push({
-    tab: "技能",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 技能",
-      ...outputTableList<Skill>(
-        data.skills,
-        [
-          { label: "技能（五十音順）", prop: "name", align: "left" },
-          { label: "合計", prop: "value", align: "left" },
-          { label: "補正", prop: "edited", align: "center" }
-        ],
-        (prop, value, data) => {
-          if (prop.prop === "edited") {
-            return data.edited ? "●" : "";
+    data: {
+      tab: "技能",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 技能",
+        ...outputTableList<Skill>(
+          data.skills,
+          [
+            { label: "技能（五十音順）", prop: "name", align: "left" },
+            { label: "合計", prop: "value", align: "left" },
+            { label: "補正", prop: "edited", align: "center" },
+            { label: "", prop: "value", align: "left" }
+          ],
+          (prop, value, data) => {
+            if (prop.prop === "edited") {
+              return data.edited ? "●" : "";
+            }
+            if (prop.label === "") {
+              return `@@@CHAT-CMD:[]CC<=${data.value!.toString()} ${
+                data.name
+              }@@@`;
+            }
+            return data[prop.prop!]!.toString();
           }
-          return data[prop.prop!]!.toString();
-        }
+        )
+      ].join("\r\n")
+    }
+  });
+}
+
+function readData(
+  data: Investigator,
+  memoList: Partial<StoreData<MemoStore>>[]
+) {
+  tabTextProcess("バックストーリー", memoList, text => {
+    const bseList: BackstoryEntry[] = data.backstory.flatMap(b => b.entries);
+    Array.from(
+      text.matchAll(
+        new RegExp(`^\\|${[regStr.check, regStr.text].join("\\|")}\\|$`, "gm")
       )
-    ].join("\r\n")
+    )
+      .map(r => {
+        const check = r[1] === "x";
+        const text = r[2];
+        return { check, text };
+      })
+      .forEach((info, idx, self) => {
+        const matchIdx =
+          self.filter((s, fIdx) => s.text === info.text && fIdx <= idx).length -
+          1;
+        const bse = bseList.filter(bsr => bsr.text === info.text)[matchIdx];
+        if (bse) bse.keyConnection = info.check;
+      });
   });
 }
 
-function addBasic(data: Investigator, resultList: MemoStore[]) {
+function addBasic(
+  data: Investigator,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
   const ci = data.characteristics;
+  const createParamLine = (
+    status: keyof Investigator["characteristics"],
+    secondRoll: string = ""
+  ) =>
+    [
+      "",
+      `◇${status.toString().toUpperCase()}`,
+      ci[status],
+      `@@@CHAT-CMD:[]CC<=${ci[status]} ${status.toString().toUpperCase()}@@@` +
+        (!secondRoll
+          ? ""
+          : `<br>@@@CHAT-CMD:[]CC<=${ci[status]} ${secondRoll}@@@`),
+      ""
+    ].join("|");
   resultList.push({
-    tab: "基本情報",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 基本情報",
-      `|||`,
-      `|:--32px|:--|`,
-      `|◇名前|${data.name}|`,
-      `|◇職業|${data.occupation}|`,
-      "",
-      `|||||`,
-      `|:--32px|:--|:--32px|:--|`,
-      `|◇年齢|${data.age}|◇性別|${data.sex}|`,
-      `|◇住所|${data.residence}|◇出身|${data.birthplace}|`,
-      "",
-      "### 能力値",
-      "|STR|CON|POW|DEX|APP|SIZ|INT|EDU|HP|MP|MOV|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
-      [
+    data: {
+      tab: "基本情報",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 基本情報",
+        `|||`,
+        `|:--32px|:--|`,
+        `|◇名前|${data.name}|`,
+        `|◇職業|${data.occupation}|`,
         "",
-        ci.str,
-        ci.con,
-        ci.pow,
-        ci.dex,
-        ci.app,
-        ci.siz,
-        ci.int,
-        ci.edu,
-        data.attribute.hp,
-        data.attribute.mp,
-        data.attribute.mov,
-        ""
-      ].join("|"),
-      "",
-      "|ダメージ・ボーナス|ビルド|正気度|幸運|",
-      "|:---:|:---:|:---:|:---:|",
-      [
+        `|||||`,
+        `|:--32px|:--|:--32px|:--|`,
+        `|◇年齢|${data.age}|◇性別|${data.sex}|`,
+        `|◇住所|${data.residence}|◇出身|${data.birthplace}|`,
         "",
-        data.attribute.db,
-        data.attribute.build,
-        `${data.attribute.san.value}/${data.attribute.san.max}`,
-        data.attribute.luck,
-        ""
-      ].join("|")
-    ].join("\r\n")
-  });
-}
-
-function addWeapon(data: Investigator, resultList: MemoStore[]) {
-  console.log(JSON.stringify(data, null, "  "));
-  resultList.push({
-    tab: "武器/持ち物",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 武器",
-      "|名前|技能値|ダメージ|射程|攻撃回数|装弾数|故障|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
-      ...data.weapons.map(weapon =>
+        "### 能力値",
+        "||||",
+        "|:---|:---:|:---|",
+        createParamLine("str"),
+        createParamLine("con"),
+        createParamLine("pow"),
+        createParamLine("dex"),
+        createParamLine("app"),
+        createParamLine("siz"),
+        createParamLine("int", "アイデア"),
+        createParamLine("edu", "知識"),
+        ["", "◇HP", data.attribute.hp, "", ""].join("|"),
+        ["", "◇MP", data.attribute.mp, "", ""].join("|"),
+        ["", "◇MOV", data.attribute.mov, "", ""].join("|"),
+        ["", "◇ダメージ・ボーナス", data.attribute.db, "", ""].join("|"),
+        ["", "◇ビルド", data.attribute.build, "", ""].join("|"),
         [
           "",
-          weapon.name,
-          weapon.value,
-          weapon.damage,
-          weapon.range,
-          weapon.attacks,
-          weapon.ammo,
-          weapon.malfunction,
+          "◇正気度",
+          `${data.attribute.san.value}/${data.attribute.san.max}`,
+          "@@@CHAT-CMD:[]CC<={SAN} 正気度ロール@@@",
+          ""
+        ].join("|"),
+        [
+          "",
+          "◇幸運",
+          data.attribute.luck,
+          `@@@CHAT-CMD:[]CC<=${data.attribute.luck} 幸運@@@`,
           ""
         ].join("|")
-      ),
-      "## 装備と所持品",
-      data.possessions.length
-        ? [
-            "|アイテム|個数|詳細|",
-            "|:---:|:---:|:---|",
-            ...data.possessions.map(possession =>
-              [
-                "",
-                possession.name,
-                possession.count,
-                possession.detail.replace(/\r?\n/g, "\\n"),
-                ""
-              ].join("|")
-            )
-          ].join("\r\n")
-        : "なし"
-    ].join("\r\n")
+      ].join("\r\n")
+    }
   });
 }
 
-function addCredit(data: Investigator, resultList: MemoStore[]) {
+function addWeapon(
+  data: Investigator,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
   resultList.push({
-    tab: "財産/仲間",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 財産",
-      "|||",
-      "|:---:|:---|",
-      `|◇支出レベル|${data.credit.spendingLevel}|`,
-      `|◇現金|${data.credit.cash}|`,
-      `|◇資産|${data.credit.assetsDetails.replace(/\\r?\\n/g, "\\\\n")}|`,
-      "## 仲間の探索者",
-      "|名前|URL|",
-      "|:---:|:---|",
-      ...data.fellows.map(fellow => ["", fellow.name, fellow.url, ""].join("|"))
-    ].join("\r\n")
-  });
-}
-
-function addBackStory(data: Investigator, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "バックストーリー",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## バックストーリー",
-      ...data.backstory.flatMap(back => [
-        `###### ${back.name}`,
-        "|||",
-        "|:---:16px|:---|",
-        ...back.entries.map(e =>
+    data: {
+      tab: "武器/持ち物",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 武器",
+        "|名前|技能値|ダメージ|射程|攻撃回数|装弾数|故障||",
+        "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|",
+        ...data.weapons.map(weapon =>
           [
             "",
-            `[${e.keyConnection ? "x" : " "}]`,
-            e.text.replace(/\r?\n/g, "\\n"),
+            weapon.name,
+            weapon.value,
+            weapon.damage,
+            weapon.range,
+            weapon.attacks,
+            weapon.ammo,
+            weapon.malfunction,
+            `@@@CHAT-CMD:[]CC<=${weapon.damage.replace("DB", "{DB}")} ${
+              weapon.name
+            }@@@`,
             ""
           ].join("|")
+        ),
+        "## 装備と所持品",
+        data.possessions.length
+          ? [
+              "|アイテム|個数|詳細|",
+              "|:---:|:---:|:---|",
+              ...data.possessions.map(possession =>
+                [
+                  "",
+                  possession.name,
+                  possession.count,
+                  possession.detail.replace(/\r?\n/g, "\\n"),
+                  ""
+                ].join("|")
+              )
+            ].join("\r\n")
+          : "なし"
+      ].join("\r\n")
+    }
+  });
+}
+
+function addCredit(
+  data: Investigator,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
+  resultList.push({
+    data: {
+      tab: "財産/仲間",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 財産",
+        "|||",
+        "|:---:|:---|",
+        `|◇支出レベル|${data.credit.spendingLevel}|`,
+        `|◇現金|${data.credit.cash}|`,
+        `|◇資産|${data.credit.assetsDetails.replace(/\\r?\\n/g, "\\\\n")}|`,
+        "## 仲間の探索者",
+        "|名前|URL|",
+        "|:---:|:---|",
+        ...data.fellows.map(fellow =>
+          ["", fellow.name, fellow.url, ""].join("|")
         )
-      ])
-    ].join("\r\n")
+      ].join("\r\n")
+    }
+  });
+}
+
+function addBackStory(
+  data: Investigator,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
+  resultList.push({
+    data: {
+      tab: "バックストーリー",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## バックストーリー",
+        ...data.backstory.flatMap(back => [
+          `###### ${back.name}`,
+          "|||",
+          "|:---:16px|:---|",
+          ...back.entries.map(e =>
+            [
+              "",
+              `[${e.keyConnection ? "x" : " "}]`,
+              e.text.replace(/\r?\n/g, "\\n"),
+              ""
+            ].join("|")
+          )
+        ])
+      ].join("\r\n")
+    }
   });
 }

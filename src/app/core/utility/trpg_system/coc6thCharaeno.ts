@@ -1,8 +1,14 @@
 import { MemoStore } from "@/@types/store-data";
-import { outputTableList } from "@/app/core/utility/trpg_system/SaikoroFiction";
+import {
+  outputTableList,
+  regStr,
+  tabTextProcess
+} from "@/app/core/utility/trpg_system/SaikoroFiction";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
+import moment from "moment";
+import { match } from "@/app/core/utility/PrimaryDataUtility";
 
-export class Coc6thCharaeno extends TrpgSystemHelper<Investigator> {
+export class Coc6thCharaeno extends TrpgSystemHelper<CoC> {
   public readonly isSupportedOtherText = true;
   public readonly isSupportedChatPalette = true;
 
@@ -25,9 +31,15 @@ export class Coc6thCharaeno extends TrpgSystemHelper<Investigator> {
   /**
    * その他欄の情報を生成する
    */
-  public async createOtherText(): Promise<MemoStore[] | null> {
-    const { data, list } = await this.createResultList<MemoStore>("get");
+  public async createOtherText(
+    memoList: Partial<StoreData<MemoStore>>[]
+  ): Promise<Partial<StoreData<MemoStore>>[] | null> {
+    const { data, list } = await this.createResultList<MemoStore>({
+      type: "get" as "get"
+    });
     if (!data) return null;
+
+    readData(data, memoList);
 
     // メモ
     this.addMemo(list);
@@ -54,7 +66,7 @@ export class Coc6thCharaeno extends TrpgSystemHelper<Investigator> {
       paletteText: string;
     }[]
   > {
-    const { data } = await this.createResultList<string>("get");
+    const { data } = await this.createResultList<string>({ type: "get" });
     if (!data) return [];
     return [
       {
@@ -70,11 +82,13 @@ export class Coc6thCharaeno extends TrpgSystemHelper<Investigator> {
    * @param url 元となったキャラクターシートのURL
    * @protected
    */
-  protected createData(json: any, url?: string): Investigator | null {
+  protected createData(json: any, url?: string): CoC | null {
     if (!json) return null;
     return {
       url: url || this.url,
-      ...json
+      ...json,
+      hantei: "CC",
+      nouryoku: "能力値×5 事前計算"
     };
   }
 }
@@ -191,181 +205,267 @@ interface Possession {
   detail: string; // 物品の詳細説明
 }
 
-function addBasic(data: Investigator, resultList: MemoStore[]) {
+interface CoC extends Investigator {
+  skillHantei: "CC" | "CCB";
+  basicHantei: "CC" | "CCB";
+  nouryoku: "能力値×5 事前計算" | "式のまま" | "マクロ";
+}
+
+function readData(data: CoC, memoList: Partial<StoreData<MemoStore>>[]) {
+  tabTextProcess("技能", memoList, text => {
+    match(text, regStr.makeSelect("判定"), mr => {
+      data.skillHantei = mr[1] as "CC" | "CCB";
+    });
+  });
+  tabTextProcess("基本情報", memoList, text => {
+    match(
+      text,
+      regStr.makeSelect("能力値"),
+      mr =>
+        (data.nouryoku = mr[1] as "能力値×5 事前計算" | "式のまま" | "マクロ")
+    );
+
+    match(text, regStr.makeSelect("判定"), mr => {
+      data.basicHantei = mr[1] as "CC" | "CCB";
+    });
+  });
+}
+
+function addBasic(data: CoC, resultList: Partial<StoreData<MemoStore>>[]) {
   const ci = data.characteristics;
+  const createParamLine = (
+    status: keyof CoC["characteristics"],
+    secondRoll: string = ""
+  ) => {
+    const statusName = status.toString().toUpperCase();
+    let command = "";
+    let label = "";
+    switch (data.nouryoku) {
+      case "能力値×5 事前計算":
+        command = `${data.basicHantei}<=${ci[status] * 5}`;
+        label = `${statusName}*5`;
+        break;
+      case "式のまま":
+        command = `${data.basicHantei}<=${ci[status]}*5`;
+        label = `${statusName}*5`;
+        break;
+      case "マクロ":
+        command = `${data.basicHantei}<={${status.toString().toUpperCase()}}*5`;
+        break;
+      default:
+    }
+    const btn1 = `@@@CHAT-CMD:[]${command}${label ? ` ${label}` : ""}@@@`;
+    const btn2 = `@@@CHAT-CMD:[]${data.basicHantei}<=${ci[status] * 5}${
+      secondRoll ? ` ${secondRoll}` : ""
+    }@@@`;
+    return [
+      "",
+      `◇${status.toString().toUpperCase()}`,
+      ci[status],
+      `${btn1}${!secondRoll ? "" : `<br>${btn2}`}`,
+      ""
+    ].join("|");
+  };
   resultList.push({
-    tab: "基本情報",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 基本情報",
-      `|||`,
-      `|:---:|:---:|`,
-      `|◇名前|${data.name}|`,
-      `|◇職業|${data.occupation}|`,
-      `|◇出身|${data.birthplace}|`,
-      `|◇学校・学位|${data.degree}|`,
-      `|◇精神的な障害|${data.mentalDisorder}|`,
-      "",
-      `|||||`,
-      `|:---:32px|:---:|:---:32px|:---:|`,
-      `|◇年齢|${data.age}|◇性別|${data.sex}|`,
-      "",
-      "### 能力値",
-      "|STR|CON|POW|DEX|APP|SIZ|INT|EDU|HP|MP|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
-      [
+    data: {
+      tab: "基本情報",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 基本情報",
+        `|||`,
+        `|:---:|:---:|`,
+        `|◇名前|${data.name}|`,
+        `|◇職業|${data.occupation}|`,
+        `|◇出身|${data.birthplace}|`,
+        `|◇学校・学位|${data.degree}|`,
+        `|◇精神的な障害|${data.mentalDisorder}|`,
         "",
-        ci.str,
-        ci.con,
-        ci.pow,
-        ci.dex,
-        ci.app,
-        ci.siz,
-        ci.int,
-        ci.edu,
-        data.attribute.hp,
-        data.attribute.mp,
-        ""
-      ].join("|"),
-      "",
-      "|||||||",
-      "|:---:|:---|:---:|:---|:---:|:---|",
-      [
-        `|◇アイディア|${data.characteristics.int * 5}`,
-        `|◇知識|${data.characteristics.edu * 5}`,
-        `|◇ダメージ・ボーナス|${data.attribute.db}|`
-      ].join(""),
-      [
-        `|◇初期正気度|${data.characteristics.pow * 5}`,
-        `|◇正気度|${data.attribute.san.value}/${data.attribute.san.max}`,
-        `|◇幸運|${data.characteristics.pow * 5}|`
-      ].join("")
-    ].join("\r\n")
-  });
-}
-
-function addSkills(data: Investigator, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "技能",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 技能",
-      ...outputTableList<Skill>(
-        data.skills,
-        [
-          { label: "技能（五十音順）", prop: "name", align: "left" },
-          { label: "合計", prop: "value", align: "left" },
-          { label: "補正", prop: "edited", align: "left" }
-        ],
-        (prop, value, data) => {
-          if (prop.prop === "edited") {
-            return data.edited ? "●" : "";
-          }
-          return data[prop.prop!]!.toString();
-        }
-      )
-    ].join("\r\n")
-  });
-}
-
-function addWeapon(data: Investigator, resultList: MemoStore[]) {
-  console.log(JSON.stringify(data, null, "  "));
-  resultList.push({
-    tab: "武器/持ち物",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 武器",
-      "|名前|技能値|ダメージ|射程|攻撃回数|装弾数|故障|耐久力|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|",
-      ...data.weapons.map(weapon =>
+        `|||||`,
+        `|:---:32px|:---:|:---:32px|:---:|`,
+        `|◇年齢|${data.age}|◇性別|${data.sex}|`,
+        "",
+        "### 能力値",
+        `能力値：{能力値}[能力値×5 事前計算|式のまま|マクロ](${data.nouryoku})`,
+        `判定：{判定}[CC|CCB](${data.basicHantei})`,
+        "||||",
+        "|:---|:---:|:---|",
+        createParamLine("str"),
+        createParamLine("con"),
+        createParamLine("pow"),
+        createParamLine("dex"),
+        createParamLine("app"),
+        createParamLine("siz"),
+        createParamLine("int", "アイデア"),
+        createParamLine("edu", "知識"),
+        ["", "◇HP", data.attribute.hp, "", ""].join("|"),
+        ["", "◇MP", data.attribute.mp, "", ""].join("|"),
+        ["", "◇ダメージ・ボーナス", data.attribute.db, "", ""].join("|"),
+        ["", "◇初期正気度", data.characteristics.pow * 5, "", ""].join("|"),
         [
           "",
-          weapon.name,
-          weapon.value,
-          weapon.damage,
-          weapon.range,
-          weapon.attacks,
-          weapon.ammo,
-          weapon.malfunction,
-          weapon.hp,
+          "◇正気度",
+          `${data.attribute.san.value}/${data.attribute.san.max}`,
+          "@@@CHAT-CMD:[]CC<={SAN} 正気度ロール@@@",
+          ""
+        ].join("|"),
+        [
+          "",
+          "◇幸運",
+          data.characteristics.pow * 5,
+          `@@@CHAT-CMD:[]CC<=${data.characteristics.pow * 5} 幸運@@@`,
           ""
         ].join("|")
-      ),
-      "## 冒険の装備とその他の所持品",
-      data.possessions.length
-        ? [
-            "|アイテム|個数|詳細|",
-            "|:---:|:---:|:---|",
-            ...data.possessions.map(possession =>
-              [
-                "",
-                possession.name,
-                possession.count,
-                possession.detail.replace(/\r?\n/g, "\\n"),
-                ""
-              ].join("|")
-            )
-          ].join("\r\n")
-        : "なし"
-    ].join("\r\n")
+      ].join("\r\n")
+    }
   });
 }
 
-function addCredit(data: Investigator, resultList: MemoStore[]) {
+function addSkills(data: CoC, resultList: Partial<StoreData<MemoStore>>[]) {
   resultList.push({
-    tab: "財産/仲間",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 収入と財産",
-      "|||",
-      "|:---:|:---|",
-      `|◇収入|${data.credit.income}|`,
-      `|◇手持ち現金|${data.credit.cash}|`,
-      `|◇預金|${data.credit.deposit}|`,
-      `|◇個人資産|${data.credit.personalProperty.replace(
-        /\\r?\\n/g,
-        "\\\\n"
-      )}|`,
-      `|◇不動産|${data.credit.realEstate.replace(/\\r?\\n/g, "\\\\n")}|`
-    ].join("\r\n")
+    data: {
+      tab: "技能",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 技能",
+        `判定：{判定}[CC|CCB](${data.skillHantei})`,
+        ...outputTableList<Skill>(
+          data.skills,
+          [
+            { label: "技能（五十音順）", prop: "name", align: "left" },
+            { label: "合計", prop: "value", align: "left" },
+            { label: "補正", prop: "edited", align: "left" },
+            { label: "", prop: "value", align: "left" }
+          ],
+          (prop, value, data1) => {
+            if (prop.prop === "edited") {
+              return data1.edited ? "●" : "";
+            }
+            if (prop.label === "") {
+              const command = `${data.skillHantei}<=${data1.value!.toString()}`;
+              return `@@@CHAT-CMD:[${command}]${command} ${data1.name}@@@`;
+            }
+            return data1[prop.prop!]!.toString();
+          }
+        )
+      ].join("\r\n")
+    }
   });
 }
 
-function addBackStory(data: Investigator, resultList: MemoStore[]) {
+function addWeapon(data: CoC, resultList: Partial<StoreData<MemoStore>>[]) {
   resultList.push({
-    tab: "探索者のデータ",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 探索者のデータ",
-      "|||",
-      "|:---:|:---|",
-      `|◇住所|${data.personalData.address}|`,
-      `|◇描写|${data.personalData.description.replace(/\\r?\\n/g, "\\\\n")}|`,
-      `|◇家族＆友人|${data.personalData.family.replace(/\\r?\\n/g, "\\\\n")}|`,
-      `|◇狂気の症状|${data.personalData.insanity.replace(
-        /\\r?\\n/g,
-        "\\\\n"
-      )}|`,
-      `|◇負傷|${data.personalData.injuries.replace(/\\r?\\n/g, "\\\\n")}|`,
-      `|◇傷跡など|${data.personalData.scar.replace(/\\r?\\n/g, "\\\\n")}|`,
-      "## 読んだクトゥルフ神話の魔導書",
-      data.mythosTomes || "なし",
-      "## アーティファクト／学んだ呪文",
-      data.artifactsAndSpells || "なし",
-      "## 遭遇した超自然の存在",
-      data.encounters || "なし",
-      "## メモ",
-      data.note || "なし"
-    ].join("\r\n")
+    data: {
+      tab: "武器/持ち物",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 武器",
+        "|名前|技能値|ダメージ|射程|攻撃回数|装弾数|故障|耐久力||",
+        "|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|",
+        ...data.weapons.map(weapon =>
+          [
+            "",
+            weapon.name,
+            weapon.value,
+            weapon.damage,
+            weapon.range,
+            weapon.attacks,
+            weapon.ammo,
+            weapon.malfunction,
+            weapon.hp,
+            `@@@CHAT-CMD:[]CC<=${weapon.damage.replace("DB", "{DB}")} ${
+              weapon.name
+            }@@@`,
+            ""
+          ].join("|")
+        ),
+        "## 冒険の装備とその他の所持品",
+        data.possessions.length
+          ? [
+              "|アイテム|個数|詳細|",
+              "|:---:|:---:|:---|",
+              ...data.possessions.map(possession =>
+                [
+                  "",
+                  possession.name,
+                  possession.count,
+                  possession.detail.replace(/\r?\n/g, "\\n"),
+                  ""
+                ].join("|")
+              )
+            ].join("\r\n")
+          : "なし"
+      ].join("\r\n")
+    }
+  });
+}
+
+function addCredit(data: CoC, resultList: Partial<StoreData<MemoStore>>[]) {
+  resultList.push({
+    data: {
+      tab: "財産/仲間",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 収入と財産",
+        "|||",
+        "|:---:|:---|",
+        `|◇収入|${data.credit.income}|`,
+        `|◇手持ち現金|${data.credit.cash}|`,
+        `|◇預金|${data.credit.deposit}|`,
+        `|◇個人資産|${data.credit.personalProperty.replace(
+          /\\r?\\n/g,
+          "\\\\n"
+        )}|`,
+        `|◇不動産|${data.credit.realEstate.replace(/\\r?\\n/g, "\\\\n")}|`
+      ].join("\r\n")
+    }
+  });
+}
+
+function addBackStory(data: CoC, resultList: Partial<StoreData<MemoStore>>[]) {
+  resultList.push({
+    data: {
+      tab: "探索者のデータ",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 探索者のデータ",
+        "|||",
+        "|:---:|:---|",
+        `|◇住所|${data.personalData.address}|`,
+        `|◇描写|${data.personalData.description.replace(/\\r?\\n/g, "\\\\n")}|`,
+        `|◇家族＆友人|${data.personalData.family.replace(
+          /\\r?\\n/g,
+          "\\\\n"
+        )}|`,
+        `|◇狂気の症状|${data.personalData.insanity.replace(
+          /\\r?\\n/g,
+          "\\\\n"
+        )}|`,
+        `|◇負傷|${data.personalData.injuries.replace(/\\r?\\n/g, "\\\\n")}|`,
+        `|◇傷跡など|${data.personalData.scar.replace(/\\r?\\n/g, "\\\\n")}|`,
+        "## 読んだクトゥルフ神話の魔導書",
+        data.mythosTomes || "なし",
+        "## アーティファクト／学んだ呪文",
+        data.artifactsAndSpells || "なし",
+        "## 遭遇した超自然の存在",
+        data.encounters || "なし",
+        "## メモ",
+        data.note || "なし"
+      ].join("\r\n")
+    }
   });
 }

@@ -30,6 +30,13 @@
           @change="onChangeChecked(span.index, $event.target.checked)"
         />
       </label>
+      <button
+        :key="index"
+        v-if="span.type === '@@@'"
+        @click="$emit('click-button', span.value)"
+      >
+        {{ getButtonText(span.value) }}
+      </button>
       <label :key="index" v-if="span.type === 'select'">
         <select
           @change="onChangeSelect(span.index, $event.target.value)"
@@ -136,6 +143,23 @@ export default class OtherTextSpanComponent extends Mixins<ComponentVue>(
   private onChangeSelect(index: number, value: string) {
     this.$emit("select", index, value);
   }
+
+  @VueEvent
+  private getButtonText(type: string): string {
+    if (type.startsWith("CHAT-CMD:")) {
+      const matchResult = type.match(/CHAT-CMD:(?:\[(.*?)(?:¦.*)?])?(.*)/);
+      if (!matchResult) return `DiceRoll: ERROR`;
+      return `${matchResult[1] || matchResult[2]}`;
+    }
+    switch (type) {
+      case "RELOAD-CHARACTER-SHEET":
+        return "Reload";
+      case "RELOAD-CHARACTER-SHEET-ALL":
+        return "Reload(All)";
+      default:
+    }
+    return "UNKNOWN";
+  }
 }
 </script>
 
@@ -153,6 +177,12 @@ pre {
 }
 label {
   @include inline-flex-box(row, flex-start, center);
+}
+
+button {
+  @include inline-flex-box(row, center, center);
+  margin-right: 0.5em;
+  white-space: nowrap;
 }
 
 .table-reverse {

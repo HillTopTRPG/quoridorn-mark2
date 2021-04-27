@@ -128,10 +128,7 @@ import { TabInfo } from "@/@types/window";
 import OtherTextEditComponent from "@/app/basic/other-text/OtherTextEditComponent.vue";
 import CtrlButton from "@/app/core/component/CtrlButton.vue";
 import { MemoStore } from "@/@types/store-data";
-import {
-  questionDialog,
-  createEmptyStoreUseData
-} from "@/app/core/utility/Utility";
+import { questionDialog } from "@/app/core/utility/Utility";
 import { BackgroundSize, Direction } from "@/@types/store-data-optional";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
 import { getTrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemFasade";
@@ -221,14 +218,16 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
   }
 
   @Prop({ type: Array, required: true })
-  private otherTextList!: StoreData<MemoStore>[];
-  private otherTextListVolatile: StoreData<MemoStore>[] = [];
+  private otherTextList!: Partial<StoreData<MemoStore>>[];
+  private otherTextListVolatile: Partial<StoreData<MemoStore>>[] = [];
   @Watch("otherTextList", { immediate: true })
-  private onChangeOtherTextList(value: StoreData<MemoStore>[]) {
+  private onChangeOtherTextList(value: Partial<StoreData<MemoStore>>[]) {
     this.otherTextListVolatile = value;
   }
   @Watch("otherTextListVolatile")
-  private onChangeOtherTextListVolatile(value: StoreData<MemoStore>[]) {
+  private onChangeOtherTextListVolatile(
+    value: Partial<StoreData<MemoStore>>[]
+  ) {
     this.$emit("update:otherTextList", value);
   }
 
@@ -434,7 +433,9 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
     });
     if (!confirm) return;
 
-    const memoList = await this.trpgSystemHelper.createOtherText();
+    const memoList = await this.trpgSystemHelper.createOtherText(
+      this.otherTextListVolatile
+    );
     if (!memoList) return;
 
     // 中身が空のタブを削除
@@ -444,13 +445,8 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
       .reverse()
       .forEach(ind => this.otherTextListVolatile.splice(ind, 1));
 
-    // 生成したデータからDB用データを生成
-    const otherTextDataList = memoList.map(r =>
-      createEmptyStoreUseData(uuid.v4(), r)
-    );
-
     // タブ名が重複するものは上書き、そうでないものは追加
-    otherTextDataList.forEach(otd => {
+    memoList.forEach(otd => {
       const duplicateList = this.otherTextListVolatile.filter(
         v => v.data!.tab === otd.data!.tab
       );

@@ -1,5 +1,6 @@
 import { MemoStore } from "@/@types/store-data";
 import {
+  createDiceRollStr,
   createEmotion,
   createTokugi,
   outputPersonalityList,
@@ -7,9 +8,13 @@ import {
   outputTokugiChatPalette,
   outputTokugiTable,
   Personality,
-  SaikoroFictionTokugi
+  readPersonalityList,
+  readTokugiTableInfo,
+  SaikoroFictionTokugi,
+  tabTextProcess
 } from "@/app/core/utility/trpg_system/SaikoroFiction";
 import { TrpgSystemHelper } from "@/app/core/utility/trpg_system/TrpgSystemHelper";
+import moment from "moment";
 
 export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
   public readonly isSupportedOtherText = true;
@@ -34,22 +39,16 @@ export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
   /**
    * その他欄の情報を生成する
    */
-  public async createOtherText(): Promise<MemoStore[] | null> {
+  public async createOtherText(
+    memoList: Partial<StoreData<MemoStore>>[]
+  ): Promise<Partial<StoreData<MemoStore>>[] | null> {
     const { data, list } = await this.createResultList<MemoStore>();
     if (!data) return null;
 
+    readData(data, memoList);
+
     // メモ
-    this.addMemo(list, [
-      "### ダメージ",
-      "|器術|体術|忍術|謀術|戦術|妖術|",
-      "|:---:|:---:|:---:|:---:|:---:|:---:|",
-      `|${[...new Array(6)]
-        .map(
-          (_, ind) =>
-            `[${data.tokugi.damagedColList.some(d => d === ind) ? "x" : " "}]`
-        )
-        .join("|")}|`
-    ]);
+    this.addMemo(list, []);
     // 基本情報
     addBasic(data, list);
     // 特技
@@ -69,41 +68,39 @@ export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
       paletteText: string;
     }[]
   > {
-    const { data, list } = await this.createResultList<string>();
+    const { data } = await this.createResultList<string>();
     if (!data) return [];
-
-    list.push(
-      "2D6",
-      "2D6>=",
-      ...outputTokugiChatPalette(data.tokugi),
-      "ST (無印)シーン表",
-      "FT ファンブル表",
-      "ET 感情表",
-      "KWT 変調表",
-      "RTT ランダム特技決定表",
-      "D66",
-      "choice[〇〇,△△,□□]",
-      "",
-      "兵糧丸を１つ使用",
-      "兵糧丸を１つ獲得",
-      "神通丸を１つ使用",
-      "神通丸を１つ獲得",
-      "遁甲符を１つ使用",
-      "遁甲符を１つ獲得",
-      ...data.ninpouList
-        .flatMap(n => [
-          "",
-          `【${n.name}】《${n.targetSkill}》ｺｽﾄ：${n.cost ||
-            "なし"}／間合:${n.range || "なし"}`,
-          `効果:${n.effect}`
-        ])
-        .map(text => text.replaceAll(/\r?\n/g, ""))
-    );
 
     return [
       {
         name: `◆${data.characterName}`,
-        paletteText: list.join("\n")
+        paletteText: [
+          "2D6",
+          "2D6>=",
+          ...outputTokugiChatPalette(data.tokugi),
+          "ST (無印)シーン表",
+          "FT ファンブル表",
+          "ET 感情表",
+          "KWT 変調表",
+          "RTT ランダム特技決定表",
+          "D66",
+          "choice[〇〇,△△,□□]",
+          "",
+          "兵糧丸を１つ使用",
+          "兵糧丸を１つ獲得",
+          "神通丸を１つ使用",
+          "神通丸を１つ獲得",
+          "遁甲符を１つ使用",
+          "遁甲符を１つ獲得",
+          ...data.ninpouList
+            .flatMap(n => [
+              "",
+              `【${n.name}】《${n.targetSkill}》ｺｽﾄ：${n.cost ||
+                "なし"}／間合:${n.range || "なし"}`,
+              `効果:${n.effect}`
+            ])
+            .map(text => text.replaceAll(/\r?\n/g, ""))
+        ].join("\n")
       }
     ];
   }
@@ -156,9 +153,17 @@ export class ShinobigamiHelper extends TrpgSystemHelper<Shinobigami> {
         name: textFilter(b["name"]),
         type: textFilter(b["type"]),
         point: b["point"] || "0",
-        effect: textFilter(b["effect"]).replace(/\r?\n/g, "\\n")
+        effect: textFilter(b["effect"])
       })),
-      tokugi: createTokugi(json, tokugiTable)
+      tokugi: createTokugi(
+        json,
+        tokugiTable,
+        true,
+        false,
+        false,
+        (tokugi: SaikoroFictionTokugi, t: string, tt: string, move: number) =>
+          `@@@CHAT-CMD:[${move}]SG>=${move} ${t}→${tt}@@@`
+      )
     };
   }
 }
@@ -241,83 +246,159 @@ type Shinobigami = {
   tokugi: SaikoroFictionTokugi; // 特技
 };
 
-function addBasic(data: Shinobigami, resultList: MemoStore[]) {
-  resultList.push({
-    tab: "基本情報",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 基本情報",
-      `PL: ${data.playerName}`,
-      `PC${data.scenario.pcno ? `(${data.scenario.pcno})` : ""}: ${
-        data.characterName
-      }${data.characterNameKana ? `（${data.characterNameKana}）` : ""}`,
-      `${data.level} ${data.belief} ${data.age} ${data.sex} ${data.cover}`,
-      `流派：${data.upperStyle}${data.subStyle ? `（${data.subStyle}）` : ""}`,
-      `流儀: ${data.stylerule}`,
-      `使命: ${data.scenario.mission}`,
-      "",
-      "## 人物欄",
-      ...outputPersonalityList(data.personalityList, [
-        { label: "キャラ", prop: "name", align: "left" },
-        { label: "居", prop: "place", align: "left" },
-        { label: "情", prop: "secret", align: "left" },
-        { label: "奥", prop: "specialEffect", align: "left" },
-        { label: "感情", prop: "emotion", align: "left" }
-      ]),
-      "",
-      "## 背景",
-      ...outputTableList<Haikei>(data.backgroundList, [
-        { label: "名称", prop: "name", align: "left" },
-        { label: "種別", prop: "type", align: "left" },
-        { label: "功績点", prop: "point", align: "left" },
-        { label: "効果", prop: "effect", align: "left" }
-      ])
-    ].join("\r\n")
+function readData(
+  data: Shinobigami,
+  memoList: Partial<StoreData<MemoStore>>[]
+) {
+  tabTextProcess("基本情報", memoList, text => {
+    readPersonalityList(data, text, [
+      { label: "キャラ", prop: "name" },
+      { label: "居", prop: "place" },
+      { label: "秘", prop: "secret" },
+      { label: "奥", prop: "specialEffect" },
+      { label: "感情", prop: "emotion" }
+    ]);
+  });
+
+  tabTextProcess("特技", memoList, text => {
+    readTokugiTableInfo(
+      data.tokugi,
+      gapColList,
+      tokugiTable,
+      text,
+      true,
+      false,
+      ""
+    );
+
+    // 最後の行の上下輪転のチェックボックスの値をとる
+    const crs = "\\[([ x])]　*";
+    const lcs = "\\|¦?　*";
+    const regStr2 =
+      [...new Array(13)].reduce(
+        (a, c, idx) => `${a}${lcs}${!idx ? crs : ""}`,
+        ""
+      ) + "\\|";
+    const matchResult2 = text.match(new RegExp(regStr2));
+    if (matchResult2) {
+      data.tokugi.outRow = matchResult2[1] === "x";
+    }
   });
 }
 
-function addTokugi(data: Shinobigami, resultList: MemoStore[]) {
-  const damagedColList = data.tokugi.damagedColList;
+function addBasic(
+  data: Shinobigami,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
   resultList.push({
-    tab: "特技",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 特技",
-      ...outputTokugiTable(
-        data.tokugi,
-        gapColList,
-        false,
-        (text, ind) =>
-          `${text}${damagedColList.some(d => d === ind) ? "☒" : "☐"}　　　`
-      ),
-      `|${[...new Array(13)]
-        .map(_ => (data.tokugi.outRow ? "¦　" : "　"))
-        .join("|")}|`
-    ].join("\r\n")
+    data: {
+      tab: "基本情報",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "リロードしてもチェック状態や選択状態は引き継がれます",
+        "## 基本情報",
+        `PL: ${data.playerName}`,
+        `PC${data.scenario.pcno ? `(${data.scenario.pcno})` : ""}: ${
+          data.characterName
+        }${data.characterNameKana ? `（${data.characterNameKana}）` : ""}`,
+        `${data.level} ${data.belief} ${data.age} ${data.sex} ${data.cover}`,
+        `流派：${data.upperStyle}${
+          data.subStyle ? `（${data.subStyle}）` : ""
+        }`,
+        `流儀: ${data.stylerule}`,
+        `使命: ${data.scenario.mission}`,
+        "",
+        "## 人物欄",
+        ...outputPersonalityList(data.personalityList, [
+          { label: "キャラ", prop: "name", align: "left" },
+          { label: "居", prop: "place", align: "left" },
+          { label: "秘", prop: "secret", align: "left" },
+          { label: "奥", prop: "specialEffect", align: "left" },
+          { label: "感情", prop: "emotion", align: "left" }
+        ]),
+        "",
+        "## 背景",
+        ...outputTableList<Haikei>(data.backgroundList, [
+          { label: "名称", prop: "name", align: "left" },
+          { label: "種別", prop: "type", align: "left" },
+          { label: "功績点", prop: "point", align: "left" },
+          { label: "効果", prop: "effect", align: "left" }
+        ])
+      ].join("\r\n")
+    }
   });
 }
 
-function addNinpou(data: Shinobigami, resultList: MemoStore[]) {
+function addTokugi(
+  data: Shinobigami,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
   resultList.push({
-    tab: "忍法",
-    type: "url",
-    text: [
-      "@@@RELOAD-CHARACTER-SHEET@@@",
-      "@@@RELOAD-CHARACTER-SHEET-ALL@@@",
-      "## 忍法",
-      ...outputTableList<Ninpou>(data.ninpouList, [
-        { label: "忍法", prop: "name", align: "left" },
-        { label: "タイプ", prop: "type", align: "left" },
-        { label: "指定特技", prop: "targetSkill", align: "left" },
-        { label: "間合", prop: "range", align: "right" },
-        { label: "コスト", prop: "cost", align: "right" },
-        { label: "効果", prop: "effect", align: "left" },
-        { label: "参照p", prop: "page", align: "left" }
-      ])
-    ].join("\r\n")
+    data: {
+      tab: "特技",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "リロードしてもギャップやダメージのチェック状態は引き継がれます",
+        "## 特技",
+        ...outputTokugiTable(data.tokugi, gapColList),
+        `|${[...new Array(13)]
+          .map((_, idx) => {
+            if (!idx) return data.tokugi.outRow ? "¦[x]" : "[ ]";
+            return data.tokugi.outRow ? "¦　" : "　";
+          })
+          .join("|")}|`
+      ].join("\r\n")
+    }
+  });
+}
+
+function addNinpou(
+  data: Shinobigami,
+  resultList: Partial<StoreData<MemoStore>>[]
+) {
+  resultList.push({
+    data: {
+      tab: "忍法",
+      type: "url",
+      text: [
+        `@@@RELOAD-CHARACTER-SHEET-ALL@@@ ${moment().format(
+          "YYYY/MM/DD HH:mm:ss"
+        )}`,
+        "## 忍法",
+        ...outputTableList<Ninpou>(
+          data.ninpouList,
+          [
+            { label: "忍法", prop: "name", align: "left" },
+            { label: "", prop: "name", align: "left" },
+            { label: "タイプ", prop: "type", align: "left" },
+            { label: "指定特技", prop: "targetSkill", align: "left" },
+            { label: "間合", prop: "range", align: "right" },
+            { label: "コスト", prop: "cost", align: "right" },
+            { label: "効果", prop: "effect", align: "left" },
+            { label: "参照p", prop: "page", align: "left" }
+          ],
+          (prop, value, data1) => {
+            if (prop.prop === "targetSkill") {
+              const diceRollStr = createDiceRollStr(
+                data.tokugi,
+                gapColList,
+                data1.targetSkill
+              );
+              return `${value}${diceRollStr}`;
+            }
+            if (prop.label === "") {
+              return `@@@CHAT-CMD:[宣言]【${value}】《${data1.targetSkill}》コスト：${data1.cost}／間合：${data1.range}@@@`;
+            }
+            return null;
+          }
+        )
+      ].join("\r\n")
+    }
   });
 }
