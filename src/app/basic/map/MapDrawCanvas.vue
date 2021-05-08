@@ -1,6 +1,7 @@
 <template>
   <div class="map-draw-canvas">
     <canvas
+      v-if="isMounted"
       :width="mapCanvasSize.width"
       :height="mapCanvasSize.height"
       @keydown.enter.stop
@@ -42,6 +43,9 @@ export default class MapDrawCanvas extends Mixins<AddressCalcMixin>(
   private key = "map-draw-canvas";
 
   private mapDrawList = GameObjectManager.instance.mapDrawList;
+  private sceneList = GameObjectManager.instance.sceneList;
+  private mapCanvasSize: Size | null = null;
+  private isMounted: boolean = false;
 
   private get useMapDrawList() {
     return this.mapDrawList.filter(
@@ -54,16 +58,19 @@ export default class MapDrawCanvas extends Mixins<AddressCalcMixin>(
     this.paint();
   }
 
-  private get mapCanvasSize(): Size {
+  @Watch("sceneList", { deep: true })
+  private updateMapCanvasSize(): void {
+    if (!this.isMounted) return;
     const scene = findRequireByKey(
       GameObjectManager.instance.sceneList,
       this.sceneKey
     );
     const gridSize = scene.data!.gridSize;
-    return createSize(
+    this.mapCanvasSize = createSize(
       gridSize * scene.data!.columns,
       gridSize * scene.data!.rows
     );
+    setTimeout(this.paint);
   }
 
   private paint(): void {
@@ -72,7 +79,7 @@ export default class MapDrawCanvas extends Mixins<AddressCalcMixin>(
       "canvas"
     ) as HTMLCanvasElement;
     const ctx: CanvasRenderingContext2D = canvasElm!.getContext("2d")!;
-    ctx.clearRect(0, 0, this.mapCanvasSize.width, this.mapCanvasSize.height);
+    ctx.clearRect(0, 0, this.mapCanvasSize!.width, this.mapCanvasSize!.height);
 
     this.useMapDrawList.forEach(md => this.paintMapDraw(ctx, md));
   }
@@ -135,9 +142,8 @@ export default class MapDrawCanvas extends Mixins<AddressCalcMixin>(
 
   @LifeCycle
   private async mounted() {
-    setTimeout(() => {
-      this.paint();
-    });
+    this.isMounted = true;
+    this.updateMapCanvasSize();
   }
 }
 </script>

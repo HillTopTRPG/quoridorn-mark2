@@ -3,7 +3,7 @@
     class="layer-info"
     :class="{
       selected: localValue === layerInfo.key,
-      unuse: !sceneAndLayerInfo(layerInfo.key).data.isUse,
+      unuse: !sceneAndLayerInfo.data.isUse,
       orderChanging: isOrderChanging,
       dragMode
     }"
@@ -20,17 +20,14 @@
     ></span>
     <span v-else>{{ layerInfo.data.name }}</span>
     <s-check
-      :value="sceneAndLayerInfo(layerInfo.key).data.isUse"
+      :value="sceneAndLayerInfo.data.isUse"
       colorStyle="pink"
       c-icon="eye"
       c-label=""
       n-icon="eye-blocked"
       n-label=""
       @hover="onHoverView"
-      @input="
-        value =>
-          $emit('onChangeLayerUse', sceneAndLayerInfo(layerInfo.key).key, value)
-      "
+      @input="value => $emit('onChangeLayerUse', sceneAndLayerInfo.key, value)"
     />
   </div>
 </template>
@@ -49,13 +46,16 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   ComponentVue
 ) {
   @Prop({ type: Object, required: true })
-  private layerInfo!: SceneLayerStore;
+  private layerInfo!: StoreData<SceneLayerStore>;
 
   @Prop({ type: Boolean, required: true })
   private dragMode!: boolean;
 
   @Prop({ type: String, default: "" })
   private value!: string; // selectedLayerKey
+
+  @Prop({ type: String, required: true })
+  private sceneKey!: string;
 
   @Prop({ type: Boolean, required: true })
   private isOrderChanging!: boolean;
@@ -73,11 +73,12 @@ export default class EditSceneLayerComponent extends Mixins<ComponentVue>(
   }
 
   @VueEvent
-  private get sceneAndLayerInfo(): (
-    key: string
-  ) => StoreData<SceneAndLayerStore> {
-    return (key: string) =>
-      this.sceneAndLayerList.find(sal => sal.data!.layerKey === key)!;
+  private get sceneAndLayerInfo(): StoreData<SceneAndLayerStore> {
+    return this.sceneAndLayerList.find(
+      sal =>
+        sal.data!.layerKey === this.layerInfo.key &&
+        sal.data!.sceneKey === this.sceneKey
+    )!;
   }
 
   @VueEvent

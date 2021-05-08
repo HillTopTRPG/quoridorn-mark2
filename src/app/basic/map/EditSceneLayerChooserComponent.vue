@@ -22,6 +22,7 @@
       <edit-scene-layer-component
         v-for="layerInfo in layerInfoList"
         :key="layerInfo.key"
+        :sceneKey="sceneKey"
         :layerInfo="layerInfo"
         :dragMode="dragMode"
         :isOrderChanging="changeOrderKey === layerInfo.key"
@@ -46,7 +47,11 @@ import { ModeInfo } from "mode";
 import { SceneAndLayerStore, SceneLayerStore } from "@/@types/store-data";
 import ComponentVue from "@/app/core/window/ComponentVue";
 import { Mixins } from "vue-mixin-decorator";
-import { errorDialog, findRequireByKey } from "@/app/core/utility/Utility";
+import {
+  errorDialog,
+  findByKey,
+  findRequireByKey
+} from "@/app/core/utility/Utility";
 import LifeCycle from "@/app/core/decorator/LifeCycle";
 import EditSceneLayerComponent from "@/app/basic/map/EditSceneLayerComponent.vue";
 import TaskManager from "@/app/core/task/TaskManager";
@@ -97,11 +102,16 @@ export default class EditSceneLayerChooserComponent extends Mixins<
 
   @VueEvent
   private async changeLayerUse(mapAndKayerKey: string, checked: boolean) {
+    console.log(mapAndKayerKey, checked);
     if (!this.dragMode) {
       await this.sceneAndLayerCC.touchModify([mapAndKayerKey]);
     }
-    const data = findRequireByKey(this.sceneAndLayerInfoList!, mapAndKayerKey)
-      .data!;
+    const data = findByKey(this.sceneAndLayerInfoList!, mapAndKayerKey)?.data!;
+    if (!data) {
+      console.log("not found...");
+      console.log(this.sceneAndLayerInfoList);
+      return;
+    }
     data.isUse = checked;
     const option: Partial<StoreData<SceneAndLayerStore>> & {
       key: string;
