@@ -339,6 +339,7 @@ export default class PieceMixin<T extends SceneObjectType> extends Mixins<
   @Watch("isMounted")
   @Watch("sceneObjectInfo.data.isHideHighlight")
   @Watch("sceneObjectInfo.data.isHideSubType")
+  @Watch("sceneObjectInfo.data.backgroundList", { deep: true })
   private onChangeIsHideHighlight() {
     if (this.sceneObjectInfo!.data!.type === "map-marker") {
       const texture = this.sceneObjectInfo!.data!.textures[
