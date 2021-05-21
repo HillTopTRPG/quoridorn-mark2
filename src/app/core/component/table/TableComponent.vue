@@ -40,6 +40,7 @@ import { permissionCheck } from "../../api/app-server/SocketFacade";
 import { TabInfo, WindowInfo, WindowTableDeclareInfo } from "@/@types/window";
 import VueEvent from "../../decorator/VueEvent";
 import ComponentVue from "@/app/core/window/ComponentVue";
+import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
 
 @Component({
   components: { SimpleTabComponent, SimpleTableComponent }
@@ -78,19 +79,20 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
 
   private tabList: TabInfo[] = [];
   private currentTabInfo: TabInfo | null = null;
-  private isFirst: boolean = true;
 
   private get tableDeclareInfo(): WindowTableDeclareInfo {
     return this.windowInfo.declare.tableInfoList[this.tableIndex];
   }
 
-  @Watch("currentTabInfo")
-  private onChangeCurrentTabInfo() {
-    if (this.isFirst) {
-      this.isFirst = false;
-      return;
-    }
-    this.localValue = null;
+  @Watch("value")
+  private onChangeValue() {
+    const num = convertNumberZero(this.value?.toString() || "");
+    const tab = this.tabList.find(t =>
+      typeof t.target === "string"
+        ? t.target === this.value
+        : t.target.from <= num && num <= t.target.to
+    );
+    if (tab) this.currentTabInfo = tab;
   }
 
   @VueEvent
@@ -171,7 +173,6 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
           }
 
           let current: number = 0;
-          let isFirst = true;
           while (current < this.useDataList.length) {
             const tabInfo: TabInfo = {
               key: (current + ordinal).toString(),
@@ -190,7 +191,6 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
             }
             tabList.push(tabInfo);
             current += useChoice;
-            isFirst = false;
           }
         }
       } else if (this.tableDeclareInfo.classificationType === "string") {
@@ -218,6 +218,7 @@ export default class TableComponent extends Mixins<ComponentVue>(ComponentVue) {
         });
       }
       this.tabList = tabList;
+      this.onChangeValue();
     } catch (e) {
       console.error(e);
     }

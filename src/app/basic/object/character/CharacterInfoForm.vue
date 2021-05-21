@@ -447,6 +447,7 @@ export default class CharacterInfoForm extends Mixins<ComponentVue>(
 
     // タブ名が重複するものは上書き、そうでないものは追加
     memoList.forEach(otd => {
+      otd.key = uuid.v4();
       const duplicateList = this.otherTextListVolatile.filter(
         v => v.data!.tab === otd.data!.tab
       );

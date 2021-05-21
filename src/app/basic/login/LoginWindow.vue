@@ -1,6 +1,6 @@
 <template>
   <div class="root" ref="window-container">
-    <div class="message-scroll-area selectable" v-if="message">
+    <div class="message-scroll-area selectable" v-if="isMounted">
       <img
         class="logo"
         src="https://quoridorn.com/img/bg_white_4c.svg"
@@ -14,7 +14,7 @@
           </div>
           <div
             class="version-info flat-button"
-            v-if="roomList"
+            v-if="isMounted"
             @click="viewVersionInfo()"
           >
             <span class="normal" v-t="'login-window.label.version-info'"></span>
@@ -39,7 +39,7 @@
         :tableIndex="0"
         :status="status"
         :dataList="roomList"
-        v-if="roomList"
+        v-if="isMounted"
         :selectLock="roomStatus !== 'normal'"
         keyProp="order"
         :rowClassGetter="getRowClasses"
@@ -54,13 +54,11 @@
             <span v-if="data.data">{{ data.data.name }}</span>
             <span v-else v-t="'login-window.label.empty-room'"></span>
           </template>
-          <template v-else-if="index === 2">{{ data | system }}</template>
+          <template v-else-if="index === 2">{{
+            roomSystemMap.get(data.order) || ""
+          }}</template>
           <template v-else-if="index === 3">{{ data | memberNum }}</template>
           <template v-else-if="index === 4">
-            <span v-if="!data.data || !data.data.hasPassword">--</span>
-            <span v-else v-t="'label.exist'"></span>
-          </template>
-          <template v-else-if="index === 5">
             <span
               v-if="
                 !data.data || !data.data.extend || !data.data.extend.visitable
@@ -69,17 +67,7 @@
             >
             <span v-else v-t="'login-window.label.possible'"></span>
           </template>
-          <template v-else-if="index === 6">{{ data | updateDate }}</template>
-          <template v-else-if="index === 7">
-            <ctrl-button
-              :focusable="false"
-              @click.stop="deleteRoom(data.order)"
-              @dblclick.stop
-              :disabled="data | deleteButtonDisabled"
-            >
-              <span v-t="'button.delete'"></span>
-            </ctrl-button>
-          </template>
+          <template v-else-if="index === 5">{{ data | updateDate }}</template>
           <template v-else>
             {{ data[colDec.target] }}
           </template>
@@ -92,18 +80,27 @@
         />
       </template>
     </keep-alive>
-    <label class="language-select">
-      <span class="label-input">Language</span>
-      <language-select v-model="language" />
-    </label>
-    <div class="button-area">
-      <ctrl-button @click="createRoom()" :disabled="disabledCreate">
-        <span v-t="'button.create-new'"></span>
-      </ctrl-button>
-      <ctrl-button @click="login()" :disabled="disabledLogin">
-        <span v-t="'button.login'"></span>
-      </ctrl-button>
-    </div>
+    <template v-if="isMounted">
+      <label class="language-select">
+        <span class="label-input">Language</span>
+        <language-select v-model="language" />
+      </label>
+      <div class="button-area">
+        <ctrl-button @click="createRoom()" :disabled="disabledCreate">
+          <span v-t="'button.create-new'"></span>
+        </ctrl-button>
+        <ctrl-button @click="login()" :disabled="disabledLogin">
+          <span v-t="'button.login'"></span>
+        </ctrl-button>
+        <ctrl-button
+          class="delete"
+          @click="deleteRoom()"
+          :disabled="disabledDelete"
+        >
+          <span v-t="'button.delete'"></span>
+        </ctrl-button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -182,8 +179,6 @@ import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
   },
   filters: {
     roomNo: (storeObj: StoreData<ClientRoomInfo>) => storeObj.order,
-    system: (storeObj: StoreData<ClientRoomInfo>) =>
-      storeObj.data ? storeObj.data.system : "",
     memberNum: (storeObj: StoreData<ClientRoomInfo>) =>
       storeObj.data ? storeObj.data.memberNum || 0 : 0,
     updateDate: (data: StoreData<ClientRoomInfo>) => {
@@ -192,11 +187,7 @@ import BcdiceManager from "@/app/core/api/bcdice/BcdiceManager";
       return moment(data.updateTime ? data.updateTime : data.createTime).format(
         "YYYY/MM/DD HH:mm:ss"
       );
-    },
-    deleteButtonDisabled: (storeObj: StoreData<ClientRoomInfo>) =>
-      !storeObj.data ||
-      !!storeObj.exclusionOwner ||
-      (storeObj.data && storeObj.data.memberNum > 0)
+    }
   }
 })
 export default class LoginWindow extends Mixins<
@@ -218,6 +209,9 @@ export default class LoginWindow extends Mixins<
   private urlPlayerName: string | null = null;
   private isNeedRoomCreatePassword: boolean = false;
 
+  private roomSystemMap: Map<number, string> = new Map();
+  private isMounted = false;
+
   @Watch("language")
   private onChangeLanguage() {
     LanguageManager.instance.language = this.language;
@@ -232,6 +226,25 @@ export default class LoginWindow extends Mixins<
     );
     const client = process.env.VUE_APP_VERSION;
     return `${server} / ${client}`;
+  }
+
+  @Watch("roomList", { deep: true })
+  private async onChangeRoomList() {
+    await this.roomList!.map(room => async () => {
+      const roomNo = room.order;
+      if (room.data) {
+        let name = LanguageManager.instance.getText("label.no-target");
+        if (room.data!.system !== "DiceBot") {
+          name =
+            (await BcdiceManager.instance.getSystemName(room.data!.system)) ||
+            "";
+        }
+        this.roomSystemMap.set(roomNo, name);
+      } else {
+        if (this.roomSystemMap.has(roomNo)) this.roomSystemMap.delete(roomNo);
+      }
+    }).reduce((prev, curr) => prev.then(curr), Promise.resolve());
+    this.isMounted = true;
   }
 
   @LifeCycle
@@ -456,6 +469,19 @@ export default class LoginWindow extends Mixins<
     return !this.roomList[this.selectedRoomNo].data;
   }
 
+  @VueEvent
+  private get disabledDelete(): boolean {
+    if (this.roomStatus !== "normal") return true;
+    if (this.selectedRoomNo === null) return true;
+    if (!this.roomList) return true;
+    const storeObj = this.roomList[this.selectedRoomNo];
+    return (
+      !storeObj.data ||
+      Boolean(storeObj.exclusionOwner) ||
+      storeObj.data.memberNum > 0
+    );
+  }
+
   @LifeCycle
   public async beforeDestroy() {
     if (this.roomStatus === "processing") await this.releaseTouchRoom();
@@ -476,7 +502,9 @@ export default class LoginWindow extends Mixins<
   }
 
   @VueEvent
-  private async deleteRoom(order: number) {
+  private async deleteRoom() {
+    if (this.selectedRoomNo === null) return;
+    const order = this.selectedRoomNo;
     // タッチ
     if (!(await this.touchRoom(true, order))) return;
 
@@ -851,13 +879,7 @@ export default class LoginWindow extends Mixins<
       this.urlPassword = getUrlParam("password");
       this.urlPlayerName = getUrlParam("player");
 
-      if (this.urlPlayerName) {
-        // const roomKey = this.roomList.filter(r => r.order === no)[0].key;
-        // const cookieToken = Cookies.get(`${roomKey}/${this.urlPlayerName}`);
-        // console.log(`token: ${cookieToken}`);
-      } else {
-        if (!this.disabledLogin) await this.login();
-      }
+      if (!this.disabledLogin) setTimeout(this.login);
       return;
     }
     window.history.replaceState("", "", "");
@@ -1379,6 +1401,20 @@ export default class LoginWindow extends Mixins<
         }
       }
     }
+  }
+}
+
+.button-area {
+  @include inline-flex-box(row, center, center);
+  width: 100%;
+  position: relative;
+
+  .delete {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
   }
 }
 </style>

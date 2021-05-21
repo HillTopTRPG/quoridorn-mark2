@@ -152,22 +152,18 @@
           type: text
           align: center
           target: order
-        - width: 100
+        - width: 213
           type: text
-          align: center
+          align: left
           target: name
         - width: 90
           type: text
-          align: center
+          align: left
           target: system
         - width: 50
           type: text
           align: center
           target: memberNum
-        - width: 75
-          type: text
-          align: center
-          target: hasPassword
         - width: 34
           type: text
           align: center
@@ -176,10 +172,6 @@
           type: text
           align: center
           target: updateTime
-        - width: 34
-          type: deleteButton
-          align: center
-          target: ""
 
 "create-new-room-window":
   icon: home3

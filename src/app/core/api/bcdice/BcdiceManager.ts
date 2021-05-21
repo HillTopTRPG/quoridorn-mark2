@@ -5,6 +5,8 @@ import TaskManager from "@/app/core/task/TaskManager";
 import LanguageManager from "@/LanguageManager";
 import { loadYaml } from "@/app/core/utility/FileUtility";
 import { convertNumberZero } from "@/app/core/utility/PrimaryDataUtility";
+import GameObjectManager from "@/app/basic/GameObjectManager";
+import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 
 abstract class BcdiceApiCommander {
   public static SUPPORT_VERSION_MAP: Map<
@@ -449,15 +451,23 @@ export default class BcdiceManager {
   }
 
   public async getSystemName(
-    baseUrl: string,
-    version: string,
-    system: string | null
+    system: string | null = GameObjectManager.instance.roomData.system,
+    baseUrl: string = GameObjectManager.instance.roomData.bcdiceServer,
+    version: string = GameObjectManager.instance.roomData.bcdiceVersion
   ): Promise<string | null> {
     if (!system) return null;
     if (system === "DiceBot")
       return LanguageManager.instance.getText(
         "bcdice-manager.label.default-dicebot"
       );
+    if (!baseUrl) baseUrl = SocketFacade.instance.connectInfo.bcdiceServer;
+    if (!version)
+      version =
+        (
+          await BcdiceManager.instance.getVersionList(
+            SocketFacade.instance.connectInfo.bcdiceServer
+          )
+        )[0] || "";
     const systemInfo = await this.getSystemInfo(baseUrl, version, system);
     return systemInfo.name;
   }

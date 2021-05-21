@@ -297,7 +297,7 @@ export default class GameObjectManager {
       isViewCutIn: true,
       isDrawGridLine: true,
       isDrawGridId: true,
-      mapRotatable: "deg15",
+      mapRotatable: true,
       isShowStandImage: true,
       standImageGridNum: 12,
       isShowRotateMarker: true,

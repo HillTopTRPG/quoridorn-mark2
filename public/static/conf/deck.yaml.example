@@ -1,21 +1,21 @@
 #=========#=========#=========#=========#=========#=========#=========#=========#
 - # カードセット名
-  title     : 花札
+  title: 花札
   # index.htmlを基準とした相対URL
-  basePath  : static/img/deck/hanahuda/
+  basePath: static/img/deck/hanahuda/
   # 裏面の柄
-  back      :
-    imagePath      : back.jpg
+  back:
+    imagePath: back.jpg
     backgroundColor: "#ffffff"
   # カードサイズ(px)
-  width     : 128
-  height    : 192
+  width: 128
+  height: 192
   # カードのふちの幅(px)
-  padHorizontal  : 0
-  padTop : 0
-  padBottom : 0
+  padHorizontal: 0
+  padTop: 0
+  padBottom: 0
   # 角の丸み(px)
-  radius    : 0
+  radius: 0
   # カード名の表示高さ(px)（非表示なら0）
   nameHeight: 0
   # カード名のフォントサイズ(px)（非表示なら意味なし）
@@ -27,16 +27,16 @@
   # カードテキストの内余白
   textPadding: 0
   # 出典元情報
-  source    :
-    author  : メタボルタ氏
-    title   : 花札＠どどんとふ
+  source:
+    author: メタボルタ氏
+    title: 花札＠どどんとふ
     # 個別情報
     # url   : リンク先（必須）
     # author: 作者（省略可）
     # title : 作品名（省略可）
     refs:
-    - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52572048
-    - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52619352
+      - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52572048
+      - url: https://www.pixiv.net/member_illust.php?mode=medium&illust_id=52619352
   # カード情報
   # name           : カード名前
   # text           : カードテキスト
@@ -44,120 +44,120 @@
   # backgroundColor: 背景色（デフォルトは#ffffff）
   # fontColor      : フォント色（デフォルトは#000000）
   cards:
-  - imagePath: 1_1_1.jpg
-    name: 松／カス(1)
-  - imagePath: 1_1_2.jpg
-    name: 松／カス(2)
-  - imagePath: 1_5.jpg
-    name: 松／短冊
-  - imagePath: 1_20.jpg
-    name: 松／光
-  - imagePath: 2_1_1.jpg
-    name: 梅／カス(1)
-  - imagePath: 2_1_2.jpg
-    name: 梅／カス(1)
-  - imagePath: 2_5.jpg
-    name: 梅／短冊
-  - imagePath: 2_10.jpg
-    name: 梅／タネ
-  - imagePath: 3_1_1.jpg
-    name: 桜／カス(1)
-  - imagePath: 3_1_2.jpg
-    name: 桜／カス(2)
-  - imagePath: 3_5.jpg
-    name: 桜／短冊
-  - imagePath: 3_20.jpg
-    name: 桜／光
-  - imagePath: 4_1_1.jpg
-    name: 藤／カス(1)
-  - imagePath: 4_1_2.jpg
-    name: 藤／カス(2)
-  - imagePath: 4_5.jpg
-    name: 藤／短冊
-  - imagePath: 4_10.jpg
-    name: 藤／タネ
-  - imagePath: 5_1_1.jpg
-    name: 菖蒲／カス(1)
-  - imagePath: 5_1_2.jpg
-    name: 菖蒲／カス(2)
-  - imagePath: 5_5.jpg
-    name: 菖蒲／短冊
-  - imagePath: 5_10.jpg
-    name: 菖蒲／タネ
-  - imagePath: 6_1_1.jpg
-    name: 牡丹／カス(1)
-  - imagePath: 6_1_2.jpg
-    name: 牡丹／カス(2)
-  - imagePath: 6_5.jpg
-    name: 牡丹／短冊
-  - imagePath: 6_10.jpg
-    name: 牡丹／タネ
-  - imagePath: 7_1_1.jpg
-    name: 萩／カス(1)
-  - imagePath: 7_1_2.jpg
-    name: 萩／カス(2)
-  - imagePath: 7_5.jpg
-    name: 萩／短冊
-  - imagePath: 7_10.jpg
-    name: 萩／タネ
-  - imagePath: 8_1_1.jpg
-    name: 芒／カス(1)
-  - imagePath: 8_1_2.jpg
-    name: 芒／カス(2)
-  - imagePath: 8_10.jpg
-    name: 芒／短冊
-  - imagePath: 8_20.jpg
-    name: 芒／光
-  - imagePath: 9_1_1.jpg
-    name: 菊／カス(1)
-  - imagePath: 9_1_2.jpg
-    name: 菊／カス(2)
-  - imagePath: 9_5.jpg
-    name: 菊／短冊
-  - imagePath: 9_10.jpg
-    name: 菊／タネ
-  - imagePath: 10_1_1.jpg
-    name: 紅葉／カス(1)
-  - imagePath: 10_1_2.jpg
-    name: 紅葉／カス(2)
-  - imagePath: 10_5.jpg
-    name: 紅葉／短冊
-  - imagePath: 10_10.jpg
-    name: 紅葉／タネ
-  - imagePath: 11_1.jpg
-    name: 柳／カス
-  - imagePath: 11_5.jpg
-    name: 柳／短冊
-  - imagePath: 11_10.jpg
-    name: 柳／タネ
-  - imagePath: 11_20.jpg
-    name: 柳／光
-  - imagePath: 12_1_1.jpg
-    name: 桐／カス(1)
-  - imagePath: 12_1_2.jpg
-    name: 桐／カス(2)
-  - imagePath: 12_1_3.jpg
-    name: 桐／カス(3)
-  - imagePath: 12_20.jpg
-    name: 桐／光
+    - imagePath: 1_1_1.jpg
+      name: 松／カス(1)
+    - imagePath: 1_1_2.jpg
+      name: 松／カス(2)
+    - imagePath: 1_5.jpg
+      name: 松／短冊
+    - imagePath: 1_20.jpg
+      name: 松／光
+    - imagePath: 2_1_1.jpg
+      name: 梅／カス(1)
+    - imagePath: 2_1_2.jpg
+      name: 梅／カス(1)
+    - imagePath: 2_5.jpg
+      name: 梅／短冊
+    - imagePath: 2_10.jpg
+      name: 梅／タネ
+    - imagePath: 3_1_1.jpg
+      name: 桜／カス(1)
+    - imagePath: 3_1_2.jpg
+      name: 桜／カス(2)
+    - imagePath: 3_5.jpg
+      name: 桜／短冊
+    - imagePath: 3_20.jpg
+      name: 桜／光
+    - imagePath: 4_1_1.jpg
+      name: 藤／カス(1)
+    - imagePath: 4_1_2.jpg
+      name: 藤／カス(2)
+    - imagePath: 4_5.jpg
+      name: 藤／短冊
+    - imagePath: 4_10.jpg
+      name: 藤／タネ
+    - imagePath: 5_1_1.jpg
+      name: 菖蒲／カス(1)
+    - imagePath: 5_1_2.jpg
+      name: 菖蒲／カス(2)
+    - imagePath: 5_5.jpg
+      name: 菖蒲／短冊
+    - imagePath: 5_10.jpg
+      name: 菖蒲／タネ
+    - imagePath: 6_1_1.jpg
+      name: 牡丹／カス(1)
+    - imagePath: 6_1_2.jpg
+      name: 牡丹／カス(2)
+    - imagePath: 6_5.jpg
+      name: 牡丹／短冊
+    - imagePath: 6_10.jpg
+      name: 牡丹／タネ
+    - imagePath: 7_1_1.jpg
+      name: 萩／カス(1)
+    - imagePath: 7_1_2.jpg
+      name: 萩／カス(2)
+    - imagePath: 7_5.jpg
+      name: 萩／短冊
+    - imagePath: 7_10.jpg
+      name: 萩／タネ
+    - imagePath: 8_1_1.jpg
+      name: 芒／カス(1)
+    - imagePath: 8_1_2.jpg
+      name: 芒／カス(2)
+    - imagePath: 8_10.jpg
+      name: 芒／短冊
+    - imagePath: 8_20.jpg
+      name: 芒／光
+    - imagePath: 9_1_1.jpg
+      name: 菊／カス(1)
+    - imagePath: 9_1_2.jpg
+      name: 菊／カス(2)
+    - imagePath: 9_5.jpg
+      name: 菊／短冊
+    - imagePath: 9_10.jpg
+      name: 菊／タネ
+    - imagePath: 10_1_1.jpg
+      name: 紅葉／カス(1)
+    - imagePath: 10_1_2.jpg
+      name: 紅葉／カス(2)
+    - imagePath: 10_5.jpg
+      name: 紅葉／短冊
+    - imagePath: 10_10.jpg
+      name: 紅葉／タネ
+    - imagePath: 11_1.jpg
+      name: 柳／カス
+    - imagePath: 11_5.jpg
+      name: 柳／短冊
+    - imagePath: 11_10.jpg
+      name: 柳／タネ
+    - imagePath: 11_20.jpg
+      name: 柳／光
+    - imagePath: 12_1_1.jpg
+      name: 桐／カス(1)
+    - imagePath: 12_1_2.jpg
+      name: 桐／カス(2)
+    - imagePath: 12_1_3.jpg
+      name: 桐／カス(3)
+    - imagePath: 12_20.jpg
+      name: 桐／光
 
 #=========#=========#=========#=========#=========#=========#=========#=========#
 - # カードセット名
-  title     : トランプ
+  title: トランプ
   # index.htmlを基準とした相対URL
-  basePath  : static/img/deck/cards/
+  basePath: static/img/deck/cards/
   # 裏面の柄
-  back      :
-    imagePath      : back.jpg
-    backgroundColor: "#ffffff"  # カードサイズ
-  width     : 128
-  height    : 192
+  back:
+    imagePath: back.jpg
+    backgroundColor: "#ffffff" # カードサイズ
+  width: 128
+  height: 192
   # カードのふちの幅(px)
-  padHorizontal  : 0
-  padTop : 0
-  padBottom : 0
+  padHorizontal: 0
+  padTop: 0
+  padBottom: 0
   # 角の丸み(px)
-  radius    : 10
+  radius: 10
   # カード名の表示高さ(px)（非表示なら0）
   nameHeight: 0
   # カード名のフォントサイズ(px)（非表示なら意味なし）
@@ -169,21 +169,21 @@
   # カードテキストの内余白
   textPadding: 0
   # 出典元情報
-  source  :
+  source:
     author: Wikipedia Commons
     # 個別情報
     # url   : リンク先（必須）
     # author: 作者（省略可）
     # title : 作品名（省略可）
     refs:
-    - url  : https://commons.wikimedia.org/wiki/File:English_pattern_playing_cards_deck.svg
-      title: English pattern playing cards deck
-    - url  : https://commons.wikimedia.org/wiki/File:Joker_black_02.svg
-      title: Joker black 02
-    - url  : https://commons.wikimedia.org/wiki/File:Joker_red_02.svg
-      title: Joker red 02
-    - url  : https://commons.wikimedia.org/wiki/File:Carta_Francese_retro_Rosso.jpg
-      title: Carta Francese retro Rosso
+      - url: https://commons.wikimedia.org/wiki/File:English_pattern_playing_cards_deck.svg
+        title: English pattern playing cards deck
+      - url: https://commons.wikimedia.org/wiki/File:Joker_black_02.svg
+        title: Joker black 02
+      - url: https://commons.wikimedia.org/wiki/File:Joker_red_02.svg
+        title: Joker red 02
+      - url: https://commons.wikimedia.org/wiki/File:Carta_Francese_retro_Rosso.jpg
+        title: Carta Francese retro Rosso
   # カード情報
   # name           : カード名前
   # text           : カードテキスト

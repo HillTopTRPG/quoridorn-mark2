@@ -2,7 +2,7 @@
   <div class="operation-line-container">
     <!-- アクター選択 -->
     <label>
-      <span>{{ $t("label.name") }}</span>
+      <span>{{ $t("label.actor") }}</span>
       <self-actor-select v-model="actorKeyVolatile" />
     </label>
 

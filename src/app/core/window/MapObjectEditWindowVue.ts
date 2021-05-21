@@ -86,6 +86,8 @@ export default abstract class MapObjectEditWindowVue extends Mixins<
     this.name = data.data!.name;
     this.layerKey = data.data!.layerKey;
     this.isHideSubType = data.data!.isHideSubType;
+    this.subTypeKey = data.data!.subTypeKey;
+    this.subTypeValue = data.data!.subTypeValue;
     this.url = data.data!.url;
     if (this.sizeType === "size") {
       this.size = data.data!.columns;
@@ -132,6 +134,8 @@ export default abstract class MapObjectEditWindowVue extends Mixins<
     data.name = this.name;
     data.layerKey = this.layerKey;
     data.isHideSubType = this.isHideSubType;
+    data.subTypeKey = this.subTypeKey;
+    data.subTypeValue = this.subTypeValue;
     data.url = this.url;
     if (this.sizeType === "size") {
       data.rows = this.size;

@@ -213,7 +213,7 @@ type RoomInfoExtend = {
   isViewCutIn: boolean; // カットインを表示するか
   isDrawGridLine: boolean; // マップの罫線を表示するか
   isDrawGridId: boolean; // マップ座標を表示するか
-  mapRotatable: "none" | "free" | "deg15" | "deg45" | "deg90"; // マップを回転させるか
+  mapRotatable: boolean; // マップを回転させるか
   isShowStandImage: boolean; // 立ち絵を表示するか,
   standImageGridNum: number; // 立ち絵を表示する位置の数
   isShowRotateMarker: boolean; // マップオブジェクトの回転マーカーを表示するか

@@ -4,11 +4,13 @@
       class="chat-line"
       :class="{ system: chat.data.chatType === 'system-message' }"
     >
-      <span class="sender">{{ getSender(chat.data) }}：</span>
+      <span class="sender">{{ getSender(chat.data) }}</span>
+      <span class="icon-key2" v-if="chat.data.isSecret"></span>
+      <span class="sender">：</span>
       <span class="text" v-html="transText(chat.data.text)"></span>
       <div class="icon-container" v-if="!isExported">
         <span class="edited-message" v-if="isEdited">{{ editedMessage }}</span>
-        <template v-if="isEditable(chat) && chat.data.chatType === 'chat'">
+        <template v-if="isEditable(chat)">
           <span
             class="icon icon-pencil"
             @click="$emit('edit', chat.key)"

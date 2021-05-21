@@ -152,11 +152,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
 
   @Watch("roomData", { deep: true, immediate: true })
   private async onChangeRoomData() {
-    this.systemName = await BcdiceManager.instance.getSystemName(
-      this.roomData.bcdiceServer,
-      this.roomData.bcdiceVersion,
-      this.roomData.system
-    );
+    this.systemName = await BcdiceManager.instance.getSystemName();
   }
 
   private get useUserList(): StoreData<UserStore>[] {

@@ -58,7 +58,7 @@ export default class ActorAddWindow
   }
 
   public isCommitAble(): boolean {
-    return !!this.name && !this.isDuplicate;
+    return !!this.name && !this.isDuplicate();
   }
 
   public isDuplicate(): boolean {
@@ -103,7 +103,7 @@ export default class ActorAddWindow
         data: {
           name: this.name,
           tag: this.tag,
-          type: "character" as "character",
+          type: "chat-only" as "chat-only",
           chatFontColorType: this.chatFontColorType,
           chatFontColor: this.chatFontColor,
           standImagePosition: this.standImagePosition,

@@ -1,5 +1,5 @@
 <template>
-  <div ref="window-container">
+  <div class="window-container" ref="window-container">
     <version-info-component
       v-if="serverTestResult"
       :serverTestResult="serverTestResult"
@@ -64,6 +64,11 @@ export default class VersionInfoWindow extends Mixins<
 .message {
   @include flex-box(row, flex-start, center);
   padding: 0.5rem;
+}
+
+.window-container {
+  overflow-y: auto;
+  height: 100%;
 }
 
 fieldset {

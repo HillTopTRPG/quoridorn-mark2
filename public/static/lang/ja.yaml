@@ -501,10 +501,8 @@ login-window:
     - プレイルーム名
     - ゲームシステム
     - 入室人数
-    - パスワード
     - 見学
     - 最終更新時刻
-    - 削除
 
 create-new-room-window:
   window-title: 新規プレイルーム作成

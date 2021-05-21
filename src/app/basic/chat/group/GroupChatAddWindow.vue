@@ -35,6 +35,7 @@ import AddWindowDelegator, {
 } from "@/app/core/window/AddWindowDelegator";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import GroupChatInfoForm from "@/app/basic/chat/group/GroupChatInfoForm.vue";
+import GameObjectManager from "@/app/basic/GameObjectManager";
 
 @Component({ components: { GroupChatInfoForm, ButtonArea } })
 export default class GroupChatAddWindow
@@ -56,13 +57,25 @@ export default class GroupChatAddWindow
   private outputChatTabKey: string | null = null;
 
   @LifeCycle
+  public async created() {
+    this.authorityGroupKey =
+      GameObjectManager.instance.authorityGroupList.find(
+        ag => ag.data!.name === "All"
+      )?.key || "";
+  }
+
+  @LifeCycle
   public async mounted() {
     await this.addWindowDelegator.init();
     this.inputEnter("input:not([type='button'])", this.commit);
   }
 
   public isCommitAble(): boolean {
-    return !!this.name && !this.isDuplicate();
+    return (
+      Boolean(this.name) &&
+      Boolean(this.authorityGroupKey) &&
+      !this.isDuplicate()
+    );
   }
 
   public isDuplicate(): boolean {

@@ -47,7 +47,7 @@ export default class ActorEditWindow
   private chatFontColorType: "owner" | "original" = "owner";
   private chatFontColor: string = "#000000";
   private standImagePosition: number = 1;
-  private actorType: "user" | "character" = "user";
+  private actorType: "user" | "character" | "chat-only" = "user";
 
   @LifeCycle
   public async mounted() {

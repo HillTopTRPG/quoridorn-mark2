@@ -33,8 +33,8 @@ export default class UserTypeSelect extends Mixins<MultiMixin>(
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
     { value: "PL", key: "pl", text: "", disabled: false },
-    { value: "GM", key: "gm", text: "", disabled: false },
-    { value: "VISITOR", key: "visitor", text: "", disabled: false }
+    { value: "GM", key: "gm", text: "", disabled: false }
+    // { value: "VISITOR", key: "visitor", text: "", disabled: false }
   ];
 
   @LifeCycle
