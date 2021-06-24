@@ -339,7 +339,7 @@ export default class Menu extends Mixins<ComponentVue>(ComponentVue) {
           args: this.roomData.settings
         }
       })
-    )[0];
+    )?.[0];
     if (roomInfoExtend) {
       await GameObjectManager.instance.updateRoomData({
         settings: roomInfoExtend

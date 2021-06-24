@@ -217,6 +217,7 @@ export default class MediaUploadWindow extends Mixins<
 
   @VueEvent
   private async commit() {
+    console.log("MediaUploadWindow");
     await mediaUpload({
       uploadMediaInfoList: this.localResultList,
       option: { permission: GameObjectManager.PERMISSION_OWNER_VIEW }

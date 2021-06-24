@@ -83,7 +83,7 @@ export default class UserLoginWindow extends Mixins<
   private isMounted: boolean = false;
   private isSetting: boolean = false;
   private visitable: boolean = false;
-  private userList: StoreData<UserStore>[] | null = null;
+  private userList: StoreData<UserStore>[] | null = [];
 
   @LifeCycle
   public async created() {
@@ -97,8 +97,8 @@ export default class UserLoginWindow extends Mixins<
     this.inputEnter(".base-area input:not([type='button'])", this.commit);
     this.isSetting = this.windowInfo.args!.isSetting;
     this.visitable = this.windowInfo.args!.visitable;
-    this.userList = await SocketFacade.instance.userCC().getList(true);
     if (!this.isSetting) {
+      this.userList = await SocketFacade.instance.userCC().getList(true);
       this.windowInfo.heightEm = 9.5;
       this.windowInfo.declare.size.heightEm = 9.5;
       this.windowInfo.declare.minSize!.heightEm = 9.5;

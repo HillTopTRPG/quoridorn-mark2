@@ -31,9 +31,6 @@ export default class ChatColorTypeSelect extends Mixins<MultiMixin>(
   @Prop({ type: String, required: true })
   private actorType!: "user" | "character";
 
-  @Prop({ type: String, default: "owner" })
-  public value!: string;
-
   private optionInfoList: HtmlOptionInfo[] = [
     { value: "", key: "", text: "", disabled: true },
     { value: "owner", key: "", text: "", disabled: false },

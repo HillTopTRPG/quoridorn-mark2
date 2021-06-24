@@ -94,7 +94,7 @@ async function scanEntryFiles(
   folderPath: string
 ): Promise<void> {
   if ("kind" in entry && entry.kind === "string") {
-    await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       entry.getAsString((result: string) => {
         const textList = getResultList(result);
         if (textList.length) resultList.push(...textList);

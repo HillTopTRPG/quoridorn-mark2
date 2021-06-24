@@ -614,6 +614,46 @@ export default class SocketFacade {
     );
   }
 
+  public async initAfterRoomCreate() {
+    if (this.__roomCollectionPrefix == null) {
+      throw new ApplicationError("this.__roomCollectionPrefix is null.");
+    }
+    this.chatListCC();
+    this.chatTabListCC();
+    this.groupChatTabListCC();
+    this.sceneListCC();
+    this.sceneLayerCC();
+    this.sceneObjectCC();
+    this.actorStatusCC();
+    this.sceneAndLayerCC();
+    this.sceneAndObjectCC();
+    this.roomDataCC();
+    this.mediaCC();
+    this.cutInDataCC();
+    this.userCC();
+    this.socketUserCC();
+    this.resourceMasterCC();
+    this.resourceCC();
+    this.initiativeColumnCC();
+    this.propertySelectionCC();
+    this.actorCC();
+    this.authorityGroupCC();
+    this.cardMetaCC();
+    this.cardObjectCC();
+    this.cardDeckBigCC();
+    this.cardDeckSmallCC();
+    this.chatPaletteListCC();
+    this.diceTypeListCC();
+    this.diceAndPipsListCC();
+    this.memoCC();
+    this.keepBcdiceDiceRollResultListCC();
+    this.publicMemoListCC();
+    this.likeListCC();
+    this.counterRemoconCC();
+    this.mapDrawListCC();
+    this.originalTableListCC();
+  }
+
   public mapDrawListCC() {
     return this.roomCollectionController<MapDrawStore>("map-draw-list");
   }

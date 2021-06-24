@@ -231,7 +231,7 @@ type LikeStore = {
 type MediaStore = {
   name: string;
   rawPath: string;
-  mediaFileId: string;
+  mediaFileId: string; // s3ストレージに保存されるファイル名
   tag: string;
   url: string;
   urlType: UrlType;

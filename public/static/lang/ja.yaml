@@ -423,6 +423,8 @@ label:
   command: コマンド
   dice-roll: ダイスロール
   list: 一覧
+  used: 使用中
+  unused: 未使用
 
 message:
   copy-to-clipboard: クリップボードにコピーしました。

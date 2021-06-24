@@ -35,11 +35,7 @@ import {
 } from "@/@types/store-data";
 import { PartialRoomData, UserType } from "@/@types/store-data-optional";
 import { OriginalTableStore } from "@/@types/room";
-import {
-  errorDialog,
-  findByKey,
-  findRequireByKey
-} from "@/app/core/utility/Utility";
+import { errorDialog, findByKey } from "@/app/core/utility/Utility";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
@@ -447,7 +443,7 @@ export default class GameObjectManager {
 
   public static isOwn(data: StoreData<any>): boolean {
     const rootOwner = GameObjectManager.getRootOwner(data);
-    return !!rootOwner && rootOwner.owner === SocketFacade.instance.userKey;
+    return !!rootOwner && rootOwner.key === SocketFacade.instance.userKey;
   }
 
   public static getRootOwnerType(

@@ -362,7 +362,7 @@ export default class LoginWindow extends Mixins<
     this.isInputtingServerSetting = true;
 
     // アプリケーションサーバ設定入力画面
-    let appServerSettingInput: AppServerSettingInput;
+    let appServerSettingInput: AppServerSettingInput | null;
     try {
       const appServerSettingInputList = await TaskManager.instance.ignition<
         WindowOpenInfo<void>,
@@ -374,7 +374,7 @@ export default class LoginWindow extends Mixins<
           type: "app-server-setting-window"
         }
       });
-      appServerSettingInput = appServerSettingInputList[0];
+      appServerSettingInput = appServerSettingInputList?.[0] ?? null;
       this.isInputtingServerSetting = false;
     } catch (err) {
       console.warn(err);
@@ -509,7 +509,7 @@ export default class LoginWindow extends Mixins<
     if (!(await this.touchRoom(true, order))) return;
 
     // 確認画面
-    let confirmResult: boolean;
+    let confirmResult: boolean | null;
     this.roomStatus = "processing";
 
     try {
@@ -527,7 +527,7 @@ export default class LoginWindow extends Mixins<
           }
         }
       });
-      confirmResult = confirmResultList[0];
+      confirmResult = confirmResultList?.[0] ?? null;
     } catch (err) {
       console.warn(err);
       await this.releaseTouchRoom(order);
@@ -543,7 +543,7 @@ export default class LoginWindow extends Mixins<
     }
 
     // 部屋削除入力画面
-    let deleteRoomInput: DeleteRoomInput;
+    let deleteRoomInput: DeleteRoomInput | null;
     try {
       const deleteRoomInputList = await TaskManager.instance.ignition<
         WindowOpenInfo<never>,
@@ -555,7 +555,7 @@ export default class LoginWindow extends Mixins<
           type: "delete-room-window"
         }
       });
-      deleteRoomInput = deleteRoomInputList[0];
+      deleteRoomInput = deleteRoomInputList?.[0] ?? null;
     } catch (err) {
       console.warn(err);
       await this.releaseTouchRoom(order);
@@ -661,7 +661,7 @@ export default class LoginWindow extends Mixins<
     /* ----------------------------------------------------------------------
      * 部屋情報入力画面
      */
-    let createRoomInput: CreateRoomInput;
+    let createRoomInput: CreateRoomInput | null;
     try {
       const roomInfoList = await TaskManager.instance.ignition<
         WindowOpenInfo<boolean>,
@@ -674,7 +674,7 @@ export default class LoginWindow extends Mixins<
           args: this.isNeedRoomCreatePassword
         }
       });
-      createRoomInput = roomInfoList[0];
+      createRoomInput = roomInfoList?.[0] ?? null;
     } catch (err) {
       console.warn(err);
       await this.releaseTouchRoom();
@@ -692,7 +692,7 @@ export default class LoginWindow extends Mixins<
     /* ----------------------------------------------------------------------
      * ユーザログイン画面
      */
-    let userLoginInput: UserLoginInput;
+    let userLoginInput: UserLoginInput | null;
     try {
       const userLoginInputList = await TaskManager.instance.ignition<
         WindowOpenInfo<UserLoginWindowInput>,
@@ -710,7 +710,7 @@ export default class LoginWindow extends Mixins<
           }
         }
       });
-      userLoginInput = userLoginInputList[0];
+      userLoginInput = userLoginInputList?.[0] ?? null;
 
       if (!userLoginInput) {
         // 入力画面キャンセル
@@ -749,6 +749,7 @@ export default class LoginWindow extends Mixins<
         roomNo: this.selectedRoomNo,
         ...createRoomInput
       });
+      await SocketFacade.instance.initAfterRoomCreate();
     } catch (err) {
       console.warn(err);
       await errorDialog({
@@ -903,7 +904,7 @@ export default class LoginWindow extends Mixins<
 
     this.roomStatus = "processing";
 
-    let loginRoomInput: LoginRoomInput;
+    let loginRoomInput: LoginRoomInput | null;
     if (this.urlPassword !== null) {
       loginRoomInput = {
         roomPassword: this.urlPassword
@@ -923,7 +924,7 @@ export default class LoginWindow extends Mixins<
             type: "login-room-window"
           }
         });
-        loginRoomInput = loginRoomInputList[0];
+        loginRoomInput = loginRoomInputList?.[0] ?? null;
 
         if (!loginRoomInput) {
           // 入力画面キャンセル
@@ -953,6 +954,7 @@ export default class LoginWindow extends Mixins<
         roomNo: this.selectedRoomNo,
         ...loginRoomInput
       });
+      await SocketFacade.instance.initAfterRoomCreate();
     } catch (err) {
       console.warn(err);
       await errorDialog({
@@ -966,7 +968,7 @@ export default class LoginWindow extends Mixins<
     /* ----------------------------------------------------------------------
      * ユーザログイン画面
      */
-    let userLoginInput: UserLoginInput;
+    let userLoginInput: UserLoginInput | null;
     try {
       const userLoginInputList = await TaskManager.instance.ignition<
         WindowOpenInfo<UserLoginWindowInput>,
@@ -986,7 +988,7 @@ export default class LoginWindow extends Mixins<
           }
         }
       });
-      userLoginInput = userLoginInputList[0];
+      userLoginInput = userLoginInputList?.[0] ?? null;
 
       if (!userLoginInput) {
         // 入力画面キャンセル

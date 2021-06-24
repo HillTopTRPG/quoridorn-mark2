@@ -61,7 +61,7 @@ async function getMediaLineage(
     jsonFileList.push(d);
   });
 
-  let importRawData = await jsonFileList2JsonList(jsonFileList);
+  const importRawData = await jsonFileList2JsonList(jsonFileList);
   const createResult = (
     exportLevel: "part" | "full",
     rawData: StoreData<any>[]
@@ -144,28 +144,31 @@ export async function importInjection(dropList: (string | File)[]) {
     ui.dataLocation = mediaInfo.data!.dataLocation;
     ui.urlType = mediaInfo.data!.urlType;
   });
-  const mediaUploadResult = await mediaUpload({
-    uploadMediaInfoList,
-    option: { permission: GameObjectManager.PERMISSION_OWNER_VIEW }
-  });
 
   const conversionList: {
     from: RegExp;
     to: (match: string, p1: string) => string;
   }[] = [];
 
-  // メディアKeyの置換
-  conversionList.push(
-    ...mediaUploadResult.map(mu => ({
-      from: new RegExp(
-        `"mediaKey": ?"${
-          mediaInfoList.find(mi => mi.data!.rawPath === mu.rawPath)!.key
-        }"`,
-        "g"
-      ),
-      to: () => `"mediaKey":"${mu.key}"`
-    }))
-  );
+  if (uploadMediaInfoList.length) {
+    const mediaUploadResult = await mediaUpload({
+      uploadMediaInfoList,
+      option: { permission: GameObjectManager.PERMISSION_OWNER_VIEW }
+    });
+
+    // メディアKeyの置換
+    conversionList.push(
+      ...mediaUploadResult.map(mu => ({
+        from: new RegExp(
+          `"mediaKey": ?"${
+            mediaInfoList.find(mi => mi.data!.rawPath === mu.rawPath)!.key
+          }"`,
+          "g"
+        ),
+        to: () => `"mediaKey":"${mu.key}"`
+      }))
+    );
+  }
 
   // TODO User Key の置
   // TODO Actor Key の置換

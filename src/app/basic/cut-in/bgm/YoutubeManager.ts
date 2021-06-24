@@ -66,7 +66,7 @@ export default class YoutubeManager {
   private static getUrlParam(name: string, url: string) {
     name = name.replace(/[[\]]/g, "\\$&");
     const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-    let results = regex.exec(url);
+    const results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return "";
     return decodeURIComponent(results[2].replace(/\+/g, " "));
@@ -166,13 +166,13 @@ export default class YoutubeManager {
   }
 
   public addEventHandler(elementId: string, eventHandler: YoutubeEventHandler) {
-    let playerObj = this.playerMapping[elementId];
+    const playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
     playerObj.eventHandlers.push(eventHandler);
   }
 
   public destroyed(elementId: string) {
-    let playerObj = this.playerMapping[elementId];
+    const playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
     if (playerObj.timeUpdateTimer !== null) {
       clearInterval(playerObj.timeUpdateTimer);
@@ -205,7 +205,7 @@ export default class YoutubeManager {
     { start, end, bgmKey }: CutInStore,
     suggestedQuality: string = "small"
   ) {
-    let playerObj = this.playerMapping[elementId];
+    const playerObj = this.playerMapping[elementId];
     if (!playerObj) return;
 
     const mediaList = GameObjectManager.instance.mediaList;
@@ -363,14 +363,14 @@ export default class YoutubeManager {
 
   private eventHandler = {
     onReady: (elementId: string) => {
-      let playerObj = this.playerMapping[elementId];
+      const playerObj = this.playerMapping[elementId];
       if (!playerObj) return;
       playerObj.eventHandlers.forEach(eh => {
         eh.onReady();
       });
     },
     onEnded: (elementId: string) => {
-      let playerObj = this.playerMapping[elementId];
+      const playerObj = this.playerMapping[elementId];
       if (!playerObj) return;
       playerObj.eventHandlers.forEach(eh => {
         eh.onEnded();
@@ -378,7 +378,7 @@ export default class YoutubeManager {
     },
     onPlaying: (elementId: string, event: any) => {
       try {
-        let playerObj = this.playerMapping[elementId];
+        const playerObj = this.playerMapping[elementId];
         if (!playerObj) return;
 
         // 既にタイマーが張られていたら停止する
@@ -401,7 +401,7 @@ export default class YoutubeManager {
       });
     },
     onPaused: (elementId: string) => {
-      let playerObj = this.playerMapping[elementId];
+      const playerObj = this.playerMapping[elementId];
       if (!playerObj) return;
 
       // 既にタイマーが張られていたら停止する
