@@ -1,6 +1,7 @@
-import * as Socket from "socket.io-client";
-import SocketDriver from "nekostore/lib/driver/socket";
-import Nekostore from "nekostore/lib/Nekostore";
+import EventEmitter from "nekostore/lib/driver/basic/EventEmitter.d";
+
+const io = require("socket.io-client");
+import SocketDriver from "nekostore/lib/driver/socket/index.d";
 import yaml from "js-yaml";
 import {
   ActorStatusStore,
@@ -56,6 +57,8 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
 import NekostoreCollectionController from "@/app/core/api/app-server/NekostoreCollectionController";
 import { loadYaml } from "@/app/core/utility/FileUtility";
+import Nekostore from "nekostore/lib/Nekostore.js";
+// aa
 
 export type ConnectInfo = {
   quoridornServer: string | string[];
@@ -117,6 +120,11 @@ export function permissionCheck(
         if (pn.key === GameObjectManager.instance.mySelfActorKey) return true;
       }
       if (pn.type === "owner") {
+        // if (data.key === "97342157-390e-4b02-8c48-b7344f9a8097") {
+        //   console.log("#######");
+        //   const rootOwner = GameObjectManager.getRootOwner(data);
+        //   console.log(rootOwner);
+        // }
         return GameObjectManager.isOwn(data);
       }
       return false;
@@ -135,7 +143,7 @@ export default class SocketFacade {
 
   private static _instance: SocketFacade;
 
-  private socket: SocketIOClient.Socket | null = null;
+  private socket: EventEmitter | null = null;
   private nekostore: Nekostore | null = null;
   private __appServerUrl: string | null = null;
   private readonly __appServerUrlList: DefaultServerInfo[] = [];
@@ -225,35 +233,41 @@ export default class SocketFacade {
   public async setAppServerUrl(appServerUrl: string) {
     this.__appServerUrl = appServerUrl;
     if (this.socket) await this.destroy();
-    this.socket = Socket.connect(appServerUrl);
+    try {
+      console.log("#$#$#$#$#$#$#$#$");
+      this.socket = io(appServerUrl);
+    } catch (e) {
+      console.log(e);
+      return;
+    }
     this.nekostore = new Nekostore(
       new SocketDriver({
-        socket: this.socket,
+        socket: this.socket!,
         timeout: this.__connectInfo!.socketTimeout
       })
     );
-    this.socket.on("connect", async () => {
+    this.socket!.on("connect", async () => {
       await TaskManager.instance.ignition<never, never>({
         type: "socket-connect",
         owner: "Quoridorn",
         value: null
       });
     });
-    this.socket.on("connect_error", async (err: any) => {
+    this.socket!.on("connect_error", async (err: any) => {
       await TaskManager.instance.ignition<any, never>({
         type: "socket-connect-error",
         owner: "Quoridorn",
         value: err
       });
     });
-    this.socket.on("reconnecting", async (err: any) => {
+    this.socket!.on("reconnecting", async (err: any) => {
       await TaskManager.instance.ignition<any, never>({
         type: "socket-reconnecting",
         owner: "Quoridorn",
         value: err
       });
     });
-    this.socket.on("connect_timeout", async (timeout: any) => {
+    this.socket!.on("connect_timeout", async (timeout: any) => {
       console.log("connect_timeout", timeout);
     });
   }
@@ -274,6 +288,7 @@ export default class SocketFacade {
     try {
       resp = await this.testServer(url);
     } catch (err) {
+      console.error(err);
       console.error(`${err}. url:${url}`);
       return;
     }
@@ -294,7 +309,7 @@ export default class SocketFacade {
         delete this.collectionControllerMap[collectionName];
       }
     );
-    this.socket!.disconnect();
+    (this.socket! as any).disconnect();
   }
 
   public getAllCC(): NekostoreCollectionController<any>[] {
@@ -310,6 +325,9 @@ export default class SocketFacade {
   }
 
   public set roomCollectionPrefix(val: string | null) {
+    console.log("#############");
+    console.log(val);
+    console.log("#############");
     this.__roomCollectionPrefix = val;
   }
 
@@ -352,12 +370,15 @@ export default class SocketFacade {
     event: string,
     args?: T
   ): Promise<U> {
+    console.log("doSocketCommunication", event);
     return new Promise<U>((resolve, reject) => {
       this.socket!.once(`result-${event}`, (err: any, result: U) => {
         if (err) {
+          console.error(err);
           reject(err);
           return;
         }
+        console.log(`result-${event}`);
         resolve(result);
       });
       this.socket!.emit(event, args);
@@ -366,8 +387,11 @@ export default class SocketFacade {
 
   public async testServer(url: string): Promise<ServerTestResult> {
     return new Promise<ServerTestResult>((resolve, reject) => {
-      const socket = Socket.connect(url);
+      console.log("##### BINGO!!!!!");
+      const socket = io(url);
+      // this.socket = socket;
       socket.on("connect", async () => {
+        console.log("connected");
         setTimeout(() => {
           socket.emit("get-version");
         }, 100);
@@ -448,8 +472,12 @@ export default class SocketFacade {
     suffix: string
   ): NekostoreCollectionController<T> {
     const collectionName = `${this.__roomCollectionPrefix}-DATA-${suffix}`;
-    let controller = this.collectionControllerMap[collectionName];
+    const controller = this.collectionControllerMap[collectionName];
     if (controller) return controller as NekostoreCollectionController<T>;
+
+    console.log("======================");
+    console.log(collectionName);
+    console.log("======================");
 
     const cc = new NekostoreCollectionController<T>(
       this.socket,
@@ -612,6 +640,46 @@ export default class SocketFacade {
     return this.roomCollectionController<CounterRemoconStore>(
       "counter-remocon-list"
     );
+  }
+
+  public async initAfterRoomCreate() {
+    if (this.__roomCollectionPrefix == null) {
+      throw new ApplicationError("this.__roomCollectionPrefix is null.");
+    }
+    this.chatListCC();
+    this.chatTabListCC();
+    this.groupChatTabListCC();
+    this.sceneListCC();
+    this.sceneLayerCC();
+    this.sceneObjectCC();
+    this.actorStatusCC();
+    this.sceneAndLayerCC();
+    this.sceneAndObjectCC();
+    this.roomDataCC();
+    this.mediaCC();
+    this.cutInDataCC();
+    this.userCC();
+    this.socketUserCC();
+    this.resourceMasterCC();
+    this.resourceCC();
+    this.initiativeColumnCC();
+    this.propertySelectionCC();
+    this.actorCC();
+    this.authorityGroupCC();
+    this.cardMetaCC();
+    this.cardObjectCC();
+    this.cardDeckBigCC();
+    this.cardDeckSmallCC();
+    this.chatPaletteListCC();
+    this.diceTypeListCC();
+    this.diceAndPipsListCC();
+    this.memoCC();
+    this.keepBcdiceDiceRollResultListCC();
+    this.publicMemoListCC();
+    this.likeListCC();
+    this.counterRemoconCC();
+    this.mapDrawListCC();
+    this.originalTableListCC();
   }
 
   public mapDrawListCC() {

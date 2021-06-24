@@ -53,6 +53,7 @@ export default class MediaFileAddWindow extends Mixins<
   private async commit() {
     if (!this.isCommitAble) return;
 
+    console.log("MediaFileAddWindow");
     await mediaUpload({
       uploadMediaInfoList: await exchangeMediaInfo(
         this.url,

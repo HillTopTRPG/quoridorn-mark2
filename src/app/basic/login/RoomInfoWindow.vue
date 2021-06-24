@@ -218,7 +218,7 @@ export default class RoomInfoWindow extends Mixins<WindowVue<never, never>>(
           args: this.roomData
         }
       })
-    )[0];
+    )?.[0];
     if (roomData) {
       await GameObjectManager.instance.updateRoomData(roomData);
     }

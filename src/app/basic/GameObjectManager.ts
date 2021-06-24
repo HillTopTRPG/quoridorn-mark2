@@ -1,4 +1,4 @@
-import DocumentSnapshot from "nekostore/lib/DocumentSnapshot";
+import DocumentSnapshot from "nekostore/lib/DocumentSnapshot.d";
 import {
   ActorStatusStore,
   ActorStore,
@@ -35,11 +35,7 @@ import {
 } from "@/@types/store-data";
 import { PartialRoomData, UserType } from "@/@types/store-data-optional";
 import { OriginalTableStore } from "@/@types/room";
-import {
-  errorDialog,
-  findByKey,
-  findRequireByKey
-} from "@/app/core/utility/Utility";
+import { errorDialog, findByKey } from "@/app/core/utility/Utility";
 import SocketFacade from "@/app/core/api/app-server/SocketFacade";
 import LanguageManager from "@/LanguageManager";
 import { ApplicationError } from "@/app/core/error/ApplicationError";
@@ -62,7 +58,7 @@ export type ChatFormatInfo = {
 };
 
 export default class GameObjectManager {
-  // シングルトン
+  // シングルトンa
   public static get instance(): GameObjectManager {
     if (!GameObjectManager._instance)
       GameObjectManager._instance = new GameObjectManager();
@@ -99,6 +95,7 @@ export default class GameObjectManager {
    * GameObjectManagerのイニシャライズ
    */
   public async initialize() {
+    console.log("###$# initialize");
     const sf = SocketFacade.instance;
     // Block 1
     await Promise.all([
@@ -152,6 +149,7 @@ export default class GameObjectManager {
       sf.groupChatTabListCC().getList(true, this.groupChatTabList),
       sf.likeListCC().getList(true, this.likeList)
     ]);
+    console.log("###$# initialize 2");
 
     const roomDataCC = sf.roomDataCC();
     const roomData = (await roomDataCC.getList(false))[0];
@@ -447,7 +445,7 @@ export default class GameObjectManager {
 
   public static isOwn(data: StoreData<any>): boolean {
     const rootOwner = GameObjectManager.getRootOwner(data);
-    return !!rootOwner && rootOwner.owner === SocketFacade.instance.userKey;
+    return !!rootOwner && rootOwner.key === SocketFacade.instance.userKey;
   }
 
   public static getRootOwnerType(

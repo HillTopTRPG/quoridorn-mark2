@@ -207,7 +207,7 @@ export function calcWindowPosition(
 ): Point {
   if (typeof position !== "string") return position;
 
-  let point: Point = createPoint(0, 0);
+  const point: Point = createPoint(0, 0);
   const sceneSize = getPageSize();
   const sceneCenter = calcCenter({
     ...createPoint(0, menuHeight),

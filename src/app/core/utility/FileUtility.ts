@@ -259,9 +259,9 @@ async function raw2UploadMediaInfo(
   raw: string | File,
   meta?: { urlType: UrlType; iconClass: IconClass }
 ): Promise<{ uploadMediaInfo: UploadMediaInfo; raw: string | File }> {
-  let rawText: string = typeof raw === "string" ? raw : raw.name;
+  const rawText: string = typeof raw === "string" ? raw : raw.name;
   const rawPath = rawText;
-  let name = ""; // 後で必ず上書き
+  let name: string;
   const tag = "";
   if (!meta) meta = getUrlTypes(rawText);
 

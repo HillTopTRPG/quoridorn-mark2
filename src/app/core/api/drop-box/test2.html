@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<body>
+<div style="display: inline-flex; flex-direction: column; align-content: flex-start;">
+  <label>Token: <input id="token" type="text"></label>
+  <label>zipFile: <input id="zipFile" type="file" accept="application/zip"></label>
+  <label>roomNo: <input id="roomNo" type="number"></label>
+  <div class="button-area">
+    <button id="btn-download">download</button>
+    <button id="btn-upload">upload</button>
+  </div>
+</div>
+<script>
+document.getElementById("btn-upload").addEventListener("click", async () => {
+  const url = "http://localhost:8000/web-api/v1/room";
+  const roomNo = document.getElementById("roomNo").valueAsNumber;
+  const zipFile = document.getElementById("zipFile").files[0];
+
+  const formData = new FormData();
+  formData.append("roomNo", roomNo);
+  formData.append("zipFile", zipFile);
+
+  const response = await window.fetch(url, {
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, cors, *same-origin
+    cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "omit", // include, same-origin, *omit
+    // headers: {
+    //   "Authorization": `Bearer ${token}`
+    // },
+    redirect: "follow", // manual, *follow, error
+    referrer: "client", // no-referrer, *client
+    body: formData
+  });
+
+  if (response.status === 200) {
+    console.log("success");
+  } else {
+    alert("error");
+  }
+
+});
+document.getElementById("btn-download").addEventListener("click", async () => {
+  const url = "http://localhost:8000/web-api/v1/room";
+  const token = document.getElementById("token").value;
+  const roomNo = document.getElementById("roomNo").valueAsNumber;
+
+  const response = await window.fetch(url, {
+    method: "GET", // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, cors, *same-origin
+    cache: "default", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "omit", // include, same-origin, *omit
+    headers: {
+      "Authorization": `Bearer ${token}`
+    },
+    redirect: "follow", // manual, *follow, error
+    referrer: "client", // no-referrer, *client
+    body: null
+  });
+
+  if (response.status === 200) {
+    const fileName = response.headers
+      .get("Content-Disposition")
+      ?.match(/attachment; *filename="([^"]+)"/)?.[1];
+    console.log(response.headers.get("Content-Type"));
+
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], {type: "application/zip"});
+    // const src = window.URL.createObjectURL(blob);
+    // window.navigator.msSaveBlob(blob, "test.txt");
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    document.body.appendChild(a);
+    // a.download = "archive.zip";
+    a.download = fileName;
+    a.href = blobUrl;
+    a.click();
+    a.remove();
+    console.log(fileName);
+  } else {
+    alert("error");
+  }
+});
+</script>
+</body>
+</html>

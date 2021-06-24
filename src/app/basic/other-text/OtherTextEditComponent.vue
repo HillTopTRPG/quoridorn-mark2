@@ -301,7 +301,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
           args: this.localValue
         }
       })
-    )[0];
+    )?.[0];
     if (result) {
       listToEmpty(this.localValue);
       this.localValue.push(...result);
@@ -347,19 +347,20 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
   private async onCLickChmodTab() {
     const target = this.currentTabInfo!.target;
     const currentValue = this.localValue.find(lv => lv.key === target)!;
-    currentValue.permission = (
-      await TaskManager.instance.ignition<
-        WindowOpenInfo<Permission>,
-        Permission
-      >({
-        type: "window-open",
-        owner: "Quoridorn",
-        value: {
-          type: "chmod-input-window",
-          args: currentValue.permission!
-        }
-      })
-    )[0];
+    currentValue.permission =
+      (
+        await TaskManager.instance.ignition<
+          WindowOpenInfo<Permission>,
+          Permission
+        >({
+          type: "window-open",
+          owner: "Quoridorn",
+          value: {
+            type: "chmod-input-window",
+            args: currentValue.permission!
+          }
+        })
+      )?.[0] ?? null;
   }
 
   @VueEvent
@@ -390,7 +391,7 @@ export default class OtherTextEditComponent extends Mixins<ComponentVue>(
           }
         }
       })
-    )[0];
+    )?.[0];
   }
 
   @VueEvent

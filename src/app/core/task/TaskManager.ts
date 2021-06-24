@@ -106,7 +106,9 @@ export default class TaskManager {
    * タスク実行
    * @param taskInput タスク情報
    */
-  public async ignition<T, U>(taskInput: TaskInput<T>): Promise<U[]> {
+  public async ignition<T, U>(
+    taskInput: TaskInput<T>
+  ): Promise<U[] | undefined> {
     const taskKey: string = uuid.v4();
     const taskDeclareJson = this.taskDeclareJsonList.find(tdj =>
       tdj.types.some(t => t === taskInput.type)
@@ -129,7 +131,7 @@ export default class TaskManager {
       console.warn(`🐧💢${taskInput.type}`);
     }, 300);
 
-    return new Promise(
+    return new Promise<U[] | undefined>(
       async (
         resolve: (resultList?: U[]) => void,
         reject: (reason?: any) => void
@@ -228,7 +230,7 @@ export default class TaskManager {
     task: Task<T, U>
   ): Promise<TaskResult<U>[] | null> {
     const eventName: string = `${task.type}-${task.status}`;
-    let logText: string = `🐧💣${eventName}`;
+    const logText: string = `🐧💣${eventName}`;
 
     // 登録された処理の呼び出し
     const param: any = this.taskParam[eventName];

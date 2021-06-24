@@ -70,6 +70,7 @@ import GameObjectManager from "@/app/basic/GameObjectManager";
 import SButton from "@/app/basic/common/components/SButton.vue";
 import { getYoutubeThunbnail } from "@/app/basic/cut-in/bgm/YoutubeManager";
 import VueEvent from "@/app/core/decorator/VueEvent";
+import LanguageManager from "@/LanguageManager";
 
 @Component({ components: { SButton } })
 export default class MediaItemComponent extends Mixins<ComponentVue>(
@@ -83,10 +84,13 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private getMediaRefListStr(media: StoreData<MediaStore>): string {
-    return media.refList
-      .map(ref => `[${ref.type}]`)
-      .filter((type, index, self) => self.findIndex(s => s === type) === index)
-      .join(", ");
+    return LanguageManager.instance.getText(
+      `label.${media.refList.length ? "used" : "unused"}`
+    );
+    // return media.refList
+    //   .map(ref => `[${ref.type}]`)
+    //   .filter((type, index, self) => self.findIndex(s => s === type) === index)
+    //   .join(", ");
   }
 
   @VueEvent
@@ -162,7 +166,7 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
 
   @VueEvent
   private get isDeletable() {
-    return permissionCheck(this.media, "edit");
+    return permissionCheck(this.media, "edit") && !this.media.refList.length;
   }
 }
 </script>
@@ -177,9 +181,14 @@ export default class MediaItemComponent extends Mixins<ComponentVue>(
   box-sizing: content-box;
 
   .name {
+    @include flex-box(row, flex-start, center);
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  .ref-list {
+    margin-left: auto;
   }
 
   &.thumbnail-mode {

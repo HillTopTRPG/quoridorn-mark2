@@ -101,9 +101,9 @@ abstract class BcdiceApiCommander {
     );
   }
 
-  abstract async getSystemList(): Promise<DiceSystem[]>;
-  abstract async getSystemInfo(system: string): Promise<BcdiceSystemInfo>;
-  abstract async sendCommand(
+  abstract getSystemList(): Promise<DiceSystem[]>;
+  abstract getSystemInfo(system: string): Promise<BcdiceSystemInfo>;
+  abstract sendCommand(
     system: string,
     command: string
   ): Promise<BcdiceDiceRollResult>;

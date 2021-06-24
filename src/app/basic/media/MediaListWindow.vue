@@ -156,6 +156,7 @@ export default class MediaListWindow extends Mixins<WindowVue<void, never>>(
     this.windowInfo.message = this.$t(
       "media-list-window.message-list.how-to-upload"
     ).toString();
+    console.log(this.mediaList.map(m => m.data!.tag));
     this.tabList = this.mediaList
       .filter(m => permissionCheck(m, "view"))
       .map(m => m.data!.tag)

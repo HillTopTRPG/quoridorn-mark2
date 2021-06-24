@@ -557,7 +557,7 @@ export default class BcdiceSystemInput extends Mixins<ComponentVue>(
         args: { url: this.url, version: this.bcdiceVersion }
       }
     });
-    if (resultList.length) {
+    if (resultList?.length) {
       this.localUrl = resultList[0].url;
       this.bcdiceVersionVolatile = resultList[0].version;
     }

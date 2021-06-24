@@ -141,19 +141,20 @@ export default class MemoTabSettingWindow extends Mixins<
   @VueEvent
   private async chmodTab(tabInfo: StoreData<MemoStore>) {
     const useMemo = this.useMemoList.find(lv => lv.key === tabInfo.key)!;
-    useMemo.permission = (
-      await TaskManager.instance.ignition<
-        WindowOpenInfo<Permission>,
-        Permission
-      >({
-        type: "window-open",
-        owner: "Quoridorn",
-        value: {
-          type: "chmod-input-window",
-          args: useMemo.permission!
-        }
-      })
-    )[0];
+    useMemo.permission =
+      (
+        await TaskManager.instance.ignition<
+          WindowOpenInfo<Permission>,
+          Permission
+        >({
+          type: "window-open",
+          owner: "Quoridorn",
+          value: {
+            type: "chmod-input-window",
+            args: useMemo.permission!
+          }
+        })
+      )?.[0] ?? null;
   }
 
   @VueEvent
@@ -179,7 +180,7 @@ export default class MemoTabSettingWindow extends Mixins<
           }
         }
       })
-    )[0];
+    )?.[0];
   }
 
   @VueEvent
