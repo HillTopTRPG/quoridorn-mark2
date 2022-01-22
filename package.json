@@ -37,7 +37,7 @@
     "mongodb": "^3.4.1",
     "mustache": "^4.0.1",
     "nekostore": "^0.6.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "sass-loader": "^10.1.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
