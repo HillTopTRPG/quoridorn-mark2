@@ -33,7 +33,7 @@
     "jszip": "^3.2.2",
     "mathjs": "^6.5.0",
     "mingo": "^2.4.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "mongodb": "^3.4.1",
     "mustache": "^4.0.1",
     "nekostore": "^0.6.0",
